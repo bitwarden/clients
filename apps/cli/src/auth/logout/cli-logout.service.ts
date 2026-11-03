@@ -3,6 +3,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { LogoutReason, LogoutService, NewActiveUser } from "@bitwarden/common/auth/logout";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -25,10 +26,15 @@ export class CliLogoutService implements LogoutService {
     private stateService: StateService,
     private tokenService: TokenService,
     private logService: LogService,
+    private sdkService: SdkService,
   ) {}
 
   async logout(userId: UserId, logoutReason: LogoutReason): Promise<NewActiveUser | undefined> {
     this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
+
+    // Dispose the SDK client before clearing the user's keys and state, so nothing that
+    // reacts to the logout can still use it.
+    this.sdkService.logout(userId);
 
     this.authService.logOut(() => {
       /* Do nothing */

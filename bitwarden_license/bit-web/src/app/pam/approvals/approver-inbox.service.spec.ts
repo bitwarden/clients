@@ -563,4 +563,16 @@ describe("ApproverInboxService", () => {
     const history = await firstValueFrom(service.historyRows$);
     expect(history.map((r) => r.id)).toEqual(["newer", "older"]);
   });
+
+  it("folds an applied extension into its original history row", async () => {
+    const requestEnd = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    const extendedEnd = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    approvalApi.listHistory.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
+
+    await service.load();
+
+    const history = await firstValueFrom(service.historyRows$);
+    expect(history.map((r) => r.id)).toEqual(["original"]);
+    expect(history[0].extendedUntil).toBe(extendedEnd);
+  });
 });

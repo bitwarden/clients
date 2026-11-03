@@ -47,6 +47,14 @@ export type MyAccessRequestRow = {
   /** The human resolver's name, falling back to email; null when neither is known. */
   resolverName: string | null;
   approverComment: string | null;
+  /** The requester's name, falling back to email; blank when the server resolved neither. */
+  requester: string;
+  requesterEmail: string | null;
+  /**
+   * The latest human Deny, and so whoever ended the request: an approver denying it, withdrawing
+   * its approval or revoking its lease, or the holder ending their own lease. Null when none did.
+   */
+  finalDeny: FinalDeny | null;
   /** The raw id of the lease this request minted; null if it never activated one. */
   producedLeaseId: string | null;
   /**
@@ -54,6 +62,8 @@ export type MyAccessRequestRow = {
    * derives from it.
    */
   producedLeaseStatus: AccessLeaseStatus | null;
+  /** The produced lease's current end, which moves when it is extended; null until activation. */
+  producedLeaseNotAfter: string | null;
   /** Set only when the minted lease was extended; see {@link buildMyAccessRequestRows}. */
   extendedBySeconds: number | null;
   extendedUntil: string | null;
@@ -74,6 +84,9 @@ export type MyAccessLeaseRow = {
   extendedBySeconds: number | null;
   extendedUntil: string | null;
 };
+
+/** Who recorded a Deny decision, null when the server resolved neither name nor email, and when. */
+export type FinalDeny = { name: string | null; at: string };
 
 /** Colour + copy for a terminal status, which the shared access-state model does not describe. */
 export type TerminalStatusBadge = { readonly labelKey: string; readonly variant: BadgeVariant };
@@ -200,6 +213,18 @@ export function resolveResolver(
   };
 }
 
+/** The log is oldest first, so the last human Deny is the one that ended the request. */
+export function findFinalDeny(decisions: AccessRequestDecisionView[]): FinalDeny | null {
+  const deny = [...decisions]
+    .reverse()
+    .find((d) => d.decider !== "automatic" && d.verdict === "deny");
+  if (deny == null) {
+    return null;
+  }
+  const approver = humanApprover(deny);
+  return { name: approver?.name || approver?.email || null, at: deny.decidedAt };
+}
+
 export function toRequestRow(request: AccessRequestView, names: ResolvedNames): MyAccessRequestRow {
   const cipherId = uuidAsString(request.cipherId);
   const collectionId = uuidAsString(request.collectionId);
@@ -217,11 +242,15 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
     leaseNotBefore: request.leaseNotBefore,
     leaseNotAfter: request.leaseNotAfter,
     ...resolveResolver(request.status, request.decisions),
+    requester: request.requesterName || request.requesterEmail || "",
+    requesterEmail: request.requesterEmail ?? null,
+    finalDeny: findFinalDeny(request.decisions),
     // Falls back to the decision log when no human decided, e.g. an automatic denial.
     approverComment:
       human?.comment ?? request.decisions.find((d) => d.comment != null)?.comment ?? null,
     producedLeaseId: request.producedLeaseId == null ? null : uuidAsString(request.producedLeaseId),
     producedLeaseStatus: request.producedLeaseStatus ?? null,
+    producedLeaseNotAfter: request.producedLeaseNotAfter ?? null,
     // Defaults; buildMyAccessRequestRows fills these in for an original whose lease was extended.
     extendedBySeconds: null,
     extendedUntil: null,

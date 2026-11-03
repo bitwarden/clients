@@ -4,6 +4,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -26,6 +27,7 @@ describe("CliLogoutService", () => {
   let stateService: MockProxy<StateService>;
   let tokenService: MockProxy<TokenService>;
   let logService: MockProxy<LogService>;
+  let sdkService: MockProxy<SdkService>;
 
   let sut: CliLogoutService;
 
@@ -40,6 +42,7 @@ describe("CliLogoutService", () => {
     stateService = mock<StateService>();
     tokenService = mock<TokenService>();
     logService = mock<LogService>();
+    sdkService = mock<SdkService>();
 
     sut = new CliLogoutService(
       authService,
@@ -52,6 +55,7 @@ describe("CliLogoutService", () => {
       stateService,
       tokenService,
       logService,
+      sdkService,
     );
   });
 
@@ -63,6 +67,17 @@ describe("CliLogoutService", () => {
         "Logging out user %s for reason: %s",
         userId,
         "userInitiated",
+      );
+    });
+
+    it("disposes the SDK client before it clears the user's keys and state", async () => {
+      await sut.logout(userId, "userInitiated");
+
+      expect(sdkService.logout).toHaveBeenCalledWith(userId);
+      const sdkLogoutOrder = sdkService.logout.mock.invocationCallOrder[0];
+      expect(sdkLogoutOrder).toBeLessThan(keyService.clearKeys.mock.invocationCallOrder[0]);
+      expect(sdkLogoutOrder).toBeLessThan(
+        stateEventRunnerService.handleEvent.mock.invocationCallOrder[0],
       );
     });
 
