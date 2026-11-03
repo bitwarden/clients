@@ -147,7 +147,7 @@ describe("DecideDialogComponent", () => {
     });
   });
 
-  it("confirms with no comment at all when approving — it stays optional", async () => {
+  it("confirms with no comment at all when approving, it stays optional", async () => {
     await create("approve");
 
     await component["confirm"]();

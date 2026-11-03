@@ -87,7 +87,7 @@ const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProvide
   ...overrides,
 ];
 
-describe("AccessRuleEditComponent — default/max duration coupling", () => {
+describe("AccessRuleEditComponent: default/max duration coupling", () => {
   let fixture: ComponentFixture<AccessRuleEditComponent>;
   let component: AccessRuleEditComponent;
 
@@ -144,7 +144,7 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
   });
 });
 
-describe("AccessRuleEditComponent — page furniture", () => {
+describe("AccessRuleEditComponent: page furniture", () => {
   const render = async (
     state: RouteState,
     existing?: AccessRuleView,
@@ -311,7 +311,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
   });
 });
 
-describe("AccessRuleEditComponent — load, collections, and submit", () => {
+describe("AccessRuleEditComponent: load, collections, and submit", () => {
   let component: AccessRuleEditComponent;
   let navigate: jest.SpyInstance;
   let pamApi: {
@@ -695,7 +695,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   });
 });
 
-describe("AccessRuleEditComponent — governed collections filter", () => {
+describe("AccessRuleEditComponent: governed collections filter", () => {
   let component: AccessRuleEditComponent;
 
   const ORG_COLLECTIONS = [
@@ -863,7 +863,7 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
   });
 });
 
-describe("AccessRuleEditComponent — form states", () => {
+describe("AccessRuleEditComponent: form states", () => {
   let fixture: ComponentFixture<AccessRuleEditComponent>;
   let component: AccessRuleEditComponent;
   let navigate: jest.SpyInstance;

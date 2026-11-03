@@ -429,7 +429,7 @@ describe("MyRequestsTabComponent", () => {
 
       const cancel = query('[data-testid="my-access-cancel-req-pending"]');
       expect(cancel).not.toBeNull();
-      // Figma names this glyph "clear" and maps it to bwi-error — a circled cross, not a bare one.
+      // Figma names this glyph "clear" and maps it to bwi-error, a circled cross, not a bare one.
       expect(cancel?.querySelector("i")?.className).toContain("bwi-error");
       expect(query('[data-testid="my-access-approved-start-req-pending"]')).toBeNull();
     });
@@ -694,7 +694,7 @@ describe("MyRequestsTabComponent", () => {
     /**
      * `window` is a synthetic column, so without an explicit comparator the table sorts on a
      * property that does not exist and the header silently does nothing. The rows are built in
-     * window-END order, so the fixtures below deliberately disagree on window START — otherwise
+     * window-END order, so the fixtures below deliberately disagree on window START, otherwise
      * the default order already matches and the assertion cannot tell the two apart.
      */
     it("sorts the Requested window column when its header is clicked", () => {
