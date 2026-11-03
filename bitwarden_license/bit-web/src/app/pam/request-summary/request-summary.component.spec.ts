@@ -19,6 +19,7 @@ import { RequestSummaryComponent } from "./request-summary.component";
       [requesterEmail]="requesterEmail()"
       duration="1 hour"
       [relativeStart]="{ key: 'pamInboxStartTomorrow', value: null }"
+      [exactWindow]="exactWindow()"
       [reason]="reason()"
     >
       <div data-testid="host-row">Resolved</div>
@@ -32,6 +33,7 @@ class HostComponent {
   readonly requesterName = signal("Grace Hopper");
   readonly requesterEmail = signal<string | null>("grace@example.com");
   readonly reason = signal<string | null>("prod incident");
+  readonly exactWindow = signal<string>("");
 }
 
 describe("RequestSummaryComponent", () => {
@@ -108,6 +110,21 @@ describe("RequestSummaryComponent", () => {
     expect(fieldValue("pam-request-summary_value_access-requested")).toBe(
       "1 hour, pamInboxStartTomorrow",
     );
+  });
+
+  it("shows the exact window as visible text under the coarse label", () => {
+    fixture.componentInstance.exactWindow.set("9/19/26, 2:00 PM – 9/19/26, 6:00 PM");
+    fixture.detectChanges();
+
+    expect(fieldValue("pam-request-summary_value_exact-window")).toBe(
+      "9/19/26, 2:00 PM – 9/19/26, 6:00 PM",
+    );
+  });
+
+  it("shows no exact-window line when none is given", () => {
+    expect(
+      fixture.nativeElement.querySelector("#pam-request-summary_value_exact-window"),
+    ).toBeNull();
   });
 
   it("quotes the reason", () => {
