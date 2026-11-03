@@ -209,5 +209,17 @@ describe("OrganizationBillingClient", () => {
       );
       expect(result).toBeUndefined();
     });
+
+    it("propagates errors", async () => {
+      const serverError = new ErrorResponse(
+        {
+          Message: "Work with your customer service representative to remove Privileged Controls.",
+        },
+        400,
+      );
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(sut.removePrivilegedControls(orgId)).rejects.toBe(serverError);
+    });
   });
 });

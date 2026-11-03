@@ -519,9 +519,40 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
       });
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
       expect(adjustedSpy).toHaveBeenCalledTimes(1);
-      expect(syncService.fullSync.mock.invocationCallOrder[0]).toBeLessThan(
-        adjustedSpy.mock.invocationCallOrder[0],
+    });
+
+    it("waits for the sync to finish before emitting adjusted", async () => {
+      let finishSync!: (value: boolean) => void;
+      syncService.fullSync.mockReturnValue(new Promise((resolve) => (finishSync = resolve)));
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      await render();
+
+      removeButton().click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(syncService.fullSync).toHaveBeenCalledWith(true);
+      expect(adjustedSpy).not.toHaveBeenCalled();
+
+      finishSync(true);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(adjustedSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("disables Remove while a save is in flight", async () => {
+      organizationBillingClient.updatePrivilegedControlsSubscription.mockReturnValue(
+        new Promise(() => {}),
       );
+      await render();
+      setValue({ seatCount: 16 });
+
+      fixture.nativeElement.querySelector("form").dispatchEvent(new Event("submit"));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      expect(organizationBillingClient.updatePrivilegedControlsSubscription).toHaveBeenCalled();
+      expect(removeButton().getAttribute("aria-disabled")).toBe("true");
     });
 
     it("surfaces server errors through bitAction without a success toast or emit", async () => {
