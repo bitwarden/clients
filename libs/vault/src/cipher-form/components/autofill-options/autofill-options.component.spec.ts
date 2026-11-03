@@ -358,6 +358,42 @@ describe("AutofillOptionsComponent", () => {
 
       expect(component.autofillOptionsForm.value.uris.length).toEqual(1);
     });
+
+    it("adds a desktop app URI requested by the user with the Never match strategy", async () => {
+      fixture.detectChanges();
+
+      await component.addDesktopAppUriFromUser();
+
+      expect(component.autofillOptionsForm.value.uris[1]).toEqual({
+        uri: DESKTOP_APP_URI_PREFIX,
+        matchDetection: UriMatchStrategy.Never,
+      });
+    });
+
+    it("adds a desktop app URI requested by the user without confirming the default match strategy", async () => {
+      httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(false);
+      fixture.detectChanges();
+
+      await component.addDesktopAppUriFromUser();
+
+      expect(httpAuthenticationService.confirmDefaultMatchStrategy).not.toHaveBeenCalled();
+      expect(component.autofillOptionsForm.value.uris.length).toEqual(2);
+    });
+
+    it("shares the Never match strategy of a desktop app URI as an explicit match strategy", async () => {
+      fixture.detectChanges();
+      component.autofillOptionsForm.controls.uris.at(0).setValue({
+        uri: "https://example.com",
+        matchDetection: UriMatchStrategy.Exact,
+      });
+
+      await component.addDesktopAppUriFromUser();
+
+      expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
+        UriMatchStrategy.Exact,
+        UriMatchStrategy.Never,
+      ]);
+    });
   });
 
   // Autotype App Tests
@@ -583,7 +619,7 @@ describe("AutofillOptionsComponent", () => {
       await localFixture.whenStable();
 
       expect(localComponent.addUri).toHaveBeenCalledWith(
-        { uri: DESKTOP_APP_URI_PREFIX, matchDetection: null },
+        { uri: DESKTOP_APP_URI_PREFIX, matchDetection: UriMatchStrategy.Never },
         true,
       );
     });

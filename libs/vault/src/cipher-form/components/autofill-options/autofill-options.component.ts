@@ -15,7 +15,10 @@ import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums
 import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -120,8 +123,6 @@ export class AutofillOptionsComponent implements OnInit {
     { initialValue: false },
   );
 
-  protected readonly desktopAppUriPrefix = DESKTOP_APP_URI_PREFIX;
-
   private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
 
   constructor(
@@ -198,16 +199,31 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   /**
-   * Adds a new URI input requested by the user. New URIs use the default match strategy, so the
-   * user is asked to confirm when that would turn HTTP authentication off.
+   * Adds a new URI input requested by the user. When the new URI uses the default match strategy,
+   * the user is asked to confirm when that would turn HTTP authentication off.
    * @param uriFieldValue The initial value for the new URI input.
    */
   async addUriFromUser(uriFieldValue: UriField) {
-    if (!(await this.httpAuthenticationService.confirmDefaultMatchStrategy())) {
+    if (
+      uriFieldValue.matchDetection == null &&
+      !(await this.httpAuthenticationService.confirmDefaultMatchStrategy())
+    ) {
       return;
     }
 
     this.addUri(uriFieldValue, true);
+  }
+
+  /**
+   * Adds a new desktop app URI requested by the user. Desktop app URIs are never matched against
+   * websites, so they use the Never match strategy. That keeps them out of website autofill and
+   * HTTP authentication matching, and counts as an explicit strategy for HTTP authentication.
+   */
+  async addDesktopAppUriFromUser() {
+    await this.addUriFromUser({
+      uri: DESKTOP_APP_URI_PREFIX,
+      matchDetection: UriMatchStrategy.Never,
+    });
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
