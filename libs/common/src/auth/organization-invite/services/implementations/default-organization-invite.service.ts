@@ -245,6 +245,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
             using ref = sdk.take();
             await ref.value
               .invite_link()
+              .user()
               .accept_and_optionally_confirm(
                 asUuid<SdkOrganizationId>(invite.organizationId),
                 invite.inviteLinkCode,
