@@ -21,6 +21,8 @@ pub mod webauthn {
         pub timeout: Option<u32>,
         /// PRF extension `eval` inputs.
         pub prf: Option<PrfValues>,
+        /// The `appid` extension input.
+        pub app_id: Option<String>,
     }
 
     #[napi(object)]
@@ -49,6 +51,8 @@ pub mod webauthn {
         pub authenticator_attachment: Option<String>,
         /// PRF outputs, if PRF was requested and the authenticator returned results.
         pub prf: Option<PrfValues>,
+        /// The `appid` extension output, if an app ID was requested.
+        pub app_id_used: Option<bool>,
     }
 
     /// An error to be thrown as a `DOMException` with this name and message.
@@ -150,6 +154,7 @@ pub mod webauthn {
                 first: prf.first.to_vec(),
                 second: prf.second.map(|s| s.to_vec()),
             }),
+            app_id: request.app_id,
         }
     }
 
@@ -183,6 +188,7 @@ pub mod webauthn {
                 first: prf.first.into(),
                 second: prf.second.map(Into::into),
             }),
+            app_id_used: response.app_id_used,
         }
     }
 }

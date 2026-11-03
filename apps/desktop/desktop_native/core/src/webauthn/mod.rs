@@ -38,6 +38,9 @@ pub struct AssertionRequest {
     /// PRF extension `eval` inputs. Platforms that do not support PRF send the request without
     /// them.
     pub prf: Option<PrfValues>,
+    /// The U2F app ID from the `appid` extension, which allows credentials registered with the
+    /// U2F API to be used. It must be valid for the origin.
+    pub app_id: Option<String>,
 }
 
 /// Corresponds to WebAuthn's [`PublicKeyCredentialDescriptor`][descriptor].
@@ -103,6 +106,9 @@ pub struct AssertionResponse {
     pub attachment: Option<Attachment>,
     /// PRF outputs, if PRF was requested and the authenticator returned results.
     pub prf: Option<PrfValues>,
+    /// Whether the U2F app ID was used instead of the RP ID, if one was requested. This is the
+    /// `appid` extension output.
+    pub app_id_used: Option<bool>,
 }
 
 /// Corresponds to WebAuthn's [`AuthenticatorAttachment`][attachment].

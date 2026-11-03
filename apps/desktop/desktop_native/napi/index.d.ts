@@ -509,6 +509,8 @@ export declare namespace webauthn {
     timeout?: number
     /** PRF extension `eval` inputs. */
     prf?: PrfValues
+    /** The `appid` extension input. */
+    appId?: string
   }
   /** The fields of a WebAuthn `PublicKeyCredential` with an `AuthenticatorAssertionResponse`. */
   export interface AssertionResponse {
@@ -521,6 +523,8 @@ export declare namespace webauthn {
     authenticatorAttachment?: string
     /** PRF outputs, if PRF was requested and the authenticator returned results. */
     prf?: PrfValues
+    /** The `appid` extension output, if an app ID was requested. */
+    appIdUsed?: boolean
   }
   export interface CredentialDescriptor {
     id: Uint8Array

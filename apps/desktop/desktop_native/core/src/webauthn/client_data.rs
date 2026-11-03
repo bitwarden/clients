@@ -27,13 +27,7 @@ pub(super) fn get_client_data_json(
     rp_id: &str,
 ) -> Result<Vec<u8>, Error> {
     validate_rp_id(rp_id)?;
-    let host = origin_host(origin)?.to_ascii_lowercase();
-    let rp_id_lower = rp_id.to_ascii_lowercase();
-    let host_matches = host == rp_id_lower
-        || host
-            .strip_suffix(&rp_id_lower)
-            .is_some_and(|subdomain| subdomain.ends_with('.'));
-    if !host_matches {
+    if !is_same_or_subdomain(&origin_host(origin)?, rp_id) {
         return Err(Error::InvalidRequest(format!(
             "rpId {rp_id:?} is not valid for origin {origin:?}"
         )));
@@ -51,11 +45,46 @@ pub(super) fn get_client_data_json(
     })
 }
 
+/// Checks that a U2F app ID, from the [`appid` extension][appid], may be used by the origin.
+///
+/// The app ID must be an `https` URL whose host is the origin's host, or a domain that the host is
+/// a subdomain of. This is a simplified form of the FIDO AppID check, which would also allow the
+/// app ID to be a subdomain of the origin's registrable domain.
+///
+/// [appid]: https://www.w3.org/TR/webauthn-3/#sctn-appid-extension
+pub(super) fn validate_app_id(app_id: &str, origin: &str) -> Result<(), Error> {
+    let invalid = || {
+        Error::InvalidRequest(format!(
+            "appid {app_id:?} is not valid for origin {origin:?}"
+        ))
+    };
+    let authority = app_id
+        .strip_prefix("https://")
+        .and_then(|rest| rest.split(['/', '?', '#']).next())
+        .ok_or_else(invalid)?;
+    let app_id_host = origin_host(&format!("https://{authority}")).map_err(|_| invalid())?;
+    if is_same_or_subdomain(&origin_host(origin)?, &app_id_host) {
+        Ok(())
+    } else {
+        Err(invalid())
+    }
+}
+
+/// Whether `host` is `domain`, or a subdomain of it, ignoring ASCII case.
+fn is_same_or_subdomain(host: &str, domain: &str) -> bool {
+    let host = host.to_ascii_lowercase();
+    let domain = domain.to_ascii_lowercase();
+    host == domain
+        || host
+            .strip_suffix(&domain)
+            .is_some_and(|subdomain| subdomain.ends_with('.'))
+}
+
 /// Returns the host of a serialized origin, e.g. `example.com` for `https://example.com:8443`.
 ///
 /// Only `https` origins are accepted, and `http` for `localhost`, matching where browsers allow
 /// WebAuthn.
-fn origin_host(origin: &str) -> Result<&str, Error> {
+fn origin_host(origin: &str) -> Result<String, Error> {
     let invalid = || Error::InvalidRequest(format!("origin is not valid: {origin:?}"));
     let (scheme, authority) = origin.split_once("://").ok_or_else(invalid)?;
     let host = match authority.rsplit_once(':') {
@@ -67,8 +96,8 @@ fn origin_host(origin: &str) -> Result<&str, Error> {
         return Err(invalid());
     }
     match scheme {
-        "https" => Ok(host),
-        "http" if host.eq_ignore_ascii_case("localhost") => Ok(host),
+        "https" => Ok(host.to_string()),
+        "http" if host.eq_ignore_ascii_case("localhost") => Ok(host.to_string()),
         _ => Err(invalid()),
     }
 }
@@ -168,6 +197,51 @@ mod tests {
             assert!(
                 get_client_data_json(&[1], "https://example.com", rp_id).is_err(),
                 "{rp_id:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_accepts_app_id_for_origin() {
+        for (app_id, origin) in [
+            (
+                "https://vault.example.com/app-id.json",
+                "https://vault.example.com",
+            ),
+            (
+                "https://example.com/app-id.json",
+                "https://vault.example.com:8443",
+            ),
+            (
+                "https://vault.example.com:8443/app-id.json",
+                "https://vault.example.com",
+            ),
+        ] {
+            assert!(validate_app_id(app_id, origin).is_ok(), "{app_id} {origin}");
+        }
+    }
+
+    #[test]
+    fn test_rejects_app_id_not_valid_for_origin() {
+        for (app_id, origin) in [
+            ("https://evil.com/app-id.json", "https://vault.example.com"),
+            (
+                "https://other.example.com/app-id.json",
+                "https://vault.example.com",
+            ),
+            (
+                "http://vault.example.com/app-id.json",
+                "https://vault.example.com",
+            ),
+            ("vault.example.com", "https://vault.example.com"),
+            (
+                "https://user@vault.example.com/app-id.json",
+                "https://vault.example.com",
+            ),
+        ] {
+            assert!(
+                validate_app_id(app_id, origin).is_err(),
+                "{app_id} {origin}"
             );
         }
     }

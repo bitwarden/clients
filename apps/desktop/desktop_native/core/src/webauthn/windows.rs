@@ -82,6 +82,10 @@ pub(super) fn get_assertion(
     if let Some(timeout) = request.timeout {
         builder = builder.timeout(timeout);
     }
+    if let Some(app_id) = request.app_id {
+        client_data::validate_app_id(&app_id, &request.origin)?;
+        builder = builder.u2f_app_id(app_id);
+    }
     if let Some(prf) = request.prf {
         // Passkeys without PRF can still be used to sign in, so PRF is optional.
         builder = builder.prefer_prf(PrfInputs {
@@ -122,6 +126,7 @@ pub(super) fn get_assertion(
             first: results.first.to_vec(),
             second: results.second.map(<[u8]>::to_vec),
         }),
+        app_id_used: assertion.u2f_app_id_used(),
     })
 }
 
