@@ -63,6 +63,28 @@ pub mod webauthn {
         pub error: Option<WebAuthnError>,
     }
 
+    /// Cancels a single `getAssertion` call.
+    #[napi]
+    pub struct AssertionCancellation {
+        inner: core::Cancellation,
+    }
+
+    #[napi]
+    impl AssertionCancellation {
+        #[napi(constructor)]
+        pub fn new() -> napi::Result<Self> {
+            let inner = core::Cancellation::new()
+                .map_err(|err| napi::Error::from_reason(err.to_string()))?;
+            Ok(Self { inner })
+        }
+
+        /// Closes the platform's prompt. The call returns an `AbortError`.
+        #[napi]
+        pub fn cancel(&self) {
+            self.inner.cancel();
+        }
+    }
+
     /// Requests a WebAuthn assertion from the platform's passkey APIs, showing the platform's
     /// prompt modal to the window.
     ///
@@ -73,13 +95,16 @@ pub mod webauthn {
     pub async fn get_assertion(
         window_handle: Uint8Array,
         request: AssertionRequest,
+        cancellation: &AssertionCancellation,
     ) -> napi::Result<GetAssertionResult> {
         let window_handle = window_handle.to_vec();
         let request = core_request(request);
-        let result =
-            tokio::task::spawn_blocking(move || core::get_assertion(&window_handle, request))
-                .await
-                .map_err(|err| napi::Error::from_reason(format!("WebAuthn task failed: {err}")))?;
+        let cancellation = cancellation.inner.clone();
+        let result = tokio::task::spawn_blocking(move || {
+            core::get_assertion(&window_handle, request, &cancellation)
+        })
+        .await
+        .map_err(|err| napi::Error::from_reason(format!("WebAuthn task failed: {err}")))?;
         Ok(match result {
             Ok(response) => GetAssertionResult {
                 response: Some(napi_response(response)),

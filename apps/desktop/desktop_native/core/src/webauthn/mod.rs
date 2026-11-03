@@ -123,6 +123,10 @@ pub enum Error {
     #[error("Invalid WebAuthn request: {0}")]
     InvalidRequest(String),
 
+    /// The request was cancelled with a [Cancellation].
+    #[error("The WebAuthn request was cancelled")]
+    Cancelled,
+
     /// The platform rejected or failed the operation, including when the user cancels it.
     #[error("{message}")]
     Platform {
@@ -140,6 +144,7 @@ impl Error {
         match self {
             Self::NotImplemented => "NotSupportedError",
             Self::InvalidRequest(_) => "SyntaxError",
+            Self::Cancelled => "AbortError",
             Self::Platform { dom_error_name, .. } => {
                 dom_error_name.as_deref().unwrap_or("UnknownError")
             }
@@ -147,17 +152,41 @@ impl Error {
     }
 }
 
+/// Cancels an in-progress [get_assertion] call from another thread.
+///
+/// If this is cancelled before the call starts, the call returns [Error::Cancelled] without
+/// showing a prompt. A cancellation in the short window after the call starts, but before the
+/// platform has registered the operation, is missed.
+#[derive(Clone)]
+pub struct Cancellation(platform::Cancellation);
+
+impl Cancellation {
+    /// Creates a cancellation for a single [get_assertion] call.
+    pub fn new() -> Result<Self, Error> {
+        platform::Cancellation::new().map(Self)
+    }
+
+    /// Cancels the call. The platform's prompt is closed, and the call returns
+    /// [Error::Cancelled].
+    pub fn cancel(&self) {
+        self.0.cancel();
+    }
+}
+
 /// Requests a WebAuthn assertion from the platform's passkey APIs.
 ///
 /// Shows the platform's passkey prompt, modal to `window_handle`, and blocks until the user
-/// completes or dismisses it. Run this on a thread that may block.
+/// completes or dismisses it, or until it is cancelled with `cancellation`. Run this on a thread
+/// that may block.
 ///
 /// # Arguments
 /// - `window_handle`: The native window handle from Electron's `getNativeWindowHandle()`.
 /// - `request`: The assertion request.
+/// - `cancellation`: Can be used to cancel the call from another thread.
 pub fn get_assertion(
     window_handle: &[u8],
     request: AssertionRequest,
+    cancellation: &Cancellation,
 ) -> Result<AssertionResponse, Error> {
-    platform::get_assertion(window_handle, request)
+    platform::get_assertion(window_handle, request, &cancellation.0)
 }

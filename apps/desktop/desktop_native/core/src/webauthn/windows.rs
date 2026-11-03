@@ -1,5 +1,10 @@
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
+
 use win_webauthn::{
-    AllowCredential, CredentialId, CtapTransport, GetAssertionRequest, PrfInputs,
+    AllowCredential, CancellationId, CredentialId, CtapTransport, GetAssertionRequest, PrfInputs,
     UserVerificationRequirement, WinWebAuthnError,
 };
 use windows::Win32::Foundation::HWND;
@@ -9,9 +14,40 @@ use super::{
     UserVerification,
 };
 
+#[derive(Clone)]
+pub(super) struct Cancellation(Arc<CancellationState>);
+
+struct CancellationState {
+    id: CancellationId,
+    /// Set when cancelled, so that a cancellation before the operation starts is not lost.
+    cancelled: AtomicBool,
+}
+
+impl Cancellation {
+    pub(super) fn new() -> Result<Self, Error> {
+        Ok(Self(Arc::new(CancellationState {
+            id: CancellationId::new().map_err(platform_error)?,
+            cancelled: AtomicBool::new(false),
+        })))
+    }
+
+    pub(super) fn cancel(&self) {
+        self.0.cancelled.store(true, Ordering::SeqCst);
+        // This fails if no operation is in progress, because it has not started or has finished.
+        if let Err(err) = self.0.id.cancel() {
+            tracing::debug!("No WebAuthn operation to cancel: {err}");
+        }
+    }
+
+    fn is_cancelled(&self) -> bool {
+        self.0.cancelled.load(Ordering::SeqCst)
+    }
+}
+
 pub(super) fn get_assertion(
     window_handle: &[u8],
     request: AssertionRequest,
+    cancellation: &Cancellation,
 ) -> Result<AssertionResponse, Error> {
     let window = parse_window_handle(window_handle)?;
 
@@ -36,6 +72,7 @@ pub(super) fn get_assertion(
         client_data_json.clone(),
     )
     .allow_credentials(allow_credentials)
+    .cancellation_id(cancellation.0.id)
     .user_verification(match request.user_verification {
         UserVerification::Required => UserVerificationRequirement::Required,
         UserVerification::Preferred => UserVerificationRequirement::Preferred,
@@ -55,8 +92,16 @@ pub(super) fn get_assertion(
         });
     }
 
-    let assertion =
-        win_webauthn::get_assertion(window, &builder.build()).map_err(platform_error)?;
+    if cancellation.is_cancelled() {
+        return Err(Error::Cancelled);
+    }
+    let assertion = win_webauthn::get_assertion(window, &builder.build()).map_err(|err| {
+        if cancellation.is_cancelled() {
+            Error::Cancelled
+        } else {
+            platform_error(err)
+        }
+    })?;
 
     Ok(AssertionResponse {
         credential_id: assertion.credential_id().to_vec(),

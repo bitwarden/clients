@@ -486,6 +486,12 @@ export declare namespace sshagent {
 }
 
 export declare namespace webauthn {
+  /** Cancels a single [get_assertion] call. */
+  export class AssertionCancellation {
+    constructor()
+    /** Closes the platform's prompt. The call returns an `AbortError`. */
+    cancel(): void
+  }
   /**
    * Corresponds to WebAuthn's `PublicKeyCredentialRequestOptions`, with `BufferSource`s as
    * bytes.
@@ -527,7 +533,7 @@ export declare namespace webauthn {
    * `GetAssertionResult.error` rather than thrown, so that the `DOMException` name is
    * preserved.
    */
-  export function getAssertion(windowHandle: Uint8Array, request: AssertionRequest): Promise<GetAssertionResult>
+  export function getAssertion(windowHandle: Uint8Array, request: AssertionRequest, cancellation: AssertionCancellation): Promise<GetAssertionResult>
   /** Exactly one of `response` and `error` is set. */
   export interface GetAssertionResult {
     response?: AssertionResponse
