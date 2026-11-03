@@ -39,7 +39,7 @@ import {
   resolveCollectionNames,
   snapToNearestAccessRuleDuration,
 } from "@bitwarden/bit-pam";
-import { accessRuleDeleteConfirmOptions, DurationLongPipe } from "@bitwarden/bit-pam-components";
+import { accessRuleDeleteConfirmOptions } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -72,7 +72,34 @@ import {
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
+import {
+  AccessRuleId,
+  AccessRuleView,
+  AccessCondition,
+  ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
+  ACCESS_RULE_DURATION_PRESETS,
+  ACCESS_RULE_NAME_MAX_LENGTH,
+  accessRuleDeleteConfirmOptions,
+  accessRuleErrorMessageKey,
+  accessRuleToFormValue,
+  AccessRuleSdkService,
+  AccessRuleErrorField,
+  AccessRuleErrorOutcome,
+  classifyAccessRuleError,
+  conflictingCollectionIds,
+  DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
+  EXTENSION_DURATION_OPTIONS,
+  formValueToRequest,
+  isAccessRuleNotFound,
+  isIpAllowlist,
+  isKnownAccessCondition,
+  NO_DURATION_CAP,
+  resolveCollectionNames,
+  snapToNearestAccessRuleDuration,
+} from "../..";
+import { sharedFolderKey } from "../../helpers/shared-folder-key";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
@@ -114,7 +141,7 @@ import {
     SpinnerComponent,
     TypographyModule,
     I18nPipe,
-    DurationLongPipe,
+    Vfo1I18nPipe,
     ContainerComponent,
   ],
 })
@@ -125,6 +152,7 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
   private readonly pamApi = inject(AccessRuleSdkService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly terminology = inject(Vfo1TerminologyService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
   private readonly governedCollections = inject(GovernedCollectionsService);
@@ -163,7 +191,10 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
     return error == null
       ? null
       : this.i18nService.t(
-          error.kind === "mapped" ? error.messageKey : "pamAccessRuleSaveErrorGeneric",
+          sharedFolderKey(
+            error.kind === "mapped" ? error.messageKey : "pamAccessRuleSaveErrorGeneric",
+            this.terminology.enabled(),
+          ),
         );
   });
 
@@ -317,7 +348,9 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
       }
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+        message: this.i18nService.t(
+          sharedFolderKey(accessRuleErrorMessageKey(e), this.terminology.enabled()),
+        ),
       });
       await this.navigateToList();
       return null;
@@ -390,7 +423,9 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
       // rejection would go unseen.
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamAccessRuleSharedFoldersLoadError"),
+        message: this.i18nService.t(
+          sharedFolderKey("pamAccessRuleCollectionsLoadError", this.terminology.enabled()),
+        ),
       });
     } finally {
       this.allCollectionsLoading.set(false);
@@ -462,14 +497,18 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
 
   /** Names the collections at fault, since the server reports only that a conflict exists. */
   private async fieldSaveErrorMessage(messageKey: string): Promise<string> {
-    if (messageKey !== "pamAccessRuleErrorSharedFoldersGoverned") {
-      return this.i18nService.t(messageKey);
+    const enabled = this.terminology.enabled();
+    if (messageKey !== "pamAccessRuleErrorCollectionsGoverned") {
+      return this.i18nService.t(sharedFolderKey(messageKey, enabled));
     }
 
     const names = await this.conflictingCollectionNames();
     return names.length === 0
-      ? this.i18nService.t(messageKey)
-      : this.i18nService.t("pamAccessRuleErrorSharedFoldersGovernedNamed", names.join(", "));
+      ? this.i18nService.t(sharedFolderKey(messageKey, enabled))
+      : this.i18nService.t(
+          sharedFolderKey("pamAccessRuleErrorCollectionsGovernedNamed", enabled),
+          names.join(", "),
+        );
   }
 
   /**
@@ -545,7 +584,9 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
       return;
     }
 
-    const confirmed = await this.dialogService.openSimpleDialog(accessRuleDeleteConfirmOptions());
+    const confirmed = await this.dialogService.openSimpleDialog(
+      accessRuleDeleteConfirmOptions(this.terminology.enabled()),
+    );
     if (!confirmed) {
       return;
     }
@@ -562,7 +603,9 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
     } catch (e) {
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+        message: this.i18nService.t(
+          sharedFolderKey(accessRuleErrorMessageKey(e), this.terminology.enabled()),
+        ),
       });
     }
   };

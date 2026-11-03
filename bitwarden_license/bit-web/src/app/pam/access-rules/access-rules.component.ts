@@ -1,4 +1,5 @@
 import { SelectionModel } from "@angular/cdk/collections";
+import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -28,7 +29,6 @@ import {
   accessRuleDeleteConfirmOptions,
   DurationLongPipe,
   RelativeTimePipe,
-  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -61,8 +61,26 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
+import {
+  AccessRuleFilter,
+  AccessRuleId,
+  AccessRuleView,
+  AccessRuleStatusFilter,
+  accessRuleDeactivateConfirmOptions,
+  accessRuleDeleteConfirmOptions,
+  accessRuleErrorMessageKey,
+  accessRuleMatchesFilter,
+  classifyAccessRuleError,
+  copyRuleName,
+  resolveCollectionNames,
+  filterRulesToToggle,
+} from "..";
+import { DurationLongPipe } from "../date/duration-long.pipe";
+import { RelativeTimePipe } from "../date/relative-time.pipe";
+import { sharedFolderKey } from "../helpers/shared-folder-key";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
@@ -75,7 +93,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
-    TimestampPipe,
+    DatePipe,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
     BadgeModule,
@@ -100,6 +118,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     TooltipDirective,
     TypographyModule,
     I18nPipe,
+    Vfo1I18nPipe,
     RelativeTimePipe,
     DurationLongPipe,
     ApprovalMethodPipe,
@@ -112,6 +131,7 @@ export class AccessRulesComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly terminology = inject(Vfo1TerminologyService);
 
   protected readonly loading = toSignal(this.accessRules.loading$, { initialValue: true });
   protected readonly collections = toSignal(this.accessRules.collections$, {
@@ -216,7 +236,9 @@ export class AccessRulesComponent {
     // Outside the try, so a failed navigation can't follow the success toast with an error.
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("pamAccessRuleCopyCreatedSharedFolder"),
+      message: this.i18nService.t(
+        sharedFolderKey("pamAccessRuleCopyCreated", this.terminology.enabled()),
+      ),
     });
     // `renaming` opens the edit page with the name field focused.
     await this.router.navigate([created.id], {
@@ -275,7 +297,9 @@ export class AccessRulesComponent {
   };
 
   protected readonly remove = async (rule: AccessRuleView): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog(accessRuleDeleteConfirmOptions());
+    const confirmed = await this.dialogService.openSimpleDialog(
+      accessRuleDeleteConfirmOptions(this.terminology.enabled()),
+    );
     if (!confirmed) {
       return;
     }
@@ -382,7 +406,9 @@ export class AccessRulesComponent {
   private showError(e: unknown): void {
     this.toastService.showToast({
       variant: "error",
-      message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+      message: this.i18nService.t(
+        sharedFolderKey(accessRuleErrorMessageKey(e), this.terminology.enabled()),
+      ),
     });
   }
 }

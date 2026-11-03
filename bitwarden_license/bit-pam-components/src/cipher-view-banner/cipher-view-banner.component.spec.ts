@@ -611,10 +611,10 @@ describe("CipherViewBannerComponent", () => {
 
       await create(gatedCipher());
 
-      expect(buttonSize("#pam-cipher-view-banner_button_start")).toBe("small");
-      expect(query("#pam-cipher-view-banner_button_start")?.classList.contains("tw-w-full")).toBe(
-        false,
-      );
+      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_end")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_extend")).toBeNull();
+      expect(text()).toContain("pamActiveLeaseBannerRemainingTitle");
     });
 
     it("makes Start access full-width in the popup", async () => {
@@ -661,8 +661,40 @@ describe("CipherViewBannerComponent", () => {
 
       await create(gatedCipher());
 
-      expect(text()).toContain("pamActiveLeaseBannerTitleV2 20 days");
-      expect(collapseSpace(query('[data-testid="active-lease-ends-at"]')?.textContent)).toBe(
+      expect(text()).toContain("pamActiveLeaseBannerRemainingTitle 1h 15m");
+      expect(query('[data-testid="active-lease-ends-at"]')?.textContent?.trim()).toBe(
+        until(ENDS_AT),
+      );
+    });
+
+    it("shows the end of the granted window on an approved request already inside its window", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          approvedRequest: requestView({
+            leaseNotBefore: "2026-01-01T14:00:00.000Z",
+            leaseNotAfter: ENDS_AT,
+          }),
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
+        until(ENDS_AT),
+      );
+    });
+
+    it("shows the whole range for an approved request whose window has not opened yet", async () => {
+      const STARTS_AT = "2026-01-02T09:00:00.000Z";
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          approvedRequest: requestView({ leaseNotBefore: STARTS_AT, leaseNotAfter: ENDS_AT }),
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(collapseSpace(query('[data-testid="approved-access-window"]')?.textContent)).toBe(
         collapseSpace(
           `pamLeaseExpires ${formatCalendarDate("en-US", Date.parse(endsAt))} ${lowerTime(endsAt)}`,
         ),
@@ -765,7 +797,7 @@ describe("CipherViewBannerComponent", () => {
       await activeLeaseEndingIn(4 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerEndingSoonTitleV2 4 minutes",
+        "pamActiveLeaseBannerEndingSoonRemainingTitle 4m",
       );
       expect(query('[data-testid="active-lease-countdown"]')).toBeNull();
       // Read off the constant, not spelled again: this card escalates on the same threshold the
@@ -779,7 +811,7 @@ describe("CipherViewBannerComponent", () => {
       await activeLeaseEndingIn(5 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerEndingSoonTitleV2 5 minutes",
+        "pamActiveLeaseBannerEndingSoonRemainingTitle 5m",
       );
     });
 
@@ -787,7 +819,7 @@ describe("CipherViewBannerComponent", () => {
       await activeLeaseEndingIn(6 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-countdown"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerTitleV2 6 minutes",
+        "pamActiveLeaseBannerRemainingTitle 6m",
       );
       expect(query('[data-testid="active-lease-ending-soon"]')).toBeNull();
       expect(glyph("bwi-unlock")).not.toBeNull();
