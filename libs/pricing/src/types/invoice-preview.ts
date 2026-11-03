@@ -27,7 +27,10 @@ export type PlanTier = "families" | "teams" | "enterprise" | "premium";
  * Typing `reference` as this union rather than a raw string makes a stray value a compile error
  * and lets `getCartItemTranslationKey` switch exhaustively without a verbatim fallback.
  */
-export type PurchasableReference = "pm-seat" | "pm-storage" | "sm-seat" | "sm-service-account";
+export type PurchasableReference =
+  "pm-seat" | "pm-storage" | "sm-seat" | "sm-service-account" | "pam-seat";
+
+export type SeatReference = Extract<PurchasableReference, "pm-seat" | "sm-seat" | "pam-seat">;
 
 /**
  * Mirrors the server's `InvoicePreviewDiscount` record — a type deliberately separate from the
@@ -84,6 +87,10 @@ export type InvoicePreview = {
   secretsManager?: {
     seats?: InvoicePreviewItem;
     additionalServiceAccounts?: InvoicePreviewItem;
+    prorations?: PurchasableProration[];
+  };
+  privilegedControls?: {
+    seats?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   cadence: "annually" | "monthly";

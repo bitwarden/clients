@@ -35,4 +35,7 @@ export class PopoverPanelComponent {
    * Screen-reader-accessible name for the popover dialog.
    */
   readonly accessibleName = input.required<string>();
+
+  /** Content padding: `default` is 24px, `compact` is 16px. */
+  readonly padding = input<"default" | "compact">("default");
 }

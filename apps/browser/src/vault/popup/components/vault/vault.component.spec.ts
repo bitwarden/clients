@@ -62,6 +62,7 @@ import { VaultPopupListTableFiltersService } from "../../services/vault-popup-li
 import { VaultPopupListTableService } from "../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
+import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 
 import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
@@ -291,6 +292,8 @@ describe("VaultComponent", () => {
     openSimpleDialog: jest.fn().mockResolvedValue(false),
   } as Partial<DialogService>;
 
+  const vaultTourSvc = mock<VaultPopupTourService>();
+
   const introCarouselState$ = new BehaviorSubject<boolean>(true);
 
   const introSvc = {
@@ -405,6 +408,7 @@ describe("VaultComponent", () => {
         },
         { provide: TaskService, useValue: mock<TaskService>() },
         { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: VaultPopupTourService, useValue: vaultTourSvc },
         {
           provide: ConfigService,
           useValue: configSvc,
@@ -1338,6 +1342,7 @@ describe("VaultComponent", () => {
     }
 
     beforeEach(() => {
+      vaultTourSvc.start.mockClear();
       newExperienceDialogSpy.mockClear();
       newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Dismissed);
       nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
@@ -1409,6 +1414,28 @@ describe("VaultComponent", () => {
       initVault();
 
       expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("starts the vault tour when the user chooses to explore", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+
+      initVault();
+
+      expect(vaultTourSvc.start).toHaveBeenCalledWith("user-1");
+    }));
+
+    it("does not start the vault tour when the dialog is dismissed", fakeAsync(() => {
+      initVault();
+
+      expect(vaultTourSvc.start).not.toHaveBeenCalled();
+    }));
+
+    it("does not start the vault tour when the dialog never opens", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(vaultTourSvc.start).not.toHaveBeenCalled();
     }));
 
     it("leaves the nudge undismissed when the dialog never opens", fakeAsync(() => {

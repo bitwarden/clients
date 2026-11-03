@@ -19,6 +19,26 @@ import {
   NewExperienceDialogResult,
 } from "./new-experience-dialog.component";
 
+// JSDOM implements neither ResizeObserver nor layout, so the observer callback is captured and
+// fired by hand, with each action's `offsetTop` stubbed to place it on a row.
+class ResizeObserverStub {
+  static latest: ResizeObserverStub | undefined;
+
+  constructor(private readonly callback: ResizeObserverCallback) {
+    ResizeObserverStub.latest = this;
+  }
+
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+
+  /** Fire the callback as the browser would after a layout change. */
+  emit() {
+    this.callback([], this as unknown as ResizeObserver);
+  }
+}
+global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+
 describe("NewExperienceDialogComponent", () => {
   let fixture: ComponentFixture<NewExperienceDialogComponent>;
   let dialogRef: MockProxy<DialogRef<NewExperienceDialogResult>>;
@@ -132,6 +152,29 @@ describe("NewExperienceDialogComponent", () => {
 
     it("labels the screenshot for screen readers", () => {
       expect(image().getAttribute("alt")).toBe("newExperienceDialogImgAlt");
+    });
+  });
+
+  describe("footer layout", () => {
+    const placeActions = (exploreTop: number, learnMoreTop: number) => {
+      Object.defineProperty(exploreButton(), "offsetTop", { value: exploreTop });
+      Object.defineProperty(learnMoreLink(), "offsetTop", { value: learnMoreTop });
+      ResizeObserverStub.latest!.emit();
+      fixture.detectChanges();
+    };
+
+    it("keeps the actions at their natural width while they share a row", () => {
+      placeActions(0, 0);
+
+      expect(exploreButton().classList).not.toContain("tw-grow");
+      expect(learnMoreLink().classList).not.toContain("tw-grow");
+    });
+
+    it("stretches the actions to full width once they stack", () => {
+      placeActions(0, 48);
+
+      expect(exploreButton().classList).toContain("tw-grow");
+      expect(learnMoreLink().classList).toContain("tw-grow");
     });
   });
 

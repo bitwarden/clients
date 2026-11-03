@@ -33,13 +33,17 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, ItemModule, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
+import { DangerZoneComponent } from "../../../auth/settings/account/danger-zone.component";
 import { ApiKeyComponent } from "../../../auth/settings/security/api-key.component";
+import { AccountFingerprintComponent } from "../../../key-management/account-fingerprint/account-fingerprint.component";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.component";
 
 import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./components";
@@ -49,7 +53,15 @@ import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./
 @Component({
   selector: "app-org-account",
   templateUrl: "account.component.html",
-  standalone: false,
+  imports: [
+    SharedModule,
+    HeaderModule,
+    BreadcrumbsModule,
+    ItemModule,
+    AccountFingerprintComponent,
+    DangerZoneComponent,
+    Vfo1I18nPipe,
+  ],
 })
 export class AccountComponent implements OnInit, OnDestroy {
   selfHosted = false;

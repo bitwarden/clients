@@ -105,6 +105,7 @@ import {
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
@@ -182,6 +183,7 @@ import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-req
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeGaPolicyService } from "../../autofill/services/desktop-autotype-ga-policy.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -448,6 +450,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       AccountCryptographicStateService,
       BiometricsService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -682,6 +685,18 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
+      DesktopAutotypeGaPolicyService,
+      LogService,
+    ],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeGaPolicyService,
+    useClass: DesktopAutotypeGaPolicyService,
+    deps: [
+      AccountServiceAbstraction,
+      AuthServiceAbstraction,
+      PolicyServiceAbstraction,
+      ConfigService,
     ],
   }),
   // Autotype MVP only: must only be consumed within the Autotype MVP scope

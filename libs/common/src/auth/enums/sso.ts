@@ -1,3 +1,5 @@
+import { MemberDecryptionType as SdkMemberDecryptionType } from "@bitwarden/sdk-internal";
+
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum SsoType {
@@ -6,13 +8,11 @@ export enum SsoType {
   Saml2 = 2,
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum MemberDecryptionType {
-  MasterPassword = 0,
-  KeyConnector = 1,
-  TrustedDeviceEncryption = 2,
-}
+// Re-export the SdkMemberDecryptionType so we have a single source of truth
+export {
+  /** @deprecated Import directly from @bitwarden/sdk-internal instead. **/
+  SdkMemberDecryptionType as MemberDecryptionType,
+};
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums

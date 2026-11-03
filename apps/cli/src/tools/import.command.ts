@@ -135,9 +135,7 @@ export class ImportCommand {
 
       const response = await this.importService.import(importer, contents, organizationId);
       if (response.success) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.syncService.fullSync(true);
+        await this.syncService.fullSync(true);
 
         // Some items may have been skipped while the rest imported. Report which ones and why.
         const skipped = response.errors ?? [];

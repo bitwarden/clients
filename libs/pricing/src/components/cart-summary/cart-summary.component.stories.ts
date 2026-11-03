@@ -39,6 +39,12 @@ export default {
                   return "Password Manager";
                 case "secretsManager":
                   return "Secrets Manager";
+                case "privilegedControls":
+                  return "Privileged Controls";
+                case "privilegedControlsPlanPrice":
+                  return "Privileged Controls plan price";
+                case "privilegedControlsProratedCharge":
+                  return "Privileged Controls prorated charge";
                 case "additionalStorage":
                   return "Additional Storage";
                 case "estimatedTax":
@@ -227,6 +233,13 @@ export const AllProducts: Story = {
           quantity: 2,
           translationKey: "additionalServiceAccountsV2",
           cost: 6.0,
+        },
+      },
+      privilegedControls: {
+        seats: {
+          quantity: 4,
+          translationKey: "members",
+          cost: 20.0,
         },
       },
       cadence: "monthly",
@@ -782,6 +795,66 @@ export const RecurringWithProration: Story = {
         value: 9.02,
       },
       estimatedTax: 0.36,
+    } satisfies Cart,
+  },
+};
+
+export const WithPrivilegedControls: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 72.0,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 144.0,
+        },
+      },
+      privilegedControls: {
+        seats: {
+          quantity: 4,
+          translationKey: "members",
+          cost: 20.0,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 0,
+    } satisfies Cart,
+  },
+};
+
+export const PrivilegedControlsProrationOnly: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 72.0,
+        },
+      },
+      privilegedControls: {
+        prorationCharges: [
+          {
+            translationKey: "privilegedControlsProratedCharge",
+            quantity: 1,
+            cost: 12.5,
+            hideBreakdown: true,
+          },
+        ],
+      },
+      cadence: "annually",
+      credit: {
+        translationKey: "appliedProrationCredits",
+        value: 3.0,
+      },
+      estimatedTax: 0,
     } satisfies Cart,
   },
 };

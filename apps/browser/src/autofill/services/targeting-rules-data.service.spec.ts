@@ -56,7 +56,7 @@ describe("TargetingRulesDataService", () => {
   let logService: MockProxy<LogService>;
 
   let fillAssistPolicyMock$: BehaviorSubject<{ rulesUrl?: string } | null>;
-  let effectiveUrlMock$: BehaviorSubject<string>;
+  let effectiveUrlMock$: BehaviorSubject<string | undefined>;
   let resolvedEnableFillAssistMock$: BehaviorSubject<boolean>;
   let serverConfigMock$: BehaviorSubject<any>;
   let metaStateMock$: BehaviorSubject<Record<string, any>>;
@@ -89,7 +89,7 @@ describe("TargetingRulesDataService", () => {
 
     // effectiveFillAssistRulesUrl$ is now the single source of truth for
     // "which URL should the fetcher use" (derived in DomainSettingsService).
-    effectiveUrlMock$ = new BehaviorSubject<string>(DEFAULT_URL_TRAILING);
+    effectiveUrlMock$ = new BehaviorSubject<string | undefined>(DEFAULT_URL_TRAILING);
     (domainSettingsService as any).effectiveFillAssistRulesUrl$ = effectiveUrlMock$;
 
     // resolvedEnableFillAssist$ gates whether the fetcher runs at all —
@@ -306,6 +306,27 @@ describe("TargetingRulesDataService", () => {
         .mockResolvedValueOnce(makeRulesResponse());
       await (service as any)._fetchAndStoreRules(false);
       expect(apiService.nativeFetch.mock.calls.length).toBeGreaterThan(callsAfterWarm);
+    });
+
+    it("does not write meta when no effective URL resolves", async () => {
+      effectiveUrlMock$.next(undefined);
+
+      await (service as any)._resetMeta();
+
+      expect(metaState.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("missing rules-feed URL", () => {
+    it("skips the fetch and stores nothing when no effective URL resolves", async () => {
+      effectiveUrlMock$.next(undefined);
+
+      await (service as any)._fetchAndStoreRules(true);
+
+      expect(apiService.nativeFetch).not.toHaveBeenCalled();
+      expect(domainSettingsService.setTargetingRules).not.toHaveBeenCalled();
+      expect(metaState.update).not.toHaveBeenCalled();
+      expect(logService.warning).toHaveBeenCalled();
     });
   });
 });

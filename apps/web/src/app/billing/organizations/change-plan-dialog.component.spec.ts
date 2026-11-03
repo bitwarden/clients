@@ -471,7 +471,17 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       selectEnterpriseAnnual();
       previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(
-        new ErrorResponse({ Message: "bad request" }, 400),
+        new ErrorResponse(
+          {
+            Message: "The model state is invalid.",
+            ValidationErrors: {
+              BillingAddress: [
+                "Your location wasn't recognized. Please ensure your country and postal code are valid and try again.",
+              ],
+            },
+          },
+          400,
+        ),
       );
       const billingNotificationService = TestBed.inject(BillingNotificationService);
       const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
@@ -486,6 +496,23 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         "billingPreviewInvalidAddressError",
       );
       expect((component as any).previewErrorMessageKey).toBe("billingPreviewInvalidAddressError");
+    });
+
+    it("shows the generic message for a 400 that is not about the billing address", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockRejectedValue(
+        new ErrorResponse({ Message: "Your organization is already on this plan." }, 400),
+      );
+      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
+      i18nService.t.mockImplementation((key: string) => key);
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      TestBed.tick();
+
+      expect((component as any).previewErrorMessageKey).toBe("invoicePreviewErrorMessage");
     });
   });
 

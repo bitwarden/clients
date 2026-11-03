@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "У моєму сховищі немає записів"
   },
+  "noItemsInFolder": {
+    "message": "Немає записів в $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Додайте записи до цієї теки. Ви зможете швидко отримати до них доступ за допомогою фільтрів сховища.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "У моїх записах немає записів"
   },
@@ -665,7 +679,7 @@
     "message": "Скинути пошук"
   },
   "clearSearchTooltip": {
-    "message": "Щоб очистити, натисніть тут або клавішу Esc.",
+    "message": "Очистьте, натиснувши тут або Esc.",
     "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "Запис переміщено до смітника"
   },
+  "deleteItemError": {
+    "message": "Не вдалося видалити запис."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Запис обмежений. Ваші зміни не було збережено."
+  },
   "overwritePassword": {
     "message": "Перезаписати пароль"
   },
@@ -1556,7 +1576,7 @@
     "message": "Вибрати джерело"
   },
   "importData": {
-    "message": "Імпорт даних"
+    "message": "Імпортувати дані"
   },
   "importSourceSelectTitle": {
     "message": "Виберіть джерело"
@@ -1776,13 +1796,13 @@
     "message": "Оберіть файл"
   },
   "selectFileUnsupportedType": {
-    "message": "Цей тип файлу не підтримується для цього джерела. Оберіть інший файл"
+    "message": "Цей тип файлу не підтримується для цього джерела. Виберіть інший файл."
   },
   "pasteContentRequired": {
-    "message": "Вставити експортований вміст"
+    "message": "Вставте експортований вміст"
   },
   "fileTypeNotSupported": {
-    "message": "Цей тип файлу не підтримується. Виберіть файл типу $TYPES$",
+    "message": "Цей тип файлу не підтримується. Виберіть файл типу $TYPES$.",
     "placeholders": {
       "types": {
         "content": "$1",
@@ -4078,10 +4098,10 @@
     "message": "Помилка отримання даних автозаповнення"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden не вдалося розшифрувати запис у сховищі, перерахований нижче. Зверніться до служби підтримки Bitwarden і надайте ID запису нижче, щоб дізнатися, чи можна його відновити."
+    "message": "Bitwarden не зміг розшифрувати наведений нижче запис сховища. Зверніться до служби підтримки Bitwarden і надайте ID цього запису, щоб дізнатися, чи можна його відновити."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden не вдалося розшифрувати записи у сховищі, перерахованих нижче. Зверніться до служби підтримки Bitwarden і надайте ID записів нижче, щоб дізнатися, чи можна їх відновити."
+    "message": "Bitwarden не зміг розшифрувати наведені нижче записи сховища. Зверніться до служби підтримки Bitwarden і надайте ID цих записів, щоб дізнатися, чи можна їх відновити."
   },
   "itemId": {
     "message": "ID запису",
@@ -5307,7 +5327,7 @@
     "message": "Вивантажити файл"
   },
   "pasteAsPlainText": {
-    "message": "Вставити як звичайний текст"
+    "message": "Вставити як простий текст"
   },
   "plainText": {
     "message": "Простий текст"
@@ -5316,30 +5336,30 @@
     "message": "Профіль"
   },
   "importManuallyInstead": {
-    "message": "Замість цього імпортуйте вручну"
+    "message": "Натомість імпортувати вручну"
   },
   "directlyImportInstead": {
-    "message": "Натомість безпосередньо імпортуйте"
+    "message": "Натомість імпортувати безпосередньо"
   },
   "fastest": {
     "message": "Найшвидший"
   },
   "importDataTitle": {
-    "message": "Імпортуйте ваші дані"
+    "message": "Імпортування ваших даних"
   },
   "importDataDirectTitle": {
-    "message": "Імпорт ваших даних за хвилини"
+    "message": "Імпортування ваших даних за лічені хвилини"
   },
   "importDataDirectSubtitlePrefix": {
     "message": "Імпортуйте свої записи безпосередньо з",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "щоб отримати всі ваші дані.",
+    "message": "щоб отримати всі дані.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
-    "message": "Імпортуйте дані з $VENDOR$ або скопіюйте та вставте експортований вміст.",
+    "message": "Імпортуйте дані з $VENDOR$ або скопіюйте і вставте експортований вміст.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5348,7 +5368,7 @@
     }
   },
   "importDataChromiumSubtitle": {
-    "message": "Виберіть профіль, з якого ви хочете імпортувати паролі."
+    "message": "Виберіть профіль, з якого ви бажаєте імпортувати паролі."
   },
   "noBrowserProfilesFound": {
     "message": "Профілів браузера не знайдено"
@@ -5363,13 +5383,13 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Ваші облікові дані шифруються під час передачі та ніколи не зберігаються."
+    "message": "Ваші облікові дані шифруються під час передавання та ніколи не зберігаються."
   },
   "importDataSecureByDesignTitle": {
     "message": "Безпечний за дизайном"
   },
   "importDataSecureByDesignBody": {
-    "message": "Передача даних із наскрізним шифруванням. Bitwarden ніколи не бачить ваших облікових даних для $VENDOR$.",
+    "message": "Передавання даних із наскрізним шифруванням. Bitwarden ніколи не бачить ваших облікових даних для $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5381,7 +5401,7 @@
     "message": "Ми попросимо вас вказати ваші дані для входу"
   },
   "importDataLoginInfoBody": {
-    "message": "На наступному кроці увійдіть у свій обліковий запис $VENDOR$.",
+    "message": "На наступному кроці ввійдіть у свій обліковий запис $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5393,7 +5413,31 @@
     "message": "Все переноситься"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Дані входу, картки, ідентифікаційні дані, захищені нотатки та одноразові паролі (TOTP) зі збереженням їхньої структури тек."
+    "message": "Дані входу, картки, посвідчення, захищені нотатки й одноразові паролі (TOTP) зі збереженням структури тек."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Швидкий і безпечний"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Цей процес наскрізно зашифрований. Файл експорту не потрібен."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Все, що вам потрібно, - це ваш вхід"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "На наступному кроці вам потрібно буде ввести свої облікові дані для $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Що буде передано"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Ваші облікові записи, інші елементи та теки будуть перенесені. Паролі та вкладення можуть бути виключені."
   },
   "importAcceptedFormats": {
     "message": "Прийнято: $FORMATS$",
@@ -5405,7 +5449,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ тип файлу",
+    "message": "Тип файлу $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5614,7 +5658,7 @@
     "message": "Головний пароль KeePass"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ пароль",
+    "message": "Пароль $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5626,22 +5670,22 @@
     "message": "Необхідно ввести пароль."
   },
   "filePasswordRequired": {
-    "message": "Потрібен пароль до файлу"
+    "message": "Необхідно ввести пароль для файлу"
   },
   "filePasswordInvalid": {
-    "message": "Введіть дійсний пароль файлу."
+    "message": "Введіть дійсний пароль для файлу."
   },
   "filePasswordProtectedSubtitle": {
-    "message": "Завантажений файл захищений паролем. Введіть пароль, щоб продовжити."
+    "message": "Вивантажений файл захищено паролем. Щоб продовжити, введіть пароль."
   },
   "selectProfile": {
-    "message": "Виберіть профіль"
+    "message": "Вибрати профіль"
   },
   "kdbxPasswordInvalid": {
     "message": "Введіть дійсний пароль"
   },
   "importAccountMismatchError": {
-    "message": "Цей файл можна імпортувати лише в той обліковий запис, з якого його було експортовано."
+    "message": "Цей файл можна імпортувати лише до облікового запису, з якого його експортовано."
   },
   "addKeyFile": {
     "message": "Додати ключовий файл"
@@ -5650,7 +5694,7 @@
     "message": "Вивантаження ключового файлу"
   },
   "keyFileUploadV2": {
-    "message": "Файл ключа"
+    "message": "Ключовий файл"
   },
   "kdbxFileUpload": {
     "message": "Вивантаження файлу KDBX"
@@ -5675,6 +5719,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "Під час експорту пропущено 1 пошкоджене вкладення. Усі інші дані сховища та вкладення успішно експортовано."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 запис не було включено до цього експорту. Він захищений правилом привілейованого доступу, тому його облікові дані недоступні на цьому пристрої."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ записів не було включено до цього експорту. Вони захищені правилами привілейованого доступу, тому їхні облікові дані недоступні на цьому пристрої.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "Під час експорту пропущено пошкоджені вкладення ($COUNT$). Усі інші дані сховища та вкладення успішно експортовано.",
@@ -5778,8 +5834,92 @@
   "lastPassEmail": {
     "message": "Електронна пошта LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Електронна пошта є обов'язковою."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Введіть дійсну адресу електронної пошти."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Пароль є обов'язковим."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Введіть дійсний пароль"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Введіть дійсний код підтвердження."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Будь ласка, введіть головний пароль LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Будь ласка, введіть нижче код підтвердження."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Очікування аутентифікації SSO"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Після входу в систему ми автоматично продовжимо імпорт."
+  },
   "importingYourAccount": {
     "message": "Ваш обліковий запис імпортується..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Сервер"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Електронна пошта є обов'язковою."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Введіть дійсну адресу електронної пошти."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Цей метод двофакторної аутентифікації не підтримується. Змініть метод або імпортуйте дані вручну."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Метод затвердження пристрою"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Введіть дійсний код підтвердження."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Повторно надіслати код підтвердження"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "На затверджений пристрій надіслано push-повідомлення від Keeper."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Затвердіть цей пристрій, вибравши один із наведених нижче способів."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Будь ласка, перевірте свою електронну пошту та введіть код підтвердження нижче."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Будь ласка, введіть код із вашого застосунку для аутентифікації."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Будь ласка, введіть код, надісланий у текстовому повідомленні."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Будь ласка, введіть головний пароль Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "ДНК Keeper надіслано"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Підтвердьте сповіщення від Keeper DNA на своєму пристрої."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Ваш запит на затвердження буде скасовано. Ви впевнені, що хочете продовжити?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Ми надіслали запит на затвердження адміністратору вашого сайту."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Пароль є обов'язковим."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Введіть дійсний пароль."
   },
   "lastPassMFARequired": {
     "message": "Необхідно пройти багатофакторну автентифікацію LastPass"
@@ -5821,7 +5961,7 @@
     "message": "Вставте YubiKey пов'язаний з обліковим записом LastPass в USB порт вашого комп'ютера, потім торкніться його кнопки."
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ записів або сховищ 1Password не вдалося імпортувати",
+    "message": "Не вдалося імпортувати $COUNT$ записів або сховищ 1Password",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5845,7 +5985,7 @@
     "message": "Сталася помилка. Спробуйте ще раз або скористайтеся іншим способом імпорту."
   },
   "emailIsRequired": {
-    "message": "Електронна пошта є обов’язковою."
+    "message": "Необхідно вказати е-пошту."
   },
   "enterValidEmailAddress": {
     "message": "Введіть дійсну адресу електронної пошти."
@@ -5857,13 +5997,13 @@
     "message": "Введіть дійсну адресу для входу."
   },
   "secretKeyIsRequired": {
-    "message": "Потрібен секретний ключ."
+    "message": "Необхідно ввести секретний ключ."
   },
   "enterValidSecretKey": {
     "message": "Введіть дійсний секретний ключ."
   },
   "passwordIsRequired": {
-    "message": "Потрібно ввести пароль."
+    "message": "Необхідно ввести пароль."
   },
   "enterValidVerificationCode": {
     "message": "Введіть дійсний код підтвердження."
@@ -5872,7 +6012,7 @@
     "message": "Адреса для входу"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "Е-пошта 1Password"
   },
   "onePasswordEmailHint": {
     "message": "Введіть адресу електронної пошти, яку ви використовуєте для входу в 1Password"
@@ -8330,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Цей пароль має додаткові ризики:"
   },
+  "excludeFromList": {
+    "message": "Виключити зі списку"
+  },
+  "excludeFromListDesc": {
+    "message": "Виключення не усуває ризик, пов’язаний із вашим паролем. Щоб захистити свій обліковий запис, спочатку змініть пароль."
+  },
+  "excludeAnyway": {
+    "message": "Виключити все одно"
+  },
   "reused": {
     "message": "Повторно використано",
     "description": "ex. A password that is reused across multiple logins."
@@ -8411,7 +8560,7 @@
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Не вдалося скопіювати посилання на спільний доступ у буфер обміну",
+    "message": "Не вдалося скопіювати посилання для спільного доступу до буфера обміну",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
@@ -8419,7 +8568,7 @@
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Не вдалося видалити посилання на спільний доступ",
+    "message": "Не вдалося видалити посилання для спільного доступу",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
@@ -8450,6 +8599,15 @@
   "unknownCipher": {
     "message": "Невідомий запис. Можливо, вам необхідно запитати дозвіл для доступу до нього."
   },
+  "viewSharedItem": {
+    "message": "Перегляд спільного запису"
+  },
+  "copyShareLink": {
+    "message": "Копіювати посилання для спільного доступу"
+  },
+  "unableToDetermineItemId": {
+    "message": "Не вдалося визначити ідентифікатор запису"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden має новий вигляд",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8466,6 +8624,37 @@
     "message": "Дослідити нове сховище",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ з $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Перемикання між сховищами"
+  },
+  "coachmarkVaultSwitcherDescription": {
+    "message": "За допомогою нового перемикача сховищ ви можете швидко переглянути особисті записи або записи у сховищі, яке ви використовуєте спільно з іншими."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Комбінуйте фільтри"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Виберіть одразу кілька фільтрів, щоб звузити пошук саме до тих результатів, які вам потрібні. Вони залишатимуться активними навіть після переходу на іншу сторінку."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Збірки й теки мають нові назви"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Ті ж функції, зрозуміліші назви. Збірки тепер називаються \"Спільні теки\". Теки – тепер мають назву \"Мої теки\"."
+  },
   "customize": {
     "message": "Налаштувати"
   },
@@ -8477,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Відновити типові налаштування"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Автозаповнення полів входу в браузері",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Відповідайте на запити щодо базової HTTP-аутентифікації від вебсайтів, які відповідають цьому запису входу."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Відкрити статтю довідки про автозаповнення полів входу в браузері"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Вебсайти можуть активувати ці запити без вашого відома, що може призвести до витоку ваших облікових даних.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Щоб скористатися цим параметром, для кожного вебсайту цього запису входу виберіть варіант виявлення збігів, відмінний від «За замовчуванням»."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Увімкнути автозаповнення у вікнах входу в браузері?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Для цього запису буде вимкнено повторне запитування головного пароля. Обидва параметри не можуть бути увімкнені одночасно."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Увімкнути повторне запитування головного пароля?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Для цього запису буде вимкнено автозаповнення у вікнах входу в браузері. Обидва параметри не можуть бути увімкнені одночасно."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Використовувати стандартне виявлення збігів?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Вебсайти, що використовують стандартне виявлення збігів, не можна використовувати разом із вікнами входу в браузері. Функція автозаповнення для вікон входу в браузері буде вимкнена для цього запису."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Функція автозаповнення у вікнах входу в браузері вимкнена"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Для цього елемента увімкнено повторне запитування головного пароля, тому автозаповнення полів входу в браузері було вимкнено. Збережіть запис, щоб зберегти цю зміну."
   }
 }

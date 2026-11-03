@@ -1,0 +1,122 @@
+import { inject } from "@angular/core";
+import { Routes } from "@angular/router";
+import { map } from "rxjs";
+
+import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+
+import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
+import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
+import { PoliciesComponent, PoliciesDeactivateGuard } from "../../organizations/policies";
+
+import { AccountComponent } from "./account.component";
+import { TwoFactorSetupComponent } from "./two-factor-setup.component";
+
+export const organizationSettingsRoutes: Routes = [
+  {
+    path: "",
+    canActivate: [organizationPermissionsGuard(canAccessSettingsTab)],
+    children: [
+      {
+        path: "",
+        pathMatch: "full",
+        canActivate: [organizationRedirectGuard(getSettingsRoute)],
+        children: [], // This is required to make the auto redirect work,
+      },
+      {
+        path: "account",
+        component: AccountComponent,
+        canActivate: [organizationPermissionsGuard((o) => o.isOwner)],
+        data: {
+          titleId: "organizationInfo",
+        },
+      },
+      {
+        path: "two-factor",
+        component: TwoFactorSetupComponent,
+        canActivate: [organizationPermissionsGuard((o) => o.use2fa && o.isOwner)],
+        data: {
+          titleId: "twoStepLogin",
+        },
+      },
+      {
+        path: "policies",
+        component: PoliciesComponent,
+        canActivate: [organizationPermissionsGuard((org) => org.canManagePolicies)],
+        canDeactivate: [PoliciesDeactivateGuard],
+        data: {
+          titleId: "policies",
+        },
+      },
+      {
+        path: "tools",
+        children: [
+          {
+            path: "import",
+            canMatch: [
+              () =>
+                inject(ConfigService)
+                  .getFeatureFlag$(FeatureFlag.ImportUpgrade)
+                  .pipe(map((flagValue) => flagValue === true)),
+            ],
+            loadComponent: () =>
+              import("../../../tools/import/import-source-select-org.component").then(
+                (mod) => mod.ImportSourceSelectOrgComponent,
+              ),
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
+            data: {
+              titleId: "importNoun",
+            },
+          },
+          {
+            path: "import",
+            loadComponent: () =>
+              import("../../../tools/import/org-import.component").then(
+                (mod) => mod.OrgImportComponent,
+              ),
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
+            data: {
+              titleId: "importNoun",
+            },
+          },
+          {
+            path: "export",
+            loadComponent: () =>
+              import("../../../tools/vault-export/org-vault-export.component").then(
+                (mod) => mod.OrganizationVaultExportComponent,
+              ),
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessExport)],
+            data: {
+              titleId: "exportNoun",
+            },
+          },
+        ],
+      },
+    ],
+  },
+];
+
+function getSettingsRoute(organization: Organization) {
+  if (organization.isOwner) {
+    return "account";
+  }
+  if (organization.canManagePolicies) {
+    return "policies";
+  }
+  if (organization.canAccessImport) {
+    return ["tools", "import"];
+  }
+  if (organization.canManageSso) {
+    return "sso";
+  }
+  if (organization.canManageScim) {
+    return "scim";
+  }
+  if (organization.canManageDeviceApprovals) {
+    return "device-approvals";
+  }
+
+  return "/";
+}

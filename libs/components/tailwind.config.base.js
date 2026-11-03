@@ -171,11 +171,11 @@ module.exports = {
       "marketing-logo": rgba("--color-marketing-logo"),
       "bw-blue": rgba("--color-bw-blue"),
       illustration: {
-        outline: rgba("--color-illustration-outline"),
-        "bg-primary": rgba("--color-illustration-bg-primary"),
-        "bg-secondary": rgba("--color-illustration-bg-secondary"),
-        "bg-tertiary": rgba("--color-illustration-bg-tertiary"),
-        tertiary: rgba("--color-illustration-tertiary"),
+        stroke: "var(--color-illustration-stroke)",
+        "fill-primary": "var(--color-illustration-fill-primary)",
+        "fill-secondary": "var(--color-illustration-fill-secondary)",
+        "fill-tertiary": "var(--color-illustration-fill-tertiary)",
+        "fill-accent": "var(--color-illustration-fill-accent)",
         logo: rgba("--color-illustration-logo"),
       },
       fg: {

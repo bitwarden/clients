@@ -16,6 +16,7 @@ import { DialogRef, DialogService, SideNavService } from "@bitwarden/components"
 import { LogService } from "@bitwarden/logging";
 import {
   CoachmarkService,
+  NewExperienceDialogResult,
   NewExperienceDialogService,
   VaultItemsTransferService,
 } from "@bitwarden/vault";
@@ -51,7 +52,7 @@ describe("WebVaultPromptService", () => {
   const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
-  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(false);
+  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(null);
   const sideNavOpen = signal(false);
   const tourRunning = signal(false);
 
@@ -178,7 +179,7 @@ describe("WebVaultPromptService", () => {
 
     it("opens the side nav once it has opened, so the tour callout is visible", async () => {
       sideNavOpen.set(false);
-      conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+      conditionallyOpenNewExperience.mockResolvedValueOnce(NewExperienceDialogResult.Explore);
 
       await service.conditionallyPromptUser();
 
@@ -193,8 +194,16 @@ describe("WebVaultPromptService", () => {
       expect(sideNavOpen()).toBe(false);
     });
 
-    it("holds back the extension prompt when it opened, so the two do not stack", async () => {
+    it("leaves the upgrade prompt for the next load when it opened", async () => {
       conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+    });
+
+    it("holds back the extension prompt when it opened, so the two do not stack", async () => {
+      conditionallyOpenNewExperience.mockResolvedValueOnce(NewExperienceDialogResult.Explore);
 
       await service.conditionallyPromptUser();
 
@@ -209,6 +218,34 @@ describe("WebVaultPromptService", () => {
   });
 
   describe("setupAutoConfirm", () => {
+    it("waits for the walkthrough to end when the new experience dialog started it", fakeAsync(() => {
+      configurationAutoConfirm$.mockReturnValueOnce(
+        of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
+      );
+      policies$.mockReturnValueOnce(of([]));
+      organizations$.mockReturnValueOnce(
+        of([{ id: mockOrganizationId, canEnableAutoConfirmPolicy: true } as Organization]),
+      );
+      conditionallyOpenNewExperience.mockImplementationOnce(async () => {
+        tourRunning.set(true);
+        return true;
+      });
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open").mockReturnValue({
+        closed: of(null),
+      } as unknown as DialogRef<PolicyEditDialogResult>);
+
+      void service.conditionallyPromptUser();
+      tick();
+      TestBed.tick();
+      tick();
+      expect(openSpy).not.toHaveBeenCalled();
+
+      tourRunning.set(false);
+      TestBed.tick();
+      tick();
+      expect(openSpy).toHaveBeenCalled();
+    }));
+
     it("shows dialog when all conditions are met", fakeAsync(() => {
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),

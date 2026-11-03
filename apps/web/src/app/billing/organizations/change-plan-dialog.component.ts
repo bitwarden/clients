@@ -35,7 +35,6 @@ import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billi
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -78,6 +77,7 @@ import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { BillingNotificationService } from "../services/billing-notification.service";
 import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
+import { invoicePreviewErrorMessageKey } from "../shared/invoice-preview-error-message-key";
 
 type ChangePlanDialogParams = {
   organizationId: string;
@@ -275,7 +275,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         return await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
       } catch (error) {
         this.billingNotificationService.showError(
-          this.i18nService.t(this.messageForPreviewError(error)),
+          this.i18nService.t(invoicePreviewErrorMessageKey(error)),
         );
         throw error;
       }
@@ -284,19 +284,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   // Message shown in the error callout, from the resource's returned error object.
   protected get previewErrorMessageKey(): string {
-    return this.messageForPreviewError(this.planChangeCart.error());
-  }
-
-  // A 400 means the request was rejected on user input — for this request that's the billing
-  // address (plan/cadence are fixed enums). Anything else is a generic preview failure.
-  private messageForPreviewError(error: unknown): string {
-    // The resource wraps a non-Error rejection (ErrorResponse isn't an Error) and puts the
-    // original on `cause`, so unwrap that before inspecting the status.
-    const response =
-      error instanceof ErrorResponse ? error : (error as { cause?: unknown } | undefined)?.cause;
-    return response instanceof ErrorResponse && response.statusCode === 400
-      ? "billingPreviewInvalidAddressError"
-      : "invoicePreviewErrorMessage";
+    return invoicePreviewErrorMessageKey(this.planChangeCart.error());
   }
 
   protected get showPreviewCart(): boolean {

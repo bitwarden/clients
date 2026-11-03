@@ -222,7 +222,7 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Automaattäide",
+    "message": "Automaattäitmine",
     "description": "Noun"
   },
   "autofillVerb": {
@@ -333,10 +333,10 @@
     "message": "Uuri teisigi Bitwardeni kasutusvõimalusi Abikeskuses."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Mine edasi veebilaienduste poodi?"
+    "message": "Mine edasi veebillehitseja laienduste poodi?"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Aita meil jõuda rohkemate inimesteni. Külasta oma laienduste veebipoodi ja jäta sinna positiivne hinnang."
+    "message": "Aita meil jõuda rohkemate inimesteni. Külasta oma veebilehitseja laienduste poodi ja jäta sinna positiivne hinnang."
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "Ülemparooli saab muuta Bitwardeni veebirakenduses."
@@ -559,6 +559,20 @@
   },
   "noItemsInMyVault": {
     "message": "Minu hoidlas pole kirjeid"
+  },
+  "noItemsInFolder": {
+    "message": "No items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
     "message": "Minu kirjetes pole kirjeid"
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "Kirje on kustutatud"
   },
+  "deleteItemError": {
+    "message": "Couldn't delete the item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
+  },
   "overwritePassword": {
     "message": "Kirjuta parool üle"
   },
@@ -1457,7 +1477,7 @@
     "message": "Jah, uuenda"
   },
   "notificationUnlockDesc": {
-    "message": "Ava Bitwardeni hoidla, et automaattäide lõpuni viia."
+    "message": "Ava Bitwardeni hoidla, et automaattäitmine lõpuni viia."
   },
   "notificationUnlock": {
     "message": "Lukusta lahti"
@@ -3033,7 +3053,7 @@
     "message": "Kas oled kindel, et soovid oma konto krüptovõtit pöörata?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "Pärast krüptovõtme värskendamist pead kõigist praegu kasutatavatest Bitwardeni rakendustest (näiteks mobiilirakendus või veebilehitseja laiendid) välja ja uuesti sisse logima. Välja ja uuesti sisselogimata jätmine (mis laadib alla sinue uue krüptovõtme) võib põhjustada andmete riknemist. Proovime sind automaatselt välja logida, kuid see võib viibida."
+    "message": "Pärast krüptovõtme värskendamist pead kõigist praegu kasutatavatest Bitwardeni rakendustest (näiteks mobiilirakendus või veebilehitseja laienused) välja ja uuesti sisse logima. Välja ja uuesti sisselogimata jätmine (mis laadib alla sinue uue krüptovõtme) võib põhjustada andmete riknemist. Proovime sind automaatselt välja logida, kuid see võib viibida."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Kõik salvestatud kontoga piiratud ekspordid muutuvad kehtetuks."
@@ -4584,7 +4604,7 @@
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Laiend",
+    "message": "Veebilehitseja laiendus",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -4608,7 +4628,7 @@
     "message": "Taotlus ootel"
   },
   "firstLogin": {
-    "message": "Esimene sisselogimine"
+    "message": "Esmane sisselogimine"
   },
   "trusted": {
     "message": "Usaldusväärne"
@@ -5085,7 +5105,7 @@
     "message": "Sinu konto jaoks on nõutav Duo kaheastmeline sisselogimine."
   },
   "popoutExtension": {
-    "message": "Ava laiend eraldi aknas"
+    "message": "Ava laiendus eraldi aknas"
   },
   "launchDuo": {
     "message": "Käivita Duo"
@@ -5395,6 +5415,30 @@
   "importDataEverythingTransfersBody": {
     "message": "Sisselogimisandmed, pangakaardid, identiteedid, turvalised märkmed ja TOTP-koodid – koos säilitatud kaustastruktuuriga."
   },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+  },
   "importAcceptedFormats": {
     "message": "Aktsepteeritud: $FORMATS$",
     "placeholders": {
@@ -5676,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "Eksportimise ajal jäeti vahele 1 rikutud manus. Kõik muud hoidla andmed ja manused eksporditi edukalt."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "Eksportimise ajal jäeti vahele $COUNT$ rikutud manust. Kõik muud hoidla andmed ja manused eksporditi edukalt.",
     "placeholders": {
@@ -5778,8 +5834,92 @@
   "lastPassEmail": {
     "message": "LastPassi e-post"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "Sinu konto importimine..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "lastPassMFARequired": {
     "message": "Nõutav on LastPassi mitmefaktoriline autentimine"
@@ -6285,7 +6425,7 @@
     "message": "Pääsuvõti on eemaldatud"
   },
   "autofillSuggestions": {
-    "message": "Automaatse täitmise soovitused"
+    "message": "Automaattäitmise soovitused"
   },
   "itemSuggestions": {
     "message": "Soovitatud kirjed"
@@ -8330,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Sellel paroolil on täiendavaid riske:"
   },
+  "excludeFromList": {
+    "message": "Exclude from list"
+  },
+  "excludeFromListDesc": {
+    "message": "Excluding doesn’t fix the risk to your password. To protect your account, change your password first."
+  },
+  "excludeAnyway": {
+    "message": "Exclude anyway"
+  },
   "reused": {
     "message": "Korduvkasutatud",
     "description": "ex. A password that is reused across multiple logins."
@@ -8450,6 +8599,15 @@
   "unknownCipher": {
     "message": "Tundmatu kirje, võib-olla peate taotlema luba sellele kirjele juurdepääsuks."
   },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwardenil on uus välimus",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8466,6 +8624,37 @@
     "message": "Uuri uut hoidlat",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Switch between vaults"
+  },
+  "coachmarkVaultSwitcherDescription": {
+    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
   "customize": {
     "message": "Kohanda"
   },
@@ -8477,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Lähtesta vaikeväärtustele"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   }
 }
