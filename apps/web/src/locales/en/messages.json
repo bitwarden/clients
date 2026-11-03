@@ -2272,6 +2272,12 @@
   "passkeyAuthenticationFailed": {
     "message": "Passkey authentication failed. Please try again."
   },
+  "useYourPasskeyOrSecurityKeyToContinue": {
+    "message": "Use your passkey or security key to continue"
+  },
+  "returnToBitwarden": {
+    "message": "Return to Bitwarden"
+  },
   "useDifferentLoginMethod": {
     "message": "Use different login method"
   },

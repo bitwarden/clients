@@ -132,6 +132,11 @@ module.exports.buildConfig = function buildConfig(params) {
       chunks: ["connectors/webauthn", "styles"],
     }),
     new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, "src/connectors/webauthn-desktop.html"),
+      filename: "webauthn-desktop-connector.html",
+      chunks: ["theme_head", "connectors/webauthn-desktop", "styles"],
+    }),
+    new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/connectors/webauthn-fallback.html"),
       filename: "webauthn-fallback-connector.html",
       chunks: ["connectors/webauthn-fallback", "styles"],
@@ -392,6 +397,7 @@ module.exports.buildConfig = function buildConfig(params) {
       "app/polyfills": path.resolve(__dirname, "src/polyfills.ts"),
       "app/main": params.app.entry,
       "connectors/webauthn": path.resolve(__dirname, "src/connectors/webauthn.ts"),
+      "connectors/webauthn-desktop": path.resolve(__dirname, "src/connectors/webauthn-desktop.ts"),
       "connectors/webauthn-fallback": path.resolve(
         __dirname,
         "src/connectors/webauthn-fallback.ts",

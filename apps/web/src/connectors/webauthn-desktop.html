@@ -1,0 +1,55 @@
+<!doctype html>
+<html class="theme_light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Bitwarden WebAuthn Connector</title>
+  </head>
+
+  <!-- Matches the desktop app's anon layout (bit-landing-layout), which it is opened from. -->
+  <body class="tw-m-0 tw-bg-background-alt tw-text-main">
+    <div class="tw-relative tw-flex tw-min-h-screen tw-flex-col">
+      <header class="tw-flex tw-w-full tw-px-5">
+        <div
+          id="webauthn-logo"
+          class="tw-w-32 tw-py-5 sm:tw-w-[200px] tw-self-center sm:tw-self-start [&>*]:tw-align-top"
+        ></div>
+      </header>
+      <main
+        class="tw-relative tw-z-[2] tw-flex tw-flex-1 tw-flex-col tw-items-center tw-p-5 tw-pt-12"
+      >
+        <div class="tw-w-full tw-max-w-md tw-text-center">
+          <div
+            id="webauthn-icon"
+            class="tw-size-20 sm:tw-size-24 [&_svg]:tw-w-full [&_svg]:tw-max-w-24 tw-mx-auto tw-content-center"
+          ></div>
+          <!-- Content is set dynamically via JavaScript at runtime -->
+          <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+          <h1
+            id="webauthn-header"
+            class="tw-mt-2 tw-mb-6 !tw-text-2xl sm:!tw-text-3xl tw-font-medium tw-text-main"
+          ></h1>
+          <div
+            class="tw-rounded-2xl sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-100 sm:tw-shadow sm:tw-p-8"
+          >
+            <!-- Content is set dynamically via JavaScript at runtime -->
+            <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+            <button
+              type="button"
+              id="webauthn-button"
+              class="tw-block !tw-text-contrast focus-visible:tw-ring-2 focus-visible:tw-ring-offset-2 focus-visible:tw-ring-primary-600 focus:tw-outline-none hover:tw-bg-primary-700 hover:tw-border-primary-700 hover:tw-no-underline tw-bg-primary-600 tw-border-2 tw-border-primary-600 tw-border-solid tw-font-medium tw-no-underline tw-px-3 tw-py-1.5 tw-rounded-full tw-text-center tw-transition tw-w-full tw-cursor-pointer"
+            ></button>
+          </div>
+        </div>
+      </main>
+      <div
+        id="webauthn-illustration-left"
+        class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-start-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+      ></div>
+      <div
+        id="webauthn-illustration-right"
+        class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-end-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+      ></div>
+    </div>
+  </body>
+</html>
