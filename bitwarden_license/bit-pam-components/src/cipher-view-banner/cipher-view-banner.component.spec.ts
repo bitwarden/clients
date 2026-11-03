@@ -905,6 +905,22 @@ describe("CipherViewBannerComponent", () => {
       }
     });
 
+    it("does not let Escape bubble past the sheet, so a host dialog stays open", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      const hostListener = jest.fn();
+      fixture.nativeElement.addEventListener("keydown", hostListener);
+      query('[data-testid="request-sheet"]')?.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+
+      expect(hostListener).not.toHaveBeenCalled();
+      expect(component["requestFormExpanded"]()).toBe(false);
+    });
+
     it("hints the duration and marks it required on the automatic path too", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
