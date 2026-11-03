@@ -1,9 +1,13 @@
 import type { BadgeVariant, BitwardenIcon } from "@bitwarden/components";
 
 import {
+  AccessConnector,
+  AccessConnectorStatus,
   QuartzSchedulePreset,
   RotationConfigId,
   RotationConfigView,
+  TargetSystemId,
+  TargetSystemMethod,
   TargetSystemView,
 } from "../rotation";
 import { RotationConfigDescription } from "../rotation-sdk.service";
@@ -11,14 +15,16 @@ import { targetSystemMethodLabelKey } from "../target-systems/target-system-labe
 
 /**
  * The one status a managed credential row resolves to, which the status column sorts and filters
- * on. A paused row with a running job also carries a pause marker; see
- * {@link RotationConfigRow.pausedWhileRotating}.
+ * on. See {@link resolveRotationStatus} for which status wins when several apply.
  */
 export const RotationRowStatus = Object.freeze({
-  Active: "active",
-  Paused: "paused",
+  Failed: "failed",
+  NotConnected: "not-connected",
+  RotationDue: "rotation-due",
   Rotating: "rotating",
+  Paused: "paused",
   ManualRotation: "manual-rotation",
+  Active: "active",
 } as const);
 export type RotationRowStatus = (typeof RotationRowStatus)[keyof typeof RotationRowStatus];
 
@@ -29,49 +35,87 @@ export type RotationStatusBadge = {
   variant: BadgeVariant;
   icon: BitwardenIcon;
   /**
-   * Ascending sort position, following {@link resolveRotationStatus}'s precedence. Sorting on the
-   * label key or the rendered label would order by spelling, differently in every locale.
+   * Ascending sort position by urgency, which differs from the precedence in
+   * {@link resolveRotationStatus}. Sorting on the label key or the rendered label would order by
+   * spelling, differently in every locale.
    */
   sortOrder: number;
 };
 
 const STATUS_BADGES: Readonly<Record<RotationRowStatus, Readonly<RotationStatusBadge>>> =
   Object.freeze({
-    [RotationRowStatus.Active]: {
-      status: RotationRowStatus.Active,
-      labelKey: "active",
-      variant: "success",
-      icon: "bwi-check-circle",
-      sortOrder: 4,
+    [RotationRowStatus.Failed]: {
+      status: RotationRowStatus.Failed,
+      labelKey: "pamRotationConfigStatusFailed",
+      variant: "danger",
+      icon: "bwi-error",
+      sortOrder: 1,
     },
-    [RotationRowStatus.Paused]: {
-      status: RotationRowStatus.Paused,
-      labelKey: "pamRotationConfigStatusPaused",
-      variant: "subtle",
-      icon: "bwi-minus-circle",
+    [RotationRowStatus.NotConnected]: {
+      status: RotationRowStatus.NotConnected,
+      labelKey: "pamRotationConfigStatusNotConnected",
+      variant: "warning",
+      icon: "bwi-warning",
       sortOrder: 2,
+    },
+    [RotationRowStatus.RotationDue]: {
+      status: RotationRowStatus.RotationDue,
+      labelKey: "pamRotationConfigRotationDueBadge",
+      variant: "warning",
+      icon: "bwi-calendar",
+      sortOrder: 3,
     },
     [RotationRowStatus.Rotating]: {
       status: RotationRowStatus.Rotating,
       labelKey: "pamRotationConfigRotatingBadge",
       variant: "primary",
       icon: "bwi-refresh",
-      sortOrder: 1,
+      sortOrder: 4,
+    },
+    [RotationRowStatus.Paused]: {
+      status: RotationRowStatus.Paused,
+      labelKey: "pamRotationConfigStatusPaused",
+      variant: "subtle",
+      icon: "bwi-pause-circle",
+      sortOrder: 5,
     },
     [RotationRowStatus.ManualRotation]: {
       status: RotationRowStatus.ManualRotation,
-      labelKey: "pamRotationConfigRotationDueBadge",
-      variant: "warning",
-      icon: "bwi-clock",
-      sortOrder: 3,
+      labelKey: "pamRotationConfigStatusManualRotation",
+      variant: "subtle",
+      icon: "bwi-user",
+      sortOrder: 6,
+    },
+    [RotationRowStatus.Active]: {
+      status: RotationRowStatus.Active,
+      labelKey: "active",
+      variant: "success",
+      icon: "bwi-check-circle",
+      sortOrder: 7,
     },
   } as const);
 
-/** Every status a managed credential row can be in, in the order the status filter offers them. */
-export const ROTATION_STATUS_BADGES = Object.freeze(Object.values(STATUS_BADGES));
+/**
+ * Every status the status filter offers, in urgency order. Failed is withheld because the list
+ * view carries no last-job outcome to derive it from.
+ */
+export const ROTATION_STATUS_BADGES = Object.freeze(
+  Object.values(STATUS_BADGES)
+    .filter((badge) => badge.status !== RotationRowStatus.Failed)
+    .sort((a, b) => a.sortOrder - b.sortOrder),
+);
 
+/**
+ * Resolves the one status a row shows, first match winning: Rotating, Paused, Not connected,
+ * Rotation due, Manual rotation, Active. `hasConnectedConnector` is `null` when connectivity is
+ * unknown, which never reads as Not connected.
+ */
 export function resolveRotationStatus(
-  config: Pick<RotationConfigView, "enabled" | "hasActiveJob" | "awaitingManualRotation">,
+  config: Pick<
+    RotationConfigView,
+    "enabled" | "hasActiveJob" | "awaitingManualRotation" | "targetSystemMethod"
+  >,
+  hasConnectedConnector: boolean | null = null,
 ): RotationRowStatus {
   if (config.hasActiveJob) {
     return RotationRowStatus.Rotating;
@@ -79,8 +123,16 @@ export function resolveRotationStatus(
   if (!config.enabled) {
     return RotationRowStatus.Paused;
   }
-  if (config.awaitingManualRotation) {
-    return RotationRowStatus.ManualRotation;
+  if (
+    config.targetSystemMethod === TargetSystemMethod.Automatic &&
+    hasConnectedConnector === false
+  ) {
+    return RotationRowStatus.NotConnected;
+  }
+  if (config.targetSystemMethod === TargetSystemMethod.Manual) {
+    return config.awaitingManualRotation
+      ? RotationRowStatus.RotationDue
+      : RotationRowStatus.ManualRotation;
   }
   return RotationRowStatus.Active;
 }
@@ -88,6 +140,28 @@ export function resolveRotationStatus(
 export function rotationStatusBadge(status: RotationRowStatus): RotationStatusBadge {
   return STATUS_BADGES[status];
 }
+
+/**
+ * Whether a target system has an enabled, connected access connector assigned. A disabled
+ * connector can't claim jobs, so it doesn't count. `null` connectors means the read failed.
+ */
+export function hasConnectedConnector(
+  connectors: readonly AccessConnector[] | null,
+  targetSystemId: TargetSystemId,
+): boolean | null {
+  if (connectors == null) {
+    return null;
+  }
+  return connectors.some(
+    (c) =>
+      c.status === AccessConnectorStatus.Enabled &&
+      c.isConnected &&
+      c.assignedTargetSystemIds.includes(targetSystemId),
+  );
+}
+
+/** What the Next rotation column shows, before it is turned into text. */
+export type NextRotation = { kind: "in-progress" } | { kind: "none" } | { kind: "at"; ms: number };
 
 /**
  * A managed credential row. Every sortable column maps to a field, and dates carry epoch ms for
@@ -103,13 +177,13 @@ export type RotationConfigRow = {
   status: RotationRowStatus;
   statusBadge: RotationStatusBadge;
   statusLabelKey: string;
-  /** The Status column's sort key, kept apart since the filter matches {@link statusLabelKey}. */
+  /** The Status column's sort key. */
   statusSortOrder: number;
-  /**
-   * Paused with a job still running, which the status badge can't show because the job takes
-   * precedence. Kept apart from {@link status} so sort and filter still see the four statuses.
-   */
-  pausedWhileRotating: boolean;
+  /** `null` when the sealed fields failed verification. */
+  accountIdentity: string | null;
+  /** Whether the status is Not connected, which also disables Rotate now. */
+  notConnected: boolean;
+  nextRotation: NextRotation;
   /**
    * A preset's i18n key, or a custom cron verbatim. No schedule maps to `pamRotationScheduleNone`,
    * which the template renders as a dash.
@@ -138,13 +212,17 @@ export function buildRotationConfigRow(
   targetSystem: TargetSystemView | undefined,
   cipherName: string | undefined,
   description: RotationConfigDescription,
+  connectors: readonly AccessConnector[] | null = null,
 ): RotationConfigRow {
   const scheduleLabelKeyOrCron = scheduleLabel(
     description.schedulePreset,
     config.scheduleCron ?? null,
   );
 
-  const status = resolveRotationStatus(config);
+  const status = resolveRotationStatus(
+    config,
+    hasConnectedConnector(connectors, config.targetSystemId),
+  );
   const statusBadge = rotationStatusBadge(status);
 
   const lastRotationAtMs = config.lastRotationAt != null ? Date.parse(config.lastRotationAt) : null;
@@ -161,7 +239,9 @@ export function buildRotationConfigRow(
     statusBadge,
     statusLabelKey: statusBadge.labelKey,
     statusSortOrder: statusBadge.sortOrder,
-    pausedWhileRotating: !config.enabled && status === RotationRowStatus.Rotating,
+    accountIdentity: config.sealed?.accountIdentity ?? null,
+    notConnected: status === RotationRowStatus.NotConnected,
+    nextRotation: nextRotation(status, nextRotationAtMs),
     scheduleLabelKeyOrCron,
     rotateOnAccessEnd: config.rotateOnAccessEnd,
     lastRotationAtMs: Number.isNaN(lastRotationAtMs) ? null : lastRotationAtMs,
@@ -176,6 +256,16 @@ export function buildRotationConfigRow(
     canPause: description.actions.canPause,
     canResume: description.actions.canResume,
   };
+}
+
+function nextRotation(status: RotationRowStatus, ms: number | null): NextRotation {
+  if (status === RotationRowStatus.Rotating) {
+    return { kind: "in-progress" };
+  }
+  if (status === RotationRowStatus.Paused || ms == null || Number.isNaN(ms)) {
+    return { kind: "none" };
+  }
+  return { kind: "at", ms };
 }
 
 const PRESET_LABEL_KEYS: Record<QuartzSchedulePreset, string> = {

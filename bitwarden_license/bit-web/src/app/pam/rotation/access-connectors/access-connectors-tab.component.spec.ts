@@ -1,4 +1,5 @@
 import { OverlayContainer } from "@angular/cdk/overlay";
+import { formatDate } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -48,6 +49,7 @@ describe("AccessConnectorsTabComponent", () => {
       assignmentNames: [],
       enabled: true,
       canAssign: true,
+      lastSeenAtMs: null,
       ...overrides,
       accessConnector: accessConnector({
         id,
@@ -760,6 +762,129 @@ describe("AccessConnectorsTabComponent", () => {
     });
   });
 
+  describe("last seen column", () => {
+    async function renderRows(rows: AccessConnectorRow[]) {
+      TestBed.resetTestingModule();
+      rows$.next(rows);
+      await createComponent({ renderTemplate: true });
+    }
+
+    afterEach(() => {
+      rows$.next([]);
+    });
+
+    function lastSeenCellText(): string | undefined {
+      return (fixture.nativeElement as HTMLElement)
+        .querySelector('[data-testid="last-seen"]')
+        ?.textContent?.trim();
+    }
+
+    function rowWithHeartbeat(elapsedMs: number | null): AccessConnectorRow {
+      const heartbeat = elapsedMs == null ? null : new Date(Date.now() - elapsedMs);
+      return makeAccessConnectorRow({
+        lastSeenAtMs: heartbeat?.getTime() ?? null,
+        accessConnector: { lastHeartbeatAt: heartbeat?.toISOString() ?? null } as AccessConnector,
+      });
+    }
+
+    it("shows a relative time for a recent heartbeat", async () => {
+      await renderRows([rowWithHeartbeat(5 * 60_000)]);
+
+      expect(lastSeenCellText()).toContain("pamRotationRelativeMinutesAgo");
+    });
+
+    it("shows hours for a heartbeat between one and 24 hours old", async () => {
+      await renderRows([rowWithHeartbeat(3 * 60 * 60_000)]);
+
+      expect(lastSeenCellText()).toContain("pamRotationRelativeHoursAgo");
+    });
+
+    it.each([
+      ["under a minute", 20_000, "justNow"],
+      ["a day", 24 * 60 * 60_000, "pamRotationRelativeYesterday"],
+      ["several days", 5 * 24 * 60 * 60_000, "pamRotationRelativeDaysAgo"],
+      ["several weeks", 14 * 24 * 60 * 60_000, "pamRotationRelativeWeeksAgo"],
+      ["several months", 95 * 24 * 60 * 60_000, "pamRotationRelativeMonthsAgo"],
+    ])("shows the relative wording for a heartbeat %s old", async (_label, elapsedMs, key) => {
+      await renderRows([rowWithHeartbeat(elapsedMs)]);
+
+      expect(lastSeenCellText()).toBe(key);
+    });
+
+    it("falls back to the full date when a heartbeat is a year or more old", async () => {
+      const elapsedMs = 400 * 24 * 60 * 60_000;
+      const row = rowWithHeartbeat(elapsedMs);
+      await renderRows([row]);
+
+      // Format the row's own heartbeat, not `Date.now() - elapsedMs`, which drifts a second
+      // when the render straddles a clock tick.
+      const expected = formatDate(row.lastSeenAtMs as number, "medium", "en-US");
+      expect(lastSeenCellText()).toBe(expected);
+    });
+
+    it("shows never when the connector has not checked in", async () => {
+      await renderRows([rowWithHeartbeat(null)]);
+
+      expect(lastSeenCellText()).toBe("never");
+    });
+  });
+
+  describe("sort comparators", () => {
+    type Comparator = (
+      a: AccessConnectorRow,
+      b: AccessConnectorRow,
+      direction?: "asc" | "desc",
+    ) => number;
+    type Sorters = Record<
+      "sortByStatus" | "sortByConnection" | "sortByLastSeen" | "sortByAssignments",
+      Comparator
+    >;
+
+    function sorters(): Sorters {
+      return fixture.componentInstance as unknown as Sorters;
+    }
+
+    it("sorts active connectors before inactive ones", () => {
+      const active = makeAccessConnectorRow({ name: "b", enabled: true });
+      const inactive = makeAccessConnectorRow({ name: "a", enabled: false });
+
+      expect(sorters().sortByStatus(active, inactive)).toBeLessThan(0);
+      expect(sorters().sortByStatus(inactive, active)).toBeGreaterThan(0);
+    });
+
+    it("sorts connected connectors before disconnected ones", () => {
+      const connected = makeAccessConnectorRow({ name: "b", isConnected: true });
+      const disconnected = makeAccessConnectorRow({ name: "a", isConnected: false });
+
+      expect(sorters().sortByConnection(connected, disconnected)).toBeLessThan(0);
+    });
+
+    it("sorts by last seen with never-seen connectors first", () => {
+      const never = makeAccessConnectorRow({ name: "a", lastSeenAtMs: null });
+      const old = makeAccessConnectorRow({ name: "b", lastSeenAtMs: 1_000 });
+      const recent = makeAccessConnectorRow({ name: "c", lastSeenAtMs: 2_000 });
+
+      expect(sorters().sortByLastSeen(never, old)).toBeLessThan(0);
+      expect(sorters().sortByLastSeen(old, recent)).toBeLessThan(0);
+      expect(sorters().sortByLastSeen(recent, old)).toBeGreaterThan(0);
+    });
+
+    it("sorts by the number of assigned targets", () => {
+      const none = makeAccessConnectorRow({ name: "b", assignmentNames: [] });
+      const two = makeAccessConnectorRow({ name: "a", assignmentNames: ["x", "y"] });
+
+      expect(sorters().sortByAssignments(none, two)).toBeLessThan(0);
+    });
+
+    it("breaks ties by name and keeps them A to Z when descending", () => {
+      const a = makeAccessConnectorRow({ name: "alpha", lastSeenAtMs: null });
+      const b = makeAccessConnectorRow({ name: "bravo", lastSeenAtMs: null });
+
+      expect(sorters().sortByLastSeen(a, b, "asc")).toBeLessThan(0);
+      expect(sorters().sortByLastSeen(a, b, "desc")).toBeGreaterThan(0);
+    });
+  });
+
   describe("load error state", () => {
     beforeEach(async () => {
       TestBed.resetTestingModule();
@@ -835,6 +960,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
       name,
       statusLabelKey: enabled ? "active" : "inactive",
       isConnected,
+      lastSeenAtMs: null,
       assignmentNames: [],
       enabled,
       canAssign: enabled,
@@ -988,6 +1114,7 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
       name: id,
       statusLabelKey: "active",
       isConnected: true,
+      lastSeenAtMs: null,
       assignmentNames,
       enabled: true,
       canAssign: true,
@@ -1138,6 +1265,7 @@ describe("AccessConnectorsTabComponent table", () => {
       name,
       statusLabelKey: enabled ? "active" : "inactive",
       isConnected,
+      lastSeenAtMs: null,
       assignmentNames,
       enabled,
       canAssign: enabled,
@@ -1293,14 +1421,12 @@ describe("AccessConnectorsTabComponent table", () => {
   describe("create action placement", () => {
     const BUTTON_ID = "#rotation-shell_button_new-access-connector";
 
-    it("puts the register action in the toolbar's end slot", () => {
+    it("leaves the register action to the rotation shell's Add menu, not the toolbar", () => {
       const el = render();
 
-      expect(endSlot(el).children).toHaveLength(1);
-      const button = endSlot(el).querySelector<HTMLButtonElement>(BUTTON_ID);
-      expect(button).not.toBeNull();
-      expect(text(button!)).toBe("pamAccessConnectorNew");
-      expect(button!.getAttribute("type")).toBe("button");
+      expect(el.querySelector("bit-table-toolbar")).not.toBeNull();
+      expect(el.querySelector(BUTTON_ID)).toBeNull();
+      expect(endSlot(el).children).toHaveLength(0);
     });
 
     it("leaves the register action to the empty state when there are no connectors", () => {
@@ -1310,37 +1436,6 @@ describe("AccessConnectorsTabComponent table", () => {
       expect(el.querySelector(BUTTON_ID)).toBeNull();
       expect(el.querySelector("#access-connectors-tab_button_register-empty")).not.toBeNull();
     });
-
-    it("opens the register dialog, refreshes the list and toasts from the end slot button", async () => {
-      const el = render();
-      dialogService.open.mockReturnValue({ closed: of(true) });
-      const service = TestBed.inject(AccessConnectorsService);
-      const toastService = TestBed.inject(ToastService);
-
-      el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
-      await fixture.whenStable();
-
-      expect(dialogService.open).toHaveBeenCalled();
-      expect(service.registerCompleted).toHaveBeenCalledWith(ORGANIZATION_ID);
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          variant: "success",
-          message: "pamAccessConnectorRegistered",
-        }),
-      );
-    });
-
-    it("refreshes nothing when the register dialog is dismissed", async () => {
-      const el = render();
-      const service = TestBed.inject(AccessConnectorsService);
-      const toastService = TestBed.inject(ToastService);
-
-      el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
-      await fixture.whenStable();
-
-      expect(service.registerCompleted).not.toHaveBeenCalled();
-      expect(toastService.showToast).not.toHaveBeenCalled();
-    });
   });
 
   it("renders the column headings in order", () => {
@@ -1348,13 +1443,14 @@ describe("AccessConnectorsTabComponent table", () => {
       "name",
       "status",
       "pamAccessConnectorConnection",
+      "pamAccessConnectorLastSeen",
       "pamAccessConnectorAssignments",
       "options",
     ]);
   });
 
   it("gives the actions column a screen-reader-only heading", () => {
-    const actionsHeader = headers(render())[4];
+    const actionsHeader = headers(render())[5];
     const label = actionsHeader.querySelector(".tw-sr-only");
 
     expect(text(actionsHeader)).toBe("options");
@@ -1368,6 +1464,7 @@ describe("AccessConnectorsTabComponent table", () => {
         "Prod on-prem",
         "active",
         "pamAccessConnectorConnected",
+        "never",
         "pamAccessConnectorAssignmentCountSingular:1",
         "",
       ],
@@ -1375,6 +1472,7 @@ describe("AccessConnectorsTabComponent table", () => {
         "EU region",
         "active",
         "pamAccessConnectorDisconnected",
+        "never",
         "pamAccessConnectorAssignmentCount:2",
         "",
       ],
@@ -1382,6 +1480,7 @@ describe("AccessConnectorsTabComponent table", () => {
         "Staging",
         "inactive",
         "pamAccessConnectorDisconnected",
+        "never",
         "pamAccessConnectorAssignmentsNone",
         "",
       ],
@@ -1442,10 +1541,16 @@ describe("AccessConnectorsTabComponent table", () => {
     );
   });
 
-  it("sorts only by name, unsorted until asked", () => {
+  it("sorts by every data column, unsorted until asked", () => {
     const el = render([ROWS[2], ROWS[0], ROWS[1]]);
 
-    expect(sortableHeadings(el)).toEqual(["name"]);
+    expect(sortableHeadings(el)).toEqual([
+      "name",
+      "status",
+      "pamAccessConnectorConnection",
+      "pamAccessConnectorLastSeen",
+      "pamAccessConnectorAssignments",
+    ]);
     expect(rowNames(el)).toEqual(["Staging", "Prod on-prem", "EU region"]);
 
     clickSort(el, "name");
@@ -1616,6 +1721,7 @@ describe("AccessConnectorsTabComponent table", () => {
         "name",
         "status",
         "pamAccessConnectorConnection",
+        "pamAccessConnectorLastSeen",
         "pamAccessConnectorAssignments",
         "",
       ]);
