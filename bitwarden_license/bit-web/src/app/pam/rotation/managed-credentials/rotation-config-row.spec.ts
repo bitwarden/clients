@@ -244,11 +244,11 @@ describe("buildRotationConfigRow", () => {
     /**
      * A custom preset with nothing to be custom about used to resolve to `""`, which reached the
      * column as an empty `<code>` and the i18n service as an empty key. Both spellings of absent
-     * are covered: the server omits the field, and the schedule input clears it to null.
+     * are covered: the server omits the field, and the schedule input can leave it blank.
      */
     it.each([
       ["the server omitted the field", undefined],
-      ["the schedule input cleared it", null],
+      ["the schedule input left it blank", ""],
     ] as const)(
       "reads a custom preset with no expression as no schedule when %s",
       (_case, cron) => {
