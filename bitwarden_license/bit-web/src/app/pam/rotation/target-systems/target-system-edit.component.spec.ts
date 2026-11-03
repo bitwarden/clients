@@ -2444,6 +2444,12 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
     });
   }
 
+  /** An active connector the org holds that this target does not, so it can be assigned here. */
+  function freeConnector(): AccessConnector {
+    return accessConnector({ id: connectorId("c-free"), name: "Spare connector" });
+  }
+
+  /** A managed credential naming this target. */
   function credentialHere(): RotationConfigView {
     return rotationConfig({ targetSystemId: SYSTEM_ID });
   }
@@ -2496,7 +2502,7 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
   }
 
   it("names both steps when nothing has been set up", async () => {
-    await setup();
+    await setup({ connectors: [freeConnector()] });
 
     // The connector is the Access connectors field's own warning, so only the credential is named.
     expect(component.outstandingSetupSteps()).toEqual([CREDENTIAL_STEP]);
@@ -2561,9 +2567,25 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
   });
 
   it("does not claim the credential step when the credentials could not be read", async () => {
-    await setup({ configsFail: true });
+    await setup({ connectors: [freeConnector()], configsFail: true });
 
     expect(component.outstandingSetupSteps()).toEqual([]);
+  });
+
+  it("does not ask for a connector assignment when the org holds none to assign", async () => {
+    await setup({ connectors: [] });
+
+    expect(component.outstandingSetupSteps()).toEqual([CREDENTIAL_STEP]);
+  });
+
+  it("does not ask for one when every connector the org holds is inactive", async () => {
+    await setup({
+      connectors: [
+        accessConnector({ id: connectorId("c-off"), status: AccessConnectorStatus.Disabled }),
+      ],
+    });
+
+    expect(component.outstandingSetupSteps()).toEqual([CREDENTIAL_STEP]);
   });
 
   it("says nothing for a target that is out of service, which can act on neither step", async () => {

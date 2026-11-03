@@ -1,51 +1,30 @@
-import { TemplatePortal } from "@angular/cdk/portal";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  TemplateRef,
-  ViewContainerRef,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
-} from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
 import {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,
-  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
   BitCellComponent,
-  BitCellDefDirective,
-  BitColumnComponent,
-  BitHeaderCellComponent,
-  BitTableV2Component,
   ButtonModule,
-  CalloutModule,
   CardComponent,
+  CheckboxModule,
   CopyClickDirective,
-  defineTable,
   DialogService,
   FormFieldModule,
   HeaderComponent,
   IconButtonModule,
-  IconModule,
-  LayoutFooterService,
-  MenuModule,
-  MultiSelectModule,
   SectionComponent,
   SectionHeaderComponent,
   SelectItemView,
@@ -60,13 +39,18 @@ import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
+import {
+  AssignmentPickerColumn,
+  AssignmentPickerComponent,
+  AssignmentPickerHints,
+  AssignmentPickerRow,
+} from "../assignment-picker/assignment-picker.component";
 import { DetailBreadcrumbComponent } from "../detail-breadcrumb.component";
 import { tabFromSegment } from "../detail-tab";
 import { RotationHistorySkeletonComponent } from "../managed-credentials/rotation-history-skeleton.component";
 import { RotationHistoryComponent } from "../managed-credentials/rotation-history.component";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
-  AccessConnector,
   AccessConnectorDetail,
   AccessConnectorId,
   AccessConnectorStatus,
@@ -81,65 +65,44 @@ import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { lastSeenText, relativeTimeLabel } from "../rotation-relative-time";
 import { RotationSdkService } from "../rotation-sdk.service";
-import { targetSystemLabel } from "../target-systems/target-system-label";
-import {
-  TargetSystemStatusBadge,
-  resolveTargetSystemStatus,
-  targetSystemStatusBadge,
-} from "../target-systems/target-system-status";
+import { showSkeletonWhile } from "../skeleton-delay";
+import { TargetSystemLabel, targetSystemLabel } from "../target-systems/target-system-label";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
-
-import { accessConnectorDisplayStatus, accessConnectorStatusBadge } from "./access-connector-label";
 
 const ACCESS_CONNECTOR_DETAIL_TABS = ["configuration", "history"] as const;
 
-/** One row of the assigned target systems table, which lists the staged assignments. */
-export type AccessConnectorAssignment = {
-  readonly id: string;
-  readonly targetSystemId: TargetSystemId;
-  readonly idText: string;
-  readonly name: string;
-  /** The target system's name with its type, for the row's control labels. */
-  readonly label: string;
-  /** i18n key for the System type column, or null when there is none to state. */
-  readonly typeKey: string | null;
-  /** Null while the target system is unknown. */
-  readonly statusBadge: TargetSystemStatusBadge | null;
-};
+/** `null` for a saved assignment, otherwise the staged change not yet saved. */
+export type AccessConnectorAssignmentPending = "add" | "remove" | null;
 
-/** Which notice tops the Configuration tab, if any. */
-export type AccessConnectorCallout = "never-connected" | "disconnected" | null;
+export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
+  AssignmentPickerRow & {
+    readonly targetSystemId: TargetSystemId;
+    readonly pending: AccessConnectorAssignmentPending;
+  };
 
 /**
  * Detail page for one access connector, a sibling of the rotation shell. It provides its own
  * {@link TargetSystemsService} and {@link OrgCiphersService}, since the shell's don't reach it.
- * Activate, Deactivate and Delete take effect at once; target system assignments are staged in
- * the picker and written by the pinned footer's Save.
  */
 @Component({
   templateUrl: "./access-connector-detail.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TargetSystemsService, OrgCiphersService],
   imports: [
-    FormsModule,
+    CommonModule,
+    ReactiveFormsModule,
+    AssignmentPickerComponent,
     AsyncActionsModule,
     BadgeModule,
     BitCellComponent,
-    BitCellDefDirective,
-    BitColumnComponent,
-    BitHeaderCellComponent,
-    BitTableV2Component,
-    ButtonModule,
-    CalloutModule,
-    CardComponent,
-    CopyClickDirective,
     DetailBreadcrumbComponent,
+    ButtonModule,
+    CardComponent,
+    CheckboxModule,
+    CopyClickDirective,
     FormFieldModule,
     HeaderComponent,
     IconButtonModule,
-    IconModule,
-    MenuModule,
-    MultiSelectModule,
     RotationHistoryComponent,
     RotationHistorySkeletonComponent,
     RotationLoadErrorComponent,
@@ -152,7 +115,6 @@ export type AccessConnectorCallout = "never-connected" | "disconnected" | null;
     TooltipDirective,
     TypographyModule,
     I18nPipe,
-    TimestampPipe,
   ],
 })
 export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
@@ -164,8 +126,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly viewContainerRef = inject(ViewContainerRef);
-  private readonly layoutFooter = inject(LayoutFooterService);
+  private readonly formBuilder = inject(FormBuilder);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly accessConnectorId = asUuid<AccessConnectorId>(
@@ -174,17 +135,30 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
 
   protected readonly loading = signal(true);
 
+  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
+  protected readonly showSkeleton = showSkeletonWhile(this.loading);
+
+  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
+
   protected readonly loadError = signal<unknown | null>(null);
   protected readonly accessConnector = signal<AccessConnectorDetail | null>(null);
 
-  /** The assignments the picker holds, which {@link submit} diffs against the saved ones. */
-  private readonly stagedAssignmentIds = signal<readonly TargetSystemId[]>([]);
+  /**
+   * The staged connector, which the page renders and {@link submit} diffs against the saved one.
+   */
+  protected readonly formGroup = this.formBuilder.nonNullable.group({
+    active: false,
+    assignedTargetSystemIds: this.formBuilder.nonNullable.control<TargetSystemId[]>([]),
+  });
 
-  /** Holds the header's status actions while one is running. */
-  protected readonly statusBusy = signal(false);
+  private readonly staged = toSignal(
+    this.formGroup.valueChanges.pipe(map(() => this.formGroup.getRawValue())),
+    { initialValue: this.formGroup.getRawValue() },
+  );
 
-  /** Set by a failed Save, which the Configuration tab states until the next attempt. */
-  protected readonly saveFailed = signal(false);
+  protected readonly stagedActive = computed(() => this.staged().active);
+
+  private readonly stagedAssignmentIds = computed(() => this.staged().assignedTargetSystemIds);
 
   protected readonly activeTab = toSignal(
     this.route.paramMap.pipe(
@@ -196,6 +170,12 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
         ACCESS_CONNECTOR_DETAIL_TABS,
       ),
     },
+  );
+
+  /** Route to the Target systems tab, offered when the org has nothing eligible to assign. */
+  protected readonly targetSystemsRoute = rotationLink(
+    this.organizationId,
+    ROTATION_TABS.targetSystems,
   );
 
   /** Route to the Access connectors list, behind the breadcrumb and every exit. */
@@ -221,12 +201,6 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
 
   /** The org's rotation configs, loaded only when there is job history to label. */
   private readonly rotationConfigs = signal<RotationConfigView[]>([]);
-
-  /**
-   * Every access connector in the org, for the target systems' Not connected status. `null` while
-   * unread or failed, which never reads as Not connected.
-   */
-  private readonly orgConnectors = signal<readonly AccessConnector[] | null>(null);
 
   private readonly cipherNameById = toSignal(this.orgCiphers.cipherNameById$, {
     initialValue: new Map<CipherId, string>(),
@@ -272,151 +246,117 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     () => this.connector()?.assignedTargetSystemIds ?? [],
   );
 
-  protected readonly titleText = computed(() => this.connector()?.name ?? "");
-
-  protected readonly enabled = computed(
-    () => this.connector()?.status === AccessConnectorStatus.Enabled,
-  );
-
-  /** The header badge: Inactive, else Connected or Disconnected. */
-  protected readonly statusBadge = computed(() => {
-    const connector = this.connector();
-    return connector == null
-      ? null
-      : accessConnectorStatusBadge(accessConnectorDisplayStatus(connector));
-  });
-
-  /** An active connector that isn't connected says why; one never seen still needs setting up. */
-  protected readonly callout = computed<AccessConnectorCallout>(() => {
-    const connector = this.connector();
-    if (connector == null || !this.enabled() || connector.isConnected) {
-      return null;
-    }
-    return this.lastSeenAtMs() == null ? "never-connected" : "disconnected";
-  });
-
-  /** The org's connectors with this one as saved here, so its own changes show at once. */
-  private readonly connectorsForStatus = computed<readonly AccessConnector[] | null>(() => {
-    const connectors = this.orgConnectors();
-    const connector = this.connector();
-    if (connectors == null || connector == null) {
-      return connectors;
-    }
-    return [...connectors.filter((other) => other.id !== connector.id), connector];
-  });
-
-  /** Every target the picker holds, in the order it was staged. */
+  /** Every target the table lists: what is saved, then what has been staged on top of it. */
   protected readonly assignments = computed<AccessConnectorAssignment[]>(() => {
     const systemById = this.systemById();
-    const connectors = this.connectorsForStatus();
-    return this.stagedAssignmentIds().map((id) => {
-      const system = systemById.get(id);
-      const label = targetSystemLabel(this.i18nService, id, system);
+    const saved = this.savedAssignmentIds();
+    const stagedIds = this.stagedAssignmentIds();
+    const savedSet = new Set<string>(saved.map(String));
+    const stagedSet = new Set<string>(stagedIds.map(String));
+
+    const listed = [...saved, ...stagedIds.filter((id) => !savedSet.has(String(id)))];
+    return listed.map((id) => {
+      const label = targetSystemLabel(this.i18nService, id, systemById.get(id));
+      const pending: AccessConnectorAssignmentPending = !savedSet.has(String(id))
+        ? "add"
+        : !stagedSet.has(String(id))
+          ? "remove"
+          : null;
       return {
+        ...label,
         id: String(id),
         targetSystemId: id,
-        idText: uuidAsString(id),
-        name: label.name,
         label: label.qualified,
-        typeKey: label.qualifierKey,
-        statusBadge:
-          system == null
-            ? null
-            : targetSystemStatusBadge(resolveTargetSystemStatus(system, connectors)),
+        pending,
       };
     });
   });
 
-  protected readonly assignmentsTable = defineTable<AccessConnectorAssignment, "actions">(
-    this.assignments,
+  protected readonly titleText = computed(() => this.connector()?.name ?? "");
+
+  /** The saved status, which the header badge states; the checkbox states the staged one. */
+  protected readonly enabled = computed(
+    () => this.connector()?.status === AccessConnectorStatus.Enabled,
   );
 
-  /**
-   * The picker's options: the automatic target systems, plus anything staged that isn't one, so
-   * every chip has an option behind it. An inactive connector offers only what it holds, since
-   * the server assigns only to an enabled one.
-   */
-  protected readonly selectOptions = computed<SelectItemView[]>(() => {
-    const staged = this.stagedAssignmentIds();
-    const stagedSet = new Set<string>(staged.map(String));
-    const systemById = this.systemById();
-    const offered = this.enabled()
-      ? this.automaticSystems()
-      : this.automaticSystems().filter((system) => stagedSet.has(String(system.id)));
-    const offeredSet = new Set<string>(offered.map((system) => String(system.id)));
-    const extra = staged.filter((id) => !offeredSet.has(String(id)));
-    return [
-      ...offered.map((system) => this.selectItem(system.id, system)),
-      ...extra.map((id) => this.selectItem(id, systemById.get(id))),
-    ];
+  /** The automatic target systems the staged list does not hold, as picker rows. */
+  protected readonly assignOptions = computed<SelectItemView[]>(() => {
+    const staged = new Set<string>(this.stagedAssignmentIds().map(String));
+    return this.automaticSystems()
+      .filter((system) => !staged.has(String(system.id)))
+      .map((system) => {
+        const { qualified } = targetSystemLabel(this.i18nService, system.id, system);
+        return { id: String(system.id), listName: qualified, labelName: qualified };
+      });
   });
 
-  /** The staged assignments as picker items, which the multi-select shows as chips. */
-  protected readonly selectedItems = computed<SelectItemView[]>(() => {
-    const byId = new Map(this.selectOptions().map((item) => [item.id, item]));
-    return this.stagedAssignmentIds()
-      .map((id) => byId.get(String(id)))
-      .filter((item): item is SelectItemView => item != null);
-  });
-
-  /** The i18n key for the hint under the picker. */
-  protected readonly pickerHintKey = computed(() => {
-    if (this.targetSystemsLoadError() != null) {
-      return "pamAccessConnectorTargetSystemsLoadError";
-    }
-    if (!this.enabled()) {
-      return "pamAccessConnectorAssignTargetSystemsDisabled";
-    }
-    return "pamAccessConnectorTargetSystemsHint";
-  });
-
-  /** True when the staged assignments differ from the saved ones. */
-  protected readonly hasUnsavedChanges = computed(() => {
-    const saved = new Set<string>(this.savedAssignmentIds().map(String));
-    const staged = this.stagedAssignmentIds();
-    return staged.length !== saved.size || staged.some((id) => !saved.has(String(id)));
-  });
-
-  protected readonly showFooter = computed(
-    () =>
-      !this.loading() &&
-      this.loadError() == null &&
-      this.activeTab() === "configuration" &&
-      this.hasUnsavedChanges(),
+  /** True when the org has nothing eligible at all, rather than having assigned it all. */
+  protected readonly noEligibleTargetSystems = computed(
+    () => this.targetSystemsLoadError() == null && this.automaticSystems().length === 0,
   );
 
-  private readonly footerTemplate = viewChild<TemplateRef<unknown>>("footer");
+  protected readonly assignmentColumns: readonly AssignmentPickerColumn[] = [
+    { headerKey: "pamAccessConnectorAssignTargetLabel" },
+    { headerKey: "pamTargetSystemTypeColumn" },
+    { headerKey: "pamTargetSystemIdLabel" },
+  ];
+
+  protected readonly assignmentHints: AssignmentPickerHints = {
+    default: "pamAccessConnectorAssignSelectHint",
+    noneEligible: "pamAccessConnectorAssignNoTargetSystems",
+    loadError: "pamAccessConnectorTargetSystemsLoadError",
+  };
 
   constructor() {
-    this.pinFooter();
+    this.formGroup.controls.active.valueChanges.pipe(takeUntilDestroyed()).subscribe((active) => {
+      if (!active) {
+        this.dropStagedAssignmentAdditions();
+      }
+    });
     void this.initialize();
   }
 
-  /** Mirrors the picker's selection into the staged list; nothing is written until Save. */
-  protected onSelectionChanged(items: SelectItemView[] | null): void {
-    const selected = new Set((items ?? []).map((item) => item.id));
-    const kept = this.stagedAssignmentIds().filter((id) => selected.has(String(id)));
-    const keptSet = new Set<string>(kept.map(String));
-    const added = (items ?? [])
-      .filter((item) => !keptSet.has(item.id))
+  /** Stage every picked target; nothing is written until Save. */
+  protected readonly assignTargets = async (
+    selected: SelectItemView[],
+  ): Promise<readonly string[]> => {
+    if (!this.stagedActive() || selected.length === 0) {
+      return [];
+    }
+
+    const staged = new Set<string>(this.stagedAssignmentIds().map(String));
+    const added = selected
+      .filter((item) => !staged.has(item.id))
       .map((item) => asUuid<TargetSystemId>(item.id));
-    this.stagedAssignmentIds.set([...kept, ...added]);
-  }
+    this.stageAssignments((ids) => [...ids, ...added]);
+    return selected.map((item) => item.id);
+  };
 
-  /** Stages one target's removal. */
-  protected unassignTarget(assignment: AccessConnectorAssignment): void {
-    this.stagedAssignmentIds.update((ids) => ids.filter((id) => id !== assignment.targetSystemId));
-  }
+  /** Stage one target's removal. */
+  protected readonly unassignTarget = async (
+    assignment: AccessConnectorAssignment,
+  ): Promise<boolean> => {
+    const targetSystemId = assignment.targetSystemId;
+    if (!this.stagedAssignmentIds().some((id) => id === targetSystemId)) {
+      return false;
+    }
+    this.stageAssignments((ids) => ids.filter((id) => id !== targetSystemId));
+    return true;
+  };
 
-  protected discardEdits(): void {
-    this.saveFailed.set(false);
-    this.stagedAssignmentIds.set([...this.savedAssignmentIds()]);
-  }
-
-  /** Writes the staged assignments, then returns to the list. */
+  /**
+   * Enables before writing assignments and disables after, since only an enabled connector can be
+   * assigned.
+   */
   protected readonly submit = async (): Promise<void> => {
     const connector = this.connector();
     if (connector == null) {
+      return;
+    }
+
+    const active = this.stagedActive();
+    const statusChange = active === this.enabled() ? null : active;
+    if (statusChange === false && !(await this.confirmDeactivate(connector.name))) {
       return;
     }
 
@@ -425,139 +365,82 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     const toAssign = staged.filter((id) => !saved.includes(id));
     const toUnassign = saved.filter((id) => !staged.includes(id));
 
-    this.saveFailed.set(false);
     try {
+      if (statusChange === true) {
+        await this.writeStatus(connector.id, true);
+      }
       await this.writeAssignments(connector.id, toAssign, toUnassign);
+      if (statusChange === false) {
+        await this.writeStatus(connector.id, false);
+      }
     } catch (e) {
-      this.saveFailed.set(true);
-      this.showError(e, "pamAccessConnectorSaveFailed");
+      this.showError(e);
       return;
     }
 
+    this.formGroup.markAsPristine();
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("pamAccessConnectorSaved"),
     });
-    await this.navigateToList();
   };
 
-  protected readonly activate = async (): Promise<void> => {
+  protected readonly deleteAccessConnector = async (): Promise<void> => {
     const connector = this.connector();
-    if (connector == null || this.statusBusy()) {
-      return;
-    }
-    this.statusBusy.set(true);
-    try {
-      await this.rotationSdk.enableConnector(this.organizationId, connector.id);
-      this.patchStatus(AccessConnectorStatus.Enabled);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamAccessConnectorActivated"),
-      });
-    } catch (e) {
-      this.showError(e, "unexpectedError");
-    } finally {
-      this.statusBusy.set(false);
-    }
-  };
-
-  /** Bound to a menu item, so it confirms and reports its own failure. */
-  protected async deactivate(): Promise<void> {
-    const connector = this.connector();
-    if (connector == null || this.statusBusy()) {
-      return;
-    }
-    if (!(await this.dialogService.openSimpleDialog(accessConnectorDeactivateConfirmOptions()))) {
-      return;
-    }
-    this.statusBusy.set(true);
-    try {
-      await this.rotationSdk.disableConnector(this.organizationId, connector.id);
-      this.patchStatus(AccessConnectorStatus.Disabled);
-      this.dropStagedAssignmentAdditions();
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamAccessConnectorDeactivated"),
-      });
-    } catch (e) {
-      this.showError(e, "pamAccessConnectorDeactivateFailed");
-    } finally {
-      this.statusBusy.set(false);
-    }
-  }
-
-  /** Bound to a menu item, so it confirms and reports its own failure. */
-  protected async deleteAccessConnector(): Promise<void> {
-    const connector = this.connector();
-    if (connector == null || this.statusBusy()) {
+    if (connector == null) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog(
-      accessConnectorDeleteConfirmOptions(),
+      accessConnectorDeleteConfirmOptions(connector.name),
     );
     if (!confirmed) {
       return;
     }
-    this.statusBusy.set(true);
     try {
       await this.rotationSdk.deleteConnector(this.organizationId, connector.id);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamAccessConnectorDeleted"),
       });
-      this.discardEdits();
-      await this.router.navigate(this.connectorsListRoute);
+      await this.navigateToList();
     } catch (e) {
-      this.showError(e, "pamAccessConnectorDeleteFailed");
-    } finally {
-      this.statusBusy.set(false);
+      this.showError(e);
     }
-  }
+  };
 
-  /**
-   * Read by the CanDeactivate guard, which a `:tab` change doesn't trigger. Nothing is unsaved
-   * while loading, since nothing has been staged yet.
-   */
   unsavedChanges(): boolean {
-    return !this.loading() && this.hasUnsavedChanges();
+    return this.formGroup.dirty;
   }
 
-  private selectItem(id: TargetSystemId, system: TargetSystemView | undefined): SelectItemView {
-    const { qualified } = targetSystemLabel(this.i18nService, id, system);
-    return { id: String(id), listName: qualified, labelName: qualified };
-  }
-
-  /**
-   * Pins Save and Cancel to the layout's footer region, outside the scrolling content, while an
-   * assignment change is unsaved.
-   */
-  private pinFooter(): void {
-    let portal: TemplatePortal | null = null;
-    const detach = () => {
-      if (portal != null) {
-        this.layoutFooter.detach(portal);
-        portal = null;
-      }
-    };
-    effect(() => {
-      const template = this.footerTemplate();
-      if (template == null || !this.showFooter()) {
-        detach();
-      } else if (portal == null) {
-        portal = new TemplatePortal(template, this.viewContainerRef);
-        this.layoutFooter.attach(portal);
-      }
-    });
-    inject(DestroyRef).onDestroy(detach);
+  private confirmDeactivate(name: string): Promise<boolean> {
+    return this.dialogService.openSimpleDialog(accessConnectorDeactivateConfirmOptions(name));
   }
 
   /**
-   * The server assigns only to an enabled connector, so deactivating drops staged additions.
+   * The server assigns only to an enabled connector, so unchecking Active drops staged additions.
    * Staged removals survive, since the server still honours them for an inactive connector.
    */
   private dropStagedAssignmentAdditions(): void {
     const saved = new Set<string>(this.savedAssignmentIds().map(String));
-    this.stagedAssignmentIds.update((ids) => ids.filter((id) => saved.has(String(id))));
+    if (this.stagedAssignmentIds().every((id) => saved.has(String(id)))) {
+      return;
+    }
+    this.stageAssignments((ids) => ids.filter((id) => saved.has(String(id))));
+  }
+
+  private stageAssignments(update: (ids: TargetSystemId[]) => TargetSystemId[]): void {
+    const control = this.formGroup.controls.assignedTargetSystemIds;
+    control.setValue(update(control.value));
+    control.markAsDirty();
+  }
+
+  private async writeStatus(id: AccessConnectorId, active: boolean): Promise<void> {
+    if (active) {
+      await this.rotationSdk.enableConnector(this.organizationId, id);
+    } else {
+      await this.rotationSdk.disableConnector(this.organizationId, id);
+    }
+    this.patchStatus(active ? AccessConnectorStatus.Enabled : AccessConnectorStatus.Disabled);
   }
 
   /** One call at a time; a refusal stops the rest and leaves earlier writes saved. */
@@ -595,8 +478,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
       ]);
       if (accessConnector != null) {
         this.accessConnector.set(accessConnector);
-        this.stagedAssignmentIds.set([...this.savedAssignmentIds()]);
-        void this.loadOrgConnectors();
+        this.resetForm();
         if (accessConnector.jobs.length > 0) {
           void this.loadCredentialNames();
         }
@@ -606,13 +488,12 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     }
   }
 
-  /** Not awaited; a failure only costs the target systems their Not connected status. */
-  private async loadOrgConnectors(): Promise<void> {
-    try {
-      this.orgConnectors.set(await this.rotationSdk.listConnectors(this.organizationId));
-    } catch {
-      this.orgConnectors.set(null);
-    }
+  private resetForm(): void {
+    this.formGroup.setValue({
+      active: this.enabled(),
+      assignedTargetSystemIds: [...this.savedAssignmentIds()],
+    });
+    this.formGroup.markAsPristine();
   }
 
   /**
@@ -642,6 +523,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   }
 
   private navigateToList(): Promise<boolean> {
+    this.formGroup.markAsPristine();
     return this.router.navigate(this.connectorsListRoute);
   }
 
@@ -670,12 +552,11 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     });
   }
 
-  /** The SDK's or server's reason when there is one, else the action's own failure copy. */
-  private showError(e: unknown, fallbackKey: string): void {
+  private showError(e: unknown): void {
     const message =
       rotationErrorMessage(e) ??
       (e instanceof ErrorResponse ? e.message : undefined) ??
-      this.i18nService.t(fallbackKey);
+      this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
 }

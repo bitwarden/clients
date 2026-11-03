@@ -51,6 +51,7 @@ import {
   SkeletonTextComponent,
   TabsModule,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
@@ -156,6 +157,7 @@ function setControlEnabled(control: AbstractControl, enabled: boolean): void {
     SkeletonComponent,
     SkeletonTextComponent,
     TabsModule,
+    TooltipDirective,
     TypographyModule,
     I18nPipe,
   ],
