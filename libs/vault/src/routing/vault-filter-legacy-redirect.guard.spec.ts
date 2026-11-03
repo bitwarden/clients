@@ -14,6 +14,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { VAULT_ITEM_FILTER, VaultItemFilter } from "../tokens/vault-item-filter.token";
+
 import { vaultFilterLegacyRedirectGuard } from "./vault-filter-legacy-redirect.guard";
 
 jest.mock("@angular/router", () => ({
@@ -364,6 +366,57 @@ describe("vaultFilterLegacyRedirectGuard", () => {
 
         const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
         expect(queryParams).toEqual(expect.objectContaining({ "vault.search": "hello world" }));
+      });
+    });
+
+    describe("contributed filter mapping (VAULT_ITEM_FILTER)", () => {
+      function provideItemFilter(key: string): void {
+        TestBed.overrideProvider(VAULT_ITEM_FILTER, {
+          useValue: mock<VaultItemFilter>({ key }),
+        });
+      }
+
+      it("maps ?controlledAccess → ?vault.controlledAccess when the filter's key is controlledAccess", async () => {
+        provideItemFilter("controlledAccess");
+
+        await runGuard(makeRoute({ controlledAccess: "privileged" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(
+          expect.objectContaining({ "vault.controlledAccess": "privileged" }),
+        );
+      });
+
+      it("strips the legacy key from the redirect URL", async () => {
+        provideItemFilter("controlledAccess");
+
+        await runGuard(makeRoute({ controlledAccess: "privileged" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(Object.keys(queryParams ?? {})).toEqual(["vault.controlledAccess"]);
+      });
+
+      it("does not map ?controlledAccess without a provider", async () => {
+        const result = await runGuard(makeRoute({ controlledAccess: "privileged" }));
+
+        expect(result).toBe(true);
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+      });
+
+      it("leaves ?controlledAccess in place when another legacy param redirects without a provider", async () => {
+        await runGuard(makeRoute({ type: "login", controlledAccess: "privileged" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual({ controlledAccess: "privileged", "vault.type": "1" });
+      });
+
+      it("does not map a provider key that is a built-in key", async () => {
+        provideItemFilter("folder");
+
+        const result = await runGuard(makeRoute({ folder: "x" }));
+
+        expect(result).toBe(true);
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
       });
     });
 

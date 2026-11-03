@@ -46,7 +46,6 @@ import { OverflowItemDirective } from "../overflow-list";
 import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
-import { StatusLockupComponent } from "../status-lockup";
 import { TooltipDirective } from "../tooltip";
 import { TypographyModule } from "../typography";
 import { focusAfterRender } from "../utils/focus-after-render";
@@ -168,7 +167,6 @@ const CLEAR_FILTER = Symbol("clear-filter");
     CheckboxModule,
     FilterTreeRowDirective,
     IconTileComponent,
-    StatusLockupComponent,
     TooltipDirective,
     TypographyModule,
   ],
@@ -302,7 +300,7 @@ export class FilterMenuComponent
     "has-[:focus-visible]:tw-bg-bg-brand-softer",
     "has-[:focus-visible]:tw-text-fg-heading",
     "has-[:disabled]:tw-cursor-default",
-    "has-[:disabled]:hover:tw-bg-background",
+    "has-[:disabled]:hover:tw-bg-bg-primary",
     "has-[:disabled]:!tw-text-fg-inactive",
   ];
 

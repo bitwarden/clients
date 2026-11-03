@@ -9,6 +9,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -16,6 +17,7 @@ import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -40,6 +42,8 @@ describe("ForegroundUnlockService", () => {
   const biometricsService = mock<BiometricsService>();
   const biometricStateService = mock<BiometricStateService>();
   const v2UpgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+  const keyService = mock<KeyService>();
+  const sdkService = mock<SdkService>();
   const autoUnlockService = mock<AutoUnlockService>();
   const messageSender = mock<MessageSender>();
   const messageListener = mock<MessageListener>();
@@ -84,6 +88,8 @@ describe("ForegroundUnlockService", () => {
       biometricsService,
       biometricStateService,
       v2UpgradeTokenStateService,
+      keyService,
+      sdkService,
       autoUnlockService,
       messageSender,
       messageListener,

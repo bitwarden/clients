@@ -8,6 +8,7 @@ import {
   InvoicePreviewClient,
   OrganizationPlanChangePreviewRequest,
   OrganizationPurchasePreviewRequest,
+  OrganizationRestartPreviewRequest,
   PremiumOrgUpgradePreviewRequest,
   PremiumPurchasePreviewRequest,
 } from "./invoice-preview.client";
@@ -144,6 +145,22 @@ describe("InvoicePreviewClient", () => {
       expect(mockApiService.send).toHaveBeenCalledWith(
         "POST",
         "/organizations/org-id-123/billing/subscription/plan-change/preview",
+        request,
+        true,
+        true,
+      );
+    });
+
+    it("should POST restart previews to the organization-scoped restart route", async () => {
+      const request: OrganizationRestartPreviewRequest = {
+        billingAddress: { country: "US", postalCode: "12345", taxId: null },
+      };
+
+      await sut.previewOrganizationRestart("org-id-123", request);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-id-123/billing/subscription/restart/preview",
         request,
         true,
         true,

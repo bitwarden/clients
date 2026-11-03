@@ -8,6 +8,8 @@ import { GearIcon } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -55,7 +57,15 @@ import {
 } from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import {
+  PrivilegedControlsAdjustSubscriptionComponent,
+  PrivilegedControlsSubscriptionOptions,
+} from "./privileged-controls-adjust-subscription.component";
 import { resolveOrgSubscriptionAccess } from "./resolve-org-subscription-access";
+import {
+  openRestartSubscriptionDialog,
+  RestartSubscriptionDialogResultType,
+} from "./restart-subscription-dialog.component";
 import {
   SecretsManagerAdjustSubscriptionComponent,
   SecretsManagerSubscriptionOptions,
@@ -70,6 +80,8 @@ const FAMILIES_OR_STARTER_PLANS: PlanType[] = [
   PlanType.TeamsStarter2023,
   PlanType.TeamsStarter,
 ];
+
+const ENDED_STATUSES: (string | undefined)[] = ["canceled", "incomplete_expired"];
 
 const QUERY_PARAM_UPGRADE = "upgrade";
 const QUERY_PARAM_PRODUCT_TIER = "productTierType";
@@ -104,6 +116,7 @@ const SubscriptionStatusLabels: Record<string, string> = {
     AdjustSubscription,
     SecretsManagerSubscribeStandaloneComponent,
     SecretsManagerAdjustSubscriptionComponent,
+    PrivilegedControlsAdjustSubscriptionComponent,
     ErrorCardComponent,
     CalloutComponent,
     DatePipe,
@@ -122,11 +135,13 @@ export class OrganizationSubscriptionCloudVNextComponent {
   private readonly apiService = inject(ApiService);
   private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
   private readonly organizationBillingClient = inject(OrganizationBillingClient);
+  private readonly configService = inject(ConfigService);
 
   // Re-fires the subscription data streams after a mutation (reinstate, cancel, storage, etc.).
   // Seeded so the streams load once on init, then reload each time refreshAll() emits.
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
   readonly organizationId: string = this.route.snapshot.params.organizationId;
+  protected readonly typedOrganizationId = this.organizationId as OrganizationId;
   readonly gearIcon = GearIcon;
 
   constructor() {
@@ -333,6 +348,25 @@ export class OrganizationSubscriptionCloudVNextComponent {
     );
   });
 
+  private readonly pamBillingSupportEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
+    { initialValue: false },
+  );
+
+  readonly showAdjustPrivilegedControls = computed(() => {
+    const org = this.organization();
+    const sub = this.organizationSubscription();
+    if (!this.pamBillingSupportEnabled() || org == null || sub == null) {
+      return false;
+    }
+    return (
+      org.usePam &&
+      this.privilegedControlsOptions() != null &&
+      sub.isOnPamSalesInitiatedTrial !== true &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
+    );
+  });
+
   /**
    * Determines if the password manager seats can be adjusted.
    * @returns True if the password manager seats can be adjusted, false otherwise.
@@ -458,6 +492,25 @@ export class OrganizationSubscriptionCloudVNextComponent {
     };
   });
 
+  readonly privilegedControlsOptions = computed<PrivilegedControlsSubscriptionOptions | null>(
+    () => {
+      const sub = this.organizationSubscription();
+      const plan = sub?.plan;
+      const privilegedControls = plan?.PrivilegedControls;
+      if (sub == null || plan == null || privilegedControls == null || sub.pamSeats == null) {
+        return null;
+      }
+      return {
+        seatCount: sub.pamSeats,
+        maxAutoscaleSeats: sub.maxAutoscalePamSeats,
+        passwordManagerSeats: sub.seats,
+        passwordManagerMaxAutoscaleSeats: sub.maxAutoscaleSeats ?? undefined,
+        seatPrice: privilegedControls.seatPrice,
+        interval: plan.isAnnual ? "year" : "month",
+      };
+    },
+  );
+
   /**
    * Retrieves the description of the subscription for display purposes.
    * @returns The subscription description, or an empty string if not applicable.
@@ -501,8 +554,10 @@ export class OrganizationSubscriptionCloudVNextComponent {
         void this.reinstate();
         return;
       case SubscriptionCardActions.UpgradePlan:
-      case SubscriptionCardActions.Resubscribe:
         void this.changePlan();
+        return;
+      case SubscriptionCardActions.Resubscribe:
+        void this.resubscribe();
         return;
       case SubscriptionCardActions.ManageInvoices:
         void this.router.navigate(["../history"], { relativeTo: this.route });
@@ -538,6 +593,31 @@ export class OrganizationSubscriptionCloudVNextComponent {
       return;
     }
     this.refreshAll();
+  };
+
+  /**
+   * Restarts an ended subscription through the restart dialog when the preview-driven cart is on,
+   * and otherwise opens the change plan dialog.
+   * @param preSelectedProductTier Optional pre-selected product tier for the change plan dialog.
+   * Ignored for an ended subscription, which always restarts on its own plan.
+   */
+  readonly resubscribe = async (preSelectedProductTier?: ProductTierType): Promise<void> => {
+    const previewCartEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
+    );
+    const subscription = this.organizationSubscription();
+    const status = subscription?.subscription?.status;
+    if (previewCartEnabled && subscription != null && ENDED_STATUSES.includes(status)) {
+      const reference = openRestartSubscriptionDialog(this.dialogService, {
+        data: { organizationId: this.organizationId, subscription },
+      });
+      const result = await lastValueFrom(reference.closed);
+      if (result === RestartSubscriptionDialogResultType.Submitted) {
+        this.refreshAll();
+      }
+      return;
+    }
+    await this.changePlan(preSelectedProductTier);
   };
 
   readonly reinstate = async () => {
@@ -693,7 +773,10 @@ export class OrganizationSubscriptionCloudVNextComponent {
     this.refreshAll();
   }
 
-  /** Opens the change plan dialog if the upgrade query parameter is present. */
+  /**
+   * Opens the change plan dialog, or the restart dialog for an ended subscription, if the upgrade
+   * query parameter is present.
+   */
   private openChangePlanIfUpgradeRequested() {
     this.route.queryParamMap
       .pipe(
@@ -708,7 +791,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
         take(1),
         takeUntilDestroyed(),
       )
-      .subscribe((preSelectedProductTier) => void this.changePlan(preSelectedProductTier));
+      .subscribe((preSelectedProductTier) => void this.resubscribe(preSelectedProductTier));
   }
 
   private toProductTier(value: string | null): ProductTierType | undefined {

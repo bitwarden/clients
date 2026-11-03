@@ -1,3 +1,5 @@
+import type { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+
 import type {
   AccessLeaseExtensionRequest,
   AccessLeaseId,
@@ -16,4 +18,9 @@ export abstract class AccessLeaseSdkService {
     request: AccessLeaseExtensionRequest,
   ): Promise<AccessRequestView>;
   abstract endLease(id: AccessLeaseId, request: AccessLeaseRevokeRequest): Promise<void>;
+  /**
+   * The full view of a cipher the caller holds a live lease on, or `undefined` without one. Never
+   * stored.
+   */
+  abstract leasedCipher(cipherId: string): Promise<SdkCipherView | undefined>;
 }
