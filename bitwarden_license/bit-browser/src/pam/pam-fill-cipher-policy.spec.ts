@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, Subject, take, toArray } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Observable, Subject, take, toArray } from "rxjs";
 
 import { CipherUse } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -43,7 +43,7 @@ describe("PamFillCipherPolicy", () => {
   describe("changed$", () => {
     it("emits for decrypted stored cipher changes and revealed view changes", async () => {
       const cipherViews$ = new Subject<CipherView[] | null>();
-      cipherService.cipherViews$.mockReturnValue(cipherViews$);
+      cipherService.cipherViews$.mockReturnValue(cipherViews$ as Observable<CipherView[]>);
 
       const emitted = firstValueFrom(policy.changed$(userId).pipe(take(3), toArray()));
       cipherViews$.next(null);
@@ -200,7 +200,7 @@ describe("PamFillCipherPolicy", () => {
       [true, "another username and password", { username: "other", password: "other" }],
       [true, "another site", { username: "Admin", password: "revealed", uri: "https://other.com" }],
     ])("is %s for %s", async (expected, _, form) => {
-      const data = { uri: url, username: "", password: "", ...form };
+      const data = { uri: url, username: "", ...form };
 
       expect(await policy.canOfferSave(data, userId)).toBe(expected);
     });
