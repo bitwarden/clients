@@ -2,7 +2,12 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testin
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Subject, of } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
+
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
   AccessEventService,
@@ -11,13 +16,7 @@ import {
   AccessRefreshService,
   AccessRequestSdkService,
   AccessRequestView,
-  DefaultAccessRefreshService,
-} from "@bitwarden/bit-pam";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+} from "..";
 
 import { AccessNameResolverService, ResolvedNames } from "./access-name-resolver.service";
 import { MyAccessService } from "./my-access.service";
@@ -80,7 +79,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
   let fixture: ComponentFixture<MyRequestsTabComponent>;
   let requestsApi: ReturnType<typeof mock<AccessRequestSdkService>>;
   let leasesApi: ReturnType<typeof mock<AccessLeaseSdkService>>;
-  let accessRefresh: DefaultAccessRefreshService;
+  let accessRefresh: ReturnType<typeof mock<AccessRefreshService>>;
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let push$: Subject<void>;
 
@@ -88,12 +87,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     push$ = new Subject<void>();
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
-    // The real one, so a push reaches MyAccessService through it as in the app.
-    accessRefresh = new DefaultAccessRefreshService({
-      accessChanged$: () => push$.asObservable(),
-      approverInboxChanged$: () => new Subject<void>(),
-    } as AccessEventService);
-    jest.spyOn(accessRefresh, "notifyAccessChanged");
+    accessRefresh = mock<AccessRefreshService>();
     dialogService = mock<DialogService>();
 
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
@@ -106,7 +100,6 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     await TestBed.configureTestingModule({
       imports: [MyRequestsTabComponent, NoopAnimationsModule],
       providers: [
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         MyAccessService,
         { provide: AccessRequestSdkService, useValue: requestsApi },
@@ -172,7 +165,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     await settle();
   }
 
-  describe("AC 6: clicking Start", () => {
+  describe("AC 6 — clicking Start", () => {
     it("activates the grant through the SDK and re-reads the lease it minted", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-grant", { status: "approved", resolvedAt: iso(-HOUR) }),
@@ -212,7 +205,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     });
   });
 
-  describe("AC 7: clicking Cancel request", () => {
+  describe("AC 7 — clicking Cancel request", () => {
     it("withdraws it through the SDK and drops the row from the tab", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([request("req-pending")]);
       await open();
@@ -236,7 +229,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     });
   });
 
-  describe("AC 8: clicking End access", () => {
+  describe("AC 8 — clicking End access", () => {
     it("ends the lease through the SDK and drops the row from the tab", async () => {
       leasesApi.listMyLeases.mockResolvedValue([lease("lease-1")]);
       await open();
@@ -261,7 +254,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     });
   });
 
-  describe("AC 10: an approver decides", () => {
+  describe("AC 10 — an approver decides", () => {
     it("moves the row to Ready to use when the push says it was approved", fakeAsync(() => {
       requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1")]);
       fixture = TestBed.createComponent(MyRequestsTabComponent);
@@ -302,7 +295,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     }));
   });
 
-  describe("AC 11: counts follow the rows", () => {
+  describe("AC 11 — counts follow the rows", () => {
     it("re-counts the item total and the Status options when a row leaves", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-a"),

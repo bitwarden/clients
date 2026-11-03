@@ -14,6 +14,7 @@ import { RequestSummaryComponent } from "./request-summary.component";
       [organizationName]="organizationName()"
       [collectionName]="collectionName()"
       [requesterName]="requesterName()"
+      [requesterEmail]="requesterEmail()"
       duration="1 hour"
       [relativeStart]="{ key: 'pamInboxStartTomorrow', value: null }"
       [exactWindow]="exactWindow()"

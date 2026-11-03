@@ -18,6 +18,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
+
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
@@ -428,7 +430,7 @@ describe("MyRequestsTabComponent", () => {
 
       const cancel = query('[data-testid="my-access-cancel-req-pending"]');
       expect(cancel).not.toBeNull();
-      // Figma names this glyph "clear" and maps it to bwi-error, a circled cross, not a bare one.
+      // Figma names this glyph "clear" and maps it to bwi-error — a circled cross, not a bare one.
       expect(cancel?.querySelector("i")?.className).toContain("bwi-error");
       expect(query('[data-testid="my-access-approved-start-req-pending"]')).toBeNull();
     });
@@ -533,7 +535,7 @@ describe("MyRequestsTabComponent", () => {
         create();
 
         const secondary = query('bit-table-v2 [slot="secondary"]');
-        expect(secondary?.textContent).toContain("pamInboxInSharedFolder Production");
+        expect(secondary?.textContent).toContain("pamInboxInCollection Production");
         expect(secondary?.querySelector("bit-icon")).toBeNull();
       });
 
@@ -633,7 +635,11 @@ describe("MyRequestsTabComponent", () => {
         ]);
         create();
 
-        expect(text(rows()[0])).toContain(formatCalendarDate("en-US", opens.getTime()));
+        const expected = new Intl.DateTimeFormat(undefined, {
+          month: "short",
+          day: "numeric",
+        }).format(opens);
+        expect(text(rows()[0])).toContain(expected);
       });
 
       it("leaves a window inside today with bare times", () => {
@@ -661,25 +667,35 @@ describe("MyRequestsTabComponent", () => {
         create();
 
         const row = rows()[0];
-        expect(text(row)).toContain("pamWindowOpenUntil");
+        expect(text(row)).toContain("pamWindowUntil");
         expect(text(row)).not.toContain("pamWindowRange");
         expect(text(row)).toContain("1 hour");
       });
 
-      it("reveals the actions on row hover or keyboard focus", () => {
+      it("reveals the actions on row hover or keyboard focus only", () => {
         leases$.next([leaseRow()]);
         create();
 
         const actions = query('[data-testid="my-access-end-lease-1"]')!.parentElement!;
-        expect(actions.className).toContain("tw-opacity-[var(--bit-hover-reveal,1)]");
-        expect(actions.closest("bit-row")?.className).toContain("[--bit-hover-reveal:0]");
+        expect(actions.className).toContain("tw-opacity-0");
+        expect(actions.className).toContain("group-hover/row:tw-opacity-100");
+        expect(actions.className).toContain("group-has-[:focus-visible]/row:tw-opacity-100");
+      });
+
+      it("keeps a hidden action out of the way of the pointer until it is revealed", () => {
+        leases$.next([leaseRow()]);
+        create();
+
+        const actions = query('[data-testid="my-access-end-lease-1"]')!.parentElement!;
+        expect(actions.className).toContain("tw-pointer-events-none");
+        expect(actions.className).toContain("group-hover/row:tw-pointer-events-auto");
       });
     });
 
     /**
      * `window` is a synthetic column, so without an explicit comparator the table sorts on a
      * property that does not exist and the header silently does nothing. The rows are built in
-     * window-END order, so the fixtures below deliberately disagree on window START, otherwise
+     * window-END order, so the fixtures below deliberately disagree on window START — otherwise
      * the default order already matches and the assertion cannot tell the two apart.
      */
     it("sorts the Requested window column when its header is clicked", () => {
@@ -757,16 +773,6 @@ describe("MyRequestsTabComponent", () => {
 
         expect(chips().map((c) => c.getAttribute("key"))).toEqual(["status", "collection"]);
         expect(chipFor("requester")).toBeUndefined();
-      });
-
-      it("labels each chip by its name alone while nothing is selected", () => {
-        oneOfEach();
-        create();
-
-        const label = (key: string) =>
-          text(chipFor(key)!.querySelector<HTMLElement>("button[bit-chip-content]")!);
-        expect(label("status")).toBe("pamColumnStatus");
-        expect(label("collection")).toBe("sharedFolders");
       });
 
       it("lists every status, whether or not a row currently holds one", () => {

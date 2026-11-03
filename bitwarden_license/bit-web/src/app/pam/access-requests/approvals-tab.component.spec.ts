@@ -18,6 +18,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
 import { toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
@@ -27,7 +28,6 @@ import {
   fromUnstartedApproval,
 } from "../approvals/approver-row";
 import { toManagedLeaseRow } from "../approvals/managed-lease-row";
-import { WithdrawApprovalDialogComponent } from "../approvals/withdraw-approval-dialog/withdraw-approval-dialog.component";
 
 import { emptyResolvedNames } from "./access-name-resolver.service";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
@@ -110,7 +110,6 @@ describe("ApprovalsTabComponent", () => {
     decide: jest.Mock;
     revokeLease: jest.Mock;
     cancelApproval: jest.Mock;
-    managedRequestParties: jest.Mock;
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
@@ -214,10 +213,6 @@ describe("ApprovalsTabComponent", () => {
       decide: jest.fn().mockResolvedValue(undefined),
       revokeLease: jest.fn().mockResolvedValue(undefined),
       cancelApproval: jest.fn().mockResolvedValue(undefined),
-      managedRequestParties: jest.fn().mockReturnValue({
-        requesterName: "Grace Hopper",
-        organizationName: "Meridian Group",
-      }),
     };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
@@ -399,7 +394,7 @@ describe("ApprovalsTabComponent", () => {
 
       const item = query('[data-testid="approvals-cell-item-req-1"]');
       expect(text(item)).toContain("Prod database");
-      expect(text(item)).toContain("pamInboxInSharedFolder Production");
+      expect(text(item)).toContain("pamInboxInCollection Production");
       expect(item?.querySelector('bit-icon[name="bwi-collection-shared"]')).not.toBeNull();
       expect(item?.querySelector("a")?.getAttribute("href")).toBe("/pam/requests/req-1");
     });
@@ -479,14 +474,18 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-deny-req-1"]')).toBeNull();
     });
 
-    it("reveals the actions on row hover or keyboard focus", () => {
+    it("reveals the actions on row hover, keyboard focus, or any device without hover", () => {
       inbox.approverRows$.next([pending()]);
 
       create();
 
-      const strip = query('[data-testid="approvals-approve-req-1"]')!.parentElement!;
-      expect(strip.className).toContain("tw-opacity-[var(--bit-hover-reveal,1)]");
-      expect(strip.closest("bit-row")?.className).toContain("[--bit-hover-reveal:0]");
+      const strip = query('[data-testid="approvals-approve-req-1"]')?.parentElement;
+      expect(strip?.className).toContain("tw-opacity-0");
+      expect(strip?.className).toContain("group-hover/row:tw-opacity-100");
+      expect(strip?.className).toContain("group-has-[:focus-visible]/row:tw-opacity-100");
+      // Without this the strip is invisible and untappable for the whole of a touch device.
+      expect(strip?.className).toContain("[@media(hover:none)]:tw-opacity-100");
+      expect(strip?.className).toContain("[@media(hover:none)]:tw-pointer-events-auto");
     });
 
     it("disables both decisions on the caller's own request, saying why", () => {
@@ -540,37 +539,19 @@ describe("ApprovalsTabComponent", () => {
       expect(inbox.decide).not.toHaveBeenCalled();
     });
 
-    it("asks for a reason before withdrawing an approval not yet started, then sends it", async () => {
-      dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, reason: "Approved by mistake" }),
-      } as never);
+    it("withdraws an approval not yet started, once confirmed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
       inbox.approverRows$.next([ready()]);
       create();
 
       query('[data-testid="approvals-withdraw-req-1"]')?.click();
       await settle();
 
-      expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
-        data: expect.objectContaining({
-          itemName: "Prod database",
-          organizationName: "Meridian Group",
-          collectionName: "Production",
-          requesterName: "Grace Hopper",
-        }),
-      });
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("req-1", "Approved by mistake");
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "pamInboxWithdrawApproval" } }),
+      );
+      expect(inbox.cancelApproval).toHaveBeenCalledWith("req-1");
       expect(inbox.revokeLease).not.toHaveBeenCalled();
-    });
-
-    it("does not withdraw the approval when the dialog is dismissed", async () => {
-      dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
-      inbox.approverRows$.next([ready()]);
-      create();
-
-      query('[data-testid="approvals-withdraw-req-1"]')?.click();
-      await settle();
-
-      expect(inbox.cancelApproval).not.toHaveBeenCalled();
     });
 
     it("ends a running lease, once confirmed", async () => {
@@ -635,9 +616,7 @@ describe("ApprovalsTabComponent", () => {
 
       create();
 
-      expect(setInterval.mock.calls.filter(([, delay]: unknown[]) => delay === 1000)).toHaveLength(
-        0,
-      );
+      expect(setInterval.mock.calls.filter(([, delay]) => delay === 1000)).toHaveLength(0);
     });
 
     it("re-reads the requested window as the clock moves past its start", () => {
@@ -652,12 +631,12 @@ describe("ApprovalsTabComponent", () => {
       create();
 
       const cell = () => text(query('[data-testid="approvals-cell-window-req-opening"]'));
-      expect(cell()).not.toContain("pamWindowOpenUntil");
+      expect(cell()).not.toContain("pamWindowUntil");
 
       tick(3000);
 
       // Past its start, the window reads as its end alone.
-      expect(cell()).toContain("pamWindowOpenUntil");
+      expect(cell()).toContain("pamWindowUntil");
     });
 
     it("drops a pending request once its own window closes", () => {

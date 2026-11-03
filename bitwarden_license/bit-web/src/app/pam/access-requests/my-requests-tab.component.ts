@@ -15,21 +15,6 @@ import { EMPTY, filter, map, shareReplay, startWith, switchMap, take } from "rxj
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import {
-  AccessLeaseId,
-  AccessRequestId,
-  activateAccessErrorMessageKey,
-  AccessBadgeState,
-  selectedFilterStrings,
-} from "@bitwarden/bit-pam";
-import {
-  AccessBadgeTickerService,
-  AccessStateBadgeComponent,
-  DurationCompoundPipe,
-  DurationShortPipe,
-  RequestedWindowPipe,
-  TimestampPipe,
-} from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -47,7 +32,6 @@ import {
   FilterMenuComponent,
   FilterOptionComponent,
   IconComponent as BitIconComponent,
-  HoverRevealDirective,
   IconButtonModule,
   IconTileOptions,
   SearchModule,
@@ -61,6 +45,15 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { AccessLeaseId, AccessRequestId, activateAccessErrorMessageKey } from "..";
+import { AccessBadgeState } from "../access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
+import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
+import { DurationCompoundPipe } from "../date/duration-compound.pipe";
+import { DurationShortPipe } from "../date/duration-short.pipe";
+import { RequestedWindowPipe } from "../date/requested-window.pipe";
+import { selectedFilterStrings } from "../helpers/selected-filter-strings";
 
 import { announcementHoldMs } from "./announcement-hold";
 import {
@@ -121,13 +114,11 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
     FilterMenuComponent,
     FilterOptionComponent,
     BitIconComponent,
-    HoverRevealDirective,
     IconButtonModule,
     IconComponent,
     SearchModule,
     TypographyModule,
     I18nPipe,
-    TimestampPipe,
     DurationCompoundPipe,
     DurationShortPipe,
     RequestedWindowPipe,
@@ -161,7 +152,7 @@ export class MyRequestsTabComponent {
 
   /**
    * Latched on the first complete load, so a background reload can't pull the table from under a
-   * reader. Until it raises, the tab renders neither empty state, "you have no requests" is not
+   * reader. Until it raises, the tab renders neither empty state — "you have no requests" is not
    * something an unfinished read can say.
    */
   private readonly loaded$ = this.myAccess.loading$.pipe(
@@ -268,6 +259,8 @@ export class MyRequestsTabComponent {
   protected readonly hasRows = computed(() => this.myRequestRows().length > 0);
 
   constructor() {
+    // Holds the announcement region up briefly after the skeleton clears, so a screen reader
+    // reaches "loaded" before it is removed.
     effect((onCleanup) => {
       if (this.skeletonVisible()) {
         this.skeletonShown.set(true);

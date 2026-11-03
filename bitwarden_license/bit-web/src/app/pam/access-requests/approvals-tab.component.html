@@ -113,13 +113,14 @@
         @if (cipherFor(row.cipherId); as cipher) {
           <app-vault-icon slot="start" [cipher]="cipher" />
         }
+        <!-- Opens the detail dialog, which carries the full request. -->
         <a [routerLink]="['/pam/requests', row.id]" [id]="'pam-approvals_link_item-' + row.id">{{
           row.cipherName
         }}</a>
         @if (row.collectionName) {
           <span slot="secondary" class="tw-flex tw-items-center tw-gap-1">
             <bit-icon name="bwi-collection-shared" class="tw-shrink-0" />
-            {{ "pamInboxInSharedFolder" | i18n: row.collectionName }}
+            {{ "pamInboxInCollection" | i18n: row.collectionName }}
           </span>
         }
       </bit-cell>
@@ -132,6 +133,10 @@
         [truncate]="false"
         [attr.data-testid]="'approvals-cell-status-' + row.id"
       >
+        <!--
+          An approved grant the requester has not started reads "Approved" here, not the shared
+          model's "Ready to use": this viewer is the approver, who has nothing to use.
+        -->
         <app-pam-access-state-badge
           [state]="badgeState(row)"
           [readyLabelKey]="approverReadyLabelKey"
@@ -157,6 +162,9 @@
         [attr.data-testid]="'approvals-cell-window-' + row.id"
       >
         <span [title]="row.exactWindow">{{ row.duration }}</span>
+        <!-- Formatted live rather than carried on the row: the row is built once per load, so an
+        opened window would keep reading as its original from-to range and "Tomorrow" would
+        survive midnight. The raw bounds live on the row for exactly this. -->
         <span slot="secondary">{{
           row.windowStartMs | requestedWindow: row.windowEndMs : nowMs()
         }}</span>
@@ -171,7 +179,7 @@
         *bitCellDef="table.columns.actions; let row"
         [attr.data-testid]="'approvals-cell-actions-' + row.id"
       >
-        <div slot="end" class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2" bitHoverReveal>
+        <div slot="end" [class]="revealClasses">
           @if (row.kind === "pending") {
             <button
               type="button"
@@ -216,6 +224,11 @@
               [attr.data-testid]="'approvals-withdraw-' + row.id"
             ></button>
           } @else {
+            <!--
+              Only a running lease reaches here, and ending one is not withdrawing an approval —
+              the confirm and the toast that follow are worded for cutting off access already
+              running, so the glyph says so too.
+            -->
             <button
               type="button"
               bitIconButton="bwi-subtract-circle"

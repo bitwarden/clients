@@ -122,7 +122,7 @@ export function isRedeemableGrant(
 }
 
 /**
- * The badge for access that is over but whose server record has not caught up,
+ * The badge for access that is over but whose server record has not caught up —
  * {@link historyDisplayStatus} cannot see the clock, so it still reads "Approved" or "Active".
  * See {@link lapsedInHistory}.
  */
@@ -134,7 +134,7 @@ export const lapsedGrantBadge: TerminalStatusBadge = {
 /**
  * True for an approved row that reached a terminal list with its access already over: a grant
  * nobody started, or a lease that lapsed since the load. A row only joins History once its lease
- * has stopped running, so a record still reading `active` there has run out, and "Active" is
+ * has stopped running, so a record still reading `active` there has run out — and "Active" is
  * something a terminal list cannot mean.
  */
 export function lapsedInHistory(
