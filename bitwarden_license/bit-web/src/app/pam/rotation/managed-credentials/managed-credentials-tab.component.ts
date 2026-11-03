@@ -585,6 +585,26 @@ export class ManagedCredentialsTabComponent {
     return row.canRotateNow && !row.notConnected;
   }
 
+  /**
+   * The one reason Rotate now is unavailable on `row`, as the i18n key its tooltip states.
+   *
+   * Resolved in the same precedence {@link resolveRotationStatus} gives the status badge, so the
+   * two never name different reasons for the same row. The in-flight job case states what clears
+   * the block rather than the state, which the row's own badge already carries. A paused row
+   * names the pause even mid-job, since the pause is what outlasts the job. Only
+   * `canRotateNow` being false brings the caller here, and the SDK weighs nothing but the job, the
+   * pause and the target's status, so an unexplained block leaves the target.
+   */
+  protected readonly rotateNowBlockedKey = (row: RotationConfigRow): string => {
+    if (row.hasActiveJob && row.config.enabled) {
+      return "pamRotationConfigRotateNowDisabledActiveJob";
+    }
+    if (!row.config.enabled) {
+      return "pamRotationConfigRotateNowDisabledPaused";
+    }
+    return "pamRotationConfigRotateNowDisabledTargetInactive";
+  };
+
   protected readonly rotateNow = (row: RotationConfigRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       if (row.config.sealed?.terminateSessions && !(await confirmRotateNow(this.dialogService))) {
