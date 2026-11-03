@@ -19359,7 +19359,7 @@
       }
     }
   },
-  "cipherLeaseExpiresIn": {
+  "cipherLeaseExpiresInV2": {
     "message": "Leased: expires in $DURATION$",
     "placeholders": {
       "duration": {
@@ -19509,10 +19509,10 @@
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
   },
-  "requestAccessModalApprovedSuccess": {
+  "requestAccessModalApprovedSuccessV2": {
     "message": "Access approved. Select Start access to begin."
   },
-  "requestAccessModalRequestCreatedSuccess": {
+  "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Request submitted. Awaiting approval."
   },
   "pamApprovalsRequesterFilter": {
