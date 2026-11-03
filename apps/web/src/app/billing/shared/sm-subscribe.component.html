@@ -9,7 +9,7 @@
     <div class="tw-text-fg-body">
       {{ "secretsManagerPurchaseDesc" | i18n }}
       <p class="tw-mb-0 tw-mt-3 tw-font-medium tw-text-fg-heading">{{ "whatsIncluded" | i18n }}</p>
-      <ul>
+      <ul class="tw-space-y-2">
         <li *ngIf="product == productTypes.Free">{{ "limitedUsers" | i18n: maxUsers }}</li>
         <li>{{ "unlimitedSecrets" | i18n }}</li>
         <li *ngIf="product == productTypes.Free; else unlimitedProjects">
