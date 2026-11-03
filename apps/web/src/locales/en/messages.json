@@ -20751,9 +20751,6 @@
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
   },
-  "pamRotationConfigRotateNowDisabledTitle": {
-    "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
-  },
   "pamRotationConfigRotateNowDisabledActiveJob": {
     "message": "Cannot rotate now. This becomes available when the current job finishes or times out."
   },
