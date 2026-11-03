@@ -301,7 +301,7 @@ describe("MyAccessService", () => {
         await service.load();
 
         const [row] = await firstValueFrom(service.historyRows$);
-        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "warning" });
+        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
       });
 
       it("badges a lease that lapsed since the load Expired rather than Active", async () => {

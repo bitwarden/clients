@@ -99,7 +99,7 @@ describe("DecideDialogComponent", () => {
     expect(summary.textContent).toContain("Meridian Group");
     expect(summary.textContent).toContain("Production");
     expect(summary.textContent).toContain("Grace");
-    expect(summary.textContent).toContain("grace@example.com");
+    expect(summary.textContent).not.toContain("grace@example.com");
     expect(fieldValue("pam-request-summary_value_reason")).toContain("prod incident");
     expect(fieldValue("pam-request-summary_value_access-requested")).toContain("1 hour");
   });
@@ -234,6 +234,16 @@ describe("DecideDialogComponent", () => {
 
       expect(component["confirmDisabled"]()).toBe(true);
       expect(component["formGroup"].controls.comment.invalid).toBe(true);
+    });
+
+    it("styles Deny as a solid destructive button, set apart at the footer's far edge", async () => {
+      await create("approve");
+
+      const deny = fixture.nativeElement.querySelector(
+        "#pam-decide-dialog_button_switch-to-deny",
+      ) as HTMLButtonElement;
+      expect(deny.getAttribute("buttonType")).toBe("danger");
+      expect(deny.className).toContain("tw-ms-auto");
     });
 
     it("moves focus onto the reason field, which the removed button would otherwise strand", async () => {
