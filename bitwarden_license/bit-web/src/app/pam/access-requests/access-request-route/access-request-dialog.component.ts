@@ -53,6 +53,17 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import {
+  AccessRequestView,
+  activateAccessErrorMessageKey,
+  durationText,
+  exactWindow,
+  humanApprover,
+  reasonText,
+  relativeStart,
+} from "../..";
+import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
+import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
@@ -541,21 +552,9 @@ export class AccessRequestDialogComponent implements OnInit {
     if (!this.canWithdrawApproval() || this.withdrawing()) {
       return;
     }
-    this.confirmingWithdraw.set(true);
-  }
-
-  /** Returns to the request, keeping the note so re-opening the confirmation does not lose it. */
-  protected cancelWithdraw(): void {
-    this.confirmingWithdraw.set(false);
-  }
-
-  protected async confirmWithdraw(): Promise<void> {
-    if (!this.withdrawReasonGiven() || this.withdrawing()) {
-      return;
-    }
-    const reason = this.withdrawReason.value.trim();
-    const withdrawn = await this.approverActions.withdrawApproval(
-      () => this.detail.withdrawApproval(reason),
+    await this.approverActions.withdrawApproval(
+      this.cipherName() ?? "",
+      () => this.detail.withdrawApproval(),
       (busy) => this.withdrawing.set(busy),
     );
     // A failure keeps the confirmation, and the reason, open so the approver can retry as is.

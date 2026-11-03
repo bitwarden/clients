@@ -12,13 +12,6 @@ import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { AccessBadgeState, selectedFilterStrings } from "@bitwarden/bit-pam";
-import type { AccessDecisionVerdict, AccessLeaseId } from "@bitwarden/bit-pam";
-import {
-  AccessBadgeTickerService,
-  AccessStateBadgeComponent,
-  RequestedWindowPipe,
-} from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
@@ -34,7 +27,6 @@ import {
   FilterMenuComponent,
   FilterOptionComponent,
   FilterOptionIconTile,
-  HoverRevealDirective,
   IconButtonModule,
   IconModule,
   SearchModule,
@@ -49,6 +41,10 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import type { AccessDecisionVerdict, AccessLeaseId } from "../abstractions/access-lease";
+import { AccessBadgeState } from "../access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
+import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
@@ -58,6 +54,8 @@ import {
   approverRowStatus,
   compareApproverStatus,
 } from "../approvals/approver-row";
+import { RequestedWindowPipe } from "../date/requested-window.pipe";
+import { selectedFilterStrings } from "../helpers/selected-filter-strings";
 
 import { APPROVER_READY_LABEL_KEY, REQUEST_STATUS_LOOK } from "./request-status-look";
 
@@ -81,7 +79,11 @@ type ApprovalsFilter = {
 
 type FilterOption = { label: string; value: string; iconTile?: FilterOptionIconTile };
 
-/** The Status chip's options, off the table both tabs share. Only `ready` is reworded. */
+/**
+ * The Status chip's options, off the table both tabs share, so this chip cannot drift from My
+ * requests or from the badge beside it. Only `ready` is reworded: this viewer is the approver,
+ * who has nothing to use.
+ */
 const STATUS_OPTIONS: ReadonlyArray<{
   value: ApproverRowStatus;
   labelKey: string;
@@ -113,7 +115,6 @@ const STATUS_OPTIONS: ReadonlyArray<{
     BitTableV2Component,
     FilterMenuComponent,
     FilterOptionComponent,
-    HoverRevealDirective,
     IconButtonModule,
     IconComponent,
     IconModule,
@@ -167,7 +168,7 @@ export class ApprovalsTabComponent {
   /**
    * Shares the badges' clock, so a lapsed row drops off, a lease turns "Ending soon" under the
    * Status filter, and the Requested window column re-reads as a window opens. Idle only with
-   * nothing to watch, every row has a window that can close.
+   * nothing to watch — every row has a window that can close.
    */
   protected readonly nowMs = toSignal(
     toObservable(computed(() => this.allRows().length > 0)).pipe(
@@ -177,7 +178,9 @@ export class ApprovalsTabComponent {
   );
 
   /**
-   * Every row still inside its window by a live clock; a closed pending request can't be decided.
+   * Every row still inside its window by a live clock, since any of them can lapse with no push.
+   * A pending request is no exception: once its window closes the server refuses a decision on
+   * it, so leaving Approve and Deny on screen would only offer an action that cannot succeed.
    * Compared by identity so the tick only reaches the table when rows change.
    */
   protected readonly rows = computed<ApproverRow[]>(
@@ -223,6 +226,17 @@ export class ApprovalsTabComponent {
       ? this.skeletonVisible()
       : (this.loading() || this.showSkeleton()) && !this.hasRows(),
   );
+
+  /**
+   * Hidden until the row is hovered or holds focus — except where there is no hover to give, or
+   * the actions would be invisible and untappable for the whole of a touch device.
+   */
+  protected readonly revealClasses =
+    "tw-flex tw-flex-nowrap tw-items-center tw-gap-2 tw-opacity-0 tw-transition-opacity" +
+    " tw-pointer-events-none group-hover/row:tw-opacity-100 group-hover/row:tw-pointer-events-auto" +
+    " group-has-[:focus-visible]/row:tw-opacity-100" +
+    " group-has-[:focus-visible]/row:tw-pointer-events-auto" +
+    " [@media(hover:none)]:tw-opacity-100 [@media(hover:none)]:tw-pointer-events-auto";
 
   /** Five rows fill the table's space without implying a real row count. */
   protected readonly skeletonRows = 5;
@@ -320,16 +334,9 @@ export class ApprovalsTabComponent {
     if (row.kind !== "ready" || this.isActing(row)) {
       return;
     }
-    const parties = this.inbox.managedRequestParties(row.id);
-    await this.approverActions.confirmWithdrawApproval(
-      {
-        itemName: row.cipherName,
-        organizationName: parties?.organizationName ?? null,
-        collectionName: row.collectionName,
-        requesterName: parties?.requesterName ?? "",
-        cipher: this.cipherFor(row.cipherId),
-      },
-      (reason) => this.inbox.cancelApproval(row.requestId, reason),
+    await this.approverActions.withdrawApproval(
+      row.cipherName,
+      () => this.inbox.cancelApproval(row.requestId),
       rowBusy(this.acting, row.id),
     );
   }
