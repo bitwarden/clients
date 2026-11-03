@@ -401,6 +401,94 @@ describe("UriOptionComponent", () => {
     });
   });
 
+  describe("locked desktop app URIs", () => {
+    const pairingUri = createPairingUri("Notepad");
+
+    const getUriControl = () => component["uriForm"].controls.uri;
+
+    function renderUri(uri: string, { locked = true, showDesktopApps = true } = {}) {
+      fixture.componentRef.setInput("showDesktopApps", showDesktopApps);
+      fixture.componentRef.setInput("appUriLocked", locked);
+      component.writeValue({ uri, matchDetection: UriMatchStrategy.Never });
+      fixture.detectChanges();
+    }
+
+    it("disables the dropdown of a locked desktop app", () => {
+      renderUri(pairingUri);
+
+      expect(getUriControl().disabled).toBe(true);
+      expect(component["appSelect"]().disabled()).toBe(true);
+    });
+
+    it("keeps the remove button of a locked desktop app", () => {
+      component.canRemove = true;
+
+      renderUri(pairingUri);
+
+      expect(getRemoveButton()).toBeTruthy();
+    });
+
+    it("does not disable a desktop app that is not locked", () => {
+      renderUri(pairingUri, { locked: false });
+
+      expect(getUriControl().enabled).toBe(true);
+    });
+
+    it("does not disable a locked URI when showDesktopApps is false", () => {
+      renderUri(pairingUri, { showDesktopApps: false });
+
+      expect(getUriControl().enabled).toBe(true);
+    });
+
+    it("does not disable a locked website URI", () => {
+      renderUri("https://example.com");
+
+      expect(getUriControl().enabled).toBe(true);
+    });
+
+    it("enables the dropdown when the desktop app is unlocked", () => {
+      renderUri(pairingUri);
+
+      fixture.componentRef.setInput("appUriLocked", false);
+      fixture.detectChanges();
+
+      expect(getUriControl().enabled).toBe(true);
+    });
+
+    it("keeps a locked desktop app disabled when the row is enabled", () => {
+      renderUri(pairingUri);
+
+      component.setDisabledState(true);
+      component.setDisabledState(false);
+
+      expect(getUriControl().disabled).toBe(true);
+      expect(component["uriForm"].controls.matchDetection.enabled).toBe(true);
+    });
+
+    it("keeps a disabled row disabled when the desktop app is unlocked", () => {
+      renderUri(pairingUri);
+      component.setDisabledState(true);
+
+      fixture.componentRef.setInput("appUriLocked", false);
+      fixture.detectChanges();
+
+      expect(getUriControl().disabled).toBe(true);
+    });
+
+    it("includes the URI of a locked desktop app when the row's value changes", () => {
+      const onChange = jest.fn();
+      component.registerOnChange(onChange);
+      renderUri(pairingUri);
+
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.Exact);
+
+      expect(onChange).toHaveBeenLastCalledWith({
+        uri: pairingUri,
+        matchDetection: UriMatchStrategy.Exact,
+      });
+    });
+  });
+
   describe("advanced match strategy dialog", () => {
     function testDialogAction(action: "onContinue" | "onCancel", expected: number) {
       const openSpy = jest

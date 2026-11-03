@@ -19,6 +19,7 @@
           [defaultMatchDetection]="defaultMatchDetection$ | async"
           [index]="i"
           [showDesktopApps]="showDesktopApps()"
+          [appUriLocked]="existingAppUriControls.has(uri)"
         ></vault-autofill-uri-option>
       }
     </ng-container>

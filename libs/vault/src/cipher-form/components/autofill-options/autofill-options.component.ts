@@ -5,7 +5,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-
 import { AsyncPipe } from "@angular/common";
 import { Component, inject, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { AbstractControl, FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { filter, map, of, Subject, switchMap, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -43,6 +43,11 @@ import { UriOptionComponent } from "./uri-option.component";
 interface UriField {
   uri: string;
   matchDetection: UriMatchStrategySetting;
+}
+
+// A desktop app URI with no desktop app selected yet is not saved on the cipher
+function isSavedUri(uri: UriField): boolean {
+  return uri?.uri !== DESKTOP_APP_URI_PREFIX;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -107,6 +112,12 @@ export class AutofillOptionsComponent implements OnInit {
    */
   private focusOnNewInput$ = new Subject<void>();
 
+  /**
+   * The URI inputs of desktop apps that were already on the cipher when the form was initialized.
+   * Those desktop apps are locked: they can be removed and reordered, but not changed.
+   */
+  protected readonly existingAppUriControls = new WeakSet<AbstractControl>();
+
   private readonly isWindowsDesktop =
     this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
@@ -140,7 +151,7 @@ export class AutofillOptionsComponent implements OnInit {
     this.autofillOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.publishUriMatchStrategies();
       this.cipherFormContainer.patchCipher((cipher) => {
-        cipher.login.uris = value.uris?.map((uri: UriField) =>
+        cipher.login.uris = value.uris?.filter(isSavedUri).map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
             uri: uri.uri,
             match: uri.matchDetection,
@@ -241,6 +252,9 @@ export class AutofillOptionsComponent implements OnInit {
         false,
       );
     });
+    this.uriControls
+      .filter((control) => control.value?.uri?.startsWith(DESKTOP_APP_URI_PREFIX))
+      .forEach((control) => this.existingAppUriControls.add(control));
     this.autofillOptionsForm.patchValue({
       autofillOnPageLoad: existingLogin.autofillOnPageLoad,
     });
@@ -320,13 +334,15 @@ export class AutofillOptionsComponent implements OnInit {
   /** Create a new list of LoginUriViews from the form objects and update the cipher */
   private updateUriFields() {
     this.cipherFormContainer.patchCipher((cipher) => {
-      cipher.login.uris = this.uriControls.map(
-        (control) =>
-          Object.assign(new LoginUriView(), {
-            uri: control.value.uri,
-            match: control.value.matchDetection ?? null,
-          }) as LoginUriView,
-      );
+      cipher.login.uris = this.uriControls
+        .filter((control) => isSavedUri(control.value))
+        .map(
+          (control) =>
+            Object.assign(new LoginUriView(), {
+              uri: control.value.uri,
+              match: control.value.matchDetection ?? null,
+            }) as LoginUriView,
+        );
       return cipher;
     });
   }

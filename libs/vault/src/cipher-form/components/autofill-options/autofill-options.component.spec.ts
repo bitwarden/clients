@@ -7,7 +7,14 @@ import { BehaviorSubject } from "rxjs";
 
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
+import {
+  AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION,
+  AutotypePairingPackagingType,
+} from "@bitwarden/common/desktop-native/models/autotype-pairing-data";
+import {
+  DESKTOP_APP_URI_PREFIX,
+  DesktopAutotypePairingUri,
+} from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
@@ -31,6 +38,17 @@ jest.mock("@angular/cdk/drag-drop", () => {
     moveItemInArray: jest.fn(actual.moveItemInArray),
   };
 });
+
+function createPairingUri(name: string): string {
+  return new DesktopAutotypePairingUri(DesktopAutotypePairingUri.CurrentVersion, {
+    metadata: {
+      schemaVersion: { ...AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION },
+      pairingTimestamp: 1793577600,
+    },
+    appData: { name, normalizedPath: `C:\\Program Files\\${name}\\${name}.exe` },
+    clientData: { packagingType: AutotypePairingPackagingType.WindowsExe },
+  }).toString();
+}
 
 describe("AutofillOptionsComponent", () => {
   let component: AutofillOptionsComponent;
@@ -622,6 +640,128 @@ describe("AutofillOptionsComponent", () => {
         { uri: DESKTOP_APP_URI_PREFIX, matchDetection: UriMatchStrategy.Never },
         true,
       );
+    });
+  });
+
+  describe("desktop app pairings", () => {
+    const pairingUri = createPairingUri("Notepad");
+
+    const getUriOptions = () =>
+      fixture.debugElement
+        .queryAll(By.directive(UriOptionComponent))
+        .map((debugElement) => debugElement.componentInstance as UriOptionComponent);
+
+    const getSavedUris = () => {
+      const patchFn = cipherFormContainer.patchCipher.mock.lastCall[0];
+      return patchFn(new CipherView()).login.uris;
+    };
+
+    function initWithSavedPairing() {
+      getInitialCipherView.mockReturnValueOnce({
+        login: Object.assign(new LoginView(), {
+          uris: [
+            Object.assign(new LoginUriView(), {
+              uri: "https://example.com",
+              match: UriMatchStrategy.Host,
+            }),
+            Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Never }),
+          ],
+        }),
+      });
+      fixture.detectChanges();
+    }
+
+    const dropEvent = (previousIndex: number, currentIndex: number) =>
+      ({ previousIndex, currentIndex }) as CdkDragDrop<HTMLDivElement>;
+
+    it("locks desktop apps already on the cipher", () => {
+      initWithSavedPairing();
+
+      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true]);
+    });
+
+    it("locks desktop apps on a cloned cipher", () => {
+      cipherFormContainer.config.mode = "clone";
+
+      initWithSavedPairing();
+
+      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true]);
+    });
+
+    it("does not lock desktop apps added by the user", async () => {
+      initWithSavedPairing();
+
+      await component.addDesktopAppUriFromUser();
+      fixture.detectChanges();
+
+      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true, false]);
+    });
+
+    it("keeps a desktop app locked after it is reordered", () => {
+      initWithSavedPairing();
+
+      component.onUriItemDrop(dropEvent(1, 0));
+      fixture.detectChanges();
+
+      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([true, false]);
+    });
+
+    it("saves a locked desktop app unchanged when the URIs are reordered", () => {
+      initWithSavedPairing();
+
+      component.onUriItemDrop(dropEvent(1, 0));
+
+      expect(getSavedUris()).toEqual([
+        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Never }),
+        Object.assign(new LoginUriView(), {
+          uri: "https://example.com",
+          match: UriMatchStrategy.Host,
+        }),
+      ]);
+    });
+
+    it("saves a selected desktop app with its pairing URI and the Never match strategy", async () => {
+      fixture.detectChanges();
+      await component.addDesktopAppUriFromUser();
+
+      component.autofillOptionsForm.controls.uris.at(1).setValue({
+        uri: pairingUri,
+        matchDetection: UriMatchStrategy.Never,
+      });
+
+      expect(getSavedUris()[1]).toEqual(
+        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Never }),
+      );
+    });
+
+    it("does not save a desktop app URI with no desktop app selected", async () => {
+      fixture.detectChanges();
+      component.autofillOptionsForm.controls.uris.at(0).setValue({
+        uri: "https://example.com",
+        matchDetection: null,
+      });
+
+      await component.addDesktopAppUriFromUser();
+
+      expect(component.autofillOptionsForm.value.uris).toHaveLength(2);
+      expect(getSavedUris()).toEqual([
+        Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
+      ]);
+    });
+
+    it("does not save a desktop app URI with no desktop app selected when the URIs are reordered", async () => {
+      fixture.detectChanges();
+      component.autofillOptionsForm.controls.uris.at(0).setValue({
+        uri: "https://example.com",
+        matchDetection: null,
+      });
+      await component.addDesktopAppUriFromUser();
+
+      component.onUriItemDrop(dropEvent(1, 0));
+
+      expect(getSavedUris()).toEqual([
+        Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
+      ]);
     });
   });
 
