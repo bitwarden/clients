@@ -98,9 +98,7 @@ describe("DecideDialogComponent", () => {
     expect(summary.textContent).toContain("Grace");
     expect(summary.textContent).toContain("grace@example.com");
     expect(fieldValue("pam-request-summary_value_reason")).toContain("prod incident");
-    expect(fieldValue("pam-request-summary_value_access-requested")).toContain(
-      "pamInboxDuration1Hour",
-    );
+    expect(fieldValue("pam-request-summary_value_access-requested")).toContain("1 hour");
   });
 
   it("renders nothing for an organization that did not resolve", async () => {

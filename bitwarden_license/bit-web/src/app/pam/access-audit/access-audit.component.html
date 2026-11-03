@@ -322,7 +322,7 @@
           (click)="openDetails(row)"
         >
           @if (row.duration; as duration) {
-            <span [bitTooltip]="row.exactWindow">{{ duration.key | i18n: duration.value }}</span>
+            <span [bitTooltip]="row.exactWindow">{{ duration }}</span>
           } @else if (row.extendedUntil) {
             <span>{{
               "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | date: "short")

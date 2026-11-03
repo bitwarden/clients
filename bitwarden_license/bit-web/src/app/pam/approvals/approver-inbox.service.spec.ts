@@ -6,6 +6,7 @@ import {
   AccessEventService,
   AccessLeaseSdkService,
   AccessRefreshService,
+  AccessRequestSdkService,
   ApprovalSdkService,
   DECIDE_ACCESS_SERVER_ERRORS,
 } from "@bitwarden/bit-pam";
@@ -74,6 +75,7 @@ function alreadyResolved(): Error {
 describe("ApproverInboxService", () => {
   let service: ApproverInboxService;
   let approvalApi: MockProxy<ApprovalSdkService>;
+  let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
   let accessRefresh: MockProxy<AccessRefreshService>;
@@ -82,6 +84,7 @@ describe("ApproverInboxService", () => {
 
   beforeEach(() => {
     approvalApi = mock<ApprovalSdkService>();
+    requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
     accessRefresh = mock<AccessRefreshService>();
@@ -96,6 +99,7 @@ describe("ApproverInboxService", () => {
       providers: [
         ApproverInboxService,
         { provide: ApprovalSdkService, useValue: approvalApi },
+        { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: AccessRefreshService, useValue: accessRefresh },
@@ -375,29 +379,10 @@ describe("ApproverInboxService", () => {
       expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
     });
 
-    it("withdraws an approval via approvals().revoke() with the reason", async () => {
-      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
+    it("cancels an approval via access_requests().cancel()", async () => {
+      await service.cancelApproval("req-1" as unknown as AccessRequestId);
 
-      expect(approvalApi.revoke).toHaveBeenCalledWith("req-1", { reason: "Approved by mistake" });
-    });
-
-    it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
-      approvalApi.listHistory.mockClear();
-      approvalApi.listHistory.mockResolvedValue([
-        request({
-          id: "req-1",
-          status: "denied",
-          decisions: [
-            humanDecision({ id: "approver-1", verdict: "deny", comment: "Approved by mistake" }),
-          ],
-        }),
-      ]);
-
-      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
-
-      expect(approvalApi.listHistory).toHaveBeenCalledTimes(1);
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].status).toBe("denied");
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1");
     });
 
     it("announces a landed revoke or withdrawal on the refresh signal", async () => {
@@ -405,17 +390,17 @@ describe("ApproverInboxService", () => {
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
-      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
+      await service.cancelApproval("req-1" as unknown as AccessRequestId);
 
       expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(2);
     });
 
     it("restores the row and rethrows when cancelling an approval fails", async () => {
-      approvalApi.revoke.mockRejectedValue(new Error("boom"));
+      requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
 
-      await expect(
-        service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake"),
-      ).rejects.toThrow("boom");
+      await expect(service.cancelApproval("req-1" as unknown as AccessRequestId)).rejects.toThrow(
+        "boom",
+      );
       const history = await firstValueFrom(service.historyRows$);
       expect(history[0].status).toBe("approved");
     });
@@ -425,9 +410,9 @@ describe("ApproverInboxService", () => {
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
-      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
+      await service.cancelApproval("req-1" as unknown as AccessRequestId);
 
-      // Neither path records a decision through `decide`.
+      // `decide` is the only mutation on `ApprovalSdkService`.
       expect(approvalApi.decide).not.toHaveBeenCalled();
     });
   });
@@ -560,6 +545,73 @@ describe("ApproverInboxService", () => {
         ),
       ).rejects.toThrow("boom");
       expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(1);
+    });
+  });
+
+  describe("approverRows$", () => {
+    const PAST = new Date(Date.now() - 60 * 1000).toISOString();
+    const LATER = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+
+    it("lists pending requests, then approvals not yet started, then running leases", async () => {
+      approvalApi.listInbox.mockResolvedValue([request({ id: "pending" })]);
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "running",
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+        request({ id: "ready", status: "approved", producedLeaseId: undefined }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.approverRows$);
+      expect(rows.map((row) => [row.id, row.kind])).toEqual([
+        ["pending", "pending"],
+        ["ready", "ready"],
+        ["running", "active"],
+      ]);
+    });
+
+    it("orders approvals not yet started by when their window opens", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({ id: "later", status: "approved", leaseNotBefore: LATER, leaseNotAfter: LATER }),
+        request({ id: "sooner", status: "approved" }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.approverRows$);
+      expect(rows.map((row) => row.id)).toEqual(["sooner", "later"]);
+    });
+
+    it("leaves out decided requests the approver can no longer act on", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({ id: "denied", status: "denied" }),
+        request({ id: "lapsed", status: "approved", leaseNotAfter: PAST }),
+        request({
+          id: "ended",
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "revoked",
+        }),
+      ]);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.approverRows$)).toEqual([]);
+    });
+
+    it("leaves out an approved extension, which moves its lease rather than minting one", async () => {
+      approvalApi.listHistory.mockResolvedValue(
+        extendedLease(FUTURE, new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString()),
+      );
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.approverRows$);
+      expect(rows.map((row) => row.id)).toEqual(["original"]);
     });
   });
 
