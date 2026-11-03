@@ -19,9 +19,9 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
-  BadgeVariant,
   BitCellComponent,
   BitCellDefDirective,
+  BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableToolbarComponent,
@@ -32,11 +32,11 @@ import {
   FilterMenuModule,
   IconButtonModule,
   IconModule,
-  IconTileVariant,
   LinkModule,
   MenuModule,
   SearchModule,
-  StatusLockupComponent,
+  SkeletonComponent,
+  SkeletonTextComponent,
   ToastService,
   TooltipDirective,
   defineTable,
@@ -58,13 +58,13 @@ import {
   TargetSystemStatus,
   TargetSystemView,
 } from "../rotation";
-import { rotationActionErrorMessage, rotationErrorMessage } from "../rotation-error";
+import { rotationErrorMessage } from "../rotation-error";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RowBusyTracker } from "../row-busy-tracker";
+import { showSkeletonWhile } from "../skeleton-delay";
 
 import { AssignConnectorDialogComponent } from "./assign-connector-dialog.component";
-import { confirmDeactivateTargetSystem, confirmDeleteTargetSystem } from "./target-system-dialogs";
 import { targetSystemKindLabelKey, targetSystemMethodLabelKey } from "./target-system-label";
 import {
   TARGET_SYSTEM_STATUS_BADGES,
@@ -109,6 +109,8 @@ export type TargetSystemRow = {
   integrityCheckFailed: boolean;
   /** Only an automatic-method target can claim a connector assignment. */
   canAssignConnectors: boolean;
+  /** Only an active target can take a new managed credential. */
+  canAddManagedCredential: boolean;
   /** The i18n key for why the menu can't assign an access connector now, or null when it can. */
   assignConnectorsBlockedKey: string | null;
   /**
@@ -124,7 +126,6 @@ export type TargetSystemRow = {
 
 const FILTERABLE_KINDS: readonly TargetSystemKind[] = [
   TargetSystemKind.Entra,
-  TargetSystemKind.ActiveDirectory,
   TargetSystemKind.CustomScript,
 ];
 
@@ -144,13 +145,15 @@ const FILTERABLE_KINDS: readonly TargetSystemKind[] = [
     MenuModule,
     RouterLink,
     SearchModule,
-    StatusLockupComponent,
+    SkeletonComponent,
+    SkeletonTextComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
     BitCellComponent,
     BitCellDefDirective,
+    BitCellLoadingDirective,
     TooltipDirective,
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
@@ -178,6 +181,13 @@ export class TargetSystemsTabComponent {
   protected readonly loadError = toSignal(this.targetSystemsService.loadError$, {
     initialValue: null,
   });
+
+  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
+  protected readonly showSkeleton = showSkeletonWhile(this.loading);
+
+  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
+
+  protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystemView[],
@@ -235,29 +245,33 @@ export class TargetSystemsTabComponent {
   protected readonly hasSystems = computed(() => this.rows().length > 0);
 
   protected readonly table = defineTable<TargetSystemRow, "actions">(this.rows);
+  /**
+   * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
+   * through before the skeleton's delay.
+   */
+  protected readonly loadingTable = defineTable<TargetSystemRow, "actions">(
+    signal<TargetSystemRow[]>([]),
+  );
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
   /**
    * Every system type the chip can name, whether or not a row holds it, so an empty one shows a
-   * zero count. Sorted by label.
+   * zero count.
    */
   protected readonly kindOptions = FILTERABLE_KINDS.flatMap((kind) => {
     const label = this.kindLabel(kind);
     return label == null ? [] : [{ value: kind, label }];
-  }).sort((a, b) => a.label.localeCompare(b.label));
+  });
 
-  /** Every status a row can hold, named and tiled like the badge that shows it. */
+  /** Every status a row can hold, named by the badge that shows it. */
   protected readonly statusOptions = computed(() =>
     TARGET_SYSTEM_STATUS_BADGES.filter(
       (badge) =>
         badge.status !== TargetSystemRowStatus.PendingSeal ||
         this.rows().some((row) => row.status === TargetSystemRowStatus.PendingSeal),
-    ).map((badge) => ({
-      ...badge,
-      iconTile: { icon: badge.icon, variant: STATUS_TILE_VARIANTS[badge.variant] },
-    })),
+    ),
   );
 
   /** Every access connector in the org, so one holding no target still shows a zero count. */
@@ -289,13 +303,6 @@ export class TargetSystemsTabComponent {
     row: TargetSystemRow,
     values: TargetSystemFilterValues,
   ): boolean => matchesFilter(row, toTargetSystemFilter(values));
-
-  /** Why the menu can't assign an access connector to this row now, or null when it can. */
-  protected assignConnectorsReasonKey(row: TargetSystemRow): string | null {
-    return row.canAssignConnectors
-      ? row.assignConnectorsBlockedKey
-      : "pamTargetSystemAssignConnectorsManualHint";
-  }
 
   private readonly busyRows = new RowBusyTracker<TargetSystemId>();
 
@@ -333,6 +340,12 @@ export class TargetSystemsTabComponent {
 
   protected readonly openEdit = (system: TargetSystemView): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
+
+  protected readonly openCreateManagedCredential = (system: TargetSystemView): Promise<boolean> =>
+    this.router.navigate(["..", "managed-credentials", "new"], {
+      relativeTo: this.route,
+      queryParams: { [TARGET_SYSTEM_QUERY_PARAM]: system.id },
+    });
 
   /**
    * Waits for the connector read to settle, since the menu item is live while it is in flight; a
@@ -389,7 +402,14 @@ export class TargetSystemsTabComponent {
 
   protected readonly disable = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
-      if (!(await confirmDeactivateTargetSystem(this.dialogService))) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamTargetSystemDeactivateTitle" },
+        content: { key: "pamTargetSystemDeactivateContent" },
+        acceptButtonText: { key: "pamTargetSystemDeactivateConfirm" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
+      });
+      if (!confirmed) {
         return;
       }
       try {
@@ -399,7 +419,7 @@ export class TargetSystemsTabComponent {
           message: this.i18nService.t("pamTargetSystemDeactivateSuccess"),
         });
       } catch (e) {
-        this.showActionError(e, "pamTargetSystemDeactivateFailed");
+        this.showError(e);
       }
     });
 
@@ -412,7 +432,7 @@ export class TargetSystemsTabComponent {
           message: this.i18nService.t("pamTargetSystemActivateSuccess"),
         });
       } catch (e) {
-        this.showActionError(e, "pamTargetSystemActivateFailed");
+        this.showError(e);
       }
     });
 
@@ -428,9 +448,20 @@ export class TargetSystemsTabComponent {
         this.accessConnectors().some((connector) =>
           connector.assignedTargetSystemIds.includes(system.id),
         );
-      const confirmed = await confirmDeleteTargetSystem(this.dialogService, {
-        active: system.status === TargetSystemStatus.Active,
-        dropsAssignments,
+      const active = system.status === TargetSystemStatus.Active;
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamTargetSystemDeleteTitle" },
+        content: {
+          key: dropsAssignments
+            ? "pamTargetSystemDeleteAssignedConnectorsContent"
+            : active
+              ? "pamTargetSystemDeleteContentDeactivateInstead"
+              : "pamTargetSystemDeleteContent",
+          placeholders: [system.name],
+        },
+        acceptButtonText: { key: "delete" },
+        cancelButtonText: { key: "cancel" },
+        type: "danger",
       });
       if (!confirmed) {
         return;
@@ -443,7 +474,7 @@ export class TargetSystemsTabComponent {
           message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
         });
       } catch (e) {
-        this.showActionError(e, "pamTargetSystemDeleteFailed");
+        this.showError(e);
       }
     });
 
@@ -482,6 +513,7 @@ export class TargetSystemsTabComponent {
           .map((connector) => String(connector.id)),
         integrityCheckFailed,
         canAssignConnectors: system.method === TargetSystemMethod.Automatic,
+        canAddManagedCredential: active,
         assignConnectorsBlockedKey: connectorsUnavailable
           ? "pamTargetSystemConnectorAssignmentsLoadError"
           : !connectorsKnown || assignableConnectors(system.id, connectors).length > 0
@@ -509,19 +541,7 @@ export class TargetSystemsTabComponent {
       this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
-
-  /** The server's reason for refusing a row action, else that action's own failure copy. */
-  private showActionError(e: unknown, failureKey: string): void {
-    const message = rotationActionErrorMessage(e) ?? this.i18nService.t(failureKey);
-    this.toastService.showToast({ variant: "error", message });
-  }
 }
-
-const STATUS_TILE_VARIANTS: Partial<Record<BadgeVariant, IconTileVariant>> = {
-  success: "success",
-  warning: "warning",
-  subtle: "gray",
-};
 
 /** The toolbar's raw values by filter key, untyped because each chip reports its own shape. */
 type TargetSystemFilterValues = {
