@@ -48,6 +48,17 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import {
+  AccessRequestView,
+  activateAccessErrorMessageKey,
+  durationText,
+  exactWindow,
+  humanApprover,
+  reasonText,
+  relativeStart,
+} from "../..";
+import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
+import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
@@ -169,7 +180,7 @@ export class AccessRequestDialogComponent implements OnInit {
 
   protected readonly duration = computed(() => {
     const request = this.request();
-    return request == null ? null : durationLabel(request);
+    return request == null ? null : durationText(request, this.locale);
   });
 
   protected readonly start = computed(() => {

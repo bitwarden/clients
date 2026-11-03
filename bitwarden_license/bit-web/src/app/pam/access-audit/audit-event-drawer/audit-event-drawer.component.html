@@ -144,7 +144,7 @@
         <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditColumnDuration" | i18n }}</dt>
         <dd class="tw-m-0" data-testid="drawer-duration">
           @if (row.duration; as duration) {
-            {{ duration.key | i18n: duration.value }}
+            {{ duration }}
           } @else if (row.extendedUntil) {
             {{ "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | date: "medium") }}
           } @else {
