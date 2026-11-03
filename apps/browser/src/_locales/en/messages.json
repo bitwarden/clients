@@ -8084,8 +8084,8 @@
   "syncUnlockWithDesktop1": {
     "message": "Synchronize unlock with desktop"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together. Biometrics will be used if available."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
