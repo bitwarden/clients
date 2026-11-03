@@ -62,7 +62,8 @@ import {
   reasonText,
   relativeStart,
 } from "../..";
-import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
+import type { AccessApprover, AccessDecisionVerdict } from "../../abstractions/access-lease";
+import type { AccessBadgeState } from "../../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
@@ -97,7 +98,10 @@ export type AccessRequestDialogParams = {
    * no approval that can still be withdrawn.
    */
   readOnly?: boolean;
-  /** Opens straight on the withdraw confirmation, as `?action=withdraw` asks. */
+  /**
+   * Opens straight on the withdraw confirmation, as `?action=withdraw` asks. Reserved for a
+   * "Withdraw approval" entry point on the Approvals tab.
+   */
   intent?: "withdraw";
 };
 
@@ -205,7 +209,7 @@ export class AccessRequestDialogComponent implements OnInit {
       return null;
     }
     // A running lease badges as its own countdown, which escalates to "ending soon" on the
-    // threshold the pill owns, so the dialog never has to name either state itself.
+    // threshold the pill owns — so the dialog never has to name either state itself.
     const endsAt = this.leaseEndsAt();
     if (endsAt != null) {
       return {
@@ -288,6 +292,7 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly confirmingWithdraw = signal(false);
 
+  /** Required, so the field carries the required marker as well as gating the action. */
   protected readonly withdrawReason = new FormControl("", {
     nonNullable: true,
     validators: [Validators.required],
@@ -316,6 +321,7 @@ export class AccessRequestDialogComponent implements OnInit {
     initialValue: "",
   });
 
+  /** The server rejects a managing approver's withdrawal without a note, so the action waits. */
   protected readonly withdrawReasonGiven = computed(
     () => this.withdrawReasonText().trim().length > 0,
   );
@@ -363,7 +369,10 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   });
 
-  /** Only while the request is still undecided. */
+  /**
+   * Only while the request is still undecided. Once approved it offers Start instead — the
+   * requester withdraws an approval they no longer want from the My requests table.
+   */
   protected readonly canCancel = computed(
     () => this.offersActions && this.isRequester() && this.request()?.status === "pending",
   );
@@ -552,9 +561,21 @@ export class AccessRequestDialogComponent implements OnInit {
     if (!this.canWithdrawApproval() || this.withdrawing()) {
       return;
     }
-    await this.approverActions.withdrawApproval(
-      this.cipherName() ?? "",
-      () => this.detail.withdrawApproval(),
+    this.confirmingWithdraw.set(true);
+  }
+
+  /** Returns to the request, keeping the note so re-opening the confirmation does not lose it. */
+  protected cancelWithdraw(): void {
+    this.confirmingWithdraw.set(false);
+  }
+
+  protected async confirmWithdraw(): Promise<void> {
+    if (!this.withdrawReasonGiven() || this.withdrawing()) {
+      return;
+    }
+    const reason = this.withdrawReason.value.trim();
+    const withdrawn = await this.approverActions.withdrawApproval(
+      () => this.detail.withdrawApproval(reason),
       (busy) => this.withdrawing.set(busy),
     );
     // A failure keeps the confirmation, and the reason, open so the approver can retry as is.
@@ -610,7 +631,7 @@ function boldRuns(text: string, values: ReadonlyMap<string, string>): TextRun[] 
 /**
  * The Decision card's label for the request's last decision. Revoking a lease, ending your own,
  * and withdrawing an approval all record a deny without the request ending denied, so the label
- * follows the verdict and, for those lease ends, who recorded it, never the status alone.
+ * follows the verdict and, for those lease ends, who recorded it — never the status alone.
  */
 function decisionLabelKey(
   verdict: AccessDecisionVerdict,

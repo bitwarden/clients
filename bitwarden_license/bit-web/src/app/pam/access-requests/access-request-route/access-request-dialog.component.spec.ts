@@ -112,6 +112,7 @@ describe("AccessRequestDialogComponent", () => {
       imports: [AccessRequestDialogComponent, NoopAnimationsModule],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        provideRouter([]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close: jest.fn() } },
         { provide: ToastService, useValue: toastService },
@@ -919,16 +920,221 @@ describe("AccessRequestDialogComponent", () => {
       });
     });
 
-    it("offers Withdraw approval on an unstarted approval they manage, after confirming", async () => {
-      detail.request$.next(request({ status: "approved" }));
-      detail.managed$.next(true);
-      create();
+    /**
+     * The server refuses a managing approver's withdrawal without a note, so the dialog turns to
+     * its own confirmation face and holds the action until one is written.
+     */
+    describe("withdrawing an approval", () => {
+      function openConfirm(): void {
+        detail.request$.next(request({ status: "approved" }));
+        detail.managed$.next(true);
+        create();
+        component["withdrawApproval"]();
+        fixture.detectChanges();
+      }
 
       it("confirms in place rather than opening a second dialog", () => {
         openConfirm();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-      expect(detail.withdrawApproval).toHaveBeenCalled();
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-reason"]'),
+        ).not.toBeNull();
+      });
+
+      it("keeps the item on screen so the destructive action has its context", () => {
+        openConfirm();
+
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-summary"]'),
+        ).not.toBeNull();
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-warning"]'),
+        ).not.toBeNull();
+      });
+
+      it("names the item and the requester in bold in the warning", () => {
+        openConfirm();
+
+        const warning = fixture.nativeElement.querySelector(
+          '[data-testid="withdraw-confirm-warning"]',
+        ) as HTMLElement;
+        const bold = [...warning.querySelectorAll(".tw-font-semibold")].map((el) =>
+          el.textContent?.trim(),
+        );
+        expect(bold).toEqual(["Prod database", "Grace"]);
+        expect(warning.textContent).toContain("pamWithdrawApprovalConfirmMessage");
+      });
+
+      it("marks the reason field as required", () => {
+        openConfirm();
+
+        const reason = fixture.nativeElement.querySelector(
+          '[data-testid="withdraw-confirm-reason"]',
+        ) as HTMLTextAreaElement;
+        expect(reason.required).toBe(true);
+        expect(component["withdrawReason"].hasError("required")).toBe(true);
+      });
+
+      it("holds the withdrawal until a reason is written", () => {
+        // `bitButton` marks a held action with `aria-disabled` so keyboard users still reach it.
+        const held = () => footerButton("confirm-withdraw")!.getAttribute("aria-disabled");
+
+        openConfirm();
+        expect(held()).toBe("true");
+
+        component["withdrawReason"].setValue("   ");
+        fixture.detectChanges();
+        expect(held()).toBe("true");
+
+        component["withdrawReason"].setValue("Scope changed");
+        fixture.detectChanges();
+        expect(held()).toBeNull();
+      });
+
+      it("sends the reason the requester will read", async () => {
+        openConfirm();
+        component["withdrawReason"].setValue("  Scope changed  ");
+
+        await component["confirmWithdraw"]();
+
+        expect(detail.withdrawApproval).toHaveBeenCalledWith("Scope changed");
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(component["withdrawReason"].value).toBe("");
+      });
+
+      it("keeps the confirmation and the reason open after a failed withdrawal", async () => {
+        detail.withdrawApproval.mockRejectedValue(new Error("boom"));
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        await component["confirmWithdraw"]();
+
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(component["withdrawReason"].value).toBe("Scope changed");
+      });
+
+      it("keeps the reason across Cancel and re-opening the confirmation", () => {
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        component["cancelWithdraw"]();
+        component["withdrawApproval"]();
+
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(component["withdrawReason"].value).toBe("Scope changed");
+      });
+
+      it("returns to the request on Cancel, withdrawing nothing", () => {
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        component["cancelWithdraw"]();
+        fixture.detectChanges();
+
+        expect(detail.withdrawApproval).not.toHaveBeenCalled();
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(footerButton("withdraw-approval")).not.toBeNull();
+      });
+    });
+
+    /** Opened over the History tab, the dialog is a record to read. */
+    describe("opened read-only", () => {
+      function footerButtons(): string[] {
+        return [...(fixture.nativeElement.querySelector("footer") as HTMLElement).children]
+          .map((el) => el.id)
+          .filter((id) => id.length > 0);
+      }
+
+      it.each([
+        ["an approver's unstarted grant", "approver", { status: "approved" }, true],
+        [
+          "an approver's live lease",
+          "approver",
+          { status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" },
+          true,
+        ],
+        ["the requester's pending request", "requester", { status: "pending" }, false],
+        ["the requester's denied request", "requester", { status: "denied" }, false],
+        ["the requester's expired request", "requester", { status: "expired" }, false],
+        ["the requester's unstarted grant", "requester", { status: "approved" }, false],
+      ] as const)("offers Close alone on %s", (_, viewer, overrides, managed) => {
+        params.readOnly = true;
+        detail.viewer$.next(viewer);
+        detail.managed$.next(managed);
+        detail.request$.next(request(overrides));
+
+        create();
+
+        expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      });
+
+      it("offers Close alone even where the approver could decide", () => {
+        params.readOnly = true;
+        detail.viewer$.next("approver");
+        detail.approvalRow$.next(inboxRow());
+
+        create();
+
+        expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      });
+
+      it("opens straight on the withdraw confirmation when asked to", () => {
+        params.readOnly = true;
+        params.intent = "withdraw";
+        detail.viewer$.next("approver");
+        detail.managed$.next(true);
+        detail.request$.next(request({ status: "approved" }));
+
+        create();
+
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(footerButton("confirm-withdraw")).not.toBeNull();
+        expect(footerButtons()).not.toContain("access-request-dialog_link_submit-new-request");
+      });
+
+      it("waits for the approval to be known withdrawable before confirming", () => {
+        params.readOnly = true;
+        params.intent = "withdraw";
+        detail.viewer$.next("approver");
+        detail.request$.next(request({ status: "approved" }));
+
+        create();
+        expect(component["confirmingWithdraw"]()).toBe(false);
+
+        detail.managed$.next(true);
+        fixture.detectChanges();
+        expect(component["confirmingWithdraw"]()).toBe(true);
+      });
+
+      it("leaves a no-longer-withdrawable request on Close alone, never Submit new request", () => {
+        params.readOnly = true;
+        params.intent = "withdraw";
+        detail.viewer$.next("requester");
+        detail.managed$.next(true);
+        detail.request$.next(request({ status: "expired" }));
+
+        create();
+
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      });
+
+      it("returns to the read-only request on Cancel, not re-entering the confirmation", () => {
+        params.readOnly = true;
+        params.intent = "withdraw";
+        detail.viewer$.next("approver");
+        detail.managed$.next(true);
+        detail.request$.next(request({ status: "approved" }));
+        create();
+
+        component["cancelWithdraw"]();
+        fixture.detectChanges();
+
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      });
     });
 
     it("offers Revoke on a live lease they manage, even past the requested window", async () => {
