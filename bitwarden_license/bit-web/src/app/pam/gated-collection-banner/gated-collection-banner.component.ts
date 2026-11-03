@@ -3,19 +3,21 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule } from "@bitwarden/components";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import { VaultGatedCollectionBanner } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
 import { gatedCollection } from "../services/gated-collection";
 
 /**
  * Notice above the vault's item list while a governed collection is the active filter. Reuses the
- * sidebar lock's tooltip string, so both surfaces describe the restriction the same way.
+ * sidebar lock's tooltip string, so both surfaces describe the restriction the same way, and takes
+ * the VFO1 wording of it from the same pipe the rest of the vault reads its terminology through.
  */
 @Component({
   selector: "app-pam-gated-collection-banner",
   templateUrl: "./gated-collection-banner.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CalloutModule],
+  imports: [CalloutModule, Vfo1I18nPipe],
 })
 export class GatedCollectionBannerComponent implements VaultGatedCollectionBanner {
   readonly organizationId = input<OrganizationId | undefined>(undefined);
@@ -24,7 +26,6 @@ export class GatedCollectionBannerComponent implements VaultGatedCollectionBanne
   private readonly i18nService = inject(I18nService);
 
   protected readonly bannerName = this.i18nService.t("pamGatedCollectionBannerName");
-  protected readonly requiresRequestLabel = this.i18nService.t("pamCollectionRequiresRequest");
 
   private readonly selected = computed(() => ({
     id: this.collectionId(),
