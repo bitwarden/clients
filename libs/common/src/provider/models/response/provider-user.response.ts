@@ -1,6 +1,6 @@
-import { BaseResponse } from "../../../../models/response/base.response";
-import { ProviderUserStatusType, ProviderUserType } from "../../../enums";
-import { PermissionsApi } from "../../api/permissions.api";
+import { PermissionsApi } from "../../../admin-console/models/api/permissions.api";
+import { BaseResponse } from "../../../models/response/base.response";
+import { ProviderUserStatusType, ProviderUserType } from "../../enums";
 
 export class ProviderUserResponse extends BaseResponse {
   id: string;
