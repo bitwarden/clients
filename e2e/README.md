@@ -59,6 +59,48 @@ E2E_ACCOUNT=usdev-e2e npm run test:e2e:web
 `E2E_EMAIL`, `E2E_PASSWORD` and `E2E_SERVER` take precedence over the file when all
 three are set. CI uses them.
 
+## Seeded data
+
+Tests that need their own users, organizations or items create them through the server's
+SeederApi (`util/SeederApi` in bitwarden/server) instead of the shared accounts above.
+Run it beside the local server:
+
+```
+cd util/SeederApi && dotnet run   # http://localhost:5047
+```
+
+It takes a basic-auth account from its `seederSettings:accounts`. Give the suite the same one
+in a `[seeder]` section:
+
+```
+[seeder]
+username=e2e
+password=...
+url=http://localhost:5047
+```
+
+`url` is optional. `E2E_SEEDER_USERNAME`, `E2E_SEEDER_PASSWORD` and `E2E_SEEDER_URL` take
+precedence over the file. With no account configured, tests that seed are skipped.
+
+Import `test` from `src/seeder/fixtures.ts`, which adds a `play` fixture holding the test's
+data, and `newPage` for a second user's page:
+
+```ts
+const user = await play.scene(
+  new SingleUserScene({ email: "user@example.com", password: randomUUID() }),
+);
+await logInToWebVault(page, seededAccount(user));
+```
+
+The server mangles unique values such as emails; `scene.mangle("user@example.com")` returns the
+stored one. Everything a play seeds, and everything its pages create through the client, is
+deleted when the test ends. `E2E_KEEP_SEEDED_DATA=1` keeps it and prints the command that
+deletes it; the SeederApi also deletes play data older than a day.
+
+Add a scene or query by subclassing `SceneTemplate` in `src/seeder/scenes/` or
+`QueryTemplate` in `src/seeder/queries/`, named after the server's class and typed after its
+`Request` and result.
+
 ## CI
 
 `.github/workflows/test-e2e-usdev.yml` runs every suite against usdev nightly, and on
