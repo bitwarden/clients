@@ -110,7 +110,7 @@ export function myRequestStatus(row: MyRequestRow, nowMs: number): MyRequestStat
   if (request != null && isRedeemableGrant(request, nowMs)) {
     return MyRequestStatus.Ready;
   }
-  // An approval nobody started before its window closed is spent, not still waiting — the badge
+  // An approval nobody started before its window closed is spent, not still waiting, the badge
   // has always said so, and the Status chip and sort now agree with it.
   if (request != null && request.status === "approved") {
     return MyRequestStatus.Expired;

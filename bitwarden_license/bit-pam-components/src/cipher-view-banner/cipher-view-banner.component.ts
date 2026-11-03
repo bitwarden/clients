@@ -397,15 +397,96 @@ export class CipherViewBannerComponent implements OnInit {
     if (this.requestSheet() != null) {
       return;
     }
-    const cipher = this.cipher();
-    const sheet = RequestAccessSheetComponent.open(this.dialogService, {
-      cipherId: cipher.id,
-      itemName: cipher.name,
-    });
-    this.requestSheet.set(sheet);
-    const accessChanged = await firstValueFrom(sheet.closed);
-    this.requestSheet.set(undefined);
-    if (accessChanged) {
+    const { startDate, startTime } = this.humanForm.controls;
+    const slots = startDate.value ? startTimeSlots(startDate.value, this.requestOpenedAt()) : [];
+    if (slots.length === 0) {
+      return;
+    }
+    if (slots.includes(startTime.value)) {
+      this.startSlot.setValue(startTime.value, { emitEvent: false });
+    } else {
+      this.startSlot.setValue(slots.find((slot) => slot >= startTime.value) ?? slots[0]);
+    }
+  }
+
+  /** While the end is a duration, it moves with the start. */
+  private followStartWithEnd(): void {
+    if (this.customEnd()) {
+      return;
+    }
+    const { startDate, startTime } = this.humanForm.getRawValue();
+    const end = windowEndAt(startDate, startTime, Number(this.endDuration.value));
+    if (end != null) {
+      this.humanForm.patchValue({
+        endDate: toDateInputValue(end),
+        endTime: toTimeInputValue(end),
+      });
+    }
+  }
+
+  /** A time alone on the reference instant's day, else the day and time. */
+  private formatWindowPoint(date: Date, reference?: Date): string {
+    const time = formatDate(date, "shortTime", this.locale);
+    if (reference != null && toDateInputValue(date) === toDateInputValue(reference)) {
+      return time;
+    }
+    return `${formatDate(date, "EEE, MMM d", this.locale)}, ${time}`;
+  }
+
+  private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {
+    switch (problem) {
+      case "endNotAfterStart":
+        return this.i18nService.t("requestAccessModalEndNotAfterStart");
+      case "endInPast":
+        return this.i18nService.t("requestAccessModalWindowInPast");
+      case "exceedsMaxWindow":
+        return this.i18nService.t(
+          "requestAccessModalWindowExceedsMax",
+          formatDuration(this.locale, maxWindowSeconds, "long"),
+        );
+    }
+  }
+
+  // `[bitAction]` owns the busy state and serialises re-entrant clicks, so this only guards on form
+  // validity.
+  protected readonly submitRequest = async (): Promise<void> => {
+    const mode = this.requestMode();
+    const cipherId = this.cipher().id;
+    if (mode == null || cipherId == null) {
+      return;
+    }
+    const form = mode === "automatic" ? this.automaticForm : this.humanForm;
+    // `markAllAsTouched` does not re-run validators, so a fold-out left open past its own seeded
+    // window still carries a stale verdict; re-validate before trusting `form.invalid`.
+    if (mode === "human") {
+      this.humanForm.controls.endTime.updateValueAndValidity();
+    }
+    form.markAllAsTouched();
+    if (form.invalid) {
+      return;
+    }
+    this.requestError.set(null);
+
+    try {
+      const request =
+        mode === "automatic" ? this.buildAutomaticRequest() : this.buildHumanRequest();
+      if (request == null) {
+        this.requestError.set(this.i18nService.t("requestAccessModalGenericError"));
+        return;
+      }
+      const result = await this.accessRequestSdkService.submitAccessRequest(
+        String(cipherId),
+        request,
+      );
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t(
+          result.approvalMode === "automatic"
+            ? "requestAccessModalApprovedSuccessV2"
+            : "requestAccessModalRequestCreatedSuccessV2",
+        ),
+      });
+      this.requestFormExpanded.set(false);
       this.notifyAccessChanged();
     }
   }

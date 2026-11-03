@@ -154,7 +154,7 @@ export class MyRequestsTabComponent {
 
   /**
    * Latched on the first complete load, so a background reload can't pull the table from under a
-   * reader. Until it raises, the tab renders neither empty state — "you have no requests" is not
+   * reader. Until it raises, the tab renders neither empty state, "you have no requests" is not
    * something an unfinished read can say.
    */
   private readonly loaded$ = this.myAccess.loading$.pipe(

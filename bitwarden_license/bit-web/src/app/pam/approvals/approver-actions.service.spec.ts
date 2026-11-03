@@ -168,7 +168,7 @@ describe("ApproverActionsService", () => {
   });
 
   describe("withdrawApproval", () => {
-    /** The caller confirms — the access request dialog does so in place, taking the reason. */
+    /** The caller confirms, the access request dialog does so in place, taking the reason. */
     it("withdraws without confirming again, and toasts", async () => {
       await expect(service.withdrawApproval(run, busy)).resolves.toBe(true);
 
