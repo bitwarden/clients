@@ -605,9 +605,10 @@
                 bitFormButton
                 [bitAction]="removeRotation"
                 [disabled]="detail.config.hasActiveJob"
-                [attr.title]="
-                  detail.config.hasActiveJob ? ('pamRotationConfigDeleteLockedTitle' | i18n) : null
+                [bitTooltip]="
+                  detail.config.hasActiveJob ? ('pamRotationConfigDeleteLockedTitle' | i18n) : ''
                 "
+                [addTooltipToDescribedby]="detail.config.hasActiveJob"
                 class="tw-ms-auto"
                 id="rotation-config-edit_button_delete"
               >
