@@ -322,7 +322,7 @@ function actionButton(
   return fixture.nativeElement.querySelector(`#rotation-config-edit_button_${name}`);
 }
 
-describe("RotationConfigEditComponent — CREATE mode", () => {
+describe("RotationConfigEditComponent: CREATE mode", () => {
   it("starts in create mode when no configId is present", () => {
     const { component } = setup();
     expect(component.editing).toBe(false);
@@ -464,7 +464,7 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
   });
 });
 
-describe("RotationConfigEditComponent — add form", () => {
+describe("RotationConfigEditComponent: add form", () => {
   const manual = targetSystem({ id: sysId("sys-manual"), name: "Ledger", method: "manual" });
   const noSessions = targetSystem({
     id: sysId("sys-nosessions"),
@@ -761,7 +761,7 @@ describe("RotationConfigEditComponent — add form", () => {
   });
 });
 
-describe("RotationConfigEditComponent — target-system handoff", () => {
+describe("RotationConfigEditComponent: target-system handoff", () => {
   it("preselects the target named by ?targetSystemId", async () => {
     const { component, fixture } = setup({
       queryParams: { targetSystemId: uuidAsString(TARGET_SYSTEM_ID) },
@@ -892,7 +892,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
   });
 });
 
-describe("RotationConfigEditComponent — EDIT mode", () => {
+describe("RotationConfigEditComponent: EDIT mode", () => {
   it("starts in edit mode when configId param is present", () => {
     const { component } = setup({ configId: configId("cfg-1") });
     expect(component.editing).toBe(true);
@@ -1220,7 +1220,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 });
 
-describe("RotationConfigEditComponent — unsaved changes", () => {
+describe("RotationConfigEditComponent: unsaved changes", () => {
   const DISCARD_DIALOG = {
     title: { key: "discardEditsTitle" },
     content: { key: "discardEditsConfirmation" },
@@ -1356,7 +1356,7 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
   });
 });
 
-describe("RotationConfigEditComponent — tabs", () => {
+describe("RotationConfigEditComponent: tabs", () => {
   it("opens on Configuration by default", async () => {
     const { component, fixture } = setup({ configId: configId("cfg-1") });
     await fixture.whenStable();
@@ -1408,7 +1408,7 @@ describe("RotationConfigEditComponent — tabs", () => {
  * Resolves the page's tab links against the real route table, with its pages stubbed, since
  * nothing the page renders would catch a missing `:tab` layer.
  */
-describe("RotationConfigEditComponent — tab routes", () => {
+describe("RotationConfigEditComponent: tab routes", () => {
   @Component({
     template: "",
     standalone: true,
@@ -1480,7 +1480,7 @@ describe("RotationConfigEditComponent — tab routes", () => {
   });
 });
 
-describe("RotationConfigEditComponent — action row", () => {
+describe("RotationConfigEditComponent: action row", () => {
   it("puts Save and Delete in one row, Save first", async () => {
     const fixture = await renderPage();
 
@@ -1556,7 +1556,7 @@ describe("RotationConfigEditComponent — action row", () => {
   });
 });
 
-describe("RotationConfigEditComponent — loading skeleton", () => {
+describe("RotationConfigEditComponent: loading skeleton", () => {
   beforeEach(() => {
     jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
   });
@@ -1702,7 +1702,7 @@ describe("RotationConfigEditComponent — loading skeleton", () => {
   });
 });
 
-describe("RotationConfigEditComponent — managed credential detail", () => {
+describe("RotationConfigEditComponent: managed credential detail", () => {
   const connected = () =>
     accessConnector({ name: "East datacenter", assignedTargetSystemIds: [TARGET_SYSTEM_ID] });
   const disconnected = () =>

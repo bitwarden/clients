@@ -80,8 +80,8 @@ export class ApproverActionsService {
   }
 
   /**
-   * Withdraws an approval the requester has not started. The caller confirms — the access request
-   * dialog does so in place, collecting the reason the server requires — so this only runs the
+   * Withdraws an approval the requester has not started. The caller confirms, the access request
+   * dialog does so in place, collecting the reason the server requires, so this only runs the
    * mutation and reports it. Resolves whether it succeeded, so the caller can keep its
    * confirmation, and the reason typed into it, open for a retry after a failure.
    */

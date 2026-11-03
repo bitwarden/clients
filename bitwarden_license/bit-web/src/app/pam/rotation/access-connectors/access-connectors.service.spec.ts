@@ -315,7 +315,7 @@ describe("AccessConnectorsService", () => {
       expect(rows[0].accessConnector).toBe(untouched);
     });
 
-    it("does not reach the server — the delete already took the assignments", async () => {
+    it("does not reach the server, the delete already took the assignments", async () => {
       rotationSdk.listConnectors.mockResolvedValue([
         makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1")] }),
       ]);
