@@ -11,6 +11,7 @@ import { DECIDE_ACCESS_SERVER_ERRORS } from "../helpers/decide-access-error";
 
 import { ApproverActionsService, rowBusy } from "./approver-actions.service";
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
+import { WithdrawApprovalDialogComponent } from "./withdraw-approval-dialog/withdraw-approval-dialog.component";
 
 describe("ApproverActionsService", () => {
   let service: ApproverActionsService;
@@ -22,7 +23,7 @@ describe("ApproverActionsService", () => {
 
   const params = { verdict: "approve", row: { id: "req-1" } } as unknown as DecideDialogParams;
 
-  function decideDialogCloses(result: unknown): void {
+  function dialogCloses(result: unknown): void {
     dialogService.open.mockReturnValue({ closed: of(result) } as never);
   }
 
@@ -47,7 +48,7 @@ describe("ApproverActionsService", () => {
 
   describe("decide", () => {
     it("opens the decide dialog on the given request", async () => {
-      decideDialogCloses(undefined);
+      dialogCloses(undefined);
 
       await service.decide(params, run, busy);
 
@@ -55,7 +56,7 @@ describe("ApproverActionsService", () => {
     });
 
     it("records the verdict the dialog closed with, not the one it opened on", async () => {
-      decideDialogCloses({ confirmed: true, verdict: "deny", comment: "wrong window" });
+      dialogCloses({ confirmed: true, verdict: "deny", comment: "wrong window" });
 
       await service.decide(params, run, busy);
 
@@ -67,7 +68,7 @@ describe("ApproverActionsService", () => {
     });
 
     it("toasts an approval as approved", async () => {
-      decideDialogCloses({ confirmed: true, verdict: "approve", comment: undefined });
+      dialogCloses({ confirmed: true, verdict: "approve", comment: undefined });
 
       await service.decide(params, run, busy);
 
@@ -78,7 +79,7 @@ describe("ApproverActionsService", () => {
     });
 
     it("records nothing, and never goes busy, when the dialog is dismissed", async () => {
-      decideDialogCloses(undefined);
+      dialogCloses(undefined);
 
       await service.decide(params, run, busy);
 
@@ -90,7 +91,7 @@ describe("ApproverActionsService", () => {
     it("logs and toasts a failed decision", async () => {
       const error = new Error("boom");
       run.mockRejectedValue(error);
-      decideDialogCloses({ confirmed: true, verdict: "approve", comment: undefined });
+      dialogCloses({ confirmed: true, verdict: "approve", comment: undefined });
 
       await service.decide(params, run, busy);
 
@@ -108,7 +109,7 @@ describe("ApproverActionsService", () => {
           variant: "Api",
         }),
       );
-      decideDialogCloses({ confirmed: true, verdict: "approve", comment: undefined });
+      dialogCloses({ confirmed: true, verdict: "approve", comment: undefined });
 
       await service.decide(params, run, busy);
 
@@ -193,6 +194,47 @@ describe("ApproverActionsService", () => {
         message: "pamInboxWithdrawApprovalFailed",
       });
       expect(busy).toHaveBeenLastCalledWith(false);
+    });
+  });
+
+  describe("confirmWithdrawApproval", () => {
+    const withdrawParams = {
+      itemName: "Prod database",
+      organizationName: "Meridian Group",
+      collectionName: "Production",
+      requesterName: "Grace Hopper",
+    };
+
+    it("opens the withdraw dialog on the given request", async () => {
+      dialogCloses(undefined);
+
+      await service.confirmWithdrawApproval(withdrawParams, run, busy);
+
+      expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
+        data: withdrawParams,
+      });
+    });
+
+    it("withdraws with the reason the dialog closed with, then toasts", async () => {
+      dialogCloses({ confirmed: true, reason: "Approved by mistake" });
+
+      await service.confirmWithdrawApproval(withdrawParams, run, busy);
+
+      expect(run).toHaveBeenCalledWith("Approved by mistake");
+      expect(busy.mock.calls).toEqual([[true], [false]]);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamInboxApprovalWithdrawnToast",
+      });
+    });
+
+    it("does nothing when the dialog is dismissed", async () => {
+      dialogCloses(undefined);
+
+      await service.confirmWithdrawApproval(withdrawParams, run, busy);
+
+      expect(run).not.toHaveBeenCalled();
+      expect(busy).not.toHaveBeenCalled();
     });
   });
 });

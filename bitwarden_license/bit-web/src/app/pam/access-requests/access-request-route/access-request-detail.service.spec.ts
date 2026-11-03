@@ -383,6 +383,15 @@ describe("AccessRequestDetailService", () => {
       expect(requestsApi.getAccessRequest).not.toHaveBeenCalled();
     });
 
+    it("does not withdraw when there is no loaded request", async () => {
+      requestsApi.getAccessRequest.mockRejectedValue(new Error("boom"));
+      await setup();
+
+      await service.withdrawApproval("Approved by mistake");
+
+      expect(inbox.cancelApproval).not.toHaveBeenCalled();
+    });
+
     it("withdraws an approval", async () => {
       await setup();
       requestsApi.getAccessRequest.mockClear();

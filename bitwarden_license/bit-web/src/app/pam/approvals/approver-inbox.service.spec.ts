@@ -383,10 +383,76 @@ describe("ApproverInboxService", () => {
       expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
     });
 
-    it("cancels an approval via access_requests().cancel()", async () => {
-      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed");
+    it("cancels an approval via access_requests().cancel() with the reason", async () => {
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1", "Scope changed");
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1", "Approved by mistake");
+    });
+
+    it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
+      approvalApi.listHistory.mockClear();
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "req-1",
+          status: "denied",
+          decisions: [
+            humanDecision({ id: "approver-1", verdict: "deny", comment: "Approved by mistake" }),
+          ],
+        }),
+      ]);
+
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
+
+      expect(approvalApi.listHistory).toHaveBeenCalledTimes(1);
+      const history = await firstValueFrom(service.historyRows$);
+      expect(history[0].status).toBe("denied");
+    });
+
+    it("names the requester and organization of a managed request", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({ id: "req-1", status: "approved", organizationId: "org-1" }),
+      ]);
+      nameResolver.resolveNames.mockResolvedValue({
+        ...emptyResolvedNames(),
+        organizationNameById: new Map([["org-1", "Meridian Group"]]),
+      } as ResolvedNames);
+      await service.load();
+
+      expect(service.managedRequestParties("req-1")).toEqual({
+        requesterName: "Grace",
+        organizationName: "Meridian Group",
+      });
+    });
+
+    it("falls back to the requester's email when they have no name", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({ id: "req-1", requesterName: undefined, requesterEmail: "grace@example.com" }),
+      ]);
+      await service.load();
+
+      expect(service.managedRequestParties("req-1")?.requesterName).toBe("grace@example.com");
+    });
+
+    it("falls back to the requester's id, and names no organization it cannot resolve", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "req-1",
+          requesterId: "user-9",
+          requesterName: undefined,
+          requesterEmail: undefined,
+          organizationId: "org-unknown",
+        }),
+      ]);
+      await service.load();
+
+      expect(service.managedRequestParties("req-1")).toEqual({
+        requesterName: "user-9",
+        organizationName: null,
+      });
+    });
+
+    it("names no parties for a request the caller does not manage", () => {
+      expect(service.managedRequestParties("someone-elses")).toBeNull();
     });
 
     it("announces a landed revoke or withdrawal on the refresh signal", async () => {
