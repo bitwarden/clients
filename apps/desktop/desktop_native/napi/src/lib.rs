@@ -21,4 +21,5 @@ pub mod passwords;
 pub mod powermonitors;
 pub mod processisolations;
 pub mod sshagent;
+pub mod webauthn;
 pub mod windows_registry;

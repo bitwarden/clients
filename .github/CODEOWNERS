@@ -192,9 +192,11 @@ apps/desktop/src/autofill/components/approve-ssh-request.ts    @bitwarden/team-d
 ## Native Passkey files
 apps/desktop/desktop_native/autofill_provider                   @bitwarden/team-skunkworks
 apps/desktop/desktop_native/core/src/autofill                   @bitwarden/team-skunkworks
+apps/desktop/desktop_native/core/src/webauthn                   @bitwarden/team-skunkworks
 apps/desktop/desktop_native/napi/src/autofill.rs                @bitwarden/team-skunkworks
 apps/desktop/desktop_native/napi/src/passkey_authenticator.rs   @bitwarden/team-skunkworks
 apps/desktop/desktop_native/napi/src/passkey_authenticator_internal  @bitwarden/team-skunkworks
+apps/desktop/desktop_native/napi/src/webauthn.rs                @bitwarden/team-skunkworks
 apps/desktop/desktop_native/objc/src/native/autofill            @bitwarden/team-skunkworks
 apps/desktop/desktop_native/win_webauthn                        @bitwarden/team-skunkworks
 apps/desktop/desktop_native/windows_plugin_authenticator        @bitwarden/team-skunkworks

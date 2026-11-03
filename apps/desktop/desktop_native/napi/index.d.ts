@@ -485,6 +485,66 @@ export declare namespace sshagent {
   }
 }
 
+export declare namespace webauthn {
+  /**
+   * Corresponds to WebAuthn's `PublicKeyCredentialRequestOptions`, with `BufferSource`s as
+   * bytes.
+   */
+  export interface AssertionRequest {
+    rpId: string
+    challenge: Uint8Array
+    /** Credentials with a type other than `public-key` must be removed by the caller. */
+    allowCredentials: Array<CredentialDescriptor>
+    /** `required`, `preferred` or `discouraged`. Unknown values are treated as `preferred`. */
+    userVerification?: string
+    /** In milliseconds. */
+    timeout?: number
+    /** PRF extension `eval` inputs. */
+    prf?: PrfValues
+  }
+  /** The fields of a WebAuthn `PublicKeyCredential` with an `AuthenticatorAssertionResponse`. */
+  export interface AssertionResponse {
+    credentialId: Uint8Array
+    clientDataJson: Uint8Array
+    authenticatorData: Uint8Array
+    signature: Uint8Array
+    userHandle?: Uint8Array
+    /** `platform` or `cross-platform`. */
+    authenticatorAttachment?: string
+    /** PRF outputs, if PRF was requested and the authenticator returned results. */
+    prf?: PrfValues
+  }
+  export interface CredentialDescriptor {
+    id: Uint8Array
+    /** Unknown values are ignored. */
+    transports?: Array<string>
+  }
+  /**
+   * Requests a WebAuthn assertion from the platform's passkey APIs, showing the platform's
+   * prompt modal to the window.
+   *
+   * Failures of the WebAuthn operation, including the user cancelling, are returned in
+   * `GetAssertionResult.error` rather than thrown, so that the `DOMException` name is
+   * preserved.
+   */
+  export function getAssertion(windowHandle: Uint8Array, request: AssertionRequest): Promise<GetAssertionResult>
+  /** Exactly one of `response` and `error` is set. */
+  export interface GetAssertionResult {
+    response?: AssertionResponse
+    error?: WebAuthnError
+  }
+  /** PRF extension inputs or outputs. These are secrets and must not be logged. */
+  export interface PrfValues {
+    first: Uint8Array
+    second?: Uint8Array
+  }
+  /** An error to be thrown as a `DOMException` with this name and message. */
+  export interface WebAuthnError {
+    name: string
+    message: string
+  }
+}
+
 export declare namespace windows_registry {
   export function createKey(key: string, subkey: string, value: string): Promise<void>
   export function deleteKey(key: string, subkey: string): Promise<void>
