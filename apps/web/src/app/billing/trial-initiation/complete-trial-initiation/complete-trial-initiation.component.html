@@ -29,7 +29,7 @@
         ></auth-input-password>
       </app-vertical-step>
       <app-vertical-step label="Organization Information" [subLabel]="orgInfoSubLabel">
-        @if (includesPrivilegedControls) {
+        @if (includesPrivilegedControls && trialLength > 0) {
           <bit-callout
             type="info"
             [title]="null"
