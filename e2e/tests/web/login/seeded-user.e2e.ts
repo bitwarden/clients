@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { expect } from "@playwright/test";
 
+import { clientAccounts } from "../../../src/accounts";
 import { logInToWebVault } from "../../../src/login";
 import { test } from "../../../src/seeder/fixtures";
 import { seededAccount, SingleUserScene } from "../../../src/seeder/scenes/single-user.scene";
@@ -14,9 +15,14 @@ test("logs into the vault as a user seeded for the test", async ({ page, play })
     new SingleUserScene({ email: "seeded-user@example.com", password: randomUUID() }),
   );
 
-  // When the user logs in with their master password
-  await logInToWebVault(page, seededAccount(user));
+  const account = seededAccount(user);
 
-  // Then the user should land on their vault
+  // When the user logs in with their master password
+  await logInToWebVault(page, account);
+
+  // Then the user should land on their own vault
   await expect(page).toHaveURL(VAULT_URL);
+  await expect
+    .poll(() => clientAccounts(page))
+    .toContainEqual(expect.objectContaining({ email: account.email, status: "Unlocked" }));
 });

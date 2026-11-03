@@ -117,33 +117,36 @@ function readAccount(name: string): Account {
 
 /**
  * Reads the SeederApi's basic-auth account from `E2E_SEEDER_USERNAME` and `E2E_SEEDER_PASSWORD`
- * when set, otherwise from the `[seeder]` section. `E2E_SEEDER_URL` overrides the section's `url`.
+ * when set, otherwise from the `[seeder]` section. Its URL comes from `E2E_SEEDER_URL`, then the
+ * section's `url`, then the local default, wherever the account came from.
  */
 export function seederAccount(): SeederAccount {
-  const {
-    E2E_SEEDER_URL: url,
-    E2E_SEEDER_USERNAME: username,
-    E2E_SEEDER_PASSWORD: password,
-  } = process.env;
+  const { username, password } =
+    seederLoginFromEnv() ?? readSection(SEEDER_SECTION, ["username", "password"]);
+  const url =
+    process.env.E2E_SEEDER_URL || readSections()?.get(SEEDER_SECTION)?.url || DEFAULT_SEEDER_URL;
 
-  if (username && password) {
-    return { url: url ?? DEFAULT_SEEDER_URL, username, password };
-  }
-
-  const section = readSection(SEEDER_SECTION, ["username", "password"]);
-
-  return {
-    url: url ?? section.url ?? DEFAULT_SEEDER_URL,
-    username: section.username,
-    password: section.password,
-  };
+  return { url, username, password };
 }
 
 /** Whether a SeederApi account is configured, which tests that seed data need. */
 export function hasSeederAccount(): boolean {
+  return seederLoginFromEnv() != null || (readSections()?.has(SEEDER_SECTION) ?? false);
+}
+
+/** Both variables, or neither: like `fromEnv`, a partial set is a misconfigured job. */
+function seederLoginFromEnv(): { username: string; password: string } | undefined {
   const { E2E_SEEDER_USERNAME: username, E2E_SEEDER_PASSWORD: password } = process.env;
 
-  return (!!username && !!password) || (readSections()?.has(SEEDER_SECTION) ?? false);
+  if (!username && !password) {
+    return undefined;
+  }
+
+  if (!username || !password) {
+    throw new Error("Set both E2E_SEEDER_USERNAME and E2E_SEEDER_PASSWORD, or neither.");
+  }
+
+  return { username, password };
 }
 
 /** The credentials file's sections, or undefined when there is no file, as on CI. */

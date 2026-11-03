@@ -1,6 +1,6 @@
 import { BrowserContext, Page, test as base } from "@playwright/test";
 
-import { hasSeederAccount } from "../credentials";
+import { hasSeederAccount, seederAccount } from "../credentials";
 import { IS_DEV_SERVER, WEB_VAULT_URL } from "../server";
 
 import { Play } from "./play";
@@ -14,8 +14,9 @@ type SeederFixtures = {
 };
 
 /**
- * Tags the context's same-origin fetches with the play id, so the server tracks what the
- * client creates, such as an account registered through the UI, and `play.clean` deletes it.
+ * Tags the context's same-origin fetches with the play id, so a server tracking play ids (see
+ * e2e/README.md) records what the client creates, such as an account registered through the
+ * UI, and `play.clean` deletes it.
  * Cross-origin calls stay untagged, since a custom header would turn them into preflights.
  */
 async function tagRequests(context: BrowserContext, playId: string) {
@@ -37,23 +38,40 @@ async function tagRequests(context: BrowserContext, playId: string) {
   );
 }
 
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+/** Why this run cannot seed, if it cannot. */
+function seedingUnavailable(): string | undefined {
+  // CI drives a deployed vault with no SeederApi in reach.
+  if (!hasSeederAccount()) {
+    return "No SeederApi account configured, see e2e/README.md.";
+  }
+
+  // A local SeederApi writes to the local database, where a deployed vault never looks.
+  if (!IS_DEV_SERVER && LOOPBACK_HOSTS.has(new URL(seederAccount().url).hostname)) {
+    return `A local SeederApi cannot seed ${WEB_VAULT_URL}; set E2E_SEEDER_URL to its own.`;
+  }
+
+  return undefined;
+}
+
 /** Web tests that seed data. */
 export const test = base.extend<SeederFixtures>({
   play: async ({}, use, testInfo) => {
-    // CI drives a deployed vault with no SeederApi in reach.
-    testInfo.skip(!hasSeederAccount(), "No SeederApi account configured, see e2e/README.md.");
+    const reason = seedingUnavailable();
+    testInfo.skip(reason != null, reason);
 
     const play = new Play();
     await use(play);
     await play.clean();
   },
 
-  context: async ({ context, play }, use) => {
+  context: async ({ play, context }, use) => {
     await tagRequests(context, play.id);
     await use(context);
   },
 
-  newPage: async ({ browser, play }, use) => {
+  newPage: async ({ play, browser }, use) => {
     const contexts: BrowserContext[] = [];
 
     await use(async () => {

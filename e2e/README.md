@@ -79,8 +79,14 @@ password=...
 url=http://localhost:5047
 ```
 
-`url` is optional. `E2E_SEEDER_USERNAME`, `E2E_SEEDER_PASSWORD` and `E2E_SEEDER_URL` take
-precedence over the file. With no account configured, tests that seed are skipped.
+`url` is optional. `E2E_SEEDER_USERNAME` and `E2E_SEEDER_PASSWORD` take precedence over the
+file, as a pair, and `E2E_SEEDER_URL` over `url`. Tests that seed are skipped with no account
+configured, and against a deployed vault while the SeederApi is local.
+
+Data a test creates through the client, rather than seeds, is only deleted when the server
+tracks it too. Add `"testPlayIdTrackingEnabled": true` to `globalSettings` in the server's
+`dev/secrets.json`, rerun `dev/setup_secrets.ps1`, and restart Api and Identity. The SeederApi
+enables it on its own.
 
 Import `test` from `src/seeder/fixtures.ts`, which adds a `play` fixture holding the test's
 data, and `newPage` for a second user's page:
@@ -93,8 +99,8 @@ await logInToWebVault(page, seededAccount(user));
 ```
 
 The server mangles unique values such as emails; `scene.mangle("user@example.com")` returns the
-stored one. Everything a play seeds, and everything its pages create through the client, is
-deleted when the test ends. `E2E_KEEP_SEEDED_DATA=1` keeps it and prints the command that
+stored one. Everything a play seeds, and with tracking on everything its pages create through
+the client, is deleted when the test ends. `E2E_KEEP_SEEDED_DATA=1` keeps it and prints the command that
 deletes it; the SeederApi also deletes play data older than a day.
 
 Add a scene or query by subclassing `SceneTemplate` in `src/seeder/scenes/` or
