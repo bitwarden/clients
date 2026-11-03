@@ -8,6 +8,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
+import {
+  WithdrawApprovalDialogComponent,
+  WithdrawApprovalDialogParams,
+} from "./withdraw-approval-dialog/withdraw-approval-dialog.component";
 
 /** Raised once the approver confirms and the mutation starts; lowered once it settles. */
 export type ApproverActionBusy = (busy: boolean) => void;
@@ -88,6 +92,24 @@ export class ApproverActionsService {
       "pamInboxApprovalWithdrawnToast",
       () => "pamInboxWithdrawApprovalFailed",
     );
+  }
+
+  /**
+   * Confirm and withdraw an approval from a surface with no confirmation of its own. The dialog
+   * collects the reason the server requires from an approver, and `run` gets it.
+   */
+  async confirmWithdrawApproval(
+    params: WithdrawApprovalDialogParams,
+    run: (reason: string) => Promise<void>,
+    busy: ApproverActionBusy,
+  ): Promise<void> {
+    const result = await firstValueFrom(
+      WithdrawApprovalDialogComponent.open(this.dialogService, { data: params }).closed,
+    );
+    if (!result?.confirmed) {
+      return;
+    }
+    await this.withdrawApproval(() => run(result.reason), busy);
   }
 
   /**
