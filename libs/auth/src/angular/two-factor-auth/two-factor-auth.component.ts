@@ -144,6 +144,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   formPromise: Promise<any> | undefined;
+  /** Whether a 2FA token is being submitted. */
+  submitting = false;
 
   duoLaunchAction: DuoLaunchAction | undefined = undefined;
   DuoLaunchAction = DuoLaunchAction;
@@ -335,6 +337,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       selectedProviderType: this.selectedProviderType,
     });
 
+    this.submitting = true;
     try {
       this.formPromise = this.loginStrategyService.logInTwoFactor(
         new TokenTwoFactorRequest(this.selectedProviderType, tokenValue, rememberValue),
@@ -350,6 +353,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("invalidVerificationCode"),
       });
+    } finally {
+      this.submitting = false;
     }
   };
 

@@ -1,4 +1,23 @@
-<div id="web-authn-frame" class="tw-mb-3" *ngIf="!webAuthnNewTab">
+<div class="tw-mb-3" *ngIf="webAuthnInWindow">
+  <div
+    *ngIf="webAuthnInWindowInProgress || submitting()"
+    class="tw-flex tw-items-center tw-justify-center"
+  >
+    <bit-icon name="bwi-spinner" class="bwi-spin bwi-3x" [ariaLabel]="'loading' | i18n"></bit-icon>
+  </div>
+  <button
+    *ngIf="!webAuthnInWindowInProgress && !submitting()"
+    buttonType="primary"
+    [block]="true"
+    bitButton
+    type="button"
+    (click)="authWebAuthn()"
+    appStopClick
+  >
+    {{ (webAuthnInWindowFailed ? "tryAgain" : "continue") | i18n }}
+  </button>
+</div>
+<div id="web-authn-frame" class="tw-mb-3" *ngIf="!webAuthnNewTab && !webAuthnInWindow">
   <div *ngIf="!webAuthnReady" class="tw-flex tw-items-center tw-justify-center">
     <bit-icon name="bwi-spinner" class="bwi-spin bwi-3x" [ariaLabel]="'loading' | i18n"></bit-icon>
   </div>

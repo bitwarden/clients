@@ -7,4 +7,15 @@ export class DefaultTwoFactorAuthWebAuthnComponentService implements TwoFactorAu
   shouldOpenWebAuthnInNewTab(): boolean {
     return false;
   }
+
+  /**
+   * Default implementation is to use the web vault's WebAuthn connector.
+   */
+  shouldAuthenticateInWindow(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
+  authenticateInWindow(_options: PublicKeyCredentialRequestOptions, _win: Window): Promise<string> {
+    return Promise.reject(new Error("WebAuthn 2FA in the current window is not supported."));
+  }
 }

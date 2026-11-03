@@ -46,6 +46,7 @@
     <app-two-factor-auth-webauthn
       (webAuthnResultEmitter)="submit($event.token, $event.remember)"
       (webAuthnInNewTabEmitter)="webAuthInNewTab = $event"
+      [submitting]="submitting"
       *ngIf="selectedProviderType === providerType.WebAuthn"
     />
 
