@@ -1082,7 +1082,7 @@
   },
   "clearSearchTooltip": {
     "message": "Clear by clicking here or pressing Esc.",
-    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard. Use the abbreviation printed on local keyboards."
   },
   "allItems": {
     "message": "All items"
@@ -13281,11 +13281,11 @@
   },
   "memberDecryptionOptionTdeDescVfo1Part2": {
     "message": ",",
-    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link, rendered tight against the preceding </a> tag to prevent a leading space."
   },
   "memberDecryptionOptionTdeDescVfo1Part3": {
     "message": ", and",
-    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links, rendered tight against the preceding </a> tag to prevent a leading space."
   },
   "memberDecryptionOptionTdeDescVfo1Link3": {
     "message": "Account recovery administration",
@@ -18754,7 +18754,7 @@
   },
   "pamStatusEndingSoon": {
     "message": "Ending soon",
-    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing — the same threshold at which the access badge escalates."
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
   },
   "pamNoSharedFoldersToFilter": {
     "message": "No shared folders to filter by",
@@ -18798,7 +18798,7 @@
   },
   "pamWindowOnDay": {
     "message": "$DAY$, $TIME$",
-    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column — for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
     "placeholders": {
       "day": {
         "content": "$1",
@@ -18812,7 +18812,7 @@
   },
   "pamWindowRange": {
     "message": "$START$ to $END$",
-    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals — for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -18826,7 +18826,7 @@
   },
   "pamWindowUntil": {
     "message": "Until $END$",
-    "description": "An access window that has already opened, so only its end is left to state — shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
     "placeholders": {
       "end": {
         "content": "$1",
@@ -19444,8 +19444,8 @@
       }
     }
   },
-  "cipherLeaseExpiresIn": {
-    "message": "Leased — expires in $DURATION$",
+  "cipherLeaseExpiresInV2": {
+    "message": "Leased: expires in $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19594,11 +19594,11 @@
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
   },
-  "requestAccessModalApprovedSuccess": {
-    "message": "Access approved — select Start access to begin."
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "Request submitted — awaiting approval."
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Request submitted. Awaiting approval."
   },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"

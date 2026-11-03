@@ -167,7 +167,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     await settle();
   }
 
-  describe("AC 6 — clicking Start", () => {
+  describe("AC 6: clicking Start", () => {
     it("activates the grant through the SDK and re-reads the lease it minted", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-grant", { status: "approved", resolvedAt: iso(-HOUR) }),
@@ -207,7 +207,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     });
   });
 
-  describe("AC 7 — clicking Cancel request", () => {
+  describe("AC 7: clicking Cancel request", () => {
     it("withdraws it through the SDK and drops the row from the tab", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([request("req-pending")]);
       await open();
@@ -231,7 +231,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     });
   });
 
-  describe("AC 8 — clicking End access", () => {
+  describe("AC 8: clicking End access", () => {
     it("ends the lease through the SDK and drops the row from the tab", async () => {
       leasesApi.listMyLeases.mockResolvedValue([lease("lease-1")]);
       await open();
@@ -256,7 +256,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     });
   });
 
-  describe("AC 10 — an approver decides", () => {
+  describe("AC 10: an approver decides", () => {
     it("moves the row to Ready to use when the push says it was approved", fakeAsync(() => {
       requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1")]);
       fixture = TestBed.createComponent(MyRequestsTabComponent);
@@ -297,7 +297,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     }));
   });
 
-  describe("AC 11 — counts follow the rows", () => {
+  describe("AC 11: counts follow the rows", () => {
     it("re-counts the item total and the Status options when a row leaves", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-a"),
