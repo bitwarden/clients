@@ -156,7 +156,7 @@ describe("RotationShellComponent", () => {
     );
   });
 
-  it("refreshes accessConnectors after a successful registration, leaving the toast to the dialog", async () => {
+  it("refreshes accessConnectors and toasts after a successful registration", async () => {
     await init();
     dialogService.open.mockReturnValue({ closed: of(true) } as never);
 
@@ -165,7 +165,9 @@ describe("RotationShellComponent", () => {
     ).registerAccessConnector();
 
     expect(accessConnectorsService.registerCompleted).toHaveBeenCalledWith(ORG_ID);
-    expect(toastService.showToast).not.toHaveBeenCalled();
+    expect(toastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "success" }),
+    );
   });
 
   it("does not refresh accessConnectors when registration is canceled", async () => {

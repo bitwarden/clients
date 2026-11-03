@@ -3,9 +3,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Params, Router, convertToParamMap, provideRouter } from "@angular/router";
+import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -20,7 +19,7 @@ import {
 } from "@bitwarden/components";
 
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
-import { CONFIG_QUERY_PARAM, THEN_CREDENTIAL, THEN_QUERY_PARAM } from "../create-flow";
+import { TARGET_SYSTEM_QUERY_PARAM } from "../create-flow";
 import type {
   AccessConnector,
   AccessConnectorId,
@@ -34,7 +33,6 @@ import {
   TargetSystemMethod,
   TargetSystemStatus,
 } from "../rotation";
-import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   accessConnector,
@@ -66,11 +64,6 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 
 /** Stub for the rotation shell route. */
 const ROUTE_PARENT = { snapshot: { params: {} } };
-
-/** Adds the `paramMap` the component reads its tab from, mirroring the snapshot's params. */
-function withParamMap<T extends { snapshot: { params: Params } }>(route: T) {
-  return { ...route, paramMap: of(convertToParamMap(route.snapshot.params)) };
-}
 
 function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return targetSystem({ id: sysId("sys-1"), ...overrides });
@@ -108,9 +101,9 @@ async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkServic
       { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       {
         provide: ActivatedRoute,
-        useValue: withParamMap({
+        useValue: {
           snapshot: { params: { organizationId: ORG_ID } },
-        }),
+        },
       },
     ],
   }).compileComponents();
@@ -134,9 +127,9 @@ async function setupCreateWithTemplate(template: string): Promise<
       { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       {
         provide: ActivatedRoute,
-        useValue: withParamMap({
+        useValue: {
           snapshot: { params: { organizationId: ORG_ID }, queryParams: { template } },
-        }),
+        },
       },
     ],
   }).compileComponents();
@@ -167,10 +160,10 @@ async function setupCreateWithQueryParams(
       { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       {
         provide: ActivatedRoute,
-        useValue: withParamMap({
+        useValue: {
           snapshot: { params: { organizationId: ORG_ID }, queryParams },
           parent: ROUTE_PARENT,
-        }),
+        },
       },
     ],
   }).compileComponents();
@@ -211,15 +204,15 @@ async function setupEdit(
       { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       {
         provide: ActivatedRoute,
-        useValue: withParamMap({
+        useValue: {
           snapshot: { params: { organizationId: ORG_ID, targetSystemId: routeTargetSystemId } },
-        }),
+        },
       },
     ],
   }).compileComponents();
 }
 
-describe("TargetSystemEditComponent: create mode", () => {
+describe("TargetSystemEditComponent — create mode", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -441,15 +434,6 @@ describe("TargetSystemEditComponent: create mode", () => {
     expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(true);
   });
 
-  it("seeds Automatic + Active Directory from the ?template=active-directory query param", async () => {
-    TestBed.resetTestingModule();
-    const comp = await setupCreateWithTemplate("active-directory");
-    const value = comp.createForm.getRawValue();
-
-    expect(value.method).toBe(TargetSystemMethod.Automatic);
-    expect(value.kind).toBe(TargetSystemKind.ActiveDirectory);
-  });
-
   /** The managed-credential create page sends operators here when no target fits. */
   it("returns to the credential create page with the new target when ?then=managed-credential", async () => {
     TestBed.resetTestingModule();
@@ -507,7 +491,10 @@ describe("TargetSystemEditComponent: create mode", () => {
     });
     await component.submitCreate();
 
-    expect(nav).toHaveBeenCalledWith(rotationLink(ORG_ID, ROTATION_TABS.targetSystems));
+    expect(nav).toHaveBeenCalledWith(
+      [".."],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
   });
 
   it("toasts 'Target system added' when handing back to the credential page", async () => {
@@ -575,7 +562,10 @@ describe("TargetSystemEditComponent: create mode", () => {
 
     await component.cancel();
 
-    expect(nav).toHaveBeenCalledWith(rotationLink(ORG_ID, ROTATION_TABS.targetSystems));
+    expect(nav).toHaveBeenCalledWith(
+      [".."],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
   });
 
   describe("choosing access connectors on create", () => {
@@ -815,37 +805,6 @@ describe("TargetSystemEditComponent: create mode", () => {
     expect(request).toMatchObject({ supportsSessionTermination: true });
   });
 
-  it("submits supportsSessionTermination=false for Active Directory even when the control is checked", async () => {
-    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-    const comp = fixture.componentInstance as unknown as {
-      createForm: { patchValue: (v: unknown) => void };
-      policyForm: { patchValue: (v: unknown) => void };
-      submitCreate: () => Promise<void>;
-    };
-    comp.createForm.patchValue({
-      name: "Corp DC",
-      method: TargetSystemMethod.Automatic,
-      kind: TargetSystemKind.ActiveDirectory,
-    });
-    comp.policyForm.patchValue({
-      minLength: 14,
-      maxLength: 64,
-      includeUppercase: true,
-      includeLowercase: true,
-      includeDigits: true,
-      includeSymbols: true,
-      supportsSessionTermination: true,
-    });
-    fixture.detectChanges();
-    await comp.submitCreate();
-
-    const request = rotationSdk.createTargetSystem.mock.calls[0]![1];
-    expect(request.method).toBe("automatic");
-    expect(request).toMatchObject({ supportsSessionTermination: false });
-  });
-
   it("honors the checkbox for a custom script", async () => {
     rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
@@ -969,12 +928,11 @@ describe("TargetSystemEditComponent: create mode", () => {
   });
 });
 
-describe("TargetSystemEditComponent: create mode (rendered)", () => {
+describe("TargetSystemEditComponent — create mode (rendered)", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
-  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
 
   beforeEach(async () => {
-    rotationSdk = mock<RotationSdkService>();
+    const rotationSdk = mock<RotationSdkService>();
     await TestBed.configureTestingModule({
       imports: [TargetSystemEditComponent, NoopAnimationsModule],
       providers: [
@@ -986,9 +944,7 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
-            snapshot: { params: { organizationId: ORG_ID }, queryParams: {} },
-          }),
+          useValue: { snapshot: { params: { organizationId: ORG_ID }, queryParams: {} } },
         },
       ],
     }).compileComponents();
@@ -1118,7 +1074,6 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
     };
     expect(kindOptions.map((o) => o.label)).toEqual([
       "pamTargetSystemTypeEntra",
-      "pamTargetSystemTypeActiveDirectory",
       "pamTargetSystemTypeCustomScript",
     ]);
   });
@@ -1138,21 +1093,6 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
     expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
   });
 
-  it("offers no session termination at all for Active Directory", () => {
-    const el = fixture.nativeElement as HTMLElement;
-    patchKind(TargetSystemKind.ActiveDirectory);
-
-    expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
-    expect(el.querySelector("#target-system-edit_session-termination-unsupported")).toBeTruthy();
-  });
-
-  it("keeps the not-supported notice off a kind that does terminate sessions", () => {
-    const el = fixture.nativeElement as HTMLElement;
-    patchKind(TargetSystemKind.Entra);
-
-    expect(el.querySelector("#target-system-edit_session-termination-unsupported")).toBeNull();
-  });
-
   it("renders the character-class error only once every class is cleared", () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector("#target-system-edit_error_character-class")).toBeNull();
@@ -1164,83 +1104,9 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
 
     expect(el.querySelector("#target-system-edit_error_character-class")).toBeTruthy();
   });
-
-  it("marks the Target systems crumb with the target system icon", () => {
-    const crumbs = (fixture.nativeElement as HTMLElement).querySelector("pam-detail-breadcrumb")!;
-    expect(crumbs.querySelector("bit-icon.bwi-target-system")).not.toBeNull();
-  });
-
-  it("leaves the disabled picker blank when the organization has no access connectors", () => {
-    const el = fixture.nativeElement as HTMLElement;
-    const picker = el.querySelector("#target-system-edit_multi-select_connectors")!;
-
-    expect(el.querySelector("#target-system-edit_callout_no-connectors")).not.toBeNull();
-    expect(picker.textContent).not.toContain("pamTargetSystemAccessConnectorsPlaceholder");
-    fixture.detectChanges();
-    expect(picker.querySelector("ng-select")!.classList).toContain("ng-select-disabled");
-  });
-
-  it("prompts for a choice once the organization has an access connector", async () => {
-    rotationSdk.listConnectors.mockResolvedValue([accessConnector({ name: "East datacenter" })]);
-    const withConnector = TestBed.createComponent(TargetSystemEditComponent);
-    withConnector.detectChanges();
-    await withConnector.whenStable();
-    withConnector.detectChanges();
-
-    const picker = (withConnector.nativeElement as HTMLElement).querySelector(
-      "#target-system-edit_multi-select_connectors",
-    )!;
-    expect(picker.textContent).toContain("pamTargetSystemAccessConnectorsPlaceholder");
-    expect(picker.querySelector("ng-select")!.classList).not.toContain("ng-select-disabled");
-  });
-
-  describe("the pinned Save bar", () => {
-    const footerPortal = () => TestBed.inject(LayoutFooterService).portal();
-
-    function typeName(name: string): void {
-      const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>(
-        "#target-system-edit_input_name",
-      )!;
-      input.value = name;
-      input.dispatchEvent(new Event("input"));
-      fixture.detectChanges();
-      TestBed.flushEffects();
-    }
-
-    it("has no Save or Cancel before anything is entered", () => {
-      expect(footerPortal()).toBeUndefined();
-      expect(fixture.nativeElement.querySelector("#target-system-edit_button_save")).toBeNull();
-    });
-
-    it("pins Save and Cancel once there is input, and creates from there", async () => {
-      rotationSdk.createTargetSystem.mockResolvedValue(
-        targetSystem({ method: TargetSystemMethod.Manual }),
-      );
-      jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
-      patchMethod(TargetSystemMethod.Manual);
-      typeName("HR Payroll DB");
-
-      const host = document.createElement("div");
-      document.body.appendChild(host);
-      const outlet = new DomPortalOutlet(host);
-      outlet.attach(footerPortal() as TemplatePortal);
-      expect(host.querySelector("#target-system-edit_button_cancel")).toBeTruthy();
-      expect(host.querySelector("#target-system-edit_button_delete-footer")).toBeNull();
-
-      host.querySelector<HTMLButtonElement>("#target-system-edit_button_save")!.click();
-      await fixture.whenStable();
-      outlet.dispose();
-      host.remove();
-
-      expect(rotationSdk.createTargetSystem).toHaveBeenCalledWith(
-        ORG_ID,
-        expect.objectContaining({ method: "manual", name: "HR Payroll DB" }),
-      );
-    });
-  });
 });
 
-describe("TargetSystemEditComponent: edit mode", () => {
+describe("TargetSystemEditComponent — edit mode", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -1304,7 +1170,7 @@ describe("TargetSystemEditComponent: edit mode", () => {
 
   /**
    * `updateTargetSystem` replaces the blob wholesale, so `method`/`kind` must be resupplied from
-   * `existing.sealed`, not a form control, both are read-only on this page.
+   * `existing.sealed`, not a form control — both are read-only on this page.
    */
   it("resends the stored method and kind, unedited, for an automatic target", async () => {
     rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
@@ -1360,9 +1226,9 @@ describe("TargetSystemEditComponent: edit mode", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
+          useValue: {
             snapshot: { params: { organizationId: ORG_ID, targetSystemId: sysId("sys-1") } },
-          }),
+          },
         },
       ],
     }).compileComponents();
@@ -1404,9 +1270,9 @@ describe("TargetSystemEditComponent: edit mode", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
+          useValue: {
             snapshot: { params: { organizationId: ORG_ID, targetSystemId: sysId("missing-id") } },
-          }),
+          },
         },
       ],
     }).compileComponents();
@@ -1456,130 +1322,9 @@ describe("TargetSystemEditComponent: edit mode", () => {
       expect(caseToast.showToast).not.toHaveBeenCalled();
     },
   );
-
-  async function buildEditFixture(
-    system: TargetSystemView,
-  ): Promise<
-    [ComponentFixture<TargetSystemEditComponent>, ReturnType<typeof mock<RotationSdkService>>]
-  > {
-    TestBed.resetTestingModule();
-    const sdk = mock<RotationSdkService>();
-    sdk.listTargetSystems.mockResolvedValue([system]);
-    sdk.updateTargetSystem.mockResolvedValue(undefined);
-    await setupEdit(sdk);
-    const fx = TestBed.createComponent(TargetSystemEditComponent);
-    fx.detectChanges();
-    await fx.whenStable();
-    fx.detectChanges();
-    return [fx, sdk];
-  }
-
-  it("keeps a stored session-termination capability the form cannot express", async () => {
-    const [fx, sdk] = await buildEditFixture(
-      makeSystem({
-        sealed: targetSystemSealedFields({
-          kind: TargetSystemKind.Unknown,
-          supportsSessionTermination: true,
-        }),
-      }),
-    );
-    const comp = fx.componentInstance as unknown as {
-      nameForm: { patchValue: (v: unknown) => void };
-      showRetainedTermination: () => boolean;
-      submitEdit: () => Promise<void>;
-    };
-
-    comp.nameForm.patchValue({ name: "Renamed" });
-    await comp.submitEdit();
-
-    expect(sdk.updateTargetSystem).toHaveBeenCalledWith(
-      ORG_ID,
-      sysId("sys-1"),
-      expect.objectContaining({ name: "Renamed", supportsSessionTermination: true }),
-    );
-    expect(comp.showRetainedTermination()).toBe(true);
-  });
-
-  it("claims no session-termination capability the target was not sealed with", async () => {
-    const [fx, sdk] = await buildEditFixture(
-      makeSystem({
-        sealed: targetSystemSealedFields({
-          kind: TargetSystemKind.Unknown,
-          supportsSessionTermination: false,
-        }),
-      }),
-    );
-    const comp = fx.componentInstance as unknown as {
-      policyForm: { patchValue: (v: unknown) => void };
-      showRetainedTermination: () => boolean;
-      submitEdit: () => Promise<void>;
-    };
-
-    comp.policyForm.patchValue({ supportsSessionTermination: true });
-    await comp.submitEdit();
-
-    expect(sdk.updateTargetSystem).toHaveBeenCalledWith(
-      ORG_ID,
-      sysId("sys-1"),
-      expect.objectContaining({ supportsSessionTermination: false }),
-    );
-    expect(comp.showRetainedTermination()).toBe(false);
-  });
 });
 
-describe("TargetSystemEditComponent: Active Directory edit mode", () => {
-  let fixture: ComponentFixture<TargetSystemEditComponent>;
-  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
-
-  const activeDirectorySystem = makeSystem({
-    name: "Corp DC",
-    sealed: targetSystemSealedFields({
-      kind: TargetSystemKind.ActiveDirectory,
-      supportsSessionTermination: true,
-    }),
-  });
-
-  beforeEach(async () => {
-    TestBed.resetTestingModule();
-    rotationSdk = mock<RotationSdkService>();
-    rotationSdk.listTargetSystems.mockResolvedValue([activeDirectorySystem]);
-    rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
-    await setupEdit(rotationSdk);
-    fixture = TestBed.createComponent(TargetSystemEditComponent);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-  });
-
-  it("leaves the stored supportsSessionTermination=true standing on save", async () => {
-    const comp = fixture.componentInstance as unknown as {
-      nameForm: { patchValue: (v: unknown) => void };
-      showRetainedTermination: () => boolean;
-      submitEdit: () => Promise<void>;
-    };
-
-    comp.nameForm.patchValue({ name: "Corp DC (Frankfurt)" });
-    await comp.submitEdit();
-
-    expect(rotationSdk.updateTargetSystem).toHaveBeenCalledWith(
-      ORG_ID,
-      activeDirectorySystem.id,
-      expect.objectContaining({
-        name: "Corp DC (Frankfurt)",
-        supportsSessionTermination: true,
-      }),
-    );
-    expect(comp.showRetainedTermination()).toBe(true);
-  });
-
-  it("names the integration on the loaded system", () => {
-    const comp = fixture.componentInstance as unknown as { kindLabelKey: () => string | null };
-
-    expect(comp.kindLabelKey()).toBe("pamTargetSystemTypeActiveDirectory");
-  });
-});
-
-describe("TargetSystemEditComponent: system id (rendered)", () => {
+describe("TargetSystemEditComponent — system id (rendered)", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -1603,9 +1348,9 @@ describe("TargetSystemEditComponent: system id (rendered)", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
+          useValue: {
             snapshot: { params: { organizationId: ORG_ID, targetSystemId: routeTargetSystemId } },
-          }),
+          },
         },
       ],
     }).compileComponents();
@@ -1648,7 +1393,7 @@ describe("TargetSystemEditComponent: system id (rendered)", () => {
   });
 });
 
-describe("TargetSystemEditComponent: status badge", () => {
+describe("TargetSystemEditComponent — status badge", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   async function badgeLabelKey(
@@ -1676,11 +1421,11 @@ describe("TargetSystemEditComponent: status badge", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
+          useValue: {
             snapshot: {
               params: { organizationId: ORG_ID, targetSystemId: uuidAsString(SYSTEM_ID) },
             },
-          }),
+          },
         },
       ],
     }).compileComponents();
@@ -1743,11 +1488,11 @@ describe("TargetSystemEditComponent: status badge", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
+          useValue: {
             snapshot: {
               params: { organizationId: ORG_ID, targetSystemId: uuidAsString(SYSTEM_ID) },
             },
-          }),
+          },
         },
       ],
     }).compileComponents();
@@ -1766,7 +1511,7 @@ describe("TargetSystemEditComponent: status badge", () => {
   });
 });
 
-describe("TargetSystemEditComponent: unsaved changes", () => {
+describe("TargetSystemEditComponent — unsaved changes", () => {
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let router: Router;
@@ -1888,7 +1633,7 @@ describe("TargetSystemEditComponent: unsaved changes", () => {
   });
 });
 
-describe("TargetSystemEditComponent: assigned access connectors", () => {
+describe("TargetSystemEditComponent — assigned access connectors", () => {
   type ChosenRow = { id: AccessConnectorId; name: string; badgeLabelKey: string };
 
   type AssignmentsComp = {
@@ -1906,7 +1651,7 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
     deleteSystem: () => Promise<void>;
     deactivate: () => Promise<void>;
     activate: () => Promise<void>;
-    isDisabled: () => boolean;
+    canToggleActivation: () => boolean;
   };
 
   const SYSTEM_ID = sysId("sys-1");
@@ -1955,9 +1700,7 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
-            snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } },
-          }),
+          useValue: { snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } } },
         },
       ],
     }).compileComponents();
@@ -2061,9 +1804,7 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
-            snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } },
-          }),
+          useValue: { snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } } },
         },
       ],
     }).compileComponents();
@@ -2392,7 +2133,7 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ message: "pamTargetSystemDeactivateSuccess" }),
       );
-      expect(component.isDisabled()).toBe(true);
+      expect(component.canToggleActivation()).toBe(true);
     });
 
     it("leaves the target alone when the operator backs out", async () => {
@@ -2430,6 +2171,12 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
         expect.objectContaining({ message: "pamTargetSystemActivateSuccess" }),
       );
     });
+
+    it("offers neither while the target is still being set up", async () => {
+      await setup([], { status: TargetSystemStatus.PendingSeal, sealed: undefined });
+
+      expect(component.canToggleActivation()).toBe(false);
+    });
   });
 
   describe("deleteSystem", () => {
@@ -2458,7 +2205,7 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: expect.objectContaining({
-            key: "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead",
+            key: "pamTargetSystemDeleteAssignedConnectorsContent",
           }),
         }),
       );
@@ -2473,7 +2220,7 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: expect.objectContaining({
-            key: "pamTargetSystemDeleteDialogContentDeactivateInstead",
+            key: "pamTargetSystemDeleteContentDeactivateInstead",
           }),
         }),
       );
@@ -2489,7 +2236,7 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: expect.objectContaining({
-            key: "pamTargetSystemDeleteDialogContent",
+            key: "pamTargetSystemDeleteContent",
           }),
         }),
       );
@@ -2593,6 +2340,16 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       }
     });
 
+    it("carries the target system on the Managed credentials tab link", async () => {
+      await setup([], {}, true);
+
+      const links = fixture.debugElement.queryAll(By.directive(TabLinkComponent));
+      expect(links[0].componentInstance.queryParams()).toBeUndefined();
+      expect(links[1].componentInstance.queryParams()).toEqual({
+        [TARGET_SYSTEM_QUERY_PARAM]: uuidAsString(SYSTEM_ID),
+      });
+    });
+
     it("shows the none-assigned warning with no list when nothing is held", async () => {
       await setup([accessConnector({ id: connectorId("c-free") })], {}, true);
 
@@ -2607,52 +2364,25 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       expect(el().querySelector("#target-system-edit_multi-select_connectors")).toBeNull();
     });
 
-    const menuItems = (): string[] =>
-      Array.from(document.querySelectorAll<HTMLElement>("[bitMenuItem]")).map(
-        (button) => button.id,
-      );
-
-    function openMenu(): void {
-      el().querySelector<HTMLButtonElement>("#target-system-edit_button_more")!.click();
-      fixture.detectChanges();
-    }
-
-    it("offers only the More menu for an active target, with Deactivate and Delete, and no save row", async () => {
+    it("keeps Deactivate and Delete in the header, with no save row, until something changes", async () => {
       await setup([], {}, true);
 
+      expect(el().querySelector("#target-system-edit_button_deactivate")).toBeTruthy();
+      expect(el().querySelector("#target-system-edit_button_delete")).toBeTruthy();
       expect(el().querySelector("#target-system-edit_button_activate")).toBeNull();
-      openMenu();
-      expect(menuItems()).toEqual([
-        "target-system-edit_button_deactivate",
-        "target-system-edit_button_delete",
-      ]);
-      expect(document.querySelector("#target-system-edit_button_delete")!.className).toContain(
-        "danger",
-      );
       expect(el().querySelector("#target-system-edit_button_save")).toBeNull();
       expect(TestBed.inject(LayoutFooterService).portal()).toBeUndefined();
     });
 
-    it("offers a primary Activate beside the More menu, under an inactive notice, for an inactive target", async () => {
+    it("offers Activate, under an inactive notice, for an inactive target", async () => {
       await setup([], { status: TargetSystemStatus.Disabled }, true);
 
-      expect(
-        el().querySelector("#target-system-edit_button_activate")!.getAttribute("buttonType"),
-      ).toBe("primary");
+      expect(el().querySelector("#target-system-edit_button_activate")).toBeTruthy();
+      expect(el().querySelector("#target-system-edit_button_deactivate")).toBeNull();
       expect(el().querySelector("#target-system-edit_callout_inactive")).toBeTruthy();
-      openMenu();
-      expect(menuItems()).toEqual(["target-system-edit_button_delete"]);
     });
 
-    it("offers only Delete while the target is still being set up", async () => {
-      await setup([], { status: TargetSystemStatus.PendingSeal, sealed: undefined }, true);
-
-      expect(el().querySelector("#target-system-edit_button_activate")).toBeNull();
-      openMenu();
-      expect(menuItems()).toEqual(["target-system-edit_button_delete"]);
-    });
-
-    it("keeps the More menu in the header and pins only Save and Cancel once an edit is unsaved", async () => {
+    it("moves Delete into the pinned footer, beside Save and Cancel, once an edit is unsaved", async () => {
       const free = accessConnector({ id: connectorId("c-free") });
       await setup([free], {}, true);
 
@@ -2661,17 +2391,16 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       TestBed.flushEffects();
       fixture.detectChanges();
 
-      expect(el().querySelector("#target-system-edit_button_more")).toBeTruthy();
+      expect(el().querySelector("#target-system-edit_button_delete")).toBeNull();
       const portal = TestBed.inject(LayoutFooterService).portal();
       expect(portal).toBeTruthy();
       const host = document.createElement("div");
       document.body.appendChild(host);
       const outlet = new DomPortalOutlet(host);
       outlet.attach(portal as TemplatePortal);
-      expect(Array.from(host.querySelectorAll("button")).map((button) => button.id)).toEqual([
-        "target-system-edit_button_save",
-        "target-system-edit_button_cancel",
-      ]);
+      expect(host.querySelector("#target-system-edit_button_save")).toBeTruthy();
+      expect(host.querySelector("#target-system-edit_button_cancel")).toBeTruthy();
+      expect(host.querySelector("#target-system-edit_button_delete-footer")).toBeTruthy();
       outlet.dispose();
       host.remove();
 
@@ -2679,12 +2408,12 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       fixture.detectChanges();
       TestBed.flushEffects();
       expect(TestBed.inject(LayoutFooterService).portal()).toBeUndefined();
-      expect(el().querySelector("#target-system-edit_button_more")).toBeTruthy();
+      expect(el().querySelector("#target-system-edit_button_delete")).toBeTruthy();
     });
   });
 });
 
-describe("TargetSystemEditComponent: outstanding setup hint", () => {
+describe("TargetSystemEditComponent — outstanding setup hint", () => {
   const SYSTEM_ID = sysId("sys-1");
   const CREDENTIAL_STEP = "pamTargetSystemSetupGuidanceCredential";
 
@@ -2715,12 +2444,6 @@ describe("TargetSystemEditComponent: outstanding setup hint", () => {
     });
   }
 
-  /** An active connector the org holds that this target does not, so it can be assigned here. */
-  function freeConnector(): AccessConnector {
-    return accessConnector({ id: connectorId("c-free"), name: "Spare connector" });
-  }
-
-  /** A managed credential naming this target. */
   function credentialHere(): RotationConfigView {
     return rotationConfig({ targetSystemId: SYSTEM_ID });
   }
@@ -2760,9 +2483,7 @@ describe("TargetSystemEditComponent: outstanding setup hint", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
-            snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } },
-          }),
+          useValue: { snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } } },
         },
       ],
     }).compileComponents();
@@ -2775,7 +2496,7 @@ describe("TargetSystemEditComponent: outstanding setup hint", () => {
   }
 
   it("names both steps when nothing has been set up", async () => {
-    await setup({ connectors: [freeConnector()] });
+    await setup();
 
     // The connector is the Access connectors field's own warning, so only the credential is named.
     expect(component.outstandingSetupSteps()).toEqual([CREDENTIAL_STEP]);
@@ -2840,25 +2561,9 @@ describe("TargetSystemEditComponent: outstanding setup hint", () => {
   });
 
   it("does not claim the credential step when the credentials could not be read", async () => {
-    await setup({ connectors: [freeConnector()], configsFail: true });
+    await setup({ configsFail: true });
 
     expect(component.outstandingSetupSteps()).toEqual([]);
-  });
-
-  it("does not ask for a connector assignment when the org holds none to assign", async () => {
-    await setup({ connectors: [] });
-
-    expect(component.outstandingSetupSteps()).toEqual([CREDENTIAL_STEP]);
-  });
-
-  it("does not ask for one when every connector the org holds is inactive", async () => {
-    await setup({
-      connectors: [
-        accessConnector({ id: connectorId("c-off"), status: AccessConnectorStatus.Disabled }),
-      ],
-    });
-
-    expect(component.outstandingSetupSteps()).toEqual([CREDENTIAL_STEP]);
   });
 
   it("says nothing for a target that is out of service, which can act on neither step", async () => {
@@ -2934,7 +2639,7 @@ describe("TargetSystemEditComponent: outstanding setup hint", () => {
   });
 });
 
-describe("TargetSystemEditComponent: seal status", () => {
+describe("TargetSystemEditComponent — seal status", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -2962,9 +2667,7 @@ describe("TargetSystemEditComponent: seal status", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
-            snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } },
-          }),
+          useValue: { snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } } },
         },
       ],
     }).compileComponents();
@@ -3044,7 +2747,7 @@ describe("TargetSystemEditComponent: seal status", () => {
   });
 });
 
-describe("TargetSystemEditComponent: loading skeleton", () => {
+describe("TargetSystemEditComponent — loading skeleton", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -3052,8 +2755,17 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
 
   const el = () => fixture.nativeElement as HTMLElement;
 
+  afterEach(() => jest.useRealTimers());
+
+  function advance(ms: number): void {
+    fixture.detectChanges();
+    jest.advanceTimersByTime(ms);
+    fixture.detectChanges();
+  }
+
   async function renderLoading({ editing = true } = {}) {
     TestBed.resetTestingModule();
+    jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
     rotationSdk = mock<RotationSdkService>();
     rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: SYSTEM_ID })]);
     rotationSdk.listConnectors.mockResolvedValue([]);
@@ -3070,14 +2782,14 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
+          useValue: {
             snapshot: {
               params: {
                 organizationId: ORG_ID,
                 ...(editing ? { targetSystemId: SYSTEM_ID } : {}),
               },
             },
-          }),
+          },
         },
       ],
     }).compileComponents();
@@ -3085,6 +2797,11 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
     jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
     fixture = TestBed.createComponent(TargetSystemEditComponent);
     fixture.detectChanges();
+  }
+
+  async function renderSkeleton({ editing = true } = {}) {
+    await renderLoading({ editing });
+    advance(1000);
   }
 
   async function settle() {
@@ -3095,7 +2812,7 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
   }
 
   it("stands skeleton fields in for the form, inside the real card furniture", async () => {
-    await renderLoading();
+    await renderSkeleton();
     const loading = el().querySelector('[data-testid="target-system-edit-loading"]');
 
     expect(el().querySelector("bit-spinner")).toBeNull();
@@ -3122,7 +2839,7 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
   });
 
   it("announces the load from a live region, then the arrival", async () => {
-    await renderLoading();
+    await renderSkeleton();
 
     const status = el().querySelector('[data-testid="rotation-loading-status"]');
     expect(status!.getAttribute("role")).toBe("status");
@@ -3130,6 +2847,7 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
     expect(status!.textContent).toContain("loading");
 
     await settle();
+    advance(1000);
 
     expect(el().querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
       "pamRotationPageLoaded",
@@ -3137,24 +2855,63 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
   });
 
   it("replaces the skeleton with the real form once the target system lands", async () => {
-    await renderLoading();
+    await renderSkeleton();
 
     await settle();
+    advance(1000);
 
     expect(el().querySelector('[data-testid="target-system-edit-loading"]')).toBeNull();
     expect(el().querySelector("bit-skeleton")).toBeNull();
     expect(el().querySelector("#target-system-edit_input_name")).not.toBeNull();
   });
 
-  it("renders the page's own chrome around the skeleton, not a blank area", async () => {
+  it("renders the page's own chrome, not a blank area, before the delay is up", async () => {
     await renderLoading();
+    advance(999);
 
     expect(el().querySelector('[data-testid="target-system-edit-loading"]')).not.toBeNull();
+    expect(el().querySelector("bit-skeleton")).toBeNull();
     expect(el().querySelector("pam-detail-breadcrumb")).not.toBeNull();
+  });
+
+  it("never draws the placeholder for a target system that arrives inside the delay", async () => {
+    await renderLoading();
+    advance(500);
+
+    await settle();
+    advance(1000);
+
+    expect(el().querySelector("bit-skeleton")).toBeNull();
+    expect(el().querySelector('[data-testid="target-system-edit-loading"]')).toBeNull();
+    expect(el().querySelector("#target-system-edit_input_name")).not.toBeNull();
+  });
+
+  it("holds the placeholder its minimum time once it is up, so it cannot blink", async () => {
+    await renderSkeleton();
+    expect(el().querySelector("bit-skeleton")).not.toBeNull();
+
+    await settle();
+    advance(300);
+
+    expect(el().querySelector("bit-skeleton")).not.toBeNull();
+
+    advance(700);
+
+    expect(el().querySelector("bit-skeleton")).toBeNull();
+    expect(el().querySelector("#target-system-edit_input_name")).not.toBeNull();
+  });
+
+  it("announces the load at once, not on the placeholder's clock", async () => {
+    await renderLoading();
+
+    expect(el().querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
+      "loading",
+    );
+    expect(el().querySelector("bit-skeleton")).toBeNull();
   });
 });
 
-describe("TargetSystemEditComponent: load error state", () => {
+describe("TargetSystemEditComponent — load error state", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -3194,9 +2951,9 @@ describe("TargetSystemEditComponent: load error state", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
+          useValue: {
             snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } },
-          }),
+          },
         },
       ],
     }).compileComponents();
@@ -3302,7 +3059,7 @@ describe("TargetSystemEditComponent: load error state", () => {
   });
 });
 
-describe("TargetSystemEditComponent: session termination withdrawal (rendered)", () => {
+describe("TargetSystemEditComponent — session termination withdrawal (rendered)", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -3336,9 +3093,9 @@ describe("TargetSystemEditComponent: session termination withdrawal (rendered)",
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
-          useValue: withParamMap({
+          useValue: {
             snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } },
-          }),
+          },
         },
       ],
     }).compileComponents();
@@ -3408,105 +3165,5 @@ describe("TargetSystemEditComponent: session termination withdrawal (rendered)",
       expect(el().textContent).not.toContain("pamTargetSystemTypeCustomScript");
       expect(el().textContent).not.toContain("pamTargetSystemTypeEntra");
     });
-  });
-});
-
-describe("TargetSystemEditComponent: returning to a managed credential", () => {
-  type ReturnComp = {
-    connectorsControl: FormControl<SelectItemView[]>;
-    submitEdit: () => Promise<void>;
-    cancel: () => Promise<void>;
-  };
-
-  const SYSTEM_ID = sysId("sys-1");
-  const CONFIG_ID = uuidAsString(configId("cfg-1"));
-  const CREDENTIAL_ROUTE = [...rotationLink(ORG_ID, ROTATION_TABS.managedCredentials), CONFIG_ID];
-
-  let fixture: ComponentFixture<TargetSystemEditComponent>;
-  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
-  let navigate: jest.SpyInstance;
-
-  async function setup(renderTemplate = false): Promise<void> {
-    TestBed.resetTestingModule();
-    rotationSdk = mock<RotationSdkService>();
-    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: SYSTEM_ID })]);
-    rotationSdk.listConnectors.mockResolvedValue([]);
-    rotationSdk.listConfigs.mockResolvedValue([]);
-    rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
-    if (!renderTemplate) {
-      TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
-    }
-    await TestBed.configureTestingModule({
-      imports: [TargetSystemEditComponent, NoopAnimationsModule],
-      providers: [
-        provideRouter([]),
-        { provide: RotationSdkService, useValue: rotationSdk },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: DialogService, useValue: mock<DialogService>() },
-        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        {
-          provide: ActivatedRoute,
-          useValue: withParamMap({
-            snapshot: {
-              params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID },
-              queryParams: { [THEN_QUERY_PARAM]: THEN_CREDENTIAL, [CONFIG_QUERY_PARAM]: CONFIG_ID },
-            },
-          }),
-        },
-      ],
-    }).compileComponents();
-    navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
-    fixture = TestBed.createComponent(TargetSystemEditComponent);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-  }
-
-  const component = () => fixture.componentInstance as unknown as ReturnComp;
-
-  it("keeps the target systems breadcrumb, so the header fits beside its actions", async () => {
-    await setup(true);
-
-    const crumbs = (fixture.nativeElement as HTMLElement).querySelector("pam-detail-breadcrumb")!;
-    expect(crumbs.textContent).toContain("pamRotationTabTargetSystems");
-    expect(crumbs.textContent).not.toContain("pamRotationTabManagedCredentials");
-    expect(rotationSdk.getConfig).not.toHaveBeenCalled();
-  });
-
-  it("carries the way back to the credential across both tabs", async () => {
-    await setup(true);
-
-    const links = fixture.debugElement.queryAll(By.directive(TabLinkComponent));
-    const expected = { [THEN_QUERY_PARAM]: THEN_CREDENTIAL, [CONFIG_QUERY_PARAM]: CONFIG_ID };
-    expect(links.map((link) => link.componentInstance.queryParams())).toEqual([expected, expected]);
-  });
-
-  it("lands on the Access connectors field", async () => {
-    await setup(true);
-    await fixture.whenStable();
-
-    const field = (fixture.nativeElement as HTMLElement).querySelector(
-      "#target-system-edit_multi-select_connectors",
-    )!;
-    expect(field.contains(document.activeElement)).toBe(true);
-  });
-
-  it("goes back to the credential once saved", async () => {
-    await setup();
-    component().connectorsControl.markAsDirty();
-
-    await component().submitEdit();
-
-    expect(rotationSdk.updateTargetSystem).toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith(CREDENTIAL_ROUTE);
-  });
-
-  it("goes back to the credential on cancel", async () => {
-    await setup();
-
-    await component().cancel();
-
-    expect(navigate).toHaveBeenCalledWith(CREDENTIAL_ROUTE);
   });
 });
