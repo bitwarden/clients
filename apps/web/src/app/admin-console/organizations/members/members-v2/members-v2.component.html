@@ -17,7 +17,14 @@
 
     <!-- One element per `@if`: a block with multiple roots isn't matched by the `end` slot. -->
     @if (canManage) {
-      <button slot="end" type="button" bitButton buttonType="secondary" (click)="exportMembers()">
+      <button
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-upload"
+        (click)="exportMembers()"
+      >
         {{ "exportVerb" | i18n }}
       </button>
     }
