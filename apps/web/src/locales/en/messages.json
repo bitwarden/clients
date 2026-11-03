@@ -18445,9 +18445,6 @@
     "message": "Shared folder",
     "description": "VFO1 terminology feature flag variant of pamCollectionFilter"
   },
-  "pamMyRequestsLoaded": {
-    "message": "Requests loaded"
-  },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
@@ -18567,15 +18564,6 @@
   },
   "pamResolverUnknown": {
     "message": "Unknown user"
-  },
-  "pamInboxInSharedFolder": {
-    "message": "in $COLLECTION$",
-    "placeholders": {
-      "collection": {
-        "content": "$1",
-        "example": "Production"
-      }
-    }
   },
   "pamInboxInSharedFolder": {
     "message": "in $COLLECTION$",
@@ -21164,9 +21152,6 @@
   },
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
-  },
-  "pamRotationConfigRotateNowUnavailableTitle": {
-    "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
   },
   "pamRotationConfigRecordManual": {
     "message": "Record manual rotation"
