@@ -136,6 +136,10 @@ export {
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
 export { CIPHER_VIEW_BANNER, type CipherViewBanner } from "./tokens/cipher-view-banner.token";
+export {
+  CIPHER_VIEW_FOOTER_ACTIONS,
+  type CipherViewFooterActions,
+} from "./tokens/cipher-view-footer-actions.token";
 export { ITEM_DETAILS_BADGE, type ItemDetailsBadge } from "./tokens/item-details-badge.token";
 export {
   SHARED_FOLDER_DECORATION,

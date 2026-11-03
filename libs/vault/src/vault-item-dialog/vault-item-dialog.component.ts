@@ -75,6 +75,10 @@ import {
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
 import { VaultViewPasswordHistoryService } from "../services/view-password-history.service";
+import {
+  CIPHER_VIEW_FOOTER_ACTIONS,
+  CipherViewFooterActions,
+} from "../tokens/cipher-view-footer-actions.token";
 import { SHARE_ITEM_ENTRY_POINT } from "../tokens/share-item-entry-point.token";
 import { deleteFailureMessageKey } from "../utils/delete-failure-message";
 
@@ -387,6 +391,16 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected readonly shareItemEntryPoint = inject<Type<unknown>>(SHARE_ITEM_ENTRY_POINT, {
     optional: true,
   });
+
+  /**
+   * Optional host-provided footer actions rendered in the dialog footer, bottom left. Only a
+   * host surfacing a privileged-access feature provides one; elsewhere this is null and the
+   * footer renders unchanged. See {@link CIPHER_VIEW_FOOTER_ACTIONS}.
+   */
+  protected readonly footerActionsComponent: CipherViewFooterActions | null = inject(
+    CIPHER_VIEW_FOOTER_ACTIONS,
+    { optional: true },
+  );
 
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
