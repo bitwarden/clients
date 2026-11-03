@@ -299,7 +299,7 @@ describe("PolicyService", () => {
       );
 
       expect(result).toHaveLength(1);
-      expect(result[0].data).toBeNull();
+      expect(result[0].data).toBeUndefined();
     });
 
     it("throws when no userId is provided", () => {
