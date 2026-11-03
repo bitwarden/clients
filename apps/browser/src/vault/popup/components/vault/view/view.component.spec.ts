@@ -31,6 +31,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
@@ -112,6 +113,8 @@ describe("ViewComponent", () => {
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
+  const displayView$ = jest.fn((_userId: UserId, stored: CipherView) => of(stored));
+
   const mockCipherService = {
     getAllDecryptedForIdsIncludingRestricted: jest.fn().mockResolvedValue([mockCipher]),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
@@ -122,6 +125,8 @@ describe("ViewComponent", () => {
 
   beforeEach(async () => {
     mockCipherService.getAllDecryptedForIdsIncludingRestricted.mockClear();
+    displayView$.mockClear();
+    displayView$.mockImplementation((_userId, stored) => of(stored));
     mockCipherService.deleteWithServer.mockClear();
     mockCipherService.softDeleteWithServer.mockClear();
     mockNavigate.mockClear();
@@ -144,6 +149,7 @@ describe("ViewComponent", () => {
       providers: [
         { provide: Router, useValue: { navigate: mockNavigate } },
         { provide: CipherService, useValue: mockCipherService },
+        { provide: RevealedCipherService, useValue: { displayView$ } },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: VaultSettingsService,
@@ -299,6 +305,38 @@ describe("ViewComponent", () => {
       expect(component.cipher.partial).toBe(true);
       const buttons = Array.from(fixture.nativeElement.querySelectorAll("button")) as HTMLElement[];
       expect(buttons.some((b) => b.textContent?.trim() === "edit")).toBe(false);
+    }));
+
+    it("shows the revealed view in place of the restricted copy while access is live", fakeAsync(() => {
+      const restricted = { ...mockCipher, partial: true } as CipherView;
+      const revealed = { ...mockCipher, partial: false, name: "revealed" } as CipherView;
+      mockCipherService.getAllDecryptedForIdsIncludingRestricted.mockResolvedValueOnce([
+        restricted,
+      ]);
+      const shown$ = new BehaviorSubject<CipherView>(revealed);
+      displayView$.mockReturnValue(shown$);
+      params$.next({ cipherId: "122-333-444" });
+
+      flush();
+
+      expect(displayView$).toHaveBeenCalledWith(mockUserId, restricted);
+      expect(component.cipher).toBe(revealed);
+
+      shown$.next(restricted);
+      flush();
+
+      expect(component.cipher).toBe(restricted);
+    }));
+
+    it("records one view of the item across a reveal and a re-lock", fakeAsync(() => {
+      const shown$ = new BehaviorSubject<CipherView>(mockCipher as CipherView);
+      displayView$.mockReturnValue(shown$);
+      params$.next({ cipherId: "122-333-444" });
+      flush();
+      shown$.next({ ...mockCipher, partial: true } as CipherView);
+      flush();
+
+      expect(collect).toHaveBeenCalledTimes(1);
     }));
 
     it("loads an existing cipher", fakeAsync(() => {

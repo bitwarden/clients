@@ -5,7 +5,7 @@ import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap, of } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
@@ -31,6 +31,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -116,6 +117,7 @@ type LoadAction =
 })
 export class ViewComponent {
   private readonly configService = inject(ConfigService);
+  private readonly revealedCipherService = inject(RevealedCipherService);
 
   private activeUserId: UserId;
 
@@ -201,7 +203,14 @@ export class ViewComponent {
           return cipher;
         }),
         filterOutNullish(),
-        switchMap(async (cipher) => {
+        // While a lease is live this swaps in the full view, and swaps the restricted copy back
+        // when the lease ends, the vault locks or the account switches.
+        switchMap((cipher) =>
+          this.revealedCipherService
+            .displayView$(this.activeUserId, cipher)
+            .pipe(map((shown, index) => ({ shown, first: index === 0 }))),
+        ),
+        switchMap(async ({ shown: cipher, first }) => {
           this.cipher = cipher;
 
           this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
@@ -212,6 +221,10 @@ export class ViewComponent {
                 (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
 
+          // A swap between the restricted and revealed view is not a second view of the item.
+          if (!first) {
+            return;
+          }
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,
             cipher.id,

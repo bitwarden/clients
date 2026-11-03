@@ -14,7 +14,8 @@ What lives here:
   `request-access-error.ts` and the other `*-error.ts` classifiers).
 - `date/` — duration and relative-time formatting, and the Angular pipes over it.
 - `services/` — the SDK-backed implementations of the `abstractions/` contracts, the refresh
-  services, and `pam-membership.ts`.
+  services, `pam-membership.ts`, and `PamRevealedCipherService`, which both clients bind as
+  Vault's `RevealedCipherService`.
 - `access-state-badge/access-badge-state.ts` — the `AccessBadgeState` presentation model,
   `cipherAccessBadgeState()` and `ENDING_SOON_THRESHOLD_MS`. The badge _components_ are
   per-client and stay in their own client.
