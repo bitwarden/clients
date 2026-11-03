@@ -356,20 +356,22 @@ const buildNotificationPolicies = (args: StoryArgs) => {
     return [];
   }
 
-  const policy = new Policy();
-  policy.id = "00000000-0000-4000-8000-0000000000fd" as PolicyId;
-  policy.organizationId = STORY_ORG_ID;
-  policy.type = PolicyType.OrganizationUserNotification;
-  policy.enabled = true;
-  policy.revisionDate = FIXED_REVISION_DATE;
-  policy.data = {
-    header: "Scheduled maintenance",
-    description:
-      "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
-    buttonText: "Learn more",
-    showAfterEveryLogin: false,
-  };
-  return [policy];
+  return [
+    new Policy({
+      id: "00000000-0000-4000-8000-0000000000fd" as PolicyId,
+      organizationId: STORY_ORG_ID,
+      type: PolicyType.OrganizationUserNotification,
+      enabled: true,
+      revisionDate: FIXED_REVISION_DATE.toISOString(),
+      data: {
+        header: "Scheduled maintenance",
+        description:
+          "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
+        buttonText: "Learn more",
+        showAfterEveryLogin: false,
+      },
+    }),
+  ];
 };
 
 /**

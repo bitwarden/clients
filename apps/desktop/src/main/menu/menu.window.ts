@@ -64,7 +64,7 @@ export class WindowMenu implements IMenubarMenu {
       id: "alwaysOnTop",
       label: this.localize("alwaysOnTop"),
       type: "checkbox",
-      checked: this._window.win.isAlwaysOnTop(),
+      checked: this._window.withWindow((win) => win.isAlwaysOnTop()) ?? false,
       click: () => this._window.toggleAlwaysOnTop(),
       accelerator: "CmdOrCtrl+Shift+T",
     };

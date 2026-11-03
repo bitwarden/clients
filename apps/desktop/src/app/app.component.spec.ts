@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { EMPTY, of } from "rxjs";
 
-import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
+import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-deletion";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -157,7 +157,7 @@ describe("AppComponent (desktop)", () => {
           mock<AuthRequestServiceAbstraction>(),
           authRequestAnsweringService,
           mock<SsoLoginServiceAbstraction>(),
-          mock<AccountDeletionService>(),
+          mock<AccountDeletionDialogService>(),
           premiumCheckoutPendingService,
           mock<BillingAccountProfileStateService>(),
           accountSwitcherService,

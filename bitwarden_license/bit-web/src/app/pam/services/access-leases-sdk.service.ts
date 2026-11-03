@@ -3,13 +3,15 @@ import { catchError, firstValueFrom, switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import type {
   AccessLeaseExtensionRequest,
   AccessLeaseId,
   AccessLeaseRevokeRequest,
   AccessLeaseView,
   AccessRequestView,
+  CipherId,
+  CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
 
 import { AccessLeaseSdkService } from "..";
@@ -66,6 +68,26 @@ export class AccessLeasesSdkService implements AccessLeaseSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to end lease: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async leasedCipher(cipherId: string): Promise<SdkCipherView | undefined> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value
+            .commercial()
+            .pam()
+            .leases()
+            .leased_cipher(asUuid<CipherId>(cipherId));
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to read leased cipher: ${error}`);
           throw error;
         }),
       ),

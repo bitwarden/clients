@@ -406,14 +406,14 @@ describe("VaultBatchBarService", () => {
       expect(service.selectedCiphers()[0]).toBe(cipherItem.cipher);
     });
 
-    it("selectedCiphers excludes partial (PAM-gated) ciphers so no bulk action can modify them", () => {
+    it("selectedCiphers excludes restricted ciphers so no bulk action can modify them", () => {
       const normalItem = makeCipherItem();
-      const partialItem = makeCipherItem({
-        id: "partial" as unknown as CipherId,
+      const restrictedItem = makeCipherItem({
+        id: "restricted" as unknown as CipherId,
         partial: true,
       });
 
-      service.selection.select(normalItem, partialItem);
+      service.selection.select(normalItem, restrictedItem);
 
       expect(service.selectedCiphers()).toEqual([normalItem.cipher]);
     });
@@ -1098,10 +1098,10 @@ describe("VaultBatchBarService", () => {
       );
     });
 
-    it("excludes partial (PAM-gated) ciphers from the delete", async () => {
+    it("excludes restricted ciphers from the delete", async () => {
       service.selection.select(
         makeCipherItem({ id: "normal" as unknown as CipherId }),
-        makeCipherItem({ id: "partial" as unknown as CipherId, partial: true }),
+        makeCipherItem({ id: "restricted" as unknown as CipherId, partial: true }),
       );
       mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
 

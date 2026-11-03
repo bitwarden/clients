@@ -9,9 +9,6 @@ import {
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutService } from "@bitwarden/auth/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -55,6 +52,7 @@ import { Utils } from "../../../../platform/misc/utils";
 import { GlobalState, GlobalStateProvider } from "../../../../platform/state";
 import { OrgKey } from "../../../../types/key";
 import { DeepLinkRedirectService } from "../../../deep-link-redirect";
+import { LogoutService } from "../../../logout";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
 import {
@@ -247,6 +245,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
             using ref = sdk.take();
             await ref.value
               .invite_link()
+              .user()
               .accept_and_optionally_confirm(
                 asUuid<SdkOrganizationId>(invite.organizationId),
                 invite.inviteLinkCode,
@@ -318,6 +317,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
         return { kind: "single-org-policy-violation-target-org" };
       case "SingleOrganizationPolicy":
         return { kind: "single-org-policy-violation-other-org" };
+      case "AutoConfirmPolicyViolationTargetOrg":
+        return { kind: "auto-confirm-policy-violation-target-org" };
+      case "AutoConfirmPolicyViolationOtherOrg":
+        return { kind: "auto-confirm-policy-violation-other-org" };
       case "TwoFactorRequiredForMembership":
         return { kind: "two-factor-required" };
       case "OnlyOneFreeOrganizationAdminAllowed":
@@ -332,8 +335,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   /**
    * Classifies an `Api`-variant accept error by parsing the legacy error body out of the
    * SDK's display string. Used for responses the SDK could not map to a typed variant.
-   * Revisit once PM-43102 ships and the `/accept` endpoint returns coded errors. The
-   * auto-confirm kinds only come from this path today, as the SDK has no variant for them.
+   * Revisit once PM-43102 ships and the `/accept` endpoint returns coded errors.
    */
   private classifyOpenOrgInviteLegacyApiError(e: AcceptInviteLinkError): OpenOrgInviteAcceptError {
     // Fragile client-side coupling to the SDK's `bitwarden-api-base::Error::Response`
