@@ -250,7 +250,6 @@ export class RotationHistoryComponent {
       ordinal,
       startedAt: attempt.startedAt,
       duration: this.durationParts(attempt.startedAt, attempt.endedAt ?? null),
-      running: attempt.status === RotationAttemptStatus.Executing,
       statusLabelKey: this.attemptStatusLabelKey(attempt.status),
       resultLabelKey: this.attemptResultLabelKey(attempt.status),
       failed,

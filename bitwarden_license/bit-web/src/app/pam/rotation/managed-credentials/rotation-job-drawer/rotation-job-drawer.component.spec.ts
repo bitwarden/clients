@@ -27,7 +27,6 @@ function attempt(ordinal: number, overrides: Partial<AttemptView> = {}): Attempt
     ordinal,
     startedAt: `2026-01-01T00:0${ordinal}:00Z`,
     duration: { hours: 0, minutes: 0, seconds: 16 },
-    running: false,
     statusLabelKey: "pamRotationAttemptStatusErrored",
     resultLabelKey: "pamRotationAttemptResultFailed",
     failed: true,

@@ -3,7 +3,6 @@ import type { BadgeVariant, BitwardenIcon } from "@bitwarden/components";
 import {
   AccessConnector,
   AccessConnectorStatus,
-  QuartzSchedulePreset,
   RotationConfigId,
   RotationConfigView,
   TargetSystemId,
@@ -11,6 +10,7 @@ import {
   TargetSystemView,
 } from "../rotation";
 import { RotationConfigDescription } from "../rotation-sdk.service";
+import { ScheduleLabel, resolveScheduleLabel } from "../schedule-label";
 import { targetSystemMethodLabelKey } from "../target-systems/target-system-label";
 
 /**
@@ -185,10 +185,10 @@ export type RotationConfigRow = {
   notConnected: boolean;
   nextRotation: NextRotation;
   /**
-   * A preset's i18n key, or a custom cron verbatim. No schedule maps to `pamRotationScheduleNone`,
-   * which the template renders as a dash.
+   * How the Schedule column describes this config: a message key and its substitutions, plus the
+   * expression behind it when the label cannot spell that out. See {@link resolveScheduleLabel}.
    */
-  scheduleLabelKeyOrCron: string;
+  scheduleLabel: ScheduleLabel;
   rotateOnAccessEnd: boolean;
   lastRotationAtMs: number | null;
   lastRotationAt: string | null;
@@ -214,7 +214,7 @@ export function buildRotationConfigRow(
   description: RotationConfigDescription,
   connectors: readonly AccessConnector[] | null = null,
 ): RotationConfigRow {
-  const scheduleLabelKeyOrCron = scheduleLabel(
+  const scheduleLabel = resolveScheduleLabel(
     description.schedulePreset,
     config.scheduleCron ?? null,
   );
@@ -242,7 +242,7 @@ export function buildRotationConfigRow(
     accountIdentity: config.sealed?.accountIdentity ?? null,
     notConnected: status === RotationRowStatus.NotConnected,
     nextRotation: nextRotation(status, nextRotationAtMs),
-    scheduleLabelKeyOrCron,
+    scheduleLabel,
     rotateOnAccessEnd: config.rotateOnAccessEnd,
     lastRotationAtMs: Number.isNaN(lastRotationAtMs) ? null : lastRotationAtMs,
     lastRotationAt: config.lastRotationAt ?? null,
@@ -266,24 +266,4 @@ function nextRotation(status: RotationRowStatus, ms: number | null): NextRotatio
     return { kind: "none" };
   }
   return { kind: "at", ms };
-}
-
-const PRESET_LABEL_KEYS: Record<QuartzSchedulePreset, string> = {
-  [QuartzSchedulePreset.None]: "pamRotationScheduleNone",
-  [QuartzSchedulePreset.Hourly]: "pamRotationScheduleHourly",
-  [QuartzSchedulePreset.Every6Hours]: "pamRotationScheduleEvery6Hours",
-  [QuartzSchedulePreset.Daily]: "pamRotationScheduleDaily",
-  [QuartzSchedulePreset.Weekly]: "pamRotationScheduleWeekly",
-  [QuartzSchedulePreset.Monthly]: "pamRotationScheduleMonthly",
-  [QuartzSchedulePreset.Custom]: "pamRotationScheduleCustom",
-};
-
-function scheduleLabel(preset: QuartzSchedulePreset, cron: string | null): string {
-  if (preset === QuartzSchedulePreset.None) {
-    return PRESET_LABEL_KEYS[QuartzSchedulePreset.None];
-  }
-  if (preset === QuartzSchedulePreset.Custom) {
-    return cron ?? "";
-  }
-  return PRESET_LABEL_KEYS[preset];
 }
