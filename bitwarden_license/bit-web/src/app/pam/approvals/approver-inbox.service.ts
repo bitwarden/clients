@@ -18,6 +18,7 @@ import {
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestId,
+  AccessRequestSdkService,
   AccessRequestView,
   ApprovalSdkService,
   canApprove,
@@ -64,6 +65,7 @@ import {
 @Injectable()
 export class ApproverInboxService {
   private readonly approvalApi = inject(ApprovalSdkService);
+  private readonly requestsApi = inject(AccessRequestSdkService);
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly accountService = inject(AccountService);
@@ -270,30 +272,11 @@ export class ApproverInboxService {
   }
 
   /**
-   * The requester and organization of a managed request, for the withdraw-approval dialog. Null
-   * when the request is not one the caller manages.
+   * Withdraws an approval the requester has not started; the server records the cancel as the
+   * approver's decision. Reloads instead of patching, so the row names whoever withdrew it.
    */
-  managedRequestParties(
-    requestId: string,
-  ): { requesterName: string; organizationName: string | null } | null {
-    const request = this._history$.value.find((r) => uuidAsString(r.id) === requestId);
-    if (request == null) {
-      return null;
-    }
-    return {
-      requesterName:
-        request.requesterName || request.requesterEmail || uuidAsString(request.requesterId),
-      organizationName: organizationNameFor(request, this._names$.value),
-    };
-  }
-
-  /**
-   * Withdraws an approval the requester has not started; the server records the revoke as the
-   * approver's decision, with `reason` as its comment. Reloads instead of patching, so the row
-   * names whoever withdrew it.
-   */
-  async cancelApproval(requestId: AccessRequestId, reason: string): Promise<void> {
-    await this.approvalApi.revoke(requestId, { reason });
+  async cancelApproval(requestId: AccessRequestId): Promise<void> {
+    await this.requestsApi.cancelAccessRequest(requestId);
     this.accessRefresh.notifyAccessChanged();
     await this.load();
   }

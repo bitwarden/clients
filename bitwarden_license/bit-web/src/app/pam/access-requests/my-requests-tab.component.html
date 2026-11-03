@@ -59,10 +59,15 @@
     <bit-table-toolbar>
       <bit-search
         class="tw-flex-1"
-        [placeholder]="'search' | i18n"
+        [placeholder]="'pamAccessRequestsSearchPlaceholder' | i18n"
         [formControl]="searchControl"
       ></bit-search>
-      <bit-filter-menu multiple key="status" [placeholderText]="'pamColumnStatus' | i18n">
+      <bit-filter-menu
+        multiple
+        key="status"
+        [placeholderText]="'pamColumnStatus' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
         @for (option of statusOptions(); track option.value) {
           <bit-filter-option
             [value]="option.value"
@@ -76,6 +81,7 @@
         multiple
         key="collection"
         [placeholderText]="'sharedFolders' | i18n"
+        [unsetLabel]="'all' | i18n"
         [disabled]="noCollectionOptions()"
         [disabledTooltip]="'pamNoSharedFoldersToFilter' | i18n"
       >
@@ -115,7 +121,7 @@
         />
         @if (row.collectionName) {
           <span slot="secondary" class="tw-truncate">{{
-            "pamInboxInSharedFolder" | i18n: row.collectionName
+            "pamInboxInCollection" | i18n: row.collectionName
           }}</span>
         }
         @if (row.lease?.extendedUntil ? row.lease : null; as lease) {
@@ -130,7 +136,7 @@
               "pamExtendedBadge"
                 | i18n
                   : (lease.extendedBySeconds | durationShort)
-                  : (lease.extendedUntil | timestamp)
+                  : (lease.extendedUntil | date: "short")
             }}
           </span>
         }
@@ -173,7 +179,9 @@
         <span class="tw-w-full tw-text-end">{{ "pamColumnActions" | i18n }}</span>
       </bit-header-cell>
       <bit-cell *bitCellDef="myRequestsTable.columns.actions; let row" [truncate]="false">
-        <div class="tw-flex tw-items-center tw-justify-end tw-gap-2" bitHoverReveal>
+        <div
+          class="tw-flex tw-items-center tw-justify-end tw-gap-2 tw-opacity-0 tw-transition-opacity tw-pointer-events-none group-hover/row:tw-opacity-100 group-hover/row:tw-pointer-events-auto group-has-[:focus-visible]/row:tw-opacity-100 group-has-[:focus-visible]/row:tw-pointer-events-auto [@media(hover:none)]:tw-opacity-100 [@media(hover:none)]:tw-pointer-events-auto"
+        >
           @if (row.lease; as lease) {
             <button
               type="button"

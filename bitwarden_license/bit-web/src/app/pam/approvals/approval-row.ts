@@ -1,6 +1,4 @@
 import {
-  ElapsedLabel,
-  elapsedLabel,
   durationText,
   exactWindow,
   LabelValue,

@@ -31,6 +31,23 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonComponent, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  LeasingErrorService,
+  REQUEST_ACCESS_SERVER_ERRORS,
+  composeRequestWindow,
+  toDateInputValue,
+} from "..";
+import type {
+  AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestView,
+  CipherAccessStateView,
+} from "../abstractions/access-lease";
+import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
+import { formatDuration } from "../date/format-duration";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
@@ -754,34 +771,8 @@ describe("CipherViewBannerComponent", () => {
       // Read off the constant, not spelled again: this card escalates on the same threshold the
       // badge does, so it has to wear the badge's warning.
       expect(glyph(ACCESS_BADGE_LOOK.endingSoon.icon)).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_extend")).toBeNull();
-      expect(query("#pam-cipher-view-banner_button_end")).toBeNull();
-    });
-
-    it("keeps Extend access and End access small in the item dialog", async () => {
-      await activeLeaseEndingIn(60 * 60 * 1000);
-
-      for (const id of [
-        "#pam-cipher-view-banner_button_extend",
-        "#pam-cipher-view-banner_button_end",
-      ]) {
-        expect(buttonSize(id)).toBe("small");
-        expect(query(id)?.classList.contains("tw-flex-1")).toBe(false);
-      }
-    });
-
-    it("lists Extend access before End access, each filling half the row, in the popup", async () => {
-      usePopupLayout();
-      await activeLeaseEndingIn(60 * 60 * 1000);
-
-      const end = query("#pam-cipher-view-banner_button_end");
-      const extend = query("#pam-cipher-view-banner_button_extend");
-      expect(end).not.toBeNull();
-      expect(extend).not.toBeNull();
-      expect(extend!.compareDocumentPosition(end!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(end!.classList.contains("tw-flex-1")).toBe(true);
-      expect(extend!.classList.contains("tw-flex-1")).toBe(true);
-      expect(buttonSize("#pam-cipher-view-banner_button_end")).toBe("default");
+      expect(query("#pam-cipher-view-banner_button_extend")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_end")).not.toBeNull();
     });
 
     it("warns at exactly five minutes remaining", async () => {

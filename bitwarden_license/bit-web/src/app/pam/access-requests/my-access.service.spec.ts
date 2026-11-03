@@ -171,7 +171,7 @@ describe("MyAccessService", () => {
 
     it("re-reads when an unstarted grant's window is due to close", async () => {
       // The server refuses to activate past the window, so the grant has to leave Pending for
-      // History, and no push announces that, just as none announces a lease running out.
+      // History — and no push announces that, just as none announces a lease running out.
       jest.useFakeTimers();
       try {
         requestsApi.listMyAccessRequests.mockResolvedValue([
@@ -326,6 +326,31 @@ describe("MyAccessService", () => {
         const [row] = await firstValueFrom(service.historyRows$);
         expect(row.id).toBe("req-lapsed");
         expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
+      });
+
+      it("badges a lease that lapsed since the load Expired rather than Active", async () => {
+        // The server record still reads `active`; only the clock says otherwise, and History is
+        // terminal, so "Active" is not something it can mean.
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-lapsed", {
+            status: "approved",
+            producedLeaseId: "lease-1",
+            producedLeaseStatus: "active",
+          }),
+        ]);
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-1", {
+            status: "active",
+            notBefore: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            notAfter: new Date(Date.now() - 60 * 1000).toISOString(),
+          }),
+        ]);
+
+        await service.load();
+
+        const [row] = await firstValueFrom(service.historyRows$);
+        expect(row.id).toBe("req-lapsed");
+        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "warning" });
       });
 
       it("includes only active leases in leases$", async () => {

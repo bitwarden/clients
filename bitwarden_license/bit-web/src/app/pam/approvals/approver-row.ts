@@ -1,13 +1,12 @@
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+
+import type { AccessRequestId, AccessRequestView } from "../abstractions/access-lease";
+import { ResolvedNames } from "../access-requests/access-name-resolver.service";
 import {
   AccessBadgeState,
   ENDING_SOON_THRESHOLD_MS,
-  durationText,
-  exactWindow,
-} from "@bitwarden/bit-pam";
-import type { AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-
-import { ResolvedNames } from "../access-requests/access-name-resolver.service";
+} from "../access-state-badge/access-badge-state";
+import { durationText, exactWindow } from "../helpers/approval-window";
 
 import { ApprovalRow } from "./approval-row";
 import { ManagedLeaseRow } from "./managed-lease-row";

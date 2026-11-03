@@ -1,9 +1,8 @@
-import {
-  AccessRequestId,
-  ENDING_SOON_THRESHOLD_MS,
-  requestedWindowSeconds,
-} from "@bitwarden/bit-pam";
 import { IconTileOptions } from "@bitwarden/components";
+
+import { AccessRequestId } from "..";
+import { ENDING_SOON_THRESHOLD_MS } from "../access-state-badge/access-badge-state";
+import { requestedWindowSeconds } from "../helpers/requested-window";
 
 import { isRedeemableGrant, MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { REQUEST_STATUS_LOOK } from "./request-status-look";
@@ -111,7 +110,8 @@ export function myRequestStatus(row: MyRequestRow, nowMs: number): MyRequestStat
   if (request != null && isRedeemableGrant(request, nowMs)) {
     return MyRequestStatus.Ready;
   }
-  // An approval nobody started before its window closed is spent, not still waiting.
+  // An approval nobody started before its window closed is spent, not still waiting — the badge
+  // has always said so, and the Status chip and sort now agree with it.
   if (request != null && request.status === "approved") {
     return MyRequestStatus.Expired;
   }

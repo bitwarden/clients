@@ -12,6 +12,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { HOUR, MINUTE, STORY_NOW, fromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
 import { toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
@@ -146,10 +147,6 @@ function inbox(options: { rows?: () => ApproverRow[]; loading?: boolean } = {}) 
           decide: () => Promise.resolve(),
           revokeLease: () => Promise.resolve(),
           cancelApproval: () => Promise.resolve(),
-          managedRequestParties: () => ({
-            requesterName: "Grace Hopper",
-            organizationName: names.organizationNameById.get("org-1") ?? null,
-          }),
         }),
       },
       {
@@ -200,13 +197,9 @@ export const Default: Story = {
 export const Filtered: Story = {
   decorators: [inbox()],
   play: async ({ canvasElement }) => {
-    // Scoped to the toolbar, since the sortable Status column header is also a button named Status.
-    const [trigger] = (
-      await within(canvasElement).findAllByRole("button", { name: /^Status/ })
-    ).filter((button) => button.closest("bit-table-toolbar") != null);
+    const trigger = await within(canvasElement).findByRole("button", { name: /^Status/ });
     await userEvent.click(trigger);
-    const menu = await within(document.body).findByRole("dialog", { name: "Status" });
-    await userEvent.click(await within(menu).findByText("Pending approval"));
+    await userEvent.click(await within(document.body).findByText("Pending approval"));
     await userEvent.keyboard("{Escape}");
   },
 };
