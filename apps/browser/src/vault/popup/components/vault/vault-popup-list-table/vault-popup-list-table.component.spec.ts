@@ -43,6 +43,7 @@ import {
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
+  CoachmarkService,
   NO_FOLDER,
   PasswordRepromptService,
   VaultCopyButtonsService,
@@ -59,6 +60,7 @@ import { VaultPopupListTableFiltersService } from "../../../services/vault-popup
 import { VaultPopupListTableService } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
@@ -96,7 +98,7 @@ describe("VaultPopupListTableComponent", () => {
   const favoriteCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const filteredCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const loading$ = new BehaviorSubject<boolean>(false);
-  const searchText$ = new BehaviorSubject<string>("");
+  const searchText = signal("");
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
   const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
   const emptyVault$ = new BehaviorSubject<boolean>(false);
@@ -126,12 +128,12 @@ describe("VaultPopupListTableComponent", () => {
     favoriteCiphers$: favoriteCiphers$.asObservable(),
     filteredCiphers$: filteredCiphers$.asObservable(),
     loading$: loading$.asObservable(),
-    searchText$: searchText$.asObservable(),
+    searchText,
     hasSearchText$: hasSearchText$.asObservable(),
     showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
     emptyVault$: emptyVault$.asObservable(),
     hasFilterApplied$: hasFilterApplied$.asObservable(),
-    applyFilter: jest.fn(),
+    applyScopedFilter: jest.fn(),
   };
 
   const vaultPopupLoadingService = {
@@ -149,8 +151,6 @@ describe("VaultPopupListTableComponent", () => {
   let listTableSvc: VaultPopupListTableService;
   const folders$ = new BehaviorSubject<ChipFilterOption<FolderView>[]>([]);
 
-  /** Emitted by the switcher's clear, which the table follows to reset its own controls. */
-  const vaultScopedFiltersCleared$ = new Subject<void>();
   /** Whether the vault in view is suspended, which blanks the rows. */
   const suspendedVault$ = new BehaviorSubject<boolean>(false);
   const organizationNames$ = new BehaviorSubject<Map<string, string>>(new Map());
@@ -158,9 +158,7 @@ describe("VaultPopupListTableComponent", () => {
   const vaultPopupListTableFiltersService = {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
     saveFilters: jest.fn(),
-    clearVaultScopedFilters: jest.fn(),
     filterDialogOpen: signal(false),
-    vaultScopedFiltersCleared$: vaultScopedFiltersCleared$.asObservable(),
     selectedFilters$: of({
       cipherType: null,
       organization: [] as string[],
@@ -212,8 +210,14 @@ describe("VaultPopupListTableComponent", () => {
     viewModel$: jest.fn().mockReturnValue(nav$.asObservable()),
   };
 
+  /** No tour step is active; the filters tour is covered by its own spec. */
+  const coachmarkService = mock<CoachmarkService>({ isStepActive: () => false });
+  /** Whether the tour holds the filter dialog open. */
+  const tourFilterDialogOpen = signal(false);
+
   beforeEach(async () => {
     jest.clearAllMocks();
+    tourFilterDialogOpen.set(false);
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     configService.getFeatureFlag.mockResolvedValue(false);
@@ -223,7 +227,7 @@ describe("VaultPopupListTableComponent", () => {
     filteredCiphers$.next([]);
     activeCiphers$.next([]);
     loading$.next(false);
-    searchText$.next("");
+    searchText.set("");
     hasSearchText$.next(false);
     showDeactivatedOrg$.next(false);
     hasFilterApplied$.next(false);
@@ -243,6 +247,11 @@ describe("VaultPopupListTableComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
+        { provide: CoachmarkService, useValue: coachmarkService },
+        {
+          provide: VaultPopupTourService,
+          useValue: { sharedFoldersRow: signal(null), filterDialogOpen: tourFilterDialogOpen },
+        },
         { provide: WINDOW, useValue: window },
         {
           provide: ViewCacheService,
@@ -798,24 +807,23 @@ describe("VaultPopupListTableComponent", () => {
         late.destroy();
       });
 
-      /** The controls hold their own values, so clearing the cache alone leaves them set. */
-      it("resets its chip controls when a vault switch clears the cache", async () => {
-        collections$.next([{ value: col1, label: "Alpha" } as any]);
-        fixture.detectChanges();
-        // The subscription is set up in `afterNextRender`, which needs the render hooks flushed.
-        await fixture.whenStable();
+      /** The table reports its empty selection on mount, which would overwrite the cached one. */
+      it("doesn't save the mount-time selection before the cache has resolved", async () => {
+        const pending = new Subject<object>();
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(pending);
+        vaultPopupListTableFiltersService.saveFilters.mockClear();
 
-        const byKey = new Map(
-          component["tableEl"]()!
-            .filterControls()
-            .map((c: any) => [c.key(), jest.spyOn(c, "setValue")]),
-        );
+        const early = TestBed.createComponent(VaultPopupListTableComponent);
+        early.detectChanges();
+        await early.whenStable();
+        folders$.next([{ value: { id: "folder-1", name: "Work" }, label: "Work" } as any]);
+        early.detectChanges();
+        await early.whenStable();
 
-        vaultScopedFiltersCleared$.next();
-        fixture.detectChanges();
+        expect(vaultPopupListTableFiltersService.saveFilters).not.toHaveBeenCalled();
 
-        expect(byKey.get("collection")).toHaveBeenCalledWith(undefined);
-        expect(byKey.get("cipherType")).not.toHaveBeenCalled();
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(of({}));
+        early.destroy();
       });
 
       it("keeps every organization's shared folders when unscoped", () => {
@@ -1122,6 +1130,30 @@ describe("VaultPopupListTableComponent", () => {
       await second.whenStable();
       expect(open).toHaveBeenCalledTimes(1);
     });
+
+    it("opens the dialog for the tour without caching it as left open", async () => {
+      tourFilterDialogOpen.set(true);
+
+      const page = TestBed.createComponent(VaultPopupListTableComponent);
+      page.autoDetectChanges();
+      await page.whenStable();
+
+      expect(open).toHaveBeenCalledTimes(1);
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
+    });
+
+    it("releases the tour's hold when the user closes the dialog", async () => {
+      tourFilterDialogOpen.set(true);
+
+      const page = TestBed.createComponent(VaultPopupListTableComponent);
+      page.autoDetectChanges();
+      await page.whenStable();
+      open.mock.results[0].value.close();
+      await page.whenStable();
+
+      expect(tourFilterDialogOpen()).toBe(false);
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
+    });
   });
 
   describe("clearFilters", () => {
@@ -1155,10 +1187,21 @@ describe("VaultPopupListTableComponent", () => {
 
   describe("search", () => {
     it("syncs searchText from the search text already applied to the vault", () => {
-      searchText$.next("synced text");
+      searchText.set("synced text");
       fixture.detectChanges();
 
       expect(component["searchText"]).toBe("synced text");
+    });
+
+    /** A vault switch rebuilds the page, which must not keep the previous vault's text. */
+    it("clears the input when the vault in view has no search text", () => {
+      searchText.set("synced text");
+      fixture.detectChanges();
+
+      searchText.set("");
+      fixture.detectChanges();
+
+      expect(component["searchText"]).toBe("");
     });
 
     it("applies the search filter (debounced) when the search text changes", fakeAsync(() => {
@@ -1166,7 +1209,7 @@ describe("VaultPopupListTableComponent", () => {
       component.onSearchTextChanged();
       tick(SearchTextDebounceInterval);
 
-      expect(vaultPopupItemsService.applyFilter).toHaveBeenCalledWith("foo");
+      expect(vaultPopupItemsService.applyScopedFilter).toHaveBeenCalledWith("foo");
     }));
   });
 

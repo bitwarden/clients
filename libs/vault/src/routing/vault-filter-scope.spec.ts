@@ -6,6 +6,8 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   ALL_ITEMS_SCOPE,
+  FOLDER_ID_PARAM,
+  FOLDERS_ROUTE,
   MY_ITEMS_ROUTE,
   MY_VAULT_ROUTE,
   SHARED_FOLDERS_ROUTE,
@@ -27,6 +29,7 @@ const inScope = { vaultFilterScope: true } satisfies VaultScopeRouteData;
 
 const organizationId = "2f8b1c14-9a3d-4f6e-8b21-5d7c0e9a3b44" as OrganizationId;
 const collectionId = "6b4d2e70-1c58-4a92-9f3e-8c0a5d21b7f6" as CollectionId;
+const folderId = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a";
 
 const organizationScope = { type: VaultScopeType.Organization, organizationId } as const;
 
@@ -62,6 +65,11 @@ describe("vaultScopeOf", () => {
                 ],
               },
             ],
+          },
+          {
+            path: `${FOLDERS_ROUTE}/:${FOLDER_ID_PARAM}`,
+            component: BlankComponent,
+            data: inScope,
           },
           { path: "sends", component: BlankComponent },
         ]),
@@ -111,6 +119,17 @@ describe("vaultScopeOf", () => {
       ...organizationScope,
       collectionId: MY_ITEMS_ROUTE,
     });
+  }));
+
+  it("scopes a folder's page to that folder, in no vault", fakeAsync(() => {
+    expect(scopeOf(`/${FOLDERS_ROUTE}/${folderId}`)).toEqual({
+      type: VaultScopeType.Folder,
+      folderId,
+    });
+  }));
+
+  it("returns null for a folder param that is not a guid", fakeAsync(() => {
+    expect(scopeOf(`/${FOLDERS_ROUTE}/not-a-folder`)).toBeNull();
   }));
 
   it("returns null for a vault param that names no vault", fakeAsync(() => {

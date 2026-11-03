@@ -587,6 +587,53 @@ describe("UpgradePaymentComponent", () => {
       })(),
     );
 
+    describe("billing address rejection", () => {
+      const addressError = new ErrorResponse(
+        {
+          Message: "The model state is invalid.",
+          ValidationErrors: {
+            BillingAddress: [
+              "Your location wasn't recognized. Please ensure your country and postal code are valid and try again.",
+            ],
+          },
+        },
+        400,
+      );
+
+      it("toasts the billing-details message when the preview rejects the billing address", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumPurchaseCart.mockRejectedValue(addressError);
+
+        createFixture();
+        tick(1001);
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "billingPreviewInvalidAddressError",
+        });
+        expect(component["previewFailed"]()).toBe(true);
+
+        fixture.detectChanges();
+        expect(
+          host().querySelector('[data-testid="invoice-preview-error"]')?.textContent,
+        ).toContain("billingPreviewInvalidAddressError");
+      }));
+
+      it("replaces an earlier address message with the generic message on a later failure", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumPurchaseCart
+          .mockRejectedValueOnce(addressError)
+          .mockRejectedValue(new Error("500"));
+
+        createFixture();
+        tick(1001);
+        expect(component["previewErrorMessageKey"]()).toBe("billingPreviewInvalidAddressError");
+
+        component["formGroup"].controls.billingAddress.patchValue({ postalCode: "54321" });
+        tick(1001);
+
+        expect(component["previewErrorMessageKey"]()).toBe("invoicePreviewErrorMessage");
+      }));
+    });
+
     it("toasts once per failed preview", fakeAsync(() => {
       mockInvoicePreviewService.previewPremiumPurchaseCart.mockRejectedValue(
         new Error("preview failed"),

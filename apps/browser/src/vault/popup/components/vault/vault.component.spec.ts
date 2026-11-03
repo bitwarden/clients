@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, Subject, of } from "rxjs";
@@ -38,6 +38,7 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
+  ALL_ITEMS_SCOPE,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
   NewExperienceDialogComponent,
@@ -46,6 +47,7 @@ import {
   VaultItemsTransferService,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
+  VaultScopeType,
   Vfo1TourCalloutService,
 } from "@bitwarden/vault";
 
@@ -60,6 +62,7 @@ import { VaultPopupListTableFiltersService } from "../../services/vault-popup-li
 import { VaultPopupListTableService } from "../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
+import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 
 import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
@@ -190,6 +193,9 @@ class VaultListItemsContainerStubComponent {
 class VaultPopupListTableStubComponent {
   /** Declares `scope` so the page's binding resolves with the real table removed. */
   readonly scope = input<unknown>(null);
+
+  /** Restores from a field initializer, as the real table does, so the page's scope must be set first. */
+  protected readonly restored = inject(VaultPopupListTableFiltersService).restoreFilters$();
 }
 
 const mockDialogRef = {
@@ -244,6 +250,16 @@ describe("VaultComponent", () => {
   const itemCount$ = new BehaviorSubject<number>(0);
   const listTableSvc = { setScope: jest.fn(), itemCount$ };
 
+  /** The chip filter cache, which the page points at the route's vault. */
+  const listTableFiltersSvc = {
+    cachedFilters: jest.fn().mockReturnValue({}),
+    restoreFilters$: jest.fn().mockReturnValue(of({})),
+    setScope: jest.fn(),
+    setCachedVaultScopeId: jest.fn(),
+  };
+
+  const routeParams$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
+
   /** The account's vaults, as the header reads them to decide whether to show a page title. */
   const vaultNav$ = new BehaviorSubject<any>({ vaults: [], organizationDataOwnership: false });
 
@@ -275,6 +291,8 @@ describe("VaultComponent", () => {
   const dialogSvc = {
     openSimpleDialog: jest.fn().mockResolvedValue(false),
   } as Partial<DialogService>;
+
+  const vaultTourSvc = mock<VaultPopupTourService>();
 
   const introCarouselState$ = new BehaviorSubject<boolean>(true);
 
@@ -328,6 +346,8 @@ describe("VaultComponent", () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     premiumUpsellSvc.showUpsell.mockReturnValue(false);
+    routeParams$.next(convertToParamMap({}));
+    vaultNav$.next({ vaults: [], organizationDataOwnership: false });
     await TestBed.configureTestingModule({
       imports: [VaultComponent, RouterTestingModule],
       providers: [
@@ -376,16 +396,10 @@ describe("VaultComponent", () => {
         { provide: Vfo1TourCalloutService, useValue: mock<Vfo1TourCalloutService>() },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
-        {
-          provide: VaultPopupListTableFiltersService,
-          useValue: {
-            cachedFilters: jest.fn().mockReturnValue({}),
-            setCachedVaultScopeId: jest.fn(),
-          },
-        },
+        { provide: VaultPopupListTableFiltersService, useValue: listTableFiltersSvc },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
+        { provide: ActivatedRoute, useValue: { paramMap: routeParams$ } },
         { provide: AuthService, useValue: mock<AuthService>() },
         { provide: AutofillService, useValue: mock<AutofillService>() },
         {
@@ -394,6 +408,7 @@ describe("VaultComponent", () => {
         },
         { provide: TaskService, useValue: mock<TaskService>() },
         { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: VaultPopupTourService, useValue: vaultTourSvc },
         {
           provide: ConfigService,
           useValue: configSvc,
@@ -702,6 +717,64 @@ describe("VaultComponent", () => {
       flush();
       fixture.destroy();
     }));
+
+    /** Each vault keeps its own chips, so the cache must be pointed at it before the table restores. */
+    describe("chip filter scope", () => {
+      const ORG_ID = "11111111-1111-4111-8111-111111111111";
+
+      /** Routes the page fresh, without the shared fixture also reacting to the new params. */
+      function createOnRoute(params: Record<string, string>) {
+        defaultFixture.destroy();
+        routeParams$.next(convertToParamMap(params));
+        listTableFiltersSvc.setScope.mockClear();
+        listTableFiltersSvc.restoreFilters$.mockClear();
+
+        return createWithFlag(true);
+      }
+
+      it("is set from the route before the table restores its chips", fakeAsync(() => {
+        const fixture = createOnRoute({ vaultId: ORG_ID });
+
+        expect(listTableFiltersSvc.setScope).toHaveBeenCalledWith({
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID,
+        });
+        expect(listTableFiltersSvc.restoreFilters$).toHaveBeenCalledTimes(1);
+        expect(listTableFiltersSvc.setScope.mock.invocationCallOrder[0]).toBeLessThan(
+          listTableFiltersSvc.restoreFilters$.mock.invocationCallOrder[0],
+        );
+
+        flush();
+        fixture.destroy();
+      }));
+
+      it("is All items on the unscoped route", fakeAsync(() => {
+        const fixture = createOnRoute({});
+
+        expect(listTableFiltersSvc.setScope).toHaveBeenCalledWith(ALL_ITEMS_SCOPE);
+
+        flush();
+        fixture.destroy();
+      }));
+
+      /**
+       * A personal-only account resolves All items to My vault once its vaults load; keying by that
+       * would save under one key and restore from the other on the next open.
+       */
+      it("keys by the route rather than the resolved scope", fakeAsync(() => {
+        vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
+
+        const fixture = createOnRoute({});
+
+        // The rows narrow to the resolved scope, while the chips stay keyed by the route.
+        expect(listTableSvc.setScope).toHaveBeenLastCalledWith({ type: VaultScopeType.MyVault });
+        expect(listTableFiltersSvc.setScope).toHaveBeenCalledTimes(1);
+        expect(listTableFiltersSvc.setScope).toHaveBeenCalledWith(ALL_ITEMS_SCOPE);
+
+        flush();
+        fixture.destroy();
+      }));
+    });
 
     it("renders the table and drops the legacy header and list when the flag is on", fakeAsync(() => {
       const fixture = createWithFlag(true);
@@ -1269,6 +1342,7 @@ describe("VaultComponent", () => {
     }
 
     beforeEach(() => {
+      vaultTourSvc.start.mockClear();
       newExperienceDialogSpy.mockClear();
       newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Dismissed);
       nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
@@ -1340,6 +1414,28 @@ describe("VaultComponent", () => {
       initVault();
 
       expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("starts the vault tour when the user chooses to explore", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+
+      initVault();
+
+      expect(vaultTourSvc.start).toHaveBeenCalledWith("user-1");
+    }));
+
+    it("does not start the vault tour when the dialog is dismissed", fakeAsync(() => {
+      initVault();
+
+      expect(vaultTourSvc.start).not.toHaveBeenCalled();
+    }));
+
+    it("does not start the vault tour when the dialog never opens", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(vaultTourSvc.start).not.toHaveBeenCalled();
     }));
 
     it("leaves the nudge undismissed when the dialog never opens", fakeAsync(() => {

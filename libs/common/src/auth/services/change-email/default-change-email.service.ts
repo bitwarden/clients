@@ -130,7 +130,7 @@ export class DefaultChangeEmailService implements ChangeEmailService {
       }
       const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
         masterPassword,
-        newEmail,
+        this.masterPasswordService.emailToSalt(newEmail),
         kdfConfig,
       );
       request.newMasterPasswordHash = await this.legacyCompatKeyService.hashMasterKey(

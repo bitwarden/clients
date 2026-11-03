@@ -182,6 +182,127 @@ describe("NativeMessagingMain", () => {
       expect(existsSync(path.join(home, ".var"))).toBe(false);
     });
   });
+
+  describe("on macOS", () => {
+    const manifestName = "com.8bit.bitwarden.json";
+    const platform = process.platform;
+
+    let home: string;
+    let binary: string;
+    let firefoxProfiles: string;
+    let mozilla: string;
+    let chrome: string;
+
+    /** The manifest written to `browserDir`, or `undefined` if none was. */
+    function manifestIn(browserDir: string): Record<string, unknown> | undefined {
+      const manifestPath = path.join(browserDir, "NativeMessagingHosts", manifestName);
+      return existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : undefined;
+    }
+
+    beforeEach(() => {
+      home = mkdtempSync(path.join(tmpdir(), "nmh-"));
+      Object.defineProperty(process, "platform", { value: "darwin" });
+      jest.spyOn(sut as any, "homedir").mockReturnValue(home);
+
+      const appSupport = path.join(home, "Library", "Application Support");
+      firefoxProfiles = path.join(appSupport, "Firefox");
+      mozilla = path.join(appSupport, "Mozilla");
+      chrome = path.join(appSupport, "Google", "Chrome");
+
+      binary = path.join(home, "desktop_proxy");
+      writeFileSync(binary, "");
+      jest.spyOn(sut as any, "binaryPath").mockReturnValue(binary);
+    });
+
+    afterEach(() => {
+      Object.defineProperty(process, "platform", { value: platform });
+      rmSync(home, { recursive: true, force: true });
+    });
+
+    describe("generateManifests", () => {
+      it("installs the Firefox manifest when only the Firefox profile directory exists", async () => {
+        mkdirSync(firefoxProfiles, { recursive: true });
+
+        await sut.generateManifests();
+
+        expect(manifestIn(mozilla)).toEqual(
+          expect.objectContaining({
+            name: "com.8bit.bitwarden",
+            path: binary,
+            allowed_extensions: ["{446900e4-71c2-419f-a6a7-df9c091e268b}"],
+          }),
+        );
+      });
+
+      it("still installs the Firefox manifest when only Mozilla/ exists", async () => {
+        mkdirSync(mozilla, { recursive: true });
+
+        await sut.generateManifests();
+
+        expect(manifestIn(mozilla)).toBeDefined();
+      });
+
+      it("skips Firefox when neither the profile directory nor Mozilla/ exists", async () => {
+        mkdirSync(chrome, { recursive: true });
+
+        await sut.generateManifests();
+
+        expect(manifestIn(mozilla)).toBeUndefined();
+        expect(logService.warning).toHaveBeenCalledWith("Firefox not found, skipping.");
+      });
+
+      it("installs a Chrome-flavoured manifest for chromium browsers", async () => {
+        mkdirSync(chrome, { recursive: true });
+
+        await sut.generateManifests();
+
+        expect(manifestIn(chrome)).toEqual(
+          expect.objectContaining({
+            allowed_origins: expect.arrayContaining([
+              "chrome-extension://nngceckbapebfimnlniiiahkandclblb/",
+            ]),
+          }),
+        );
+      });
+
+      it("still installs the other browsers when the Mozilla directory cannot be created", async () => {
+        mkdirSync(firefoxProfiles, { recursive: true });
+        mkdirSync(chrome, { recursive: true });
+        writeFileSync(mozilla, "");
+
+        await expect(sut.generateManifests()).resolves.toBeUndefined();
+
+        expect(manifestIn(mozilla)).toBeUndefined();
+        expect(manifestIn(chrome)).toBeDefined();
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Firefox"));
+      });
+
+      it("still installs the other browsers when the Firefox manifest cannot be written", async () => {
+        mkdirSync(firefoxProfiles, { recursive: true });
+        mkdirSync(chrome, { recursive: true });
+        jest
+          .spyOn(sut as any, "writeManifest")
+          .mockRejectedValueOnce(new Error("EACCES: permission denied"));
+
+        await expect(sut.generateManifests()).resolves.toBeUndefined();
+
+        expect(manifestIn(chrome)).toBeDefined();
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Firefox"));
+      });
+    });
+
+    describe("removeManifests", () => {
+      it("removes the Firefox manifest from Mozilla/NativeMessagingHosts", async () => {
+        const manifestPath = path.join(mozilla, "NativeMessagingHosts", manifestName);
+        mkdirSync(path.dirname(manifestPath), { recursive: true });
+        writeFileSync(manifestPath, "{}");
+
+        await sut.removeManifests();
+
+        expect(existsSync(manifestPath)).toBe(false);
+      });
+    });
+  });
 });
 
 describe("NativeMessagingMain.generateManifests on Windows", () => {

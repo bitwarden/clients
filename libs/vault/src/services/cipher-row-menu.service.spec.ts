@@ -1,3 +1,4 @@
+import { Provider } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
@@ -8,14 +9,19 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+
+import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
+import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
 import { CipherRowMenuService } from "./cipher-row-menu.service";
@@ -36,6 +42,8 @@ function makeCipher(
     type: CipherType;
     permissions: { delete: boolean; restore: boolean } | null;
     decryptionFailure: boolean;
+    partial: boolean;
+    id: string;
   }> = {},
 ): CipherView {
   return {
@@ -62,6 +70,8 @@ describe("CipherRowMenuService", () => {
   let userCanArchiveSubject: BehaviorSubject<boolean>;
   let restrictedTypesSubject: BehaviorSubject<RestrictedCipherType[]>;
   let organizationsSubject: BehaviorSubject<Organization[]>;
+  let revealedSubject: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+  let providers: Provider[];
 
   beforeEach(() => {
     cipherArchiveService = mock<CipherArchiveService>();
@@ -74,6 +84,9 @@ describe("CipherRowMenuService", () => {
     restrictedTypesSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
 
     organizationsSubject = new BehaviorSubject<Organization[]>([]);
+    revealedSubject = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
+    const revealedCipherService = mock<RevealedCipherService>();
+    revealedCipherService.revealed$.mockReturnValue(revealedSubject.asObservable());
     organizationService.organizations$.mockReturnValue(organizationsSubject.asObservable());
 
     cipherArchiveService.userCanArchive$.mockReturnValue(userCanArchiveSubject.asObservable());
@@ -81,17 +94,17 @@ describe("CipherRowMenuService", () => {
       value: restrictedTypesSubject.asObservable(),
     });
 
-    TestBed.configureTestingModule({
-      providers: [
-        CipherRowMenuService,
-        { provide: CipherArchiveService, useValue: cipherArchiveService },
-        { provide: OrganizationService, useValue: organizationService },
-        { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
-        { provide: I18nService, useValue: i18nService },
-        { provide: AccountService, useValue: mockAccountServiceWith(userId) },
-        { provide: CipherActionService, useValue: mock<CipherActionService>() },
-      ],
-    });
+    providers = [
+      CipherRowMenuService,
+      { provide: CipherArchiveService, useValue: cipherArchiveService },
+      { provide: OrganizationService, useValue: organizationService },
+      { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
+      { provide: I18nService, useValue: i18nService },
+      { provide: AccountService, useValue: mockAccountServiceWith(userId) },
+      { provide: CipherActionService, useValue: mock<CipherActionService>() },
+      { provide: RevealedCipherService, useValue: revealedCipherService },
+    ];
+    TestBed.configureTestingModule({ providers });
 
     service = TestBed.inject(CipherRowMenuService);
   });
@@ -539,6 +552,177 @@ describe("CipherRowMenuService", () => {
       expect(visibleActionIds(makeCipher())).toEqual(
         expect.arrayContaining(["addFavorite", "edit", "archive", "delete"]),
       );
+    });
+  });
+
+  describe("contributed actions (VAULT_ROW_ACTIONS)", () => {
+    const handlers = { edit: () => {}, clone: () => {}, assignToCollections: () => {} };
+
+    function contributed(
+      id: string,
+      overrides: Partial<VaultItemsTableRowAction<CipherViewLike>> = {},
+    ): VaultItemsTableRowAction<CipherViewLike> {
+      return { id, label: id, icon: "bwi-key", run: () => {}, ...overrides };
+    }
+
+    /** Rebuilds the service with `actions` provided under `VAULT_ROW_ACTIONS`. */
+    function serviceWith(
+      actions: readonly VaultItemsTableRowAction<CipherViewLike>[],
+    ): CipherRowMenuService {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [...providers, { provide: VAULT_ROW_ACTIONS, useValue: actions }],
+      });
+      return TestBed.inject(CipherRowMenuService);
+    }
+
+    /** Runs `fn` with `isDevMode()` returning `false`, as in a production build. */
+    function inProduction<T>(fn: () => T): T {
+      // `isDevMode()` reads the `ngDevMode` global; `false` is what a production build sees.
+      const global = globalThis as { ngDevMode?: unknown };
+      const devMode = global.ngDevMode;
+      global.ngDevMode = false;
+      try {
+        return fn();
+      } finally {
+        global.ngDevMode = devMode;
+      }
+    }
+
+    const ids = (s: CipherRowMenuService) => s.getRowActions([], handlers).map((a) => a.id);
+
+    it("leaves the list unchanged without a provider", () => {
+      expect(ids(service)).toEqual([
+        "addFavorite",
+        "removeFavorite",
+        "edit",
+        "attachments",
+        "clone",
+        "addToSharedFolder",
+        "archive",
+        "unarchive",
+        "restore",
+        "delete",
+        "permanentlyDelete",
+      ]);
+    });
+
+    it("puts a contributed action after restore and before delete", () => {
+      const list = ids(serviceWith([contributed("cancelRequest")]));
+
+      expect(list.slice(list.indexOf("restore"), list.indexOf("delete") + 1)).toEqual([
+        "restore",
+        "cancelRequest",
+        "delete",
+      ]);
+    });
+
+    it("hides a contributed action for a cipher that failed to decrypt", () => {
+      const action = serviceWith([contributed("cancelRequest")])
+        .getRowActions([], handlers)
+        .find((a) => a.id === "cancelRequest")!;
+
+      expect(action.show!(makeCipher())).toBe(true);
+      expect(action.show!(makeCipher({ decryptionFailure: true }))).toBe(false);
+    });
+
+    it("passes the row to show and run", () => {
+      const show = jest.fn().mockReturnValue(true);
+      const run = jest.fn();
+      const cipher = makeCipher({ id: "row-id" });
+      const action = serviceWith([contributed("cancelRequest", { show, run })])
+        .getRowActions([], handlers)
+        .find((a) => a.id === "cancelRequest")!;
+
+      expect(action.show!(cipher)).toBe(true);
+      void action.run(cipher);
+
+      expect(show).toHaveBeenCalledWith(cipher);
+      expect(run).toHaveBeenCalledWith(cipher);
+    });
+
+    it("throws in dev mode when an ID matches a built-in action", () => {
+      expect(() => serviceWith([contributed("delete")])).toThrow(/"delete"/);
+    });
+
+    it("throws in dev mode when a contributed ID repeats", () => {
+      expect(() =>
+        serviceWith([contributed("cancelRequest"), contributed("cancelRequest")]),
+      ).toThrow(/"cancelRequest"/);
+    });
+
+    it("drops clashing actions in production", () => {
+      const list = inProduction(() =>
+        serviceWith([
+          contributed("delete", { label: "Clash" }),
+          contributed("cancelRequest", { label: "First" }),
+          contributed("cancelRequest", { label: "Second" }),
+        ]).getRowActions([], handlers),
+      );
+
+      expect(list.filter((a) => a.id === "delete").map((a) => a.label)).toEqual(["delete"]);
+      expect(list.filter((a) => a.id === "cancelRequest").map((a) => a.label)).toEqual(["First"]);
+    });
+  });
+
+  describe("restricted rows", () => {
+    /** Inputs that show each action for an unrestricted cipher. */
+    const cases: [string, Parameters<typeof makeCipher>[0]][] = [
+      ["addFavorite", {}],
+      ["removeFavorite", { favorite: true }],
+      ["edit", {}],
+      ["attachments", {}],
+      ["clone", {}],
+      ["addToSharedFolder", { canAssignToCollections: true }],
+      ["archive", {}],
+      ["unarchive", { isArchived: true }],
+      ["restore", { isDeleted: true }],
+      ["delete", {}],
+      ["permanentlyDelete", { isDeleted: true }],
+    ];
+    const allowed = new Set(["addFavorite", "removeFavorite", "archive", "unarchive"]);
+
+    beforeEach(() => {
+      userCanArchiveSubject.next(true);
+      organizationsSubject.next([{ id: "org-1" } as Organization]);
+    });
+
+    const collections = () => [
+      { id: "collection-1", organizationId: "org-1", readOnly: false } as CollectionView,
+    ];
+
+    it.each(cases)("%s shows for an unrestricted row", (actionId, overrides) => {
+      expect(show(actionId, makeCipher(overrides), collections())).toBe(true);
+    });
+
+    it.each(cases)("%s follows the restricted-cipher policy", (actionId, overrides) => {
+      expect(show(actionId, makeCipher({ ...overrides, partial: true }), collections())).toBe(
+        allowed.has(actionId),
+      );
+    });
+
+    it.each(cases)(
+      "%s shows for a row that is no longer restricted while its reveal is held",
+      (actionId, overrides) => {
+        revealedSubject.next(new Map([["revealed-id" as CipherId, new CipherView()]]));
+
+        expect(show(actionId, makeCipher({ ...overrides, id: "revealed-id" }), collections())).toBe(
+          true,
+        );
+      },
+    );
+
+    it.each(cases)("%s follows the revealed-cipher policy", (actionId, overrides) => {
+      const revealedAllowed = new Set([...allowed, "edit", "attachments"]);
+      revealedSubject.next(new Map([["revealed-id" as CipherId, new CipherView()]]));
+
+      expect(
+        show(
+          actionId,
+          makeCipher({ ...overrides, id: "revealed-id", partial: true }),
+          collections(),
+        ),
+      ).toBe(revealedAllowed.has(actionId));
     });
   });
 });

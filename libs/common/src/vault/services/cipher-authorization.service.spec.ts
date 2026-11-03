@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { Observable, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, Observable, firstValueFrom, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -10,7 +10,8 @@ import { OrganizationService } from "../../admin-console/abstractions/organizati
 import { CollectionView } from "../../admin-console/models/collections";
 import { Organization } from "../../admin-console/models/domain/organization";
 import { Utils } from "../../platform/misc/utils";
-import { UserId } from "../../types/guid";
+import { CipherId, UserId } from "../../types/guid";
+import { RevealedCipherService } from "../abstractions/revealed-cipher.service";
 import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherView } from "../models/view/cipher.view";
 
@@ -26,6 +27,8 @@ describe("CipherAuthorizationService", () => {
   const mockOrganizationService = mock<OrganizationService>();
   const mockUserId = Utils.newGuid() as UserId;
   let mockAccountService: FakeAccountService;
+  let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+  const mockRevealedCipherService = mock<RevealedCipherService>();
 
   // Mock factories
   const createMockCipher = (
@@ -65,10 +68,13 @@ describe("CipherAuthorizationService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAccountService = mockAccountServiceWith(mockUserId);
+    revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
+    mockRevealedCipherService.revealed$.mockReturnValue(revealed$);
     cipherAuthorizationService = new DefaultCipherAuthorizationService(
       mockCollectionService,
       mockOrganizationService,
       mockAccountService,
+      mockRevealedCipherService,
     );
   });
 
@@ -342,6 +348,102 @@ describe("CipherAuthorizationService", () => {
 
         const result = await firstValueFrom(cipherAuthorizationService.canCloneCipher$(cipher));
         expect(result).toBe(false);
+      });
+    });
+  });
+
+  describe("restricted ciphers", () => {
+    const createRestrictedCipher = () => {
+      const permissions = new CipherPermissionsApi();
+      permissions.delete = true;
+      permissions.restore = true;
+      return {
+        ...createMockCipher("org1", ["col1"], true, permissions),
+        partial: true,
+      } as CipherView;
+    };
+
+    beforeEach(() => {
+      const organization = createMockOrganization({
+        canEditAllCiphers: true,
+        canEditUnassignedCiphers: true,
+        isAdmin: true,
+        editAnyCollection: true,
+      });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
+      mockCollectionService.decryptedCollections$.mockReturnValue(
+        of([createMockCollection("col1", true)] as CollectionView[]),
+      );
+    });
+
+    it.each([false, true])(
+      "returns false for edit, delete, restore and clone (isAdminConsoleAction: %s)",
+      async (isAdminConsoleAction) => {
+        const cipher = createRestrictedCipher();
+
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canEditCipher$(cipher, isAdminConsoleAction)),
+        ).resolves.toBe(false);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canDeleteCipher$(cipher, isAdminConsoleAction)),
+        ).resolves.toBe(false);
+        await expect(
+          firstValueFrom(
+            cipherAuthorizationService.canRestoreCipher$(cipher, isAdminConsoleAction),
+          ),
+        ).resolves.toBe(false);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canCloneCipher$(cipher, isAdminConsoleAction)),
+        ).resolves.toBe(false);
+      },
+    );
+
+    describe("while revealed", () => {
+      const cipherId = "revealed-cipher" as CipherId;
+      const revealedView = () =>
+        ({ ...createRestrictedCipher(), id: cipherId, partial: false }) as unknown as CipherView;
+
+      it.each<[string, (view: CipherView) => CipherView]>([
+        [
+          "the stored restricted cipher",
+          () => ({ ...createRestrictedCipher(), id: cipherId }) as unknown as CipherView,
+        ],
+        ["the revealed view", (view) => view],
+      ])("allows edit but not clone, delete or restore for %s", async (_, pick) => {
+        const view = revealedView();
+        revealed$.next(new Map([[cipherId, view]]));
+        const cipher = pick(view);
+
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canEditCipher$(cipher)),
+        ).resolves.toBe(true);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canCloneCipher$(cipher)),
+        ).resolves.toBe(false);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canDeleteCipher$(cipher)),
+        ).resolves.toBe(false);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canRestoreCipher$(cipher)),
+        ).resolves.toBe(false);
+        expect(mockRevealedCipherService.revealed$).toHaveBeenCalledWith(mockUserId);
+      });
+
+      it("applies the normal permissions to a cipher that is no longer restricted", async () => {
+        revealed$.next(new Map([[cipherId, revealedView()]]));
+        const cipher = revealedView();
+
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canEditCipher$(cipher)),
+        ).resolves.toBe(true);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canCloneCipher$(cipher)),
+        ).resolves.toBe(true);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canDeleteCipher$(cipher)),
+        ).resolves.toBe(true);
       });
     });
   });
