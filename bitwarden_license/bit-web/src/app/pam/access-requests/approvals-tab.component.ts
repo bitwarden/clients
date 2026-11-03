@@ -40,6 +40,7 @@ import {
   isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import type { AccessDecisionVerdict, AccessLeaseId } from "../abstractions/access-lease";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
@@ -125,6 +126,7 @@ const STATUS_OPTIONS: ReadonlyArray<{
     SvgComponent,
     TypographyModule,
     I18nPipe,
+    Vfo1I18nPipe,
   ],
   providers: [ApproverActionsService],
 })
