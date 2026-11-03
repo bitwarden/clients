@@ -19,6 +19,7 @@ pub mod password;
 #[allow(missing_docs)]
 pub mod powermonitor;
 pub mod process_isolation;
+pub mod webauthn;
 
 #[cfg(not(target_os = "windows"))]
 use zeroizing_alloc::ZeroAlloc;
