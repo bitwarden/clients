@@ -3,6 +3,7 @@
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -490,9 +491,13 @@ export default class RuntimeBackground {
           });
         }
         break;
-      case "logout":
-        await this.main.logout(msg.logoutReason, msg.userId);
+      case "logout": {
+        const userId =
+          msg.userId ??
+          (await firstValueFrom(getOptionalUserId(this.accountService.activeAccount$)));
+        await this.main.logoutService.logout(userId, msg.logoutReason);
         break;
+      }
       case "syncCompleted":
         if (msg.successfully) {
           setTimeout(async () => {
@@ -562,7 +567,7 @@ export default class RuntimeBackground {
         this.platformUtilsService.copyToClipboard(msg.identifier);
         break;
       case "switchAccount": {
-        await this.main.switchAccount(msg.userId);
+        await this.main.accountSwitchService.switchAccount(msg.userId);
         break;
       }
       case "clearClipboard": {
