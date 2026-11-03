@@ -97,14 +97,16 @@ async function workerTargetIds(session: CDPSession): Promise<Set<string>> {
 }
 
 /**
- * Resolves once the running extension instance shut down, which lock does to wipe it from
- * memory (BrowserProcessReloadService). Call before locking. The next instance starts
- * lazily, e.g. when the popup opens; extension pages opened earlier die with the old one.
+ * Notes the running extension instance, which lock shuts down to wipe it from memory
+ * (BrowserProcessReloadService). Await it before locking, so the instance is captured before
+ * the restart can happen. Await the returned function after locking: it resolves once that
+ * instance is gone. The next instance starts lazily, e.g. when the popup opens; extension
+ * pages opened earlier die with the old one.
  *
  * Asks the browser which workers still exist instead of waiting for the worker's "close"
  * event: Playwright does not reliably deliver it when the extension reloads on CI.
  */
-export async function extensionShutdown(context: BrowserContext): Promise<void> {
+export async function watchShutdown(context: BrowserContext): Promise<() => Promise<void>> {
   const probe = await context.newPage();
 
   try {
@@ -118,18 +120,25 @@ export async function extensionShutdown(context: BrowserContext): Promise<void> 
       running = await workerTargetIds(session);
     }
 
-    while (Date.now() < deadline) {
-      const current = await workerTargetIds(session);
-      if (![...running].some((id) => current.has(id))) {
-        return;
+    return async () => {
+      try {
+        while (Date.now() < deadline) {
+          const current = await workerTargetIds(session);
+          if (![...running].some((id) => current.has(id))) {
+            return;
+          }
+
+          await probe.waitForTimeout(SHUTDOWN_POLL_MS);
+        }
+
+        throw new Error("The extension never shut down.");
+      } finally {
+        await probe.close();
       }
-
-      await probe.waitForTimeout(SHUTDOWN_POLL_MS);
-    }
-
-    throw new Error("The extension never shut down.");
-  } finally {
+    };
+  } catch (error) {
     await probe.close();
+    throw error;
   }
 }
 

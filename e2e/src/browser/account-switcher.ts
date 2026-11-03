@@ -2,7 +2,7 @@ import { BrowserContext, Page } from "@playwright/test";
 
 import { LockScreen } from "../lock-screen";
 
-import { extensionShutdown, popupUrl, reopenPopup } from "./fixtures";
+import { popupUrl, reopenPopup, watchShutdown } from "./fixtures";
 
 // The popup header avatar carries the account as screen-reader text, e.g. "Bitwarden account a@b.c".
 const CURRENT_ACCOUNT = /Bitwarden account/;
@@ -23,9 +23,9 @@ export async function lockNow(popup: Page) {
  */
 export async function lockAndReopen(context: BrowserContext, popup: Page): Promise<Page> {
   const url = await popupUrl(context);
-  const shutdown = extensionShutdown(context);
+  const shutdown = await watchShutdown(context);
   await lockNow(popup);
-  await shutdown;
+  await shutdown();
 
   return reopenPopup(context, url);
 }
@@ -54,11 +54,12 @@ export async function switchAccount(popup: Page, email: string) {
  */
 export async function lockAll(context: BrowserContext, popup: Page): Promise<Page> {
   const url = await popupUrl(context);
+  const shutdown = await watchShutdown(context);
 
   // Armed before the click, so neither event can be missed.
   const restarted = Promise.all([
     popup.waitForEvent("close", { timeout: CLOSE_TIMEOUT_MS }),
-    extensionShutdown(context),
+    shutdown(),
   ]).then(() => Outcome.Restarted);
   const locked = new LockScreen(popup).waitUntilShown().then(() => Outcome.Locked);
 
