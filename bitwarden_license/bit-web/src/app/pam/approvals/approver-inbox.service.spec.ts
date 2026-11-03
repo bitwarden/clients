@@ -380,9 +380,9 @@ describe("ApproverInboxService", () => {
     });
 
     it("cancels an approval via access_requests().cancel()", async () => {
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed");
 
-      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1");
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1", "Scope changed");
     });
 
     it("announces a landed revoke or withdrawal on the refresh signal", async () => {
@@ -390,7 +390,7 @@ describe("ApproverInboxService", () => {
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed");
 
       expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(2);
     });
@@ -398,9 +398,9 @@ describe("ApproverInboxService", () => {
     it("restores the row and rethrows when cancelling an approval fails", async () => {
       requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
 
-      await expect(service.cancelApproval("req-1" as unknown as AccessRequestId)).rejects.toThrow(
-        "boom",
-      );
+      await expect(
+        service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed"),
+      ).rejects.toThrow("boom");
       const history = await firstValueFrom(service.historyRows$);
       expect(history[0].status).toBe("approved");
     });
@@ -410,7 +410,7 @@ describe("ApproverInboxService", () => {
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed");
 
       // `decide` is the only mutation on `ApprovalSdkService`.
       expect(approvalApi.decide).not.toHaveBeenCalled();
