@@ -498,6 +498,7 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
 
       await clickRemove();
 
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
       expect(organizationBillingClient.removePrivilegedControls).not.toHaveBeenCalled();
       expect(toastService.showToast).not.toHaveBeenCalled();
       expect(syncService.fullSync).not.toHaveBeenCalled();

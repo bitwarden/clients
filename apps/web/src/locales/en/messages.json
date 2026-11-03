@@ -7679,15 +7679,15 @@
   },
   "removePrivilegedControls": {
     "message": "Remove Privileged Controls",
-    "description": "'Privileged Controls' is a product name and should not be translated."
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
   },
   "removePrivilegedControlsConfirmation": {
     "message": "Every user in your organization will lose access to Privileged Controls. Are you sure you want to continue?",
-    "description": "'Privileged Controls' is a product name and should not be translated."
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsRemoved": {
     "message": "Privileged Controls removed",
-    "description": "'Privileged Controls' is a product name and should not be translated."
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
   },
   "maximumSeatsCount": {
     "message": "Maximum $COUNT$ seats",
