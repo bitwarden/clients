@@ -291,7 +291,8 @@ export class ApproverInboxService {
 
   /**
    * Withdraws an approval the requester has not started; the server records the cancel as the
-   * approver's decision, with `reason` as its comment. Reloads instead of patching, so the row
+   * approver's decision. `reason` is not sent yet; see
+   * {@link AccessRequestSdkService.cancelAccessRequest}. Reloads instead of patching, so the row
    * names whoever withdrew it.
    */
   async cancelApproval(requestId: AccessRequestId, reason: string): Promise<void> {

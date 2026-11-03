@@ -17,9 +17,9 @@ export abstract class AccessRequestSdkService {
   abstract getAccessRequest(id: AccessRequestId): Promise<AccessRequestView>;
   abstract activateAccessRequest(id: AccessRequestId): Promise<AccessLeaseView>;
   /**
-   * Withdraws a pending or unactivated request. A managing approver must say why, the server
-   * records the note with their decision and shows it to the requester; a requester withdrawing
-   * their own request omits it.
+   * Withdraws a pending or unactivated request. A managing approver must say why; a requester
+   * withdrawing their own request omits it. The SDK cannot carry `reason` yet, so it is not sent
+   * to the server.
    */
   abstract cancelAccessRequest(id: AccessRequestId, reason?: string): Promise<void>;
 
