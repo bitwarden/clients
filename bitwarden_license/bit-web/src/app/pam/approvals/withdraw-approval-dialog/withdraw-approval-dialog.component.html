@@ -2,14 +2,12 @@
   <span bitDialogTitle>{{ "pamInboxWithdrawApproval" | i18n }}</span>
 
   <div bitDialogContent>
-    <pam-request-summary
+    <pam-request-item-card
       data-testid="withdraw-approval-dialog-item"
-      hideDetails
       [cipher]="params.cipher ?? null"
       [itemName]="params.itemName"
       [organizationName]="params.organizationName"
       [collectionName]="params.collectionName"
-      [requesterName]="params.requesterName"
     />
 
     <bit-callout
