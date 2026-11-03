@@ -41,7 +41,7 @@ export class VaultRowAccessIconComponent {
     { initialValue: null as VaultRowAccessStatus | null },
   );
 
-  protected readonly icon = computed<BitwardenIcon | null>(() => {
+  protected readonly icon = computed((): BitwardenIcon | null => {
     switch (this.status()?.kind) {
       case "request":
       case "unavailable":
