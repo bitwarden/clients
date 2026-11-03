@@ -473,7 +473,7 @@ export class CipherViewBannerComponent implements OnInit {
 
   protected readonly automaticForm = this.formBuilder.nonNullable.group({
     durationSeconds: [DEFAULT_REQUEST_ACCESS_DURATION_SECONDS, Validators.required],
-    reason: [""],
+    reason: ["", [Validators.required, nonBlank]],
   });
 
   protected readonly humanForm = this.formBuilder.nonNullable.group({
@@ -890,8 +890,16 @@ export class CipherViewBannerComponent implements OnInit {
     if (cipherId == null || (this.pendingRequest() ?? this.approvedRequest()) == null) {
       return;
     }
-    await this.accessRequestCancelService.cancelOutstandingRequest(String(cipherId));
+    this.cancelling.set(true);
+    try {
+      await this.accessRequestCancelService.cancelOutstandingRequest(String(cipherId));
+    } finally {
+      this.cancelling.set(false);
+    }
   };
+
+  /** Set while a cancel is in flight, so the approved card's sibling buttons lock together. */
+  protected readonly cancelling = signal(false);
 
   /**
    * A denied extension resolves rather than throws, so this branches on the returned status, or an
@@ -997,7 +1005,7 @@ export class CipherViewBannerComponent implements OnInit {
       durationSeconds: Number(durationSeconds),
       start: undefined,
       end: undefined,
-      reason: reason.trim() || undefined,
+      reason: reason.trim(),
     };
   }
 

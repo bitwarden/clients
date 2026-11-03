@@ -21,6 +21,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
@@ -43,6 +44,7 @@ import {
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { isGatedRow } from "../components/vault/vault-row-access/revealed-cipher-ids";
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
@@ -83,6 +85,8 @@ export type VaultTableRow = {
 /** Inputs that decide a row's action affordances. */
 interface RowActionContext {
   currentUriIsBlocked: boolean;
+  /** Ciphers with a live revealed view: restricted, but in use, so their actions are back. */
+  revealedIds: ReadonlySet<string>;
 }
 
 /**
@@ -100,6 +104,7 @@ export class VaultPopupListTableService {
   private readonly cipherService = inject(CipherService);
   private readonly accountService = inject(AccountService);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
+  private readonly revealedCipherService = inject(RevealedCipherService);
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
@@ -166,11 +171,15 @@ export class VaultPopupListTableService {
    * {@link rows$} emitting promptly: the blocklist stream resolves asynchronously, so without a
    * seed the whole list would wait on it before first render.
    */
-  private readonly rowActionContext$: Observable<RowActionContext> =
-    this.vaultPopupAutofillService.currentTabIsOnBlocklist$.pipe(
-      startWith(false),
-      map((currentUriIsBlocked) => ({ currentUriIsBlocked })),
-    );
+  private readonly rowActionContext$: Observable<RowActionContext> = combineLatest([
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$.pipe(startWith(false)),
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+      map((revealed) => new Set<string>([...revealed.keys()].map(String)) as ReadonlySet<string>),
+      startWith(new Set<string>() as ReadonlySet<string>),
+    ),
+  ]).pipe(map(([currentUriIsBlocked, revealedIds]) => ({ currentUriIsBlocked, revealedIds })));
 
   /**
    * The rows to render, in display order. When a search is active the list collapses to a single
@@ -287,12 +296,14 @@ export class VaultPopupListTableService {
   private resolveActions(
     cipher: PopupCipherViewLike,
     section: VaultSection,
-    { currentUriIsBlocked }: RowActionContext,
+    { currentUriIsBlocked, revealedIds }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
+    const gated = isGatedRow(cipher as CipherViewLike, revealedIds);
 
-    // Whether clicking the row autofills: the autofill section fills unless the URI is blocked.
-    const primaryAutofill = isAutofill && !currentUriIsBlocked;
+    // Whether clicking the row autofills: the autofill section fills unless the URI is blocked. A
+    // gated row never fills, since the server withholds its credentials.
+    const primaryAutofill = !gated && isAutofill && !currentUriIsBlocked;
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";
@@ -300,8 +311,8 @@ export class VaultPopupListTableService {
     return {
       primaryAutofill,
       showFillOnHover: primaryAutofill,
-      showLaunch: !isAutofill,
-      showAutofillInMenu: !primaryAutofill,
+      showLaunch: !isAutofill && !gated,
+      showAutofillInMenu: !gated && !primaryAutofill,
       showViewInMenu: primaryAutofill,
       // Name the login's username field in the label when it has one.
       titleKey: login?.username != null ? `${titleBase}WithField` : titleBase,

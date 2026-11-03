@@ -19379,7 +19379,7 @@
     "message": "Ready to use"
   },
   "pamApprovedRequestBannerHint": {
-    "message": "Copy credentials to get started"
+    "message": "Start access to reveal credentials."
   },
   "pamRequestAccessBannerBody": {
     "message": "Credentials are masked until access is granted."
@@ -19392,7 +19392,7 @@
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerHeadingV2": {
-    "message": "You need a Privileged Controls license to use this item",
+    "message": "Privileged Controls license required to use item",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerBody": {
@@ -19504,9 +19504,6 @@
   "requestAccessModalDurationHint": {
     "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
   },
-  "requestAccessModalDetailsHeading": {
-    "message": "Request details"
-  },
   "requestAccessModalStartDate": {
     "message": "Start date"
   },
@@ -19593,9 +19590,6 @@
   },
   "requestAccessModalReasonOptional": {
     "message": "Reason (optional)"
-  },
-  "requestAccessModalReasonOptionalV2": {
-    "message": "Why do you need it?"
   },
   "requestAccessModalReasonPlaceholder": {
     "message": "Why do you need this?"

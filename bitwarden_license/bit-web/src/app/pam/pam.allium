@@ -1804,7 +1804,7 @@ surface CipherViewBanner {
     -- six states. Unlicensed comes first and replaces every other state, an active
     -- lease included (CipherOpenBlockedUnlicensed): it explains the block and offers
     -- nothing. Otherwise: active lease (countdown, extend, end), approved request
-    -- (start only), pending request (withdraw), access ended, or none of those
+    -- (start, withdraw), pending request (withdraw), access ended, or none of those
     -- (request access, which opens RequestAccessModal as a bottom sheet). Also the surface that reveals the
     -- credential in place the moment a lease becomes active, without reopening the
     -- item. See cipher-view-banner.component, bound to the CIPHER_VIEW_BANNER seam;
@@ -1836,13 +1836,13 @@ surface CipherViewBanner {
                                              and request.status = approved
              and request.lease = null
              and HoldsPamSeat(viewer, target_cipher.organization)
-        -- Withdraw, on the pending state only. The approved card offers just Start
-        -- access; the vault row's menu (VaultRowAccessState) and the My requests tab
-        -- still withdraw an approved request, and offer it behind the unlicensed
-        -- block, since giving access back needs no seat.
+        -- Withdraw, on the pending and approved states. Hidden behind the unlicensed
+        -- block here, but the vault row's menu (VaultRowAccessState) and the My
+        -- requests tab still offer it, since giving access back needs no seat.
         MemberCancelsRequest(viewer, request)
             when request.requester = viewer and request.cipher = target_cipher
-             and request.status = pending
+             and (request.status = pending
+                  or (request.status = approved and request.lease = null))
              and HoldsPamSeat(viewer, target_cipher.organization)
         -- Extending and ending the lease are offered here as well, through
         -- extend-lease-dialog.component; ActiveLeasesPage states them once for every

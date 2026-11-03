@@ -71,8 +71,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   holder whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`), withdrawing a seat
   withdraws what the outstanding leases were carrying, so a countdown here would narrate
   access no longer being served. Withdrawing an outstanding request stays reachable from the
-  vault-row menu and the My requests tab, neither of which is licensing-gated; the banner's
-  approved card offers only Start access, and only the pending card offers Cancel request. It is also the
+  vault-row menu and the My requests tab, neither of which is licensing-gated. It is also the
   one state not derived from the access-state read: licensing is per-member, so it comes off
   local membership state via `services/pam-membership.ts` with no round trip, and renders even
   when that read fails. The signal is tri-state, `undefined` until membership lands, so
