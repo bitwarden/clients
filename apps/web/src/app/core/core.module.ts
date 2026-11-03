@@ -612,7 +612,6 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       EncryptService,
       EnvironmentService,
-      PlatformUtilsService,
       WINDOW,
       LogService,
     ],

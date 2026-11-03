@@ -1,11 +1,9 @@
 import { firstValueFrom } from "rxjs";
 
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
-import { ClientType } from "@bitwarden/common/enums";
 import { WEBAUTHN_PRF_OPTIONS } from "@bitwarden/common/key-management/state-definitions";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -17,6 +15,10 @@ import { StateProvider } from "@bitwarden/state";
 
 import { WebAuthnPrfUnlockService } from "./webauthn-prf-unlock.service";
 
+/**
+ * Offers passkey unlock wherever `navigator.credentials` is available. Clients whose
+ * `navigator.credentials` can't use PRF should override {@link isPrfUnlockAvailable}.
+ */
 export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService {
   private navigatorCredentials: CredentialsContainer;
 
@@ -25,7 +27,6 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     private stateProvider: StateProvider,
     private encryptService: EncryptService,
     private environmentService: EnvironmentService,
-    private platformUtilsService: PlatformUtilsService,
     private window: Window,
     private logService: LogService,
   ) {
@@ -36,15 +37,6 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     try {
       // Check if browser supports WebAuthn
       if (!this.navigatorCredentials || !this.navigatorCredentials.get) {
-        return false;
-      }
-
-      // PRF unlock is only supported on Web and Chromium-based browser extensions
-      const clientType = this.platformUtilsService.getClientType();
-      if (clientType === ClientType.Browser && !this.platformUtilsService.isChromium()) {
-        return false;
-      }
-      if (clientType !== ClientType.Web && clientType !== ClientType.Browser) {
         return false;
       }
 

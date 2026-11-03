@@ -169,7 +169,6 @@ import {
 import {
   LockComponentService,
   WebAuthnPrfUnlockService,
-  DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
@@ -222,6 +221,7 @@ import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.s
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
+import { ExtensionWebAuthnPrfUnlockService } from "../../key-management/lock/services/extension-webauthn-prf-unlock.service";
 import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
 import { BrowserSessionTimeoutTypeService } from "../../key-management/session-timeout/services/browser-session-timeout-type.service";
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
@@ -725,15 +725,15 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: WebAuthnPrfUnlockService,
-    useClass: DefaultWebAuthnPrfUnlockService,
+    useClass: ExtensionWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
       StateProvider,
       EncryptService,
       EnvironmentService,
-      PlatformUtilsService,
       WINDOW,
       LogService,
+      PlatformUtilsService,
     ],
   }),
   safeProvider({
