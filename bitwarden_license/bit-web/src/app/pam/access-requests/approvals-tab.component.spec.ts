@@ -444,15 +444,11 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-revoke-req-1"]')).toBeNull();
     });
 
-    it("offers only withdraw approval on an approved request not yet started", () => {
+    it("offers no action on an approved request not yet started", () => {
       inbox.approverRows$.next([ready()]);
 
       create();
 
-      const withdraw = query('[data-testid="approvals-withdraw-req-1"]');
-      expect(withdraw?.getAttribute("aria-label")).toBe("pamInboxWithdrawApproval");
-      expect(withdraw?.querySelector(".bwi-undo")).not.toBeNull();
-      expect(withdraw?.className).toContain("tw-bg-bg-danger");
       expect(query('[data-testid="approvals-revoke-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-approve-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-deny-req-1"]')).toBeNull();
@@ -468,7 +464,6 @@ describe("ApprovalsTabComponent", () => {
       // The glyph has to track the label, or the row reads as one action and renders another.
       expect(revoke?.querySelector(".bwi-subtract-circle")).not.toBeNull();
       expect(revoke?.className).toContain("tw-bg-bg-danger");
-      expect(query('[data-testid="approvals-withdraw-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-approve-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-deny-req-1"]')).toBeNull();
     });
@@ -536,21 +531,6 @@ describe("ApprovalsTabComponent", () => {
       await settle();
 
       expect(inbox.decide).not.toHaveBeenCalled();
-    });
-
-    it("withdraws an approval not yet started, once confirmed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-      inbox.approverRows$.next([ready()]);
-      create();
-
-      query('[data-testid="approvals-withdraw-req-1"]')?.click();
-      await settle();
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({ title: { key: "pamInboxWithdrawApproval" } }),
-      );
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("req-1");
-      expect(inbox.revokeLease).not.toHaveBeenCalled();
     });
 
     it("ends a running lease, once confirmed", async () => {
