@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import {
   MacOS_MultipleFolders,
@@ -19,7 +20,7 @@ describe("Password Depot 17 MacOS Xml Importer", () => {
   });
 
   it("should return error with invalid export version", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(MacOS_WrongVersion);
     expect(result.errorMessage).toBe(
       "Unsupported export version detected - (only 17.0 is supported)",
@@ -27,14 +28,14 @@ describe("Password Depot 17 MacOS Xml Importer", () => {
   });
 
   it("should not create a folder/collection if the group fingerprint is null", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(MacOS_PasswordDepotXmlFile);
     expect(result.folders.length).toBe(0);
   });
 
   describe("should create folders with correct assignments", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new PasswordDepot17XmlImporter(configService);
+      const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
       const result = await importer.parse(MacOS_MultipleFolders);
 
       // Expect 10 ciphers, 5 without a folder, 3 within 'folder macos', and 2 within 'folder 2'
@@ -56,7 +57,7 @@ describe("Password Depot 17 MacOS Xml Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new PasswordDepot17XmlImporter(configService);
+      const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
       const result = await importer.parse(MacOS_MultipleFolders);
 
       // Expect 11 ciphers, 6 without a folder, 3 within 'folder macos', and 2 within 'folder 2'
@@ -78,7 +79,7 @@ describe("Password Depot 17 MacOS Xml Importer", () => {
   });
 
   it("should parse custom fields from a MacOS exported file", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(MacOS_PasswordDepotXmlFile);
 
     expect(result.ciphers.length).toEqual(1);

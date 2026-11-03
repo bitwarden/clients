@@ -6,7 +6,6 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   FieldType,
@@ -26,8 +25,7 @@ import { ImportResult } from "../models/import-result";
 export abstract class BaseImporter {
   organizationId: OrganizationId = null;
 
-  // FIXME: This should be replaced by injecting the log service.
-  protected logService: LogService = new ConsoleLogService(false);
+  constructor(protected logService: LogService) {}
 
   protected newLineRegex = /(?:\r\n|\r|\n)/;
 

@@ -1,3 +1,7 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
 import { ButtercupCsvImporter } from "./buttercup-csv-importer";
 import {
   buttercupCsvTestData,
@@ -11,7 +15,7 @@ describe("Buttercup CSV Importer", () => {
   let importer: ButtercupCsvImporter;
 
   beforeEach(() => {
-    importer = new ButtercupCsvImporter();
+    importer = new ButtercupCsvImporter(mock<LogService>());
   });
 
   describe("given basic login data", () => {

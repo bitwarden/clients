@@ -3,6 +3,7 @@ import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
@@ -81,6 +82,7 @@ describe("UpgradeBitwardenPasswordProtectedImporter", () => {
       keyGenerationService,
       accountService,
       promptForPassword_callback,
+      mock<LogService>(),
     );
   });
 
@@ -124,6 +126,7 @@ describe("UpgradeBitwardenPasswordProtectedImporter", () => {
         keyGenerationService,
         accountService,
         promptForPassword_callback,
+        mock<LogService>(),
       );
     });
 

@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BankAccountType, CipherType } from "@bitwarden/common/vault/enums";
@@ -19,7 +20,7 @@ describe("Keeper CSV Importer", () => {
   const configService = mock<ConfigService>();
 
   beforeEach(() => {
-    importer = new KeeperCsvImporter(configService);
+    importer = new KeeperCsvImporter(configService, mock<LogService>());
 
     // By default, disable all feature flags
     configService.getFeatureFlag.mockResolvedValue(false);

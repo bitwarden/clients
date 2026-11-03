@@ -7,6 +7,7 @@ import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/sa
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -45,6 +46,7 @@ export const ImportUpgradeProviders: SafeProvider[] = [
       RestrictedItemTypesService,
       ConfigService,
       SdkService,
+      LogService,
     ],
   }),
 ];

@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -51,7 +54,7 @@ function expectCreditCard(cipher: CipherView) {
 describe("1Password windows CSV Importer", () => {
   let importer: OnePasswordWinCsvImporter;
   beforeEach(() => {
-    importer = new OnePasswordWinCsvImporter();
+    importer = new OnePasswordWinCsvImporter(mock<LogService>());
   });
 
   it("should parse identity records", async () => {

@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
@@ -20,7 +23,7 @@ function validateCustomField(fields: FieldView[], fieldName: string, expectedVal
 
 describe("Enpass JSON Importer", () => {
   it("should create folders/ nested folder and assignment", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(folders);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);
@@ -39,7 +42,7 @@ describe("Enpass JSON Importer", () => {
   });
 
   it("should parse login items", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(login);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);
@@ -66,7 +69,7 @@ describe("Enpass JSON Importer", () => {
   });
 
   it("should parse login items with Android Autofill information", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(loginAndroidUrl);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);
@@ -84,7 +87,7 @@ describe("Enpass JSON Importer", () => {
   });
 
   it("should parse credit card items", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(creditCard);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);
@@ -128,7 +131,7 @@ describe("Enpass JSON Importer", () => {
     // span two occurrences — linear time regardless of repetition count.
     // 13 chars × 76 reps = 988 chars, stays under fixUri()'s 1000-char truncation.
     const adversarialUrl = "androidapp://".repeat(76);
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const item: EnpassItem = {
       archived: 0,
       auto_submit: 1,
@@ -165,7 +168,7 @@ describe("Enpass JSON Importer", () => {
   });
 
   it("should parse notes", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(note);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);

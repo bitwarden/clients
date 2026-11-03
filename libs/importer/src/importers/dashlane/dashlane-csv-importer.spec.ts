@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { DashlaneCsvImporter } from "..";
@@ -28,7 +29,7 @@ describe("Dashlane CSV Importer", () => {
 
   beforeEach(() => {
     configService.getFeatureFlag.mockResolvedValue(false);
-    importer = new DashlaneCsvImporter(configService);
+    importer = new DashlaneCsvImporter(configService, mock<LogService>());
   });
 
   it("should parse login records", async () => {

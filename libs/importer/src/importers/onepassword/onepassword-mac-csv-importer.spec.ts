@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -41,7 +44,7 @@ function expectCreditCard(cipher: CipherView) {
 
 describe("1Password mac CSV Importer", () => {
   it("should parse identity records", async () => {
-    const importer = new OnePasswordMacCsvImporter();
+    const importer = new OnePasswordMacCsvImporter(mock<LogService>());
     const result = await importer.parse(identityData);
 
     expect(result).not.toBeNull();
@@ -52,7 +55,7 @@ describe("1Password mac CSV Importer", () => {
   });
 
   it("should parse credit card records", async () => {
-    const importer = new OnePasswordMacCsvImporter();
+    const importer = new OnePasswordMacCsvImporter(mock<LogService>());
     const result = await importer.parse(creditCardData);
 
     expect(result).not.toBeNull();
@@ -63,7 +66,7 @@ describe("1Password mac CSV Importer", () => {
   });
 
   it("should parse csv's with multiple record type", async () => {
-    const importer = new OnePasswordMacCsvImporter();
+    const importer = new OnePasswordMacCsvImporter(mock<LogService>());
     const result = await importer.parse(multiTypeData);
 
     expect(result).not.toBeNull();

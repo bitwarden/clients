@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType, FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -24,8 +25,11 @@ import { PasswordDepotItemType, PasswordDepotCustomFieldType } from "./types";
  * It provides methods to parse the XML data, extract relevant information, and create cipher objects
  */
 export class PasswordDepot17XmlImporter extends BaseImporter implements Importer {
-  constructor(private configService: ConfigService) {
-    super();
+  constructor(
+    private configService: ConfigService,
+    logService: LogService,
+  ) {
+    super(logService);
   }
 
   result = new ImportResult();

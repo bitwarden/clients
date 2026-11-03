@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -71,7 +72,7 @@ describe("1Password 1Pux Importer", () => {
   // silently dropped, contradicting the help-center docs that state every 1pux
   // entry is imported. They now land in Bitwarden with the archive flag set.
   it("should import items with state 'archived' as archived ciphers", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     // Deep clone to avoid mutating the shared LoginData fixture across tests.
     const archivedLoginData = JSON.parse(JSON.stringify(LoginData));
     archivedLoginData["accounts"][0]["vaults"][0]["items"][0]["state"] = "archived";
@@ -88,7 +89,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should leave active items unarchived (regression guard)", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     // Sanity check: the default LoginData fixture has state=active and must
     // still import without an archive flag after the #20694 fix.
     const result = await importer.parse(LoginDataJson);
@@ -100,7 +101,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse login data", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, LoginDataJson);
 
     expect(result.ciphers.length).toEqual(1);
@@ -124,7 +125,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse notes", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, OnePuxExampleFileJson);
 
     expect(result.ciphers.length).toEqual(1);
@@ -133,7 +134,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should set favourite if favIndex equals 1", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, OnePuxExampleFileJson);
 
     expect(result.ciphers.length).toEqual(1);
@@ -142,7 +143,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should handle custom boolean fields", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, LoginDataJson);
 
     const ciphers = result.ciphers;
@@ -159,7 +160,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should add fields of type email as custom fields", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const EmailFieldDataJson = JSON.stringify(EmailFieldData);
     const result = await expectSuccessfulParse(importer, EmailFieldDataJson);
 
@@ -177,7 +178,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it('should create concealed field as "hidden" type', async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, OnePuxExampleFileJson);
 
     const ciphers = result.ciphers;
@@ -194,7 +195,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create password history", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, OnePuxExampleFileJson);
     expect(result.ciphers.length).toEqual(1);
     const cipher = result.ciphers[0];
@@ -206,7 +207,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create credit card records", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, CreditCardDataJson);
 
     expect(result.ciphers.length).toEqual(1);
@@ -242,7 +243,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create identity records", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, IdentityDataJson);
 
     expect(result.ciphers.length).toEqual(1);
@@ -286,7 +287,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("emails fields on identity types should be added to the identity email field", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const EmailFieldOnIdentityDataJson = JSON.stringify(EmailFieldOnIdentityData);
     const result = await expectSuccessfulParse(importer, EmailFieldOnIdentityDataJson);
 
@@ -303,7 +304,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("emails fields on identity types should be added to custom fields if identity.email has been filled", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const EmailFieldOnIdentityPrefilledDataJson = JSON.stringify(EmailFieldOnIdentityPrefilledData);
     const result = await expectSuccessfulParse(importer, EmailFieldOnIdentityPrefilledDataJson);
 
@@ -324,7 +325,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 005 - Password (Legacy)", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(PasswordData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -339,7 +340,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 100 - SoftwareLicense", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(SoftwareLicenseData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -368,7 +369,7 @@ describe("1Password 1Pux Importer", () => {
 
   describe("should parse category 101 - BankAccount", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new OnePassword1PuxImporter(configService);
+      const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
       const jsonString = JSON.stringify(BankAccountData);
       const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -395,7 +396,7 @@ describe("1Password 1Pux Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new OnePassword1PuxImporter(configService);
+      const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
       const jsonString = JSON.stringify(BankAccountData);
       const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -420,7 +421,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 102 - Database", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(DatabaseData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -448,7 +449,7 @@ describe("1Password 1Pux Importer", () => {
 
   describe("should parse category 103 - Drivers license", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new OnePassword1PuxImporter(configService);
+      const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
       const jsonString = JSON.stringify(DriversLicenseData);
       const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -480,7 +481,7 @@ describe("1Password 1Pux Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new OnePassword1PuxImporter(configService);
+      const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
       const jsonString = JSON.stringify(DriversLicenseData);
       const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -511,7 +512,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 104 - Outdoor License", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(OutdoorLicenseData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -539,7 +540,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 105 - Membership", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(MembershipData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -567,7 +568,7 @@ describe("1Password 1Pux Importer", () => {
 
   describe("should parse category 106 - Passport", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new OnePassword1PuxImporter(configService);
+      const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
       const jsonString = JSON.stringify(PassportData);
       const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -597,7 +598,7 @@ describe("1Password 1Pux Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new OnePassword1PuxImporter(configService);
+      const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
       const jsonString = JSON.stringify(PassportData);
       const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -625,7 +626,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 107 - RewardsProgram", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(RewardsProgramData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -653,7 +654,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 108 - SSN", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(SSNData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -669,7 +670,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 109 - WirelessRouter", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(WirelessRouterData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -693,7 +694,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 110 - Server", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(ServerData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -720,7 +721,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 111 - EmailAccount", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(EmailAccountData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -755,7 +756,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 112 - API Credentials", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(APICredentialsData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -779,7 +780,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create secure notes", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, SecureNoteDataJson);
 
     expect(result.ciphers.length).toEqual(1);
@@ -793,7 +794,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should parse category 113 - Medical Record", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(MedicalRecordData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -827,7 +828,7 @@ describe("1Password 1Pux Importer", () => {
 
     jest.spyOn(sdkInternal, "import_ssh_key").mockReturnValue(mockConvertedKey);
 
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const jsonString = JSON.stringify(SSH_KeyData);
     const result = await expectSuccessfulParse(importer, jsonString);
 
@@ -857,7 +858,7 @@ describe("1Password 1Pux Importer", () => {
       throw parseError;
     });
 
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await importer.parse(JSON.stringify(SSH_KeyData));
 
     // The import still succeeds instead of throwing.
@@ -904,7 +905,7 @@ describe("1Password 1Pux Importer", () => {
       ],
     };
 
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await importer.parse(JSON.stringify(data));
 
     expect(result.success).toBe(true);
@@ -947,7 +948,7 @@ describe("1Password 1Pux Importer", () => {
       overview: { title: "My Login", url: "" },
     });
 
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await importer.parse(JSON.stringify(exportData));
 
     // The SSH key is skipped; only the login imports.
@@ -958,7 +959,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create folders", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     const result = await expectSuccessfulParse(importer, SanitizedExportJson);
 
     const folders = result.folders;
@@ -978,7 +979,7 @@ describe("1Password 1Pux Importer", () => {
   });
 
   it("should create collections if part of an organization", async () => {
-    const importer = new OnePassword1PuxImporter(configService);
+    const importer = new OnePassword1PuxImporter(configService, mock<LogService>());
     importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await expectSuccessfulParse(importer, SanitizedExportJson);
 

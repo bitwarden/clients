@@ -7,6 +7,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -45,6 +46,7 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     cipherService: CipherService;
     keyGenerationService: KeyGenerationService;
     accountService: AccountService;
+    logService: LogService;
   };
 
   constructor(
@@ -60,6 +62,7 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     restrictedItemTypesService: RestrictedItemTypesService,
     configService: ConfigService,
     sdkService: SdkService,
+    logService: LogService,
   ) {
     super(
       cipherService,
@@ -74,6 +77,7 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
       restrictedItemTypesService,
       configService,
       sdkService,
+      logService,
     );
     this.bitwardenImporterDeps = {
       keyService,
@@ -82,6 +86,7 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
       cipherService,
       keyGenerationService,
       accountService,
+      logService,
     };
   }
 
@@ -114,6 +119,7 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
       deps.keyGenerationService,
       deps.accountService,
       promptForPassword_callback,
+      deps.logService,
     );
     importer.organizationId = organizationId;
     return importer;

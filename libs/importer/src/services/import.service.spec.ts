@@ -16,6 +16,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -55,6 +56,7 @@ describe("ImportService", () => {
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -69,6 +71,7 @@ describe("ImportService", () => {
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
     configService = mock<ConfigService>();
     sdkService = mock<SdkService>();
+    logService = mock<LogService>();
 
     importService = new ImportService(
       cipherService,
@@ -83,6 +86,7 @@ describe("ImportService", () => {
       restrictedItemTypesService,
       configService,
       sdkService,
+      logService,
     );
 
     // Feature flags are only used by certain specific importers, not the base

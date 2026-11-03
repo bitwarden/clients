@@ -5,6 +5,7 @@ import {
   CollectionWithIdExport,
   FolderWithIdExport,
 } from "@bitwarden/common/models/export";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   BitwardenJsonExport,
   BitwardenUnEncryptedIndividualJsonExport,
@@ -19,8 +20,8 @@ import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
 export class BitwardenJsonImporter extends BaseImporter implements Importer {
-  protected constructor() {
-    super();
+  protected constructor(logService: LogService) {
+    super(logService);
   }
 
   async parse(data: string): Promise<ImportResult> {

@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
@@ -51,7 +54,7 @@ describe("PasswordXPCsvImporter", () => {
   let importer: PasswordXPCsvImporter;
 
   beforeEach(() => {
-    importer = new PasswordXPCsvImporter();
+    importer = new PasswordXPCsvImporter(mock<LogService>());
     // Importers currently create their own ConsoleLogService. This should be replaced by injecting a test log service.
     jest.spyOn(console, "warn").mockImplementation();
   });
