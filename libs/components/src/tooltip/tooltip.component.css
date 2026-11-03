@@ -1,5 +1,5 @@
 :root {
-  --tooltip-shadow: rgb(0 0 0 / 0.1);
+  --tooltip-shadow: rgba(var(--color-gray-800-rgb), 0.1);
 }
 
 .cdk-overlay-pane:has(.bit-tooltip[data-visible="false"]) {
