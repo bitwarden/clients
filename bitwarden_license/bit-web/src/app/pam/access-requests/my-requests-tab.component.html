@@ -59,7 +59,10 @@
     <bit-table-toolbar>
       <bit-search
         class="tw-flex-1"
-        [placeholder]="'pamAccessRequestsSearchPlaceholder' | i18n"
+        [placeholder]="
+          'pamAccessRequestsSearchPlaceholder'
+            | vfo1I18n: 'pamAccessRequestsSearchPlaceholderSharedFolder'
+        "
         [formControl]="searchControl"
       ></bit-search>
       <bit-filter-menu
@@ -121,7 +124,7 @@
         />
         @if (row.collectionName) {
           <span slot="secondary" class="tw-truncate">{{
-            "pamInboxInCollection" | i18n: row.collectionName
+            "pamInboxInCollection" | vfo1I18n: "pamInboxInSharedFolder" : row.collectionName
           }}</span>
         }
         @if (row.lease?.extendedUntil ? row.lease : null; as lease) {

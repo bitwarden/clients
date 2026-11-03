@@ -37,11 +37,11 @@
         <div class="tw-flex tw-flex-col">
           @if (leaseEndingSoon()) {
             <h3 bitTypography="h5" noMargin data-testid="active-lease-ending-soon">
-              {{ "pamActiveLeaseBannerEndingSoonTitle" | i18n: leaseRemainingLabel() }}
+              {{ "pamActiveLeaseBannerEndingSoonRemainingTitle" | i18n: leaseRemainingLabel() }}
             </h3>
           } @else {
             <h3 bitTypography="h5" noMargin data-testid="active-lease-countdown">
-              {{ "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel() }}
+              {{ "pamActiveLeaseBannerRemainingTitle" | i18n: leaseRemainingLabel() }}
             </h3>
           }
           <span

@@ -45,6 +45,7 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { AccessLeaseId, AccessRequestId, activateAccessErrorMessageKey } from "..";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
@@ -120,6 +121,7 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
     TypographyModule,
     I18nPipe,
     DurationCompoundPipe,
+    Vfo1I18nPipe,
     DurationShortPipe,
     RequestedWindowPipe,
   ],

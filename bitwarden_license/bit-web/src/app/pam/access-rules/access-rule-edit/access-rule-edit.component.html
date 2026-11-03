@@ -79,7 +79,9 @@
           </bit-form-field>
 
           <bit-form-field disableMargin>
-            <bit-label>{{ "pamAccessRuleSharedFoldersSelect" | i18n }}</bit-label>
+            <bit-label>{{
+              "pamAccessRuleCollectionsSelect" | vfo1I18n: "pamAccessRuleSharedFoldersSelect"
+            }}</bit-label>
             <bit-multi-select
               class="tw-w-full"
               formControlName="collections"
@@ -87,7 +89,9 @@
               [removeSelectedItems]="false"
               [loading]="collectionsLoading()"
             />
-            <bit-hint>{{ "pamAccessRuleSharedFoldersHint" | i18n }}</bit-hint>
+            <bit-hint>{{
+              "pamAccessRuleCollectionsHint" | vfo1I18n: "pamAccessRuleSharedFoldersHint"
+            }}</bit-hint>
           </bit-form-field>
         </bit-card>
       </bit-section>
@@ -122,7 +126,7 @@
               formControlName="defaultLeaseDurationSeconds"
             >
               @for (opt of durationOptions; track opt.seconds) {
-                <bit-option [value]="opt.seconds" [label]="opt.seconds | durationLong" />
+                <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
             <bit-hint>{{ "pamAccessRuleDefaultDurationHint" | i18n }}</bit-hint>
@@ -139,7 +143,7 @@
                 [label]="'pamAccessRuleMaxDurationNoCap' | i18n"
               />
               @for (opt of durationOptions; track opt.seconds) {
-                <bit-option [value]="opt.seconds" [label]="opt.seconds | durationLong" />
+                <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
             @if (formGroup.controls.maxLeaseDurationSeconds.value !== noDurationCap) {
@@ -166,7 +170,7 @@
                 formControlName="maxExtensionDurationSeconds"
               >
                 @for (opt of extensionDurationOptions; track opt.seconds) {
-                  <bit-option [value]="opt.seconds" [label]="opt.seconds | durationLong" />
+                  <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
                 }
               </bit-select>
               <bit-hint>{{ "pamAccessRuleMaxExtensionLengthHint" | i18n }}</bit-hint>
@@ -191,7 +195,10 @@
             @if (formGroup.controls.humanApprovalEnabled.value) {
               <bit-hint
                 >{{ "pamAccessRuleApprovers" | i18n }}:
-                {{ "pamAccessRuleApproversSharedFolderManagers" | i18n }}</bit-hint
+                {{
+                  "pamAccessRuleApproversCollectionManagers"
+                    | vfo1I18n: "pamAccessRuleApproversSharedFolderManagers"
+                }}</bit-hint
               >
             }
           </bit-form-control>

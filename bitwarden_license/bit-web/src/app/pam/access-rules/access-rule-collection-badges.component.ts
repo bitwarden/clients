@@ -7,6 +7,10 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { BadgeModule } from "@bitwarden/components";
 import type { CollectionId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
+
+import { resolveCollectionNames } from "..";
+import { sharedFolderKey } from "../helpers/shared-folder-key";
 
 /**
  * One count badge for a rule's collections, with their names as its tooltip so the column stays
@@ -15,7 +19,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "pam-access-rule-collection-badges",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeModule, I18nPipe],
+  imports: [BadgeModule, I18nPipe, Vfo1IconPipe],
   template: `
     @if (names().length === 0) {
       <span class="tw-text-muted">{{ "pamAccessRuleCollectionsNone" | i18n }}</span>
@@ -23,7 +27,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
       <span
         bitBadge
         variant="primary"
-        startIcon="bwi-shared-folder"
+        [startIcon]="'bwi-collection-shared' | vfo1Icon"
         tabindex="0"
         [bitTooltip]="tooltip()"
         [addTooltipToDescribedby]="true"
@@ -37,6 +41,7 @@ export class AccessRuleCollectionBadgesComponent {
   readonly collections = input.required<CollectionAdminView[]>();
 
   private readonly i18nService = inject(I18nService);
+  private readonly terminology = inject(Vfo1TerminologyService);
 
   protected readonly names = computed(() =>
     resolveCollectionNames(this.collectionIds().map(uuidAsString), this.collections()),
@@ -44,9 +49,10 @@ export class AccessRuleCollectionBadgesComponent {
 
   protected readonly label = computed(() => {
     const count = this.names().length;
+    const enabled = this.terminology.enabled();
     return count === 1
-      ? this.i18nService.t("pamAccessRuleSharedFolderCountSingular")
-      : this.i18nService.t("pamAccessRuleSharedFolderCount", count);
+      ? this.i18nService.t(sharedFolderKey("pamAccessRuleCollectionCountSingular", enabled))
+      : this.i18nService.t(sharedFolderKey("pamAccessRuleCollectionCount", enabled), count);
   });
 
   protected readonly tooltip = computed(() => this.names().join(", "));
