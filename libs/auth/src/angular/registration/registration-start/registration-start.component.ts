@@ -6,6 +6,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
+import { ServerSelectorComponent } from "@bitwarden/angular/auth/server-selector";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
@@ -30,7 +31,6 @@ import {
 } from "@bitwarden/components";
 
 import { LoginEmailService } from "../../../common";
-import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -61,7 +61,7 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
     ButtonModule,
     LinkModule,
     SvgModule,
-    RegistrationEnvSelectorComponent,
+    ServerSelectorComponent,
   ],
 })
 export class RegistrationStartComponent implements OnInit, OnDestroy {

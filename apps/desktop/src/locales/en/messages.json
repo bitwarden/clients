@@ -4240,6 +4240,9 @@
   "creatingAccountOn": {
     "message": "Creating account on"
   },
+  "loggingInOn": {
+    "message": "Logging in on"
+  },
   "checkYourEmail": {
     "message": "Check your email"
   },

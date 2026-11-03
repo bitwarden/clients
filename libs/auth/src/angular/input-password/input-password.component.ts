@@ -13,6 +13,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
+import { ServerSelectorComponent } from "@bitwarden/angular/auth/server-selector";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   PasswordStrengthScore,
@@ -123,6 +124,7 @@ interface InputPasswordForm {
     PasswordStrengthV2Component,
     ReactiveFormsModule,
     LinkModule,
+    ServerSelectorComponent,
   ],
 })
 export class InputPasswordComponent implements OnInit {

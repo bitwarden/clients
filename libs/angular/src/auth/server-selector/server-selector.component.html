@@ -1,0 +1,60 @@
+@if (!hidden) {
+  <div bitTypography="helper" class="tw-flex tw-items-center tw-gap-1">
+    {{ label() ?? ("loggingInOn" | i18n) }}:
+    @if (readonly()) {
+      <span id="server-selector_text_domain" class="tw-font-semibold">
+        {{ selectedRegion()?.domain ?? ("selfHostedServer" | i18n) }}
+      </span>
+    } @else {
+      <button
+        id="server-selector_button_trigger"
+        type="button"
+        bitLink
+        #trigger="menuTrigger"
+        [bitMenuTriggerFor]="serverMenu"
+        [endIcon]="trigger.isOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"
+      >
+        {{ selectedRegion()?.domain ?? ("selfHostedServer" | i18n) }}
+      </button>
+    }
+  </div>
+
+  <bit-menu #serverMenu>
+    @for (region of availableRegions(); track region.key) {
+      <button
+        [id]="'server-selector_button_region-' + region.key"
+        type="button"
+        bitMenuItem
+        [attr.aria-pressed]="selectedRegion()?.key === region.key"
+        (click)="selectRegion(region)"
+      >
+        <bit-icon
+          slot="start"
+          name="bwi-check"
+          fixedWidth
+          class="tw-text-xs"
+          [class.tw-invisible]="selectedRegion()?.key !== region.key"
+        ></bit-icon>
+        {{ region.domain }}
+      </button>
+    }
+    @if (selfHostedAvailable) {
+      <button
+        id="server-selector_button_self-hosted"
+        type="button"
+        bitMenuItem
+        [attr.aria-pressed]="!selectedRegion()"
+        (click)="selectSelfHosted()"
+      >
+        <bit-icon
+          slot="start"
+          name="bwi-check"
+          fixedWidth
+          class="tw-text-xs"
+          [class.tw-invisible]="!!selectedRegion()"
+        ></bit-icon>
+        {{ "selfHostedServer" | i18n }}
+      </button>
+    }
+  </bit-menu>
+}

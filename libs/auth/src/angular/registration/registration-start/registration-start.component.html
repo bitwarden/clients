@@ -1,10 +1,6 @@
 <ng-container *ngIf="state === RegistrationStartState.USER_DATA_ENTRY">
   <form [formGroup]="formGroup" [bitSubmit]="submit">
-    <auth-registration-env-selector
-      (selectedRegionChange)="handleSelectedRegionChange($event)"
-    ></auth-registration-env-selector>
-
-    <bit-form-field>
+    <bit-form-field disableMargin>
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
       <input
         id="register-start_form_input_email"
@@ -14,6 +10,12 @@
         [attr.readonly]="emailReadonly ? true : null"
       />
     </bit-form-field>
+
+    <auth-server-selector
+      class="tw-mt-2 tw-mb-4"
+      [label]="'creatingAccountOn' | i18n"
+      (selectedRegionChange)="handleSelectedRegionChange($event)"
+    ></auth-server-selector>
 
     <bit-form-field>
       <bit-label>{{ "name" | i18n }}</bit-label>
