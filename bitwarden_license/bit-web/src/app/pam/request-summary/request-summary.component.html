@@ -24,9 +24,9 @@
       @if (collectionName(); as collection) {
         <span class="tw-flex tw-items-center tw-gap-2">
           <bit-icon
-            name="bwi-collection"
+            [name]="'bwi-collection' | vfo1Icon"
             class="tw-text-muted"
-            [ariaLabel]="'collection' | i18n"
+            [ariaLabel]="'collection' | vfo1I18n: 'sharedFolder'"
             [fixedWidth]="true"
           ></bit-icon>
           {{ collection }}
@@ -36,39 +36,35 @@
   }
 </bit-card>
 
-@if (!hideDetails()) {
-  <h2 bitTypography="h6" class="tw-mb-2">{{ "pamAccessRequestDetailsTitle" | i18n }}</h2>
+<h2 bitTypography="h6" class="tw-mb-2">{{ "pamAccessRequestDetailsTitle" | i18n }}</h2>
 
-  <bit-card class="tw-mb-4" data-testid="request-summary-details">
-    <div class="tw-flex tw-flex-col tw-gap-4">
-      <pam-summary-field [label]="'pamInboxRequester' | i18n">
-        {{ requesterName() }}
-        @if (secondaryEmail(); as email) {
-          <span class="tw-text-fg-body-subtle">&lt;{{ email }}&gt;</span>
-        }
-      </pam-summary-field>
+<bit-card class="tw-mb-4" data-testid="request-summary-details">
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <pam-summary-field [label]="'pamInboxRequester' | i18n">
+      {{ requesterName() }}
+      @if (secondaryEmail(); as email) {
+        <span class="tw-text-fg-body-subtle">&lt;{{ email }}&gt;</span>
+      }
+    </pam-summary-field>
 
-      <pam-summary-field [label]="'pamAccessRequestedLabel' | i18n">
-        <span id="pam-request-summary_value_access-requested" [title]="exactWindow()">{{
-          accessRequested()
+    <pam-summary-field [label]="'pamAccessRequestedLabel' | i18n">
+      <span id="pam-request-summary_value_access-requested" [title]="exactWindow()">{{
+        accessRequested()
+      }}</span>
+    </pam-summary-field>
+
+    <pam-summary-field [label]="'pamInboxRequestReasonLabel' | i18n">
+      @if (quotedReason()) {
+        <span id="pam-request-summary_value_reason" class="tw-whitespace-pre-wrap tw-break-words">{{
+          quotedReason()
         }}</span>
-      </pam-summary-field>
+      } @else {
+        <span id="pam-request-summary_value_reason" class="tw-text-muted">{{
+          "pamInboxReasonMissing" | i18n
+        }}</span>
+      }
+    </pam-summary-field>
 
-      <pam-summary-field [label]="'pamInboxRequestReasonLabel' | i18n">
-        @if (quotedReason()) {
-          <span
-            id="pam-request-summary_value_reason"
-            class="tw-whitespace-pre-wrap tw-break-words"
-            >{{ quotedReason() }}</span
-          >
-        } @else {
-          <span id="pam-request-summary_value_reason" class="tw-text-muted">{{
-            "pamInboxReasonMissing" | i18n
-          }}</span>
-        }
-      </pam-summary-field>
-
-      <ng-content></ng-content>
-    </div>
-  </bit-card>
-}
+    <ng-content></ng-content>
+  </div>
+</bit-card>

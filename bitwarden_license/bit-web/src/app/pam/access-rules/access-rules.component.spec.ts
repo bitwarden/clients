@@ -9,6 +9,7 @@ import { AccessRuleSdkService, AccessRuleView } from "@bitwarden/bit-pam";
 import { accessRuleDeactivateConfirmOptions } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BitTableV2Component,
@@ -115,6 +116,7 @@ const setup = async (
   TestBed.configureTestingModule({
     imports: [AccessRulesComponent],
     providers: [
+      { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       provideRouter([]),
       { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
       {
@@ -578,6 +580,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
         {
@@ -715,6 +718,7 @@ describe("AccessRulesComponent — table", () => {
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
         {
@@ -922,6 +926,7 @@ describe("AccessRulesComponent — toolbar", () => {
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
         {

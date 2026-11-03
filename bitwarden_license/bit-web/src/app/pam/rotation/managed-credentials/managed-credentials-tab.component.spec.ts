@@ -6,6 +6,7 @@ import { BehaviorSubject, combineLatest, map, of, throwError } from "rxjs";
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -199,6 +200,7 @@ describe("ManagedCredentialsTabComponent", () => {
     TestBed.configureTestingModule({
       imports: [ManagedCredentialsTabComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: ORGANIZATION_ID }) } },
         { provide: RotationConfigsService, useValue: configsService },
@@ -827,6 +829,7 @@ describe("ManagedCredentialsTabComponent", () => {
       TestBed.configureTestingModule({
         imports: [ManagedCredentialsTabComponent],
         providers: [
+          { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
           provideRouter([]),
           {
             provide: ActivatedRoute,
@@ -911,6 +914,7 @@ describe("ManagedCredentialsTabComponent", () => {
       TestBed.configureTestingModule({
         imports: [ManagedCredentialsTabComponent],
         providers: [
+          { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
           provideRouter([]),
           {
             provide: ActivatedRoute,
@@ -1197,6 +1201,7 @@ describe("ManagedCredentialsTabComponent", () => {
       TestBed.configureTestingModule({
         imports: [ManagedCredentialsTabComponent],
         providers: [
+          { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
           provideRouter([]),
           {
             provide: ActivatedRoute,
@@ -1494,6 +1499,7 @@ describe("ManagedCredentialsTabComponent", () => {
         TestBed.configureTestingModule({
           imports: [ManagedCredentialsTabComponent],
           providers: [
+            { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
             provideRouter([]),
             {
               provide: ActivatedRoute,

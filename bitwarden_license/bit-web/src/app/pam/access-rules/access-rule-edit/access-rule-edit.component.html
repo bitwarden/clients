@@ -79,7 +79,9 @@
           </bit-form-field>
 
           <bit-form-field disableMargin>
-            <bit-label>{{ "pamAccessRuleCollectionsSelect" | i18n }}</bit-label>
+            <bit-label>{{
+              "pamAccessRuleCollectionsSelect" | vfo1I18n: "pamAccessRuleSharedFoldersSelect"
+            }}</bit-label>
             <bit-multi-select
               class="tw-w-full"
               formControlName="collections"
@@ -87,7 +89,9 @@
               [removeSelectedItems]="false"
               [loading]="collectionsLoading()"
             />
-            <bit-hint>{{ "pamAccessRuleCollectionsHint" | i18n }}</bit-hint>
+            <bit-hint>{{
+              "pamAccessRuleCollectionsHint" | vfo1I18n: "pamAccessRuleSharedFoldersHint"
+            }}</bit-hint>
           </bit-form-field>
         </bit-card>
       </bit-section>
@@ -191,7 +195,10 @@
             @if (formGroup.controls.humanApprovalEnabled.value) {
               <bit-hint
                 >{{ "pamAccessRuleApprovers" | i18n }}:
-                {{ "pamAccessRuleApproversCollectionManagers" | i18n }}</bit-hint
+                {{
+                  "pamAccessRuleApproversCollectionManagers"
+                    | vfo1I18n: "pamAccessRuleApproversSharedFolderManagers"
+                }}</bit-hint
               >
             }
           </bit-form-control>

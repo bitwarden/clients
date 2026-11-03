@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 
@@ -73,6 +74,7 @@ const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProvide
   { provide: AccessRuleSdkService, useValue: {} },
   { provide: ToastService, useValue: { showToast: jest.fn() } },
   { provide: I18nService, useValue: i18nFake },
+  { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
   { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
   { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
   {
@@ -899,6 +901,7 @@ describe("AccessRuleEditComponent — form states", () => {
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: routeStub(state) },
         { provide: AccessRuleSdkService, useValue: pamApi },
