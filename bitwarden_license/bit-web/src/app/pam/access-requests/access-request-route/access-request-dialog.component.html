@@ -7,6 +7,10 @@
     @if (loading() && request() == null && !notFound() && !loadError()) {
       <p bitTypography="body1" class="tw-text-muted">{{ "loading" | i18n }}</p>
     } @else if (request(); as r) {
+      <!--
+        One summary across both of the dialog's faces: the confirmation keeps the item on screen so
+        the destructive action always has its context, and the instance survives the switch.
+      -->
       <pam-request-summary
         [attr.data-testid]="
           confirmingWithdraw() ? 'withdraw-confirm-summary' : 'request-detail-summary'
@@ -22,10 +26,12 @@
         [exactWindow]="exactWindowText()"
         [reason]="reason()"
       >
+        <!-- Status reads with the item's name, so the badge is projected into the card header. -->
         <span slot="badge">
           @if (badge()?.badgeState; as state) {
             <app-pam-access-state-badge [state]="state" />
           } @else if (badge()?.statusBadge; as b) {
+            <!-- A closed record badges with a lock, as the access-state pill does. -->
             <span
               bitBadge
               [variant]="b.variant"
@@ -37,7 +43,7 @@
             <span bitBadge variant="secondary" data-testid="request-detail-lease-extended">
               {{
                 "pamExtendedBadge"
-                  | i18n: (ext.addedSeconds | durationShort) : (ext.until | timestamp)
+                  | i18n: (ext.addedSeconds | durationShort) : (ext.until | date: "short")
               }}
             </span>
           }
@@ -94,7 +100,7 @@
 
             @if (r.resolvedAt; as resolvedAt) {
               <pam-summary-field [label]="'pamColumnResolved' | i18n">
-                {{ resolvedAt | timestamp }}
+                {{ resolvedAt | date: "medium" }}
               </pam-summary-field>
             }
           </div>
@@ -111,6 +117,10 @@
     }
   </div>
 
+  <!--
+    The viewer's own action leads, Close sits beside it, and Deny is pushed to the far edge so it
+    cannot be reached for by mistake. A state offering nothing to do is left with Close alone.
+  -->
   <ng-container bitDialogFooter>
     @if (confirmingWithdraw()) {
       <button

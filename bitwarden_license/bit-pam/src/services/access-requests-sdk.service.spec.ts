@@ -127,7 +127,16 @@ describe("AccessRequestsSdkService", () => {
 
       await service.cancelAccessRequest(requestId);
 
-      expect(accessRequests.cancel).toHaveBeenCalledWith(requestId);
+      expect(accessRequests.cancel).toHaveBeenCalledWith(requestId, { reason: undefined });
+    });
+
+    it("carries an approver's reason, which the server records with their decision", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      accessRequests.cancel.mockResolvedValue(undefined);
+
+      await service.cancelAccessRequest(requestId, "Scope changed");
+
+      expect(accessRequests.cancel).toHaveBeenCalledWith(requestId, { reason: "Scope changed" });
     });
 
     it("logs and rethrows on failure", async () => {
