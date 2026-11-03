@@ -24,7 +24,9 @@ export type CopyAction =
   | "username"
   | "password"
   | "totp"
+  | "cardholderName"
   | "cardNumber"
+  | "cardExpiration"
   | "securityCode"
   | "email"
   | "phone"
@@ -81,7 +83,9 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     event: EventType.Cipher_ClientCopiedPassword,
   },
   totp: { typeI18nKey: "verificationCode", protected: true },
+  cardholderName: { typeI18nKey: "cardholderName", protected: false },
   cardNumber: { typeI18nKey: "number", protected: true },
+  cardExpiration: { typeI18nKey: "expiration", protected: true },
   securityCode: {
     typeI18nKey: "securityCode",
     protected: true,

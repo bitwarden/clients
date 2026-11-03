@@ -71,11 +71,16 @@ export class VaultItemCopyActionsComponent {
   }
 
   get singleCopyableCard() {
-    const cardItems: CipherItem[] = [
-      { key: "copySecurityCode", field: "securityCode" },
+    return this.findSingleCopyableItem(this.cipher(), this.getCardCopyableItems());
+  }
+
+  private getCardCopyableItems(): CipherItem[] {
+    return [
+      { key: "copyCardholderName", field: "cardholderName" },
       { key: "copyNumber", field: "cardNumber" },
+      { key: "copyExpiration", field: "cardExpiration" },
+      { key: "copySecurityCode", field: "securityCode" },
     ];
-    return this.findSingleCopyableItem(this.cipher(), cardItems);
   }
 
   get singleCopyableIdentity() {
@@ -174,13 +179,9 @@ export class VaultItemCopyActionsComponent {
 
   /** Sets the number of populated card values for the cipher */
   private getNumberOfCardValues(cipher: CipherViewLike) {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      const copyableCardFields: CopyableCipherFields[] = ["CardSecurityCode", "CardNumber"];
-
-      return cipher.copyableFields.filter((field) => copyableCardFields.includes(field)).length;
-    }
-
-    return [cipher.card.code, cipher.card.number].filter(Boolean).length;
+    return this.getCardCopyableItems().filter(({ field }) =>
+      CipherViewLikeUtils.hasCopyableValue(cipher, field),
+    ).length;
   }
 
   /** Sets the number of populated identity values for the cipher */

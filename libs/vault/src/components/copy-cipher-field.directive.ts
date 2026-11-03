@@ -148,8 +148,14 @@ export class CopyCipherFieldDirective implements OnChanges {
         return _cipher.login?.password;
       case "totp":
         return _cipher.login?.totp;
+      case "cardholderName":
+        return _cipher.card?.cardholderName;
       case "cardNumber":
         return _cipher.card?.number;
+      case "cardExpiration":
+        return _cipher.card?.expMonth && _cipher.card?.expYear
+          ? _cipher.card.expiration
+          : undefined;
       case "securityCode":
         return _cipher.card?.code;
       case "email":
