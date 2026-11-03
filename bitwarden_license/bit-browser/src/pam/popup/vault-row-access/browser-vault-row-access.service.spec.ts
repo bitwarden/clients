@@ -17,6 +17,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -36,6 +37,7 @@ describe("BrowserVaultRowAccessService", () => {
   let toastService: MockProxy<ToastService>;
   let ticks$: Subject<number>;
   let pamEnabled$: BehaviorSubject<boolean>;
+  let revealed$: BehaviorSubject<ReadonlyMap<string, unknown>>;
 
   const gated = { id: "c1", name: "Amazon", partial: true } as unknown as CipherViewLike;
   const normal = { id: "c2", name: "Plain" } as unknown as CipherViewLike;
@@ -54,6 +56,7 @@ describe("BrowserVaultRowAccessService", () => {
     toastService = mock<ToastService>();
     ticks$ = new Subject<number>();
     pamEnabled$ = new BehaviorSubject(true);
+    revealed$ = new BehaviorSubject<ReadonlyMap<string, unknown>>(new Map());
 
     TestBed.configureTestingModule({
       providers: [
@@ -71,6 +74,7 @@ describe("BrowserVaultRowAccessService", () => {
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: { t: (k: string, p?: string) => (p ? `${k}:${p}` : k) } },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: RevealedCipherService, useValue: { revealed$: () => revealed$ } },
       ],
     });
     service = TestBed.inject(BrowserVaultRowAccessService);
@@ -111,6 +115,66 @@ describe("BrowserVaultRowAccessService", () => {
 
       expect(emissions).toEqual([]);
       expect(rowState.invalidate).toHaveBeenCalledWith("c1");
+    });
+
+    describe("an unrestricted item held through a lease", () => {
+      const leasedState = (ms: number) => ({
+        badgeState: { active: { expiresAt: new Date(Date.now() + ms).toISOString() } },
+      });
+
+      it("counts down once its revealed copy is live", async () => {
+        state$.next(leasedState(8 * 3_600_000));
+        revealed$.next(new Map([["c2", {}]]));
+
+        const status = await firstValueFrom(service.status$(normal));
+
+        expect(status?.kind).toBe("active");
+        expect(rowState.state$).toHaveBeenCalledWith("c2");
+      });
+
+      it("drops back to nothing when the reveal ends", () => {
+        state$.next(leasedState(8 * 3_600_000));
+        revealed$.next(new Map([["c2", {}]]));
+        const emissions: unknown[] = [];
+        service.status$(normal).subscribe((s) => emissions.push(s));
+
+        revealed$.next(new Map());
+
+        expect(emissions[emissions.length - 1]).toBeNull();
+      });
+    });
+
+    describe("the countdown label", () => {
+      const labelAt = async (ms: number) => {
+        state$.next({
+          badgeState: { active: { expiresAt: new Date(Date.now() + ms).toISOString() } },
+        });
+        return (await latest())?.label;
+      };
+
+      it("shows whole hours", async () => {
+        expect(await labelAt(8 * 3_600_000 - 500)).toBe("pamAccessBadgeTimeLeft:8h");
+      });
+
+      it("shows minutes under an hour", async () => {
+        expect(await labelAt(14 * 60_000 - 500)).toBe("pamAccessBadgeTimeLeft:14m");
+      });
+
+      it("shows less than a minute under a minute", async () => {
+        expect(await labelAt(30_000)).toBe("pamAccessBadgeLessThanMinuteLeft");
+      });
+
+      it("ticks the label down as time passes", () => {
+        state$.next({
+          badgeState: { active: { expiresAt: new Date(Date.now() + 125_000).toISOString() } },
+        });
+        const labels: string[] = [];
+        service.status$(gated).subscribe((s) => s && labels.push(s.label));
+
+        ticks$.next(Date.now() + 10_000);
+
+        expect(labels).toEqual(["pamAccessBadgeTimeLeft:3m", "pamAccessBadgeTimeLeft:2m"]);
+      });
     });
 
     it("reports nothing for an item that is not restricted, without reading its state", async () => {
