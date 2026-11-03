@@ -50,7 +50,8 @@ describe("RequestSummaryComponent", () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        // PAM ships with VFO1 on.
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
         {
           provide: I18nService,
           useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ").trim() },
@@ -67,15 +68,15 @@ describe("RequestSummaryComponent", () => {
     expect(card("item").textContent).toContain("Meridian Group");
     expect(card("item").textContent).toContain("Production");
     expect(card("item").querySelector(".bwi-business")).not.toBeNull();
-    expect(card("item").querySelector(".bwi-collection-shared")).not.toBeNull();
+    expect(card("item").querySelector(".bwi-shared-folder")).not.toBeNull();
   });
 
   it("says which of the two item-card names is the organization and which is the collection", () => {
     expect(card("item").querySelector(".bwi-business")!.getAttribute("aria-label")).toBe(
       "organization",
     );
-    expect(card("item").querySelector(".bwi-collection-shared")!.getAttribute("aria-label")).toBe(
-      "collection",
+    expect(card("item").querySelector(".bwi-shared-folder")!.getAttribute("aria-label")).toBe(
+      "sharedFolder",
     );
   });
 
@@ -89,7 +90,7 @@ describe("RequestSummaryComponent", () => {
     fixture.detectChanges();
 
     expect(card("item").querySelector(".bwi-business")).toBeNull();
-    expect(card("item").querySelector(".bwi-collection-shared")).toBeNull();
+    expect(card("item").querySelector(".bwi-shared-folder")).toBeNull();
   });
 
   it("names the requester without their email beside it", () => {
