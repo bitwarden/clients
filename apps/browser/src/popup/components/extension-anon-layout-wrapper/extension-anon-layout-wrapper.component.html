@@ -17,7 +17,9 @@
     </ng-container>
   </popup-header>
 
+  <!-- The landing pieces paint their own background; clear it so the page's shows through. -->
   <auth-anon-layout
+    class="[&_bit-landing-header>header]:tw-bg-transparent [&_bit-landing-content>div]:tw-bg-transparent [&_bit-landing-footer>footer]:tw-bg-transparent"
     [title]="pageTitle"
     [subtitle]="pageSubtitle"
     [icon]="pageIcon"
