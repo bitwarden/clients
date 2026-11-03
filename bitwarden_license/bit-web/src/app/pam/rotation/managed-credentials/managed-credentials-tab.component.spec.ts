@@ -820,6 +820,18 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(rotateNowBlockedKey(row)).toBe("pamRotationConfigRotateNowDisabledPaused");
     });
 
+    it("names the pause, not the job, when a paused credential is still rotating", () => {
+      const row = makeRow(
+        { enabled: false, hasActiveJob: true },
+        rotationConfigDescription({
+          actions: rotationConfigActions({ canRotateNow: false, canPause: false }),
+        }),
+      );
+      openRowMenu(row);
+
+      expect(rotateNowBlockedKey(row)).toBe("pamRotationConfigRotateNowDisabledPaused");
+    });
+
     it("explains an unavailable mark as rotated", () => {
       openRowMenu(
         makeRow(
