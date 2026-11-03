@@ -59,6 +59,7 @@ import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
 import { LogoutService } from "@bitwarden/common/auth/logout";
@@ -70,6 +71,7 @@ import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { ClientType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
@@ -104,6 +106,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -120,13 +123,19 @@ import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
+import {
+  GlobalStateProvider,
+  StateEventRunnerService,
+  StateProvider,
+} from "@bitwarden/common/platform/state";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
@@ -134,6 +143,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 import {
   BiometricsService,
   KdfConfigService,
+  BiometricStateService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
 import {
@@ -186,6 +196,7 @@ import {
   LinkSsoService,
   WebChangePasswordService,
   WebDeepLinkRedirectService,
+  WebLogoutService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
   WebRegistrationFinishService,
@@ -228,6 +239,26 @@ const safeProviders: SafeProvider[] = [
     useClass: WebDeepLinkRedirectService,
     deps: [RouterService],
   }),
+  safeProvider({
+    provide: WebLogoutService,
+    useClass: WebLogoutService,
+    deps: [
+      LogService,
+      EventUploadService,
+      AuthService,
+      KeyServiceAbstraction,
+      CipherService,
+      InternalFolderService,
+      BiometricStateService,
+      StateEventRunnerService,
+      StateService,
+      TokenService,
+      AccountService,
+      Router,
+      ProcessReloadServiceAbstraction,
+    ],
+  }),
+  safeProvider({ provide: LogoutService, useExisting: WebLogoutService }),
   // Web-only override of the shared noop binding. Only web has routes that
   // populate invite state or drive the accept flows; other clients use the noop.
   safeProvider({
