@@ -18814,6 +18814,9 @@
     "message": "Access request"
   },
   "pamAccessRequestDetailsTitle": {
+    "message": "Request details"
+  },
+  "pamAccessRequestDetailsHeading": {
     "message": "Details",
     "description": "Heading over the request's own fields in the access request dialog."
   },
@@ -18821,6 +18824,9 @@
     "message": "Access"
   },
   "pamAccessRequestDecisionLogTitle": {
+    "message": "Decision log"
+  },
+  "pamAccessRequestDecisionHeading": {
     "message": "Decision",
     "description": "Heading over who decided a request and when, in the access request dialog."
   },
