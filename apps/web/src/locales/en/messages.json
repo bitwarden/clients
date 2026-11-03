@@ -18403,13 +18403,6 @@
     "message": "Search credential, shared folder, requester",
     "description": "VFO1 terminology feature flag variant of pamAccessRequestsSearchPlaceholder"
   },
-  "pamCollectionFilter": {
-    "message": "Collection"
-  },
-  "pamSharedFolderFilter": {
-    "message": "Shared folder",
-    "description": "VFO1 terminology feature flag variant of pamCollectionFilter"
-  },
   "pamMyRequestsLoaded": {
     "message": "Requests loaded"
   },
