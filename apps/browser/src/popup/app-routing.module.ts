@@ -45,7 +45,7 @@ import {
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { canActivateImportType } from "@bitwarden/importer-ui";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
@@ -321,6 +321,15 @@ const routes: Routes = [
         loadComponent: () =>
           import("../tools/popup/settings/import/import-controls-browser.component").then(
             (m) => m.ImportControlsBrowserComponent,
+          ),
+        canActivate: [canActivateImportType("/import-source-select")],
+        data: { elevation: 1 } satisfies RouteDataProperties,
+      },
+      {
+        path: IMPORT_DESTINATION_ROUTE_PATH,
+        loadComponent: () =>
+          import("../tools/popup/settings/import/import-destination-browser.component").then(
+            (m) => m.ImportDestinationBrowserComponent,
           ),
         canActivate: [canActivateImportType("/import-source-select")],
         data: { elevation: 1 } satisfies RouteDataProperties,

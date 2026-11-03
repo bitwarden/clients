@@ -3,8 +3,8 @@
 <bit-progress-bar
   [hideStartHint]="true"
   [value]="progressValue()"
-  [accessibleName]="stepText()"
-  [ariaValueText]="stepText()"
+  [accessibleName]="stepText() || undefined"
+  [ariaValueText]="stepText() || undefined"
 />
 <p
   bitTypography="helper"
