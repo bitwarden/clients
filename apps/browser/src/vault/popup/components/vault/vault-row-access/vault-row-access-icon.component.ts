@@ -3,7 +3,7 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { of, switchMap } from "rxjs";
 
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { IconComponent } from "@bitwarden/components";
+import { BitwardenIcon, IconComponent } from "@bitwarden/components";
 
 import { VAULT_ROW_ACCESS, VaultRowAccess, VaultRowAccessStatus } from "./vault-row-access.token";
 
@@ -41,7 +41,7 @@ export class VaultRowAccessIconComponent {
     { initialValue: null as VaultRowAccessStatus | null },
   );
 
-  protected readonly icon = computed(() => {
+  protected readonly icon = computed<BitwardenIcon | null>(() => {
     switch (this.status()?.kind) {
       case "request":
       case "unavailable":
