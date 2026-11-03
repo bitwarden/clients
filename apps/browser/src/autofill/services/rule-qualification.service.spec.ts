@@ -542,6 +542,50 @@ describe("DefaultRuleQualificationService", () => {
 
       expect(result).toEqual({ kind: "proceedTargeted" });
     });
+
+    it("qualifies a login form with a Remember Me checkbox", async () => {
+      // Checkbox and radio are not rule types and the autofill engine does
+      // not fill them, so Half 2 must not flag them as extras.
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      pass.type = "password";
+      const remember = document.createElement("input");
+      remember.type = "checkbox";
+      form.append(user, pass, remember);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+
+      const result = await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(result).toEqual({ kind: "proceedTargeted" });
+    });
+
+    it("ignores a CSS-hidden input when checking for extras", async () => {
+      // Honeypot inputs are rendered off-screen or display:none. Treating
+      // them as extras would cause misses on forms that use them.
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      pass.type = "password";
+      const honeypot = document.createElement("input");
+      form.append(user, pass, honeypot);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+      domElementVisibilityService.isElementHiddenByCss.mockImplementation(
+        (element) => element === honeypot,
+      );
+
+      const result = await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(result).toEqual({ kind: "proceedTargeted" });
+    });
   });
 
   describe("qualifyRule — formless pages (known limitation)", () => {

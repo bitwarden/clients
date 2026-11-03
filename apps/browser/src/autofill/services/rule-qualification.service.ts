@@ -10,6 +10,7 @@ import {
   QualificationResult,
   RuleQualificationService,
 } from "./abstractions/rule-qualification.service";
+import { AutoFillConstants } from "./autofill-constants";
 
 export class DefaultRuleQualificationService implements RuleQualificationService {
   constructor(
@@ -107,19 +108,13 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     inScopeForms: InScopeFormsDetection,
   ): Promise<{ ok: boolean }> {
     const declaredElements = new Set<Element>();
-    for (const form of rule) {
-      for (const alternatives of this.extractAlternativeGroups(form)) {
-        for (const members of alternatives) {
-          for (const selector of members) {
-            if (selector.includes(">>>") && this.domQueryService.findIframeCrossing(selector)) {
-              continue;
-            }
-            const element = this.domQueryService.queryDeepSelector(selector);
-            if (element) {
-              declaredElements.add(element);
-            }
-          }
-        }
+    for (const selector of this.flattenDeclaredSelectors(rule)) {
+      if (selector.includes(">>>") && this.domQueryService.findIframeCrossing(selector)) {
+        continue;
+      }
+      const element = this.domQueryService.queryDeepSelector(selector);
+      if (element) {
+        declaredElements.add(element);
       }
     }
 
@@ -164,6 +159,23 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     }
 
     return groups;
+  }
+
+  /**
+   * Flattens every declared selector from a rule into one list. The extras
+   * check only needs element identity, not alternative grouping, so a flat
+   * walk keeps the caller free of deep nesting.
+   */
+  private flattenDeclaredSelectors(rule: FormContent[]): string[] {
+    const selectors: string[] = [];
+    for (const form of rule) {
+      for (const alternatives of this.extractAlternativeGroups(form)) {
+        for (const members of alternatives) {
+          selectors.push(...members);
+        }
+      }
+    }
+    return selectors;
   }
 
   /**
@@ -216,17 +228,36 @@ export class DefaultRuleQualificationService implements RuleQualificationService
    *
    * Uses the same `queryWithUnresolvedShadowHosts` call the full heuristic
    * scan uses, so shadow-rooted fields and `span[data-bwautofill]` surface
-   * the same way. The predicate is the collect service's
-   * `isElementFormFieldElement`, which excludes ignored input types (hidden,
-   * submit, button, etc.) and honors `data-bwignore` / `data-bwautofill`.
+   * the same way. The predicate narrows further via `isFillableField`.
    * Unresolved shadow hosts are discarded. The collect service handles
    * shadow tracker reconciliation on its own full scan.
    */
   private detectHeuristicFieldsInForm(form: HTMLFormElement): FormFieldElement[] {
     const { elements } = this.domQueryService.queryWithUnresolvedShadowHosts<FormFieldElement>(
       form,
-      (element) => this.collectAutofillContentService.isElementFormFieldElement(element),
+      (element) => this.isFillableField(element),
     );
     return elements;
+  }
+
+  /**
+   * Narrows the collect service's form-field filter to elements the autofill
+   * engine can actually fill. Rules have no field type for checkbox or radio
+   * and the autofill engine does not fill them, so counting them as extras
+   * would misfire on common login forms (e.g. a Remember Me checkbox).
+   * CSS-hidden elements are also skipped so honeypot inputs do not trip the
+   * extras check.
+   */
+  private isFillableField(element: Element): boolean {
+    if (!this.collectAutofillContentService.isElementFormFieldElement(element)) {
+      return false;
+    }
+    if (
+      element instanceof HTMLInputElement &&
+      AutoFillConstants.ExcludedAutofillTypes.includes(element.type)
+    ) {
+      return false;
+    }
+    return !this.domElementVisibilityService.isElementHiddenByCss(element as HTMLElement);
   }
 }
