@@ -32,7 +32,7 @@ describe("PolicyRecordMapper", () => {
   });
 
   it("round-trips a policy with no data", () => {
-    const emptyPolicy: PolicyData = { ...policyData, data: null };
+    const emptyPolicy: PolicyData = { ...policyData, data: undefined };
 
     const sdkPolicy = mapper.toSdk(emptyPolicy);
 
