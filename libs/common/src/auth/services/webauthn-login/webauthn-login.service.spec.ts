@@ -12,6 +12,7 @@ import { PrfKey } from "../../../types/key";
 import { WebAuthnLoginApiServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { AuthResult } from "../../models/domain/auth-result";
+import { WebAuthnLoginTokenRequest } from "../../models/request/identity-token/webauthn-login-token.request";
 import { WebAuthnLoginCredentialAssertionOptionsView } from "../../models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
 import { WebAuthnLoginCredentialAssertionView } from "../../models/view/webauthn-login/webauthn-login-credential-assertion.view";
 
@@ -194,6 +195,46 @@ describe("WebAuthnLoginService", () => {
       });
 
       expect(result.prfKey).toEqual(prfKey);
+    });
+
+    it("should not send PRF outputs to the server, even if the credential serializes them", async () => {
+      // Arrange
+      const webAuthnLoginService = createWebAuthnLoginService();
+      const credentialAssertionOptions = buildCredentialAssertionOptions();
+
+      const publicKeyCredential = new MockPublicKeyCredential();
+      const prfResult: ArrayBuffer =
+        publicKeyCredential.getClientExtensionResults().prf.results.first;
+      const prfKey = new SymmetricCryptoKey(new Uint8Array(prfResult)) as PrfKey;
+      // WebAuthn's PublicKeyCredential.toJSON() includes PRF outputs in clientExtensionResults.
+      jest.spyOn(publicKeyCredential, "toJSON").mockReturnValue({
+        id: publicKeyCredential.id,
+        clientExtensionResults: {
+          prf: { results: { first: Utils.fromBufferToUrlB64(prfResult) } },
+        },
+      } as never);
+
+      webAuthnLoginPrfKeyService.getLoginWithPrfSalt.mockResolvedValue(new Uint8Array(32));
+      webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf.mockResolvedValue(prfKey);
+      navigatorCredentials.get.mockResolvedValue(publicKeyCredential);
+
+      // Act
+      const result = await webAuthnLoginService.assertCredential(credentialAssertionOptions);
+      const identityToken = new WebAuthnLoginTokenRequest(
+        result.token,
+        result.deviceResponse,
+      ).toIdentityToken("desktop");
+
+      // Assert
+      expect(JSON.parse(identityToken.deviceResponse).extensions).toEqual({});
+      const sentToServer = JSON.stringify(identityToken);
+      for (const encoding of [
+        Utils.fromBufferToUrlB64(prfResult),
+        Utils.fromBufferToB64(prfResult),
+        Utils.fromBufferToHex(prfResult),
+      ]) {
+        expect(sentToServer).not.toContain(encoding);
+      }
     });
 
     it("should return undefined on non-PublicKeyCredential browser response", async () => {
