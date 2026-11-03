@@ -26,10 +26,10 @@ async function enableDeveloperMode(context: BrowserContext) {
 
   // Playwright's CSS engine pierces the page's open shadow roots.
   const toggle = page.locator(DEVELOPER_MODE_TOGGLE);
-  if ((await toggle.getAttribute("aria-pressed")) !== "true") {
+  if ((await toggle.getAttribute("aria-checked")) !== "true") {
     await toggle.click();
   }
-  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(toggle).toHaveAttribute("aria-checked", "true");
 
   await page.close();
 }
