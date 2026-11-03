@@ -8,10 +8,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
-import {
-  WithdrawApprovalDialogComponent,
-  WithdrawApprovalDialogParams,
-} from "./withdraw-approval-dialog/withdraw-approval-dialog.component";
 
 /** Raised once the approver confirms and the mutation starts; lowered once it settles. */
 export type ApproverActionBusy = (busy: boolean) => void;
@@ -80,45 +76,42 @@ export class ApproverActionsService {
   }
 
   /**
-   * Confirm and withdraw an approval the requester has not started. The dialog collects the
-   * reason the server requires from an approver, and `run` gets it.
+   * Withdraws an approval the requester has not started. The caller confirms — the access request
+   * dialog does so in place, collecting the reason the server requires — so this only runs the
+   * mutation and reports it. Resolves whether it succeeded, so the caller can keep its
+   * confirmation, and the reason typed into it, open for a retry after a failure.
    */
-  async withdrawApproval(
-    params: WithdrawApprovalDialogParams,
-    run: (reason: string) => Promise<void>,
-    busy: ApproverActionBusy,
-  ): Promise<void> {
-    const result = await firstValueFrom(
-      WithdrawApprovalDialogComponent.open(this.dialogService, { data: params }).closed,
-    );
-    if (!result?.confirmed) {
-      return;
-    }
-    await this.perform(
-      () => run(result.reason),
+  async withdrawApproval(run: () => Promise<void>, busy: ApproverActionBusy): Promise<boolean> {
+    return await this.perform(
+      run,
       busy,
       "pamInboxApprovalWithdrawnToast",
       () => "pamInboxWithdrawApprovalFailed",
     );
   }
 
-  /** `failureKey` reads what was thrown, so a refusal the server worded gets its own copy. */
+  /**
+   * `failureKey` reads what was thrown, so a refusal the server worded gets its own copy.
+   * Resolves `true` once `run` succeeded, `false` after the failure toast.
+   */
   private async perform(
     run: () => Promise<void>,
     busy: ApproverActionBusy,
     successKey: string,
     failureKey: (e: unknown) => string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     busy(true);
     try {
       await run();
       this.toastService.showToast({ variant: "success", message: this.i18nService.t(successKey) });
+      return true;
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t(failureKey(e)),
       });
+      return false;
     } finally {
       busy(false);
     }
