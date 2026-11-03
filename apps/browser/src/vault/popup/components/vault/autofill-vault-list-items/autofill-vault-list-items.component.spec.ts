@@ -9,7 +9,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -44,6 +46,7 @@ describe("AutofillVaultListItemsComponent", () => {
       providers: [
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
         { provide: GlobalStateProvider, useValue: mock<GlobalStateProvider>() },
         {
           provide: AccountService,
