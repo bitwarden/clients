@@ -84,6 +84,15 @@ describe("CipherViewFooterActionsComponent", () => {
     expect(query("button")).toBeNull();
   });
 
+  it("renders nothing, and does not throw, when the dialog hands over no cipher", async () => {
+    const { handle } = makeActions("cipher-1");
+    bridge.publish(handle);
+
+    await create(undefined as unknown as CipherView);
+
+    expect(query("button")).toBeNull();
+  });
+
   it("renders nothing for a handle published under a different cipher id", async () => {
     const { handle } = makeActions("cipher-OTHER");
     bridge.publish(handle);

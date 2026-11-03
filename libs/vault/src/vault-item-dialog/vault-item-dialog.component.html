@@ -95,7 +95,7 @@
       </button>
     }
 
-    @if (footerActionsComponent) {
+    @if (footerActionsComponent && cipher) {
       <ng-container
         *ngComponentOutlet="
           footerActionsComponent;

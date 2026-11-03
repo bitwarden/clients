@@ -947,7 +947,7 @@ describe("VaultItemDialogComponent", () => {
     // Mirrors the real `bitDialogFooter` fragment in isolation, so these tests don't need to
     // stand up the full cipher-view/cipher-form dependency graphs just to exercise the slot.
     const FOOTER_ACTIONS_TEMPLATE = /* HTML */ `
-      @if (footerActionsComponent) {
+      @if (footerActionsComponent && cipher) {
       <ng-container
         *ngComponentOutlet="
             footerActionsComponent;
@@ -1030,10 +1030,20 @@ describe("VaultItemDialogComponent", () => {
 
     it("renders the host's footer actions component when provided", async () => {
       const { fixture, component } = await setupFooterActions(true);
+      component["cipher"] = { id: "c1", type: CipherType.Login } as unknown as CipherView;
       fixture.detectChanges();
 
       expect(component["footerActionsComponent"]).toBe(TestFooterActionsComponent);
       expect(fixture.debugElement.query(By.directive(TestFooterActionsComponent))).not.toBeNull();
+    });
+
+    it("does not render the footer actions while no cipher is loaded", async () => {
+      const { fixture, component } = await setupFooterActions(true);
+      component["cipher"] = undefined;
+      fixture.detectChanges();
+
+      expect(component["footerActionsComponent"]).toBe(TestFooterActionsComponent);
+      expect(fixture.debugElement.query(By.directive(TestFooterActionsComponent))).toBeNull();
     });
 
     it("hands the open cipher through to the footer actions component as its `cipher` input", async () => {

@@ -41,7 +41,8 @@ export class CipherViewFooterActionsComponent {
    */
   protected readonly handle = computed(() => {
     const actions = this.bridge.actions();
-    const cipherId = this.cipher().id;
+    // The dialog can hand over no cipher while one loads or a new one is being created.
+    const cipherId = this.cipher()?.id;
 
     if (actions == null || cipherId == null || actions.cipherId !== cipherId) {
       return null;
