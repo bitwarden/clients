@@ -988,6 +988,10 @@
       }
     }
   },
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a read-only field that shows the name of an application installed on the computer that the item is paired with."
+  },
   "websiteAdded": {
     "message": "Website added"
   },
