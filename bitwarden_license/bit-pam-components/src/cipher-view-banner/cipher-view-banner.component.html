@@ -14,7 +14,7 @@
       bitButton
       buttonType="secondary"
       class="tw-w-full"
-      disabled
+      [disabled]="true"
       startIcon="bwi-lock"
       id="pam-cipher-view-banner_button_request-disabled"
     >
@@ -34,10 +34,10 @@
       <bit-icon-tile [icon]="badgeLook.privileged.icon" variant="primary" size="base" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-text-fg-body">
         <h3 bitTypography="body2" class="tw-m-0 tw-font-medium tw-text-fg-heading">
-          {{ "pamUnlicensedBannerHeading" | i18n }}
+          {{ "pamUnlicensedBannerHeadingV2" | i18n }}
         </h3>
         <p bitTypography="helper" class="tw-m-0 tw-text-fg-body">
-          {{ "pamUnlicensedBannerBody" | i18n }}
+          {{ "pamUnlicensedBannerBodyV2" | i18n }}
         </p>
       </div>
     </div>
@@ -97,7 +97,7 @@
                 class="tw-m-0 tw-font-medium tw-text-fg-heading"
                 data-testid="active-lease-ending-soon"
               >
-                {{ "pamActiveLeaseBannerEndingSoonRemainingTitle" | i18n: leaseRemainingLabel() }}
+                {{ "pamActiveLeaseBannerEndingSoonTitleV2" | i18n: leaseRemainingLabel() }}
               </h3>
             } @else {
               <h3
@@ -105,7 +105,7 @@
                 class="tw-m-0 tw-font-medium tw-text-fg-heading"
                 data-testid="active-lease-countdown"
               >
-                {{ "pamActiveLeaseBannerRemainingTitle" | i18n: leaseRemainingLabel() }}
+                {{ "pamActiveLeaseBannerTitleV2" | i18n: leaseRemainingLabel() }}
               </h3>
             }
             <span bitTypography="helper" class="tw-text-fg-body" data-testid="active-lease-ends-at">
@@ -129,7 +129,7 @@
                 [bitAction]="extendLease"
                 id="pam-cipher-view-banner_button_extend"
               >
-                {{ "pamExtendLeaseButton" | i18n }}
+                {{ "pamExtendLeaseButtonV2" | i18n }}
               </button>
             }
             <button
@@ -153,7 +153,7 @@
           <bit-icon-tile [icon]="badgeLook.ready.icon" variant="success" size="base" />
           <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-text-fg-body">
             <h3 bitTypography="body2" class="tw-m-0 tw-font-medium tw-text-fg-heading">
-              {{ "pamApprovedRequestBannerHeading" | i18n }}
+              {{ "pamApprovedRequestBannerHeadingV2" | i18n }}
             </h3>
             <span
               bitTypography="helper"
@@ -250,7 +250,7 @@
       sheet traps keyboard focus, since the page behind is inert only to the pointer.
     -->
     <div
-      class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-end tw-justify-center tw-bg-[rgb(0_0_0/0.5)]"
+      class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-end tw-justify-center tw-bg-bg-overlay"
       data-testid="request-sheet-overlay"
       (click)="toggleRequestForm()"
     >
@@ -355,7 +355,7 @@
                 @if (requestMode() === "automatic") {
                   <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
                     <bit-form-field>
-                      <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
+                      <bit-label>{{ "requestAccessModalDurationV2" | i18n }}</bit-label>
                       <select
                         bitInput
                         formControlName="durationSeconds"
@@ -376,12 +376,12 @@
                     </bit-form-field>
 
                     <bit-form-field>
-                      <bit-label>{{ "requestAccessModalReasonOptional" | i18n }}</bit-label>
+                      <bit-label>{{ "requestAccessModalReasonOptionalV2" | i18n }}</bit-label>
                       <textarea
                         bitInput
                         rows="3"
                         formControlName="reason"
-                        [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+                        [placeholder]="'requestAccessModalReasonPlaceholderV2' | i18n"
                         id="pam-cipher-view-banner_textarea_automatic-reason"
                       ></textarea>
                       <button
@@ -392,7 +392,7 @@
                         [bitAction]="copyReasonFromAutomatic"
                         id="pam-cipher-view-banner_button_automatic-reason-copy"
                       ></button>
-                      <bit-hint>{{ "requestAccessModalAutomaticReasonHint" | i18n }}</bit-hint>
+                      <bit-hint>{{ "requestAccessModalAutomaticReasonHintV2" | i18n }}</bit-hint>
                     </bit-form-field>
                   </form>
                 } @else {
@@ -476,7 +476,7 @@
                       </div>
                     } @else {
                       <bit-form-field>
-                        <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
+                        <bit-label>{{ "requestAccessModalDurationV2" | i18n }}</bit-label>
                         <select
                           bitInput
                           [formControl]="endDuration"
@@ -513,13 +513,13 @@
                     }
 
                     <bit-form-field>
-                      <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
+                      <bit-label>{{ "requestAccessModalReasonRequiredV2" | i18n }}</bit-label>
                       <textarea
                         bitInput
                         rows="3"
                         formControlName="reason"
                         required
-                        [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+                        [placeholder]="'requestAccessModalReasonPlaceholderV2' | i18n"
                         id="pam-cipher-view-banner_textarea_human-reason"
                       ></textarea>
                       <button
@@ -530,7 +530,7 @@
                         [bitAction]="copyReasonFromHuman"
                         id="pam-cipher-view-banner_button_human-reason-copy"
                       ></button>
-                      <bit-hint>{{ "requestAccessModalHumanReasonHint" | i18n }}</bit-hint>
+                      <bit-hint>{{ "requestAccessModalHumanReasonHintV2" | i18n }}</bit-hint>
                     </bit-form-field>
                   </form>
                 }
@@ -562,7 +562,7 @@
               [bitAction]="submitRequest"
               id="pam-cipher-view-banner_button_request-submit"
             >
-              {{ "requestAccessModalSubmit" | i18n }}
+              {{ "requestAccessModalSubmitV2" | i18n }}
             </button>
           }
           <button
