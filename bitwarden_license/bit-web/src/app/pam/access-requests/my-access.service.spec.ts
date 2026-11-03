@@ -172,7 +172,7 @@ describe("MyAccessService", () => {
 
     it("re-reads when an unstarted grant's window is due to close", async () => {
       // The server refuses to activate past the window, so the grant has to leave Pending for
-      // History — and no push announces that, just as none announces a lease running out.
+      // History, and no push announces that, just as none announces a lease running out.
       jest.useFakeTimers();
       try {
         requestsApi.listMyAccessRequests.mockResolvedValue([

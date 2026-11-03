@@ -17,7 +17,7 @@ export abstract class AccessRequestSdkService {
   abstract getAccessRequest(id: AccessRequestId): Promise<AccessRequestView>;
   abstract activateAccessRequest(id: AccessRequestId): Promise<AccessLeaseView>;
   /**
-   * Withdraws a pending or unactivated request. A managing approver must say why — the server
+   * Withdraws a pending or unactivated request. A managing approver must say why, the server
    * records the note with their decision and shows it to the requester; a requester withdrawing
    * their own request omits it.
    */
