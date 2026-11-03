@@ -2,8 +2,6 @@ import { Observable, defer, firstValueFrom, from } from "rxjs";
 
 import {
   BitwardenClient,
-  SendAccessCredentials,
-  SendAccessTokenError,
   SendAccessTokenRequest,
   SendAccessTokenResponse,
 } from "@bitwarden/sdk-internal";
@@ -22,6 +20,10 @@ import { GetSendAccessTokenError } from "../types/get-send-access-token-error.ty
 import { SendAccessDomainCredentials } from "../types/send-access-domain-credentials.type";
 import { SendHashedPasswordB64 } from "../types/send-hashed-password-b64.type";
 import { TryGetSendAccessTokenError } from "../types/try-get-send-access-token-error.type";
+import {
+  normalizeSendAccessTokenError,
+  toSdkSendAccessCredentials,
+} from "../utils/sdk-send-access.util";
 
 import { SEND_ACCESS_TOKEN_DICT } from "./send-access-token-dict.state";
 
@@ -86,7 +88,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
 
       return sendAccessToken;
     } catch (error: unknown) {
-      return this.normalizeSendAccessTokenError(error);
+      return normalizeSendAccessTokenError(error);
     }
   }
 
@@ -108,7 +110,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     // Convert inputs to SDK request shape
     const request: SendAccessTokenRequest = {
       sendId: sendId,
-      sendAccessCredentials: this.convertDomainCredentialsToSdkCredentials(sendAccessCredentials),
+      sendAccessCredentials: toSdkSendAccessCredentials(sendAccessCredentials),
     };
 
     const anonSdkClient: BitwardenClient = await firstValueFrom(this.sdkService.client$);
@@ -127,7 +129,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
 
       return sendAccessToken;
     } catch (error: unknown) {
-      return this.normalizeSendAccessTokenError(error);
+      return normalizeSendAccessTokenError(error);
     }
   }
 
@@ -230,39 +232,6 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     }
   }
 
-  /**
-   * Normalizes an error from the SDK send access token request process.
-   * @param e The error to normalize.
-   * @returns A normalized GetSendAccessTokenError.
-   */
-  private normalizeSendAccessTokenError(e: unknown): GetSendAccessTokenError {
-    if (this.isSendAccessTokenError(e)) {
-      if (e.kind === "unexpected") {
-        return { kind: "unexpected_server", error: e.data };
-      }
-      return { kind: "expected_server", error: e.data };
-    }
-
-    if (e instanceof Error) {
-      return { kind: "unknown", error: e.message };
-    }
-
-    try {
-      return { kind: "unknown", error: JSON.stringify(e) };
-    } catch {
-      return { kind: "unknown", error: "error cannot be stringified" };
-    }
-  }
-
-  private isSendAccessTokenError(e: unknown): e is SendAccessTokenError {
-    return (
-      typeof e === "object" &&
-      e !== null &&
-      "kind" in e &&
-      (e.kind === "expected" || e.kind === "unexpected")
-    );
-  }
-
   private validateSendId(sendId: string): void {
     if (sendId == null || sendId.trim() === "") {
       throw new Error("sendId must be provided.");
@@ -291,26 +260,6 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
       (!sendAccessCredentials.email || !sendAccessCredentials.otp)
     ) {
       throw new Error("email and otp must be provided for email_otp credentials.");
-    }
-  }
-
-  private convertDomainCredentialsToSdkCredentials(
-    sendAccessCredentials: SendAccessDomainCredentials,
-  ): SendAccessCredentials {
-    switch (sendAccessCredentials.kind) {
-      case "password":
-        return {
-          passwordHashB64: sendAccessCredentials.passwordHashB64,
-        };
-      case "email":
-        return {
-          email: sendAccessCredentials.email,
-        };
-      case "email_otp":
-        return {
-          email: sendAccessCredentials.email,
-          otp: sendAccessCredentials.otp,
-        };
     }
   }
 }

@@ -7,14 +7,15 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -28,6 +29,7 @@ import {
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 
 import { OrganizationPlansComponent } from "./organization-plans.component";
@@ -180,6 +182,11 @@ const mockSubscriptionDiscountService = {
   refresh: () => {},
 };
 const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
+const mockLogService: Partial<LogService> = { error: () => {}, warning: () => {} };
+const mockInvoicePreviewService: Partial<InvoicePreviewService> = {
+  previewPremiumOrgUpgradeCart: () => Promise.reject(new Error("not previewed in stories")),
+  previewOrganizationCheckoutCart: () => Promise.reject(new Error("not previewed in stories")),
+};
 
 export default {
   title: "Billing/Organizations/Organization Plans",
@@ -211,6 +218,8 @@ export default {
         { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
         { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
       ],
     }),
     applicationConfig({

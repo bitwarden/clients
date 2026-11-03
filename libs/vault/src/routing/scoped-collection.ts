@@ -9,9 +9,9 @@ import { MY_ITEMS_ROUTE } from "../models/vault-scope";
 export const MY_ITEMS_ROUTE_DATA: Data = { collectionId: MY_ITEMS_ROUTE };
 
 /**
- * The collection segment a vault route names, from wherever that route carries it — the single
- * read `parseVaultScope` and `resolveVaultScope` are fed from, so no caller has to know which of
- * the two vault routes holding a collection it is on.
+ * The collection segment a vault route names, from wherever that route carries it — the read
+ * `routeVaultScope` feeds `parseVaultScope`, so no caller has to know which of the two vault routes
+ * holding a collection it is on.
  *
  * A shared folder drill-in takes the segment as its `:collectionId` param. "My items" cannot: the
  * collection's id differs per member, so its route names it by a static path instead and declares

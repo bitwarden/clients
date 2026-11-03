@@ -28,9 +28,7 @@ describe("PasswordHistoryComponent", () => {
     name: "cipher one",
   } as CipherView;
 
-  const mockCipher = {
-    decrypt: jest.fn().mockResolvedValue(mockCipherView),
-  } as unknown as Cipher;
+  const mockCipher = {} as unknown as Cipher;
 
   const back = jest.fn().mockResolvedValue(undefined);
   const cipherView$ = jest

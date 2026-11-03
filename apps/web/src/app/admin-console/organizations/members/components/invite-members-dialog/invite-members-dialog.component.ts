@@ -22,6 +22,8 @@ import { CollectionAdminView } from "@bitwarden/common/admin-console/models/coll
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -71,6 +73,9 @@ import {
 import { parseCommaSeparatedEmails } from "../member-dialog/validators/parse-comma-separated-emails";
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
+// TODO(guided-tour removal): delete this import along with the rest of the guided tour. See the
+// header comment in by-link-tab-tour.component.ts for the full removal checklist.
+import { ByLinkTabTourComponent } from "./by-link-tab-tour.component";
 import { ByLinkTabComponent } from "./by-link-tab.component";
 
 export interface InviteMembersDialogParams {
@@ -78,6 +83,8 @@ export interface InviteMembersDialogParams {
   isOnSecretsManagerStandalone: boolean;
   occupiedSeatCount: number;
   allOrganizationUsers: OrganizationUserView[];
+  // TODO(guided-tour removal): delete this field along with the rest of the guided tour. See the
+  // header comment in by-link-tab-tour.component.ts for the full removal checklist.
   showCoachMarks?: boolean;
 }
 
@@ -93,6 +100,9 @@ export interface InviteMembersDialogParams {
     AsyncPipe,
     ButtonModule,
     ByLinkTabComponent,
+    // TODO(guided-tour removal): remove this entry along with the rest of the guided tour. See
+    // the header comment in by-link-tab-tour.component.ts for the full removal checklist.
+    ByLinkTabTourComponent,
     CheckboxModule,
     DialogModule,
     DisclosureComponent,
@@ -121,14 +131,28 @@ export class InviteMembersDialogComponent {
   private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
   private readonly memberActionsService = inject(MemberActionsService);
+  private readonly configService = inject(ConfigService);
 
   private readonly byLinkTab = viewChild(ByLinkTabComponent);
 
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
+  // TODO(guided-tour removal): change back to `signal(0)`, dropping the `showCoachMarks`
+  // ternary. See the header comment in by-link-tab-tour.component.ts for the full removal
+  // checklist.
   protected readonly selectedTabIndex = signal(this.params.showCoachMarks ? 1 : 0);
   protected readonly moreSettingsOpen = signal(false);
+
+  protected readonly privilegedControlsEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    { initialValue: false },
+  );
+
+  protected readonly rotationEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PamAccessConnector),
+    { initialValue: false },
+  );
 
   protected byLinkTabDirty(): boolean {
     return this.byLinkTab()?.form.dirty ?? false;
@@ -145,6 +169,12 @@ export class InviteMembersDialogComponent {
   readonly deactivateLink = async () => {
     await this.byLinkTab()?.deactivateLink();
   };
+
+  // TODO(guided-tour removal): delete this method along with the rest of the guided tour. See
+  // the header comment in by-link-tab-tour.component.ts for the full removal checklist.
+  protected finishTour(): void {
+    this.close(MemberDialogResult.Canceled);
+  }
 
   protected readonly formGroup = this.formBuilder.group({
     emails: [""],
@@ -169,6 +199,8 @@ export class InviteMembersDialogComponent {
     managePolicies: false,
     manageUsers: false,
     manageResetPassword: false,
+    manageAccessRules: false,
+    manageRotation: false,
   });
 
   protected readonly organization$: Observable<Organization> =

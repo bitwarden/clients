@@ -1,15 +1,12 @@
 import { BitwardenIcon } from "@bitwarden/components";
 
-/** The starter templates offered on the empty state. Each key maps to a card + a create-form prefill. */
 export type AccessRuleTemplateKey = "just-in-time" | "approval-required" | "ip-restricted";
 
 export type AccessRuleTemplate = {
   key: AccessRuleTemplateKey;
-  /** Empty-state card presentation. */
   icon: BitwardenIcon;
   titleKey: string;
   summaryKey: string;
-  /** Values seeded into a new rule when this template is chosen. */
   prefill: {
     nameKey: string;
     defaultLeaseDurationSeconds: number;
@@ -18,17 +15,13 @@ export type AccessRuleTemplate = {
   };
 };
 
-/**
- * Single source of truth for the starter templates. The empty state renders these as cards;
- * picking one navigates to the create page with the template key, and the edit page applies the
- * matching {@link AccessRuleTemplate.prefill}.
- */
+/** Picking one opens the create page with its key, and that page applies the matching prefill. */
 export const ACCESS_RULE_TEMPLATES: AccessRuleTemplate[] = [
   {
     key: "just-in-time",
     icon: "bwi-clock",
     titleKey: "pamTemplateJustInTimeTitle",
-    summaryKey: "pamTemplateJustInTimeSummary",
+    summaryKey: "pamTemplateJustInTimeShortSummary",
     prefill: {
       nameKey: "pamTemplateJustInTimeName",
       defaultLeaseDurationSeconds: 60 * 60,
@@ -40,7 +33,7 @@ export const ACCESS_RULE_TEMPLATES: AccessRuleTemplate[] = [
     key: "approval-required",
     icon: "bwi-check-circle",
     titleKey: "pamTemplateApprovalRequiredTitle",
-    summaryKey: "pamTemplateApprovalRequiredSummary",
+    summaryKey: "pamTemplateApprovalRequiredShortSummary",
     prefill: {
       nameKey: "pamTemplateApprovalRequiredName",
       defaultLeaseDurationSeconds: 60 * 60,
@@ -52,7 +45,7 @@ export const ACCESS_RULE_TEMPLATES: AccessRuleTemplate[] = [
     key: "ip-restricted",
     icon: "bwi-wireless",
     titleKey: "pamTemplateIpRestrictedTitle",
-    summaryKey: "pamTemplateIpRestrictedSummary",
+    summaryKey: "pamTemplateIpRestrictedShortSummary",
     prefill: {
       nameKey: "pamTemplateIpRestrictedName",
       defaultLeaseDurationSeconds: 60 * 60,

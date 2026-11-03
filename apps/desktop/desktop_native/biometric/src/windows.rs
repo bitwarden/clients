@@ -62,7 +62,8 @@ use windows::{
 use windows_future::IAsyncOperation;
 
 use self::encryption::{
-    Challenge, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV2, WindowsHelloPrf,
+    Challenge, WindowsHelloChallengeAndKey, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV2,
+    WindowsHelloPrf,
 };
 use super::windows_focus::{focus_security_prompt, restore_focus};
 
@@ -75,6 +76,10 @@ pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
     // ensure locked vaults cannot be unlocked
     secure_memory: Arc<Mutex<secure_memory::dpapi::DpapiSecretKVStore>>,
+    // The Windows Hello challenge and key (PRF) from the last prompt, per user. Lets re-enrollment
+    // (e.g. after a user key rotation) seal the new key without a second prompt. As sensitive as
+    // the user keys above.
+    windows_hello_challenge_and_key_memory: Arc<Mutex<secure_memory::dpapi::DpapiSecretKVStore>>,
     // Cache whether a keychain entry exists for a user to avoid excessive keychain lookups
     // (Windows audit event 5379). Key = user_id, Value = true (entry exists) or false (no
     // entry). If user_id not in map = cache miss.
@@ -90,9 +95,37 @@ impl BiometricLockSystem {
     pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(secure_memory::dpapi::DpapiSecretKVStore::new())),
+            windows_hello_challenge_and_key_memory: Arc::new(Mutex::new(
+                secure_memory::dpapi::DpapiSecretKVStore::new(),
+            )),
             has_keychain_entry_cache: Arc::new(Mutex::new(HashMap::new())),
             authenticate_available_cache: Arc::new(Mutex::new(None)),
         }
+    }
+
+    async fn cache_windows_hello_challenge_and_key(
+        &self,
+        user_id: &str,
+        key: &WindowsHelloChallengeAndKey,
+    ) {
+        self.windows_hello_challenge_and_key_memory
+            .lock()
+            .await
+            .put(user_id.to_string(), &key.to_bytes());
+    }
+
+    /// Returns `None` on a cache miss or if the secure memory was tampered with.
+    async fn cached_windows_hello_challenge_and_key(
+        &self,
+        user_id: &str,
+    ) -> Option<WindowsHelloChallengeAndKey> {
+        let bytes = self
+            .windows_hello_challenge_and_key_memory
+            .lock()
+            .await
+            .get(&user_id.to_string())
+            .ok()??;
+        WindowsHelloChallengeAndKey::from_bytes(&bytes).ok()
     }
 }
 
@@ -132,6 +165,10 @@ impl super::BiometricTrait for BiometricLockSystem {
 
     async fn unenroll(&self, user_id: &String) -> Result<()> {
         self.secure_memory.lock().await.remove(user_id);
+        self.windows_hello_challenge_and_key_memory
+            .lock()
+            .await
+            .remove(user_id);
         delete_keychain_entry(user_id).await?;
 
         self.has_keychain_entry_cache
@@ -152,15 +189,30 @@ impl super::BiometricTrait for BiometricLockSystem {
         let user_key = SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(key.to_vec()))
             .map_err(|e| anyhow!("Failed to parse user key: {e}"))?;
 
-        // Each enrollment (per user) has a unique challenge, so that the windows-hello prf is
-        // unique
-        let challenge = Challenge::make();
+        // Reuse the Windows Hello challenge and key from the last prompt, so re-enrolling right
+        // after a biometric unlock does not prompt again. Otherwise derive new ones (prompts).
+        let windows_hello_challenge_and_key =
+            match self.cached_windows_hello_challenge_and_key(user_id).await {
+                Some(key) => key,
+                None => {
+                    // Each enrollment (per user) has a unique challenge, so that the windows-hello
+                    // prf is unique
+                    let challenge = Challenge::make();
 
-        // This prf is unique to the challenge
-        let windows_hello_key = windows_hello_authenticate_with_crypto(&challenge).await?;
-        let entry = WindowsHelloKeychainEntryV2::seal(challenge, &windows_hello_key, &user_key)?;
+                    // This prf is unique to the challenge
+                    let prf = windows_hello_authenticate_with_crypto(&challenge).await?;
+                    WindowsHelloChallengeAndKey { challenge, prf }
+                }
+            };
+        let entry = WindowsHelloKeychainEntryV2::seal(
+            windows_hello_challenge_and_key.challenge.clone(),
+            &windows_hello_challenge_and_key.prf,
+            &user_key,
+        )?;
 
         set_keychain_entry(user_id, &entry).await?;
+        self.cache_windows_hello_challenge_and_key(user_id, &windows_hello_challenge_and_key)
+            .await;
 
         self.has_keychain_entry_cache
             .lock()
@@ -205,12 +257,33 @@ impl super::BiometricTrait for BiometricLockSystem {
                 WindowsHelloKeychainEntry::V2(entry) => {
                     let windows_hello_key =
                         windows_hello_authenticate_with_crypto(&entry.challenge).await?;
-                    entry.unseal(&windows_hello_key)?
+                    let user_key = entry.unseal(&windows_hello_key)?;
+
+                    // Unseal succeeded, so the key is valid. Cached for re-enrollment.
+                    self.cache_windows_hello_challenge_and_key(
+                        user_id,
+                        &WindowsHelloChallengeAndKey {
+                            challenge: entry.challenge,
+                            prf: windows_hello_key,
+                        },
+                    )
+                    .await;
+                    user_key
                 }
                 WindowsHelloKeychainEntry::V1(entry) => {
                     let windows_hello_key =
                         windows_hello_authenticate_with_crypto(&entry.challenge).await?;
                     let user_key = entry.unseal(&windows_hello_key)?;
+
+                    // Unseal succeeded, so the key is valid. Cached for re-enrollment.
+                    self.cache_windows_hello_challenge_and_key(
+                        user_id,
+                        &WindowsHelloChallengeAndKey {
+                            challenge: entry.challenge.clone(),
+                            prf: windows_hello_key.clone(),
+                        },
+                    )
+                    .await;
 
                     // Lazily migrate the legacy entry to the envelope format. The same challenge is
                     // reused, so no additional Windows Hello prompt is required. A migration
@@ -541,6 +614,49 @@ mod tests {
             .has_persistent(&user_id)
             .await
             .unwrap());
+    }
+
+    // Re-enrolling after a biometric unlock (e.g. after a user key rotation) must reuse the
+    // Windows Hello challenge and key from the unlock. Expect 3 prompts: enroll, unlock, final
+    // unlock. Not 4.
+    #[tokio::test]
+    #[ignore]
+    async fn test_enroll_after_unlock_reuses_windows_hello_challenge_and_key() {
+        let user_id = String::from("test_user");
+        let mut key = [0u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH];
+        bitwarden_random::rng().fill_bytes(&mut key);
+        let mut rotated_key = [0u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH];
+        bitwarden_random::rng().fill_bytes(&mut rotated_key);
+
+        println!("Enrolling user (prompts)");
+        BiometricLockSystem::new()
+            .enroll_persistent(&user_id, &key)
+            .await
+            .unwrap();
+
+        // A fresh instance simulates an app restart: nothing is held in secure memory.
+        let windows_hello_lock_system = BiometricLockSystem::new();
+        println!("Unlocking user (prompts)");
+        let key_after_unlock = windows_hello_lock_system
+            .unlock(&user_id, Vec::new())
+            .await
+            .unwrap();
+        assert_eq!(key_after_unlock, key);
+
+        println!("Re-enrolling rotated key (must not prompt)");
+        windows_hello_lock_system
+            .enroll_persistent(&user_id, &rotated_key)
+            .await
+            .unwrap();
+
+        println!("Unlocking user after restart (prompts)");
+        let key_after_reenroll = BiometricLockSystem::new()
+            .unlock(&user_id, Vec::new())
+            .await
+            .unwrap();
+        assert_eq!(key_after_reenroll, rotated_key);
+
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
     }
 
     #[tokio::test]

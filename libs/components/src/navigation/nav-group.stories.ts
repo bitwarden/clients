@@ -10,9 +10,11 @@ import { enabledFlags } from "@bitwarden/storybook";
 
 import { BerryComponent } from "../berry";
 import { ChipActionComponent } from "../chips";
+import { HoverRevealContainerDirective, HoverRevealDirective } from "../hover-reveal";
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile";
 import { LayoutComponent } from "../layout";
+import { MenuModule } from "../menu";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
@@ -43,6 +45,9 @@ export default {
         BerryComponent,
         ChipActionComponent,
         IconTileComponent,
+        HoverRevealContainerDirective,
+        HoverRevealDirective,
+        MenuModule,
       ],
       providers: [
         {
@@ -185,14 +190,14 @@ export const NestedGroups: StoryObj<NavGroupComponent> = {
     props: args,
     template: /*html*/ `
       <bit-side-nav>
-        <bit-nav-group text="Nested groups example" icon="bwi-collection-shared" [open]="true">
-          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared"></bit-nav-item>
-          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" [open]="true">
-            <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection-shared" [open]="true">
+        <bit-nav-group text="Nested groups example" icon="bwi-shared-folder" [open]="true">
+          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-shared-folder"></bit-nav-item>
+          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-shared-folder" [open]="true">
+            <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-shared-folder" [open]="true">
               <bit-nav-item text="Level 3 - no children, no icon" route="t5"></bit-nav-item>
-              <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection-shared" [open]="true">
+              <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-shared-folder" [open]="true">
                 <bit-nav-item text="Level 4 - no children, no icon" route="t7"></bit-nav-item>
-                <bit-nav-group text="Level 4 - with children" route="t8" icon="bwi-collection-shared" [open]="true">
+                <bit-nav-group text="Level 4 - with children" route="t8" icon="bwi-shared-folder" [open]="true">
                   <bit-nav-item text="Level 5 - no children, no icon" route="t9"></bit-nav-item>
                 </bit-nav-group>
               </bit-nav-group>
@@ -202,6 +207,11 @@ export const NestedGroups: StoryObj<NavGroupComponent> = {
       </bit-side-nav>
     `,
   }),
+};
+
+export const NestedGroupsVfo1: StoryObj<NavGroupComponent> = {
+  ...NestedGroups,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const ForcedActive: StoryObj<NavGroupComponent> = {
@@ -264,6 +274,42 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
       </bit-side-nav>
     `,
   }),
+};
+
+export const WithHoverReveal: StoryObj<NavGroupComponent> = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="Shared folder" icon="bwi-folder" [open]="true" bitHoverRevealContainer>
+          <button
+            type="button"
+            slot="end"
+            bitHoverReveal
+            bitIconButton="bwi-ellipsis-v"
+            buttonType="side-nav"
+            size="xsmall"
+            label="Options"
+            [bitMenuTriggerFor]="menu"
+          ></button>
+          <bit-nav-item text="Child A" icon="bwi-folder"></bit-nav-item>
+          <bit-nav-item text="Child B" icon="bwi-folder"></bit-nav-item>
+        </bit-nav-group>
+      </bit-side-nav>
+      <bit-menu #menu>
+        <button type="button" bitMenuItem>Rename</button>
+        <button type="button" bitMenuItem>Unpin</button>
+      </bit-menu>
+    `,
+  }),
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
+};
+
+export const WithHoverRevealVfo1: StoryObj<NavGroupComponent> = {
+  ...WithHoverReveal,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 /**

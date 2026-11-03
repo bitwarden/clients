@@ -1,0 +1,44 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog>
+  <span bitDialogTitle>{{ "pamExtendLeaseDialogTitle" | i18n }}</span>
+  <div bitDialogContent>
+    <bit-form-field>
+      <bit-label>{{ "pamExtendLeaseDurationLabel" | i18n }}</bit-label>
+      <bit-select id="extend-lease-dialog_select_duration" formControlName="durationSeconds">
+        @for (opt of durationOptions; track opt.seconds) {
+          <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
+        }
+      </bit-select>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "pamExtendLeaseReasonLabel" | i18n }}</bit-label>
+      <textarea
+        bitInput
+        id="extend-lease-dialog_textarea_reason"
+        formControlName="reason"
+        rows="2"
+      ></textarea>
+    </bit-form-field>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      [disabled]="formGroup.invalid"
+      id="extend-lease-dialog_button_submit"
+    >
+      {{ "pamExtendLeaseButton" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      bitDialogClose
+      id="extend-lease-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

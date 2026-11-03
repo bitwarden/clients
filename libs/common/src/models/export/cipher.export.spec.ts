@@ -1,5 +1,6 @@
 import { CipherType } from "../../vault/enums";
 import { Cipher } from "../../vault/models/domain/cipher";
+import { Login } from "../../vault/models/domain/login";
 import { CipherView } from "../../vault/models/view/cipher.view";
 import { conditionalEncString } from "../../vault/utils/domain-utils";
 
@@ -45,7 +46,7 @@ describe("Cipher Export", () => {
 
   // Blob ciphers seal all content in `data`; the legacy per-field properties are undefined.
   describe("blob ciphers", () => {
-    const sealedData = "SEALED_BLOB";
+    const sealedData = '{"format_version":1,"wrapped_cek":"2.a|b|c","envelope":"g1hH"}';
     const cipherKey = "CIPHER_KEY";
 
     function blobCipher(): Cipher {
@@ -78,6 +79,13 @@ describe("Cipher Export", () => {
       expect(exported.login).toBeUndefined();
     });
 
+    it("build does not export the name", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      expect(JSON.parse(JSON.stringify(exported))).not.toHaveProperty("name");
+    });
+
     it("toDomain restores the sealed data", () => {
       const exported = new CipherExport();
       exported.build(blobCipher());
@@ -95,6 +103,43 @@ describe("Cipher Export", () => {
 
       expect(domain.name).toBeUndefined();
       expect(domain.login).toBeUndefined();
+    });
+  });
+
+  // Legacy ciphers carry a non-blob `data` copy; export their per-field properties instead.
+  describe("legacy ciphers", () => {
+    const encName = "2.name|iv|mac";
+    const encUsername = "2.user|iv|mac";
+
+    function legacyCipher(): Cipher {
+      const cipher = new Cipher();
+      cipher.type = CipherType.Login;
+      cipher.name = conditionalEncString(encName);
+      cipher.login = new Login();
+      cipher.login.username = conditionalEncString(encUsername);
+      cipher.data = JSON.stringify({ Name: encName, Username: encUsername });
+      return cipher;
+    }
+
+    it("build does not export the data", () => {
+      const exported = new CipherExport();
+      exported.build(legacyCipher());
+
+      expect(exported.data).toBeUndefined();
+    });
+
+    it("build exports the name", () => {
+      const exported = new CipherExport();
+      exported.build(legacyCipher());
+
+      expect(exported.name).toBe(encName);
+    });
+
+    it("build exports the type specific content", () => {
+      const exported = new CipherExport();
+      exported.build(legacyCipher());
+
+      expect(exported.login?.username).toBe(encUsername);
     });
   });
 

@@ -18,6 +18,9 @@ import { SecureNoteExport } from "./secure-note.export";
 import { SshKeyExport } from "./ssh-key.export";
 import { safeGetString } from "./utils";
 
+// Only blob ciphers carry a format version in `data`, e.g. `{"format_version":1,...}`.
+const BLOB_FORMAT_MARKER = '"format_version"';
+
 export class CipherExport {
   static template(): CipherExport {
     const req = new CipherExport();
@@ -41,7 +44,7 @@ export class CipherExport {
       const set = new Set((view.collectionIds ?? []).concat(req.collectionIds ?? []));
       view.collectionIds = Array.from(set.values());
     }
-    view.name = req.name;
+    view.name = req.name ?? "";
     view.notes = req.notes;
     view.favorite = req.favorite;
     view.reprompt = req.reprompt ?? CipherRepromptType.None;
@@ -197,7 +200,7 @@ export class CipherExport {
   folderId?: string;
   organizationId?: string;
   collectionIds?: string[];
-  name: string = "";
+  name?: string;
   notes?: string;
   favorite: boolean = false;
   fields?: FieldExport[];
@@ -225,7 +228,8 @@ export class CipherExport {
     this.type = o.type;
     this.reprompt = o.reprompt;
 
-    this.name = safeGetString(o.name) ?? "";
+    // Blob ciphers seal the name in `data`; omit it from the export.
+    this.name = CipherExport.isBlob(o) ? undefined : (safeGetString(o.name) ?? "");
     this.notes = safeGetString(o.notes);
     if ("key" in o) {
       this.key =
@@ -246,7 +250,8 @@ export class CipherExport {
 
   // Blob ciphers seal all content in `data`; their legacy per-field properties are undefined.
   private buildContent(o: CipherView | CipherDomain) {
-    if (o instanceof CipherDomain && o.data != null) {
+    // Legacy ciphers also carry `data`, but their per-field properties are authoritative.
+    if (CipherExport.isBlob(o)) {
       this.data = o.data;
       return;
     }
@@ -285,5 +290,9 @@ export class CipherExport {
     if (o.passwordHistory != null) {
       this.passwordHistory = o.passwordHistory.map((ph) => new PasswordHistoryExport(ph));
     }
+  }
+
+  private static isBlob(o: CipherView | CipherDomain): o is CipherDomain & { data: string } {
+    return o instanceof CipherDomain && o.data?.includes(BLOB_FORMAT_MARKER) === true;
   }
 }

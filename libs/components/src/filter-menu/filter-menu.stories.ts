@@ -250,6 +250,41 @@ class FilterMenuLongLabelsDemoComponent {
   ];
 }
 
+/** Long labels with a count on every row. */
+@Component({
+  selector: "filter-menu-long-labels-with-counts-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="collection" placeholderText="Shared folders" multiple>
+        <bit-filter-section label="Bitwarden Design System and Component Library" collapsible>
+          <bit-filter-option [value]="'onboarding'" [count]="128" expanded>
+            Onboarding materials for new design system contributors
+            <bit-filter-option [value]="'tokens'" [count]="1024">
+              Design tokens, themes, and every palette we publish
+            </bit-filter-option>
+          </bit-filter-option>
+        </bit-filter-section>
+      </bit-filter-menu>
+
+      <bit-filter-menu key="folder" placeholderText="My folders" unsetLabel="All">
+        @for (folder of folders; track folder.name) {
+          <bit-filter-option [value]="folder.name" [count]="folder.count">{{
+            folder.name
+          }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuLongLabelsWithCountsDemoComponent {
+  protected readonly folders = [
+    { name: "Household paperwork, warranties, and appliance manuals", count: 42 },
+    { name: "Streaming subscriptions I keep meaning to cancel", count: 7 },
+  ];
+}
+
 @Component({
   selector: "filter-menu-disabled-reason-demo",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -289,6 +324,7 @@ export default {
         FilterMenuNestedTilesDemoComponent,
         FilterMenuEmptyDemoComponent,
         FilterMenuLongLabelsDemoComponent,
+        FilterMenuLongLabelsWithCountsDemoComponent,
         FilterMenuDisabledReasonDemoComponent,
         FilterMenuModule,
       ],
@@ -306,6 +342,7 @@ export default {
               filterResults: (count) => `${count} results`,
               search: "Search",
               resetSearch: "Reset search",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               clear: "Clear",
               filtersSelected: (count) => `${count} selected`,
             }),
@@ -383,6 +420,17 @@ export const NestedIconTiles: Story = {
   },
 };
 
+/** Opens the menu and types `term` into its search. */
+const searchForPlay =
+  (term: string): Story["play"] =>
+  async (context) => {
+    const [trigger] = getAllByRole(context.canvasElement, "button");
+    await userEvent.click(trigger);
+    // The popover renders into the CDK overlay, outside the story canvas.
+    const search = await findByLabelText(document.body, "Search");
+    await userEvent.type(search, term);
+  };
+
 /**
  * No option matches the search term. The in-menu search needs more than ten options.
  */
@@ -390,13 +438,13 @@ export const NoMatchingItems: Story = {
   render: () => ({
     template: `<filter-menu-empty-demo></filter-menu-empty-demo>`,
   }),
-  play: async (context) => {
-    const [trigger] = getAllByRole(context.canvasElement, "button");
-    await userEvent.click(trigger);
-    // The popover renders into the CDK overlay, outside the story canvas.
-    const search = await findByLabelText(document.body, "Search");
-    await userEvent.type(search, "zzz");
-  },
+  play: searchForPlay("zzz"),
+};
+
+/** A long search term with no spaces, clamped to two lines in the no-results message. */
+export const NoMatchingItemsLongSearchTerm: Story = {
+  ...NoMatchingItems,
+  play: searchForPlay("Quarterlyinfrastructurereviewfortheplatformengineeringteam"),
 };
 
 /**
@@ -460,6 +508,16 @@ export const LongLabelsSingleSelect: Story = {
       // currently flaky test, menu mounts in different positions against the chip
       disableSnapshot: true,
     },
+  },
+};
+
+/** Long labels beside counts: the label should truncate while the count stays whole. */
+export const LongLabelsWithCounts: Story = {
+  render: () => ({
+    template: `<filter-menu-long-labels-with-counts-demo></filter-menu-long-labels-with-counts-demo>`,
+  }),
+  play: async (context) => {
+    await userEvent.click(getAllByRole(context.canvasElement, "button")[0]);
   },
 };
 

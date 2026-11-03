@@ -28,8 +28,8 @@ the required `title` input, prefixed by `icon` and followed by anything in `slot
 When a `bit-breadcrumbs` projected into the header has an **active** breadcrumb — one whose `route`
 matches the current URL — that breadcrumb becomes the page's `<h1>` instead, marked
 `aria-current="page"`. The header then skips its own heading so the page never has two `<h1>`
-elements, which means `title`, `icon`, `slot="title-prefix"`, and `slot="title-suffix"` don't render
-in this case.
+elements, which means `title`, `icon`, and `slot="title-prefix"` don't render in this case.
+`slot="title-suffix"` still renders, after the active breadcrumb.
 
 <Canvas of={stories.WithActiveBreadcrumbVfo1} />
 
@@ -44,7 +44,9 @@ the breadcrumbs.
 ### How the header and breadcrumbs coordinate
 
 The two components talk through `HeaderContext`. The breadcrumbs hand it a signal saying whether
-they render the heading, and `bit-header` reads that signal to decide whether to render its own.
+they render the heading, and `bit-header` reads that signal to decide whether to render its own. The
+breadcrumbs also hand it an outlet after the active crumb, which `bit-header` renders the title
+suffix into while the heading is promoted.
 
 A wrapper that projects `slot="breadcrumbs"` through to `bit-header` must provide `HeaderContext`.
 Without it the breadcrumbs have no context to register with.
@@ -78,18 +80,20 @@ Breadcrumbs render above the title. An active breadcrumb also changes what the h
 ### Prefix
 
 Leading content before the title, in place of the monochrome `icon` input — commonly a
-`bit-icon-tile`, as below. Like the title suffix, it drops when a breadcrumb is promoted, and only
-renders while the `VFO1Foundation` feature flag is on.
+`bit-icon-tile`, as below. It drops when a breadcrumb is promoted, and only renders while the
+`VFO1Foundation` feature flag is on.
 
 <Canvas of={stories.WithPrefixVfo1} />
 
 ### Title suffix
 
-The title suffix is part of the heading, so it is rendered only when the header renders its own
-heading — a promoted breadcrumb drops the suffix along with the title. See
-[Page heading](#page-heading).
+The title suffix follows whichever heading is visible: the header's own `<h1>`, or a promoted
+breadcrumb. It sits beside the heading rather than inside it, so it isn't part of the heading's
+accessible name. See [Page heading](#page-heading).
 
-<Canvas of={stories.WithTitleSuffixComponent} />
+<Canvas of={stories.TitleWithSubtitleVfo1} />
+
+<Canvas of={stories.WithActiveBreadcrumbAndTitleSuffixVfo1} />
 
 ### Tabs
 

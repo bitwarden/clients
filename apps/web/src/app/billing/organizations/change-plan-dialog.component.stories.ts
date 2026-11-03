@@ -20,6 +20,7 @@ import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { Cart } from "@bitwarden/pricing";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   PreviewInvoiceClient,
@@ -28,6 +29,7 @@ import {
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { BillingNotificationService } from "../services/billing-notification.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 
 // NOTE: ChangePlanDialogComponent must be imported before OrganizationWarningsService.
 // The component injects OrganizationWarningsService, which in turn imports
@@ -195,6 +197,17 @@ const mockOrganizationWarningsService: Partial<OrganizationWarningsService> = {
   refreshInactiveSubscriptionWarning: () => {},
 };
 const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
+const mockCart: Cart = {
+  passwordManager: {
+    seats: { translationKey: "passwordManagerPlanPrice", quantity: 1, cost: 300 },
+  },
+  cadence: "annually",
+  estimatedTax: 0,
+  total: 300,
+};
+const mockInvoicePreviewService: Partial<InvoicePreviewService> = {
+  previewPlanChangeCart: () => Promise.resolve(mockCart),
+};
 
 export default {
   title: "Billing/Organizations/Change Plan Dialog",
@@ -221,6 +234,7 @@ export default {
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
       ],
     }),
     applicationConfig({
@@ -248,6 +262,23 @@ export const Vfo1Enabled: Story = {
         {
           provide: Vfo1TerminologyService,
           useValue: { enabled: () => true, iconClass: (icon: string) => icon },
+        },
+      ],
+    }),
+  ],
+};
+
+/**
+ * With the preview-driven cart flag on, the hand-built cost summary is replaced by the shared
+ * `<billing-cart-summary>` fed by the plan-change invoice preview.
+ */
+export const PreviewCartEnabled: Story = {
+  decorators: [
+    moduleMetadata({
+      providers: [
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: () => of(true) } as unknown as ConfigService,
         },
       ],
     }),

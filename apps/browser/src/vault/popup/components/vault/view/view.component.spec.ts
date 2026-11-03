@@ -114,7 +114,6 @@ describe("ViewComponent", () => {
 
   const mockCipherService = {
     cipherViews$: jest.fn().mockImplementation((userId) => of([mockCipher])),
-    getKeyForCipherKeyDecryption: jest.fn().mockResolvedValue({}),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
   };
