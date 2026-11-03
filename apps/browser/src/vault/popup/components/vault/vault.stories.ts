@@ -41,6 +41,7 @@ import {
 } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -50,6 +51,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   SecurityTask,
@@ -635,6 +637,7 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
+    { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
     {
       provide: EnvironmentService,
       useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
