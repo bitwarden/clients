@@ -52,7 +52,8 @@ pub(super) fn get_assertion(
     let window = parse_window_handle(window_handle)?;
 
     // macOS sets the origin itself. On Windows, the app is responsible for the client data.
-    let client_data_json = client_data::get_client_data_json(&request.challenge, &request.rp_id)?;
+    let client_data_json =
+        client_data::get_client_data_json(&request.challenge, &request.origin, &request.rp_id)?;
 
     let allow_credentials = request
         .allow_credentials

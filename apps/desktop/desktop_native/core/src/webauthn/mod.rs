@@ -21,8 +21,11 @@ mod platform;
 ///
 /// [options]: https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialrequestoptions
 pub struct AssertionRequest {
-    /// The RP ID. On platforms where the app creates the client data, the origin is
-    /// `https://{rp_id}`.
+    /// The origin making the request, e.g. `https://vault.bitwarden.com`. On platforms where the
+    /// app creates the client data, this is its origin. Platforms that set the origin themselves
+    /// ignore it.
+    pub origin: String,
+    /// The RP ID. It must be the origin's host, or a domain that the host is a subdomain of.
     pub rp_id: String,
     /// The challenge from the RP.
     pub challenge: Vec<u8>,

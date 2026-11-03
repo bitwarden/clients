@@ -13,18 +13,36 @@ use super::Error;
 struct CollectedClientData<'a> {
     r#type: &'a str,
     challenge: String,
-    origin: String,
+    origin: &'a str,
     cross_origin: bool,
 }
 
-/// Creates the `CollectedClientData` JSON for a `webauthn.get` ceremony, with an origin of
-/// `https://{rp_id}`.
-pub(super) fn get_client_data_json(challenge: &[u8], rp_id: &str) -> Result<Vec<u8>, Error> {
+/// Creates the `CollectedClientData` JSON for a `webauthn.get` ceremony.
+///
+/// The RP ID must be the origin's host, or a domain that the host is a subdomain of, as WebAuthn
+/// requires of a web page.
+pub(super) fn get_client_data_json(
+    challenge: &[u8],
+    origin: &str,
+    rp_id: &str,
+) -> Result<Vec<u8>, Error> {
     validate_rp_id(rp_id)?;
+    let host = origin_host(origin)?.to_ascii_lowercase();
+    let rp_id_lower = rp_id.to_ascii_lowercase();
+    let host_matches = host == rp_id_lower
+        || host
+            .strip_suffix(&rp_id_lower)
+            .is_some_and(|subdomain| subdomain.ends_with('.'));
+    if !host_matches {
+        return Err(Error::InvalidRequest(format!(
+            "rpId {rp_id:?} is not valid for origin {origin:?}"
+        )));
+    }
+
     let client_data = CollectedClientData {
         r#type: "webauthn.get",
         challenge: URL_SAFE_NO_PAD.encode(challenge),
-        origin: format!("https://{rp_id}"),
+        origin,
         cross_origin: false,
     };
     serde_json::to_vec(&client_data).map_err(|err| Error::Platform {
@@ -33,7 +51,29 @@ pub(super) fn get_client_data_json(challenge: &[u8], rp_id: &str) -> Result<Vec<
     })
 }
 
-/// Checks that the RP ID can be used as the host of an `https://` origin.
+/// Returns the host of a serialized origin, e.g. `example.com` for `https://example.com:8443`.
+///
+/// Only `https` origins are accepted, and `http` for `localhost`, matching where browsers allow
+/// WebAuthn.
+fn origin_host(origin: &str) -> Result<&str, Error> {
+    let invalid = || Error::InvalidRequest(format!("origin is not valid: {origin:?}"));
+    let (scheme, authority) = origin.split_once("://").ok_or_else(invalid)?;
+    let host = match authority.rsplit_once(':') {
+        Some((host, port)) if !port.is_empty() && port.bytes().all(|b| b.is_ascii_digit()) => host,
+        Some(_) => return Err(invalid()),
+        None => authority,
+    };
+    if host.is_empty() || host.contains(['/', '?', '#', '@']) {
+        return Err(invalid());
+    }
+    match scheme {
+        "https" => Ok(host),
+        "http" if host.eq_ignore_ascii_case("localhost") => Ok(host),
+        _ => Err(invalid()),
+    }
+}
+
+/// Checks that the RP ID is a domain.
 fn validate_rp_id(rp_id: &str) -> Result<(), Error> {
     let valid = !rp_id.is_empty()
         && !rp_id.starts_with('.')
@@ -56,11 +96,63 @@ mod tests {
 
     #[test]
     fn test_get_client_data_json() {
-        let json = get_client_data_json(&[1, 2, 3], "example.com").unwrap();
+        let json =
+            get_client_data_json(&[1, 2, 3], "https://vault.example.com", "example.com").unwrap();
         assert_eq!(
             String::from_utf8(json).unwrap(),
-            r#"{"type":"webauthn.get","challenge":"AQID","origin":"https://example.com","crossOrigin":false}"#
+            r#"{"type":"webauthn.get","challenge":"AQID","origin":"https://vault.example.com","crossOrigin":false}"#
         );
+    }
+
+    #[test]
+    fn test_accepts_rp_id_for_origin() {
+        for (origin, rp_id) in [
+            ("https://example.com", "example.com"),
+            ("https://vault.example.com", "example.com"),
+            ("https://vault.example.com", "vault.example.com"),
+            ("https://Vault.Example.com:8443", "example.com"),
+            ("https://localhost:8080", "localhost"),
+            ("http://localhost:8080", "localhost"),
+        ] {
+            assert!(
+                get_client_data_json(&[1], origin, rp_id).is_ok(),
+                "{origin} {rp_id}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_rejects_rp_id_not_valid_for_origin() {
+        for (origin, rp_id) in [
+            ("https://example.com", "vault.example.com"),
+            ("https://notexample.com", "example.com"),
+            ("https://example.com.evil.com", "example.com"),
+            ("https://evil.com", "example.com"),
+        ] {
+            assert!(
+                get_client_data_json(&[1], origin, rp_id).is_err(),
+                "{origin} {rp_id}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_rejects_invalid_origins() {
+        for origin in [
+            "example.com",
+            "http://example.com",
+            "file:///example.com",
+            "https://example.com/path",
+            "https://example.com:",
+            "https://example.com:port",
+            "https://user@example.com",
+            "https://",
+        ] {
+            assert!(
+                get_client_data_json(&[1], origin, "example.com").is_err(),
+                "{origin}"
+            );
+        }
     }
 
     #[test]
@@ -73,7 +165,10 @@ mod tests {
             ".example.com",
             "example.com.",
         ] {
-            assert!(get_client_data_json(&[1], rp_id).is_err(), "{rp_id:?}");
+            assert!(
+                get_client_data_json(&[1], "https://example.com", rp_id).is_err(),
+                "{rp_id:?}"
+            );
         }
     }
 }

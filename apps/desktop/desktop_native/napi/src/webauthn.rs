@@ -9,6 +9,8 @@ pub mod webauthn {
     /// bytes.
     #[napi(object)]
     pub struct AssertionRequest {
+        /// The origin making the request, e.g. `https://vault.bitwarden.com`.
+        pub origin: String,
         pub rp_id: String,
         pub challenge: Uint8Array,
         /// Credentials with a type other than `public-key` must be removed by the caller.
@@ -122,6 +124,7 @@ pub mod webauthn {
 
     fn core_request(request: AssertionRequest) -> core::AssertionRequest {
         core::AssertionRequest {
+            origin: request.origin,
             rp_id: request.rp_id,
             challenge: request.challenge.to_vec(),
             allow_credentials: request

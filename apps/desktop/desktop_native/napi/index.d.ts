@@ -486,7 +486,7 @@ export declare namespace sshagent {
 }
 
 export declare namespace webauthn {
-  /** Cancels a single [get_assertion] call. */
+  /** Cancels a single `getAssertion` call. */
   export class AssertionCancellation {
     constructor()
     /** Closes the platform's prompt. The call returns an `AbortError`. */
@@ -497,6 +497,8 @@ export declare namespace webauthn {
    * bytes.
    */
   export interface AssertionRequest {
+    /** The origin making the request, e.g. `https://vault.bitwarden.com`. */
+    origin: string
     rpId: string
     challenge: Uint8Array
     /** Credentials with a type other than `public-key` must be removed by the caller. */
