@@ -170,7 +170,7 @@ export class ApprovalsTabComponent {
   /**
    * Shares the badges' clock, so a lapsed row drops off, a lease turns "Ending soon" under the
    * Status filter, and the Requested window column re-reads as a window opens. Idle only with
-   * nothing to watch — every row has a window that can close.
+   * nothing to watch, every row has a window that can close.
    */
   protected readonly nowMs = toSignal(
     toObservable(computed(() => this.allRows().length > 0)).pipe(
@@ -230,7 +230,7 @@ export class ApprovalsTabComponent {
   );
 
   /**
-   * Hidden until the row is hovered or holds focus — except where there is no hover to give, or
+   * Hidden until the row is hovered or holds focus, except where there is no hover to give, or
    * the actions would be invisible and untappable for the whole of a touch device.
    */
   protected readonly revealClasses =

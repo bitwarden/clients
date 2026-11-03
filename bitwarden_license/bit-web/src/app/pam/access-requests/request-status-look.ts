@@ -9,7 +9,7 @@ import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
  * live here.
  *
  * `ready` carries the requester's word. An approver looking at the same grant has nothing to
- * use, so the Approvals tab overrides that one label with `pamStatusApproved` — the same
+ * use, so the Approvals tab overrides that one label with `pamStatusApproved`, the same
  * override its badge takes through `readyLabelKey`. Every other word is shared outright.
  */
 export const REQUEST_STATUS_LOOK = Object.freeze({

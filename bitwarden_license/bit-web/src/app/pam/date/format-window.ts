@@ -100,7 +100,7 @@ export function joinEndpoint(translate: Translate, endpoint: WindowEndpoint): st
 }
 
 /**
- * The requested window in words — the one spelling the My requests and Approvals tables share,
+ * The requested window in words, the one spelling the My requests and Approvals tables share,
  * since they render the same column over the same data. A window that has already opened reads
  * as its end alone ("Until 8:07 PM"); one still to open reads as its range, with a day both
  * endpoints share lifted out front ("Tomorrow, 9 AM to 1 PM").
