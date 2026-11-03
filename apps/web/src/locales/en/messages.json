@@ -19131,7 +19131,7 @@
     "message": "Incomplete"
   },
   "pamAuditIncompleteTooltip": {
-    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+    "message": "This action was recorded but its outcome was never confirmed. It may have failed or been interrupted."
   },
   "pamAuditKindRequestSubmitted": {
     "message": "Access requested"
@@ -19215,7 +19215,7 @@
     "message": "Couldn't load this access request."
   },
   "pamActiveLeaseBannerTitle": {
-    "message": "You have active access to this item — $DURATION$ remaining",
+    "message": "You have active access to this item: $DURATION$ remaining",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19224,7 +19224,7 @@
     }
   },
   "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Access to this item is ending soon — $DURATION$ remaining",
+    "message": "Access to this item is ending soon: $DURATION$ remaining",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -20661,7 +20661,7 @@
     "message": "Rotate now"
   },
   "pamRotationConfigRotateNowDisabledTitle": {
-    "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
+    "message": "Cannot rotate now. The rotation is disabled, paused, or already in progress."
   },
   "pamRotationConfigRotateNowUnavailableTitle": {
     "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
