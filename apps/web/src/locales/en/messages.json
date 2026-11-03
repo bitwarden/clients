@@ -18363,8 +18363,16 @@
   "pamAccessRuleCollectionsSelect": {
     "message": "Select collections"
   },
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Select shared folders",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleCollectionsSelect"
+  },
   "pamAccessRuleCollectionsHint": {
     "message": "This access rule will apply to all selected collections."
+  },
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "This access rule will apply to all selected shared folders.",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleCollectionsHint"
   },
   "pamAccessRuleEventLogNotice": {
     "message": "All requests and decisions are logged."
@@ -18374,6 +18382,10 @@
   },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Couldn't load collections. Refresh the page to try again."
+  },
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Couldn't load shared folders. Refresh the page to try again.",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleCollectionsLoadError"
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "This duration will be pre-filled in access requests."
@@ -18453,6 +18465,10 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collection managers"
   },
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Shared folder managers",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleApproversCollectionManagers"
+  },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (copy)",
     "placeholders": {
@@ -18479,6 +18495,10 @@
   "pamAccessRuleCopyCreated": {
     "message": "Copy created. Choose the collections it applies to."
   },
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Copy created. Choose the shared folders it applies to.",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleCopyCreated"
+  },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
   },
@@ -18493,6 +18513,10 @@
   },
   "pamAccessRuleDeleteConfirmDescription": {
     "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+  },
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "This will permanently remove this rule. Users in the shared folders it governs will regain normal access.",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleDeleteConfirmDescription"
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Deactivate access rule"
@@ -18509,6 +18533,10 @@
   "pamAccessRuleErrorCollectionsGoverned": {
     "message": "Another access rule already covers one of these collections. Select different collections."
   },
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Another access rule already covers one of these shared folders. Select different shared folders.",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleErrorCollectionsGoverned"
+  },
   "pamAccessRuleErrorCollectionsGovernedNamed": {
     "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
     "placeholders": {
@@ -18518,11 +18546,29 @@
       }
     }
   },
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different shared folders.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleErrorCollectionsGovernedNamed"
+  },
   "pamAccessRuleErrorCollectionsMissing": {
     "message": "One of the collections you selected no longer exists. Select a different collection."
   },
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "One of the shared folders you selected no longer exists. Select a different shared folder.",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleErrorCollectionsMissing"
+  },
   "pamAccessRuleErrorCollectionsForeign": {
     "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  },
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "One of the shared folders you selected is not part of this organization. Select a different shared folder.",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleErrorCollectionsForeign"
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "Choose a maximum extension length, or turn off extensions."
@@ -18538,6 +18584,10 @@
   },
   "pamNoAccessRulesYetDescription": {
     "message": "Create a rule to add extra protection to sensitive collections."
+  },
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Create a rule to add extra protection to sensitive shared folders.",
+    "description": "VFO1 terminology feature flag variant of pamNoAccessRulesYetDescription"
   },
   "pamAccessRuleCreateCustom": {
     "message": "Create custom rule"
@@ -18578,11 +18628,19 @@
   "pamAccessRuleCollectionsColumn": {
     "message": "Collections"
   },
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Shared folders",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleCollectionsColumn"
+  },
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
   "pamAccessRuleCollectionCountSingular": {
     "message": "1 collection"
+  },
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 shared folder",
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleCollectionCountSingular"
   },
   "pamAccessRuleCollectionCount": {
     "message": "$COUNT$ collections",
@@ -18592,6 +18650,16 @@
         "example": "3"
       }
     }
+  },
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of pamAccessRuleCollectionCount"
   },
   "pamSearchRules": {
     "message": "Search rules"
@@ -18659,9 +18727,6 @@
   "pamMyAccess": {
     "message": "My access"
   },
-  "pamAccessRequestsTitle": {
-    "message": "Access requests"
-  },
   "pamAccessRequestsSubtitle": {
     "message": "Approve, monitor, and audit time-limited access to your credentials."
   },
@@ -18677,8 +18742,16 @@
   "pamAccessRequestsSearchPlaceholder": {
     "message": "Search credential, collection, requester"
   },
+  "pamAccessRequestsSearchPlaceholderSharedFolder": {
+    "message": "Search credential, shared folder, requester",
+    "description": "VFO1 terminology feature flag variant of pamAccessRequestsSearchPlaceholder"
+  },
   "pamCollectionFilter": {
     "message": "Collection"
+  },
+  "pamSharedFolderFilter": {
+    "message": "Shared folder",
+    "description": "VFO1 terminology feature flag variant of pamCollectionFilter"
   },
   "pamMyRequestsLoaded": {
     "message": "Requests loaded"
@@ -18811,6 +18884,16 @@
         "example": "Production"
       }
     }
+  },
+  "pamInboxInSharedFolder": {
+    "message": "in $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of pamInboxInCollection"
   },
   "pamInboxReasonMissing": {
     "message": "No reason provided"
@@ -19140,8 +19223,8 @@
   "pamAuditIncomplete": {
     "message": "Incomplete"
   },
-  "pamAuditIncompleteTooltip": {
-    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed. It may have failed or been interrupted."
   },
   "pamAuditKindRequestSubmitted": {
     "message": "Access requested"
@@ -19224,8 +19307,8 @@
   "pamAccessRequestLoadError": {
     "message": "Couldn't load this access request."
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "You have active access to this item — $DURATION$ remaining",
+  "pamActiveLeaseBannerRemainingTitle": {
+    "message": "You have active access to this item: $DURATION$ remaining",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19233,8 +19316,8 @@
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Access to this item is ending soon — $DURATION$ remaining",
+  "pamActiveLeaseBannerEndingSoonRemainingTitle": {
+    "message": "Access to this item is ending soon: $DURATION$ remaining",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -20665,9 +20748,6 @@
   },
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
-  },
-  "pamRotationConfigRotateNowDisabledTitle": {
-    "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
   },
   "pamRotationConfigRotateNowUnavailableTitle": {
     "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."

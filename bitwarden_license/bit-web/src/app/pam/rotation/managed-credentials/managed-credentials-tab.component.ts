@@ -51,6 +51,7 @@ import {
 } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { THEN_MANAGED_CREDENTIAL, THEN_QUERY_PARAM } from "../create-flow";
 import { filterOptions } from "../filter-options";
@@ -103,6 +104,7 @@ import { RotationConfigsService } from "./rotation-configs.service";
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
     I18nPipe,
+    Vfo1I18nPipe,
   ],
 })
 export class ManagedCredentialsTabComponent {

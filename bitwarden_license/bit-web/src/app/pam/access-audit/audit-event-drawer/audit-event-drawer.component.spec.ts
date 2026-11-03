@@ -2,7 +2,9 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -76,6 +78,7 @@ describe("AuditEventDrawerComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AuditEventDrawerComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogService, useValue: dialogService },
@@ -101,7 +104,7 @@ describe("AuditEventDrawerComponent", () => {
             pamResolverAccessRule: "Access rule",
             pamAuditSystem: "System",
             pamAuditIncomplete: "Incomplete",
-            pamAuditIncompleteTooltip: "Outcome never confirmed.",
+            pamAuditOutcomeUnconfirmedTooltip: "Outcome never confirmed.",
             pamAuditDurationExtendedTo: "Extended to __$1__",
             pamAuditKindAccessActivated: "Access activated",
             pamAuditKindAccessExtended: "Access extended",
