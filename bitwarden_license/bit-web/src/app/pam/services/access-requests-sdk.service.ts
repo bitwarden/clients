@@ -80,14 +80,12 @@ export class AccessRequestsSdkService implements AccessRequestSdkService {
     );
   }
 
-  async cancelAccessRequest(id: AccessRequestId, reason?: string): Promise<void> {
+  async cancelAccessRequest(id: AccessRequestId): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          // The SDK's cancel takes only the id, so `reason` is not sent yet. Pass it through once
-          // the SDK accepts a withdraw reason.
           return await ref.value.commercial().pam().access_requests().cancel(id);
         }),
         catchError((error: unknown) => {

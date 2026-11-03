@@ -17,11 +17,10 @@ export abstract class AccessRequestSdkService {
   abstract getAccessRequest(id: AccessRequestId): Promise<AccessRequestView>;
   abstract activateAccessRequest(id: AccessRequestId): Promise<AccessLeaseView>;
   /**
-   * Withdraws a pending or unactivated request. A managing approver must say why; a requester
-   * withdrawing their own request omits it. The SDK cannot carry `reason` yet, so it is not sent
-   * to the server.
+   * Withdraws the caller's own pending or unactivated request. An approver withdrawing someone
+   * else's approval goes through {@link ApprovalSdkService.revoke} instead.
    */
-  abstract cancelAccessRequest(id: AccessRequestId, reason?: string): Promise<void>;
+  abstract cancelAccessRequest(id: AccessRequestId): Promise<void>;
 
   /** Takes a plain `string`, since the OSS seam tokens never carry the SDK's branded `CipherId`. */
   abstract getCipherAccessState(cipherId: string): Promise<CipherAccessStateView>;

@@ -130,25 +130,6 @@ describe("AccessRequestsSdkService", () => {
       expect(accessRequests.cancel).toHaveBeenCalledWith(requestId);
     });
 
-    it("does not send an approver's reason, since the SDK's cancel takes only the id", async () => {
-      const accessRequests = mockAccessRequestsClient();
-      accessRequests.cancel.mockResolvedValue(undefined);
-
-      await service.cancelAccessRequest(requestId, "Approved by mistake");
-
-      expect(accessRequests.cancel).toHaveBeenCalledWith(requestId);
-    });
-
-    it("never logs the reason when cancelling fails", async () => {
-      const accessRequests = mockAccessRequestsClient();
-      accessRequests.cancel.mockRejectedValue(new Error("cannot cancel"));
-
-      await expect(service.cancelAccessRequest(requestId, "Approved by mistake")).rejects.toThrow();
-      expect(logService.error).not.toHaveBeenCalledWith(
-        expect.stringContaining("Approved by mistake"),
-      );
-    });
-
     it("logs and rethrows on failure", async () => {
       const accessRequests = mockAccessRequestsClient();
       const error = new Error("cannot cancel");

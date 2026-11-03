@@ -122,4 +122,26 @@ describe("ApprovalsSdkService", () => {
       expect(logged).not.toContain("secret reason");
     });
   });
+
+  describe("revoke", () => {
+    it("calls approvals().revoke() with the request id and the approver's reason", async () => {
+      const approvals = mockApprovalsClient();
+      approvals.revoke.mockResolvedValue(undefined);
+
+      await service.revoke(requestId, { reason: "Approved by mistake" });
+
+      expect(approvals.revoke).toHaveBeenCalledWith(requestId, { reason: "Approved by mistake" });
+    });
+
+    it("logs and rethrows on failure without echoing the reason", async () => {
+      const approvals = mockApprovalsClient();
+      const error = new Error("cannot revoke");
+      approvals.revoke.mockRejectedValue(error);
+
+      await expect(service.revoke(requestId, { reason: "secret reason" })).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+      const logged = (logService.error as jest.Mock).mock.calls.flat().join(" ");
+      expect(logged).not.toContain("secret reason");
+    });
+  });
 });
