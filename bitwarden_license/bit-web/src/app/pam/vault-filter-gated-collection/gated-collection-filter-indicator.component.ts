@@ -5,6 +5,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconComponent } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 /** Structural, so this needn't import the sidebar's node type; optional for pseudo-collections. */
 type FilterCollection = { hasEnabledAccessRule?: boolean };
@@ -24,7 +25,20 @@ export class GatedCollectionFilterIndicatorComponent {
 
   private readonly configService = inject(ConfigService);
 
-  protected readonly requiresRequestLabel = inject(I18nService).t("pamCollectionRequiresRequest");
+  private readonly i18nService = inject(I18nService);
+  private readonly terminology = inject(Vfo1TerminologyService);
+
+  /**
+   * Follows the terminology flag for the same reason the banner does: the lock and the notice
+   * name one restriction, so they must never word it differently on the same screen.
+   */
+  protected readonly requiresRequestLabel = computed(() =>
+    this.i18nService.t(
+      this.terminology.enabled()
+        ? "pamSharedFolderRequiresRequest"
+        : "pamCollectionRequiresRequest",
+    ),
+  );
 
   private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
     initialValue: false,
