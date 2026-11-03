@@ -2,9 +2,10 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testin
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject, Subject, of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -100,6 +101,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     await TestBed.configureTestingModule({
       imports: [MyRequestsTabComponent, NoopAnimationsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         MyAccessService,
         { provide: AccessRequestSdkService, useValue: requestsApi },

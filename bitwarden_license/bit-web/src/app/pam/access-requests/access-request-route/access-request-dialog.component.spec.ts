@@ -3,7 +3,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import type { AccessRequestView } from "@bitwarden/bit-pam";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -11,7 +11,6 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 
 import { ApprovalRow } from "../../approvals/approval-row";
 import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
-import { WithdrawApprovalDialogComponent } from "../../approvals/withdraw-approval-dialog/withdraw-approval-dialog.component";
 import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
 import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
 import { lapsedGrantBadge } from "../my-access-row";
@@ -110,6 +109,7 @@ describe("AccessRequestDialogComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AccessRequestDialogComponent, NoopAnimationsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close: jest.fn() } },
         { provide: ToastService, useValue: toastService },
@@ -123,7 +123,12 @@ describe("AccessRequestDialogComponent", () => {
       // `DialogModule` provides the real `DialogService` in the component's own injector,
       // shadowing a module-level override.
       .overrideComponent(AccessRequestDialogComponent, {
-        add: { providers: [{ provide: DialogService, useValue: dialogService }] },
+        add: {
+          providers: [
+            { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+            { provide: DialogService, useValue: dialogService },
+          ],
+        },
       })
       .compileComponents();
   });
@@ -741,10 +746,7 @@ describe("AccessRequestDialogComponent", () => {
       });
     });
 
-    it("offers Withdraw approval on an unstarted approval they manage, sending the reason", async () => {
-      dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, reason: "Approved by mistake" }),
-      } as any);
+    it("offers Withdraw approval on an unstarted approval they manage, after confirming", async () => {
       detail.request$.next(request({ status: "approved" }));
       detail.managed$.next(true);
       create();
@@ -752,44 +754,8 @@ describe("AccessRequestDialogComponent", () => {
       expect(footerButton("withdraw-approval")).not.toBeNull();
       await component["withdrawApproval"]();
 
-      expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
-        data: expect.objectContaining({
-          itemName: "Prod database",
-          organizationName: "Meridian Group",
-          collectionName: "Production",
-          requesterName: "Grace",
-        }),
-      });
-      expect(detail.withdrawApproval).toHaveBeenCalledWith("Approved by mistake");
-    });
-
-    it("ignores a second Withdraw approval click while one is in flight", async () => {
-      dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, reason: "Approved by mistake" }),
-      } as any);
-      detail.withdrawApproval.mockReturnValue(new Promise(() => {}));
-      detail.request$.next(request({ status: "approved" }));
-      detail.managed$.next(true);
-      create();
-
-      void component["withdrawApproval"]();
-      await Promise.resolve();
-      await Promise.resolve();
-      await component["withdrawApproval"]();
-
-      expect(dialogService.open).toHaveBeenCalledTimes(1);
-      expect(detail.withdrawApproval).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not withdraw when the withdraw dialog is dismissed", async () => {
-      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
-      detail.request$.next(request({ status: "approved" }));
-      detail.managed$.next(true);
-      create();
-
-      await component["withdrawApproval"]();
-
-      expect(detail.withdrawApproval).not.toHaveBeenCalled();
+      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+      expect(detail.withdrawApproval).toHaveBeenCalled();
     });
 
     it("offers Revoke on a live lease they manage, even past the requested window", async () => {

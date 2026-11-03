@@ -73,7 +73,11 @@
           <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
         }
       </bit-filter-menu>
-      <bit-filter-menu key="collection" [placeholderText]="'sharedFolders' | i18n" multiple>
+      <bit-filter-menu
+        key="collection"
+        [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
+        multiple
+      >
         @for (option of collectionOptions(); track option.value) {
           <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
         }
@@ -121,7 +125,9 @@
           />
         </span>
         @if (row.collectionName) {
-          <span slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</span>
+          <span slot="secondary">{{
+            "pamInboxInCollection" | vfo1I18n: "pamInboxInSharedFolder" : row.collectionName
+          }}</span>
         }
       </bit-cell>
     </bit-column>
