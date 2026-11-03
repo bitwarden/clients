@@ -26,10 +26,11 @@ What lives here:
 Anything Angular-component-shaped, routed, or reaching into `@bitwarden/web-vault/` is
 web-specific by definition and stays in `bit-web`.
 
-## The old `bit-web` paths are shims
+## The old client paths are shims
 
 Every file that moved here left a one-line `export *` re-export at its old path under
 `bitwarden_license/bit-web/src/app/pam/`, so `bit-web`'s relative imports still resolve.
+`bit-browser` has one too: `bitwarden_license/bit-browser/src/popup/pam/access-state-badge/access-badge-ticker.service.ts`.
 Edit the file here, never the shim.
 
 `bit-web`'s `pam/index.ts` is the same arrangement one level up: it re-exports this
