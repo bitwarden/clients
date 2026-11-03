@@ -2128,7 +2128,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: DefaultLogoutService,
-    deps: [MessagingServiceAbstraction, LogService],
+    deps: [MessagingServiceAbstraction, LogService, SdkService],
   }),
   safeProvider({
     provide: DocumentLangSetter,
@@ -2206,6 +2206,7 @@ const safeProviders: SafeProvider[] = [
       ProcessReloadServiceAbstraction,
       LogService,
       KeyService,
+      SdkService,
     ],
   }),
   safeProvider({
