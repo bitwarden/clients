@@ -1,9 +1,7 @@
 import { Observable } from "rxjs";
 
+import { CipherHealthView } from "@bitwarden/common/dirt/models/view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
-import { CipherHealthView } from "../../models";
-
 /**
  * Analyzes cipher password health including weak passwords, reuse, and HIBP breaches.
  *

@@ -3,15 +3,12 @@ import { FormArray, FormControl } from "@angular/forms";
 import {
   atLeastOneNonEmptyCidrValidator,
   cidrValidator,
+  duplicateCidrValues,
   noDuplicateCidrsValidator,
 } from "./cidr.validator";
 
-// The real CIDR check delegates to the Rust SDK's `is_valid_cidr` (backed by the `ipnet` crate),
-// which the app injects via `CidrValidationService`. The SDK owns CIDR parsing and is covered by
-// the crate's own Rust tests; re-implementing `ipnet` here would only test the stub against
-// itself. These specs cover the repo's validator logic — trimming, empty-row handling, duplicate
-// detection, and the at-least-one rule — so they pass a stand-in predicate that reports
-// valid/invalid for a fixed set of inputs.
+// CIDR parsing is the SDK's `is_valid_cidr`, tested in Rust; these specs cover the validators
+// around it with a stand-in predicate.
 const isValidCidr = (value: string): boolean => value === "10.0.0.0/8" || value === "2001:db8::/32";
 
 describe("cidrValidator", () => {
@@ -38,6 +35,22 @@ describe("cidrValidator", () => {
 
   it("returns null for a whitespace-only string (treated as empty)", () => {
     expect(validate("   ")).toBeNull();
+  });
+});
+
+describe("duplicateCidrValues", () => {
+  it("returns an empty set when all values are distinct", () => {
+    expect(duplicateCidrValues(["10.0.0.0/8", "192.168.0.0/16"])).toEqual(new Set());
+  });
+
+  it("returns the repeated value, trimmed, once per distinct range", () => {
+    expect(duplicateCidrValues(["10.0.0.0/8", " 10.0.0.0/8 ", "10.0.0.0/8"])).toEqual(
+      new Set(["10.0.0.0/8"]),
+    );
+  });
+
+  it("ignores empty and whitespace-only rows", () => {
+    expect(duplicateCidrValues(["", "   ", "10.0.0.0/8"])).toEqual(new Set());
   });
 });
 

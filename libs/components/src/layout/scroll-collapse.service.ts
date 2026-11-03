@@ -121,19 +121,6 @@ export class ScrollCollapseService {
     return computed(() => this.scrolled() && this.seamOwner() === region);
   }
 
-  /**
-   * Whether `element` has more left to scroll than collapsing every region would hand back to it.
-   *
-   * The floor `minScrollable` applies to a direction flip, which a restored scroll position never
-   * makes, so a restore has to ask before declaring itself: collapsing more than the scroller can
-   * afford lets the browser clamp the offset, which reads as `"up"` and reopens the regions
-   * (CL-1318). A plain method rather than a signal, since the regions' heights consult their own
-   * collapse state — reading them inside a `computed` that feeds `direction` would be a cycle.
-   */
-  affordsCollapse(element: HTMLElement): boolean {
-    return element.scrollHeight - element.clientHeight > this.collapsibleHeight();
-  }
-
   /** Report the element being scrolled. */
   setSource(element: HTMLElement): void {
     this.reportedSource.set(element);

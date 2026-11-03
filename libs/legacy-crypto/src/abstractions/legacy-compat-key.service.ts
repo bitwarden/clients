@@ -1,3 +1,5 @@
+// Type-only: master-password.types imports KdfConfig from this package, so a value import would be circular.
+import type { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, OrgKey, ProviderKey } from "@bitwarden/common/types/key";
 
@@ -42,11 +44,15 @@ export abstract class LegacyCompatKeyService {
    * Generates a master key from the provided password
    * @deprecated Interacting with the master key directly is prohibited.
    * @param password The user's master password
-   * @param email The user's email
+   * @param salt The user's master password salt
    * @param KdfConfig The user's key derivation function configuration
    * @returns A master key derived from the provided password
    */
-  abstract makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey>;
+  abstract makeMasterKey(
+    password: string,
+    salt: MasterPasswordSalt,
+    kdfConfig: KdfConfig,
+  ): Promise<MasterKey>;
 
   /**
    * Encrypts the provided user key with the provided master key.

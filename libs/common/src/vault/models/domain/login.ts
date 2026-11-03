@@ -1,13 +1,12 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { Login as SdkLogin } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { LoginData } from "../data/login.data";
-import { LoginView } from "../view/login.view";
 
 import { Fido2Credential } from "./fido2-credential";
 import { LoginUri } from "./login-uri";
@@ -41,57 +40,6 @@ export class Login extends Domain {
     if (obj.fido2Credentials) {
       this.fido2Credentials = obj.fido2Credentials.map((key) => new Fido2Credential(key));
     }
-  }
-
-  async decrypt(
-    bypassValidation: boolean,
-    encKey: SymmetricCryptoKey,
-    context: string = "No Cipher Context",
-  ): Promise<LoginView> {
-    const view = await this.decryptObj<Login, LoginView>(
-      this,
-      new LoginView(this),
-      ["username", "password", "totp"],
-      encKey,
-      `DomainType: Login; ${context}`,
-    );
-
-    if (this.uris != null) {
-      view.uris = [];
-      for (let i = 0; i < this.uris.length; i++) {
-        // If the uri is null, there is nothing to decrypt or validate
-        if (this.uris[i].uri == null) {
-          continue;
-        }
-
-        const uri = await this.uris[i].decrypt(encKey, context);
-        const uriString = uri.uri;
-
-        if (uriString == null) {
-          continue;
-        }
-
-        // URIs are shared remotely after decryption
-        // we need to validate that the string hasn't been changed by a compromised server
-        // This validation is tied to the existence of cypher.key for backwards compatibility
-        // So we bypass the validation if there's no cipher.key or proceed with the validation and
-        // Skip the value if it's been tampered with.
-        const isValidUri =
-          bypassValidation || (await this.uris[i].validateChecksum(uriString, encKey));
-
-        if (isValidUri) {
-          view.uris.push(uri);
-        }
-      }
-    }
-
-    if (this.fido2Credentials != null) {
-      view.fido2Credentials = await Promise.all(
-        this.fido2Credentials.map((key) => key.decrypt(encKey)),
-      );
-    }
-
-    return view;
   }
 
   toLoginData(): LoginData {

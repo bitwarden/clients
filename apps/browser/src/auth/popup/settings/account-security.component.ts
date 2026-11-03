@@ -25,6 +25,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -116,7 +117,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     enableAutoBiometricsPrompt: true,
     enablePhishingDetection: true,
     allowSharingUnlockStateWithDesktop: false,
-    allowSharingUnlockStateWithWeb: false,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -133,8 +133,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   // Native messaging with the desktop app is unavailable on Safari.
   protected readonly showSharedUnlockWithDesktop: boolean;
-  // Firefox does not support sharing unlock state with the web vault.
-  protected readonly showSharedUnlockWithWeb: boolean;
   // True when the user declined to trust this TDE device, disabling shared unlock. The value cannot
   // change while this page is open, so it is read once during init.
   protected readonly unlockSharingDisabled = signal(false);
@@ -166,6 +164,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private logoutService: LogoutService,
   ) {
     this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM32413_MultiClientPasswordManagement,
@@ -178,7 +177,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
     this.showSharedUnlockWithDesktop = !this.platformUtilsService.isSafari();
-    this.showSharedUnlockWithWeb = !this.platformUtilsService.isFirefox();
   }
 
   async ngOnInit() {
@@ -210,9 +208,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       allowSharingUnlockStateWithDesktop: await firstValueFrom(
         this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(activeAccount.id),
       ),
-      allowSharingUnlockStateWithWeb: await firstValueFrom(
-        this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(activeAccount.id),
-      ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
@@ -222,7 +217,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.unlockSharingDisabled.set(unlockSharingDisabled);
     if (unlockSharingDisabled) {
       this.form.controls.allowSharingUnlockStateWithDesktop.disable({ emitEvent: false });
-      this.form.controls.allowSharingUnlockStateWithWeb.disable({ emitEvent: false });
     }
 
     this.loading.set(false);
@@ -294,15 +288,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (enabled) => {
           await this.updateAllowSharingUnlockStateWithDesktop(enabled);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
-    this.form.controls.allowSharingUnlockStateWithWeb.valueChanges
-      .pipe(
-        concatMap(async (enabled) => {
-          await this.updateAllowSharingUnlockStateWithWeb(enabled);
         }),
         takeUntil(this.destroy$),
       )
@@ -465,9 +450,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(enabled, userId);
-    if (!enabled && !this.form.controls.allowSharingUnlockStateWithWeb.value) {
-      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
-    }
 
     if (enabled && !hadPermission) {
       // The nativeMessaging permission was just granted. The extension must reload to register
@@ -476,14 +458,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       // broadcast, so close it explicitly to unblock that reload.
       this.messagingService.send("reloadExtension");
       await BrowserPopupUtils.closeCurrentPopupOrPopout(window);
-    }
-  }
-
-  async updateAllowSharingUnlockStateWithWeb(enabled: boolean) {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(enabled, userId);
-    if (!enabled && !this.form.controls.allowSharingUnlockStateWithDesktop.value) {
-      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
     }
   }
 
@@ -566,8 +540,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     });
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    if (confirmed) {
-      this.messagingService.send("logout", { userId: userId });
+    if (confirmed && userId != null) {
+      await this.logoutService.logout(userId, "userInitiated");
     }
   }
 

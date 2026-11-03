@@ -97,6 +97,14 @@ describe("Vfo1OnboardingNudgeService", () => {
       });
     });
 
+    it("reports the walkthrough as active for an account created shortly before GA", async () => {
+      vaultProfileService.getProfileCreationDate.mockResolvedValue(gaDatePlusDays(-10));
+
+      const result = await firstValueFrom(service.nudgeStatus$(NudgeType.Vfo1Walkthrough, userId));
+
+      expect(result.hasSpotlightDismissed).toBe(false);
+    });
+
     it("reports the nudge as dismissed once the onboarding window has closed", async () => {
       jest.setSystemTime(gaDatePlusMonths(VFO1_ONBOARDING_WINDOW_MONTHS + 1));
 

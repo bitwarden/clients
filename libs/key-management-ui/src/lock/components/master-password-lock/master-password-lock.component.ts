@@ -11,6 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
+  BUTTON_SPINNER_DELAY_MS,
   ButtonModule,
   FormFieldModule,
   IconButtonModule,
@@ -107,6 +108,11 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
     }
 
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    // Unlocking runs the KDF synchronously on the main thread, which blocks rendering.
+    // Wait until the button's debounced spinner has been painted before starting it.
+    await new Promise<void>((resolve) => setTimeout(resolve, BUTTON_SPINNER_DELAY_MS));
+    await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve)));
 
     await this.unlockViaMasterPassword(masterPassword, activeUserId);
   };

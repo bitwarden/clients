@@ -96,6 +96,19 @@ export class VaultPopupListTableFiltersService {
     persistNavigation: true,
   });
 
+  private readonly _cachedVaultScopeId = this.viewCacheService.signal<string | null>({
+    key: "vault-scope-id",
+    initialValue: null,
+    deserializer: (v: string | null) => v,
+    persistNavigation: true,
+  });
+
+  readonly cachedVaultScopeId = this._cachedVaultScopeId.asReadonly();
+
+  setCachedVaultScopeId(id: string | null): void {
+    this._cachedVaultScopeId.set(id);
+  }
+
   /** Whether any chip filter is currently selected. */
   readonly hasFilterApplied = computed(() => {
     const filters = this._cachedFilters();
@@ -162,6 +175,7 @@ export class VaultPopupListTableFiltersService {
   /** Clears all persisted filter state. Called when the active account changes. */
   private clearFilters(): void {
     this._cachedFilters.set({});
+    this._cachedVaultScopeId.set(null);
   }
 
   private fullCipherListViews$ = this.activeUserId$.pipe(

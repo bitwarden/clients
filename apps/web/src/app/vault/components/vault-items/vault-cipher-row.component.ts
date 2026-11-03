@@ -4,9 +4,11 @@ import {
   Component,
   EventEmitter,
   HostListener,
+  Inject,
   inject,
   Input,
   OnInit,
+  Optional,
   Output,
   ViewChild,
 } from "@angular/core";
@@ -36,6 +38,8 @@ import {
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
+import { VaultRowAccessActionsService } from "./vault-row-access-actions.service";
+import { VAULT_ROW_LEASE_BADGE, VaultRowLeaseBadge } from "./vault-row-lease-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -90,6 +94,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() viewingOrgVault: boolean;
+
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() showControlledAccess: boolean;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canEditCipher: boolean;
@@ -152,6 +159,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private accountService: AccountService,
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
+    @Optional() @Inject(VAULT_ROW_LEASE_BADGE) protected leaseBadge: VaultRowLeaseBadge | null,
+    @Optional() protected accessActions: VaultRowAccessActionsService | null,
   ) {}
 
   /**
@@ -218,6 +227,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.getLaunchUri(this.cipher);
   }
 
+  /** A gated row withholds every other action, so the menu surfaces launch on its own. */
+  protected get showLaunchInMenu() {
+    return this.isPartial && this.canLaunch;
+  }
+
   protected get subtitle() {
     return CipherViewLikeUtils.subtitle(this.cipher, this.i18nService);
   }
@@ -228,6 +242,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get decryptionFailure() {
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
+  }
+
+  /**
+   * True for a PAM-gated ("partial") cipher, whose sensitive fields the server suppressed. The
+   * row is read-only: not selectable and offering no modify action.
+   */
+  protected get isPartial() {
+    return CipherViewLikeUtils.isRestricted(this.cipher);
   }
 
   protected get showAssignToCollections() {
@@ -372,9 +394,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get showFavorite() {
     if (
-      (!this.viewingOrgVault &&
-        CipherViewLikeUtils.isArchived(this.cipher) &&
-        !this.userCanArchive) ||
+      this.viewingOrgVault ||
+      (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) ||
       CipherViewLikeUtils.isDeleted(this.cipher)
     ) {
       return false;

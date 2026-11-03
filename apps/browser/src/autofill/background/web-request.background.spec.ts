@@ -5,12 +5,20 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { flushPromises } from "../spec/testing-utils";
 
@@ -38,6 +46,8 @@ describe("WebRequestBackground", () => {
   let authService: ReturnType<typeof mock<AuthService>>;
   let accountService: ReturnType<typeof mock<AccountService>>;
   let autofillSettingsService: ReturnType<typeof mock<AutofillSettingsServiceAbstraction>>;
+  let eventCollectionService: ReturnType<typeof mock<EventCollectionService>>;
+  let logService: ReturnType<typeof mock<LogService>>;
   let activeAccount$: BehaviorSubject<Account | null>;
   let resolvedSetting$: BehaviorSubject<boolean>;
   let webRequest: {
@@ -55,6 +65,8 @@ describe("WebRequestBackground", () => {
       accountService,
       webRequest as unknown as typeof chrome.webRequest,
       autofillSettingsService,
+      eventCollectionService,
+      logService,
     );
 
   const expectListenersRegistered = (timesRegistered: number) => {
@@ -84,6 +96,10 @@ describe("WebRequestBackground", () => {
     resolvedSetting$ = new BehaviorSubject<boolean>(true);
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.resolvedEnableBasicAuthResponse$ = resolvedSetting$;
+
+    eventCollectionService = mock<EventCollectionService>();
+    eventCollectionService.collect.mockResolvedValue(undefined);
+    logService = mock<LogService>();
 
     webRequest = {
       onAuthRequired: createWebRequestEventMock(),
@@ -254,8 +270,44 @@ describe("WebRequestBackground", () => {
     const url = "https://example.com/protected";
     let callback: jest.Mock;
 
-    const createCipher = (username: string | null, password: string | null) =>
-      ({ login: { username, password } }) as unknown as CipherView;
+    const createLoginUri = (uri: string, match: UriMatchStrategySetting) => {
+      const loginUri = new LoginUriView();
+      loginUri.uri = uri;
+      loginUri.match = match;
+      return loginUri;
+    };
+
+    const createCipher = (
+      username: string | null,
+      password: string | null,
+      id = "cipher-id",
+      organizationId: string | null = "organization-id",
+      {
+        reprompt = CipherRepromptType.None,
+        uris = [createLoginUri(url, UriMatchStrategy.Host)],
+      }: { reprompt?: CipherRepromptType; uris?: LoginUriView[] } = {},
+    ) => {
+      const cipher = new CipherView();
+      cipher.id = id;
+      cipher.organizationId = organizationId ?? undefined;
+      cipher.type = CipherType.Login;
+      cipher.reprompt = reprompt;
+      cipher.login = new LoginView();
+      cipher.login.username = username ?? undefined;
+      cipher.login.password = password ?? undefined;
+      cipher.login.uris = uris;
+      return cipher;
+    };
+
+    /** Resolves the lookup with the given ciphers that match the URL, using each URI's real match rules. */
+    const resolveLookupByMatching = (ciphers: CipherView[]) => {
+      cipherService.getAllDecryptedForUrl.mockImplementation(
+        async (targetUrl, _userId, _includeOtherTypes, defaultMatch) =>
+          ciphers.filter((cipher) =>
+            cipher.login.matchesUri(targetUrl, new Set<string>(), defaultMatch),
+          ),
+      );
+    };
 
     const triggerAuthRequired = async (
       requestId = "request-1",
@@ -292,6 +344,56 @@ describe("WebRequestBackground", () => {
       });
     });
 
+    it("records a release event for the released login before responding", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password", "released-cipher-id"),
+      ]);
+      eventCollectionService.collect.mockImplementation(async () => {
+        expect(callback).not.toHaveBeenCalled();
+      });
+
+      await triggerAuthRequired();
+
+      expect(eventCollectionService.collect).toHaveBeenCalledTimes(1);
+      expect(eventCollectionService.collect).toHaveBeenCalledWith(
+        EventType.Cipher_ClientHttpAuthReleased,
+        "released-cipher-id",
+      );
+      expect(callback).toHaveBeenCalledWith({
+        authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
+      });
+    });
+
+    it("does not respond with credentials when recording the release event fails", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      const error = new Error("state unavailable");
+      eventCollectionService.collect.mockRejectedValue(error);
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
+      expect(logService.error).toHaveBeenCalledWith(
+        "Declined an HTTP auth challenge because the credential release could not be recorded.",
+        error,
+      );
+    });
+
+    it("responds with the credentials of a personal vault login without recording an event", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password", "personal-cipher-id", null),
+      ]);
+      eventCollectionService.collect.mockRejectedValue(new Error("state unavailable"));
+
+      await triggerAuthRequired();
+
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({
+        authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
+      });
+    });
+
     it("does not respond with credentials when more than one login matches", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
         createCipher("jane.doe@example.com", "fake-password"),
@@ -301,6 +403,7 @@ describe("WebRequestBackground", () => {
       await triggerAuthRequired();
 
       expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
     });
 
     it("does not respond with credentials when the matching login has no password", async () => {
@@ -311,14 +414,17 @@ describe("WebRequestBackground", () => {
       await triggerAuthRequired();
 
       expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
     });
 
     it("does not respond with credentials when the cipher lookup throws", async () => {
-      cipherService.getAllDecryptedForUrl.mockRejectedValue(new Error("lookup failed"));
+      const error = new Error("lookup failed");
+      cipherService.getAllDecryptedForUrl.mockRejectedValue(error);
 
       await triggerAuthRequired();
 
       expect(callback).toHaveBeenCalledWith({});
+      expect(logService.error).toHaveBeenCalledWith(error);
     });
 
     it("does not look up ciphers when the vault is locked", async () => {
@@ -456,6 +562,173 @@ describe("WebRequestBackground", () => {
       await triggerAuthRequired();
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(2);
+    });
+
+    describe("eligibility", () => {
+      const expectAnswered = (username = "jane.doe@example.com", password = "fake-password") =>
+        expect(callback).toHaveBeenCalledWith({ authCredentials: { username, password } });
+
+      const expectDeclined = () => {
+        expect(callback).toHaveBeenCalledWith({});
+        expect(eventCollectionService.collect).not.toHaveBeenCalled();
+      };
+
+      it("declines a login with master password reprompt on, even when it is the only match", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("jane.doe@example.com", "fake-password", "cipher-id", "organization-id", {
+            reprompt: CipherRepromptType.Password,
+          }),
+        ]);
+
+        await triggerAuthRequired();
+
+        expectDeclined();
+      });
+
+      it("declines a login whose only URI uses the default match strategy", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("jane.doe@example.com", "fake-password", "cipher-id", "organization-id", {
+            uris: [createLoginUri(url, null)],
+          }),
+        ]);
+
+        await triggerAuthRequired();
+
+        expectDeclined();
+      });
+
+      it("declines a login with a default-strategy URI that the lookup's default would match", async () => {
+        resolveLookupByMatching([
+          createCipher("jane.doe@example.com", "fake-password", "cipher-id", "organization-id", {
+            uris: [createLoginUri(url, null), createLoginUri(url, UriMatchStrategy.Host)],
+          }),
+        ]);
+
+        await triggerAuthRequired();
+
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+          url,
+          userId,
+          undefined,
+          UriMatchStrategy.Host,
+        );
+        expectDeclined();
+      });
+
+      it("declines a login with no URIs", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("jane.doe@example.com", "fake-password", "cipher-id", "organization-id", {
+            uris: [],
+          }),
+        ]);
+
+        await triggerAuthRequired();
+
+        expectDeclined();
+      });
+
+      it.each([
+        {
+          strategy: "Host",
+          match: UriMatchStrategy.Host,
+          matchingUri: "https://example.com/elsewhere",
+          nonMatchingUri: "https://login.example.com/protected",
+        },
+        {
+          strategy: "Base domain",
+          match: UriMatchStrategy.Domain,
+          matchingUri: "https://login.example.com/",
+          nonMatchingUri: "https://example.org/protected",
+        },
+        {
+          strategy: "Starts with",
+          match: UriMatchStrategy.StartsWith,
+          matchingUri: "https://example.com/prot",
+          nonMatchingUri: "https://example.com/other",
+        },
+        {
+          strategy: "Exact",
+          match: UriMatchStrategy.Exact,
+          matchingUri: url,
+          nonMatchingUri: `${url}/`,
+        },
+        {
+          strategy: "Regular expression",
+          match: UriMatchStrategy.RegularExpression,
+          matchingUri: "^https://example\\.com/prot",
+          nonMatchingUri: "^https://example\\.org/",
+        },
+      ])(
+        "matches an explicit $strategy URI by its own rules",
+        async ({ match, matchingUri, nonMatchingUri }) => {
+          resolveLookupByMatching([
+            createCipher("jane.doe@example.com", "fake-password", "matching-id", null, {
+              uris: [createLoginUri(matchingUri, match)],
+            }),
+            createCipher("john.doe@example.com", "other-fake-password", "non-matching-id", null, {
+              uris: [createLoginUri(nonMatchingUri, match)],
+            }),
+          ]);
+
+          await triggerAuthRequired();
+
+          expectAnswered();
+        },
+      );
+
+      it("answers only on the matching URI of a login that also has a Never URI", async () => {
+        const intranetUrl = "https://intranet.example.net/protected";
+        resolveLookupByMatching([
+          createCipher("jane.doe@example.com", "fake-password", "cipher-id", null, {
+            uris: [
+              createLoginUri(url, UriMatchStrategy.Never),
+              createLoginUri(intranetUrl, UriMatchStrategy.Host),
+            ],
+          }),
+        ]);
+
+        await triggerAuthRequired("request-1");
+
+        expectDeclined();
+
+        callback.mockClear();
+        await triggerAuthRequired("request-2", {
+          url: intranetUrl,
+          challenger: { host: "intranet.example.net", port: 443 },
+        });
+
+        expectAnswered();
+      });
+
+      it("answers with the one eligible login when it matches alongside ineligible logins", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("reprompt@example.com", "reprompt-password", "reprompt-id", null, {
+            reprompt: CipherRepromptType.Password,
+          }),
+          createCipher("default@example.com", "default-password", "default-id", null, {
+            uris: [createLoginUri(url, null)],
+          }),
+          createCipher("jane.doe@example.com", "fake-password", "eligible-id", null),
+        ]);
+
+        await triggerAuthRequired();
+
+        expectAnswered();
+      });
+
+      it("declines when more than one eligible login matches alongside ineligible logins", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("reprompt@example.com", "reprompt-password", "reprompt-id", null, {
+            reprompt: CipherRepromptType.Password,
+          }),
+          createCipher("jane.doe@example.com", "fake-password", "first-eligible-id", null),
+          createCipher("john.doe@example.com", "other-fake-password", "second-eligible-id", null),
+        ]);
+
+        await triggerAuthRequired();
+
+        expectDeclined();
+      });
     });
 
     describe("on Firefox", () => {

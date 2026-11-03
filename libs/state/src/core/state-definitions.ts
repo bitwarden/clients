@@ -115,6 +115,7 @@ export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSetting
   web: "disk-local",
 });
 export const WEBMAPPER_DISK = new StateDefinition("webmapper", "disk");
+export const AUTOFILL_TAB_LIFECYCLE_MEMORY = new StateDefinition("autofillTabLifecycle", "memory");
 
 export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
 
@@ -269,6 +270,11 @@ export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
 export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
   "vaultOrgUserNotification",
+  "disk",
+  { web: "disk-local" },
+);
+export const VAULT_PINNED_SHARED_FOLDERS_DISK = new StateDefinition(
+  "vaultPinnedSharedFolders",
   "disk",
   { web: "disk-local" },
 );

@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -20,6 +21,10 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
 
 import { CipherReportComponent } from "./cipher-report.component";
 
+class TestCipherReportComponent extends CipherReportComponent {
+  protected readonly vfo1Enabled = signal(false);
+}
+
 describe("CipherReportComponent", () => {
   let component: CipherReportComponent;
   let mockAccountService: MockProxy<AccountService>;
@@ -33,7 +38,6 @@ describe("CipherReportComponent", () => {
       password: "test-password",
       totp: "123",
     },
-    decrypt: jest.fn().mockResolvedValue({ id: "cipher1", name: "Updated" }),
   } as unknown as Cipher;
   const mockCipherService = mock<CipherService>();
   mockCipherService.get.mockResolvedValue(mockCipher as unknown as Cipher);
@@ -45,7 +49,7 @@ describe("CipherReportComponent", () => {
     mockAccountService.activeAccount$ = of({ id: "user1" } as any);
     mockAdminConsoleCipherFormConfigService = mock<AdminConsoleCipherFormConfigService>();
 
-    component = new CipherReportComponent(
+    component = new TestCipherReportComponent(
       mockCipherService,
       mock<DialogService>(),
       mock<PasswordRepromptService>(),
@@ -126,12 +130,10 @@ describe("CipherReportComponent", () => {
     mockCipherService.get.mockResolvedValue(updatedCipher);
     mockCipherService.decrypt.mockResolvedValue(updatedCipherView);
 
-    jest.spyOn(updatedCipher, "decrypt");
     jest.spyOn(component, "determinedUpdatedCipherReportStatus").mockResolvedValue(null);
 
     await component.refresh(VaultItemDialogResult.Saved, updatedCipherView);
 
     expect(mockCipherService.decrypt).toHaveBeenCalledWith(updatedCipher, "user1");
-    expect(updatedCipher.decrypt).not.toHaveBeenCalled();
   });
 });

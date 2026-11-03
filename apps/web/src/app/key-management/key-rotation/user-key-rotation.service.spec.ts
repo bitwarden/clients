@@ -2,8 +2,8 @@ import { any, mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/admin-console/common";
-import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -168,7 +168,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
     userKey: UserKey,
     newUnlockData: {
       masterPassword: string;
-      masterKeySalt: string;
+      masterKeySalt: MasterPasswordSalt;
       masterKeyKdfConfig: KdfConfig;
       masterPasswordHint: string;
     },
@@ -181,7 +181,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
     newUserKey: UserKey,
     masterPasswordAuthenticationAndUnlockData: {
       masterPassword: string;
-      masterKeySalt: string;
+      masterKeySalt: MasterPasswordSalt;
       masterKeyKdfConfig: KdfConfig;
       masterPasswordHint: string;
     },
@@ -220,7 +220,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
   override makeServerMasterKeyAuthenticationHash(
     masterPassword: string,
     masterKeyKdfConfig: KdfConfig,
-    masterKeySalt: string,
+    masterKeySalt: MasterPasswordSalt,
   ): Promise<string> {
     return super.makeServerMasterKeyAuthenticationHash(
       masterPassword,
@@ -230,7 +230,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
   }
   override getCryptographicStateForUser(user: Account): Promise<{
     masterKeyKdfConfig: KdfConfig;
-    masterKeySalt: string;
+    masterKeySalt: MasterPasswordSalt;
     cryptographicStateParameters: V1CryptographicStateParameters;
   }> {
     return super.getCryptographicStateForUser(user);
@@ -549,6 +549,7 @@ describe("KeyRotationService", () => {
 
       it("uses the SDK when the user uses SDK key rotation", async () => {
         jest.spyOn(keyRotationService, "shouldUseSdkKeyRotation$").mockReturnValue(of(true));
+        mockSdkUserKeyRotationService.changePasswordAndRotateUserKey.mockResolvedValue(true);
 
         await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
           "mockMasterPassword",
@@ -564,6 +565,7 @@ describe("KeyRotationService", () => {
           mockUser.id,
         );
         expect(mockApiService.postUserKeyUpdate).not.toHaveBeenCalled();
+        expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUser.id, "userKeyRotation");
       });
 
       it("uses TypeScript when the user does not use SDK key rotation", async () => {
@@ -578,6 +580,7 @@ describe("KeyRotationService", () => {
 
         expect(mockSdkUserKeyRotationService.changePasswordAndRotateUserKey).not.toHaveBeenCalled();
         expect(mockApiService.postUserKeyUpdate).toHaveBeenCalled();
+        expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUser.id, "userKeyRotation");
       });
     });
 
@@ -701,7 +704,7 @@ describe("KeyRotationService", () => {
       const masterPasswordUnlockData =
         await keyRotationService.createMasterPasswordUnlockDataRequest(newKey, {
           masterPassword: "mockMasterPassword",
-          masterKeySalt: userAccount.email,
+          masterKeySalt: userAccount.email as MasterPasswordSalt,
           masterKeyKdfConfig: new PBKDF2KdfConfig(600_000),
           masterPasswordHint: "mockMasterPasswordHint",
         });
@@ -769,7 +772,7 @@ describe("KeyRotationService", () => {
         newKey,
         {
           masterPassword: "mockMasterPassword",
-          masterKeySalt: userAccount.email,
+          masterKeySalt: userAccount.email as MasterPasswordSalt,
           masterKeyKdfConfig: new PBKDF2KdfConfig(600_000),
           masterPasswordHint: "mockMasterPasswordHint",
         },
@@ -1013,7 +1016,7 @@ describe("KeyRotationService", () => {
         await keyRotationService.makeServerMasterKeyAuthenticationHash(
           "mockMasterPassword",
           new PBKDF2KdfConfig(600_000),
-          "mockEmail",
+          "mockEmail" as MasterPasswordSalt,
         );
       expect(masterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
       expect(mockLegacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(

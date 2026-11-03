@@ -43,7 +43,8 @@ export class ServeProgram extends BaseProgram {
       .action(async (cmd) => {
         await this.exitIfNotAuthed();
         const command = new ServeCommand(this.serviceContainer, this.configurator);
-        await command.run(cmd);
+        const response = await command.run(cmd);
+        this.processResponse(response);
       });
   }
 }

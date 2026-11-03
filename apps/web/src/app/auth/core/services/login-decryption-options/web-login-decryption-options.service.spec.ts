@@ -4,7 +4,6 @@ import {
   DirectOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { RouterService } from "../../../../core/router.service";
 
@@ -13,20 +12,14 @@ import { WebLoginDecryptionOptionsService } from "./web-login-decryption-options
 describe("WebLoginDecryptionOptionsService", () => {
   let service: WebLoginDecryptionOptionsService;
 
-  let messagingService: MockProxy<MessagingService>;
   let routerService: MockProxy<RouterService>;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
 
   beforeEach(() => {
-    messagingService = mock<MessagingService>();
     routerService = mock<RouterService>();
     organizationInviteService = mock<OrganizationInviteService>();
 
-    service = new WebLoginDecryptionOptionsService(
-      messagingService,
-      routerService,
-      organizationInviteService,
-    );
+    service = new WebLoginDecryptionOptionsService(routerService, organizationInviteService);
   });
 
   it("should instantiate the service", () => {

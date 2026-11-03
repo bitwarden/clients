@@ -27,7 +27,7 @@ export class RestClient {
   ): Promise<Response> {
     const setBody = (requestInit: RequestInit, headerMap: Map<string, string>) => {
       if (parameters != null && parameters.size > 0) {
-        const form = new FormData();
+        const form = new URLSearchParams();
         for (const [key, value] of parameters) {
           form.set(key, value);
         }

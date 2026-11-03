@@ -308,6 +308,25 @@ describe("CollectAutofillContentService", () => {
       expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalled();
     });
 
+    it("waits for the cached field visibility recheck before returning page details", async () => {
+      document.body.innerHTML = `<form><input id="password" type="password" /></form>`;
+      const passwordInput = document.getElementById(
+        "password",
+      ) as ElementWithOpId<FormFieldElement>;
+      const autofillField = createAutofillFieldMock({ opid: "__0", viewable: false });
+      collectAutofillContentService["domRecentlyMutated"] = false;
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [passwordInput, autofillField],
+      ]);
+      jest
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
+        .mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve(true), 0)));
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields[0].viewable).toBe(true);
+    });
+
     it("returns an object containing information about the current page as well as autofill data for the forms and fields of the page", async () => {
       const documentTitle = "Test Page";
       const formId = "validFormId";
@@ -1509,10 +1528,30 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["getAutofillFieldMaxLength"]).not.toHaveBeenCalled();
       expect(
         collectAutofillContentService["domElementVisibilityService"].isElementViewable,
-      ).not.toHaveBeenCalled();
+      ).toHaveBeenCalledWith(usernameInput);
       expect(collectAutofillContentService["getPropertyOrAttribute"]).not.toHaveBeenCalled();
       expect(collectAutofillContentService["getElementValue"]).not.toHaveBeenCalled();
       expect(autofillFieldItem).toEqual(existingFieldData);
+    });
+
+    it("rechecks the visibility of an existing autofill field item", async () => {
+      document.body.innerHTML = `<form><input id="password" type="password" /></form>`;
+      const passwordInput = document.getElementById(
+        "password",
+      ) as ElementWithOpId<FillableFormFieldElement>;
+      const existingFieldData = createAutofillFieldMock({ viewable: false });
+      collectAutofillContentService["autofillFieldElements"].set(passwordInput, existingFieldData);
+      jest
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
+        .mockResolvedValue(true);
+
+      const autofillFieldItem = await collectAutofillContentService["buildAutofillFieldItem"](
+        passwordInput,
+        0,
+      );
+
+      expect(autofillFieldItem).toBe(existingFieldData);
+      expect(autofillFieldItem?.viewable).toBe(true);
     });
 
     it("returns the AutofillField base data values without the field labels or input values if the passed element is a span element", async () => {
@@ -3915,6 +3954,64 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
 
       expect(collectAutofillContentService["pendingTopLayerTargets"].has(dialog)).toBe(true);
+    });
+  });
+
+  describe("top layer candidate ownership", () => {
+    let inlineMenuElement: HTMLDivElement;
+    let pagePopoverElement: HTMLDivElement;
+
+    beforeEach(() => {
+      // Firefox renders the inline menu as plain `div` elements, matching common page popovers
+      inlineMenuElement = document.createElement("div");
+      inlineMenuElement.setAttribute("popover", "manual");
+      pagePopoverElement = document.createElement("div");
+      pagePopoverElement.setAttribute("popover", "manual");
+      jest
+        .spyOn(autofillOverlayContentService, "isElementInlineMenu")
+        .mockImplementation((element) => element === inlineMenuElement);
+    });
+
+    it("listens to a page popover that shares the inline menu tag name", () => {
+      expect(
+        collectAutofillContentService["shouldListenToTopLayerCandidate"](pagePopoverElement),
+      ).toBe(true);
+    });
+
+    it("does not listen to the inline menu elements", () => {
+      expect(
+        collectAutofillContentService["shouldListenToTopLayerCandidate"](inlineMenuElement),
+      ).toBe(false);
+    });
+
+    it("refreshes the inline menu layer position when a page popover with the same tag name opens", () => {
+      jest.useFakeTimers();
+      const refreshMenuLayerPositionSpy = jest
+        .spyOn(autofillOverlayContentService, "refreshMenuLayerPosition")
+        .mockImplementation();
+
+      collectAutofillContentService["setupTopLayerCandidateListener"](pagePopoverElement);
+      expect(refreshMenuLayerPositionSpy).toHaveBeenCalledTimes(1);
+
+      const toggleEvent = new Event("toggle");
+      Object.defineProperty(toggleEvent, "newState", { value: "open" });
+      pagePopoverElement.dispatchEvent(toggleEvent);
+      jest.advanceTimersByTime(100);
+
+      expect(refreshMenuLayerPositionSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not set up a listener for the inline menu elements", () => {
+      const refreshMenuLayerPositionSpy = jest
+        .spyOn(autofillOverlayContentService, "refreshMenuLayerPosition")
+        .mockImplementation();
+
+      collectAutofillContentService["setupTopLayerCandidateListener"](inlineMenuElement);
+
+      expect(refreshMenuLayerPositionSpy).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["topLayerListenedElements"].has(inlineMenuElement)).toBe(
+        false,
+      );
     });
   });
 

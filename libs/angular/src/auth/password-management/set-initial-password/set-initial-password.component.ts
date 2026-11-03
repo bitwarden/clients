@@ -11,15 +11,13 @@ import {
   InputPasswordFlow,
   PasswordInputResult,
 } from "@bitwarden/auth/angular";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -27,7 +25,6 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -91,7 +88,6 @@ export class SetInitialPasswordComponent implements OnInit {
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private messagingService: MessagingService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyService: PolicyService,
@@ -149,12 +145,12 @@ export class SetInitialPasswordComponent implements OnInit {
 
         const ctx = "Could not set initial password.";
         assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+        assertTruthy(passwordInputResult.salt, "salt", ctx);
         assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
-        assertTruthy(this.email, "email", ctx);
 
         const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
           passwordInputResult.newPassword,
-          this.email.trim().toLowerCase(),
+          passwordInputResult.salt,
           passwordInputResult.kdfConfig,
         );
 
@@ -191,8 +187,8 @@ export class SetInitialPasswordComponent implements OnInit {
       type: "warning",
     });
 
-    if (confirmed) {
-      this.messagingService.send("logout");
+    if (confirmed && this.userId != null) {
+      await this.logoutService.logout(this.userId, "userInitiated");
     }
   }
 
@@ -431,7 +427,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.showSuccessToastByUserType();
 
       // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-      await this.logoutService.logout(this.userId);
+      await this.logoutService.logout(this.userId, "setInitialPassword");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     } catch (e) {

@@ -13,7 +13,7 @@ import { BitTableV2Component } from "./table-v2.component";
   host: {
     role: "row",
     class:
-      "tw-grid tw-grid-flow-col tw-auto-cols-fr tw-bg-bg-secondary tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-text-fg-body",
+      "tw-grid tw-shrink-0 tw-grid-flow-col tw-auto-cols-fr tw-bg-bg-secondary tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-text-fg-body",
     "[style.grid-template-columns]": "gridTemplateColumns()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,

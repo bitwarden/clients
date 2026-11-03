@@ -21,11 +21,13 @@
       {{ "newExperienceDialogDesc" | i18n }}
     </p>
   </div>
-  <ng-container bitDialogFooter>
+  <div #footer bitDialogFooter class="tw-flex tw-w-full tw-flex-wrap tw-gap-2">
     <button
       type="button"
       bitButton
+      endIcon="bwi-arrow-right"
       buttonType="primary"
+      [class.tw-grow]="stacked()"
       id="new-experience-dialog_button_explore"
       (click)="explore()"
     >
@@ -34,6 +36,7 @@
     <a
       bitButton
       buttonType="secondary"
+      [class.tw-grow]="stacked()"
       endIcon="bwi-external-link"
       [href]="learnMoreUrl"
       target="_blank"
@@ -43,5 +46,5 @@
     >
       {{ "learnMore" | i18n }}
     </a>
-  </ng-container>
+  </div>
 </bit-dialog>
