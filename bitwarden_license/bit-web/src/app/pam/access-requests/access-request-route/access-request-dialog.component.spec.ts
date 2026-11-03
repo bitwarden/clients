@@ -3,6 +3,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -109,6 +110,7 @@ describe("AccessRequestDialogComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AccessRequestDialogComponent, NoopAnimationsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close: jest.fn() } },
         { provide: ToastService, useValue: toastService },
@@ -122,7 +124,12 @@ describe("AccessRequestDialogComponent", () => {
       // `DialogModule` provides the real `DialogService` in the component's own injector,
       // shadowing a module-level override.
       .overrideComponent(AccessRequestDialogComponent, {
-        add: { providers: [{ provide: DialogService, useValue: dialogService }] },
+        add: {
+          providers: [
+            { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+            { provide: DialogService, useValue: dialogService },
+          ],
+        },
       })
       .compileComponents();
   });

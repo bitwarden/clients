@@ -46,6 +46,7 @@ import {
   isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import type { AccessDecisionVerdict } from "../abstractions/access-lease";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
@@ -109,6 +110,7 @@ type LeaseColumn = ColumnName<ManagedLeaseRow, "window" | "actions">;
     TooltipDirective,
     TypographyModule,
     I18nPipe,
+    Vfo1I18nPipe,
   ],
   providers: [ApproverActionsService],
 })

@@ -81,13 +81,18 @@
           <bit-search
             class="tw-flex-1"
             [formControl]="searchControl"
-            [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
+            [placeholder]="
+              'pamApprovalsSearchPlaceholder'
+                | vfo1I18n: 'pamApprovalsSearchPlaceholderSharedFolder'
+            "
             id="pam-approvals_input_search"
           />
           <bit-filter-menu
             #collectionFilter
             key="collection"
-            [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
+            [placeholderText]="
+              'pamApprovalsCollectionFilter' | vfo1I18n: 'pamApprovalsSharedFolderFilter'
+            "
             [unsetLabel]="'all' | i18n"
           >
             @for (option of collectionOptions(); track option.value) {
@@ -120,7 +125,9 @@
             }
             <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName }}</a>
             @if (row.collectionName) {
-              <span slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</span>
+              <span slot="secondary">{{
+                "pamInboxInCollection" | vfo1I18n: "pamInboxInSharedFolder" : row.collectionName
+              }}</span>
             }
           </bit-cell>
         </bit-column>
@@ -246,7 +253,9 @@
               <a [routerLink]="['/pam/requests', row.requestId]">{{ row.cipherName }}</a>
               @if (row.collectionName) {
                 <div slot="secondary">
-                  {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                  {{
+                    "pamInboxInCollection" | vfo1I18n: "pamInboxInSharedFolder" : row.collectionName
+                  }}
                 </div>
               }
               @if (row.extendedUntil) {

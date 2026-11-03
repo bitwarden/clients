@@ -6,6 +6,7 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -164,6 +165,7 @@ describe("ApprovalsTabComponent", () => {
     await TestBed.configureTestingModule({
       imports: [ApprovalsTabComponent, NoopAnimationsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ApproverInboxService, useValue: inbox },
         { provide: DialogService, useValue: dialogService },

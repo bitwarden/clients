@@ -8,13 +8,16 @@
       <bit-table-toolbar>
         <bit-search
           class="tw-flex-1"
-          [placeholder]="'pamAccessRequestsSearchPlaceholder' | i18n"
+          [placeholder]="
+            'pamAccessRequestsSearchPlaceholder'
+              | vfo1I18n: 'pamAccessRequestsSearchPlaceholderSharedFolder'
+          "
           [formControl]="searchControl"
         ></bit-search>
         <bit-filter-menu
           #collectionFilter
           key="collection"
-          [placeholderText]="'pamCollectionFilter' | i18n"
+          [placeholderText]="'pamCollectionFilter' | vfo1I18n: 'pamSharedFolderFilter'"
           [unsetLabel]="'all' | i18n"
         >
           @for (option of collectionOptions(); track option.value) {
@@ -41,7 +44,9 @@
           }
           <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName ?? row.cipherId }}</a>
           @if (row.collectionName) {
-            <div slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</div>
+            <div slot="secondary">
+              {{ "pamInboxInCollection" | vfo1I18n: "pamInboxInSharedFolder" : row.collectionName }}
+            </div>
           }
         </bit-cell>
       </bit-column>
@@ -103,7 +108,11 @@
             }
             <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName ?? row.cipherId }}</a>
             @if (row.collectionName) {
-              <div slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</div>
+              <div slot="secondary">
+                {{
+                  "pamInboxInCollection" | vfo1I18n: "pamInboxInSharedFolder" : row.collectionName
+                }}
+              </div>
             }
           </bit-cell>
         </bit-column>
@@ -170,7 +179,11 @@
               row.cipherName ?? row.cipherId
             }}</a>
             @if (row.collectionName) {
-              <div slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</div>
+              <div slot="secondary">
+                {{
+                  "pamInboxInCollection" | vfo1I18n: "pamInboxInSharedFolder" : row.collectionName
+                }}
+              </div>
             }
             @if (row.lease?.extendedUntil ? row.lease : null; as lease) {
               <span

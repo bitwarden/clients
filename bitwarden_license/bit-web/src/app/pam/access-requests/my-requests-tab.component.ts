@@ -40,6 +40,7 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { AccessLeaseId, AccessRequestId, activateAccessErrorMessageKey } from "..";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
@@ -122,6 +123,7 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
     SearchModule,
     TypographyModule,
     I18nPipe,
+    Vfo1I18nPipe,
     DurationShortPipe,
     RemainingTimePipe,
   ],
