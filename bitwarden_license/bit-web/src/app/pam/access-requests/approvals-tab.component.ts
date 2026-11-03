@@ -331,18 +331,6 @@ export class ApprovalsTabComponent {
     );
   }
 
-  /** Withdraws an approval the requester has not started yet, which needs no lease. */
-  protected async withdrawApproval(row: ApproverRow): Promise<void> {
-    if (row.kind !== "ready" || this.isActing(row)) {
-      return;
-    }
-    await this.approverActions.withdrawApproval(
-      row.cipherName,
-      () => this.inbox.cancelApproval(row.requestId),
-      rowBusy(this.acting, row.id),
-    );
-  }
-
   /** Ends a running lease. */
   protected async revoke(row: ApproverRow): Promise<void> {
     if (row.kind !== "active" || this.isActing(row)) {
