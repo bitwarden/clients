@@ -35,6 +35,7 @@ import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.compon
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
 
+/** Joins the key with whatever the message's placeholders resolved to, so both are assertable. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string, ...args: (string | number | undefined)[]) =>
     args.some((arg) => arg != null) ? `${id}:${args.filter((arg) => arg != null).join(",")}` : id,

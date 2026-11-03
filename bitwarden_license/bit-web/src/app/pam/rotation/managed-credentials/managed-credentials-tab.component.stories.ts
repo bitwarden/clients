@@ -14,6 +14,7 @@ import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests"
 
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { OrgCiphersService } from "../org-ciphers.service";
+import { QuartzSchedulePreset } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
   id,
@@ -83,7 +84,7 @@ const ROWS: RotationConfigRow[] = [
     }),
     undefined,
     "Prod DB service account",
-    rotationConfigDescription(),
+    rotationConfigDescription({ schedulePreset: QuartzSchedulePreset.Daily }),
   ),
   buildRotationConfigRow(
     rotationConfig({
@@ -98,6 +99,7 @@ const ROWS: RotationConfigRow[] = [
     undefined,
     "Staging admin login",
     rotationConfigDescription({
+      schedulePreset: QuartzSchedulePreset.Custom,
       actions: rotationConfigActions({
         canRotateNow: false,
         canPause: false,
@@ -119,6 +121,7 @@ const ROWS: RotationConfigRow[] = [
     undefined,
     "CI pipeline token",
     rotationConfigDescription({
+      schedulePreset: QuartzSchedulePreset.Custom,
       actions: rotationConfigActions({ canRotateNow: false, mutationsLocked: true }),
     }),
   ),
@@ -137,6 +140,7 @@ const ROWS: RotationConfigRow[] = [
     undefined,
     "Mainframe operator",
     rotationConfigDescription({
+      schedulePreset: QuartzSchedulePreset.None,
       actions: rotationConfigActions({ canRotateNow: false, canRecordManual: true }),
     }),
   ),
