@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "Môj trezor je prázdny"
   },
+  "noItemsInFolder": {
+    "message": "Priečinok $FOLDER_NAME$ je prázdny",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Pridajte položky do tohto priečinka. Pomocou filtrov trezoru k nim budete mať rýchly prístup.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Moje položky sú prázdne"
   },
@@ -1236,6 +1250,12 @@
   },
   "deletedItem": {
     "message": "Položka bola presunutá do koša"
+  },
+  "deleteItemError": {
+    "message": "Položku sa nepodarilo odstrániť."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Táto položka je obmedzená. Vaša zmena nebola uložená."
   },
   "overwritePassword": {
     "message": "Prepísať heslo"
@@ -5396,16 +5416,16 @@
     "message": "Prihlasovacie údaje, karty, identity, zabezpečené poznámky a TOTP kódy so zachovanou štruktúrou priečinkov."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Rýchlo a bezpečne"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Tento proces je kompletne šifrovaný. Nie je potrebný žiadny exportný súbor."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Všetko, čo potrebujete, sú vaše prihlasovacie údaje"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "V ďalšom kroku zadáte svoje prihlasovacie údaje pre $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Čo sa prenesie"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Vaše prihlasovacie údaje, ostatné položky a priečinky sa prenesú. Prístupové kľúče a prílohy môžu byť vylúčené."
   },
   "importAcceptedFormats": {
     "message": "Podporované: $FORMATS$",
@@ -5700,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "Pri exporte bola preskočená 1 poškodená príloha. Všetky ostatné údaje trezora a prílohy boli úspešne exportované."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 položka nebola zahrnutá do tohto exportu. Je chránená pravidlom privilegovaného prístupu, preto jej prihlasovacie údaje nie sú na tomto zariadení k dispozícii."
+  },
+  "exportExcludedGatedItems": {
+    "message": "Niekoľko položiek ($COUNT$) nebolo zahrnutých do tohto exportu. Sú chránené pravidlami privilegovaného prístupu, preto ich prihlasovacie údaje nie sú na tomto zariadení k dispozícii.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "Pri exporte boli preskočené poškodené prílohy – $COUNT$. Všetky ostatné údaje trezora a prílohy boli úspešne exportované.",
     "placeholders": {
@@ -5803,31 +5835,31 @@
     "message": "E-mail LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-mailová adresa je povinná."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Zadajte platnú e-mailovú adresu."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Vyžaduje sa heslo."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Zadajte platné heslo"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Zadajte platný overovací kód."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Zadajte hlavné heslo pre LastPass."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Zadajte overovací kód nižšie."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Čaká sa na overenie SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "Po prihlásení automaticky pokračujeme v importe."
   },
   "importingYourAccount": {
     "message": "Importovanie vášho účtu..."
@@ -5836,58 +5868,58 @@
     "message": "Server"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-mailová adresa je povinná."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Zadajte platnú e-mailovú adresu."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Nepodporovaná metóda dvojstupňového overenia. Zmeňte metódu alebo importujte manuálne."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Spôsob schválenia zariadenia"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Zadajte platný overovací kód."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Znova odoslať overovací kód"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Upozornenie Keeper Push odoslané na schválené zariadenie."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Schváľte toto zariadenie výberom jednej z metód."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Skontrolujte e-mail a zadajte overovací kód nižšie."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Zadajte kód z overovacej aplikácie."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Zadajte kód zaslaný cez SMS správu."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Zadajte hlavné heslo pre Keeper."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Výzva Keeper DNA bola odoslaná"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Schváľte oznámenie aplikácie Keeper DNA na vašom zariadení."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Vaša žiadosť o schválenie bude zrušená. Naozaj chcete pokračovať?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Poslali sme žiadosť o schválenie správcom vášmu správcovi."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Vyžaduje sa heslo."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Zadajte platné heslo."
   },
   "lastPassMFARequired": {
     "message": "Vyžaduje sa viacfaktorové overenie LastPass"
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Toto heslo so sebou prináša ďalšie riziká:"
   },
+  "excludeFromList": {
+    "message": "Vylúčiť zo zoznamu"
+  },
+  "excludeFromListDesc": {
+    "message": "Vylúčenie nevyrieši riziko spojené s vaším heslom. Ak chcete chrániť svoj účet, najskôr si zmeňte heslo."
+  },
+  "excludeAnyway": {
+    "message": "Vylúčiť aj tak"
+  },
   "reused": {
     "message": "Opakovane použité",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
   },
+  "viewSharedItem": {
+    "message": "Zobraziť zdieľanú položku"
+  },
+  "copyShareLink": {
+    "message": "Kopírovať odkaz na zdieľanie"
+  },
+  "unableToDetermineItemId": {
+    "message": "Nepodarilo sa zistiť ID položky"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden má nový vzhľad",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8640,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Prepínajte medzi trezormi"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "Vďaka novému prepínaču trezorov môžete rýchlo zobraziť svoj súkromný trezor alebo trezor, ktorý zdieľate s ostatnými."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "Vďaka novému prepínaču trezorov môžete rýchlo zobraziť svoje osobné položky alebo položky v trezore, ktorý zdieľate s ostatnými."
   },
   "coachmarkFiltersTitle": {
     "message": "Kombinujte filtre"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Obnoviť na predvolené"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Otvoriť článok pomocníka o automatickom vyplňovaní prihlasovacích údajov v prehliadači"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Ak chcete použiť toto nastavenie, vyberte pre každú webovú stránku tejto položky prihlásenia inú možnosť zisťovania zhody ako \"Predvolené\"."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Zapnúť automatické vypĺňanie pri výzvach na prihlásenie v prehliadači?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Pre túto položku bude vypnutá opätovná výzva na zadanie hlavného hesla. Obe nastavenia nemôžu byť zapnuté súčasne."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Zapnúť opätovné vyžiadanie hlavného hesla?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači bude pre túto položku vypnuté. Obe nastavenia nemôžu byť zapnuté súčasne."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Použiť predvolenú detekciu zhôd?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Webové stránky, ktoré využívajú predvolenú detekciu zhôd, nie je možné používať s prihlasovacími výzvami prehliadača. Funkcia automatického vypĺňania pre prihlasovacie výzvy prehliadača bude pre túto položku vypnutá."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači je vypnuté"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Táto položka má zapnutú výzvu na opätovné zadanie hlavného hesla, takže automatické vypĺňanie prihlasovacích výziev prehliadača bolo vypnuté. Ak chcete túto zmenu zachovať, uložte položku."
   }
 }

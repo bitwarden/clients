@@ -220,11 +220,12 @@ export class PopupHeaderComponent {
       "tw-border-solid",
     ];
 
-    if (this.background() === "alt" && !this.pageScrolled()) {
-      classes.push("tw-bg-background-alt", "tw-border-transparent");
-    } else {
-      classes.push("tw-bg-background", "tw-border-border-base");
-    }
+    classes.push(
+      "tw-bg-bg-primary",
+      this.background() === "alt" && !this.pageScrolled()
+        ? "tw-border-transparent"
+        : "tw-border-border-base",
+    );
 
     /** The back button's own padding stands in for the bar's start padding. */
     classes.push(

@@ -365,6 +365,24 @@ describe("WebVaultItemActionsService", () => {
         expect.objectContaining({ title: { key: "passkeyNotCopied" } }),
       );
     });
+
+    it("opens no dialog and clears the params when cloning a restricted item by id", async () => {
+      cipherService.get.mockResolvedValue(
+        Object.assign(new Cipher(), buildStoredCipher({ partialData: "{}" })),
+      );
+
+      await service.cloneById(cipherId);
+
+      expect(cipherService.decrypt).not.toHaveBeenCalled();
+      expect(cipherFormConfigService.buildConfig).not.toHaveBeenCalled();
+      expect(itemDialogOpen).not.toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { cipherId: null, itemId: null, action: null },
+        }),
+      );
+    });
   });
 
   describe("by id", () => {
