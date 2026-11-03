@@ -1,6 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -12,7 +13,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  SelectItemView,
+  ToastService,
+  TooltipDirective,
+} from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
@@ -946,13 +952,6 @@ describe("AccessConnectorDetailComponent", () => {
       expect(hintText()).toContain("pamAccessConnectorAssignSelectHint");
     });
 
-    it("answers a staged-inactive connector first, since nothing else is actionable", async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
-
-      expect(hintText()).toContain("pamAccessConnectorAssignTargetDisabled");
-    });
-
     it("says none exist when the org has no active automatic target system", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([]);
       await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
@@ -965,6 +964,28 @@ describe("AccessConnectorDetailComponent", () => {
       await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
       expect(hintText()).toContain("pamAccessConnectorTargetSystemsLoadError");
+    });
+
+    it("leaves a staged-inactive connector to Assign's tooltip, and drops the hint", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
+
+      const tooltip = fixture.debugElement
+        .query(By.css("#access-connector-detail_button_assign"))
+        .injector.get(TooltipDirective);
+
+      expect(hintText()).toBeUndefined();
+      expect(tooltip.tooltipContent()).toBe("pamAccessConnectorAssignTargetDisabled");
+      expect(tooltip.addTooltipToDescribedby()).toBe(true);
+    });
+
+    it("keeps the Active checkbox's own hint, which says what deactivating releases", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
+
+      const status = (fixture.nativeElement as HTMLElement).querySelector("bit-form-control")!;
+
+      expect(status.textContent).toContain("pamAccessConnectorActiveHint");
     });
   });
 
@@ -1172,10 +1193,14 @@ describe("AccessConnectorDetailComponent", () => {
   });
 
   describe("action row (rendered)", () => {
-    async function render(accessConnector: AccessConnectorDetail): Promise<HTMLElement> {
+    async function render(
+      accessConnector: AccessConnectorDetail,
+      tab = "configuration",
+    ): Promise<HTMLElement> {
       rotationSdk.getConnector.mockResolvedValue(accessConnector);
       await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
+        tab,
       });
       await createComponent();
       return fixture.nativeElement as HTMLElement;
@@ -1235,6 +1260,22 @@ describe("AccessConnectorDetailComponent", () => {
       expect(checkbox).toBeTruthy();
       expect(checkbox.closest("bit-card")).toBeTruthy();
       expect(el.textContent).toContain("pamAccessConnectorActiveHint");
+    });
+
+    it("offers both Save and Delete on the Configuration tab", async () => {
+      const el = await render(makeAccessConnector(), "configuration");
+
+      expect(el.querySelector("form")).not.toBeNull();
+      expect(el.querySelector("#access-connector-detail_button_save")).not.toBeNull();
+      expect(el.querySelector("#access-connector-detail_button_delete")).not.toBeNull();
+    });
+
+    it("offers neither Save nor Delete on the History tab", async () => {
+      const el = await render(makeAccessConnector(), "history");
+
+      expect(el.querySelector("form")).toBeNull();
+      expect(el.querySelector("#access-connector-detail_button_save")).toBeNull();
+      expect(el.querySelector("#access-connector-detail_button_delete")).toBeNull();
     });
   });
 

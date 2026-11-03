@@ -305,7 +305,6 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     default: "pamAccessConnectorAssignSelectHint",
     noneEligible: "pamAccessConnectorAssignNoTargetSystems",
     loadError: "pamAccessConnectorTargetSystemsLoadError",
-    disabled: "pamAccessConnectorAssignTargetDisabled",
   };
 
   constructor() {

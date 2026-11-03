@@ -21,7 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, TabsModule, ToastService } from "@bitwarden/components";
+import { DialogService, TabsModule, ToastService, TooltipDirective } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
@@ -1516,12 +1516,15 @@ describe("RotationConfigEditComponent — action row", () => {
     expect(actionButton(fixture, "delete")).toBeNull();
   });
 
-  it("disables Delete and says why while a rotation job is in flight", async () => {
+  it("disables Delete and says why on the button while a job is in flight", async () => {
     const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
 
     const remove = fixture.debugElement.query(By.css("#rotation-config-edit_button_delete"));
+    const tooltip = remove.injector.get(TooltipDirective);
+
     expect(remove.componentInstance.disabled()).toBe(true);
-    expect(remove.nativeElement.getAttribute("title")).toBe("pamRotationConfigDeleteLockedTitle");
+    expect(tooltip.tooltipContent()).toBe("pamRotationConfigDeleteLockedTitle");
+    expect(tooltip.addTooltipToDescribedby()).toBe(true);
     expect(fixture.nativeElement.textContent).not.toContain(
       "pamRotationConfigRemoveLockedContentConnector",
     );
@@ -1541,14 +1544,15 @@ describe("RotationConfigEditComponent — action row", () => {
     expect(save.componentInstance.disabled()).toBe(false);
   });
 
-  it("keeps Delete live while no job is running", async () => {
+  it("keeps Delete live, and unexplained, while no job is running", async () => {
     const fixture = await renderPage();
 
     const remove = fixture.debugElement.query(By.css("#rotation-config-edit_button_delete"));
+    const tooltip = remove.injector.get(TooltipDirective);
+
     expect(remove.componentInstance.disabled()).toBe(false);
-    expect(fixture.nativeElement.textContent).not.toContain(
-      "pamRotationConfigRemoveLockedContentConnector",
-    );
+    expect(tooltip.tooltipContent()).toBe("");
+    expect(tooltip.addTooltipToDescribedby()).toBe(false);
   });
 });
 
