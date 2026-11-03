@@ -6,8 +6,8 @@ Management (PAM) feature: the organization admin-console nav slot (`org-nav-slot
 `canAccessEventLogs`, and Rotation on `FeatureFlag.PamAccessConnector` + `canManageRotation`; the
 group shows when any item does) and the individual user nav slot (`user-nav-slot/`, gated on
 `FeatureFlag.Pam` plus membership in a PAM-enabled organization (`usePam`), linking to the
-user-scoped Access requests page). The feature itself, including its domain contracts, lives in
-`bitwarden_license/bit-web/src/app/pam/`.
+user-scoped Access requests page). The feature itself lives in `bitwarden_license/bit-web/src/app/pam/`; its domain
+contracts and other cross-client code live in `bitwarden_license/bit-common/src/pam/`.
 
 `pam-nav-badge.service.ts` is the abstract count behind the user nav slot's badge, bound in
 commercial code by `providePam()`. `pam-org-admin-route.token.ts` names the Admin Console path
