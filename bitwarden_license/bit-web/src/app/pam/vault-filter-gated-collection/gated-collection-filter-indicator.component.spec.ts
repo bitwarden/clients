@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -9,6 +10,7 @@ import { GatedCollectionFilterIndicatorComponent } from "./gated-collection-filt
 describe("GatedCollectionFilterIndicatorComponent", () => {
   let fixture: ComponentFixture<GatedCollectionFilterIndicatorComponent>;
   let enabled$: BehaviorSubject<boolean>;
+  let vfo1$: BehaviorSubject<boolean>;
 
   function create(collection: { hasEnabledAccessRule?: boolean } | null): void {
     fixture = TestBed.createComponent(GatedCollectionFilterIndicatorComponent);
@@ -22,11 +24,18 @@ describe("GatedCollectionFilterIndicatorComponent", () => {
 
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
+    vfo1$ = new BehaviorSubject<boolean>(false);
 
     TestBed.configureTestingModule({
       imports: [GatedCollectionFilterIndicatorComponent],
       providers: [
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) =>
+              flag === FeatureFlag.VFO1Foundation ? vfo1$ : enabled$,
+          },
+        },
         {
           provide: I18nService,
           useValue: { t: (key: string) => key },
@@ -39,6 +48,17 @@ describe("GatedCollectionFilterIndicatorComponent", () => {
     create({ hasEnabledAccessRule: true });
 
     expect(lock()).not.toBeNull();
+  });
+
+  // The lock and the gated-collection notice name the same restriction, so both follow the
+  // terminology flag together; wording the lock "collection" under VFO1 would contradict the
+  // "Shared folder" the sidebar around it already says.
+  it("names the restriction in VFO1 terms while the terminology flag is on", () => {
+    vfo1$.next(true);
+    create({ hasEnabledAccessRule: true });
+
+    expect(lock()?.getAttribute("aria-label")).toBe("pamSharedFolderRequiresRequest");
+    expect(lock()?.getAttribute("title")).toBe("pamSharedFolderRequiresRequest");
   });
 
   it("names the restriction for assistive technology as well as on hover", () => {
