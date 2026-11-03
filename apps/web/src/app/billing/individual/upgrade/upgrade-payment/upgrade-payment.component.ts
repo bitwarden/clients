@@ -63,6 +63,7 @@ import {
 import { BillingServicesModule } from "../../../services";
 import { InvoicePreviewService } from "../../../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../../../services/subscription-discount.service";
+import { invoicePreviewErrorMessageKey } from "../../../shared/invoice-preview-error-message-key";
 import { BitwardenSubscriber } from "../../../types";
 
 import {
@@ -155,6 +156,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   private readonly previewCart = signal<Cart | null>(null);
 
   protected readonly previewFailed = signal(false);
+  protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
 
   private readonly eligibleDiscounts$ = toObservable(this.discountTierType).pipe(
     switchMap((tier) =>
@@ -492,9 +494,11 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       map(() => this.INITIAL_TAX_VALUE),
       catchError((error: unknown) => {
         this.logService.error("Invoice preview failed:", error);
+        const key = invoicePreviewErrorMessageKey(error);
+        this.previewErrorMessageKey.set(key);
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("invoicePreviewErrorMessage"),
+          message: this.i18nService.t(key),
         });
         this.previewCart.set(null);
         this.previewFailed.set(true);

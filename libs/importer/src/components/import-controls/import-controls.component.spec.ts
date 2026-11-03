@@ -36,9 +36,10 @@ import {
   ImportSkippedItemsDialogComponent,
   ImportSuccessDialogComponent,
 } from "../dialog";
-import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
+import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
+import { LastPassAuthSession } from "./direct/lastpass/lastpass-auth-session";
 import { ImportControlsComponent } from "./import-controls.component";
 
 describe("ImportControlsComponent", () => {
@@ -53,7 +54,7 @@ describe("ImportControlsComponent", () => {
   let policyService: MockProxy<PolicyService>;
   let accountService: MockProxy<AccountService>;
   let syncService: MockProxy<SyncService>;
-  let keeperDirectImportService: MockProxy<KeeperDirectImportService>;
+  let keeperDirectImportService: MockProxy<KeeperDirectImportUpgradeService>;
   let lastPassDirectImportService: MockProxy<LastPassDirectImportService>;
 
   const component = () => fixture.componentInstance as any;
@@ -84,7 +85,7 @@ describe("ImportControlsComponent", () => {
     { provide: PolicyService, useValue: policyService },
     { provide: AccountService, useValue: accountService },
     { provide: SyncService, useValue: syncService },
-    { provide: KeeperDirectImportService, useValue: keeperDirectImportService },
+    { provide: KeeperDirectImportUpgradeService, useValue: keeperDirectImportService },
     { provide: LastPassDirectImportService, useValue: lastPassDirectImportService },
     {
       provide: AbstractThemingService,
@@ -131,7 +132,7 @@ describe("ImportControlsComponent", () => {
     accountService.activeAccount$ = of({ id: "test-user-id" } as unknown as Account);
     syncService = mock<SyncService>();
     syncService.fullSync.mockResolvedValue(true);
-    keeperDirectImportService = mock<KeeperDirectImportService>();
+    keeperDirectImportService = mock<KeeperDirectImportUpgradeService>();
     lastPassDirectImportService = mock<LastPassDirectImportService>();
 
     const options: Record<string, ImportOption> = {
@@ -2418,7 +2419,7 @@ describe("ImportControlsComponent", () => {
       expect(byId("importer-controls_radio_paste")).toBeFalsy();
     });
 
-    it("returns to the upload screen, not step 1, when Back is pressed on the password card", async () => {
+    it("shows a fresh step 2, not step 1 or the upload page as left, when Back is pressed on the password card", async () => {
       await setup("bitwarden", ClientType.Web);
       const backSpy = jest.fn();
       component().back.subscribe(backSpy);
@@ -2432,6 +2433,7 @@ describe("ImportControlsComponent", () => {
       expect(component().needsFilePassword()).toBe(false);
       expect(component().formGroup.controls.file.value).toBeNull();
       expect(component().formGroup.controls.filePassword.value).toBe("");
+      expect(component().formGroup.controls.method.value).toBe("file");
       expect(byId("importer-controls_input_file")).toBeTruthy();
       expect(byId("importer-controls_input_file-password")).toBeFalsy();
 
@@ -2639,13 +2641,47 @@ describe("ImportControlsComponent", () => {
   });
 
   describe("outputs", () => {
-    it("emits back regardless of mode or sub-step", async () => {
+    it("emits back from step 2's first page", async () => {
       await setup("keeper", ClientType.Desktop);
       const backSpy = jest.fn();
       component().back.subscribe(backSpy);
 
       component().onBack();
 
+      expect(backSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows a fresh step 2 instead of leaving when Back is pressed on the credentials page", async () => {
+      await setup("keeper", ClientType.Desktop);
+      const backSpy = jest.fn();
+      component().back.subscribe(backSpy);
+      component().continueFromIntro();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+
+      component().onBack();
+
+      expect(backSpy).not.toHaveBeenCalled();
+      expect(component().directStep()).toBe("intro");
+      expect(component().formGroup.controls.keeperEmail.value).toBe("");
+
+      component().onBack();
+      expect(backSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows a fresh step 2 when Back is pressed after Import manually instead", async () => {
+      await setup("keeper", ClientType.Desktop);
+      const backSpy = jest.fn();
+      component().back.subscribe(backSpy);
+      component().toggleToManual();
+      expect(component().primaryMode()).toBe("manual");
+
+      component().onBack();
+
+      expect(backSpy).not.toHaveBeenCalled();
+      expect(component().primaryMode()).toBe("direct");
+      expect(component().directStep()).toBe("intro");
+
+      component().onBack();
       expect(backSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -3220,7 +3256,7 @@ describe("ImportControlsComponent", () => {
       expect(keeperDirectImportService.handleImport).toHaveBeenCalledWith(
         "user@example.com",
         expect.anything(),
-        undefined,
+        expect.anything(),
       );
       expect(importService.importImportResult).toHaveBeenCalledWith(
         result,
@@ -3320,6 +3356,7 @@ describe("ImportControlsComponent", () => {
       component().continue.subscribe(continueSpy);
 
       await component().submit();
+      await component().keeperLogin();
       expect(continueSpy).not.toHaveBeenCalled();
 
       const result = new ImportResult();
@@ -3327,6 +3364,7 @@ describe("ImportControlsComponent", () => {
       importService.importImportResult.mockResolvedValue(result);
 
       await component().submit();
+      await component().keeperLogin();
 
       expect(keeperDirectImportService.handleImport).toHaveBeenCalledTimes(2);
       expect(continueSpy).toHaveBeenCalledTimes(1);
@@ -3398,6 +3436,7 @@ describe("ImportControlsComponent", () => {
       expect(lastPassDirectImportService.handleImport).toHaveBeenCalledWith(
         "user@example.com",
         true,
+        expect.any(LastPassAuthSession),
       );
       expect(importService.getImporter).toHaveBeenCalledWith(
         "lastpasscsv",
@@ -3441,6 +3480,7 @@ describe("ImportControlsComponent", () => {
       component().continue.subscribe(continueSpy);
 
       await component().submit();
+      await component().lastPassLogin();
       expect(continueSpy).not.toHaveBeenCalled();
 
       lastPassDirectImportService.handleImport.mockResolvedValueOnce("url,username,password\n");
@@ -3448,6 +3488,7 @@ describe("ImportControlsComponent", () => {
       importService.import.mockResolvedValue(new ImportResult());
 
       await component().submit();
+      await component().lastPassLogin();
 
       expect(lastPassDirectImportService.handleImport).toHaveBeenCalledTimes(2);
       expect(continueSpy).toHaveBeenCalledTimes(1);

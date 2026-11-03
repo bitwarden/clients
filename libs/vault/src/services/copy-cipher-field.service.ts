@@ -166,6 +166,12 @@ export class CopyCipherFieldService {
     cipher: CipherViewLike,
     skipReprompt: boolean = false,
   ): Promise<boolean> {
+    // Ciphers saved with empty strings can still report the field as copyable,
+    // so avoid prompting, copying, and showing a success toast when there is nothing to copy.
+    if (!valueToCopy) {
+      return false;
+    }
+
     const action = CopyActions[actionType];
     if (
       !skipReprompt &&
@@ -173,10 +179,6 @@ export class CopyCipherFieldService {
       action.protected &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
-      return false;
-    }
-
-    if (valueToCopy == null) {
       return false;
     }
 

@@ -1,0 +1,113 @@
+<ng-container [formGroup]="form">
+  @let current = stage();
+  @switch (current.kind) {
+    @case ("selectApproval") {
+      <importer-controls-keeper-method-picker
+        controlName="keeperApprovalMethod"
+        labelKey="keeperLoginApprovalMethod"
+        idPrefix="importer-controls_radio_keeper-approval-"
+        [methods]="current.methods"
+        [labelFn]="approvalLabel"
+      />
+    }
+    @case ("approvalCode") {
+      @if (current.variant === "email") {
+        <importer-controls-keeper-code-field [canResend]="true" (resend)="resend()" />
+      } @else if (current.variant === "admin") {
+        <importer-controls-keeper-waiting
+          titleKey="adminApprovalRequested"
+          bodyKey="keeperLoginAdminRequestedDesc"
+        />
+      } @else {
+        <importer-controls-keeper-waiting
+          titleKey="keeperPushSent"
+          bodyKey="keeperLoginPushSentDesc"
+        />
+      }
+    }
+    @case ("selectTwoFactor") {
+      <importer-controls-keeper-method-picker
+        controlName="keeperTwoFactorMethod"
+        labelKey="selectTwoFactorMethod"
+        idPrefix="importer-controls_radio_keeper-two-factor-"
+        [methods]="current.methods"
+        [labelFn]="twoFactorLabel"
+      />
+    }
+    @case ("twoFactorCode") {
+      @if (current.needsInput) {
+        <importer-controls-keeper-code-field [canResend]="current.canResend" (resend)="resend()" />
+      } @else {
+        <p bitTypography="body1">{{ "mfaPushDesc" | i18n }}</p>
+      }
+    }
+    @case ("selectDuo") {
+      <p bitTypography="body1" class="tw-mb-2">{{ current.phoneNumber }}</p>
+      <importer-controls-keeper-method-picker
+        controlName="keeperDuoMethod"
+        labelKey="duoVerification"
+        idPrefix="importer-controls_radio_keeper-duo-"
+        [methods]="current.methods"
+        [labelFn]="duoLabel"
+      />
+    }
+    @case ("duoPush") {
+      <importer-controls-keeper-waiting titleKey="duoVerification" bodyKey="duoPushWaiting" />
+    }
+    @case ("selectDna") {
+      <importer-controls-keeper-method-picker
+        controlName="keeperDnaMethod"
+        labelKey="keeperDnaVerification"
+        idPrefix="importer-controls_radio_keeper-dna-"
+        [methods]="current.methods"
+        [labelFn]="dnaLabel"
+      />
+    }
+    @case ("dnaPush") {
+      <importer-controls-keeper-waiting
+        titleKey="keeperLoginDnaSent"
+        bodyKey="keeperLoginDnaSentDesc"
+      />
+    }
+    @case ("ssoToken") {
+      <p bitTypography="body2">{{ "keeperSsoDesc" | i18n }}</p>
+      <bit-form-field class="tw-max-w-sm">
+        <bit-label>
+          {{ "ssoToken" | i18n }}
+          <button
+            type="button"
+            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
+            [bitPopoverTriggerFor]="ssoPopover"
+            position="above-center"
+            [appA11yTitle]="'ssoAuthRequired' | i18n"
+            bitLink
+            startIcon="bwi-question-circle"
+          ></button>
+        </bit-label>
+        <input
+          bitInput
+          type="text"
+          formControlName="keeperSsoToken"
+          appInputVerbatim
+          id="importer-controls_input_keeper-sso-token"
+        />
+      </bit-form-field>
+      <bit-popover [title]="'ssoAuthRequired' | i18n" #ssoPopover>
+        <p>{{ "keeperSsoDesc" | i18n }}</p>
+      </bit-popover>
+    }
+    @case ("password") {
+      <bit-form-field class="tw-max-w-sm">
+        <bit-label>{{ "masterPassword" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="password"
+          formControlName="keeperPassword"
+          appInputVerbatim
+          id="importer-controls_input_keeper-password"
+        />
+        <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+      </bit-form-field>
+    }
+  }
+</ng-container>

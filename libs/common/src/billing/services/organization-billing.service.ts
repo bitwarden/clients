@@ -218,6 +218,11 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
       request.additionalServiceAccounts = information.secretsManagerServiceAccounts;
     }
 
+    if (information.subscribeToPrivilegedControls) {
+      request.usePrivilegedControls = true;
+      request.pamSeats = information.pamSeats;
+    }
+
     if (information.storage) {
       request.additionalStorageGb = information.storage;
     }

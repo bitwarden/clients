@@ -34,13 +34,10 @@ import {
   singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
-import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
-import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -63,6 +60,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderOrganizationCreateRequest,
+  ProviderResponse,
+} from "@bitwarden/common/provider";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";
@@ -97,6 +99,7 @@ import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgr
 import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
+import { invoicePreviewErrorMessageKey } from "../shared/invoice-preview-error-message-key";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -379,6 +382,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   private readonly previewCart = signal<Cart | null>(null);
 
   protected readonly previewFailed = signal(false);
+  protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
 
   private readonly usePreviewDrivenCart = (previewDrivenCart: boolean) =>
     previewDrivenCart && this.createOrganization() && !this.hasProvider();
@@ -1051,9 +1055,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       map((): void => undefined),
       catchError((error: unknown) => {
         this.logService.error("Invoice preview failed:", error);
+        const key = invoicePreviewErrorMessageKey(error);
+        this.previewErrorMessageKey.set(key);
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("invoicePreviewErrorMessage"),
+          message: this.i18nService.t(key),
         });
         this.previewCart.set(null);
         this.previewFailed.set(true);

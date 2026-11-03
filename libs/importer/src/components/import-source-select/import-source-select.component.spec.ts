@@ -130,6 +130,17 @@ describe("ImportSourceSelectComponent", () => {
     expect(emitted).toEqual(["chromecsv"]);
   });
 
+  // Web and the extension load Tailwind's preflight, which gives every heading and paragraph a
+  // bottom margin that `noMargin` doesn't remove. Only explicit classes keep the header's spacing
+  // the same as desktop's and as Figma's.
+  it("sets the header's margins explicitly: none under the title, 16px under the subtitle", () => {
+    const title = fixture.nativeElement.querySelector("h2") as HTMLElement;
+    const subtitle = title.nextElementSibling as HTMLElement;
+
+    expect(title.classList).toContain("tw-mb-0");
+    expect(subtitle.classList).toContain("tw-mb-4");
+  });
+
   it("renders every browser, regardless of featured-password-manager status", () => {
     expect(cardLabels()).toEqual(expect.arrayContaining(["Chrome", "Firefox"]));
   });
@@ -209,20 +220,66 @@ describe("ImportSourceSelectComponent", () => {
     expect(cardLabels()).toEqual(["Zoho Vault"]);
   });
 
-  it("keeps a single source of truth for the disclosure's open state across search and manual toggle", () => {
-    component["searchControl"].setValue("zoho");
-    fixture.detectChanges();
-    expect(cardLabels()).toContain("Zoho Vault");
+  describe("while searching", () => {
+    function headings(): string[] {
+      return fixture.debugElement
+        .queryAll(By.css("p[bitTypography=h6]"))
+        .map((el) => (el.nativeElement.textContent ?? "").trim());
+    }
 
-    // Manually collapsing while a search is active must actually take effect, not be silently
-    // overridden by the search-driven default on the next change detection pass.
-    const showAllButton = fixture.debugElement.query(By.css("button[bitLink]"));
-    showAllButton.nativeElement.click();
-    fixture.detectChanges();
+    const showAllButton = () => fixture.debugElement.query(By.css("button[bitLink]"));
 
-    expect(cardLabels()).not.toContain("Zoho Vault");
-    const disclosure = fixture.debugElement.query(By.css("bit-disclosure"));
-    expect((disclosure.nativeElement as HTMLElement).classList).toContain("tw-hidden");
+    function search(text: string) {
+      component["searchControl"].setValue(text);
+      fixture.detectChanges();
+    }
+
+    it("labels password managers that only match from the Show all list", () => {
+      search("zoho");
+
+      expect(cardLabels()).toEqual(["Zoho Vault"]);
+      expect(headings()).toEqual(["importSourcePasswordManagers"]);
+    });
+
+    it("labels password managers that only match from the featured list", () => {
+      search("lastpass");
+
+      expect(headings()).toEqual(["importSourcePasswordManagers"]);
+    });
+
+    it("labels only the categories that have matches", () => {
+      search("chrome");
+
+      expect(headings()).toEqual(["importSourceBrowsers"]);
+    });
+
+    it("hides Show all/Show less, whichever list the matches come from", () => {
+      search("zoho");
+      expect(showAllButton()).toBeNull();
+
+      search("lastpass");
+      expect(showAllButton()).toBeNull();
+
+      search("pass");
+      expect(showAllButton()).toBeNull();
+    });
+
+    it("shows every match from both lists without truncation", () => {
+      search("pass");
+
+      expect(cardLabels()).toEqual(
+        expect.arrayContaining(["1Password", "LastPass", "Password Dragon"]),
+      );
+    });
+
+    it("brings Show all back once the search is cleared", () => {
+      search("zoho");
+      search("");
+
+      expect(showAllButton()).not.toBeNull();
+      expect(showAllButton().nativeElement.textContent).toContain("importSourceShowAll");
+      expect(cardLabels()).not.toContain("Zoho Vault");
+    });
   });
 
   it("keeps a selection made from Show all visible after the search that revealed it is cleared", () => {

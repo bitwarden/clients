@@ -20,7 +20,6 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -205,10 +204,6 @@ export default class NotificationBackground {
     }
     await action(sender.tab);
   }
-
-  useUndeterminedCipherScenarioTriggeringLogic$ = this.configService.getFeatureFlag$(
-    FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic,
-  );
 
   /**
    * Gets the enableChangedPasswordPrompt setting from the user notification settings service.
@@ -637,68 +632,6 @@ export default class NotificationBackground {
     await this.triggerLoginSavedNotification(itemName ?? "", cipherId ?? "", tab);
   }
 
-  /**
-   * Adds a login message to the notification queue, prompting the user to save
-   * the login if it does not already exist in the vault. If the cipher exists
-   * but the password has changed, the user will be prompted to update the password.
-   *
-   * @param message - The message to add to the queue
-   * @param sender - The contextual sender of the message
-   */
-  async triggerAddLoginNotification(
-    data: ModifyLoginCipherFormData,
-    tab: chrome.tabs.Tab,
-  ): Promise<boolean> {
-    const username = data?.username;
-    if (username == null) {
-      return false;
-    }
-    const login: AddLoginMessageData = {
-      username,
-      url: data.uri,
-      password: data.password || data.newPassword,
-    };
-
-    const authStatus = await this.getAuthStatus();
-    if (authStatus === AuthenticationStatus.LoggedOut) {
-      return false;
-    }
-
-    const normalizedUsername = login.username ? login.username.toLowerCase() : "";
-    const loginDomain = Utils.getDomain(login.url);
-    if (loginDomain == null) {
-      return false;
-    }
-
-    const addLoginIsEnabled = await this.getEnableAddedLoginPrompt();
-
-    if (authStatus === AuthenticationStatus.Locked) {
-      if (addLoginIsEnabled) {
-        await this.pushAddLoginToQueue(loginDomain, login, tab, true);
-      }
-
-      return false;
-    }
-
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-    if (activeUserId == null) {
-      return false;
-    }
-
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(login.url, activeUserId);
-    const usernameMatches = ciphers.filter(
-      (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
-    );
-    if (addLoginIsEnabled && usernameMatches.length === 0) {
-      await this.pushAddLoginToQueue(loginDomain, login, tab);
-      return true;
-    }
-
-    return false;
-  }
-
   private async pushAddLoginToQueue(
     loginDomain: string,
     loginInfo: AddLoginMessageData,
@@ -938,124 +871,6 @@ export default class NotificationBackground {
         changePasswordNotificationIsEnabled,
         newLoginNotificationIsEnabled,
       });
-    }
-
-    return false;
-  }
-
-  /**
-   * Adds a change password message to the notification queue, prompting the user
-   * to update the password for a login that has changed.
-   *
-   * @param message - The message to add to the queue
-   * @param sender - The contextual sender of the message
-   */
-  async triggerChangedPasswordNotification(
-    data: ModifyLoginCipherFormData,
-    tab: chrome.tabs.Tab,
-  ): Promise<boolean> {
-    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
-    if (!changePasswordIsEnabled) {
-      return false;
-    }
-    const authStatus = await this.getAuthStatus();
-    if (authStatus === AuthenticationStatus.LoggedOut) {
-      return false;
-    }
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-    if (activeUserId === null) {
-      return false;
-    }
-    const loginDomain = Utils.getDomain(data.uri);
-    if (loginDomain === null) {
-      return false;
-    }
-
-    const username: string | null = data.username || null;
-    const currentPasswordFieldValue = data.password || null;
-    const newPasswordFieldValue = data.newPassword || null;
-
-    if (authStatus === AuthenticationStatus.Locked && newPasswordFieldValue !== null) {
-      await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
-      return true;
-    }
-
-    let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
-      data.uri,
-      activeUserId,
-    );
-
-    const normalizedUsername: string = username ? username.toLowerCase() : "";
-
-    const shouldMatchUsername = typeof username === "string" && username.length > 0;
-
-    if (shouldMatchUsername) {
-      // Presence of a username should filter ciphers further.
-      ciphers = ciphers.filter(
-        (cipher) => cipher.login?.username?.toLowerCase() === normalizedUsername,
-      );
-    }
-
-    if (ciphers.length === 1) {
-      const [cipher] = ciphers;
-      const loginUsername = cipher.login?.username;
-      const loginPassword = cipher.login?.password;
-      if (
-        username !== null &&
-        newPasswordFieldValue === null &&
-        loginUsername != null &&
-        loginUsername.toLowerCase() === normalizedUsername &&
-        loginPassword === currentPasswordFieldValue
-      ) {
-        // Assumed to be a login
-        return false;
-      }
-    }
-
-    if (
-      ciphers.length > 0 &&
-      (currentPasswordFieldValue?.length || 0) > 0 &&
-      // Only use current password for change if no new password present.
-      !newPasswordFieldValue
-    ) {
-      const currentPasswordMatchesAnExistingValue = ciphers.some(
-        (cipher) =>
-          (cipher.login?.password?.length || 0) > 0 &&
-          cipher.login?.password === currentPasswordFieldValue,
-      );
-
-      // The password entered matched a stored cipher value with
-      // the same username (no change)
-      if (currentPasswordMatchesAnExistingValue) {
-        return false;
-      }
-
-      if (currentPasswordFieldValue != null) {
-        await this.pushChangePasswordToQueue(
-          ciphers.map((cipher) => cipher.id),
-          loginDomain,
-          currentPasswordFieldValue,
-          tab,
-        );
-      }
-
-      return true;
-    }
-
-    if (newPasswordFieldValue) {
-      // Otherwise include all known ciphers.
-      if (ciphers.length > 0) {
-        await this.pushChangePasswordToQueue(
-          ciphers.map((cipher) => cipher.id),
-          loginDomain,
-          newPasswordFieldValue,
-          tab,
-        );
-
-        return true;
-      }
     }
 
     return false;

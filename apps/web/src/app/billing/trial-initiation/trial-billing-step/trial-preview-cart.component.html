@@ -1,0 +1,22 @@
+@if (preview.isLoading()) {
+  <div class="tw-my-4 tw-text-center">
+    <bit-spinner></bit-spinner>
+  </div>
+} @else if (preview.error()) {
+  <bit-callout type="danger" id="trial-preview-cart_callout_preview-error" class="tw-my-4 tw-block">
+    {{ previewErrorMessageKey() | i18n }}
+    @if (previewRetryable()) {
+      <button
+        id="trial-preview-cart_button_retry-preview"
+        bitLink
+        linkType="primary"
+        type="button"
+        (click)="preview.reload()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    }
+  </bit-callout>
+} @else if (preview.hasValue()) {
+  <billing-cart-summary [cart]="preview.value()" class="tw-my-4 tw-block" />
+}
