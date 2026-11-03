@@ -813,9 +813,12 @@ describe("AccessConnectorsTabComponent", () => {
 
     it("falls back to the full date when a heartbeat is a year or more old", async () => {
       const elapsedMs = 400 * 24 * 60 * 60_000;
-      await renderRows([rowWithHeartbeat(elapsedMs)]);
+      const row = rowWithHeartbeat(elapsedMs);
+      await renderRows([row]);
 
-      const expected = formatDate(Date.now() - elapsedMs, "medium", "en-US");
+      // Format the row's own heartbeat, not `Date.now() - elapsedMs`, which drifts a second
+      // when the render straddles a clock tick.
+      const expected = formatDate(row.lastSeenAtMs as number, "medium", "en-US");
       expect(lastSeenCellText()).toBe(expected);
     });
 
