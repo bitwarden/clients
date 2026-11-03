@@ -1,7 +1,7 @@
 import { readFileSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { BrowserContext, Page, chromium, expect, test as base } from "@playwright/test";
+import { BrowserContext, CDPSession, Page, chromium, expect, test as base } from "@playwright/test";
 
 import { pruneVideo, videoDir } from "../artifacts";
 import { BROWSER_BUILD_DIR, E2E_STATE_DIR } from "../paths";
@@ -83,17 +83,54 @@ export async function popupUrl(context: BrowserContext): Promise<string> {
 const REOPEN_TIMEOUT_MS = 30_000;
 const REOPEN_RETRY_MS = 100;
 
+const SERVICE_WORKER_TARGET = "service_worker";
+const SHUTDOWN_POLL_MS = 100;
+
+/** Ids of the extension's running service workers, as the browser reports them over CDP. */
+async function workerTargetIds(session: CDPSession): Promise<Set<string>> {
+  const { targetInfos } = await session.send("Target.getTargets");
+  const workers = targetInfos.filter(
+    (target) => target.type === SERVICE_WORKER_TARGET && target.url.startsWith(EXTENSION_SCHEME),
+  );
+
+  return new Set(workers.map((target) => target.targetId));
+}
+
 /**
  * Resolves once the running extension instance shut down, which lock does to wipe it from
  * memory (BrowserProcessReloadService). Call before locking. The next instance starts
  * lazily, e.g. when the popup opens; extension pages opened earlier die with the old one.
+ *
+ * Asks the browser which workers still exist instead of waiting for the worker's "close"
+ * event: Playwright does not reliably deliver it when the extension reloads on CI.
  */
 export async function extensionShutdown(context: BrowserContext): Promise<void> {
-  const worker =
-    context.serviceWorkers().find((w) => w.url().startsWith(EXTENSION_SCHEME)) ??
-    (await context.waitForEvent("serviceworker", { timeout: SERVICE_WORKER_TIMEOUT_MS }));
+  const probe = await context.newPage();
 
-  await worker.waitForEvent("close", { timeout: SERVICE_WORKER_TIMEOUT_MS });
+  try {
+    const session = await context.newCDPSession(probe);
+    const deadline = Date.now() + SERVICE_WORKER_TIMEOUT_MS;
+
+    // The worker may be idle, so it can take a moment to start.
+    let running = await workerTargetIds(session);
+    while (running.size === 0 && Date.now() < deadline) {
+      await probe.waitForTimeout(SHUTDOWN_POLL_MS);
+      running = await workerTargetIds(session);
+    }
+
+    while (Date.now() < deadline) {
+      const current = await workerTargetIds(session);
+      if (![...running].some((id) => current.has(id))) {
+        return;
+      }
+
+      await probe.waitForTimeout(SHUTDOWN_POLL_MS);
+    }
+
+    throw new Error("The extension never shut down.");
+  } finally {
+    await probe.close();
+  }
 }
 
 /**
