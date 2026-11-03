@@ -97,7 +97,9 @@ function fromFile(): Account {
  * set. Otherwise reads the account named by `E2E_SECOND_ACCOUNT`. For tests that need two accounts.
  */
 export function secondAccount(): Account {
-  return fromEnv("E2E_SECOND") ?? readAccount(process.env.E2E_SECOND_ACCOUNT ?? DEFAULT_SECOND_ACCOUNT);
+  return (
+    fromEnv("E2E_SECOND") ?? readAccount(process.env.E2E_SECOND_ACCOUNT ?? DEFAULT_SECOND_ACCOUNT)
+  );
 }
 
 function readAccount(name: string): Account {
