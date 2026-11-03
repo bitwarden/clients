@@ -6,7 +6,7 @@
         bitBadge
         variant="warning"
         class="tw-ms-2"
-        [bitTooltip]="'pamAuditIncompleteTooltip' | i18n"
+        [bitTooltip]="'pamAuditOutcomeUnconfirmedTooltip' | i18n"
         >{{ "pamAuditIncomplete" | i18n }}</span
       >
     }
@@ -97,14 +97,16 @@
       </div>
 
       <div>
-        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "collection" | i18n }}</dt>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          {{ "collection" | vfo1I18n: "sharedFolder" }}
+        </dt>
         <dd class="tw-m-0 tw-break-words" data-testid="drawer-collection">
           @if (collectionRoute; as route) {
             <a
               bitLink
               id="pam-audit-event-drawer_link_collection"
               [routerLink]="route"
-              [queryParams]="{ collectionId: row.collectionId }"
+              [queryParams]="vfo1Terminology.collectionQueryParams(row.collectionId)"
               (click)="closeDrawer()"
               >{{ row.collectionName }}</a
             >

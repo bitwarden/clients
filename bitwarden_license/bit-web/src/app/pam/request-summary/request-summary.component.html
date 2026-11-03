@@ -24,9 +24,9 @@
       @if (collectionName(); as collection) {
         <span class="tw-flex tw-items-center tw-gap-2">
           <bit-icon
-            name="bwi-collection"
+            [name]="'bwi-collection' | vfo1Icon"
             class="tw-text-muted"
-            [ariaLabel]="'collection' | i18n"
+            [ariaLabel]="'collection' | vfo1I18n: 'sharedFolder'"
             [fixedWidth]="true"
           ></bit-icon>
           {{ collection }}

@@ -1,10 +1,16 @@
 import type { SimpleDialogOptions } from "@bitwarden/components";
 
+import { sharedFolderKey } from "./shared-folder-key";
+
 /** Shared by the list and the edit page, so both ask the same question. */
-export function accessRuleDeleteConfirmOptions(): SimpleDialogOptions {
+export function accessRuleDeleteConfirmOptions(
+  sharedFolderTerminology = false,
+): SimpleDialogOptions {
   return {
     title: { key: "pamAccessRuleDeleteConfirmTitle" },
-    content: { key: "pamAccessRuleDeleteConfirmDescription" },
+    content: {
+      key: sharedFolderKey("pamAccessRuleDeleteConfirmDescription", sharedFolderTerminology),
+    },
     acceptButtonText: { key: "delete" },
     cancelButtonText: { key: "cancel" },
     type: "danger",

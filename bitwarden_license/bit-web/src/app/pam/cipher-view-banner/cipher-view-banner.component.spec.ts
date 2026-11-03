@@ -516,7 +516,7 @@ describe("CipherViewBannerComponent", () => {
       expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_end")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_extend")).toBeNull();
-      expect(text()).toContain("pamActiveLeaseBannerTitle");
+      expect(text()).toContain("pamActiveLeaseBannerRemainingTitle");
     });
 
     it("offers Extend when the rule allows extensions", async () => {
@@ -575,7 +575,7 @@ describe("CipherViewBannerComponent", () => {
 
       await create(gatedCipher());
 
-      expect(text()).toContain("pamActiveLeaseBannerTitle 1h 15m");
+      expect(text()).toContain("pamActiveLeaseBannerRemainingTitle 1h 15m");
       expect(query('[data-testid="active-lease-ends-at"]')?.textContent?.trim()).toBe(
         until(ENDS_AT),
       );
@@ -672,7 +672,7 @@ describe("CipherViewBannerComponent", () => {
       await activeLeaseEndingIn(4 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerEndingSoonTitle 4m",
+        "pamActiveLeaseBannerEndingSoonRemainingTitle 4m",
       );
       expect(query('[data-testid="active-lease-countdown"]')).toBeNull();
       // Read off the constant, not spelled again: this card escalates on the same threshold the
@@ -686,7 +686,7 @@ describe("CipherViewBannerComponent", () => {
       await activeLeaseEndingIn(5 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerEndingSoonTitle 5m",
+        "pamActiveLeaseBannerEndingSoonRemainingTitle 5m",
       );
     });
 
@@ -694,7 +694,7 @@ describe("CipherViewBannerComponent", () => {
       await activeLeaseEndingIn(6 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-countdown"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerTitle 6m",
+        "pamActiveLeaseBannerRemainingTitle 6m",
       );
       expect(query('[data-testid="active-lease-ending-soon"]')).toBeNull();
       expect(glyph("bwi-clock")).not.toBeNull();

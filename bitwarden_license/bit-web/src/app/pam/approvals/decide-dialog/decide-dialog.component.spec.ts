@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
@@ -56,6 +58,7 @@ describe("DecideDialogComponent", () => {
     await TestBed.configureTestingModule({
       imports: [DecideDialogComponent, NoopAnimationsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close } },
         {

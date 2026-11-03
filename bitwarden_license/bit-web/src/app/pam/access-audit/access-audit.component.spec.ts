@@ -156,7 +156,7 @@ describe("AccessAuditComponent", () => {
             pamAuditDurationExtendedTo: "Extended to __$1__",
             pamAuditSystem: "System",
             pamAuditIncomplete: "Incomplete",
-            pamAuditIncompleteTooltip: "Outcome never confirmed.",
+            pamAuditOutcomeUnconfirmedTooltip: "Outcome never confirmed.",
             pamAuditKindRequestSubmitted: "Access requested",
             pamAuditKindRequestApproved: "Request approved",
             pamAuditKindRequestDenied: "Request denied",

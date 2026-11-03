@@ -50,6 +50,7 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
@@ -121,6 +122,7 @@ const minuteMs = 60_000;
     TooltipDirective,
     TypographyModule,
     I18nPipe,
+    Vfo1I18nPipe,
   ],
 })
 export class HistoryTabComponent {
