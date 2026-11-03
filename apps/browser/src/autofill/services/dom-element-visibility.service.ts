@@ -194,7 +194,10 @@ class DomElementVisibilityService implements DomElementVisibilityServiceInterfac
       return true;
     }
 
-    if (this.inlineMenuContentService?.isElementInlineMenu(elementAtCenterPoint as HTMLElement)) {
+    if (
+      elementAtCenterPoint &&
+      this.inlineMenuContentService?.isElementInlineMenu(elementAtCenterPoint)
+    ) {
       return true;
     }
 

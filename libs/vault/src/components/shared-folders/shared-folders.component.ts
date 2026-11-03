@@ -1,4 +1,5 @@
 import { TemplatePortal } from "@angular/cdk/portal";
+import { NgComponentOutlet } from "@angular/common";
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -25,6 +26,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
@@ -41,7 +43,6 @@ import {
   defineTable,
   FilterControl,
   FilterMenuModule,
-  IconButtonModule,
   IconModule,
   IconTileComponent,
   LayoutFooterService,
@@ -59,16 +60,18 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
+import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 import { BULK_DELETE_DIALOG, BulkDeleteDialogRef } from "../../tokens/bulk-delete-dialog.token";
 import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   BulkEditCollectionAccessDialogRef,
 } from "../../tokens/bulk-edit-collection-access-dialog.token";
+import { COLLECTION_DIALOG, CollectionDialogRef } from "../../tokens/collection-dialog.token";
 import {
-  COLLECTION_DIALOG,
-  CollectionDialogRef,
-  CollectionDialogTab,
-} from "../../tokens/collection-dialog.token";
+  SHARED_FOLDER_DECORATION,
+  SharedFolderDecoration,
+} from "../../tokens/shared-folder-decoration.token";
+import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 import {
   BULK_BAR_CLEARANCE,
   VAULT_TABLE_MIN_HEIGHT,
@@ -115,13 +118,22 @@ export type SharedFoldersTableFilters = {
    * label so a URL-synced filter survives a change of locale.
    */
   permissions?: SharedFolderPermission[];
+
+  /**
+   * On/off: only the folders the user pinned to the side nav. `undefined` and `false` both mean
+   * unfiltered.
+   */
+  pinned?: boolean;
+
+  controlledAccess?: boolean;
 };
 
 /**
  * The top-level shared folders of one organization vault: name (with a count of the folders nested
- * inside), permissions, item count, and a per-row Options menu, with a search field, a Permissions
- * filter chip, an Add button, and a bulk actions bar. Self-contained — it reads the route, loads
- * the folders, and owns its dialogs. Project the client's page header into the default slot:
+ * inside), permissions, item count, and a per-row Options menu, with a search field, a Pinned
+ * toggle, a Permissions filter chip, an Add button, and a bulk actions bar. Self-contained — it
+ * reads the route, loads the folders, and owns its dialogs. Project the client's page header into
+ * the default slot:
  *
  * ```html
  * <vault-shared-folders><app-header /></vault-shared-folders>
@@ -131,10 +143,10 @@ export type SharedFoldersTableFilters = {
  *
  * ## What a client provides
  *
- * Every write goes through a dialog the client supplies as a token, so a client that provides none
- * lists its folders read-only and offers no action it can't carry out — see {@link COLLECTION_DIALOG},
- * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. `COLLECTION_DIALOG`
- * gates the single-folder actions as a set: without it the Options column is dropped altogether.
+ * Every collection-management write goes through a dialog the client supplies as a token, so a
+ * client that provides none offers no write action it can't carry out — see
+ * {@link COLLECTION_DIALOG}, {@link BULK_DELETE_DIALOG}, and
+ * {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. Pin/Unpin needs none.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
  */
@@ -160,13 +172,14 @@ export type SharedFoldersTableFilters = {
     BulkActionComponent,
     BulkActionsBarComponent,
     ButtonModule,
+    CollectionOptionsMenuComponent,
     FilterMenuModule,
     I18nPipe,
-    IconButtonModule,
     IconModule,
     IconTileComponent,
     LinkModule,
     MenuModule,
+    NgComponentOutlet,
     RouterLink,
     SearchModule,
     SkeletonTextComponent,
@@ -180,9 +193,16 @@ export class SharedFoldersComponent {
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
   private readonly organizationService = inject(OrganizationService);
+  private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
+  private readonly i18nService = inject(I18nService);
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+
+  /** Host-provided decoration after each folder's name; null when unprovided. */
+  protected readonly decoration: SharedFolderDecoration | null = inject(SHARED_FOLDER_DECORATION, {
+    optional: true,
+  });
 
   private readonly bulkBarTemplate = viewChild.required<TemplateRef<unknown>>("bulkBar");
 
@@ -213,7 +233,7 @@ export class SharedFoldersComponent {
         combineLatest([
           this.collectionService.decryptedCollections$(userId),
           // Emits null until the first decrypt completes.
-          this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+          this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(filterOutNullish()),
           this.organizationService.organizations$(userId),
         ]),
       ),
@@ -221,9 +241,22 @@ export class SharedFoldersComponent {
     ),
   );
 
+  private readonly pinnedIds = computed(
+    () => new Set<string>(this.pinnedSharedFolders.activePinnedIds()),
+  );
+
+  protected readonly noPinned = computed(() => {
+    const pinned = this.pinnedIds();
+    return !this.sharedFolders().some((row) => pinned.has(row.id));
+  });
+
+  protected readonly pinnedDisabledTooltip = computed(() =>
+    this.noPinned() ? this.i18nService.t("noPinnedFoldersTooltip") : "",
+  );
+
   protected readonly loading = computed(() => this.loaded() === undefined);
 
-  private readonly organization = computed<Organization | undefined>(() =>
+  protected readonly organization = computed<Organization | undefined>(() =>
     this.loaded()?.organizations.find((organization) => organization.id === this.organizationId()),
   );
 
@@ -266,21 +299,8 @@ export class SharedFoldersComponent {
     this.selectedRows().length > 0 ? BULK_BAR_CLEARANCE : 0,
   );
 
-  /**
-   * Whether the Options column is offered at all. Gated on the client having a collection dialog
-   * rather than on what each row allows, so filtering can't make the column come and go and resize
-   * every other column with it.
-   */
-  protected readonly showOptions = this.collectionDialog != null;
-
-  /**
-   * Whether the toolbar offers its Add button, on the organization's own collection creation
-   * permission — so this page and the organization vault's Add agree on who may add a folder.
-   * `false` while the organization list loads, and for a `:vaultId` that resolves to nothing:
-   * either way the dialog would have no organization to save to.
-   */
   protected readonly canAdd = computed(
-    () => this.showOptions && (this.organization()?.canCreateNewCollections ?? false),
+    () => this.collectionDialog != null && (this.organization()?.canCreateNewCollections ?? false),
   );
 
   /**
@@ -322,12 +342,6 @@ export class SharedFoldersComponent {
   );
 
   /**
-   * The Items column's track. The flexible track normally belongs to Options; with no Options
-   * column Items takes it, so the columns still span the table.
-   */
-  protected readonly itemsWidth = this.showOptions ? "minmax(100px, 160px)" : "minmax(100px, 1fr)";
-
-  /**
    * The permissions the chip offers: those the rows carry, in {@link SHARED_FOLDER_PERMISSIONS}
    * order, so the menu never lists an option that matches nothing. Read off the *unfiltered*
    * `sharedFolders` so the options hold steady while a filter is active — the table's faceted
@@ -340,6 +354,14 @@ export class SharedFoldersComponent {
 
   /** Whether the chip has anything to narrow. One distinct permission can't exclude a row. */
   protected readonly showPermissions = computed(() => this.permissionOptions().length > 1);
+
+  protected readonly showControlledAccess = computed(() => {
+    const folders = this.sharedFolders();
+    return (
+      folders.some((row) => row.hasEnabledAccessRule) &&
+      folders.some((row) => !row.hasEnabledAccessRule)
+    );
+  });
 
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
@@ -373,8 +395,15 @@ export class SharedFoldersComponent {
   protected readonly sortByPermission: SortFn = (a: SharedFolderRow, b: SharedFolderRow) =>
     sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
+  protected isPinned(row: SharedFolderRow): boolean {
+    return this.pinnedIds().has(row.id);
+  }
+
   protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
-    this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
+    this.matchesSearch(row, values.search) &&
+    this.matchesPermissions(row, values.permissions) &&
+    this.matchesPinned(row, values.pinned) &&
+    this.matchesControlledAccess(row, values.controlledAccess);
 
   constructor() {
     // Carry the selection onto each new set of rows — see `reconcileSelection`. The rows and the
@@ -412,34 +441,6 @@ export class SharedFoldersComponent {
     }
 
     await this.collectionDialog?.open({ organizationId });
-  }
-
-  protected async editSharedFolder(row: SharedFolderRow): Promise<void> {
-    await this.openSharedFolder(row, CollectionDialogTab.Info);
-  }
-
-  protected async editSharedFolderAccess(row: SharedFolderRow): Promise<void> {
-    await this.openSharedFolder(row, CollectionDialogTab.Access);
-  }
-
-  private async openSharedFolder(
-    row: SharedFolderRow,
-    initialTab: CollectionDialogTab,
-  ): Promise<void> {
-    await this.collectionDialog?.open({
-      organizationId: row.organizationId,
-      collectionId: row.id,
-      initialTab,
-    });
-  }
-
-  /**
-   * Deletes one folder through the shared bulk delete dialog, which owns the whole sequence —
-   * confirmation, requests, resync, and toast. It clears the deleted folder from
-   * `CollectionService`, so the table's stream re-emits without it.
-   */
-  protected async deleteSharedFolder(row: SharedFolderRow): Promise<void> {
-    await this.deleteSharedFolders([row.collection]);
   }
 
   /**
@@ -515,6 +516,15 @@ export class SharedFoldersComponent {
     permissions: SharedFolderPermission[] | undefined,
   ): boolean {
     return !permissions?.length || permissions.includes(row.permissions);
+  }
+
+  /** Reads the pinned set, so the table re-filters when a pin changes. `undefined` is unfiltered. */
+  private matchesPinned(row: SharedFolderRow, pinned: boolean | undefined): boolean {
+    return !pinned || this.pinnedIds().has(row.id);
+  }
+
+  private matchesControlledAccess(row: SharedFolderRow, ruleOnly: boolean | undefined): boolean {
+    return !ruleOnly || row.hasEnabledAccessRule;
   }
 
   protected hasActiveChipFilters(

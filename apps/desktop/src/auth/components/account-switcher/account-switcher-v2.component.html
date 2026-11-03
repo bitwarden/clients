@@ -95,7 +95,9 @@
           }
         }
         @if (view.active) {
-          <bit-menu-divider></bit-menu-divider>
+          @if (view.inactive.length > 0) {
+            <bit-menu-divider></bit-menu-divider>
+          }
           @if (view.canAddAccount) {
             <button bitMenuItem type="button" (click)="addAccount()">
               <bit-icon name="bwi-plus" aria-hidden="true"></bit-icon>

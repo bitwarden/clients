@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
@@ -73,6 +82,30 @@ export class NewExperienceDialogComponent {
   protected readonly params = inject<NewExperienceDialogParams>(DIALOG_DATA);
 
   protected readonly learnMoreUrl = NEW_EXPERIENCE_LEARN_MORE_URL;
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly footer = viewChild.required<ElementRef<HTMLElement>>("footer");
+
+  /**
+   * Whether the footer actions have wrapped onto separate rows. They only stretch to full width
+   * when stacked; CSS can't detect a wrapped flex row, so the footer is measured instead.
+   */
+  protected readonly stacked = signal(false);
+
+  constructor() {
+    afterNextRender(() => {
+      const footer = this.footer().nativeElement;
+      const update = () => {
+        const first = footer.firstElementChild as HTMLElement | null;
+        const last = footer.lastElementChild as HTMLElement | null;
+        this.stacked.set(first != null && last != null && last.offsetTop > first.offsetTop);
+      };
+
+      const resizeObserver = new ResizeObserver(update);
+      resizeObserver.observe(footer);
+      this.destroyRef.onDestroy(() => resizeObserver.disconnect());
+    });
+  }
 
   protected async explore() {
     await this.dialogRef.close(NewExperienceDialogResult.Explore);

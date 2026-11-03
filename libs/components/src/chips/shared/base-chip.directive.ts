@@ -142,6 +142,7 @@ const commonStyles = [
   "tw-items-center",
   "tw-rounded-md",
   "tw-border",
+  "tw-border-solid",
   "tw-font-medium",
   "tw-transition-colors",
 

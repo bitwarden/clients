@@ -61,6 +61,7 @@ import {
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
+  CoachmarkService,
   MY_VAULT,
   orgIconTile,
   PasswordRepromptService,
@@ -88,6 +89,7 @@ import {
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
@@ -389,6 +391,23 @@ const CIPHER_TYPE_OPTIONS = [
   { value: CipherType.SecureNote, label: "Note" },
 ];
 
+/** Avoids constructing the real service, which needs OrganizationService/CollectionService/etc. */
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+  startTour: () => Promise.resolve(),
+};
+
 const buildProviders = (args: StoryArgs) => {
   const autoFillCiphers$ = new BehaviorSubject(args.autoFillCiphers);
   const favoriteCiphers$ = new BehaviorSubject(args.favoriteCiphers);
@@ -622,6 +641,10 @@ const buildProviders = (args: StoryArgs) => {
           clearAll: "Clear all",
           done: "Done",
           back: "Back",
+          // The tour's coachmarks render their popover templates even when no step is active.
+          learnMore: "Learn more",
+          coachmarkStepsIndicator: "__$1__ of __$2__",
+          next: "Next",
           noMatchingItems: "No matching items",
           noDetailsToCopy: "No details to copy",
           importItems: "Import items",
@@ -634,9 +657,12 @@ const buildProviders = (args: StoryArgs) => {
           noItemsInVaults: "Your vaults are empty",
           noItemsInOrganizationVault: (name) => `No items in ${name}`,
           noItemsInSharedFolder: (name) => `No items in ${name}`,
+          noItemsInFolder: (name) => `No items in ${name}`,
           emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
           emptySharedFolderDescription: (name) =>
             `Add items to this shared folder, then give access to other ${name} members.`,
+          emptyFolderDescription:
+            "Add items to this folder. You’ll be able to quickly access them using vault filters.",
           noItemsInTrash: "No items in trash",
           noItemsInTrashDescription:
             "Items you delete will appear here and be permanently deleted after 30 days.",
@@ -694,6 +720,11 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: EventCollectionService, useValue: {} },
     { provide: TotpService, useValue: {} },
+    { provide: CoachmarkService, useValue: mockCoachmarkService },
+    {
+      provide: VaultPopupTourService,
+      useValue: { sharedFoldersRow: signal(null), filterDialogOpen: signal(false) },
+    },
     {
       provide: BillingAccountProfileStateService,
       useValue: { hasPremiumFromAnySource$: () => of(true) },

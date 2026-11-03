@@ -1,4 +1,4 @@
-import { firstValueFrom, Subject, switchMap, timer } from "rxjs";
+import { Subject, switchMap, timer } from "rxjs";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -490,35 +490,16 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     tab: chrome.tabs.Tab,
     config: { skippable: NotificationScenario[] } = { skippable: [] },
   ) => {
-    const useUndeterminedCipherScenarioTriggeringLogic = await firstValueFrom(
-      this.notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$,
-    );
-
-    const notificationCandidates = useUndeterminedCipherScenarioTriggeringLogic
-      ? [
-          {
-            type: NotificationScenarios.Cipher,
-            trigger: this.notificationBackground.triggerCipherNotification,
-          },
-          {
-            type: NotificationScenarios.AtRiskPassword,
-            trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
-          },
-        ]
-      : [
-          {
-            type: NotificationScenarios.Change,
-            trigger: this.notificationBackground.triggerChangedPasswordNotification,
-          },
-          {
-            type: NotificationScenarios.Add,
-            trigger: this.notificationBackground.triggerAddLoginNotification,
-          },
-          {
-            type: NotificationScenarios.AtRiskPassword,
-            trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
-          },
-        ];
+    const notificationCandidates = [
+      {
+        type: NotificationScenarios.Cipher,
+        trigger: this.notificationBackground.triggerCipherNotification,
+      },
+      {
+        type: NotificationScenarios.AtRiskPassword,
+        trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
+      },
+    ];
     const filteredNotificationCandidates = notificationCandidates.filter(
       (candidate) =>
         this.shouldAttemptNotification(modifyLoginData, candidate.type) ||

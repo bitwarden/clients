@@ -16,6 +16,7 @@ import { DialogRef, DialogService, SideNavService } from "@bitwarden/components"
 import { LogService } from "@bitwarden/logging";
 import {
   CoachmarkService,
+  NewExperienceDialogResult,
   NewExperienceDialogService,
   VaultItemsTransferService,
 } from "@bitwarden/vault";
@@ -51,7 +52,7 @@ describe("WebVaultPromptService", () => {
   const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
-  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(false);
+  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(null);
   const sideNavOpen = signal(false);
   const tourRunning = signal(false);
 
@@ -178,7 +179,7 @@ describe("WebVaultPromptService", () => {
 
     it("opens the side nav once it has opened, so the tour callout is visible", async () => {
       sideNavOpen.set(false);
-      conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+      conditionallyOpenNewExperience.mockResolvedValueOnce(NewExperienceDialogResult.Explore);
 
       await service.conditionallyPromptUser();
 
@@ -202,7 +203,7 @@ describe("WebVaultPromptService", () => {
     });
 
     it("holds back the extension prompt when it opened, so the two do not stack", async () => {
-      conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+      conditionallyOpenNewExperience.mockResolvedValueOnce(NewExperienceDialogResult.Explore);
 
       await service.conditionallyPromptUser();
 

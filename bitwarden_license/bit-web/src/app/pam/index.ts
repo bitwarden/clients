@@ -67,10 +67,19 @@ export {
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
+export { isActionableRequest } from "./helpers/actionable-requests";
+export { canApprove } from "./helpers/can-approve";
+export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
+export { AuditApiService } from "./access-audit/audit-api.service";
+export { RotationSdkService } from "./rotation/rotation-sdk.service";
+export type { RotationConfigDescription } from "./rotation/rotation-sdk.service";
+export { AccessAuditEventKind } from "./access-audit/responses/access-audit-event.response";
+export type { AccessAuditEventResponse } from "./access-audit/responses/access-audit-event.response";
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
@@ -106,4 +115,9 @@ export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";
 export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
 export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";
 export { activateAccessErrorMessageKey } from "./helpers/activate-access-error";
+export {
+  DECIDE_ACCESS_SERVER_ERRORS,
+  decideAccessErrorMessageKey,
+  isRequestNoLongerPendingError,
+} from "./helpers/decide-access-error";
 export { selectedFilterStrings } from "./helpers/selected-filter-strings";

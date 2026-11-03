@@ -12,6 +12,7 @@ import {
   BitSvg,
   VaultIcon,
   BusinessWelcome,
+  NoFolders,
   SearchFolder,
   EmptyTrash,
 } from "@bitwarden/assets/svg";
@@ -42,6 +43,7 @@ const EMPTY_VAULT_STATE = {
   emptyPersonalVault: "emptyPersonalVault",
   emptyOrgVault: "emptyOrgVault",
   emptySharedFolder: "emptySharedFolder",
+  emptyFolder: "emptyFolder",
   emptyMultipleVaults: "emptyMultipleVaults",
   emptyTrash: "emptyTrash",
   emptyArchive: "emptyArchive",
@@ -88,6 +90,9 @@ export class EmptyVaultComponent {
   /** The shared folder the current vault scope has drilled into, when it has. */
   readonly sharedFolderName = input<string>();
 
+  /** The user's own folder the current vault scope names. */
+  readonly folderName = input<string>();
+
   /** Emitted when the user asks to clear the active search term. */
   readonly clearSearch = output<void>();
 
@@ -101,6 +106,7 @@ export class EmptyVaultComponent {
     EMPTY_VAULT_STATE.emptyOrgVault,
     EMPTY_VAULT_STATE.emptyMultipleVaults,
     EMPTY_VAULT_STATE.emptySharedFolder,
+    EMPTY_VAULT_STATE.emptyFolder,
     EMPTY_VAULT_STATE.emptyMyItems,
   ];
 
@@ -142,6 +148,8 @@ export class EmptyVaultComponent {
         return EMPTY_VAULT_STATE.emptyArchive;
       case VaultScopeType.MyVault:
         return EMPTY_VAULT_STATE.emptyPersonalVault;
+      case VaultScopeType.Folder:
+        return this.folderName() ? EMPTY_VAULT_STATE.emptyFolder : null;
       case VaultScopeType.Organization:
         return this.resolveOrgEmptyState(scope);
       case VaultScopeType.AllItems:
@@ -202,6 +210,12 @@ export class EmptyVaultComponent {
         icon: BusinessWelcome,
         title: this.i18nService.t("noItemsInSharedFolder", this.sharedFolderName()),
         description: this.i18nService.t("emptySharedFolderDescription", this.organizationName()),
+      },
+      {
+        key: EMPTY_VAULT_STATE.emptyFolder,
+        icon: NoFolders,
+        title: this.i18nService.t("noItemsInFolder", this.folderName()),
+        description: this.i18nService.t("emptyFolderDescription"),
       },
       {
         key: EMPTY_VAULT_STATE.emptyTrash,
