@@ -210,24 +210,12 @@
               (click)="decide(row, 'deny')"
               [attr.data-testid]="'approvals-deny-' + row.id"
             ></button>
-          } @else if (row.kind === "ready") {
-            <button
-              type="button"
-              bitIconButton="bwi-undo"
-              buttonType="danger"
-              size="small"
-              [label]="'pamInboxWithdrawApproval' | i18n"
-              [id]="'pam-approvals_button_withdraw-' + row.id"
-              [disabled]="isActing(row)"
-              [loading]="isActing(row)"
-              (click)="withdrawApproval(row)"
-              [attr.data-testid]="'approvals-withdraw-' + row.id"
-            ></button>
-          } @else {
+          } @else if (row.kind === "active") {
             <!--
-              Only a running lease reaches here, and ending one is not withdrawing an approval —
-              the confirm and the toast that follow are worded for cutting off access already
-              running, so the glyph says so too.
+              Ending a running lease is not withdrawing an approval — the confirm and the toast
+              that follow are worded for cutting off access already running, so the glyph says so
+              too. A ready row has no action: withdrawing needs a reason, which the request dialog
+              collects.
             -->
             <button
               type="button"
