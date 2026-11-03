@@ -8,7 +8,6 @@ import { asUuid, SdkService } from "../../../platform/abstractions/sdk/sdk.servi
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 import { PolicyService } from "../../abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
@@ -28,7 +27,6 @@ export class DefaultPolicyService implements PolicyService {
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
     private accountService: AccountService,
-    private newPolicyService: InternalNewPolicyService,
 
     // This callback is used to avoid a circular dependency error.
     // PM-35986 addresses the root cause of the circular dependency.
@@ -40,10 +38,17 @@ export class DefaultPolicyService implements PolicyService {
     return this.stateProvider.getUser(userId, POLICIES);
   }
 
+  /** @returns policies for organizations in which the user is accepted or confirmed. */
+  private allPolicies$(userId: UserId): Observable<Policy[]> {
+    return this.policyState(userId).state$.pipe(
+      map((policiesMap) => Object.values(policiesMap || {}).map((p) => new Policy(p))),
+    );
+  }
+
   policies$(userId: UserId): Observable<Policy[]> {
     // Limit to confirmed organizations only to keep existing contract.
     return combineLatest([
-      this.newPolicyService.policies$(userId),
+      this.allPolicies$(userId),
       this.organizationService.organizations$(userId),
     ]).pipe(
       map(([policies, confirmedOrganizations]) => {
@@ -66,8 +71,7 @@ export class DefaultPolicyService implements PolicyService {
     return combineLatest([
       this.organizationService.organizations$(userId),
       this.organizationService.acceptedOrganizations$(userId),
-      // Note: use newPolicyService state to include both accepted and confirmed policies
-      this.newPolicyService.policies$(userId),
+      this.allPolicies$(userId),
       this.sdkService().client$,
     ]).pipe(
       map(([confirmedOrganizations, acceptedOrganizations, policies, sdkClient]) => {
