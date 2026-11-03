@@ -140,7 +140,6 @@ import {
   LockComponentService,
   SessionTimeoutSettingsComponentService,
   WebAuthnPrfUnlockService,
-  DefaultWebAuthnPrfUnlockService,
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
@@ -197,6 +196,7 @@ import { DesktopFido2WindowsUserVerificationService } from "../../autofill/servi
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
+import { DesktopWebAuthnPrfUnlockService } from "../../key-management/lock/services/desktop-webauthn-prf-unlock.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -561,13 +561,12 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: WebAuthnPrfUnlockService,
-    useClass: DefaultWebAuthnPrfUnlockService,
+    useClass: DesktopWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
       StateProvider,
       EncryptService,
       EnvironmentService,
-      PlatformUtilsServiceAbstraction,
       WINDOW,
       LogServiceAbstraction,
     ],
