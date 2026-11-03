@@ -3,7 +3,7 @@
 }
 
 <div id="container">
-  @if (loading) {
+  @if (loading || loggingOut()) {
     <div class="loading">
       <bit-spinner />
     </div>
