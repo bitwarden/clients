@@ -11,6 +11,7 @@ import {
   input,
   Output,
   ViewChild,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -22,7 +23,10 @@ import {
 import { concatMap, EMPTY, ObservableInput } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
+import {
+  DESKTOP_APP_URI_PREFIX,
+  DesktopAutotypePairingUri,
+} from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -76,10 +80,19 @@ export class UriOptionComponent implements ControlValueAccessor {
   @ViewChild("matchDetectionSelect")
   private matchDetectionSelect: SelectComponent<UriMatchStrategySetting>;
 
+  private readonly appSelect = viewChild<SelectComponent<string>>("appSelect");
+
   protected uriForm = this.formBuilder.group({
     uri: [null as string],
     matchDetection: [null as UriMatchStrategySetting],
   });
+
+  /**
+   * The desktop apps that can be selected for a desktop app URI. Each option is labeled with the
+   * app's name, and its value is the Desktop Autotype Pairing URI string saved as the login URI.
+   */
+  // TODO: Add the apps that can be paired to the options for new desktop app URIs
+  protected appOptions: { label: string; value: string }[] = [];
 
   protected uriMatchOptions: {
     label: string;
@@ -143,11 +156,11 @@ export class UriOptionComponent implements ControlValueAccessor {
   @Input({ required: true }) index: number;
 
   /**
-   * When true, URIs prefixed with the desktop app scheme will display the "Desktop app (URI)" label
-   * instead of "Website (URI)". Should only be true when the WindowsDesktopAutotypeGA feature
-   * flag is enabled.
+   * When true, URIs prefixed with the desktop app scheme are shown as desktop apps: a dropdown of
+   * desktop app names labeled "Desktop app (URI)", instead of a "Website (URI)" text input. Should
+   * only be true when the WindowsDesktopAutotypeGA feature flag is enabled.
    */
-  readonly showAppLabel = input(false);
+  readonly showDesktopApps = input(false);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -179,7 +192,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   /** Whether this URI pairs the login with a desktop app and should be shown as one. */
   protected get isAppUri(): boolean {
     return (
-      this.showAppLabel() &&
+      this.showDesktopApps() &&
       (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false)
     );
   }
@@ -296,6 +309,11 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   focusInput() {
+    if (this.isAppUri) {
+      this.appSelect()?.select()?.focus();
+      return;
+    }
+
     if (this.inputElement?.nativeElement) {
       this.inputElement.nativeElement.focus();
     }
@@ -316,7 +334,23 @@ export class UriOptionComponent implements ControlValueAccessor {
         { emitEvent: false },
       );
       this.lastMatchDetection = value.matchDetection ?? null;
+      this.addSavedAppOption(value.uri);
     }
+  }
+
+  /**
+   * Adds the desktop app of a saved Desktop Autotype Pairing URI to the dropdown options, so the
+   * dropdown shows the paired app's name.
+   */
+  private addSavedAppOption(uri: string | null) {
+    const pairingUri = uri == null ? null : DesktopAutotypePairingUri.fromString(uri);
+    if (pairingUri == null || this.appOptions.some((option) => option.value === uri)) {
+      return;
+    }
+
+    // The saved string is the option's value, so the selection matches it exactly and it is saved
+    // unchanged
+    this.appOptions = [...this.appOptions, { label: pairingUri.data.appData.name, value: uri }];
   }
 
   registerOnChange(fn: () => void): void {

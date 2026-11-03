@@ -107,12 +107,16 @@ export class AutofillOptionsComponent implements OnInit {
   private readonly isWindowsDesktop =
     this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
+  private readonly autotypeGaEnabled$ = autotypeFeatureFlagState$(this.configService).pipe(
+    map((state) => state === AutotypeFeatureFlagState.Ga),
+  );
+
+  /** Whether desktop app URIs are shown as desktop apps. Desktop apps can be viewed on any client. */
+  protected readonly showDesktopApps = toSignal(this.autotypeGaEnabled$, { initialValue: false });
+
+  /** Whether desktop apps can be added. Desktop apps can only be added on Windows desktop. */
   protected readonly showAddAppDropdown = toSignal(
-    this.isWindowsDesktop
-      ? autotypeFeatureFlagState$(this.configService).pipe(
-          map((state) => state === AutotypeFeatureFlagState.Ga),
-        )
-      : of(false),
+    this.isWindowsDesktop ? this.autotypeGaEnabled$ : of(false),
     { initialValue: false },
   );
 

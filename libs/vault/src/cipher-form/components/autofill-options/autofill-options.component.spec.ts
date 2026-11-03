@@ -1,6 +1,7 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -21,6 +22,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AutofillOptionsComponent } from "./autofill-options.component";
+import { UriOptionComponent } from "./uri-option.component";
 
 jest.mock("@angular/cdk/drag-drop", () => {
   const actual = jest.requireActual("@angular/cdk/drag-drop");
@@ -55,6 +57,9 @@ describe("AutofillOptionsComponent", () => {
     mvpFeatureFlagSubject = new BehaviorSubject<boolean>(false);
     gaFeatureFlagSubject = new BehaviorSubject<boolean>(false);
     configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+      flag === FeatureFlag.WindowsDesktopAutotypeGA ? gaFeatureFlagSubject : mvpFeatureFlagSubject,
+    );
     domainSettingsService = mock<DomainSettingsService>();
     domainSettingsService.resolvedDefaultUriMatchStrategy$ = new BehaviorSubject(null);
 
@@ -356,12 +361,81 @@ describe("AutofillOptionsComponent", () => {
   });
 
   // Autotype App Tests
+  describe("showDesktopApps", () => {
+    function createComponent(deviceType: DeviceType) {
+      platformUtilsService.getDevice.mockReturnValue(deviceType);
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+      return localFixture;
+    }
+
+    it("is false when the windows-desktop-autotype-ga feature flag is off", () => {
+      const localFixture = createComponent(DeviceType.WindowsDesktop);
+
+      expect(localFixture.componentInstance["showDesktopApps"]()).toBe(false);
+    });
+
+    it.each([
+      DeviceType.WindowsDesktop,
+      DeviceType.MacOsDesktop,
+      DeviceType.LinuxDesktop,
+      DeviceType.ChromeExtension,
+      DeviceType.FirefoxExtension,
+      DeviceType.ChromeBrowser,
+    ])(
+      "is true on device type %p when the windows-desktop-autotype-ga feature flag is on",
+      (deviceType) => {
+        gaFeatureFlagSubject.next(true);
+
+        const localFixture = createComponent(deviceType);
+
+        expect(localFixture.componentInstance["showDesktopApps"]()).toBe(true);
+      },
+    );
+
+    it("is false when both the MVP and GA feature flags are enabled", () => {
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
+
+      const localFixture = createComponent(DeviceType.WindowsDesktop);
+
+      expect(localFixture.componentInstance["showDesktopApps"]()).toBe(false);
+    });
+
+    it("is passed to the URI options so they show desktop apps on any client", () => {
+      gaFeatureFlagSubject.next(true);
+
+      const localFixture = createComponent(DeviceType.MacOsDesktop);
+
+      const uriOption = localFixture.debugElement.query(By.directive(UriOptionComponent));
+      expect(uriOption.componentInstance.showDesktopApps()).toBe(true);
+    });
+  });
+
   describe("showAddAppDropdown", () => {
     it("is false when device type is not Windows Desktop", () => {
       fixture.detectChanges();
 
       expect(component["showAddAppDropdown"]()).toBe(false);
     });
+
+    it.each([
+      DeviceType.MacOsDesktop,
+      DeviceType.LinuxDesktop,
+      DeviceType.ChromeExtension,
+      DeviceType.ChromeBrowser,
+    ])(
+      "is false on device type %p even when the windows-desktop-autotype-ga feature flag is on",
+      (deviceType) => {
+        platformUtilsService.getDevice.mockReturnValue(deviceType);
+        gaFeatureFlagSubject.next(true);
+
+        const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+        localFixture.detectChanges();
+
+        expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(false);
+      },
+    );
 
     it("is false when device type is Windows Desktop but windows-desktop-autotype-ga feature flag is off", () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);

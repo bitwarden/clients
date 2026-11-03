@@ -1,16 +1,27 @@
 <ng-container [formGroup]="uriForm">
-  <div class="tw-flex tw-flex-1" [class.!tw-mb-1]="showMatchDetection">
+  <div class="tw-flex tw-flex-1" [class.!tw-mb-1]="showMatchDetection && !isAppUri">
     <bit-form-field disableMargin class="tw-flex-1 !tw-pt-0">
       <bit-label>{{ uriLabel }}</bit-label>
-      <input bitInput formControlName="uri" #uriInput />
-      <button
-        type="button"
-        [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
-        bitSuffix
-        [label]="toggleTitle"
-        (click)="toggleMatchDetection()"
-        data-testid="toggle-match-detection-button"
-      ></button>
+      @if (isAppUri) {
+        <bit-select formControlName="uri" #appSelect data-testid="desktop-app-select">
+          @for (option of appOptions; track option.value) {
+            <bit-option [label]="option.label" [value]="option.value"></bit-option>
+          }
+        </bit-select>
+      } @else {
+        <input bitInput formControlName="uri" #uriInput />
+      }
+      <!-- Desktop apps don't use match detection -->
+      @if (!isAppUri) {
+        <button
+          type="button"
+          [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
+          bitSuffix
+          [label]="toggleTitle"
+          (click)="toggleMatchDetection()"
+          data-testid="toggle-match-detection-button"
+        ></button>
+      }
       @if (canRemove) {
         <button
           type="button"
@@ -38,7 +49,7 @@
       </div>
     }
   </div>
-  @if (showMatchDetection) {
+  @if (showMatchDetection && !isAppUri) {
     <bit-form-field class="!tw-mb-0">
       <bit-label>{{ "matchDetection" | i18n }}</bit-label>
       <bit-select formControlName="matchDetection" #matchDetectionSelect>
