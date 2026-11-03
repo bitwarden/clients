@@ -60,6 +60,12 @@ const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
     icon: "bwi-key",
     kinds: ["privileged"],
   },
+  {
+    id: UNAVAILABLE_FILTER_ID,
+    nameKey: "pamAccessBadgeUnavailable",
+    icon: "bwi-lock",
+    kinds: ["unavailable"],
+  },
 ];
 
 /**
