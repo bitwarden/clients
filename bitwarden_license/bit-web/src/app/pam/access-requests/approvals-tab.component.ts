@@ -331,6 +331,25 @@ export class ApprovalsTabComponent {
     );
   }
 
+  /** Withdraws an approval the requester has not started yet, which needs no lease. */
+  protected async withdrawApproval(row: ApproverRow): Promise<void> {
+    if (row.kind !== "ready" || this.isActing(row)) {
+      return;
+    }
+    const parties = this.inbox.managedRequestParties(row.id);
+    await this.approverActions.confirmWithdrawApproval(
+      {
+        itemName: row.cipherName,
+        organizationName: parties?.organizationName ?? null,
+        collectionName: row.collectionName,
+        requesterName: parties?.requesterName ?? "",
+        cipher: this.cipherFor(row.cipherId),
+      },
+      (reason) => this.inbox.cancelApproval(row.requestId, reason),
+      rowBusy(this.acting, row.id),
+    );
+  }
+
   /** Ends a running lease. */
   protected async revoke(row: ApproverRow): Promise<void> {
     if (row.kind !== "active" || this.isActing(row)) {

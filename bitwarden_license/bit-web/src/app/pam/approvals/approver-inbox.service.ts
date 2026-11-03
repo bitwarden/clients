@@ -75,6 +75,13 @@ export class ApproverInboxService {
   private readonly locale = inject(LOCALE_ID);
 
   private readonly _inbox$ = new BehaviorSubject<AccessRequestView[]>([]);
+  /**
+   * The approvals that can still give access, from `listApproved()`. Kept apart from
+   * {@link _history$}, which the SDK narrowed to the ended requests: everything the approver may
+   * still act on after the decision — withdraw an unstarted approval, revoke a running lease —
+   * lives here, and nothing here belongs on the History tab.
+   */
+  private readonly _approved$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _history$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _names$ = new BehaviorSubject<ResolvedNames>(emptyResolvedNames());
   private readonly _userId$ = new BehaviorSubject<string | null>(null);
@@ -116,7 +123,7 @@ export class ApproverInboxService {
   );
 
   /**
-   * The decided requests on managed collections, newest first. An applied extension folds into its
+   * The ended requests on managed collections, newest first. An applied extension folds into its
    * original row, as on the caller's own requests; alone it reads as an unused grant.
    */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
@@ -132,10 +139,10 @@ export class ApproverInboxService {
 
   /**
    * The leases live right now on managed collections, soonest to end first. Tests the effective
-   * end as well as the status, since a lease can lapse after the history was read.
+   * end as well as the status, since a lease can lapse after the approvals were read.
    */
   readonly activeLeaseRows$: Observable<ManagedLeaseRow[]> = combineLatest([
-    this._history$,
+    this._approved$,
     this._names$,
     this._renderedAt$,
   ]).pipe(
@@ -158,14 +165,14 @@ export class ApproverInboxService {
    */
   readonly approverRows$: Observable<ApproverRow[]> = combineLatest([
     this.inboxRows$,
-    this._history$,
+    this._approved$,
     this._names$,
     this.activeLeaseRows$,
     this._renderedAt$,
   ]).pipe(
-    map(([pending, history, names, leases, now]) => [
+    map(([pending, approved, names, leases, now]) => [
       ...pending.map(fromApprovalRow),
-      ...history
+      ...approved
         .filter(
           (request) =>
             isUnstartedApproval(request) &&
@@ -179,9 +186,19 @@ export class ApproverInboxService {
     ]),
   );
 
-  /** The request ids on managed collections, the only History rows the caller may act on. */
-  readonly managedIds$: Observable<Set<string>> = this._history$.pipe(
-    map((requests) => new Set(requests.map((request) => uuidAsString(request.id)))),
+  /**
+   * The request ids on managed collections, the only rows the caller may act on. Spans both reads,
+   * since an approval still giving access is exactly the one a `/pam/requests/:id` viewer can
+   * withdraw or revoke.
+   */
+  readonly managedIds$: Observable<Set<string>> = combineLatest([
+    this._approved$,
+    this._history$,
+  ]).pipe(
+    map(
+      ([approved, history]) =>
+        new Set([...approved, ...history].map((request) => uuidAsString(request.id))),
+    ),
   );
 
   /** Decrypted gated ciphers keyed by id, for row favicons. */
@@ -206,13 +223,17 @@ export class ApproverInboxService {
       const userId = uuidAsString(
         await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
       );
-      const [inbox, history] = await Promise.all([
+      const [inbox, approved, history] = await Promise.all([
         this.approvalApi.listInbox(),
+        this.approvalApi.listApproved(),
         this.approvalApi.listHistory(),
       ]);
-      const names = await this.nameResolver.resolveNames(refsFor([...inbox, ...history]));
+      const names = await this.nameResolver.resolveNames(
+        refsFor([...inbox, ...approved, ...history]),
+      );
       this._userId$.next(userId);
       this._inbox$.next(inbox);
+      this._approved$.next(approved);
       this._history$.next(history);
       this._names$.next(names);
       this._renderedAt$.next(new Date());
@@ -256,24 +277,46 @@ export class ApproverInboxService {
   }
 
   /**
-   * Ends someone else's active lease early. Marks it `revoked` optimistically so the row
-   * re-buckets.
+   * Ends someone else's active lease early. Marks it `revoked` optimistically on the approved
+   * read, so the Approvals tab drops the row without waiting for the server. The request is ended
+   * now, so the History tab lists it from the next `listHistory()` read rather than from here.
    */
   async revokeLease(requestId: AccessRequestId, leaseId: AccessLeaseId): Promise<void> {
-    const current = this._history$.value;
-    this._history$.next(patchRequest(current, requestId, { producedLeaseStatus: "revoked" }));
+    const current = this._approved$.value;
+    this._approved$.next(patchRequest(current, requestId, { producedLeaseStatus: "revoked" }));
     try {
       await this.leasesApi.endLease(leaseId, { reason: undefined });
     } catch (e) {
-      this._history$.next(current);
+      this._approved$.next(current);
       throw e;
     }
     this.accessRefresh.notifyAccessChanged();
   }
 
   /**
+   * The requester and organization of a managed request, for the withdraw-approval dialog. Null
+   * when the request is not one the caller manages.
+   */
+  managedRequestParties(
+    requestId: string,
+  ): { requesterName: string; organizationName: string | null } | null {
+    const request = [...this._approved$.value, ...this._history$.value].find(
+      (r) => uuidAsString(r.id) === requestId,
+    );
+    if (request == null) {
+      return null;
+    }
+    return {
+      requesterName:
+        request.requesterName || request.requesterEmail || uuidAsString(request.requesterId),
+      organizationName: organizationNameFor(request, this._names$.value),
+    };
+  }
+
+  /**
    * Withdraws an approval the requester has not started; the server records the cancel as the
-   * approver's decision. Reloads instead of patching, so the row names whoever withdrew it.
+   * approver's decision, with `reason` as its comment. Reloads instead of patching, so the row
+   * names whoever withdrew it.
    */
   async cancelApproval(requestId: AccessRequestId, reason: string): Promise<void> {
     await this.requestsApi.cancelAccessRequest(requestId, reason);
