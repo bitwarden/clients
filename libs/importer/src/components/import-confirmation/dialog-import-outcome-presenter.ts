@@ -7,7 +7,7 @@ import { ImportSkippedItemsDialogComponent } from "../dialog";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
 
 import { ImportConfirmationDialogComponent } from "./import-confirmation-dialog.component";
-import { ImportOutcomePresenter } from "./import-outcome-presenter";
+import { ImportOutcomeContext, ImportOutcomePresenter } from "./import-outcome-presenter";
 import { summarizeImport } from "./import-summary";
 
 @Injectable()
@@ -16,7 +16,7 @@ export class DialogImportOutcomePresenter extends ImportOutcomePresenter {
     super();
   }
 
-  present(outcome: FinishedImportOutcome, file?: ImportedFile): void {
+  present(outcome: FinishedImportOutcome, { file }: ImportOutcomeContext): void {
     presentInDialog(this.dialogService, outcome, file);
   }
 }

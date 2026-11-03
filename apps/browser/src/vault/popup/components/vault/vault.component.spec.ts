@@ -883,13 +883,15 @@ describe("VaultComponent", () => {
     flush();
   }));
 
-  it("ngOnInit shows the result of an import that finished in a tab", fakeAsync(() => {
+  it("ngOnInit shows the active user's own result of an import that finished in a tab", fakeAsync(() => {
     importConfirmationPopupSvc.conditionallyOpen.mockClear();
+    activeAccount$.next({ id: "user-xyz" });
 
     void component.ngOnInit();
     tick();
 
     expect(importConfirmationPopupSvc.conditionallyOpen).toHaveBeenCalledTimes(1);
+    expect(importConfirmationPopupSvc.conditionallyOpen).toHaveBeenCalledWith("user-xyz");
 
     flush();
   }));
@@ -1319,6 +1321,22 @@ describe("VaultComponent", () => {
           darkImgSrc: expect.stringContaining("new-experience.dark.png"),
         }),
       );
+    }));
+
+    it("holds the dialog back on an open that showed the result of an import", fakeAsync(() => {
+      importConfirmationPopupSvc.conditionallyOpen.mockResolvedValueOnce(true);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("opens the dialog when there was no import result to show", fakeAsync(() => {
+      importConfirmationPopupSvc.conditionallyOpen.mockResolvedValueOnce(false);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).toHaveBeenCalled();
     }));
 
     it("leaves dismissing the nudge to the dialog's actions", fakeAsync(() => {

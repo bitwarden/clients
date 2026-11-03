@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from "
 import { Router } from "@angular/router";
 
 import { BitwardenLogo } from "@bitwarden/assets/svg";
+import { DeviceType } from "@bitwarden/common/enums";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import { SvgModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -17,6 +19,15 @@ import {
 const POPUP_POLL_ATTEMPTS = 5;
 const POPUP_POLL_INTERVAL_MS = 200;
 
+// Where opening the popup from a page can work. BrowserActionsService only handles Chrome,
+// DuckDuckGo, Firefox and Safari, and Firefox fails from a page
+// (libs/common/src/platform/actions/README.md), so a button could not help on the others.
+const POPUP_OPENABLE_DEVICES: ReadonlySet<DeviceType> = new Set([
+  DeviceType.ChromeExtension,
+  DeviceType.DuckDuckGoExtension,
+  DeviceType.SafariExtension,
+]);
+
 /** The page the import tab ends on. It brings the extension popup forward, which shows the result,
  *  and offers a button, then the toolbar instructions, if that fails. */
 @Component({
@@ -28,6 +39,9 @@ export class ImportConfirmationBrowserComponent {
   private readonly router = inject(Router);
   private readonly confirmationState = inject(ImportConfirmationStateService);
   private readonly actionsService = inject(ActionsService);
+  private readonly canOpenPopup = POPUP_OPENABLE_DEVICES.has(
+    inject(PlatformUtilsService).getDevice(),
+  );
 
   protected readonly logo = BitwardenLogo;
 
@@ -45,7 +59,7 @@ export class ImportConfirmationBrowserComponent {
       return;
     }
 
-    void this.tryOpenExtension("button");
+    void this.tryOpenExtension(this.canOpenPopup ? "button" : "toolbar");
   }
 
   protected async onOpenExtension(): Promise<void> {
@@ -59,6 +73,7 @@ export class ImportConfirmationBrowserComponent {
 
   // openPopup() swallows its own failures, so success is confirmed by finding the popup.
   private async tryOpenExtension(onFailure: "button" | "toolbar"): Promise<void> {
+    await this.confirmationState.resetPopupHistory();
     await this.actionsService.openPopup();
     this.phase.set((await this.popupOpened()) ? "opened" : onFailure);
   }

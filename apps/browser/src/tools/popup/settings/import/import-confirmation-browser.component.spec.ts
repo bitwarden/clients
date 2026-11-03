@@ -1,11 +1,15 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
+import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
-import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { GlobalStateProvider } from "@bitwarden/state";
+import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
+import { StateProvider } from "@bitwarden/state";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 
@@ -29,15 +33,24 @@ describe("ImportConfirmationBrowserComponent", () => {
     fixture.detectChanges();
   };
 
-  const create = async (options: { total?: number | null; settled?: boolean } = {}) => {
-    const { total = 3, settled = true } = options;
+  const create = async (
+    options: { total?: number | null; settled?: boolean; device?: DeviceType } = {},
+  ) => {
+    const { total = 3, settled = true, device = DeviceType.ChromeExtension } = options;
 
     await TestBed.configureTestingModule({
       imports: [ImportConfirmationBrowserComponent],
       providers: [
-        { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
+        {
+          provide: StateProvider,
+          useValue: new FakeStateProvider(mockAccountServiceWith("user-1" as UserId)),
+        },
         { provide: Router, useValue: router },
         { provide: ActionsService, useValue: actionsService },
+        {
+          provide: PlatformUtilsService,
+          useValue: mock<PlatformUtilsService>({ getDevice: () => device }),
+        },
         {
           provide: I18nService,
           useValue: mock<I18nService>({
@@ -49,10 +62,10 @@ describe("ImportConfirmationBrowserComponent", () => {
 
     confirmationState = TestBed.inject(ImportConfirmationStateService);
     if (total != null) {
-      await confirmationState.set({
-        summary: { total, rows: [] },
-        importedFile: { name: "a.csv" },
-      });
+      await confirmationState.set(
+        { summary: { total, rows: [] }, importedFile: { name: "a.csv" } },
+        "user-1" as UserId,
+      );
     }
 
     fixture = TestBed.createComponent(ImportConfirmationBrowserComponent);
@@ -147,6 +160,46 @@ describe("ImportConfirmationBrowserComponent", () => {
     expect(button("import-confirmation_button_open-extension")).toBeNull();
   });
 
+  it.each([
+    DeviceType.EdgeExtension,
+    DeviceType.OperaExtension,
+    DeviceType.VivaldiExtension,
+    DeviceType.FirefoxExtension,
+  ])(
+    "goes straight to the toolbar instructions, with no button, on a browser that cannot open the popup (%s)",
+    async (device) => {
+      isPopupOpen.mockResolvedValue(false);
+
+      await create({ device });
+
+      expect(text()).toContain("openingExtensionToolbarErrorPart1");
+      expect(button("import-confirmation_button_open-extension")).toBeNull();
+    },
+  );
+
+  it.each([DeviceType.ChromeExtension, DeviceType.DuckDuckGoExtension, DeviceType.SafariExtension])(
+    "offers the button first on a browser that can open the popup (%s)",
+    async (device) => {
+      isPopupOpen.mockResolvedValue(false);
+
+      await create({ device });
+
+      expect(button("import-confirmation_button_open-extension")).not.toBeNull();
+    },
+  );
+
+  it("makes the popup open on its first page, so the result shows, before opening it", async () => {
+    isPopupOpen.mockResolvedValue(true);
+    const reset = jest.spyOn(ImportConfirmationStateService.prototype, "resetPopupHistory");
+
+    await create();
+
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(reset.mock.invocationCallOrder[0]).toBeLessThan(
+      actionsService.openPopup.mock.invocationCallOrder[0],
+    );
+  });
+
   it("goes to the vault when there is no result to show", async () => {
     await create({ total: null });
 
@@ -161,5 +214,6 @@ describe("ImportConfirmationBrowserComponent", () => {
     fixture.destroy();
 
     expect(confirmationState.current()).toBeUndefined();
+    expect(await firstValueFrom(confirmationState.pending$("user-1" as UserId))).not.toBeNull();
   });
 });

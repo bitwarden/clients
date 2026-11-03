@@ -5,7 +5,7 @@
     >
       <bit-spinner size="base" />
       <div class="tw-flex tw-flex-col tw-gap-1">
-        <p bitTypography="h4" noMargin class="tw-mb-0 tw-text-fg-heading">
+        <p class="tw-mb-0 tw-text-lg tw-font-medium tw-text-fg-heading">
           {{
             (total() === 1 ? "importingItemsTitleSingular" : "importingItemsTitle") | i18n: total()
           }}
@@ -21,7 +21,7 @@
       class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6 tw-text-center"
     >
       <bit-svg [content]="celebration" class="tw-block" style="width: 100px; height: 100px" />
-      <p bitTypography="h4" noMargin class="tw-mb-0 tw-text-fg-heading">
+      <p class="tw-mb-0 tw-text-lg tw-font-medium tw-text-fg-heading">
         {{ "openedExtensionTitle" | i18n }}
       </p>
     </div>
@@ -38,7 +38,7 @@
       </p>
     </div>
     <div
-      class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6 tw-text-center"
+      class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6 tw-text-center"
     >
       @if (phase() === "button") {
         <p bitTypography="body1" noMargin class="tw-mb-0 tw-text-main">
@@ -57,7 +57,10 @@
       } @else {
         <p bitTypography="body1" noMargin class="tw-mb-0 tw-text-main">
           {{ "openingExtensionToolbarErrorPart1" | i18n }}
-          <bit-svg [content]="toolbarIcon" class="!tw-inline-block tw-align-middle" />
+          <bit-svg
+            [content]="toolbarIcon"
+            class="!tw-inline-block tw-size-4 tw-align-baseline [&>svg]:tw-block [&>svg]:tw-size-full"
+          />
           {{ "openingExtensionToolbarErrorPart2" | i18n }}
         </p>
       }

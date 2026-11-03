@@ -3,7 +3,7 @@ import { RouterOutlet } from "@angular/router";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { BitwardenLogo } from "@bitwarden/assets/svg";
-import { DialogService, SvgModule, TypographyModule } from "@bitwarden/components";
+import { SvgModule, TypographyModule } from "@bitwarden/components";
 import {
   ImportOutcomePresenter,
   ImportShellProgressComponent,
@@ -14,7 +14,6 @@ import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 
 import { BrowserImportOutcomePresenter } from "./browser-import-outcome-presenter";
-import { ImportConfirmationStateService } from "./import-confirmation-state.service";
 
 @Component({
   templateUrl: "import-shell-browser.component.html",
@@ -33,7 +32,7 @@ import { ImportConfirmationStateService } from "./import-confirmation-state.serv
     safeProvider({
       provide: ImportOutcomePresenter,
       useClass: BrowserImportOutcomePresenter,
-      deps: [DialogService, ImportConfirmationStateService],
+      deps: [],
     }),
   ],
 })

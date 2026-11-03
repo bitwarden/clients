@@ -5,13 +5,14 @@ import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
+import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   DefaultImportStagingService,
   ImportResult,
   ImportStagingServiceAbstraction,
 } from "@bitwarden/importer-core";
-import { GlobalStateProvider } from "@bitwarden/state";
+import { StateProvider } from "@bitwarden/state";
 
 import { ImportConfirmationStateService } from "./import-confirmation-state.service";
 import { ImportDestinationBrowserComponent } from "./import-destination-browser.component";
@@ -42,7 +43,10 @@ describe("ImportDestinationBrowserComponent", () => {
     await TestBed.configureTestingModule({
       imports: [ImportDestinationBrowserComponent],
       providers: [
-        { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
+        {
+          provide: StateProvider,
+          useValue: new FakeStateProvider(mockAccountServiceWith("user-1" as UserId)),
+        },
         { provide: Router, useValue: router },
         { provide: ImportStagingServiceAbstraction, useValue: stagingService },
         {
@@ -103,7 +107,10 @@ describe("ImportDestinationBrowserComponent", () => {
 
   it("navigates to the confirmation page when the import left a result to show", async () => {
     await setup({ staged: true });
-    await TestBed.inject(ImportConfirmationStateService).set({ summary: { total: 1, rows: [] } });
+    await TestBed.inject(ImportConfirmationStateService).set(
+      { summary: { total: 1, rows: [] } },
+      "user-1" as UserId,
+    );
 
     fixture.debugElement
       .query(By.css("importer-destination"))

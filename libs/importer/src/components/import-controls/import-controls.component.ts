@@ -386,6 +386,11 @@ export class ImportControlsComponent {
     ),
   );
 
+  // Read when the user presses Continue: whoever is active when the import ends may be someone else.
+  private readonly activeUserId = toSignal(
+    this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+  );
+
   protected readonly personalOwnershipPolicyPending = computed(
     () => this.personalOwnershipPolicyApplies() === undefined,
   );
@@ -1003,6 +1008,11 @@ export class ImportControlsComponent {
       return;
     }
 
+    const userId = this.activeUserId();
+    if (userId == null) {
+      return;
+    }
+
     let outcome: ImportOutcome;
     try {
       outcome = await this.runImport();
@@ -1028,7 +1038,7 @@ export class ImportControlsComponent {
           logService: this.logService,
           presenter: this.presenter,
         },
-        this.importedFile(),
+        { userId, file: this.importedFile() },
       );
     }
 

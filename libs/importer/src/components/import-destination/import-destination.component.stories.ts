@@ -5,6 +5,7 @@ import {
   CollectionTypes,
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -123,6 +124,10 @@ export default {
         { provide: ImportDestinationServiceAbstraction, useValue: destinationService },
         { provide: ImportStagingServiceAbstraction, useValue: stagingService },
         { provide: ImportUpgradeServiceAbstraction, useValue: importService },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: of({ id: "storybook-user" }) } as Partial<AccountService>,
+        },
         {
           provide: DialogService,
           useValue: { openSimpleDialog: async () => true, open: () => ({ closed: of(undefined) }) },

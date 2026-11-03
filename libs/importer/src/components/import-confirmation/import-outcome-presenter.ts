@@ -1,8 +1,20 @@
+import { UserId } from "@bitwarden/common/types/guid";
+
 import { ImportedFile } from "../../models";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
 
-/** Shows the user the result of an import that has run and synced. */
+export interface ImportOutcomeContext {
+  /** The account active when the user pressed Continue. Whoever is active when the import ends may
+   *  differ. */
+  userId: UserId;
+  /** Set when the items came from a file the user picked. */
+  file?: ImportedFile;
+}
+
+/** Shows the user the result of an import that has run. The sync after it may have failed. */
 export abstract class ImportOutcomePresenter {
-  /** `file` is set when the items came from a file the user picked. */
-  abstract present(outcome: FinishedImportOutcome, file?: ImportedFile): void | Promise<void>;
+  abstract present(
+    outcome: FinishedImportOutcome,
+    context: ImportOutcomeContext,
+  ): void | Promise<void>;
 }

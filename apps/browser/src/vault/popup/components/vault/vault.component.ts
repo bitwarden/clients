@@ -507,8 +507,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.readySubject.next(true);
 
-    await this.importConfirmationPopupService.conditionallyOpen();
-    await this.openNewExperienceDialog(this.activeUserId, onboardingWelcomeDismissed);
+    // The next open gets the new experience prompt: it must not open over the import result.
+    const showedImportResult = await this.importConfirmationPopupService.conditionallyOpen(
+      this.activeUserId,
+    );
+    if (!showedImportResult) {
+      await this.openNewExperienceDialog(this.activeUserId, onboardingWelcomeDismissed);
+    }
   }
 
   /**

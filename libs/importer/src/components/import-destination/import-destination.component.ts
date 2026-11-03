@@ -24,6 +24,7 @@ import {
 import { catchError, map, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -135,6 +136,11 @@ export class ImportDestinationComponent {
   private readonly destinationService = inject(ImportDestinationServiceAbstraction);
   private readonly stagingService = inject(ImportStagingServiceAbstraction);
   private readonly importService = inject(ImportUpgradeServiceAbstraction);
+
+  // Read when the user presses Import: whoever is active when the import ends may be someone else.
+  private readonly activeUserId = toSignal(
+    inject(AccountService).activeAccount$.pipe(map((account) => account?.id)),
+  );
 
   /** Fires once the import succeeds, not on button click. */
   readonly continue = output<void>();
@@ -358,6 +364,11 @@ export class ImportDestinationComponent {
         ? option.defaultCollection
         : (sharedFolder ?? undefined);
 
+    const userId = this.activeUserId();
+    if (userId == null) {
+      return;
+    }
+
     this.importing.set(true);
     try {
       let outcome: FinishedImportOutcome;
@@ -376,7 +387,7 @@ export class ImportDestinationComponent {
           logService: this.logService,
           presenter: this.presenter,
         },
-        staged.kind === "parsed" ? undefined : staged.importedFile,
+        { userId, file: staged.kind === "parsed" ? undefined : staged.importedFile },
       );
     } finally {
       this.importing.set(false);

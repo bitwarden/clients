@@ -3165,6 +3165,33 @@ describe("ImportControlsComponent", () => {
       );
     });
 
+    it("credits the result to the account active when Continue was pressed, even if the account changes while it runs", async () => {
+      const account$ = new BehaviorSubject({ id: "test-user-id" } as unknown as Account);
+      accountService.activeAccount$ = account$;
+      await setup("keepass", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      } as unknown as File);
+      component().formGroup.controls.kdbxPassword.setValue("hunter2");
+      importService.importWithSdk.mockImplementation(() => {
+        account$.next({ id: "other-user-id" } as unknown as Account);
+        return Promise.resolve({
+          ciphers: [{ type: CipherType.Login, count: 1 }],
+          folders: 0,
+          collections: 0,
+        });
+      });
+      const present = jest.spyOn(DialogImportOutcomePresenter.prototype, "present");
+
+      await component().onContinue();
+
+      expect(present).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ userId: "test-user-id" }),
+      );
+    });
+
     it("maps a kdbx SDK error through sdkErrorMessageKey instead of showing the raw SDK message", async () => {
       // kdbxWrongFileType, not invalidFilePassword — the wrong-password case is dedicated inline
       // behavior now, covered by its own test below; every other mapped SDK error still goes

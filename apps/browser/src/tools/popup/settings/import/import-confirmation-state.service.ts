@@ -1,8 +1,12 @@
 import { inject, Injectable, signal } from "@angular/core";
+import { Observable } from "rxjs";
 
+import { UserId } from "@bitwarden/common/types/guid";
 import { ImportedFile } from "@bitwarden/importer-core";
 import { ImportSummary } from "@bitwarden/importer-ui";
-import { GlobalStateProvider, IMPORT_CONFIRMATION_MEMORY, KeyDefinition } from "@bitwarden/state";
+import { IMPORT_CONFIRMATION_MEMORY, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+
+import { resetPopupRouteHistory } from "../../../../platform/popup/view-cache/popup-router-cache.service";
 
 export const IMPORT_CONFIRMATION_ROUTE_PATH = "import-confirmation";
 
@@ -12,10 +16,11 @@ export interface ImportConfirmationState {
   importedFile?: ImportedFile;
 }
 
-const PENDING_CONFIRMATION = new KeyDefinition<ImportConfirmationState>(
+// The file name can identify a person, so a result is only ever shown to the user who imported.
+export const PENDING_CONFIRMATION = new UserKeyDefinition<ImportConfirmationState>(
   IMPORT_CONFIRMATION_MEMORY,
   "pending",
-  { deserializer: (state) => state },
+  { deserializer: (state) => state, clearOn: ["lock", "logout"] },
 );
 
 /** Carries a finished import from the import shell to the confirmation page, which sits outside
@@ -23,17 +28,21 @@ const PENDING_CONFIRMATION = new KeyDefinition<ImportConfirmationState>(
 @Injectable({ providedIn: "root" })
 export class ImportConfirmationStateService {
   private readonly state = signal<ImportConfirmationState | undefined>(undefined);
-  private readonly pending = inject(GlobalStateProvider).get(PENDING_CONFIRMATION);
+  private readonly stateProvider = inject(StateProvider);
 
   /** What this tab has to show. Lost with the tab. */
   readonly current = this.state.asReadonly();
 
-  /** What the popup has yet to show. Survives the tab, not the browser session. */
-  readonly pending$ = this.pending.state$;
+  /** What the popup has yet to show that user. It waits, even through an account switch, until the
+   *  popup shows it or they lock or log out. */
+  pending$(userId: UserId): Observable<ImportConfirmationState | null> {
+    return this.stateProvider.getUser(userId, PENDING_CONFIRMATION).state$;
+  }
 
-  async set(state: ImportConfirmationState): Promise<void> {
+  /** `userId` is who imported, not whoever is active when the popup opens. */
+  async set(state: ImportConfirmationState, userId: UserId): Promise<void> {
     this.state.set(state);
-    await this.pending.update(() => state);
+    await this.stateProvider.getUser(userId, PENDING_CONFIRMATION).update(() => state);
   }
 
   /** Drops what this tab shows. */
@@ -41,7 +50,13 @@ export class ImportConfirmationStateService {
     this.state.set(undefined);
   }
 
-  async clearPending(): Promise<void> {
-    await this.pending.update(() => null);
+  async clearPending(userId: UserId): Promise<void> {
+    await this.stateProvider.getUser(userId, PENDING_CONFIRMATION).update(() => null);
+  }
+
+  // The popup reopens on its last page for 2 minutes after closing, which can skip the Vault page
+  // that shows the result.
+  async resetPopupHistory(): Promise<void> {
+    await resetPopupRouteHistory(this.stateProvider);
   }
 }

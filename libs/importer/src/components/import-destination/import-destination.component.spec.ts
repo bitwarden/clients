@@ -9,10 +9,11 @@ import {
   CollectionTypes,
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -108,6 +109,8 @@ function cipher(type: CipherType = CipherType.Login): CipherView {
 
 describe("ImportDestinationComponent", () => {
   let fixture: ComponentFixture<ImportDestinationComponent>;
+  const userId = "user-1" as UserId;
+  let activeAccount$: BehaviorSubject<Account | null>;
   let destinations$: BehaviorSubject<ImportDestinations>;
   let destinationService: MockProxy<ImportDestinationServiceAbstraction>;
   let stagingService: DefaultImportStagingService;
@@ -147,6 +150,7 @@ describe("ImportDestinationComponent", () => {
         { provide: ImportUpgradeServiceAbstraction, useValue: importService },
         { provide: DialogService, useValue: dialogService },
         { provide: ImportOutcomePresenter, useClass: DialogImportOutcomePresenter },
+        { provide: AccountService, useValue: { activeAccount$ } },
         { provide: ToastService, useValue: toastService },
         { provide: SyncService, useValue: syncService },
         { provide: LogService, useValue: logService },
@@ -167,6 +171,7 @@ describe("ImportDestinationComponent", () => {
   };
 
   beforeEach(() => {
+    activeAccount$ = new BehaviorSubject<Account | null>({ id: userId } as unknown as Account);
     destinations$ = new BehaviorSubject<ImportDestinations>({
       options: [myVault, organization("a", "Acme Co")],
       hasStep: true,
@@ -608,6 +613,23 @@ describe("ImportDestinationComponent", () => {
       expect(dialogService.open).toHaveBeenCalled();
       expect(stagingService.current()).toBeUndefined();
       expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("credits the result to the account active when Import was pressed, even if the account changes while it runs", async () => {
+      stageParsed();
+      await setup();
+      const present = jest.spyOn(DialogImportOutcomePresenter.prototype, "present");
+      importService.importImportResult.mockImplementation((result) => {
+        activeAccount$.next({ id: "user-2" } as unknown as Account);
+        return Promise.resolve(result);
+      });
+
+      await submit();
+
+      expect(present).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ userId: "user-1" }),
+      );
     });
 
     it("shows the progress in place of the cards while importing, and the cards again if the import fails", async () => {
