@@ -193,7 +193,7 @@ const setupBulk = async (
   return fixture;
 };
 
-describe("AccessRulesComponent — create/edit navigation", () => {
+describe("AccessRulesComponent: create/edit navigation", () => {
   let navigate: jest.SpyInstance;
   let route: ActivatedRoute;
 
@@ -238,7 +238,7 @@ describe("AccessRulesComponent — create/edit navigation", () => {
   });
 });
 
-describe("AccessRulesComponent — make a copy", () => {
+describe("AccessRulesComponent: make a copy", () => {
   let navigate: jest.SpyInstance;
   let route: ActivatedRoute;
 
@@ -377,7 +377,7 @@ describe("AccessRulesComponent — make a copy", () => {
   });
 });
 
-describe("AccessRulesComponent — mutation success toasts", () => {
+describe("AccessRulesComponent: mutation success toasts", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -448,7 +448,7 @@ describe("AccessRulesComponent — mutation success toasts", () => {
   });
 });
 
-describe("AccessRulesComponent — failed mutations", () => {
+describe("AccessRulesComponent: failed mutations", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -507,7 +507,7 @@ describe("AccessRulesComponent — failed mutations", () => {
   });
 });
 
-describe("AccessRulesComponent — bulk deactivate confirmation", () => {
+describe("AccessRulesComponent: bulk deactivate confirmation", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -567,7 +567,7 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
 });
 
 /** These render the real template, since the table owns the chips' selections. */
-describe("AccessRulesComponent — toolbar filters", () => {
+describe("AccessRulesComponent: toolbar filters", () => {
   let fixture: ComponentFixture<AccessRulesComponent>;
 
   const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
@@ -640,7 +640,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
     expect(visible()).toEqual(["SSH"]);
   });
 
-  it("widens within the collections chip — a rule matches any of the selected collections", async () => {
+  it("widens within the collections chip, a rule matches any of the selected collections", async () => {
     await setupToolbar(
       [
         ruleIn("rule-1", "VPN", ["col-1"]),
@@ -700,7 +700,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
   });
 });
 
-describe("AccessRulesComponent — table", () => {
+describe("AccessRulesComponent: table", () => {
   const RULES = [
     { ...rule("rule-1", "VPN", true), revisionDate: "2024-03-01T00:00:00.000Z" },
     { ...rule("rule-2", "SSH", false), revisionDate: "2024-05-01T00:00:00.000Z" },
@@ -901,7 +901,7 @@ describe("AccessRulesComponent — table", () => {
   });
 });
 
-describe("AccessRulesComponent — toolbar", () => {
+describe("AccessRulesComponent: toolbar", () => {
   const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
 
   const ruleIn = (id: string, name: string, collections: string[], enabled = true) =>

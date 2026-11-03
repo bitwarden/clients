@@ -226,7 +226,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       : (this.cipherNameById().get(config.cipherId) ?? String(config.cipherId));
   });
 
-  /** `true` once loaded if the blob failed to verify — a config always has one, unlike a target. */
+  /** `true` once loaded if the blob failed to verify, a config always has one, unlike a target. */
   protected readonly configSealUnverified = computed(
     () => this.config() != null && this.config()?.sealed == null,
   );
@@ -691,7 +691,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     }
   }
 
-  /** True for an automatic target with no verified sealed fields — the checkbox is disabled for "unknown", not "unsupported". */
+  /** True for an automatic target with no verified sealed fields, the checkbox is disabled for "unknown", not "unsupported". */
   protected readonly terminateSessionsUnknown = computed(() => {
     const target = this.selectedTarget();
     return (

@@ -86,7 +86,7 @@ describe("ControlledAccessVaultFilterService", () => {
 
   describe("stateOptions$", () => {
     // Read off ACCESS_BADGE_LOOK rather than spelled again, so an icon the badge changes cannot
-    // leave the chip showing the old one — Ready offered a plain check beside a circled badge.
+    // leave the chip showing the old one, Ready offered a plain check beside a circled badge.
     it("offers one option per access state, labelled and iconed like its badge", async () => {
       expect(await firstValueFrom(service.stateOptions$)).toEqual([
         {

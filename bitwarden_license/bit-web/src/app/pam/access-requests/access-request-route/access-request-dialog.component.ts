@@ -196,7 +196,7 @@ export class AccessRequestDialogComponent implements OnInit {
       return null;
     }
     // A running lease badges as its own countdown, which escalates to "ending soon" on the
-    // threshold the pill owns — so the dialog never has to name either state itself.
+    // threshold the pill owns, so the dialog never has to name either state itself.
     const endsAt = this.leaseEndsAt();
     if (endsAt != null) {
       return {
@@ -357,7 +357,7 @@ export class AccessRequestDialogComponent implements OnInit {
   });
 
   /**
-   * Only while the request is still undecided. Once approved it offers Start instead — the
+   * Only while the request is still undecided. Once approved it offers Start instead, the
    * requester withdraws an approval they no longer want from the My requests table.
    */
   protected readonly canCancel = computed(
@@ -618,7 +618,7 @@ function boldRuns(text: string, values: ReadonlyMap<string, string>): TextRun[] 
 /**
  * The Decision card's label for the request's last decision. Revoking a lease, ending your own,
  * and withdrawing an approval all record a deny without the request ending denied, so the label
- * follows the verdict and, for those lease ends, who recorded it — never the status alone.
+ * follows the verdict and, for those lease ends, who recorded it, never the status alone.
  */
 function decisionLabelKey(
   verdict: AccessDecisionVerdict,

@@ -24,7 +24,7 @@ export function rotationErrorMessage(e: unknown): string | undefined {
 
 /**
  * Unlike `RotationError`, this crosses the FFI boundary as a plain object (`bitwarden-error`'s
- * `full` mode), not an `Error` subclass — there's no `.name`/`.variant` to key on, so this checks
+ * `full` mode), not an `Error` subclass, there's no `.name`/`.variant` to key on, so this checks
  * shape instead.
  */
 function isTargetSystemCreateError(e: unknown): e is TargetSystemCreateError {
@@ -48,7 +48,7 @@ export function targetSystemCreateErrorMessage(e: unknown): string | undefined {
 
 /**
  * `RotationValidationError`'s refusals, verbatim from its `Display` (`bitwarden-pam`'s
- * `rotation/validate.rs`) — must stay in sync. Matched with `includes`, since an undecoded
+ * `rotation/validate.rs`), must stay in sync. Matched with `includes`, since an undecoded
  * message keeps the SDK's transport prefix.
  */
 export const ROTATION_VALIDATION_ERRORS = Object.freeze({
@@ -107,7 +107,7 @@ export type RotationErrorOutcome =
   | { readonly kind: "i18n"; readonly key: string }
   /** A `RotationError` this client doesn't special-case; its own message is informative enough. */
   | { readonly kind: "message"; readonly message: string }
-  /** Not a `RotationError` (or an unparsable `Api` body) — the caller falls back to its own logic. */
+  /** Not a `RotationError` (or an unparsable `Api` body), the caller falls back to its own logic. */
   | { readonly kind: "generic" };
 
 /** Classifies a `createTargetSystem`/`updateTargetSystem`/`createConfig`/`updateConfig` failure. */

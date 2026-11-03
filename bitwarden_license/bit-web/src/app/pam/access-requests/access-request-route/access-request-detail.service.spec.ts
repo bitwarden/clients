@@ -182,7 +182,7 @@ describe("AccessRequestDetailService", () => {
       expect(await firstValueFrom(service.notFound$)).toBe(false);
     });
 
-    it("keeps loading further ids after a failure — the stream must not tear down", async () => {
+    it("keeps loading further ids after a failure, the stream must not tear down", async () => {
       requestsApi.getAccessRequest.mockRejectedValue(new Error("boom"));
       await setup();
 
@@ -283,7 +283,7 @@ describe("AccessRequestDetailService", () => {
       expect(await firstValueFrom(service.viewer$)).toBe("requester");
     });
 
-    it("is an approver when someone else raised it — the emailed link reaches both", async () => {
+    it("is an approver when someone else raised it, the emailed link reaches both", async () => {
       activeUserId = "approver-1";
 
       await setup();

@@ -129,7 +129,7 @@ export class MyAccessService {
 
   /**
    * Terminal requests, newest first. A grant with an active lease joins once the lease ends, and
-   * anything whose access is already over gets {@link lapsedGrantBadge} — see
+   * anything whose access is already over gets {@link lapsedGrantBadge}, see
    * {@link lapsedInHistory}.
    */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
@@ -181,7 +181,7 @@ export class MyAccessService {
   /**
    * Waits on the badges' shared clock rather than a timer of this service's own: PAM keeps two
    * clocks and no more (see this directory's CLAUDE.md), and the badges on this very tab already
-   * hold that one open. It is also the only form that survives a distant lease — `setTimeout`
+   * hold that one open. It is also the only form that survives a distant lease, `setTimeout`
    * fires immediately for a delay past 2^31-1 ms (~24.8 days), so a grant a month out would have
    * reloaded in a loop rather than waiting.
    */
@@ -310,7 +310,7 @@ function refsFor(
 
 /**
  * When the soonest window closes, across both things that can close one: a running lease, and an
- * approved grant nobody started. The grants matter as much as the leases — the server refuses to
+ * approved grant nobody started. The grants matter as much as the leases, the server refuses to
  * activate past `leaseNotAfter`, so a lapsed grant has to leave Pending for History, and nothing
  * announces that either.
  */

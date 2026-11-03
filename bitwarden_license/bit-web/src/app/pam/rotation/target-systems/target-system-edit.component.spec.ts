@@ -212,7 +212,7 @@ async function setupEdit(
   }).compileComponents();
 }
 
-describe("TargetSystemEditComponent — create mode", () => {
+describe("TargetSystemEditComponent: create mode", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -928,7 +928,7 @@ describe("TargetSystemEditComponent — create mode", () => {
   });
 });
 
-describe("TargetSystemEditComponent — create mode (rendered)", () => {
+describe("TargetSystemEditComponent: create mode (rendered)", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
 
   beforeEach(async () => {
@@ -1106,7 +1106,7 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
   });
 });
 
-describe("TargetSystemEditComponent — edit mode", () => {
+describe("TargetSystemEditComponent: edit mode", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -1170,7 +1170,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
 
   /**
    * `updateTargetSystem` replaces the blob wholesale, so `method`/`kind` must be resupplied from
-   * `existing.sealed`, not a form control — both are read-only on this page.
+   * `existing.sealed`, not a form control, both are read-only on this page.
    */
   it("resends the stored method and kind, unedited, for an automatic target", async () => {
     rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
@@ -1324,7 +1324,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
   );
 });
 
-describe("TargetSystemEditComponent — system id (rendered)", () => {
+describe("TargetSystemEditComponent: system id (rendered)", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -1393,7 +1393,7 @@ describe("TargetSystemEditComponent — system id (rendered)", () => {
   });
 });
 
-describe("TargetSystemEditComponent — status badge", () => {
+describe("TargetSystemEditComponent: status badge", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   async function badgeLabelKey(
@@ -1511,7 +1511,7 @@ describe("TargetSystemEditComponent — status badge", () => {
   });
 });
 
-describe("TargetSystemEditComponent — unsaved changes", () => {
+describe("TargetSystemEditComponent: unsaved changes", () => {
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let router: Router;
@@ -1633,7 +1633,7 @@ describe("TargetSystemEditComponent — unsaved changes", () => {
   });
 });
 
-describe("TargetSystemEditComponent — assigned access connectors", () => {
+describe("TargetSystemEditComponent: assigned access connectors", () => {
   type ChosenRow = { id: AccessConnectorId; name: string; badgeLabelKey: string };
 
   type AssignmentsComp = {
@@ -2413,7 +2413,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
   });
 });
 
-describe("TargetSystemEditComponent — outstanding setup hint", () => {
+describe("TargetSystemEditComponent: outstanding setup hint", () => {
   const SYSTEM_ID = sysId("sys-1");
   const CREDENTIAL_STEP = "pamTargetSystemSetupGuidanceCredential";
 
@@ -2661,7 +2661,7 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
   });
 });
 
-describe("TargetSystemEditComponent — seal status", () => {
+describe("TargetSystemEditComponent: seal status", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -2769,7 +2769,7 @@ describe("TargetSystemEditComponent — seal status", () => {
   });
 });
 
-describe("TargetSystemEditComponent — loading skeleton", () => {
+describe("TargetSystemEditComponent: loading skeleton", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -2933,7 +2933,7 @@ describe("TargetSystemEditComponent — loading skeleton", () => {
   });
 });
 
-describe("TargetSystemEditComponent — load error state", () => {
+describe("TargetSystemEditComponent: load error state", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
@@ -3081,7 +3081,7 @@ describe("TargetSystemEditComponent — load error state", () => {
   });
 });
 
-describe("TargetSystemEditComponent — session termination withdrawal (rendered)", () => {
+describe("TargetSystemEditComponent: session termination withdrawal (rendered)", () => {
   const SYSTEM_ID = sysId("sys-1");
 
   let fixture: ComponentFixture<TargetSystemEditComponent>;
