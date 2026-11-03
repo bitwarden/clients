@@ -25,7 +25,6 @@ import {
   openSsoAuthResultPopout,
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
-import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import {
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
@@ -38,6 +37,7 @@ import {
 } from "../autofill/background/fill-assist-event-receiver";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
+import { AutofillOrchestrator } from "../autofill/orchestration";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";

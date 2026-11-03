@@ -11,16 +11,16 @@
 ## Autofill and the monitoring lifecycle
 
 Autofill and the monitoring lifecycle are separate concerns. The
-[monitoring lifecycle](./lifecycle.design.md) decides _when a frame is worth engaging_ — it
+[monitoring lifecycle](./lifecycle/design.md) decides _when a frame is worth engaging_ — it
 reconciles the page, account, extension, and tab lifecycles and, when a page transition resolves,
 surfaces an **opportunity**: this frame has reached a point where a fill _may_ be appropriate.
-Autofill decides _whether and how to fill_. The [orchestrator](./orchestrator.design.md) coordinates
+Autofill decides _whether and how to fill_. The [orchestrator](./orchestration/design.md) coordinates
 the fill action, including resolving concurrent autofill requests. It decides which contexts are
 targeted, how autofill operations are sequenced, and secures the autofill workflow at large.
 
 One rule spans every fill: autofill fills only the **hot** tab — the active tab of the _focused_
 window (see the
-[tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)) — and never a background or unfocused one.
+[tab lifecycle](./lifecycle/design.md#the-tab-lifecycle)) — and never a background or unfocused one.
 The lifecycle carries this for page loads, surfacing an opportunity only when the tab is hot and
 buffering it otherwise; a user-initiated fill acts on the active tab the user just used, which is
 hot by construction. Either way a fill lands where the user is looking, never on a background
@@ -42,7 +42,7 @@ opportunity, autofill applies its policy before it commits a fill:
   opportunity from one account never fills for another, even when it resolves after a switch. A
   page-load fill raises no unlock prompt: an opportunity that resolves while the active account is
   locked is refused. A lock or switch after the opportunity resolves
-  [retires](./lifecycle.design.md#retiring-an-opportunity) it.
+  [retires](./lifecycle/design.md#retiring-an-opportunity) it.
 - **A cipher must match the frame's page.** Autofill reads the frame to learn its fields and selects
   the cipher saved for its URL; with no match there is nothing to fill and the opportunity is
   discarded.
@@ -50,12 +50,12 @@ opportunity, autofill applies its policy before it commits a fill:
   a policy decision, and not re-attempted.
 
 The opportunity is per frame, so simultaneous page loads across frames are decided independently.
-Once policy permits, the fill is carried out by the [orchestrator](./orchestrator.design.md).
+Once policy permits, the fill is carried out by the [orchestrator](./orchestration/design.md).
 
 A page-load fill targets **the frame that produced the transition**, resolved live, by identity, at the
 moment of the fill. It must not use a snapshot carried from when the transition was reported.
 This distinction is a security boundary. A transition can be buffered (see the
-[tab lifecycle](./lifecycle.design.md#buffering-transitions)). Between report and fill, the frame may
+[tab lifecycle](./lifecycle/design.md#buffering-transitions)). Between report and fill, the frame may
 have navigated. Filling from the transition's stale snapshot would put a cipher chosen for the _old_
 page into whatever page now occupies that frame — a credential handed to the wrong origin.
 Targeting the frame by its live identity and validating that it still holds the document that
@@ -116,7 +116,7 @@ entitlement to verification codes for that cipher. A denial forbids the release 
 
 The autofill service's **fill operation** is a narrow primitive: given a concrete cipher and a
 target, it fills and reports whether it did. It makes no selection, targeting, or foreground
-decision. The [orchestrator](./orchestrator.design.md) chooses the cipher, verifies the tab the
+decision. The [orchestrator](./orchestration/design.md) chooses the cipher, verifies the tab the
 user is working in, and sequences the collect with other autofill operations. Keeping the
 fill contract narrow lets autofill's fill invariants live in one place rather than being
 re-derived at every entry point.
