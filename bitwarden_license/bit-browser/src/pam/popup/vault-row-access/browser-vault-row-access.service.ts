@@ -40,10 +40,13 @@ import {
 } from "@bitwarden/browser/vault/popup/components/vault/vault-row-access/vault-row-access.token";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -73,6 +76,7 @@ export class BrowserVaultRowAccessService implements VaultRowAccess {
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly locale = inject(LOCALE_ID);
+  private readonly revealedCipherService = inject(RevealedCipherService);
 
   private readonly organizations$ = callerOrganizations$(
     this.accountService,
@@ -81,11 +85,18 @@ export class BrowserVaultRowAccessService implements VaultRowAccess {
 
   private readonly pamEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
 
+  /**
+   * A restricted item is always governed. An unrestricted one is governed only while a live
+   * revealed copy exists, which is how a leased item that the list no longer marks restricted
+   * still shows its countdown. Nothing else costs an access-state read.
+   */
   status$(cipher: CipherViewLike): Observable<VaultRowAccessStatus | null> {
     const cipherId = cipher.id == null ? null : String(cipher.id);
-    if (cipherId == null || !CipherViewLikeUtils.isRestricted(cipher)) {
+    if (cipherId == null) {
       return of(null);
     }
+    const restricted = CipherViewLikeUtils.isRestricted(cipher);
+    const governed$ = restricted ? of(true) : this.isRevealed$(cipherId);
     const unlicensed$ =
       cipher.organizationId == null
         ? of(false)
@@ -94,16 +105,26 @@ export class BrowserVaultRowAccessService implements VaultRowAccess {
               unlicensedForPam(organizations.find((o) => o.id === cipher.organizationId)),
             ),
           );
-    return combineLatest([this.pamEnabled$, unlicensed$]).pipe(
-      distinctUntilChanged(([a, b], [c, d]) => a === c && b === d),
-      switchMap(([enabled, unlicensed]) =>
-        !enabled || unlicensed
+    return combineLatest([this.pamEnabled$, unlicensed$, governed$]).pipe(
+      distinctUntilChanged(([a, b, c], [d, e, f]) => a === d && b === e && c === f),
+      switchMap(([enabled, unlicensed, governed]) =>
+        !enabled || unlicensed || !governed
           ? of(null)
           : this.rowState
               .state$(cipherId)
               .pipe(switchMap((state) => this.toStatus$(cipherId, state))),
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  /** Whether the active user holds a live revealed copy of the cipher, off the shared reveals stream. */
+  private isRevealed$(cipherId: string): Observable<boolean> {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+      map((revealed) => revealed.has(cipherId as CipherId)),
+      distinctUntilChanged(),
     );
   }
 
@@ -151,17 +172,28 @@ export class BrowserVaultRowAccessService implements VaultRowAccess {
         startWith(Date.now()),
         map((now) => expiresAt.getTime() - now),
         takeWhile((remainingMs) => remainingMs > 0),
-        map((remainingMs): VaultRowAccessStatus => ({
-          kind: "active",
-          label: this.i18nService.t("pamAccessBadgeTimeLeft", formatRemaining(locale, remainingMs)),
-          canExtend,
-        })),
+        map((remainingMs) => this.countdownLabel(locale, remainingMs)),
+        distinctUntilChanged(),
+        map((label): VaultRowAccessStatus => ({ kind: "active", label, canExtend })),
       ),
       defer(() => {
         this.rowState.invalidate(cipherId);
         return EMPTY;
       }),
     );
+  }
+
+  /** Whole hours ("8h"), then minutes ("14m"), then "<1m": a row needs no finer than a minute. */
+  private countdownLabel(locale: string, remainingMs: number): string {
+    if (remainingMs < 60_000) {
+      return this.i18nService.t("pamAccessBadgeLessThanMinuteLeft");
+    }
+    const totalMinutes = Math.ceil(remainingMs / 60_000);
+    const duration =
+      totalMinutes < 60
+        ? formatRemaining(locale, totalMinutes * 60_000)
+        : formatRemaining(locale, Math.floor(totalMinutes / 60) * 3_600_000);
+    return this.i18nService.t("pamAccessBadgeTimeLeft", duration);
   }
 
   /**
