@@ -18,6 +18,33 @@
           {{ "view" | i18n }}
         </button>
       }
+      @if (accessStatus(); as status) {
+        @if (isLocked) {
+          @if (status.kind === "ready") {
+            <button type="button" bitMenuItem (click)="startAccess()">
+              {{ "pamStartLeaseButton" | i18n }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="status.kind !== 'request'"
+              (click)="requestAccess()"
+            >
+              {{ "pamRequestAccessButton" | i18n }}
+            </button>
+          }
+        } @else if (status.kind === "active") {
+          @if (status.canExtend) {
+            <button type="button" bitMenuItem (click)="extendAccess()">
+              {{ "pamExtendAccessMenuItem" | i18n }}
+            </button>
+          }
+          <button type="button" bitMenuItem (click)="endAccess()">
+            {{ "pamEndLeaseButton" | i18n }}
+          </button>
+        }
+      }
       <button type="button" bitMenuItem (click)="toggleFavorite()">
         {{ favoriteText | i18n }}
       </button>
@@ -38,7 +65,7 @@
           </a>
         }
       }
-      @if (allows(RestrictedCipherAction.Share)) {
+      @if (!isLocked && allows(RestrictedCipherAction.Share)) {
         <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
           {{ "shareViaLink" | i18n }}
         </a>
@@ -63,7 +90,7 @@
         </button>
       }
     }
-    @if (canDelete$ | async) {
+    @if ((canDelete$ | async) && allows(RestrictedCipherAction.Delete) && !accessActive) {
       <button type="button" bitMenuItem variant="danger" (click)="delete()">
         {{ "delete" | i18n }}
       </button>

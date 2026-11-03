@@ -17,6 +17,7 @@ import {
   MyLeasesService,
 } from "@bitwarden/bit-pam-components";
 import { FillCipherPolicy } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
+import { VAULT_ROW_ACCESS } from "@bitwarden/browser/vault/popup/components/vault/vault-row-access/vault-row-access.token";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -36,6 +37,7 @@ import { PamFillCipherPolicy } from "../pam-fill-cipher-policy";
 import { BrowserAccessEventService } from "./browser-access-event.service";
 import { BrowserAccessRefreshService } from "./browser-access-refresh.service";
 import { PopupRevealedCipherService } from "./popup-revealed-cipher.service";
+import { BrowserVaultRowAccessService } from "./vault-row-access/browser-vault-row-access.service";
 
 /** PAM providers for the commercial popup. */
 export function providePam(): SafeProvider[] {
@@ -108,6 +110,11 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
+    }),
+    safeProvider({
+      provide: VAULT_ROW_ACCESS,
+      useClass: BrowserVaultRowAccessService,
+      deps: [],
     }),
   ];
 }

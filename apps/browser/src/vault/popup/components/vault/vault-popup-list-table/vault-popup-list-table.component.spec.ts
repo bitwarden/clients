@@ -575,6 +575,24 @@ describe("VaultPopupListTableComponent", () => {
     });
   });
 
+  describe("gated rows", () => {
+    const gated = { id: "g", partial: true } as unknown as PopupCipherViewLike;
+    const full = { id: "f" } as unknown as PopupCipherViewLike;
+
+    it("treats a restricted row with no live reveal as gated", () => {
+      expect(component["isGated"](gated)).toBe(true);
+      expect(component["isGated"](full)).toBe(false);
+    });
+
+    it("does not launch a gated row", async () => {
+      const launch = jest.spyOn(component["listTableService"], "launchCipher");
+
+      await component.launchCipher(gated);
+
+      expect(launch).not.toHaveBeenCalled();
+    });
+  });
+
   describe("group predicates", () => {
     it("isAutofill returns true only for autofill-tagged rows", () => {
       const row = makeRow("autofill");

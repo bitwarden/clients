@@ -91,6 +91,9 @@ import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
 import { VaultFiltersTourComponent } from "../vault-filters-tour/vault-filters-tour.component";
+import { isGatedRow, revealedCipherIds } from "../vault-row-access/revealed-cipher-ids";
+import { VaultRowAccessIconComponent } from "../vault-row-access/vault-row-access-icon.component";
+import { VaultRowSubtitleComponent } from "../vault-row-access/vault-row-subtitle.component";
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
@@ -133,6 +136,8 @@ function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
     EmptyVaultComponent,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
+    VaultRowAccessIconComponent,
+    VaultRowSubtitleComponent,
     OrgIconDirective,
     Vfo1I18nPipe,
     ButtonModule,
@@ -164,12 +169,18 @@ export class VaultPopupListTableComponent {
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly i18nService = inject(I18nService);
+  private readonly revealedIds = revealedCipherIds();
   private readonly window = inject<Window>(WINDOW);
 
   /** The projected `bit-table-v2`, used to seed and observe chip selections. */
   private readonly tableEl = viewChild(BitTableV2Component);
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
+
+  /** A restricted item with no live reveal: no credentials to launch, copy or fill. */
+  protected isGated(cipher: PopupCipherViewLike): boolean {
+    return isGatedRow(cipher, this.revealedIds());
+  }
 
   protected readonly deactivatedIcon = DeactivatedOrg;
 
@@ -635,7 +646,7 @@ export class VaultPopupListTableComponent {
   }
 
   launchCipher(cipher: CipherViewLike) {
-    return this.listTableService.launchCipher(cipher);
+    return this.isGated(cipher) ? undefined : this.listTableService.launchCipher(cipher);
   }
 
   doAutofill(cipher: PopupCipherViewLike) {
