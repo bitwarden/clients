@@ -80,7 +80,7 @@ export { RotationSdkService } from "./rotation/rotation-sdk.service";
 export type { RotationConfigDescription } from "./rotation/rotation-sdk.service";
 export { AccessAuditEventKind } from "./access-audit/responses/access-audit-event.response";
 export type { AccessAuditEventResponse } from "./access-audit/responses/access-audit-event.response";
-export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
+export { durationText, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
   ACCESS_RULE_DURATION_PRESETS,

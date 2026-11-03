@@ -82,7 +82,10 @@ import {
   windowEndAt,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
-import { ENDING_SOON_THRESHOLD_MS } from "../access-state-badge/access-badge-state";
+import {
+  ACCESS_BADGE_LOOK,
+  ENDING_SOON_THRESHOLD_MS,
+} from "../access-state-badge/access-badge-state";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
@@ -244,6 +247,12 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /** Read against {@link nowMs}, since a lease ends at its `notAfter` without a re-read. */
+  /**
+   * The access-state icons, so each card's tile matches the badge for the state it is announcing.
+   * Only the icon is shared: `bit-icon-tile`'s variants are a different palette from the badge's.
+   */
+  protected readonly badgeLook = ACCESS_BADGE_LOOK;
+
   protected readonly activeLease = computed(() => liveActiveLease(this.state(), this.nowMs()));
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);

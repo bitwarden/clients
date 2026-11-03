@@ -18130,18 +18130,6 @@
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
-  "pamInboxDuration1Hour": {
-    "message": "1 hour"
-  },
-  "pamInboxDurationHours": {
-    "message": "$HOURS$ hours",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "4"
-      }
-    }
-  },
   "pamInboxStartAsap": {
     "message": "starting now"
   },
@@ -18680,23 +18668,26 @@
     "message": "Shared folder",
     "description": "VFO1 terminology feature flag variant of pamCollectionFilter"
   },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Extension requests"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "No active access"
+  "pamMyRequestsLoaded": {
+    "message": "Requests loaded"
   },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "Pending"
+  "pamStatusInUse": {
+    "message": "In use",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsPendingEmpty": {
-    "message": "No pending requests"
+  "pamStatusEndingSoon": {
+    "message": "Ending soon",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing — the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "No shared folders to filter by",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
+  },
+  "pamMyRequestsHistoryEmpty": {
+    "message": "No request history"
   },
   "pamMyRequestsEmptyTitle": {
     "message": "You have no requests"
@@ -18731,12 +18722,41 @@
   "pamColumnActions": {
     "message": "Actions"
   },
-  "pamWindowUntil": {
-    "message": "Until $DATE$",
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column — for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
     "placeholders": {
-      "date": {
+      "day": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ to $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals — for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowUntil": {
+    "message": "Until $END$",
+    "description": "An access window that has already opened, so only its end is left to state — shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
       }
     }
   },
@@ -18790,9 +18810,6 @@
     },
     "description": "VFO1 terminology feature flag variant of pamInboxInCollection"
   },
-  "pamInboxReason": {
-    "message": "Reason"
-  },
   "pamInboxReasonMissing": {
     "message": "No reason provided"
   },
@@ -18801,15 +18818,6 @@
   },
   "pamInboxRequester": {
     "message": "Requester"
-  },
-  "pamInboxDurationMinutes": {
-    "message": "$MINUTES$ min",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
   },
   "pamStartLeaseButton": {
     "message": "Start access"
@@ -19130,7 +19138,7 @@
   "pamAuditIncomplete": {
     "message": "Incomplete"
   },
-  "pamAuditIncompleteTooltip": {
+  "pamAuditOutcomeUnconfirmedTooltip": {
     "message": "This action was recorded but its outcome was never confirmed. It may have failed or been interrupted."
   },
   "pamAuditKindRequestSubmitted": {
@@ -19214,7 +19222,7 @@
   "pamAccessRequestLoadError": {
     "message": "Couldn't load this access request."
   },
-  "pamActiveLeaseBannerTitle": {
+  "pamActiveLeaseBannerRemainingTitle": {
     "message": "You have active access to this item: $DURATION$ remaining",
     "placeholders": {
       "duration": {
@@ -19223,7 +19231,7 @@
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
+  "pamActiveLeaseBannerEndingSoonRemainingTitle": {
     "message": "Access to this item is ending soon: $DURATION$ remaining",
     "placeholders": {
       "duration": {
@@ -19458,34 +19466,17 @@
   "requestAccessModalRequestCreatedSuccess": {
     "message": "Request submitted — awaiting approval."
   },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "No active access"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Collection"
-  },
-  "pamApprovalsSharedFolderFilter": {
-    "message": "Shared folder",
-    "description": "VFO1 terminology feature flag variant of pamApprovalsCollectionFilter"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "No requests waiting for your decision"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Pending approval"
-  },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
+  "pamApprovalsApproveRequest": {
+    "message": "Approve request"
   },
-  "pamApprovalsSearchPlaceholderSharedFolder": {
-    "message": "Search credential, shared folder, requester",
-    "description": "VFO1 terminology feature flag variant of pamApprovalsSearchPlaceholder"
+  "pamApprovalsDenyRequest": {
+    "message": "Deny request"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Revoke access"
   },
   "pamDecideAdditionalInformation": {
     "message": "Additional information"
@@ -19592,10 +19583,7 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Could not withdraw approval"
   },
-  "pamInboxWindow": {
-    "message": "Requested window"
-  },
-  "pamApprovalsNoResults": {
+  "pamAccessRequestsNoResults": {
     "message": "No access requests match your filters."
   },
   "pamApprovalsLoaded": {
@@ -20660,7 +20648,7 @@
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
   },
-  "pamRotationConfigRotateNowDisabledTitle": {
+  "pamRotationConfigRotateNowUnavailableTitle": {
     "message": "Cannot rotate now. The rotation is disabled, paused, or already in progress."
   },
   "pamRotationConfigRotateNowUnavailableTitle": {

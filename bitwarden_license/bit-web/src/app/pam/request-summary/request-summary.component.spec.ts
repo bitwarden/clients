@@ -17,7 +17,7 @@ import { RequestSummaryComponent } from "./request-summary.component";
       [collectionName]="collectionName()"
       [requesterName]="requesterName()"
       [requesterEmail]="requesterEmail()"
-      [duration]="{ key: 'pamInboxDuration1Hour', value: null }"
+      duration="1 hour"
       [relativeStart]="{ key: 'pamInboxStartTomorrow', value: null }"
       [reason]="reason()"
     >
@@ -106,7 +106,7 @@ describe("RequestSummaryComponent", () => {
 
   it("joins the window's duration and start into one requested-access line", () => {
     expect(fieldValue("pam-request-summary_value_access-requested")).toBe(
-      "pamInboxDuration1Hour, pamInboxStartTomorrow",
+      "1 hour, pamInboxStartTomorrow",
     );
   });
 
