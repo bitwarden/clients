@@ -1,12 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, inject, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { ServerSelectorComponent } from "@bitwarden/angular/auth/server-selector";
+import { ServerSelectionService } from "@bitwarden/angular/auth/server-selection";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
@@ -26,9 +26,12 @@ import {
   ButtonModule,
   CheckboxModule,
   FormFieldModule,
+  IconModule,
   SvgModule,
   LinkModule,
+  MenuModule,
 } from "@bitwarden/components";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { LoginEmailService } from "../../../common";
 
@@ -51,6 +54,7 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
 @Component({
   selector: "auth-registration-start",
   templateUrl: "./registration-start.component.html",
+  providers: [safeProvider(ServerSelectionService)],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -61,7 +65,8 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
     ButtonModule,
     LinkModule,
     SvgModule,
-    ServerSelectorComponent,
+    IconModule,
+    MenuModule,
   ],
 })
 export class RegistrationStartComponent implements OnInit, OnDestroy {
@@ -98,6 +103,9 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  protected readonly serverSelection = inject(ServerSelectionService);
+  protected readonly Region = Region;
+
   constructor(
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
@@ -118,6 +126,12 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     this.registrationStartStateChange.emit(this.state);
 
     this.listenForQueryParamChanges();
+
+    if (!this.serverSelection.hidden) {
+      this.serverSelection.selectedServer$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((server) => this.handleSelectedRegionChange(server));
+    }
 
     /**
      * If the user has a login email, set the email field to the login email.
