@@ -1,0 +1,28 @@
+---
+paths:
+  - "**/*.stories.ts"
+---
+
+# Storybook: stories that show dates
+
+Chromatic flags anything built from the real clock as a diff on every run.
+
+- Build story dates from a fixed constant, never `Date.now()` or `new Date()`:
+
+  ```ts
+  const STORY_NOW = new Date("2026-08-17T12:00:00.000Z");
+  const daysAgo = (days: number) => new Date(STORY_NOW.getTime() - days * DAY);
+  ```
+
+- If the component reads `Date.now()` itself (history windows, countdowns, "x minutes ago"), set
+  `beforeEach: startClockAtStoryNow` on the default `Meta` export. It moves the clock without
+  freezing it, because countdowns and rxjs debounces stall on a frozen clock.
+- You still need the constant after moving the clock. `args` and decorators are evaluated when the
+  module loads, before `beforeEach` runs, so `Date.now()` there still reads the real time.
+- Moving the clock doesn't change `new Date()` with no arguments, so output built from it still
+  drifts.
+- Relative output ("2h left") from `Date.now() + offset` is stable and needs neither.
+
+PAM defines these helpers (`STORY_NOW`, `startClockAtStoryNow`, and `liveFromNow` for offsets inside
+a ticking component) in `bitwarden_license/bit-web/src/app/pam/testing/story-fixtures.ts`. Other
+teams should copy them rather than import them.
