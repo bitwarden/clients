@@ -286,19 +286,18 @@ describe("UserLayoutComponent", () => {
       );
     });
 
-    it("renders Access requests inside Manage, after Trash and before Settings", () => {
+    it("renders Access requests first in Manage, directly above My folders", () => {
       organizations$.next([{ usePam: true }]);
       fixture.detectChanges();
 
       const text = navText();
       const manage = text.indexOf("manage");
-      const trash = text.indexOf("trash");
-      const accessRequests = text.indexOf("pamAccessRequestsTitle");
-      const settings = text.indexOf("settings");
 
-      expect(accessRequests).toBeGreaterThan(manage);
-      expect(accessRequests).toBeGreaterThan(trash);
-      expect(accessRequests).toBeLessThan(settings);
+      expect(text.slice(manage, manage + 3)).toEqual([
+        "manage",
+        "pamAccessRequestsTitle",
+        "myFolders",
+      ]);
     });
 
     it("no longer renders Access requests above Tools", () => {
