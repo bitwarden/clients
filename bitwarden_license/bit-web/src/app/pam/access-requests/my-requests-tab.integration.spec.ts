@@ -11,7 +11,7 @@ import {
   AccessRefreshService,
   AccessRequestSdkService,
   AccessRequestView,
-} from "@bitwarden/bit-common/pam";
+} from "@bitwarden/bit-pam";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";

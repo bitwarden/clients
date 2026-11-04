@@ -4,10 +4,10 @@ import { firstValueFrom, NEVER, of, Subscription } from "rxjs";
 import type {
   AccessRequestId,
   CipherAccessStateView,
-} from "@bitwarden/bit-common/pam/abstractions/access-lease";
-import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
-import { AccessRequestCancelService } from "@bitwarden/bit-common/pam/services/access-request-cancel.service";
-import { DefaultAccessRefreshService } from "@bitwarden/bit-common/pam/services/default-access-refresh.service";
+} from "@bitwarden/bit-pam/abstractions/access-lease";
+import { AccessRequestSdkService } from "@bitwarden/bit-pam/abstractions/access-request-sdk.service";
+import { AccessRequestCancelService } from "@bitwarden/bit-pam/services/access-request-cancel.service";
+import { DefaultAccessRefreshService } from "@bitwarden/bit-pam/services/default-access-refresh.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 

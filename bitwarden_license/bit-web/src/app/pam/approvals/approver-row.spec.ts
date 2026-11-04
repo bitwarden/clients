@@ -1,7 +1,7 @@
 import type {
   AccessLeaseId,
   AccessRequestView,
-} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+} from "@bitwarden/bit-pam/abstractions/access-lease";
 
 import { emptyResolvedNames } from "../access-requests/access-name-resolver.service";
 
