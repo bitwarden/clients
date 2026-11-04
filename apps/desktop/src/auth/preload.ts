@@ -12,7 +12,13 @@ export default {
       buttonText,
     }),
   webauthn: {
-    getAssertion: (request: webauthn.AssertionRequest): Promise<webauthn.GetAssertionResult> =>
-      ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION, request),
+    /** `requestId` identifies the request to {@link cancel}. */
+    getAssertion: (
+      requestId: string,
+      request: webauthn.AssertionRequest,
+    ): Promise<webauthn.GetAssertionResult> =>
+      ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION, requestId, request),
+    cancel: (requestId: string): Promise<void> =>
+      ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.CANCEL, requestId),
   },
 };

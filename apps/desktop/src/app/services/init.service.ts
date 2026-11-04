@@ -81,7 +81,7 @@ export class InitService {
       // Electron does not use the platform's passkey APIs, so route WebAuthn requests to them.
       // Only Windows is implemented so far.
       if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-        installNativeWebAuthn(this.win, ipc.auth.webauthn.getAssertion);
+        installNativeWebAuthn(this.win, ipc.auth.webauthn);
       }
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();

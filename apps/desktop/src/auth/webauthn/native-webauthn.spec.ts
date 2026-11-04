@@ -1,6 +1,8 @@
+import { mock, MockProxy } from "jest-mock-extended";
+
 import type { webauthn } from "@bitwarden/desktop-napi";
 
-import { installNativeWebAuthn } from "./native-webauthn";
+import { installNativeWebAuthn, NativeWebAuthnIpc } from "./native-webauthn";
 
 // jsdom does not implement WebAuthn, so provide the classes that the credential is created from.
 class FakePublicKeyCredential {}
@@ -10,7 +12,7 @@ class FakeAuthenticatorAssertionResponse {}
 
 describe("installNativeWebAuthn", () => {
   let originalGet: jest.Mock;
-  let getAssertion: jest.Mock<Promise<webauthn.GetAssertionResult>, [webauthn.AssertionRequest]>;
+  let ipc: MockProxy<NativeWebAuthnIpc>;
   let credentials: CredentialsContainer;
 
   const assertion: webauthn.AssertionResponse = {
@@ -31,17 +33,18 @@ describe("installNativeWebAuthn", () => {
 
   beforeEach(() => {
     originalGet = jest.fn().mockResolvedValue("original");
-    getAssertion = jest.fn().mockResolvedValue({ response: assertion });
+    ipc = mock<NativeWebAuthnIpc>();
+    ipc.getAssertion.mockResolvedValue({ response: assertion });
     credentials = { get: originalGet } as unknown as CredentialsContainer;
     const win = { navigator: { credentials } } as unknown as Window;
-    installNativeWebAuthn(win, getAssertion);
+    installNativeWebAuthn(win, ipc);
   });
 
   it("passes through requests that are not for public key credentials", async () => {
     const result = await credentials.get({ password: true } as CredentialRequestOptions);
 
     expect(result).toBe("original");
-    expect(getAssertion).not.toHaveBeenCalled();
+    expect(ipc.getAssertion).not.toHaveBeenCalled();
   });
 
   it("converts the request options", async () => {
@@ -59,7 +62,7 @@ describe("installNativeWebAuthn", () => {
       }),
     });
 
-    expect(getAssertion).toHaveBeenCalledWith({
+    expect(ipc.getAssertion).toHaveBeenCalledWith(expect.any(String), {
       rpId: "example.com",
       challenge: new Uint8Array([1, 2]),
       allowCredentials: [{ id: new Uint8Array([1]), transports: ["internal"] }],
@@ -101,7 +104,7 @@ describe("installNativeWebAuthn", () => {
   });
 
   it("returns an empty PRF result when PRF was requested but no results were returned", async () => {
-    getAssertion.mockResolvedValue({ response: { ...assertion, prf: undefined } });
+    ipc.getAssertion.mockResolvedValue({ response: { ...assertion, prf: undefined } });
 
     const credential = (await credentials.get({
       publicKey: publicKey({
@@ -135,11 +138,36 @@ describe("installNativeWebAuthn", () => {
   });
 
   it("throws the platform error as a DOMException", async () => {
-    getAssertion.mockResolvedValue({ error: { name: "NotAllowedError", message: "Cancelled" } });
+    ipc.getAssertion.mockResolvedValue({
+      error: { name: "NotAllowedError", message: "Cancelled" },
+    });
 
     const result = credentials.get({ publicKey: publicKey() });
 
     await expect(result).rejects.toThrow(DOMException);
     await expect(result).rejects.toMatchObject({ name: "NotAllowedError", message: "Cancelled" });
+  });
+
+  it("rejects with the abort reason without a request if the signal is already aborted", async () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(
+      credentials.get({ publicKey: publicKey(), signal: controller.signal }),
+    ).rejects.toMatchObject({ name: "AbortError" });
+    expect(ipc.getAssertion).not.toHaveBeenCalled();
+  });
+
+  it("cancels the request and rejects with the abort reason when the signal is aborted", async () => {
+    ipc.getAssertion.mockReturnValue(new Promise(() => {}));
+    const controller = new AbortController();
+    const reason = new DOMException("Stop", "AbortError");
+
+    const result = credentials.get({ publicKey: publicKey(), signal: controller.signal });
+    controller.abort(reason);
+
+    await expect(result).rejects.toBe(reason);
+    const requestId = ipc.getAssertion.mock.calls[0][0];
+    expect(ipc.cancel).toHaveBeenCalledWith(requestId);
   });
 });

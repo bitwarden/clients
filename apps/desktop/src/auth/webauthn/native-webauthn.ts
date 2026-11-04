@@ -1,7 +1,14 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import type { webauthn } from "@bitwarden/desktop-napi";
 
-type GetAssertion = (request: webauthn.AssertionRequest) => Promise<webauthn.GetAssertionResult>;
+/** The WebAuthn methods exposed to the renderer by the preload script. */
+export type NativeWebAuthnIpc = {
+  getAssertion(
+    requestId: string,
+    request: webauthn.AssertionRequest,
+  ): Promise<webauthn.GetAssertionResult>;
+  cancel(requestId: string): Promise<void>;
+};
 
 /** The subset of the PRF extension inputs that is supported. */
 type PrfExtensionInputs = {
@@ -12,11 +19,13 @@ type PrfExtensionInputs = {
  * Replaces `navigator.credentials.get()` for public key credentials with the platform's passkey
  * APIs, which Electron does not use. Other credential requests are passed through.
  *
+ * Aborting the request's `signal` closes the platform's prompt.
+ *
  * Returned credentials pass `instanceof PublicKeyCredential` and
  * `instanceof AuthenticatorAssertionResponse` checks, but are plain objects: their members are own
  * properties rather than the native implementations.
  */
-export function installNativeWebAuthn(win: Window, getAssertion: GetAssertion): void {
+export function installNativeWebAuthn(win: Window, ipc: NativeWebAuthnIpc): void {
   const credentials = win.navigator.credentials;
   const originalGet = credentials.get.bind(credentials);
   Object.defineProperty(credentials, "get", {
@@ -26,8 +35,18 @@ export function installNativeWebAuthn(win: Window, getAssertion: GetAssertion): 
         return originalGet(options);
       }
 
+      const signal = options.signal;
+      if (signal?.aborted) {
+        throw abortReason(signal);
+      }
+
       const prf = (options.publicKey.extensions as { prf?: PrfExtensionInputs } | undefined)?.prf;
-      const result = await getAssertion(toAssertionRequest(options.publicKey, prf));
+      const requestId = Utils.newGuid();
+      const result = await rejectOnAbort(
+        ipc.getAssertion(requestId, toAssertionRequest(options.publicKey, prf)),
+        signal,
+        () => void ipc.cancel(requestId),
+      );
       if (result.error != null) {
         throw new DOMException(result.error.message, result.error.name);
       }
@@ -37,6 +56,32 @@ export function installNativeWebAuthn(win: Window, getAssertion: GetAssertion): 
       return toPublicKeyCredential(result.response, prf != null);
     },
   });
+}
+
+/**
+ * Rejects with the abort reason as soon as `signal` is aborted, as WebAuthn requires, rather than
+ * waiting for `promise` to settle.
+ */
+function rejectOnAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal | undefined,
+  onAbort: () => void,
+): Promise<T> {
+  if (signal == null) {
+    return promise;
+  }
+  return new Promise<T>((resolve, reject) => {
+    const abort = () => {
+      onAbort();
+      reject(abortReason(signal));
+    };
+    signal.addEventListener("abort", abort, { once: true });
+    promise.then(resolve, reject).finally(() => signal.removeEventListener("abort", abort));
+  });
+}
+
+function abortReason(signal: AbortSignal): unknown {
+  return signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
 }
 
 function toAssertionRequest(
