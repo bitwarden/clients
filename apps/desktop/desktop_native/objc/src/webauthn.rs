@@ -5,8 +5,10 @@ use std::{
     ffi::{c_char, c_void, CStr, CString},
     ptr::{self, NonNull},
     slice,
-    sync::{mpsc, Arc},
+    sync::mpsc,
 };
+
+use crate::operation::{Operation, OperationCanceller};
 
 /// A request for an assertion.
 pub struct AssertionRequest<'a> {
@@ -121,13 +123,14 @@ pub mod as_authorization_error {
 
 /// An assertion in progress.
 pub struct PendingAssertion {
-    canceller: AssertionCanceller,
+    canceller: OperationCanceller,
     rx: mpsc::Receiver<Result<AssertionResponse, AssertionError>>,
 }
 
 impl PendingAssertion {
-    /// Returns a handle that cancels the assertion from any thread.
-    pub fn canceller(&self) -> AssertionCanceller {
+    /// Returns a handle that cancels the assertion from any thread. The assertion fails with
+    /// [as_authorization_error::CANCELED].
+    pub fn canceller(&self) -> OperationCanceller {
         self.canceller.clone()
     }
 
@@ -139,32 +142,6 @@ impl PendingAssertion {
                 "The assertion completed without a result".to_string(),
             ))
         })
-    }
-}
-
-/// Cancels a [PendingAssertion].
-#[derive(Clone)]
-pub struct AssertionCanceller(Arc<Operation>);
-
-impl AssertionCanceller {
-    /// Closes the system's prompt, if it is still open. The assertion fails with
-    /// [as_authorization_error::CANCELED].
-    pub fn cancel(&self) {
-        // SAFETY: The operation is valid until it is released in Operation's Drop.
-        unsafe { ffi::webauthnCancelOperation(self.0 .0.as_ptr()) };
-    }
-}
-
-struct Operation(NonNull<c_void>);
-
-// SAFETY: The Objective-C operation may be cancelled and released from any thread.
-unsafe impl Send for Operation {}
-unsafe impl Sync for Operation {}
-
-impl Drop for Operation {
-    fn drop(&mut self) {
-        // SAFETY: The operation was returned by webauthnGetAssertion and is released only once.
-        unsafe { ffi::webauthnReleaseOperation(self.0.as_ptr()) };
     }
 }
 
@@ -232,7 +209,15 @@ pub unsafe fn get_assertion(
     })?;
 
     Ok(PendingAssertion {
-        canceller: AssertionCanceller(Arc::new(Operation(operation))),
+        // SAFETY: webauthnCancelOperation and webauthnReleaseOperation accept the operation from
+        // any thread until it is released.
+        canceller: OperationCanceller::new(unsafe {
+            Operation::new(
+                operation,
+                ffi::webauthnCancelOperation,
+                ffi::webauthnReleaseOperation,
+            )
+        }),
         rx,
     })
 }

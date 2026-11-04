@@ -62,14 +62,27 @@ pub mod webauthn {
         pub message: String,
     }
 
-    /// Exactly one of `response` and `error` is set.
+    /// Exactly one of `response`, `error` and `requiresBrowser` is set.
     #[napi(object)]
     pub struct GetAssertionResult {
         pub response: Option<AssertionResponse>,
         pub error: Option<WebAuthnError>,
+        /// Set when the platform's passkey APIs can't be used for the request, e.g. because the
+        /// RP ID is not in the app's associated domains on macOS. Retry it in a browser with
+        /// `webAuthenticationSession`.
+        pub requires_browser: Option<bool>,
     }
 
-    /// Cancels a single `getAssertion` call.
+    /// The result of a `webAuthenticationSession` call. Exactly one of `callbackUrl` and `error`
+    /// is set.
+    #[napi(object)]
+    pub struct WebAuthenticationSessionResult {
+        /// The URL the page navigated to, which ended the session.
+        pub callback_url: Option<String>,
+        pub error: Option<WebAuthnError>,
+    }
+
+    /// Cancels a single `getAssertion` or `webAuthenticationSession` call.
     #[napi]
     pub struct AssertionCancellation {
         inner: core::Cancellation,
@@ -84,7 +97,7 @@ pub mod webauthn {
             Ok(Self { inner })
         }
 
-        /// Closes the platform's prompt. The call returns an `AbortError`.
+        /// Closes the platform's prompt or browser session. The call returns an `AbortError`.
         #[napi]
         pub fn cancel(&self) {
             self.inner.cancel();
@@ -115,9 +128,60 @@ pub mod webauthn {
             Ok(response) => GetAssertionResult {
                 response: Some(napi_response(response)),
                 error: None,
+                requires_browser: None,
+            },
+            Err(core::Error::RequiresBrowser(_)) => GetAssertionResult {
+                response: None,
+                error: None,
+                requires_browser: Some(true),
             },
             Err(err) => GetAssertionResult {
                 response: None,
+                error: Some(WebAuthnError {
+                    name: err.dom_error_name().to_string(),
+                    message: err.to_string(),
+                }),
+                requires_browser: None,
+            },
+        })
+    }
+
+    /// Whether the platform's passkey APIs can't be used for the RP ID, so the assertion must be
+    /// made in a browser with `webAuthenticationSession` instead of with `getAssertion`. On macOS,
+    /// the passkey APIs can only be used for relying parties in the app's associated domains.
+    #[napi]
+    pub fn requires_browser(rp_id: String) -> bool {
+        core::requires_browser(&rp_id)
+    }
+
+    /// Opens `url` in a browser session presented from the window, and resolves with the URL
+    /// that the page navigates to with the scheme `callbackScheme`, which ends the session. Only
+    /// this caller receives that URL, rather than the app's URL scheme handler. The session does
+    /// not share cookies or other browsing data with the user's browser.
+    ///
+    /// Only implemented on macOS. Failures, including the user closing the session, are returned
+    /// in `WebAuthenticationSessionResult.error` rather than thrown.
+    #[napi]
+    pub async fn web_authentication_session(
+        window_handle: Uint8Array,
+        url: String,
+        callback_scheme: String,
+        cancellation: &AssertionCancellation,
+    ) -> napi::Result<WebAuthenticationSessionResult> {
+        let window_handle = window_handle.to_vec();
+        let cancellation = cancellation.inner.clone();
+        let result = tokio::task::spawn_blocking(move || {
+            core::web_authentication_session(&window_handle, &url, &callback_scheme, &cancellation)
+        })
+        .await
+        .map_err(|err| napi::Error::from_reason(format!("WebAuthn task failed: {err}")))?;
+        Ok(match result {
+            Ok(callback_url) => WebAuthenticationSessionResult {
+                callback_url: Some(callback_url),
+                error: None,
+            },
+            Err(err) => WebAuthenticationSessionResult {
+                callback_url: None,
                 error: Some(WebAuthnError {
                     name: err.dom_error_name().to_string(),
                     message: err.to_string(),

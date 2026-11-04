@@ -7,7 +7,11 @@ use std::{
 
 use anyhow::{Context, Result};
 
+mod operation;
+pub mod web_authentication_session;
 pub mod webauthn;
+
+pub use operation::OperationCanceller;
 
 #[repr(C)]
 pub struct ObjCString {

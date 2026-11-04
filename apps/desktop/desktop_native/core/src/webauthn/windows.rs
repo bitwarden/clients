@@ -130,6 +130,20 @@ pub(super) fn get_assertion(
     })
 }
 
+/// The passkey APIs on Windows work for any relying party.
+pub(super) fn requires_browser(_rp_id: &str) -> bool {
+    false
+}
+
+pub(super) fn web_authentication_session(
+    _window_handle: &[u8],
+    _url: &str,
+    _callback_scheme: &str,
+    _cancellation: &Cancellation,
+) -> Result<String, Error> {
+    Err(Error::NotImplemented)
+}
+
 /// Converts the buffer from Electron's `getNativeWindowHandle()`, which holds an `HWND` in
 /// native byte order.
 fn parse_window_handle(window_handle: &[u8]) -> Result<HWND, Error> {

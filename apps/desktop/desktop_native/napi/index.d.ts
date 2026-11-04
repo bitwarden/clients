@@ -486,10 +486,10 @@ export declare namespace sshagent {
 }
 
 export declare namespace webauthn {
-  /** Cancels a single `getAssertion` call. */
+  /** Cancels a single `getAssertion` or `webAuthenticationSession` call. */
   export class AssertionCancellation {
     constructor()
-    /** Closes the platform's prompt. The call returns an `AbortError`. */
+    /** Closes the platform's prompt or browser session. The call returns an `AbortError`. */
     cancel(): void
   }
   /**
@@ -540,15 +540,46 @@ export declare namespace webauthn {
    * preserved.
    */
   export function getAssertion(windowHandle: Uint8Array, request: AssertionRequest, cancellation: AssertionCancellation): Promise<GetAssertionResult>
-  /** Exactly one of `response` and `error` is set. */
+  /** Exactly one of `response`, `error` and `requiresBrowser` is set. */
   export interface GetAssertionResult {
     response?: AssertionResponse
     error?: WebAuthnError
+    /**
+     * Set when the platform's passkey APIs can't be used for the request, e.g. because the
+     * RP ID is not in the app's associated domains on macOS. Retry it in a browser with
+     * `webAuthenticationSession`.
+     */
+    requiresBrowser?: boolean
   }
   /** PRF extension inputs or outputs. These are secrets and must not be logged. */
   export interface PrfValues {
     first: Uint8Array
     second?: Uint8Array
+  }
+  /**
+   * Whether the platform's passkey APIs can't be used for the RP ID, so the assertion must be
+   * made in a browser with `webAuthenticationSession` instead of with `getAssertion`. On macOS,
+   * the passkey APIs can only be used for relying parties in the app's associated domains.
+   */
+  export function requiresBrowser(rpId: string): boolean
+  /**
+   * Opens `url` in a browser session presented from the window, and resolves with the URL
+   * that the page navigates to with the scheme `callbackScheme`, which ends the session. Only
+   * this caller receives that URL, rather than the app's URL scheme handler. The session does
+   * not share cookies or other browsing data with the user's browser.
+   *
+   * Only implemented on macOS. Failures, including the user closing the session, are returned
+   * in `WebAuthenticationSessionResult.error` rather than thrown.
+   */
+  export function webAuthenticationSession(windowHandle: Uint8Array, url: string, callbackScheme: string, cancellation: AssertionCancellation): Promise<WebAuthenticationSessionResult>
+  /**
+   * The result of a `webAuthenticationSession` call. Exactly one of `callbackUrl` and `error`
+   * is set.
+   */
+  export interface WebAuthenticationSessionResult {
+    /** The URL the page navigated to, which ended the session. */
+    callbackUrl?: string
+    error?: WebAuthnError
   }
   /** An error to be thrown as a `DOMException` with this name and message. */
   export interface WebAuthnError {

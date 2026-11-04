@@ -140,6 +140,12 @@ pub enum Error {
     #[error("The WebAuthn request was cancelled")]
     Cancelled,
 
+    /// The platform's passkey APIs can't be used for the request, e.g. because the RP ID is not in
+    /// the app's associated domains on macOS. Retry it in a browser with
+    /// [web_authentication_session].
+    #[error("{0}")]
+    RequiresBrowser(String),
+
     /// The platform rejected or failed the operation, including when the user cancels it.
     #[error("{message}")]
     Platform {
@@ -158,6 +164,7 @@ impl Error {
             Self::NotImplemented => "NotSupportedError",
             Self::InvalidRequest(_) => "SyntaxError",
             Self::Cancelled => "AbortError",
+            Self::RequiresBrowser(_) => "NotAllowedError",
             Self::Platform { dom_error_name, .. } => {
                 dom_error_name.as_deref().unwrap_or("UnknownError")
             }
@@ -165,7 +172,8 @@ impl Error {
     }
 }
 
-/// Cancels an in-progress [get_assertion] call from another thread.
+/// Cancels an in-progress [get_assertion] or [web_authentication_session] call from another
+/// thread.
 ///
 /// If this is cancelled before the call starts, the call returns [Error::Cancelled] without
 /// showing a prompt. A cancellation in the short window after the call starts, but before the
@@ -174,12 +182,12 @@ impl Error {
 pub struct Cancellation(platform::Cancellation);
 
 impl Cancellation {
-    /// Creates a cancellation for a single [get_assertion] call.
+    /// Creates a cancellation for a single [get_assertion] or [web_authentication_session] call.
     pub fn new() -> Result<Self, Error> {
         platform::Cancellation::new().map(Self)
     }
 
-    /// Cancels the call. The platform's prompt is closed, and the call returns
+    /// Cancels the call. The platform's prompt or browser is closed, and the call returns
     /// [Error::Cancelled].
     pub fn cancel(&self) {
         self.0.cancel();
@@ -203,4 +211,36 @@ pub fn get_assertion(
     cancellation: &Cancellation,
 ) -> Result<AssertionResponse, Error> {
     platform::get_assertion(window_handle, request, &cancellation.0)
+}
+
+/// Whether the platform's passkey APIs can't be used for `rp_id`, so the assertion must be made in
+/// a browser with [web_authentication_session] instead of with [get_assertion].
+///
+/// On macOS, the passkey APIs can only be used for relying parties in the app's associated domains.
+pub fn requires_browser(rp_id: &str) -> bool {
+    platform::requires_browser(rp_id)
+}
+
+/// Opens `url` in a browser session and returns the URL that the page navigates to with the
+/// scheme `callback_scheme`, which ends the session. Only this caller receives that URL, rather
+/// than the app's URL scheme handler. The session does not share cookies or other browsing data
+/// with the user's browser.
+///
+/// Presents the session from `window_handle`, and blocks until the page completes, the user
+/// dismisses it, or it is cancelled with `cancellation`. Run this on a thread that may block.
+///
+/// Only implemented on macOS, with `ASWebAuthenticationSession`.
+///
+/// # Arguments
+/// - `window_handle`: As for [get_assertion].
+/// - `url`: An `https` or `http` URL.
+/// - `callback_scheme`: The scheme, without `:`, that ends the session.
+/// - `cancellation`: Can be used to cancel the call from another thread.
+pub fn web_authentication_session(
+    window_handle: &[u8],
+    url: &str,
+    callback_scheme: &str,
+    cancellation: &Cancellation,
+) -> Result<String, Error> {
+    platform::web_authentication_session(window_handle, url, callback_scheme, &cancellation.0)
 }

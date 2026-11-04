@@ -4,9 +4,13 @@ use std::{
     sync::{Arc, Mutex, MutexGuard},
 };
 
-use desktop_objc::webauthn::{
-    self as objc, as_authorization_error, AssertionCanceller, AssertionError,
-    SecurityKeyTransports, AS_AUTHORIZATION_ERROR_DOMAIN,
+use desktop_objc::{
+    web_authentication_session::{self as web_session, SessionError},
+    webauthn::{
+        self as objc, as_authorization_error, AssertionError, SecurityKeyTransports,
+        AS_AUTHORIZATION_ERROR_DOMAIN,
+    },
+    OperationCanceller,
 };
 
 use super::{
@@ -22,7 +26,7 @@ struct CancellationState {
     /// Set when cancelled, so that a cancellation before the operation starts is not lost.
     cancelled: bool,
     /// Set while an operation is in progress.
-    canceller: Option<AssertionCanceller>,
+    canceller: Option<OperationCanceller>,
 }
 
 impl Cancellation {
@@ -36,6 +40,27 @@ impl Cancellation {
         if let Some(canceller) = state.canceller.take() {
             canceller.cancel();
         }
+    }
+
+    /// Starts an operation while holding the lock, so that a concurrent cancellation is either
+    /// seen here or cancels the started operation.
+    fn start<P>(
+        &self,
+        start: impl FnOnce() -> Result<P, Error>,
+        canceller: impl FnOnce(&P) -> OperationCanceller,
+    ) -> Result<P, Error> {
+        let mut state = self.lock();
+        if state.cancelled {
+            return Err(Error::Cancelled);
+        }
+        let pending = start()?;
+        state.canceller = Some(canceller(&pending));
+        Ok(pending)
+    }
+
+    /// Releases the operation once it has completed.
+    fn finish(&self) {
+        self.lock().canceller = None;
     }
 
     fn is_cancelled(&self) -> bool {
@@ -89,21 +114,13 @@ pub(super) fn get_assertion(
         app_id: request.app_id.as_deref(),
     };
 
-    let pending = {
-        // Start while holding the lock, so that a concurrent cancellation is either seen here or
-        // cancels the started operation.
-        let mut state = cancellation.lock();
-        if state.cancelled {
-            return Err(Error::Cancelled);
-        }
+    let pending = cancellation.start(
         // SAFETY: The caller passes the handle of an open window, which is an NSView pointer.
-        let pending =
-            unsafe { objc::get_assertion(view, &objc_request) }.map_err(platform_error)?;
-        state.canceller = Some(pending.canceller());
-        pending
-    };
+        || unsafe { objc::get_assertion(view, &objc_request) }.map_err(platform_error),
+        objc::PendingAssertion::canceller,
+    )?;
     let result = pending.wait();
-    cancellation.lock().canceller = None;
+    cancellation.finish();
     let assertion = result.map_err(|err| {
         if cancellation.is_cancelled() {
             Error::Cancelled
@@ -135,6 +152,60 @@ pub(super) fn get_assertion(
             second: prf.second,
         }),
         app_id_used: assertion.app_id_used,
+    })
+}
+
+pub(super) fn requires_browser(rp_id: &str) -> bool {
+    !is_associated_domain(rp_id, &web_session::web_credentials_associated_domains())
+}
+
+pub(super) fn web_authentication_session(
+    window_handle: &[u8],
+    url: &str,
+    callback_scheme: &str,
+    cancellation: &Cancellation,
+) -> Result<String, Error> {
+    let view = parse_window_handle(window_handle)?;
+    let pending = cancellation.start(
+        // SAFETY: The caller passes the handle of an open window, which is an NSView pointer.
+        // The session is ephemeral, so that nothing from it, such as the callback URL, is kept
+        // in the user's browser.
+        || unsafe { web_session::start(view, url, callback_scheme, true) }.map_err(session_error),
+        web_session::PendingSession::canceller,
+    )?;
+    let result = pending.wait();
+    cancellation.finish();
+    result.map_err(|err| {
+        if cancellation.is_cancelled() {
+            Error::Cancelled
+        } else {
+            session_error(err)
+        }
+    })
+}
+
+/// Whether the system allows the platform passkey APIs for `rp_id`, given the app's
+/// `webcredentials:` associated domains. The domain must also serve an
+/// `apple-app-site-association` file that lists the app, which is not checked.
+///
+/// A wildcard such as `*.example.com` is only treated as covering direct subdomains like
+/// `vault.example.com`. Treating a domain as uncovered only means that the browser is used.
+fn is_associated_domain(rp_id: &str, associated_domains: &[String]) -> bool {
+    let rp_id = rp_id.to_ascii_lowercase();
+    associated_domains.iter().any(|entry| {
+        // Strip a `?mode=developer` or `?mode=managed` suffix.
+        let domain = entry
+            .split('?')
+            .next()
+            .unwrap_or_default()
+            .to_ascii_lowercase();
+        match domain.strip_prefix("*.") {
+            Some(parent) => rp_id
+                .strip_suffix(parent)
+                .and_then(|subdomain| subdomain.strip_suffix('.'))
+                .is_some_and(|label| !label.is_empty() && !label.contains('.')),
+            None => rp_id == domain,
+        }
     })
 }
 
@@ -171,10 +242,8 @@ fn security_key_transports(transports: &[Transport]) -> SecurityKeyTransports {
 
 fn platform_error(err: AssertionError) -> Error {
     match err {
-        AssertionError::NotSupported(message) => Error::Platform {
-            message,
-            dom_error_name: Some("NotSupportedError".to_string()),
-        },
+        // macOS 12, which does not have the passkey APIs this uses.
+        AssertionError::NotSupported(message) => Error::RequiresBrowser(message),
         AssertionError::InvalidRequest(message) => Error::Platform {
             message,
             dom_error_name: Some("InvalidStateError".to_string()),
@@ -183,17 +252,23 @@ fn platform_error(err: AssertionError) -> Error {
             domain,
             code,
             message,
+        } if domain == AS_AUTHORIZATION_ERROR_DOMAIN && code == as_authorization_error::FAILED => {
+            // Adapted from MaybeLogUnconfiguredError in Electron's
+            // electron_platform_passkeys_authenticator_mac.mm.
+            tracing::warn!(
+                "Passkey request failed (ASAuthorizationError 1004), so it will be retried in a \
+                 browser. This usually means the app isn't signed with the associated-domains \
+                 entitlement, or the relying party's domain isn't serving a valid \
+                 .well-known/apple-app-site-association with a \"webcredentials\" entry for \
+                 this app."
+            );
+            Error::RequiresBrowser(format!("{message} ({domain} {code})"))
+        }
+        AssertionError::Authorization {
+            domain,
+            code,
+            message,
         } => {
-            if domain == AS_AUTHORIZATION_ERROR_DOMAIN && code == as_authorization_error::FAILED {
-                // Adapted from MaybeLogUnconfiguredError in Electron's
-                // electron_platform_passkeys_authenticator_mac.mm.
-                tracing::warn!(
-                    "Passkey request failed (ASAuthorizationError 1004). This usually means the \
-                     app isn't signed with the associated-domains entitlement, or the relying \
-                     party's domain isn't serving a valid .well-known/apple-app-site-association \
-                     with a \"webcredentials\" entry for this app."
-                );
-            }
             // As in browsers, every failure, including the user cancelling, is a NotAllowedError
             // so that RPs can't distinguish them.
             Error::Platform {
@@ -201,6 +276,23 @@ fn platform_error(err: AssertionError) -> Error {
                 dom_error_name: Some("NotAllowedError".to_string()),
             }
         }
+    }
+}
+
+fn session_error(err: SessionError) -> Error {
+    match err {
+        SessionError::InvalidRequest(message) => Error::Platform {
+            message,
+            dom_error_name: Some("InvalidStateError".to_string()),
+        },
+        SessionError::Session {
+            domain,
+            code,
+            message,
+        } => Error::Platform {
+            message: format!("{message} ({domain} {code})"),
+            dom_error_name: Some("NotAllowedError".to_string()),
+        },
     }
 }
 
@@ -222,6 +314,41 @@ mod tests {
     #[test]
     fn test_parse_window_handle_rejects_null() {
         assert!(parse_window_handle(&0usize.to_ne_bytes()).is_err());
+    }
+
+    #[test]
+    fn test_is_associated_domain() {
+        let domains = [
+            "example.com".to_string(),
+            "*.example.com".to_string(),
+            "dev.test?mode=developer".to_string(),
+        ];
+        for rp_id in [
+            "example.com",
+            "vault.example.com",
+            "Vault.Example.com",
+            "dev.test",
+        ] {
+            assert!(is_associated_domain(rp_id, &domains), "{rp_id}");
+        }
+        for rp_id in [
+            "a.vault.example.com",
+            "notexample.com",
+            "example.com.evil.com",
+            "test",
+            "vault.dev.test",
+            "",
+        ] {
+            assert!(!is_associated_domain(rp_id, &domains), "{rp_id}");
+        }
+    }
+
+    #[test]
+    fn test_wildcard_does_not_cover_parent_domain() {
+        assert!(!is_associated_domain(
+            "example.com",
+            &["*.example.com".to_string()]
+        ));
     }
 
     #[test]
