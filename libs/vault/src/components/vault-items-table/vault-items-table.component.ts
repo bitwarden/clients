@@ -90,6 +90,7 @@ import {
   VaultItemFilter,
   VaultItemFilterOption,
 } from "../../tokens/vault-item-filter.token";
+import { isRowActivationClick } from "../../utils/row-activation";
 import { sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
@@ -423,45 +424,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly selectedChange = output<readonly C[]>();
 
   /**
-   * Elements that own their own click behaviour. A click originating inside one of these must not
-   * also trigger the cell-level item action.
-   */
-  private static readonly InteractiveSelector = [
-    "a[href]",
-    "button",
-    "input",
-    "label",
-    "select",
-    "textarea",
-    "[role='button']",
-    "[role='menuitem']",
-    "[role='checkbox']",
-  ].join(",");
-
-  /**
    * Makes a whole data cell a click target for {@link itemAction}. Pointer-only — the keyboard and
    * assistive-tech path stays the name button, and nothing here enters the accessibility tree.
    */
   protected onCellActivate(row: C, event: MouseEvent) {
     const action = this.itemAction();
-    if (action == null) {
-      return;
-    }
-
-    // Plain primary click only — modifier clicks stay available for selection and browser gestures.
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
-      return;
-    }
-
-    // Let interactive descendants (name button, filter chips, quick actions, menu) win.
-    const target = event.target as HTMLElement | null;
-    if (target?.closest(VaultItemsTableComponent.InteractiveSelector) != null) {
-      return;
-    }
-
-    // Don't hijack a click that is finishing a text selection.
-    const selection = window.getSelection();
-    if (selection != null && !selection.isCollapsed && selection.toString().trim().length > 0) {
+    if (action == null || !isRowActivationClick(event)) {
       return;
     }
 
