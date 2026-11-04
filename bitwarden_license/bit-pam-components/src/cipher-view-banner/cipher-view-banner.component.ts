@@ -806,11 +806,13 @@ export class CipherViewBannerComponent implements OnInit {
    */
   protected readonly extendLease = async (): Promise<void> => {
     const lease = this.activeLease();
-    if (lease == null) {
+    // The server sends a cap whenever extensions are allowed.
+    const maxDurationSeconds = this.state()?.maxExtensionDurationSeconds;
+    if (lease == null || maxDurationSeconds == null) {
       return;
     }
     const request = await firstValueFrom(
-      ExtendLeaseDialogComponent.open(this.dialogService).closed,
+      ExtendLeaseDialogComponent.open(this.dialogService, { maxDurationSeconds }).closed,
     );
     if (request == null) {
       return;

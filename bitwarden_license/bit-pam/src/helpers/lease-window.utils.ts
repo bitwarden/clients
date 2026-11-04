@@ -68,7 +68,7 @@ export function requestDurationOptions(
   return [...options.values()].sort((a, b) => a.seconds - b.seconds);
 }
 
-/** Admin-selectable maximum extension lengths, in seconds. */
+/** Extension lengths, in seconds: the choices for a rule's cap, and a requester's up to the cap. */
 export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
   { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
   { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
@@ -79,6 +79,20 @@ export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelK
 
 /** Default maximum extension length offered when a rule first enables extensions (1h). */
 export const DEFAULT_MAX_EXTENSION_DURATION_SECONDS = 60 * 60;
+
+/**
+ * The extension presets up to the rule's cap, plus the cap itself when no preset matches it, so the
+ * picker offers only lengths the server accepts and is never empty.
+ */
+export function extensionDurationOptions(maxSeconds: number): RequestDurationOption[] {
+  const options: RequestDurationOption[] = EXTENSION_DURATION_OPTIONS.filter(
+    (preset) => preset.seconds <= maxSeconds,
+  );
+  if (!options.some((option) => option.seconds === maxSeconds)) {
+    options.push({ seconds: maxSeconds });
+  }
+  return options;
+}
 
 /**
  * Snaps to the nearest option, so a value persisted outside the set still renders. Assumes a
