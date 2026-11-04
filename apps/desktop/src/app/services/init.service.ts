@@ -9,6 +9,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,6 +26,7 @@ import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto
 import { limitPerformanceMeasurements, LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
+import { installNativeWebAuthn } from "../../auth/webauthn/native-webauthn";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -76,6 +78,11 @@ export class InitService {
   init() {
     return async () => {
       limitPerformanceMeasurements();
+      // Electron does not use the platform's passkey APIs, so route WebAuthn requests to them.
+      // Only Windows is implemented so far.
+      if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
+        installNativeWebAuthn(this.win, ipc.auth.webauthn.getAssertion);
+      }
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);

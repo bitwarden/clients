@@ -48,6 +48,7 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
+import { MainWebAuthnIpcListener } from "./auth/webauthn/main-webauthn-ipc.listener";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
@@ -94,6 +95,7 @@ export class Main {
   govModeService: DefaultGovModeService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
+  mainWebAuthnIpcListener: MainWebAuthnIpcListener;
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: NodeCryptoFunctionService;
   migrationRunner: MigrationRunner;
@@ -339,6 +341,7 @@ export class Main {
       this.biometricsService,
       this.logService,
     );
+    this.mainWebAuthnIpcListener = new MainWebAuthnIpcListener(this.windowMain, this.logService);
 
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(stateProvider);
 
@@ -398,6 +401,7 @@ export class Main {
   bootstrap() {
     this.desktopCredentialStorageListener.init();
     this.mainBiometricsIpcListener.init();
+    this.mainWebAuthnIpcListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {

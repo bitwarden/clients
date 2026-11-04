@@ -1,0 +1,161 @@
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import type { webauthn } from "@bitwarden/desktop-napi";
+
+type GetAssertion = (request: webauthn.AssertionRequest) => Promise<webauthn.GetAssertionResult>;
+
+/** The subset of the PRF extension inputs that is supported. */
+type PrfExtensionInputs = {
+  eval?: { first: BufferSource; second?: BufferSource };
+};
+
+/**
+ * Replaces `navigator.credentials.get()` for public key credentials with the platform's passkey
+ * APIs, which Electron does not use. Other credential requests are passed through.
+ *
+ * Returned credentials pass `instanceof PublicKeyCredential` and
+ * `instanceof AuthenticatorAssertionResponse` checks, but are plain objects: their members are own
+ * properties rather than the native implementations.
+ */
+export function installNativeWebAuthn(win: Window, getAssertion: GetAssertion): void {
+  const credentials = win.navigator.credentials;
+  const originalGet = credentials.get.bind(credentials);
+  Object.defineProperty(credentials, "get", {
+    configurable: true,
+    value: async (options?: CredentialRequestOptions): Promise<Credential | null> => {
+      if (options?.publicKey == null) {
+        return originalGet(options);
+      }
+
+      const prf = (options.publicKey.extensions as { prf?: PrfExtensionInputs } | undefined)?.prf;
+      const result = await getAssertion(toAssertionRequest(options.publicKey, prf));
+      if (result.error != null) {
+        throw new DOMException(result.error.message, result.error.name);
+      }
+      if (result.response == null) {
+        throw new DOMException("No assertion was returned.", "UnknownError");
+      }
+      return toPublicKeyCredential(result.response, prf != null);
+    },
+  });
+}
+
+function toAssertionRequest(
+  options: PublicKeyCredentialRequestOptions,
+  prf: PrfExtensionInputs | undefined,
+): webauthn.AssertionRequest {
+  return {
+    // The native module rejects an RP ID that is not a valid domain.
+    rpId: options.rpId ?? "",
+    challenge: toBytes(options.challenge),
+    allowCredentials: (options.allowCredentials ?? []).map((c) => ({
+      id: toBytes(c.id),
+      transports: c.transports,
+    })),
+    userVerification: options.userVerification,
+    timeout: options.timeout,
+    prf:
+      prf?.eval == null
+        ? undefined
+        : {
+            first: toBytes(prf.eval.first),
+            second: prf.eval.second == null ? undefined : toBytes(prf.eval.second),
+          },
+  };
+}
+
+function toPublicKeyCredential(
+  assertion: webauthn.AssertionResponse,
+  prfRequested: boolean,
+): PublicKeyCredential {
+  const clientDataJSON = toArrayBuffer(assertion.clientDataJson);
+  const authenticatorData = toArrayBuffer(assertion.authenticatorData);
+  const signature = toArrayBuffer(assertion.signature);
+  const userHandle = assertion.userHandle == null ? null : toArrayBuffer(assertion.userHandle);
+  const response: AuthenticatorAssertionResponse = Object.create(
+    AuthenticatorAssertionResponse.prototype,
+  );
+  defineValues(response, { clientDataJSON, authenticatorData, signature, userHandle });
+
+  const clientExtensionResults: AuthenticationExtensionsClientOutputs = {};
+  if (prfRequested) {
+    (clientExtensionResults as { prf: unknown }).prf =
+      assertion.prf == null
+        ? {}
+        : {
+            results: {
+              first: toArrayBuffer(assertion.prf.first),
+              second:
+                assertion.prf.second == null ? undefined : toArrayBuffer(assertion.prf.second),
+            },
+          };
+  }
+
+  const rawId = toArrayBuffer(assertion.credentialId);
+  const id = Utils.fromBufferToUrlB64(rawId);
+  const authenticatorAttachment = assertion.authenticatorAttachment ?? null;
+  const credential: PublicKeyCredential = Object.create(PublicKeyCredential.prototype);
+  defineValues(credential, {
+    id,
+    rawId,
+    type: "public-key",
+    authenticatorAttachment,
+    response,
+    getClientExtensionResults: () => clientExtensionResults,
+    toJSON: () => ({
+      id,
+      rawId: id,
+      type: "public-key",
+      authenticatorAttachment,
+      response: {
+        clientDataJSON: Utils.fromBufferToUrlB64(clientDataJSON),
+        authenticatorData: Utils.fromBufferToUrlB64(authenticatorData),
+        signature: Utils.fromBufferToUrlB64(signature),
+        userHandle: userHandle == null ? undefined : Utils.fromBufferToUrlB64(userHandle),
+      },
+      clientExtensionResults: clientExtensionResultsJSON(clientExtensionResults),
+    }),
+  });
+  return credential;
+}
+
+function clientExtensionResultsJSON(
+  results: AuthenticationExtensionsClientOutputs,
+): Record<string, unknown> {
+  const prf = (results as { prf?: { results?: { first: ArrayBuffer; second?: ArrayBuffer } } }).prf;
+  if (prf == null) {
+    return {};
+  }
+  return {
+    prf:
+      prf.results == null
+        ? {}
+        : {
+            results: {
+              first: Utils.fromBufferToUrlB64(prf.results.first),
+              second:
+                prf.results.second == null
+                  ? undefined
+                  : Utils.fromBufferToUrlB64(prf.results.second),
+            },
+          },
+  };
+}
+
+/** Defines read-only own properties, which shadow the native getters on the prototype. */
+function defineValues(target: object, values: Record<string, unknown>): void {
+  for (const [key, value] of Object.entries(values)) {
+    Object.defineProperty(target, key, { value, enumerable: true });
+  }
+}
+
+/** Copies only the viewed bytes, so that the rest of an underlying buffer is not sent over IPC. */
+function toBytes(source: BufferSource): Uint8Array {
+  if (ArrayBuffer.isView(source)) {
+    return new Uint8Array(source.buffer, source.byteOffset, source.byteLength).slice();
+  }
+  return new Uint8Array(source).slice();
+}
+
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  return bytes.slice().buffer;
+}

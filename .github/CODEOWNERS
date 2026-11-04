@@ -201,6 +201,7 @@ apps/desktop/desktop_native/objc/src/native/autofill            @bitwarden/team-
 apps/desktop/desktop_native/win_webauthn                        @bitwarden/team-skunkworks
 apps/desktop/desktop_native/windows_plugin_authenticator        @bitwarden/team-skunkworks
 apps/desktop/macos                                              @bitwarden/team-skunkworks
+apps/desktop/src/auth/webauthn                                  @bitwarden/team-auth-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/desktop-autofill.preload.ts           @bitwarden/team-skunkworks
 apps/desktop/src/autofill/main/main-desktop-autofill*           @bitwarden/team-skunkworks
 apps/desktop/src/autofill/modal/credentials                     @bitwarden/team-skunkworks
