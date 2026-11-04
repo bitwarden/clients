@@ -383,10 +383,11 @@ describe("ApproverInboxService", () => {
       expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
     });
 
-    it("cancels an approval via access_requests().cancel() with the reason", async () => {
+    it("withdraws an approval via approvals().revoke() with the reason", async () => {
       await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1", "Approved by mistake");
+      expect(approvalApi.revoke).toHaveBeenCalledWith("req-1", { reason: "Approved by mistake" });
+      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
     });
 
     it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
@@ -466,7 +467,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("restores the row and rethrows when cancelling an approval fails", async () => {
-      requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
+      approvalApi.revoke.mockRejectedValue(new Error("boom"));
 
       await expect(
         service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed"),

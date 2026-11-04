@@ -147,12 +147,14 @@ SDK has no audit client yet (see `access-audit/README.md`).
 `AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
 `ApprovalSdkService` are the abstract contracts; `services/*-sdk.service.ts` compose the
 SDK client. `ApprovalSdkService` (`services/approvals-sdk.service.ts`) covers the
-approver-facing surface, the pending inbox, the decided history, and recording a
-decision, via `commercial().pam().approvals()`.
+approver-facing surface, the pending inbox, the decided history, recording a decision,
+and withdrawing an unstarted approval with the reason the server requires, via
+`commercial().pam().approvals()`.
 
 **If a PAM capability turns out to be missing from the SDK, that is SDK work, not a
-raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
-(`leases().end()`, `access_requests().cancel()`) for the same reason.
+raw-HTTP route.** Approver-side revoke and withdraw-approval go through the SDK
+(`leases().end()`, `approvals().revoke()`) for the same reason; `access_requests().cancel()`
+is the requester's own cancel and carries no reason.
 
 ## Error shape
 
@@ -162,7 +164,7 @@ and pairs it with a LOCAL structural guard, because the SDK's own `isAccessRuleE
 wasm import and this directory stays type-only (see "`export type` matters" below). Use
 `accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it; never treat it as
 `ErrorResponse`. The SDK splits its own failures per client,
-`AccessRequestError` (request/activate/cancel), `ApprovalError` (decide) and `AccessLeaseError`
+`AccessRequestError` (request/activate/cancel), `ApprovalError` (decide/revoke) and `AccessLeaseError`
 (read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
 through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
 All three carry an `Api` variant holding the server's message. That variant's payload is the whole
