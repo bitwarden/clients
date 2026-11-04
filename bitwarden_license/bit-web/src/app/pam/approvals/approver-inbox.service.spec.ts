@@ -7,13 +7,9 @@ import {
   AccessLeaseSdkService,
   AccessRefreshService,
   ApprovalSdkService,
+  DECIDE_ACCESS_SERVER_ERRORS,
 } from "@bitwarden/bit-pam";
-import type {
-  AccessLeaseId,
-  AccessRequestId,
-  AccessRequestView,
-} from "@bitwarden/bit-pam/abstractions/access-lease";
-import { DECIDE_ACCESS_SERVER_ERRORS } from "@bitwarden/bit-pam/helpers/decide-access-error";
+import type { AccessLeaseId, AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 

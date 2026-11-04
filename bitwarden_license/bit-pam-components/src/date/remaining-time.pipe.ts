@@ -1,6 +1,6 @@
 import { inject, LOCALE_ID, Pipe, PipeTransform } from "@angular/core";
 
-import { formatRemaining } from "./format-remaining";
+import { formatRemaining } from "@bitwarden/bit-pam";
 
 /** Pure, so pass a ticking `nowMs` for the countdown to move. */
 @Pipe({

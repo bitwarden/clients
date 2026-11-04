@@ -8,7 +8,7 @@ import { map } from "rxjs";
 import {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,
-} from "@bitwarden/bit-pam/helpers/access-connector-confirm";
+} from "@bitwarden/bit-pam-components";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";

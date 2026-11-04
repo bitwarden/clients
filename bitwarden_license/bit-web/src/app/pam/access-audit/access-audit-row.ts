@@ -1,4 +1,4 @@
-import { durationText, exactWindow } from "@bitwarden/bit-pam/helpers/approval-window";
+import { durationText, exactWindow } from "@bitwarden/bit-pam";
 
 import {
   AccessAuditEventKind,
