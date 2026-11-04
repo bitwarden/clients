@@ -3,20 +3,20 @@ import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, firstValueFrom, of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-
 import {
   AccessEventService,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
   LeasingErrorService,
-} from "../..";
+} from "@bitwarden/bit-common/pam";
 import type {
   AccessLeaseId,
   AccessRequestId,
   AccessRequestView,
-} from "../../abstractions/access-lease";
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+
 import { ApprovalRow } from "../../approvals/approval-row";
 import { ApproverInboxService } from "../../approvals/approver-inbox.service";
 import {

@@ -2,14 +2,13 @@ import { Injectable, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import type { AccessRequestView } from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
-import type { AccessRequestView } from "../abstractions/access-lease";
 
 /**
  * Display names from local vault state, keyed by raw id. A missing entry means the id isn't in the

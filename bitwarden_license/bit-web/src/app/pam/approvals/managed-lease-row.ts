@@ -1,12 +1,12 @@
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-
 import type {
   AccessLeaseId,
   AccessLeaseStatus,
   AccessRequestId,
   AccessRequestStatus,
   AccessRequestView,
-} from "../abstractions/access-lease";
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+
 import { ResolvedNames } from "../access-requests/access-name-resolver.service";
 import { LeaseExtensionSummary } from "../access-requests/my-access-row";
 

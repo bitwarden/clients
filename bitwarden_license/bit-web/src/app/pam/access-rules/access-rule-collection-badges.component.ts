@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
+import { resolveCollectionNames } from "@bitwarden/bit-common/pam";
+import { sharedFolderKey } from "@bitwarden/bit-common/pam/helpers/shared-folder-key";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -7,9 +9,6 @@ import { BadgeModule } from "@bitwarden/components";
 import type { CollectionId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
-
-import { resolveCollectionNames } from "..";
-import { sharedFolderKey } from "../helpers/shared-folder-key";
 
 /**
  * One count badge for a rule's collections, with their names as its tooltip so the column stays

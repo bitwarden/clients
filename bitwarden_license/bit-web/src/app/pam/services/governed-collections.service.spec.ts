@@ -1,11 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
+import type { AccessRuleView } from "@bitwarden/bit-common/pam/abstractions/access-rule";
+import { AccessRuleSdkService } from "@bitwarden/bit-common/pam/abstractions/access-rule-sdk.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-
-import type { AccessRuleView } from "../abstractions/access-rule";
-import { AccessRuleSdkService } from "../abstractions/access-rule-sdk.service";
 
 import { GovernedCollectionsService } from "./governed-collections.service";
 

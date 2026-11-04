@@ -3,11 +3,10 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { DECIDE_ACCESS_SERVER_ERRORS } from "@bitwarden/bit-common/pam/helpers/decide-access-error";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-
-import { DECIDE_ACCESS_SERVER_ERRORS } from "../helpers/decide-access-error";
 
 import { ApproverActionsService, rowBusy } from "./approver-actions.service";
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";

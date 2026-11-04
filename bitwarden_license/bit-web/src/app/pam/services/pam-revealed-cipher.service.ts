@@ -18,6 +18,15 @@ import {
   tap,
 } from "rxjs";
 
+import {
+  AccessRefreshService,
+  AccessRequestSdkService,
+  liveActiveLease,
+  rereadOnLapse,
+} from "@bitwarden/bit-common/pam";
+import type { CipherAccessStateView } from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -26,11 +35,6 @@ import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
-
-import { AccessRefreshService, AccessRequestSdkService, liveActiveLease, rereadOnLapse } from "..";
-import type { CipherAccessStateView } from "../abstractions/access-lease";
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
 /** A revealed view and the end of the lease it was revealed under, in ms. */
 type Entry = { view: CipherView; endsAt: number };

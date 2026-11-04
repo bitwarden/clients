@@ -2,13 +2,13 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import type { AccessRequestView } from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import type { AccessRequestView } from "../../abstractions/access-lease";
 import { ApprovalRow, toApprovalRow } from "../../approvals/approval-row";
 import {
   DAY,

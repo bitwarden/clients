@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core";
 import { catchError, defer, Observable, of, shareReplay } from "rxjs";
 
+import type { AccessRuleView } from "@bitwarden/bit-common/pam/abstractions/access-rule";
+import { AccessRuleSdkService } from "@bitwarden/bit-common/pam/abstractions/access-rule-sdk.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-
-import type { AccessRuleView } from "../abstractions/access-rule";
-import { AccessRuleSdkService } from "../abstractions/access-rule-sdk.service";
 
 /**
  * How long a cached per-organization read serves new consumers. Checked lazily, so an open callout

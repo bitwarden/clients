@@ -12,6 +12,23 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
+import {
+  AccessRuleFilter,
+  AccessRuleId,
+  AccessRuleView,
+  AccessRuleStatusFilter,
+  accessRuleDeactivateConfirmOptions,
+  accessRuleDeleteConfirmOptions,
+  accessRuleErrorMessageKey,
+  accessRuleMatchesFilter,
+  classifyAccessRuleError,
+  copyRuleName,
+  resolveCollectionNames,
+  filterRulesToToggle,
+} from "@bitwarden/bit-common/pam";
+import { DurationLongPipe } from "@bitwarden/bit-common/pam/date/duration-long.pipe";
+import { RelativeTimePipe } from "@bitwarden/bit-common/pam/date/relative-time.pipe";
+import { sharedFolderKey } from "@bitwarden/bit-common/pam/helpers/shared-folder-key";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -46,23 +63,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import {
-  AccessRuleFilter,
-  AccessRuleId,
-  AccessRuleView,
-  AccessRuleStatusFilter,
-  accessRuleDeactivateConfirmOptions,
-  accessRuleDeleteConfirmOptions,
-  accessRuleErrorMessageKey,
-  accessRuleMatchesFilter,
-  classifyAccessRuleError,
-  copyRuleName,
-  resolveCollectionNames,
-  filterRulesToToggle,
-} from "..";
-import { DurationLongPipe } from "../date/duration-long.pipe";
-import { RelativeTimePipe } from "../date/relative-time.pipe";
-import { sharedFolderKey } from "../helpers/shared-folder-key";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";

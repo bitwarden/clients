@@ -4,13 +4,13 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import type { AccessRequestView } from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessRequestView } from "../../abstractions/access-lease";
 import { ApprovalRow } from "../../approvals/approval-row";
 import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
 import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";

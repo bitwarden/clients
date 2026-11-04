@@ -1,8 +1,7 @@
 import { Pipe, PipeTransform, inject } from "@angular/core";
 
+import { AccessCondition, approvalMethodLabelKeys } from "@bitwarden/bit-common/pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
-import { AccessCondition, approvalMethodLabelKeys } from "..";
 
 @Pipe({ name: "approvalMethod" })
 export class ApprovalMethodPipe implements PipeTransform {

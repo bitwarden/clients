@@ -16,10 +16,6 @@ import {
   take,
 } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   AccessEventService,
   AccessLeaseId,
@@ -29,9 +25,12 @@ import {
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
-} from "..";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
-import { isLeaseLive } from "../helpers/lease-liveness";
+} from "@bitwarden/bit-common/pam";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { isLeaseLive } from "@bitwarden/bit-common/pam/helpers/lease-liveness";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
   AccessNameResolverService,

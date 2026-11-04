@@ -32,15 +32,17 @@
             {{ "clone" | i18n }}
           </a>
         }
-        @if (canAssignCollections$ | async) {
+        @if ((canAssignCollections$ | async) && allows(RestrictedCipherAction.AssignCollections)) {
           <a bitMenuItem (click)="conditionallyNavigateToAssignCollections()">
             {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
           </a>
         }
       }
-      <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
-        {{ "shareViaLink" | i18n }}
-      </a>
+      @if (allows(RestrictedCipherAction.Share)) {
+        <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
+          {{ "shareViaLink" | i18n }}
+        </a>
+      }
       @if (canArchive$ | async) {
         <button type="button" bitMenuItem (click)="archive()">
           {{ "archiveVerb" | i18n }}

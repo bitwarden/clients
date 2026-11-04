@@ -2,27 +2,27 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject, firstValueFrom, of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
-
 import {
   AccessEventService,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
   ApprovalSdkService,
-} from "..";
+} from "@bitwarden/bit-common/pam";
 import type {
   AccessLeaseId,
   AccessRequestId,
   AccessRequestView,
-} from "../abstractions/access-lease";
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { DECIDE_ACCESS_SERVER_ERRORS } from "@bitwarden/bit-common/pam/helpers/decide-access-error";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
+
 import {
   AccessNameResolverService,
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
-import { DECIDE_ACCESS_SERVER_ERRORS } from "../helpers/decide-access-error";
 import { humanDecision } from "../testing/decision-builders";
 
 import { ApproverInboxService } from "./approver-inbox.service";

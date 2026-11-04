@@ -2,6 +2,11 @@ import { NgZone } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, Observable, Subject } from "rxjs";
 
+import type { CipherAccessStateView } from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
+import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -9,12 +14,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
-
-import type { CipherAccessStateView } from "../abstractions/access-lease";
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
 import { PamRevealedCipherService } from "./pam-revealed-cipher.service";
 
