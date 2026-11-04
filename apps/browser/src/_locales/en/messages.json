@@ -8855,8 +8855,8 @@
   "pamAccessBadgeEnded": {
     "message": "Session ended"
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "You have active access to this item — $DURATION$ remaining",
+  "pamActiveLeaseBannerRemainingTitle": {
+    "message": "You have active access to this item: $DURATION$ remaining",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -8864,8 +8864,8 @@
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Access to this item is ending soon — $DURATION$ remaining",
+  "pamActiveLeaseBannerEndingSoonRemainingTitle": {
+    "message": "Access to this item is ending soon: $DURATION$ remaining",
     "placeholders": {
       "duration": {
         "content": "$1",
