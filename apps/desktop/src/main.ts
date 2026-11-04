@@ -8,6 +8,10 @@ import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
@@ -27,10 +31,12 @@ import { DefaultGovModeService } from "@bitwarden/common/platform/services/defau
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
 import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
@@ -65,6 +71,7 @@ import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { MainSdkService } from "./platform/main/main-sdk.service";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -113,6 +120,8 @@ export class Main {
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
+  /** Read-only: main must not write policy state, the renderer would not observe it. */
+  policyService: PolicyService;
 
   constructor() {
     // Set paths for portable builds
@@ -225,6 +234,19 @@ export class Main {
     );
 
     this.govModeService = new DefaultGovModeService(this.environmentService);
+
+    const sdkService = new MainSdkService(
+      new DefaultSdkClientFactory(),
+      this.environmentService,
+      new DefaultManagedSettingsService(SdkLoadService.Ready),
+    );
+    this.policyService = new DefaultPolicyService(
+      stateProvider,
+      new DefaultOrganizationService(stateProvider),
+      accountService,
+      new DefaultNewPolicyService(stateProvider),
+      () => sdkService,
+    );
 
     this.migrationRunner = new MigrationRunner(
       this.storageService,

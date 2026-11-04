@@ -32,10 +32,8 @@
     >
       <bit-kbd [keys]="['modifier', 'F']" />
     </span>
-  }
-  @if (useKeyShortcuts() && searchText()) {
     <span
-      class="tw-hidden tw-items-center tw-pe-1 tw-shrink-0 tw-select-none group-has-[:focus]/form-field:tw-flex"
+      class="tw-hidden tw-items-center tw-pe-1 tw-shrink-0 tw-select-none group-has-[input:focus]/form-field:tw-flex"
       aria-hidden="true"
     >
       <bit-kbd [keys]="['Esc']" />

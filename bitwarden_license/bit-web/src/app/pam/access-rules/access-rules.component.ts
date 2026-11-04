@@ -12,6 +12,24 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
+import {
+  AccessRuleFilter,
+  AccessRuleId,
+  AccessRuleView,
+  AccessRuleStatusFilter,
+  accessRuleErrorMessageKey,
+  accessRuleMatchesFilter,
+  classifyAccessRuleError,
+  copyRuleName,
+  resolveCollectionNames,
+  filterRulesToToggle,
+} from "@bitwarden/bit-pam";
+import {
+  accessRuleDeactivateConfirmOptions,
+  accessRuleDeleteConfirmOptions,
+  DurationLongPipe,
+  RelativeTimePipe,
+} from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -45,22 +63,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import {
-  AccessRuleFilter,
-  AccessRuleId,
-  AccessRuleView,
-  AccessRuleStatusFilter,
-  accessRuleDeactivateConfirmOptions,
-  accessRuleDeleteConfirmOptions,
-  accessRuleErrorMessageKey,
-  accessRuleMatchesFilter,
-  classifyAccessRuleError,
-  copyRuleName,
-  resolveCollectionNames,
-  filterRulesToToggle,
-} from "..";
-import { DurationLongPipe } from "../date/duration-long.pipe";
-import { RelativeTimePipe } from "../date/relative-time.pipe";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
