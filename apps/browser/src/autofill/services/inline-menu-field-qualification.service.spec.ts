@@ -20,6 +20,23 @@ describe("InlineMenuFieldQualificationService", () => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
   });
 
+  it("uses the supplied premium status provider", async () => {
+    const provider = jest.fn().mockResolvedValue(true);
+    const service = new InlineMenuFieldQualificationService(provider);
+    await Promise.resolve();
+    expect(provider).toHaveBeenCalledTimes(1);
+    expect(service["premiumEnabled"]).toBe(true);
+  });
+
+  it("handles an unavailable premium status provider", async () => {
+    const service = new InlineMenuFieldQualificationService(() =>
+      Promise.reject(new Error("disconnected")),
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(service["premiumEnabled"]).toBe(false);
+  });
+
   describe("isFieldForLoginForm", () => {
     it("does not disqualify totp fields for premium users", () => {
       inlineMenuFieldQualificationService["premiumEnabled"] = true;

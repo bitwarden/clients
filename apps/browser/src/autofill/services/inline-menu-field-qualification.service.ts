@@ -155,10 +155,19 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     return false;
   }
 
-  constructor() {
-    void sendExtensionMessage("getUserPremiumStatus").then((premiumStatus) => {
-      this.premiumEnabled = !!premiumStatus?.result;
-    });
+  constructor(
+    getPremiumStatus: () => Promise<boolean> = async () => {
+      const response = await sendExtensionMessage("getUserPremiumStatus");
+      return !!response?.result;
+    },
+  ) {
+    void getPremiumStatus()
+      .then((premiumEnabled) => {
+        this.premiumEnabled = premiumEnabled;
+      })
+      .catch(() => {
+        this.premiumEnabled = false;
+      });
   }
 
   /**

@@ -1710,7 +1710,12 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService(async () => {
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      return await firstValueFrom(
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account?.id),
+      );
+    });
     this.autofillTriageService = new AutofillTriageService(
       this.inlineMenuFieldQualificationService,
     );
