@@ -554,6 +554,13 @@ export declare namespace webauthn {
     transports?: Array<string>
   }
   /**
+   * Delivers a callback URL that the app's URL scheme handler received to the
+   * `webAuthenticationSession` waiting for it, if any. Returns whether it was delivered.
+   *
+   * Only Linux delivers callback URLs this way. Elsewhere, this returns `false`.
+   */
+  export function deliverCallback(url: string): boolean
+  /**
    * Requests a WebAuthn assertion from the platform's passkey APIs, showing the platform's
    * prompt modal to the window.
    *
@@ -582,16 +589,22 @@ export declare namespace webauthn {
    * Whether the platform's passkey APIs can't be used for the RP ID, so the assertion must be
    * made in a browser with `webAuthenticationSession` instead of with `getAssertion`. On macOS,
    * the passkey APIs can only be used for relying parties in the app's associated domains.
+   * Linux has no passkey APIs, so it always requires a browser.
    */
   export function requiresBrowser(rpId: string): boolean
   /**
-   * Opens `url` in a browser session presented from the window, and resolves with the URL
-   * that the page navigates to with the scheme `callbackScheme`, which ends the session. Only
-   * this caller receives that URL, rather than the app's URL scheme handler. The session does
-   * not share cookies or other browsing data with the user's browser.
+   * Opens `url` in a browser, and resolves with the URL that the page navigates to with the
+   * scheme `callbackScheme`, which ends the session.
    *
-   * Only implemented on macOS. Failures, including the user closing the session, are returned
-   * in `WebAuthenticationSessionResult.error` rather than thrown.
+   * On macOS, the session is presented from the window, does not share browsing data with the
+   * user's browser, and only this caller receives the callback URL. On Linux, this only waits:
+   * open `url` in the user's default browser after calling this, e.g. with
+   * `shell.openExternal`. The callback URL goes through the system's URL scheme handler, where
+   * other apps may see it; pass it to `deliverCallback`. `url` must have a
+   * `state` parameter in its fragment, which the page returns in the callback URL's fragment.
+   *
+   * Implemented on macOS and Linux. Failures, including the user closing the session, are
+   * returned in `WebAuthenticationSessionResult.error` rather than thrown.
    */
   export function webAuthenticationSession(windowHandle: Uint8Array, url: string, callbackScheme: string, cancellation: AssertionCancellation): Promise<WebAuthenticationSessionResult>
   /**

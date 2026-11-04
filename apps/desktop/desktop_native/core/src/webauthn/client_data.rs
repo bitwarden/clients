@@ -139,6 +139,20 @@ pub(super) fn validate_app_id(app_id: &str, origin: &str) -> Result<(), Error> {
     }
 }
 
+/// Checks that a page may make WebAuthn requests: its origin must be `https`, or `http` for
+/// `localhost`.
+///
+/// The URL is not included in the error, since it may contain the request.
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+pub(super) fn validate_page_url(url: &str) -> Result<(), Error> {
+    let invalid = || Error::InvalidRequest("The URL is not a secure origin".to_string());
+    let (scheme, rest) = url.split_once("://").ok_or_else(invalid)?;
+    let authority = rest.split(['/', '?', '#']).next().unwrap_or_default();
+    origin_host(&format!("{scheme}://{authority}"))
+        .map(|_| ())
+        .map_err(|_| invalid())
+}
+
 /// Whether `host` is `domain`, or a subdomain of it, ignoring ASCII case.
 fn is_same_or_subdomain(host: &str, domain: &str) -> bool {
     let host = host.to_ascii_lowercase();
@@ -250,6 +264,36 @@ mod tests {
                 get_client_data_json(&[1], origin, "example.com").is_err(),
                 "{origin}"
             );
+        }
+    }
+
+    #[test]
+    fn test_accepts_secure_page_urls() {
+        for url in [
+            "https://vault.example.com",
+            "https://vault.example.com/webauthn-desktop-connector.html#data=abc",
+            "https://vault.example.com:8443/path?query",
+            "http://localhost:8080/webauthn-desktop-connector.html#data=abc",
+            "http://localhost#data",
+        ] {
+            assert!(validate_page_url(url).is_ok(), "{url}");
+        }
+    }
+
+    #[test]
+    fn test_rejects_insecure_page_urls() {
+        for url in [
+            "http://vault.example.com/webauthn-desktop-connector.html",
+            "http://localhost.example.com/",
+            "http://localhost@example.com/",
+            "http://example.com#@localhost",
+            "file:///home/user/page.html",
+            "javascript://localhost/%0Aalert(1)",
+            "bitwarden://webauthn-callback",
+            "https:///path",
+            "vault.example.com",
+        ] {
+            assert!(validate_page_url(url).is_err(), "{url}");
         }
     }
 

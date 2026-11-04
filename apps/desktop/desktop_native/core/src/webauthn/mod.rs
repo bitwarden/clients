@@ -8,13 +8,17 @@ use thiserror::Error;
 #[cfg_attr(not(any(target_os = "windows", target_os = "macos")), allow(dead_code))]
 mod client_data;
 
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+mod callbacks;
+
 mod connector;
 pub use connector::ConnectorRequest;
 
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
+#[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(
-    not(any(target_os = "windows", target_os = "macos")),
+    not(any(target_os = "windows", target_os = "macos", target_os = "linux")),
     path = "unimplemented.rs"
 )]
 mod platform;
@@ -190,8 +194,8 @@ impl Cancellation {
         platform::Cancellation::new().map(Self)
     }
 
-    /// Cancels the call. The platform's prompt or browser is closed, and the call returns
-    /// [Error::Cancelled].
+    /// Cancels the call. The platform's prompt or browser session is closed, except for the
+    /// user's browser on Linux, and the call returns [Error::Cancelled].
     pub fn cancel(&self) {
         self.0.cancel();
     }
@@ -220,23 +224,30 @@ pub fn get_assertion(
 /// a browser with [web_authentication_session] instead of with [get_assertion].
 ///
 /// On macOS, the passkey APIs can only be used for relying parties in the app's associated domains.
+/// Linux has no passkey APIs, so it always requires a browser.
 pub fn requires_browser(rp_id: &str) -> bool {
     platform::requires_browser(rp_id)
 }
 
-/// Opens `url` in a browser session and returns the URL that the page navigates to with the
-/// scheme `callback_scheme`, which ends the session. Only this caller receives that URL, rather
-/// than the app's URL scheme handler. The session does not share cookies or other browsing data
-/// with the user's browser.
+/// Opens `url` in a browser and returns the URL that the page navigates to with the scheme
+/// `callback_scheme`, which ends the session.
 ///
-/// Presents the session from `window_handle`, and blocks until the page completes, the user
-/// dismisses it, or it is cancelled with `cancellation`. Run this on a thread that may block.
+/// Blocks until the page completes, the user dismisses the session where the platform can tell,
+/// or it is cancelled with `cancellation`. Run this on a thread that may block.
 ///
-/// Only implemented on macOS, with `ASWebAuthenticationSession`.
+/// - On macOS, the session is an `ASWebAuthenticationSession` presented from `window_handle`. It
+///   does not share cookies or other browsing data with the user's browser, and only this caller
+///   receives the callback URL.
+/// - On Linux, this only waits: the caller opens `url` in the user's default browser after calling
+///   this, e.g. with Electron's `shell.openExternal`, and the app can't close it. The browser hands
+///   the callback URL to the system, which passes it to the app's URL scheme handler, where other
+///   apps may see it, so it must not contain secrets unencrypted. The handler must pass it to
+///   [deliver_callback]. `url` must have a `state` parameter in its fragment, which the page
+///   returns in the callback URL's fragment, to identify the session.
 ///
 /// # Arguments
-/// - `window_handle`: As for [get_assertion].
-/// - `url`: An `https` or `http` URL.
+/// - `window_handle`: As for [get_assertion]. Unused on Linux.
+/// - `url`: An `https` URL, or an `http` URL for `localhost`.
 /// - `callback_scheme`: The scheme, without `:`, that ends the session.
 /// - `cancellation`: Can be used to cancel the call from another thread.
 pub fn web_authentication_session(
@@ -246,4 +257,20 @@ pub fn web_authentication_session(
     cancellation: &Cancellation,
 ) -> Result<String, Error> {
     platform::web_authentication_session(window_handle, url, callback_scheme, &cancellation.0)
+}
+
+/// Delivers a callback URL that the app's URL scheme handler received to the
+/// [web_authentication_session] waiting for it, if any. Returns whether it was delivered.
+///
+/// Only Linux delivers callback URLs this way. Elsewhere, this returns `false`.
+pub fn deliver_callback(url: &str) -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        callbacks::deliver(url)
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = url;
+        false
+    }
 }
