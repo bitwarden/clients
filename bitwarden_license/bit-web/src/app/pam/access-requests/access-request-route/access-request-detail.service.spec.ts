@@ -9,12 +9,12 @@ import {
   AccessRefreshService,
   AccessRequestSdkService,
   LeasingErrorService,
-} from "@bitwarden/bit-common/pam";
+} from "@bitwarden/bit-pam";
 import type {
   AccessLeaseId,
   AccessRequestId,
   AccessRequestView,
-} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+} from "@bitwarden/bit-pam/abstractions/access-lease";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ApprovalRow } from "../../approvals/approval-row";

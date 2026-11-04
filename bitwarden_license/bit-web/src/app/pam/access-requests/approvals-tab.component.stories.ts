@@ -7,7 +7,7 @@ import { userEvent, within } from "storybook/test";
 import type {
   AccessLeaseId,
   AccessRequestView,
-} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+} from "@bitwarden/bit-pam/abstractions/access-lease";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";

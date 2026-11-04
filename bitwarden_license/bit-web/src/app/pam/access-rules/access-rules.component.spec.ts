@@ -9,7 +9,7 @@ import {
   accessRuleDeactivateConfirmOptions,
   AccessRuleSdkService,
   AccessRuleView,
-} from "@bitwarden/bit-common/pam";
+} from "@bitwarden/bit-pam";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
