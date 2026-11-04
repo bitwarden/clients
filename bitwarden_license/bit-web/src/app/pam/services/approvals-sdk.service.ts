@@ -67,4 +67,21 @@ export class ApprovalsSdkService implements ApprovalSdkService {
       ),
     );
   }
+
+  async revoke(id: AccessRequestId, reason: string): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value.commercial().pam().approvals().revoke(id, { reason });
+        }),
+        catchError((error: unknown) => {
+          // The request carries an approver-authored reason; never log it.
+          this.logService.error(`Failed to revoke the approval: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
 }

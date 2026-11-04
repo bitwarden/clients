@@ -23,7 +23,6 @@ import {
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestId,
-  AccessRequestSdkService,
   AccessRequestView,
   ApprovalSdkService,
   canApprove,
@@ -65,7 +64,6 @@ import {
 @Injectable()
 export class ApproverInboxService {
   private readonly approvalApi = inject(ApprovalSdkService);
-  private readonly requestsApi = inject(AccessRequestSdkService);
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly accountService = inject(AccountService);
@@ -295,7 +293,7 @@ export class ApproverInboxService {
    * names whoever withdrew it.
    */
   async cancelApproval(requestId: AccessRequestId, reason: string): Promise<void> {
-    await this.requestsApi.cancelAccessRequest(requestId, reason);
+    await this.approvalApi.revoke(requestId, reason);
     this.accessRefresh.notifyAccessChanged();
     await this.load();
   }
