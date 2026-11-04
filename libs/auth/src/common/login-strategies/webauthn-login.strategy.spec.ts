@@ -397,4 +397,52 @@ describe("WebAuthnLoginStrategy", () => {
       userId,
     );
   });
+
+  describe("with confirmAccount", () => {
+    beforeEach(() => {
+      tokenService.decodeAccessToken.mockResolvedValue({
+        sub: userId,
+        email: "user@example.com",
+      });
+      apiService.postIdentityToken.mockResolvedValue(
+        identityTokenResponseFactory(
+          undefined,
+          userDecryptionOptsServerResponseWithWebAuthnPrfOption,
+        ),
+      );
+    });
+
+    function credentialsConfirming(confirmed: boolean) {
+      const confirmAccount = jest.fn().mockResolvedValue(confirmed);
+      const credentials = new WebAuthnLoginCredentials(
+        webAuthnCredentials.token,
+        webAuthnCredentials.deviceResponse,
+        webAuthnCredentials.prfKey,
+        confirmAccount,
+      );
+      return { credentials, confirmAccount };
+    }
+
+    it("logs in to the account the server resolved when it is confirmed", async () => {
+      const { credentials, confirmAccount } = credentialsConfirming(true);
+
+      const authResult = await webAuthnLoginStrategy.logIn(credentials);
+
+      expect(confirmAccount).toHaveBeenCalledWith("user@example.com");
+      expect(authResult.userId).toBe(userId);
+      expect(accountService.mock.addAccount).toHaveBeenCalled();
+    });
+
+    it("doesn't add the account, or set its keys, when it isn't confirmed", async () => {
+      const { credentials } = credentialsConfirming(false);
+
+      await expect(webAuthnLoginStrategy.logIn(credentials)).rejects.toThrow(
+        "The account was not confirmed.",
+      );
+
+      expect(accountService.mock.addAccount).not.toHaveBeenCalled();
+      expect(accountService.mock.switchAccount).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -2072,6 +2072,18 @@
   "unlockWithMasterPassword": {
     "message": "Unlock with master password"
   },
+  "confirmPasskeyAccountTitle": {
+    "message": "Log in to this account?"
+  },
+  "confirmPasskeyAccountDesc": {
+    "message": "Your passkey is for $EMAIL$. Only continue if this is your account.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
   "continueInYourBrowser": {
     "message": "Continue in your browser"
   },

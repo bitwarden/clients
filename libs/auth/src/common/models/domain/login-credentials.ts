@@ -87,10 +87,16 @@ export class AuthRequestLoginCredentials {
 export class WebAuthnLoginCredentials {
   readonly type = AuthenticationType.WebAuthn;
 
+  /**
+   * @param confirmAccount Called with the email of the account that the server resolved the
+   * assertion to, before the account is added. Logging in is cancelled unless it resolves to
+   * `true`. It is not cached with the credentials.
+   */
   constructor(
     public token: string,
     public deviceResponse: WebAuthnLoginAssertionResponseRequest,
     public prfKey?: SymmetricCryptoKey,
+    public confirmAccount?: (email: string) => Promise<boolean>,
   ) {}
 
   static fromJSON(json: Jsonify<WebAuthnLoginCredentials>) {

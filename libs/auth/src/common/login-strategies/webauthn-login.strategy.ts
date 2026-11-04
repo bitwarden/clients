@@ -59,6 +59,20 @@ export class WebAuthnLoginStrategy extends LoginStrategy<WebAuthnLoginStrategyDa
     throw new Error("2FA not supported yet for WebAuthn Login.");
   }
 
+  /** Lets the user confirm the account, if asked to, before it is added. */
+  protected override async processTokenResponse(
+    response: IdentityTokenResponse,
+  ): Promise<AuthResult> {
+    const { credentials } = this.getLoginStrategyDataOrThrow();
+    if (credentials.confirmAccount != null) {
+      const { email } = await this.tokenService.decodeAccessToken(response.accessToken);
+      if (!(await credentials.confirmAccount(email ?? ""))) {
+        throw new Error("The account was not confirmed.");
+      }
+    }
+    return super.processTokenResponse(response);
+  }
+
   protected override async unlock(idTokenResponse: IdentityTokenResponse, userId: UserId) {
     const userDecryptionOptions = idTokenResponse?.userDecryptionOptions;
 

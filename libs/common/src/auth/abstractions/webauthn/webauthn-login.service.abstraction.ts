@@ -36,6 +36,11 @@ export abstract class WebAuthnLoginServiceAbstraction {
    *
    * @param {WebAuthnLoginCredentialAssertionView} assertion - The assertion obtained from the authenticator
    * that needs to be validated for login.
+   * @param confirmAccount - Optional. Called with the email of the account that the server resolved
+   * the assertion to, before the account is added. Logging in is cancelled unless it resolves to `true`.
    */
-  abstract logIn(assertion: WebAuthnLoginCredentialAssertionView): Promise<AuthResult>;
+  abstract logIn(
+    assertion: WebAuthnLoginCredentialAssertionView,
+    confirmAccount?: (email: string) => Promise<boolean>,
+  ): Promise<AuthResult>;
 }

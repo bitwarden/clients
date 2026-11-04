@@ -120,7 +120,12 @@ export class LoginViaWebAuthnComponent implements OnInit {
       return;
     }
     try {
-      const authResult = await this.webAuthnLoginService.logIn(assertion);
+      const authResult = await this.webAuthnLoginService.logIn(
+        assertion,
+        this.loginViaWebAuthnComponentService.confirmAccount?.bind(
+          this.loginViaWebAuthnComponentService,
+        ),
+      );
 
       if (authResult.requiresTwoFactor) {
         this.validationService.showError(

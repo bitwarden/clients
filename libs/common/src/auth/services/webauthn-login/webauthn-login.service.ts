@@ -76,11 +76,15 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
     }
   }
 
-  async logIn(assertion: WebAuthnLoginCredentialAssertionView): Promise<AuthResult> {
+  async logIn(
+    assertion: WebAuthnLoginCredentialAssertionView,
+    confirmAccount?: (email: string) => Promise<boolean>,
+  ): Promise<AuthResult> {
     const credential = new WebAuthnLoginCredentials(
       assertion.token,
       assertion.deviceResponse,
       assertion.prfKey,
+      confirmAccount,
     );
     const result = await this.loginStrategyService.logIn(credential);
     return result;

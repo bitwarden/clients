@@ -6,7 +6,6 @@ import { Subject, merge } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
-import { DefaultLoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/default-login-via-webauthn-component.service";
 import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -183,6 +182,7 @@ import {
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
+import { DesktopLoginViaWebAuthnComponentService } from "../../auth/login/desktop-login-via-webauthn-component.service";
 import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopTwoFactorAuthWebAuthnComponentService } from "../../auth/webauthn/desktop-two-factor-auth-webauthn-component.service";
@@ -614,8 +614,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: LoginViaWebAuthnComponentService,
-    useClass: DefaultLoginViaWebAuthnComponentService,
-    deps: [],
+    useClass: DesktopLoginViaWebAuthnComponentService,
+    deps: [PlatformUtilsServiceAbstraction, DialogService],
   }),
   safeProvider({
     provide: LoginComponentService,

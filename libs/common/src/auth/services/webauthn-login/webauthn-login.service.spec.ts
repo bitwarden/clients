@@ -301,6 +301,17 @@ describe("WebAuthnLoginService", () => {
       const callArguments = loginStrategyService.logIn.mock.calls[0];
       expect(callArguments[0]).toBeInstanceOf(WebAuthnLoginCredentials);
     });
+
+    it("passes confirmAccount to the login strategy", async () => {
+      const webAuthnLoginService = createWebAuthnLoginService();
+      const confirmAccount = jest.fn();
+      jest.spyOn(loginStrategyService, "logIn").mockResolvedValue(new AuthResult());
+
+      await webAuthnLoginService.logIn(buildWebAuthnLoginCredentialAssertionView(), confirmAccount);
+
+      const credentials = loginStrategyService.logIn.mock.calls[0][0] as WebAuthnLoginCredentials;
+      expect(credentials.confirmAccount).toBe(confirmAccount);
+    });
   });
 });
 
