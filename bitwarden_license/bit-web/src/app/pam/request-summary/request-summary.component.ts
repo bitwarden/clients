@@ -8,7 +8,7 @@ import {
 } from "@angular/core";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import type { LabelValue } from "@bitwarden/bit-pam";
+import type { LabelValue } from "@bitwarden/bit-common/pam/helpers/approval-window";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { CardComponent, IconModule, TypographyModule } from "@bitwarden/components";

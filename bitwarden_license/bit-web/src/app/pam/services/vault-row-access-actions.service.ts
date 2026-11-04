@@ -10,8 +10,8 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AccessRefreshService, AccessRequestSdkService } from "@bitwarden/bit-pam";
-import { AccessRequestCancelService } from "@bitwarden/bit-pam-components";
+import { AccessRefreshService, AccessRequestSdkService } from "@bitwarden/bit-common/pam";
+import { AccessRequestCancelService } from "@bitwarden/bit-common/pam/services/access-request-cancel.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {

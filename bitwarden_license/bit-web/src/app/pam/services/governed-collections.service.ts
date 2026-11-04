@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { catchError, defer, Observable, of, shareReplay } from "rxjs";
 
-import { AccessRuleSdkService } from "@bitwarden/bit-pam";
-import type { AccessRuleView } from "@bitwarden/bit-pam";
+import type { AccessRuleView } from "@bitwarden/bit-common/pam/abstractions/access-rule";
+import { AccessRuleSdkService } from "@bitwarden/bit-common/pam/abstractions/access-rule-sdk.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
