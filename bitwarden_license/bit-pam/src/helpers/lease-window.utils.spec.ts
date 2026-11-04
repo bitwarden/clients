@@ -115,8 +115,12 @@ describe("extensionDurationOptions", () => {
     expect(seconds(extensionDurationOptions(60 * 60))).toEqual([30 * 60, 60 * 60]);
   });
 
-  it("offers the cap itself when no preset matches it", () => {
-    expect(seconds(extensionDurationOptions(45 * 60))).toEqual([30 * 60, 45 * 60]);
+  it("offers the cap itself when no preset matches it, unlabelled for value formatting", () => {
+    const options = extensionDurationOptions(45 * 60);
+
+    expect(seconds(options)).toEqual([30 * 60, 45 * 60]);
+    expect(options[0].labelKey).toBe("pamAccessRuleDuration30m");
+    expect(options[1].labelKey).toBeUndefined();
   });
 
   it("stays non-empty for a cap below the smallest preset", () => {
