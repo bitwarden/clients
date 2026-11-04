@@ -3,10 +3,8 @@
 import { ipcMain } from "electron";
 
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { agent_access, sshagent } from "@bitwarden/desktop-napi";
+import { sshagent } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
-
-import { WindowMain } from "../../main/window.main";
 
 import { MainSshAgentService } from "./main-ssh-agent.service";
 
@@ -27,9 +25,6 @@ jest.mock("@bitwarden/desktop-napi", () => ({
 describe("MainSshAgentService", () => {
   let mockLogService: jest.Mocked<LogService>;
   let mockMessagingService: jest.Mocked<MessagingService>;
-  let mockAnswer: jest.Mock;
-  let windowMain: { win: { isDestroyed: () => boolean } | null };
-  let showWindow: jest.Mock;
 
   let ipcHandlers: Map<string, Function>;
   let mockAgentState: {
@@ -38,10 +33,7 @@ describe("MainSshAgentService", () => {
     stop: jest.Mock;
   };
 
-  let capturedSignCb: (
-    err: Error | null,
-    request: agent_access.AgentRequest,
-  ) => Promise<agent_access.AgentOutcome>;
+  let capturedSignCb: (err: Error | null, data: sshagent.SignRequestData) => Promise<boolean>;
   let capturedListCb: (err: Error | null) => Promise<boolean>;
 
   beforeEach(async () => {
@@ -57,10 +49,6 @@ describe("MainSshAgentService", () => {
     mockMessagingService = {
       send: jest.fn(),
     } as any;
-
-    mockAnswer = jest.fn();
-    windowMain = { win: { isDestroyed: () => false } };
-    showWindow = jest.fn().mockResolvedValue(undefined);
 
     mockAgentState = {
       isRunning: jest.fn().mockReturnValue(true),
@@ -80,22 +68,10 @@ describe("MainSshAgentService", () => {
       },
     );
 
-    createService();
+    new MainSshAgentService(mockLogService, mockMessagingService);
     await ipcHandlers.get("sshagent.init")!({});
     await Promise.resolve(); // let agentState settle
   });
-
-  function createService() {
-    return new MainSshAgentService(
-      mockLogService,
-      mockMessagingService,
-      windowMain as unknown as WindowMain,
-      showWindow,
-      mockAnswer,
-    );
-  }
-
-  const sentListRequest = () => mockMessagingService.send.mock.calls.at(-1)?.[1];
 
   describe("constructor", () => {
     // Handlers are registered up front rather than on INIT, so a call that arrives before the
@@ -104,8 +80,8 @@ describe("MainSshAgentService", () => {
       "sshagent.init",
       "sshagent.isloaded",
       "sshagent.replace",
+      "sshagent.signrequestresponse",
       "sshagent.stop",
-      "sshagent.ready",
       "sshagent.listkeysresponse",
     ])("should register the %s IPC handler", (channel) => {
       expect(ipcHandlers.has(channel)).toBe(true);
@@ -115,7 +91,7 @@ describe("MainSshAgentService", () => {
   describe("sshagent.isloaded IPC handler", () => {
     it("should return false before sshagent.init IPC is called", async () => {
       // Create a fresh service that has not received the INIT IPC call
-      createService();
+      new MainSshAgentService(mockLogService, mockMessagingService);
       const handler = ipcHandlers.get("sshagent.isloaded")!;
       expect(await handler({})).toBe(false);
     });
@@ -149,7 +125,7 @@ describe("MainSshAgentService", () => {
       (sshagent.SshAgentState.serve as jest.Mock).mockRejectedValueOnce(error);
 
       // Re-create service and invoke INIT again with the rejecting mock
-      createService();
+      new MainSshAgentService(mockLogService, mockMessagingService);
       await ipcHandlers.get("sshagent.init")!({});
       await Promise.resolve(); // propagates rejection through .then()
       await Promise.resolve(); // .catch() handler runs
@@ -158,52 +134,72 @@ describe("MainSshAgentService", () => {
     });
   });
 
-  describe("sign callback", () => {
-    it("should answer through the shared agent request broker", async () => {
-      const request = {} as agent_access.AgentRequest;
-      const outcome = {} as agent_access.AgentOutcome;
-      mockAnswer.mockResolvedValue(outcome);
+  describe("requestSign (via sign callback)", () => {
+    const mockSignData = {
+      cipherId: "cipher-abc",
+      signRequest: {
+        publicKey: { keyType: "Ed25519", keypair: "keypair-data" },
+        processName: "ssh",
+        isForwarding: false,
+        namespace: "ssh",
+      },
+    } as unknown as sshagent.SignRequestData;
 
-      expect(await capturedSignCb(null, request)).toBe(outcome);
-      expect(mockAnswer).toHaveBeenCalledWith(request);
-    });
-  });
+    it("should send sshagent.signrequest with the correct fields", () => {
+      void capturedSignCb(null, mockSignData);
 
-  describe("list callback", () => {
-    it("should hold the request until the renderer is ready, then send it with an id and deadline", () => {
-      void capturedListCb(null);
-      expect(mockMessagingService.send).not.toHaveBeenCalled();
-
-      ipcHandlers.get("sshagent.ready")!();
-
-      expect(mockMessagingService.send).toHaveBeenCalledWith("sshagent.listkeysrequest", {
-        requestId: expect.any(Number),
-        deadline: expect.any(Number),
+      expect(mockMessagingService.send).toHaveBeenCalledWith("sshagent.signrequest", {
+        cipherId: "cipher-abc",
+        requestId: 1,
+        processName: "ssh",
+        isAgentForwarding: false,
+        namespace: "ssh",
+        hostFingerprint: undefined,
       });
     });
 
-    it.each([true, false])("should resolve with the renderer's answer (%s)", async (accepted) => {
-      ipcHandlers.get("sshagent.ready")!();
-      const listPromise = capturedListCb(null);
+    it("should resolve with true when the renderer accepts", async () => {
+      const signPromise = capturedSignCb(null, mockSignData);
 
-      const { requestId } = sentListRequest();
-      await ipcHandlers.get("sshagent.listkeysresponse")!({}, { requestId, accepted });
+      const responseHandler = ipcHandlers.get("sshagent.signrequestresponse")!;
+      await responseHandler({}, { requestId: 1, accepted: true });
 
-      expect(await listPromise).toBe(accepted);
+      expect(await signPromise).toBe(true);
     });
 
-    it("should open a window when none is open", () => {
-      windowMain.win = null;
+    it("should resolve with false when the renderer rejects", async () => {
+      const signPromise = capturedSignCb(null, mockSignData);
 
+      const responseHandler = ipcHandlers.get("sshagent.signrequestresponse")!;
+      await responseHandler({}, { requestId: 1, accepted: false });
+
+      expect(await signPromise).toBe(false);
+    });
+  });
+
+  describe("requestListKeys (via list callback)", () => {
+    it("should send sshagent.listkeysrequest with a requestId", () => {
       void capturedListCb(null);
 
-      expect(showWindow).toHaveBeenCalled();
+      expect(mockMessagingService.send).toHaveBeenCalledWith("sshagent.listkeysrequest", {
+        requestId: expect.any(Number),
+      });
     });
 
-    it("should refuse pending requests when the agent stops", async () => {
+    it("should resolve with true when the renderer accepts", async () => {
       const listPromise = capturedListCb(null);
 
-      await ipcHandlers.get("sshagent.stop")!({});
+      const responseHandler = ipcHandlers.get("sshagent.listkeysresponse")!;
+      await responseHandler({}, { requestId: 1, accepted: true });
+
+      expect(await listPromise).toBe(true);
+    });
+
+    it("should resolve with false when the renderer rejects", async () => {
+      const listPromise = capturedListCb(null);
+
+      const responseHandler = ipcHandlers.get("sshagent.listkeysresponse")!;
+      await responseHandler({}, { requestId: 1, accepted: false });
 
       expect(await listPromise).toBe(false);
     });

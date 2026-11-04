@@ -5,11 +5,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AgentRequest } from "../models/agent-request";
-import { AGENT_ACCESS_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
+import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
-import { AgentRequestGate } from "./agent-request-gate.service";
 import { SshAgentService } from "./ssh-agent.service";
 
 function makeSshCipher(id: string, name: string, privateKey: string): CipherView {
@@ -20,23 +18,6 @@ function makeSshCipher(id: string, name: string, privateKey: string): CipherView
     isDeleted: false,
     sshKey: { privateKey },
   } as unknown as CipherView;
-}
-
-const APPROVED = { status: "approved" };
-const DENIED = { status: "denied" };
-
-function sshSign(
-  requestId: number,
-  cipherId: string,
-  isForwarding = false,
-  hostFingerprint?: string,
-): AgentRequest {
-  return {
-    requestId,
-    kind: { type: "sshSign", cipherId, isForwarding, hostFingerprint },
-    requester: { app: { pid: 0, name: "test-app" }, chain: [], bundledCli: false },
-    deadline: Date.now() + 60_000,
-  };
 }
 
 /** Flush pending microtasks and one macrotask cycle to let async RxJS pipelines settle. */
@@ -50,17 +31,6 @@ const flush = () => new Promise<void>((resolve) => setTimeout(resolve));
  */
 const rejectLater = (message: string) =>
   new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message))));
-
-const gates: AgentRequestGate[] = [];
-afterEach(() => gates.splice(0).forEach((gate) => gate.ngOnDestroy()));
-
-// Takes the pre-gate constructor arguments and builds a real gate from the same mocks.
-function createService(...deps: any[]): SshAgentService {
-  const [cipher, log, dialog, messages, auth, toast, i18n, settings, account] = deps;
-  const gate = new AgentRequestGate(auth, account, toast, i18n, log);
-  gates.push(gate);
-  return new SshAgentService(cipher, log, dialog, messages, auth, i18n, settings, account, gate);
-}
 
 describe("SshAgentService", () => {
   let service: SshAgentService;
@@ -101,9 +71,9 @@ describe("SshAgentService", () => {
         sshAgent: {
           isLoaded: mockIsLoaded,
           init: mockInit,
-          ready: jest.fn().mockResolvedValue(undefined),
           replace: mockReplace,
           stop: mockStop,
+          signRequestResponse: jest.fn().mockResolvedValue(undefined),
         },
       },
       platform: { focusWindow: jest.fn() },
@@ -135,7 +105,7 @@ describe("SshAgentService", () => {
     };
     const mockAccountService = { activeAccount$: accountSubject.asObservable() };
 
-    service = createService(
+    service = new SshAgentService(
       mockCipherService as any,
       mockLogService as any,
       mockDialogService as any,
@@ -387,12 +357,12 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).gate.remembered.add("ssh:cipher-abc:local");
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
-    (service as any).gate.ngOnDestroy();
+    service.ngOnDestroy();
     await flush();
 
-    expect((service as any).gate.remembered.has("ssh:cipher-abc:local")).toBe(false);
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when server is already loaded, does not call init again on unlock", async () => {
@@ -411,24 +381,24 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).gate.remembered.add("ssh:cipher-abc:local");
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).gate.remembered.has("ssh:cipher-abc:local")).toBe(false);
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when the active account changes with feature disabled, still resets in-memory approval state", async () => {
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    (service as any).gate.remembered.add("ssh:cipher-abc:local");
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).gate.remembered.has("ssh:cipher-abc:local")).toBe(false);
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when activeAccount$ re-emits with the same id, does not reset approval state", async () => {
@@ -436,12 +406,13 @@ describe("SshAgentService", () => {
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    (service as any).gate.remembered.add("ssh:cipher-abc:local");
+    const seeded = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).authorizedHosts = seeded;
 
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    expect((service as any).gate.remembered.has("ssh:cipher-abc:local")).toBe(true);
+    expect((service as any).authorizedHosts).toBe(seeded);
   });
 
   it("when a key push fails, it is attempted once and not retried in a loop", async () => {
@@ -549,7 +520,7 @@ describe("SshAgentService – sign request authorization", () => {
   const REQUEST_ID = 99;
 
   let service: SshAgentService;
-  let signRequestSubject: Subject<AgentRequest>;
+  let signRequestSubject: Subject<Record<string, unknown>>;
   let promptBehaviorSubject: BehaviorSubject<SshAgentPromptType>;
   let authStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let accountSubject: BehaviorSubject<{ id: UserId } | null>;
@@ -565,7 +536,7 @@ describe("SshAgentService – sign request authorization", () => {
     authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
     mockSignRequestResponse = jest.fn().mockResolvedValue(undefined);
-    mockDialogOpen = jest.fn().mockReturnValue({ closed: of({ approved: true }) });
+    mockDialogOpen = jest.fn().mockReturnValue({ closed: of(true) });
     mockFocusWindow = jest.fn();
     mockShowToast = jest.fn();
     mockGetAllDecrypted = jest
@@ -577,17 +548,16 @@ describe("SshAgentService – sign request authorization", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
-          ready: jest.fn().mockResolvedValue(undefined),
           replace: jest.fn().mockResolvedValue(undefined),
           stop: jest.fn().mockResolvedValue(undefined),
+          signRequestResponse: mockSignRequestResponse,
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
         },
-        agentAccess: { respond: mockSignRequestResponse },
       },
       platform: { focusWindow: mockFocusWindow },
     };
 
-    service = createService(
+    service = new SshAgentService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
@@ -600,7 +570,7 @@ describe("SshAgentService – sign request authorization", () => {
         messages$: jest
           .fn()
           .mockImplementation((def: { command: string }) =>
-            def.command === AGENT_ACCESS_IPC_CHANNELS.REQUEST
+            def.command === SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST
               ? signRequestSubject.asObservable()
               : EMPTY,
           ),
@@ -627,7 +597,14 @@ describe("SshAgentService – sign request authorization", () => {
   });
 
   function sendSignRequest(isAgentForwarding = false, hostFingerprint?: string) {
-    signRequestSubject.next(sshSign(REQUEST_ID, CIPHER_ID, isAgentForwarding, hostFingerprint));
+    signRequestSubject.next({
+      cipherId: CIPHER_ID,
+      requestId: REQUEST_ID,
+      processName: "test-app",
+      namespace: "",
+      isAgentForwarding,
+      hostFingerprint,
+    });
   }
 
   // The agent derives cipherId from its own keystore, which outlives a vault lock and an account
@@ -644,7 +621,7 @@ describe("SshAgentService – sign request authorization", () => {
       await flush();
 
       expect(mockDialogOpen).not.toHaveBeenCalled();
-      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, DENIED);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
     });
 
     it("Always: refuses without showing a dialog", async () => {
@@ -652,18 +629,18 @@ describe("SshAgentService – sign request authorization", () => {
       await flush();
 
       expect(mockDialogOpen).not.toHaveBeenCalled();
-      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, DENIED);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
     });
 
     it("RememberUntilLock: refuses even with an approval already remembered", async () => {
       promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
-      (service as any).gate.remembered.add(`ssh:${CIPHER_ID}:local`);
+      (service as any).authorizedKeys = new Map([[CIPHER_ID, new Set(["local"])]]);
 
       sendSignRequest();
       await flush();
 
       expect(mockDialogOpen).not.toHaveBeenCalled();
-      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, DENIED);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
     });
 
     it("does not leave the request unanswered", async () => {
@@ -684,7 +661,7 @@ describe("SshAgentService – sign request authorization", () => {
       await flush();
       await flush();
 
-      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, DENIED);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
       expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
     });
 
@@ -697,7 +674,7 @@ describe("SshAgentService – sign request authorization", () => {
       await flush();
       await flush();
 
-      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, DENIED);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
       expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
     });
 
@@ -713,7 +690,7 @@ describe("SshAgentService – sign request authorization", () => {
       await flush();
       await flush();
 
-      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, DENIED);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
       expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
     });
   });
@@ -749,46 +726,25 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).not.toHaveBeenCalled();
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("Always: shows dialog and approves when user confirms", async () => {
-    mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+    mockDialogOpen.mockReturnValue({ closed: of(true) });
     sendSignRequest();
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalled();
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("Always: shows dialog and denies when user rejects", async () => {
-    mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+    mockDialogOpen.mockReturnValue({ closed: of(false) });
     sendSignRequest();
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalled();
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, DENIED);
-  });
-
-  it("shows the SSH variant of the agent dialog, with the forwarding warning", async () => {
-    sendSignRequest(true, "SHA256:fp-server1");
-    await flush();
-
-    expect(mockDialogOpen.mock.calls[0][1].data).toEqual({
-      requester: { app: { pid: 0, name: "test-app" }, chain: [], bundledCli: false },
-      ssh: { cipherName: "Test Key", isForwarding: true },
-    });
-  });
-
-  it("ignores agent requests that are not SSH signs", async () => {
-    signRequestSubject.next({
-      ...sshSign(REQUEST_ID, CIPHER_ID),
-      kind: { type: "approval", title: "?" },
-    });
-    await flush();
-
-    expect(mockGetAllDecrypted).not.toHaveBeenCalled();
-    expect(mockSignRequestResponse).not.toHaveBeenCalled();
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
   });
 
   it("RememberUntilLock: shows dialog on first request for a cipher", async () => {
@@ -797,7 +753,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: skips dialog on subsequent requests for the same cipher", async () => {
@@ -811,7 +767,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).not.toHaveBeenCalled();
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("Never: approves forwarded requests without showing dialog", async () => {
@@ -820,7 +776,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).not.toHaveBeenCalled();
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: forwarded requests to same host are remembered by host fingerprint", async () => {
@@ -835,7 +791,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).not.toHaveBeenCalled();
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: forwarded requests to different hosts prompt independently", async () => {
@@ -850,7 +806,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: direct connections to different hosts prompt independently", async () => {
@@ -865,7 +821,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: direct connections to the same host are remembered", async () => {
@@ -879,7 +835,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).not.toHaveBeenCalled();
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: a direct approval does not cover a forwarded request to the same host", async () => {
@@ -894,7 +850,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: local approval does not cover forwarded requests", async () => {
@@ -911,7 +867,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   // Defense in depth: the agent cannot currently report a forwarded request without a fingerprint,
@@ -932,7 +888,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: authorizedHosts cleared on account switch", async () => {
@@ -954,7 +910,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("when the vault is locked, waits for unlock before prompting for approval", async () => {
@@ -975,7 +931,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
   it("RememberUntilLock: re-prompts after vault locks and unlocks", async () => {
@@ -999,7 +955,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 });
 
@@ -1029,16 +985,16 @@ describe("SshAgentService – list keys request", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
-          ready: jest.fn().mockResolvedValue(undefined),
           replace: mockReplace,
           stop: jest.fn().mockResolvedValue(undefined),
+          signRequestResponse: jest.fn().mockResolvedValue(undefined),
           listRequestResponse: mockListRequestResponse,
         },
       },
       platform: { focusWindow: mockFocusWindow },
     };
 
-    service = createService(
+    service = new SshAgentService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher("c1", "My Key", "pem")]),
@@ -1075,13 +1031,9 @@ describe("SshAgentService – list keys request", () => {
     jest.clearAllMocks();
   });
 
-  function sendListRequest(deadline = Date.now() + 60_000) {
-    listKeysRequestSubject.next({ requestId: LIST_REQUEST_ID, deadline });
+  function sendListRequest() {
+    listKeysRequestSubject.next({ requestId: LIST_REQUEST_ID });
   }
-
-  it("tells main it is listening, so held list requests are delivered", () => {
-    expect(ipc.autofill.sshAgent.ready).toHaveBeenCalled();
-  });
 
   it("when vault is unlocked, replaces keys and sends listRequestResponse(true)", async () => {
     sendListRequest();
@@ -1135,10 +1087,13 @@ describe("SshAgentService – list keys request", () => {
       mockReplace.mockClear();
       mockListRequestResponse.mockClear();
 
-      sendListRequest(Date.now() + 50);
+      // Reduce timeout so the timer fires quickly under fake timers.
+      (service as any).SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 50;
 
-      // Advance past the 50ms deadline; async, since the gate arms the timeout after reading the setting.
-      await jest.advanceTimersByTimeAsync(100);
+      sendListRequest();
+
+      // Advance past the 50ms timeout so RxJS fires the TimeoutError synchronously.
+      jest.advanceTimersByTime(100);
 
       // Drain microtasks: the catchError calls the IPC mock (a resolved promise),
       // then switchMap(() => EMPTY) completes the inner observable.
@@ -1167,7 +1122,7 @@ describe("SshAgentService – list keys request", () => {
 
 describe("SshAgentService – concurrent sign requests", () => {
   let service: SshAgentService;
-  let signRequestSubject: Subject<AgentRequest>;
+  let signRequestSubject: Subject<Record<string, unknown>>;
   let mockSignRequestResponse: jest.Mock;
   let mockGetAllDecrypted: jest.Mock;
 
@@ -1181,17 +1136,16 @@ describe("SshAgentService – concurrent sign requests", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
-          ready: jest.fn().mockResolvedValue(undefined),
           replace: jest.fn().mockResolvedValue(undefined),
           stop: jest.fn().mockResolvedValue(undefined),
+          signRequestResponse: mockSignRequestResponse,
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
         },
-        agentAccess: { respond: mockSignRequestResponse },
       },
       platform: { focusWindow: jest.fn() },
     };
 
-    service = createService(
+    service = new SshAgentService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
@@ -1202,7 +1156,7 @@ describe("SshAgentService – concurrent sign requests", () => {
         messages$: jest
           .fn()
           .mockImplementation((def: { command: string }) =>
-            def.command === AGENT_ACCESS_IPC_CHANNELS.REQUEST
+            def.command === SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST
               ? signRequestSubject.asObservable()
               : EMPTY,
           ),
@@ -1215,7 +1169,7 @@ describe("SshAgentService – concurrent sign requests", () => {
       { t: jest.fn().mockReturnValue("") } as any,
       {
         sshAgentEnabled$: of(true),
-        // Never: no dialog shown, the response is sent immediately after decrypt.
+        // Never: no dialog shown, signRequestResponse called immediately after decrypt.
         sshAgentPromptBehavior$: of(SshAgentPromptType.Never),
       } as any,
       { activeAccount$: of({ id: "user-1" as UserId }) } as any,
@@ -1229,7 +1183,7 @@ describe("SshAgentService – concurrent sign requests", () => {
     jest.clearAllMocks();
   });
 
-  it("when two sign requests arrive before getAllDecrypted resolves, both receive a response", async () => {
+  it("when two sign requests arrive before getAllDecrypted resolves, both receive signRequestResponse", async () => {
     // Gate the first decryption behind a manually controlled promise so that the
     // second request can arrive while the first is still in-flight through the pipeline.
     // Both requests name c1, so the vault must contain it: a sign request for a cipher outside
@@ -1245,8 +1199,20 @@ describe("SshAgentService – concurrent sign requests", () => {
       .mockResolvedValue(ciphers);
 
     // Emit both requests before the pending getAllDecrypted resolves.
-    signRequestSubject.next(sshSign(1, "c1"));
-    signRequestSubject.next(sshSign(2, "c1"));
+    signRequestSubject.next({
+      cipherId: "c1",
+      requestId: 1,
+      processName: "",
+      namespace: "",
+      isAgentForwarding: false,
+    });
+    signRequestSubject.next({
+      cipherId: "c1",
+      requestId: 2,
+      processName: "",
+      namespace: "",
+      isAgentForwarding: false,
+    });
     await flush();
 
     // Release the first decryption. With concatMap, request 1 proceeds and request 2
@@ -1256,8 +1222,8 @@ describe("SshAgentService – concurrent sign requests", () => {
     await flush();
     await flush();
 
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(1, APPROVED);
-    expect(mockSignRequestResponse).toHaveBeenCalledWith(2, APPROVED);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(1, true);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(2, true);
   });
 });
 
@@ -1277,16 +1243,16 @@ describe("SshAgentService – concurrent list keys requests", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
-          ready: jest.fn().mockResolvedValue(undefined),
           replace: jest.fn().mockResolvedValue(undefined),
           stop: jest.fn().mockResolvedValue(undefined),
+          signRequestResponse: jest.fn().mockResolvedValue(undefined),
           listRequestResponse: mockListRequestResponse,
         },
       },
       platform: { focusWindow: jest.fn() },
     };
 
-    service = createService(
+    service = new SshAgentService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
@@ -1333,8 +1299,8 @@ describe("SshAgentService – concurrent list keys requests", () => {
       )
       .mockResolvedValue([]);
 
-    listKeysRequestSubject.next({ requestId: 1, deadline: Date.now() + 60_000 });
-    listKeysRequestSubject.next({ requestId: 2, deadline: Date.now() + 60_000 });
+    listKeysRequestSubject.next({ requestId: 1 });
+    listKeysRequestSubject.next({ requestId: 2 });
     await flush();
 
     resolveFirstDecrypt([]);

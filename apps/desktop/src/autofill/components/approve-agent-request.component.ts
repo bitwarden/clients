@@ -47,7 +47,6 @@ export type ApproveAgentRequestParams = {
     rememberable: boolean;
   };
   approval?: { title: string; body?: string };
-  ssh?: { cipherName: string; namespace?: string; isForwarding: boolean };
 };
 
 export type ApproveAgentRequestResult = {
@@ -80,13 +79,6 @@ const KIND_STYLES = Object.freeze({
     approve: "share",
     deny: "deny",
     icon: "bwi-share",
-  },
-  ssh: {
-    title: "agentAccessSshTitle",
-    leaves: "agentAccessLeavesSsh",
-    approve: "agentAccessSign",
-    deny: "deny",
-    icon: "bwi-key",
   },
   ask: {
     title: "agentAccessApprovalTitle",
@@ -130,7 +122,6 @@ export class ApproveAgentRequestComponent {
   protected readonly kind: Kind = kindOf(this.params);
   protected readonly style: KindStyle = KIND_STYLES[this.kind];
   protected readonly leaves: [string, string?] = leavesLine(this.kind, this.params.requester);
-  protected readonly sshAction = sshActionKey(this.params.ssh?.namespace);
   protected readonly candidates = this.params.credential?.candidates ?? [];
   protected readonly form = new FormGroup({
     cipherId: new FormControl(this.candidates[0]?.id ?? "", { nonNullable: true }),
@@ -171,18 +162,8 @@ export class ApproveAgentRequestComponent {
   }
 }
 
-function sshActionKey(namespace: string | undefined) {
-  if (namespace === "git") {
-    return "sshActionGitSign";
-  }
-  return namespace ? "sshActionSign" : "sshActionLogin";
-}
-
 /** Env vars mean `bw-access run` or MCP `run_with_credential`; the service drops unverified ones. */
-function kindOf({ ssh, approval, credential }: ApproveAgentRequestParams): Kind {
-  if (ssh) {
-    return "ssh";
-  }
+function kindOf({ approval, credential }: ApproveAgentRequestParams): Kind {
   if (approval) {
     return "ask";
   }

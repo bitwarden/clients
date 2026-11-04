@@ -31,12 +31,6 @@ pub mod agent_access {
             title: String,
             body: Option<String>,
         },
-        SshSign {
-            cipher_id: String,
-            namespace: Option<String>,
-            is_forwarding: bool,
-            host_fingerprint: Option<String>,
-        },
     }
 
     /// Exactly one field is set, as on the wire.
@@ -194,17 +188,6 @@ pub mod agent_access {
                 RequestKind::Approval { prompt } => AgentRequestKind::Approval {
                     title: prompt.title,
                     body: prompt.body,
-                },
-                RequestKind::SshSign {
-                    cipher_id,
-                    namespace,
-                    is_forwarding,
-                    host_fingerprint,
-                } => AgentRequestKind::SshSign {
-                    cipher_id,
-                    namespace,
-                    is_forwarding,
-                    host_fingerprint,
                 },
             };
             let deadline = request

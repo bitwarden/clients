@@ -38,11 +38,7 @@ export class MainAgentAccessService {
     ipcMain.handle(AGENT_ACCESS_IPC_CHANNELS.STOP, () => {
       this.agentState?.stop();
       this.agentState = null;
-      // SSH signs share the broker but not the setting; the SSH agent still waits on them.
-      this.broker.settleAll(
-        { status: AgentOutcomeStatus.Denied },
-        (request) => request.kind.type !== "sshSign",
-      );
+      this.broker.settleAll({ status: AgentOutcomeStatus.Denied });
     });
     ipcMain.handle(AGENT_ACCESS_IPC_CHANNELS.READY, () => this.broker.rendererStarted());
     ipcMain.handle(
@@ -52,7 +48,6 @@ export class MainAgentAccessService {
     );
   }
 
-  /** Also answers the SSH agent's sign approvals, so every request shares one broker. */
   readonly answer = async (request: agent_access.AgentRequest) =>
     toNative(await this.broker.request(request, request.deadline));
 

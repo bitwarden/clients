@@ -795,15 +795,6 @@
   "agentAccessRemember": {
     "message": "Remember until vault is locked"
   },
-  "agentAccessSshTitle": {
-    "message": "Allow $APP$ to use an SSH key?",
-    "placeholders": {
-      "app": {
-        "content": "$1",
-        "example": "Claude Code"
-      }
-    }
-  },
   "agentAccessSigned": {
     "message": "Signed"
   },
@@ -818,12 +809,6 @@
   },
   "agentAccessFor": {
     "message": "For"
-  },
-  "agentAccessKey": {
-    "message": "Key"
-  },
-  "agentAccessAction": {
-    "message": "Action"
   },
   "agentAccessDetails": {
     "message": "Details"
@@ -843,14 +828,8 @@
   "agentAccessLeavesShareApp": {
     "message": "The login is returned to the requesting app."
   },
-  "agentAccessLeavesSsh": {
-    "message": "Only a signature leaves Bitwarden. The private key stays."
-  },
   "agentAccessLeavesAsk": {
     "message": "Nothing from your vault is shared."
-  },
-  "agentAccessSign": {
-    "message": "Sign"
   },
   "agentAccessUnlockRequired": {
     "message": "Unlock your vault to answer a request from an app or agent."
@@ -5592,6 +5571,15 @@
   },
   "deny": {
     "message": "Deny"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Confirm SSH key usage"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "is requesting access to"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
   },
   "agentForwardingWarningTitle": {
     "message": "Warning: Agent Forwarding"

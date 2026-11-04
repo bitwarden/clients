@@ -56,19 +56,11 @@ describe("MainAgentAccessService", () => {
 
   afterEach(() => jest.useRealTimers());
 
-  it("on stop, denies agent access requests but leaves SSH signs to the SSH agent", async () => {
+  it("on stop, denies pending agent access requests", async () => {
     const credential = service.answer(request({ type: "credential", query: { domain: "x" } }));
-    const sign = service.answer(request({ type: "sshSign", cipherId: "c", isForwarding: false }));
-
-    const { requestId } = messaging.send.mock.calls[1][1] as { requestId: number };
 
     handlers.get("agentaccess.stop")!();
-    handlers.get("agentaccess.response")!(
-      {},
-      { requestId, outcome: { status: AgentOutcomeStatus.Approved } },
-    );
 
     await expect(credential).resolves.toEqual({ status: "denied" });
-    await expect(sign).resolves.toEqual({ status: "approved" });
   });
 });

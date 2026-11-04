@@ -4,7 +4,6 @@ import {
   combineLatest,
   concatMap,
   EMPTY,
-  filter,
   firstValueFrom,
   mergeMap,
   Subject,
@@ -36,8 +35,6 @@ import {
   AgentOutcomeStatus,
   AgentRequest,
   AgentRequester,
-  AgentRequestKind,
-  AgentSshSign,
   verifiedSigner,
 } from "../models/agent-request";
 import { AGENT_ACCESS_IPC_CHANNELS } from "../models/ipc-channels";
@@ -50,9 +47,6 @@ type Release = { cipher: CipherView; fields: AgentCredentialField[] };
 
 /** `run` keeps the secrets in the command's environment; `share` returns them to the caller. */
 type Mode = "run" | "share";
-
-/** SSH signs share the channel but are answered by `SshAgentService`. */
-type AccessRequest = AgentRequest<Exclude<AgentRequestKind, AgentSshSign>>;
 
 /** Answers local agent requests (credentials and yes/no questions) through the shared gate. */
 @Injectable({ providedIn: "root" })
@@ -73,7 +67,6 @@ export class AgentAccessService implements OnDestroy {
     this.messageListener
       .messages$(new CommandDefinition<AgentRequest>(AGENT_ACCESS_IPC_CHANNELS.REQUEST))
       .pipe(
-        filter((request): request is AccessRequest => request.kind.type !== "sshSign"),
         mergeMap((request) =>
           this.gate.run<AgentOutcome>({
             label: `agent ${request.kind.type} request`,
@@ -121,7 +114,7 @@ export class AgentAccessService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  private async handle(request: AccessRequest, userId: UserId): Promise<AgentOutcome> {
+  private async handle(request: AgentRequest, userId: UserId): Promise<AgentOutcome> {
     const { kind, requester, deadline } = request;
 
     if (kind.type === "approval") {

@@ -2,12 +2,6 @@
   <bit-icon-tile bitDialogHeaderStart aria-hidden="true" [icon]="style.icon" />
   <span bitDialogTitle>{{ style.title | i18n: app.name }}</span>
   <div bitDialogContent>
-    @if (params.ssh?.isForwarding) {
-      <bit-callout type="warning" [title]="'agentForwardingWarningTitle' | i18n">
-        {{ "agentForwardingWarningText" | i18n }}
-      </bit-callout>
-    }
-
     <bit-card-segmented>
       <div class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3">
         <bit-avatar size="sm" aria-hidden="true" [text]="app.name" />
@@ -81,24 +75,6 @@
             <code class="tw-break-all tw-font-mono tw-text-sm">{{ command }}</code>
           </div>
         }
-      }
-      @if (params.ssh; as ssh) {
-        <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
-          <span
-            bitTypography="body2"
-            class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
-            ><bit-icon name="bwi-key" aria-hidden="true" />{{ "agentAccessKey" | i18n }}</span
-          >
-          <span bitTypography="body2" class="tw-font-semibold">{{ ssh.cipherName }}</span>
-        </div>
-        <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
-          <span
-            bitTypography="body2"
-            class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
-            ><bit-icon name="bwi-pencil" aria-hidden="true" />{{ "agentAccessAction" | i18n }}</span
-          >
-          <span bitTypography="body2">{{ sshAction | i18n }}</span>
-        </div>
       }
       @if (params.approval; as approval) {
         <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
