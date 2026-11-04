@@ -875,6 +875,21 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    const field = this.formFieldElements.get(formFieldElement);
+    if (
+      formFieldElement instanceof HTMLInputElement &&
+      formFieldElement.type !== "password" &&
+      field?.inlineMenuFillType === CipherType.Login &&
+      this.inlineMenuFieldQualificationService.isUsernameField(field) &&
+      (await this.isInlineMenuListVisible())
+    ) {
+      await this.sendExtensionMessage("filterInlineMenuLogins", {
+        inlineMenuSearch: formFieldElement.value,
+        inlineMenuSearchFieldOpid: field.opid,
+      });
+      return;
+    }
+
     await this.sendExtensionMessage("closeAutofillInlineMenu", {
       overlayElement: AutofillOverlayElement.List,
       forceCloseInlineMenu: true,

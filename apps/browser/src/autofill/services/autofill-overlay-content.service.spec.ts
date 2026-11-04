@@ -446,6 +446,35 @@ describe("AutofillOverlayContentService", () => {
           jest.spyOn(globalThis.customElements, "define").mockImplementation();
         });
 
+        it("filters the open menu from a username field without sending passwords", async () => {
+          const input = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+          input.value = "alice";
+          const field = createAutofillFieldMock({ inlineMenuFillType: CipherType.Login });
+          autofillOverlayContentService["formFieldElements"].set(input, field);
+          jest
+            .spyOn(autofillOverlayContentService as any, "storeModifiedFormElement")
+            .mockImplementation();
+          jest
+            .spyOn(autofillOverlayContentService as any, "isInlineMenuListVisible")
+            .mockResolvedValue(true);
+          jest.spyOn(inlineMenuFieldQualificationService, "isUsernameField").mockReturnValue(true);
+
+          await autofillOverlayContentService["triggerFormFieldInput"](input);
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("filterInlineMenuLogins", {
+            inlineMenuSearch: "alice",
+            inlineMenuSearchFieldOpid: field.opid,
+          });
+
+          sendExtensionMessageSpy.mockClear();
+          input.type = "password";
+          input.value = "secret";
+          await autofillOverlayContentService["triggerFormFieldInput"](input);
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "filterInlineMenuLogins",
+            expect.anything(),
+          );
+        });
+
         it("ignores span elements that trigger the listener", async () => {
           const spanAutofillFieldElement = document.createElement(
             "span",

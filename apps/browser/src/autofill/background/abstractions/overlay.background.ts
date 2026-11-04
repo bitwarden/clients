@@ -153,6 +153,8 @@ export type OverlayBackgroundExtensionMessage = {
   focusedFieldData?: FocusedFieldData;
   allFieldsRect?: AutofillField[];
   isOpeningFullInlineMenu?: boolean;
+  inlineMenuSearch?: string;
+  inlineMenuSearchFieldOpid?: string;
   styles?: Partial<CSSStyleDeclaration>;
   iframeSrc?: string;
   iframeTargetedFields?: { selector: string; fieldType: string; formCategory?: string }[];
@@ -248,6 +250,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   checkIsFieldCurrentlyFilling: () => boolean;
   getAutofillInlineMenuVisibility: () => void;
   openAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  filterInlineMenuLogins: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getInlineMenuCardsVisibility: () => void;
   getInlineMenuIdentitiesVisibility: () => void;
   getInlineMenuSshKeysVisibility: () => void;

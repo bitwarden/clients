@@ -168,6 +168,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuButtonPort: chrome.runtime.Port | null = null;
   private inlineMenuButtonMessageConnectorPort: chrome.runtime.Port | null = null;
   private inlineMenuListPort: chrome.runtime.Port | null = null;
+  private inlineMenuFilterSequence = 0;
+  private inlineMenuHasFilter = false;
   private inlineMenuListMessageConnectorPort: chrome.runtime.Port | null = null;
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuFido2Credentials: Set<string> = new Set();
@@ -209,6 +211,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.withSenderTab(sender, () =>
         this.openInlineMenu(sender, message.isOpeningFullInlineMenu),
       ),
+    filterInlineMenuLogins: ({ message, sender }) => {
+      if (message.inlineMenuSearchFieldOpid === this.focusedFieldData?.focusedFieldOpid) {
+        void this.filterInlineMenuLogins(message.inlineMenuSearch, sender);
+      }
+    },
     getInlineMenuCardsVisibility: () => this.getInlineMenuCardsVisibility(),
     getInlineMenuIdentitiesVisibility: () => this.getInlineMenuIdentitiesVisibility(),
     getInlineMenuSshKeysVisibility: () => this.getInlineMenuSshKeysVisibility(),
@@ -559,6 +566,43 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation: this.shouldShowInlineMenuAccountCreation(),
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
       focusedFieldHasValue: await this.checkFocusedFieldHasValue(tab),
+    });
+  }
+
+  private async filterInlineMenuLogins(
+    query: string | undefined,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if (
+      typeof query !== "string" ||
+      !this.senderFrameHasFocusedField(sender) ||
+      !this.isInlineMenuListVisible
+    ) {
+      return;
+    }
+    const sequence = ++this.inlineMenuFilterSequence;
+    const focusedField = this.focusedFieldData;
+    const ciphers = await this.getInlineMenuCipherData();
+    if (
+      sequence !== this.inlineMenuFilterSequence ||
+      focusedField !== this.focusedFieldData ||
+      !this.senderFrameHasFocusedField(sender) ||
+      !this.isInlineMenuListVisible
+    ) {
+      return;
+    }
+    const normalized = query.trim().toLocaleLowerCase();
+    this.inlineMenuHasFilter = normalized.length > 0;
+    this.postMessageToPort(this.inlineMenuListPort, {
+      command: "updateAutofillInlineMenuListCiphers",
+      ciphers: ciphers.filter(
+        (cipher) =>
+          cipher.type === CipherType.Login &&
+          [cipher.name, cipher.login?.username, cipher.login?.passkey?.userName].some((value) =>
+            value?.toLocaleLowerCase().includes(normalized),
+          ),
+      ),
+      showInlineMenuAccountCreation: this.shouldShowInlineMenuAccountCreation(),
     });
   }
 
@@ -2117,6 +2161,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       tabId: sender.tab.id,
       frameId,
     };
+    if (
+      this.inlineMenuHasFilter &&
+      (previousFocusedFieldData?.focusedFieldOpid !== focusedFieldData.focusedFieldOpid ||
+        previousFocusedFieldData?.tabId !== sender.tab.id ||
+        previousFocusedFieldData?.frameId !== frameId)
+    ) {
+      this.inlineMenuHasFilter = false;
+      void this.filterInlineMenuLogins("", sender);
+    }
     this.allFieldData = allFieldsRect ?? [];
     this.isFieldCurrentlyFocused = true;
 

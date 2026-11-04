@@ -316,6 +316,52 @@ describe("OverlayBackground", () => {
     mockReset(cipherService);
   });
 
+  describe("filterInlineMenuLogins", () => {
+    it("filters matching login names and usernames and restores the list when cleared", async () => {
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 1, frameId: 0 });
+      overlayBackground["isInlineMenuListVisible"] = true;
+      const ciphers = [
+        {
+          id: "1",
+          name: "Work",
+          type: CipherType.Login,
+          login: { username: "Alice", passkey: null },
+        },
+        {
+          id: "2",
+          name: "Personal",
+          type: CipherType.Login,
+          login: { username: "Bob", passkey: null },
+        },
+      ] as any;
+      jest.spyOn(overlayBackground as any, "getInlineMenuCipherData").mockResolvedValue(ciphers);
+      const post = jest.spyOn(overlayBackground as any, "postMessageToPort");
+
+      await overlayBackground["filterInlineMenuLogins"]("ALICE", sender);
+      expect(post).toHaveBeenLastCalledWith(
+        null,
+        expect.objectContaining({ ciphers: [ciphers[0]] }),
+      );
+      await overlayBackground["filterInlineMenuLogins"]("", sender);
+      expect(post).toHaveBeenLastCalledWith(null, expect.objectContaining({ ciphers }));
+    });
+
+    it("ignores messages from a different frame", async () => {
+      overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 1, frameId: 0 });
+      overlayBackground["isInlineMenuListVisible"] = true;
+      const getCiphers = jest.spyOn(overlayBackground as any, "getInlineMenuCipherData");
+      await overlayBackground["filterInlineMenuLogins"](
+        "alice",
+        mock<chrome.runtime.MessageSender>({ tab: createChromeTabMock({ id: 1 }), frameId: 2 }),
+      );
+      expect(getCiphers).not.toHaveBeenCalled();
+    });
+  });
+
   describe("storing pageDetails", () => {
     const tabId = 1;
 
