@@ -120,12 +120,13 @@
     </div>
   }
   @if (multiple()) {
+    <!-- Grid so every row takes the widest row's width; deep rows scroll sideways with aligned counts. -->
     <div
       role="tree"
       aria-multiselectable="true"
       [attr.aria-label]="placeholderText()"
       tabindex="-1"
-      class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+      class="tw-grid tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
       data-filter-card-list
       data-filter-scroll
       (keydown)="onTreeKeydown($event)"
@@ -209,17 +210,21 @@
               />
             }
           }
+          <!-- The min width keeps deep labels readable. Clamped, not `truncate`: a `nowrap` label's
+               min-content is its full text, so the grid would never truncate it. -->
           @if (node.row.kind === "section") {
             <span
               data-filter-row-label
               bitTypography="helper"
-              class="tw-min-w-0 tw-flex-1 tw-truncate tw-font-semibold"
+              class="tw-min-w-0 tw-flex-1 tw-line-clamp-1 tw-break-all tw-font-semibold"
               >{{ node.row.label() }}</span
             >
           } @else {
-            <span data-filter-row-label class="tw-min-w-0 tw-flex-1 tw-truncate">{{
-              node.row.label()
-            }}</span>
+            <span
+              data-filter-row-label
+              class="tw-min-w-16 tw-flex-1 tw-line-clamp-1 tw-break-all"
+              >{{ node.row.label() }}</span
+            >
           }
           @if (asSection(node.row); as section) {
             <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
