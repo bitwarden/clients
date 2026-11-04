@@ -1,7 +1,7 @@
 /*
   The types and validation in this file mirror the Autotype Pairing Data Schema, which is the
   source of truth and must be kept in sync with this file:
-  apps/desktop/desktop_native/autotype/schemas/autotype-pairing-data-schema.0.1.0.json
+  libs/common/src/desktop-native/schemas/autotype-pairing-data-schema.0.1.0.json
 */
 
 /**
