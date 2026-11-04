@@ -9288,6 +9288,24 @@
       }
     }
   },
+  "sentInviteReminderToUserId": {
+    "message": "Sent invite reminder to user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "Resent invite to user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "System"
   },
