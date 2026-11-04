@@ -9,8 +9,8 @@ import {
   findHumanDecision,
   humanApprover,
   requestedWindowSeconds,
+  AccessBadgeState,
 } from "@bitwarden/bit-pam";
-import { AccessBadgeState } from "@bitwarden/bit-pam/access-state-badge/access-badge-state";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import type { BadgeVariant } from "@bitwarden/components";
 

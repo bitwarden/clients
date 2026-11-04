@@ -17,7 +17,6 @@ export { DurationShortPipe } from "./date/duration-short.pipe";
 export { RelativeTimePipe } from "./date/relative-time.pipe";
 export { RemainingTimePipe } from "./date/remaining-time.pipe";
 export { RequestedWindowPipe } from "./date/requested-window.pipe";
-export { TimestampPipe } from "./date/timestamp.pipe";
 export {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,

@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
-import { resolveCollectionNames } from "@bitwarden/bit-pam";
-import { sharedFolderKey } from "@bitwarden/bit-pam/helpers/shared-folder-key";
+import { resolveCollectionNames, sharedFolderKey } from "@bitwarden/bit-pam";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";

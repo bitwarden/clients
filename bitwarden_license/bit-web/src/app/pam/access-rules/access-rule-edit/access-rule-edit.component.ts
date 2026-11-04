@@ -22,7 +22,6 @@ import {
   ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   ACCESS_RULE_DURATION_PRESETS,
   ACCESS_RULE_NAME_MAX_LENGTH,
-  accessRuleDeleteConfirmOptions,
   accessRuleErrorMessageKey,
   accessRuleToFormValue,
   AccessRuleSdkService,
@@ -39,8 +38,9 @@ import {
   NO_DURATION_CAP,
   resolveCollectionNames,
   snapToNearestAccessRuleDuration,
+  sharedFolderKey,
 } from "@bitwarden/bit-pam";
-import { sharedFolderKey } from "@bitwarden/bit-pam/helpers/shared-folder-key";
+import { accessRuleDeleteConfirmOptions } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
