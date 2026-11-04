@@ -6,7 +6,6 @@ import {
   AccessEventService,
   AccessLeaseSdkService,
   AccessRefreshService,
-  AccessRequestSdkService,
   ApprovalSdkService,
 } from "@bitwarden/bit-common/pam";
 import type {
@@ -79,7 +78,6 @@ function alreadyResolved(): Error {
 describe("ApproverInboxService", () => {
   let service: ApproverInboxService;
   let approvalApi: MockProxy<ApprovalSdkService>;
-  let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
   let accessRefresh: MockProxy<AccessRefreshService>;
@@ -88,7 +86,6 @@ describe("ApproverInboxService", () => {
 
   beforeEach(() => {
     approvalApi = mock<ApprovalSdkService>();
-    requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
     accessRefresh = mock<AccessRefreshService>();
@@ -103,7 +100,6 @@ describe("ApproverInboxService", () => {
       providers: [
         ApproverInboxService,
         { provide: ApprovalSdkService, useValue: approvalApi },
-        { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: AccessRefreshService, useValue: accessRefresh },
@@ -383,10 +379,10 @@ describe("ApproverInboxService", () => {
       expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
     });
 
-    it("cancels an approval via access_requests().cancel() with the reason", async () => {
+    it("withdraws an approval via approvals().revoke() with the reason", async () => {
       await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1", "Approved by mistake");
+      expect(approvalApi.revoke).toHaveBeenCalledWith("req-1", "Approved by mistake");
     });
 
     it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
@@ -466,7 +462,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("restores the row and rethrows when cancelling an approval fails", async () => {
-      requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
+      approvalApi.revoke.mockRejectedValue(new Error("boom"));
 
       await expect(
         service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed"),
@@ -482,7 +478,7 @@ describe("ApproverInboxService", () => {
       );
       await service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed");
 
-      // `decide` is the only mutation on `ApprovalSdkService`.
+      // Neither path records a decision through `decide`.
       expect(approvalApi.decide).not.toHaveBeenCalled();
     });
   });
