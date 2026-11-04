@@ -1,8 +1,8 @@
 import { Injectable, WritableSignal, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import type { AccessDecisionVerdict } from "@bitwarden/bit-pam/abstractions/access-lease";
-import { decideAccessErrorMessageKey } from "@bitwarden/bit-pam/helpers/decide-access-error";
+import { decideAccessErrorMessageKey } from "@bitwarden/bit-pam";
+import type { AccessDecisionVerdict } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";

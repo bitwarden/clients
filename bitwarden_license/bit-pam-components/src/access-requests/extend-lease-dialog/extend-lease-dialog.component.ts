@@ -1,11 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
-import {
-  AccessLeaseExtensionRequest,
-  EXTENSION_DURATION_OPTIONS,
-  extensionDurationOptions,
-} from "@bitwarden/bit-pam";
+import { AccessLeaseExtensionRequest, extensionDurationOptions } from "@bitwarden/bit-pam";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -18,8 +14,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessLeaseExtensionRequest } from "../../abstractions/access-lease";
-import { EXTENSION_DURATION_OPTIONS } from "../../helpers/lease-window.utils";
 
 /** Collects a lease extension. The reason is required because the server rejects an empty one. */
 @Component({
@@ -43,10 +37,7 @@ export class ExtendLeaseDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly params = inject<ExtendLeaseDialogParams>(DIALOG_DATA);
 
-  protected readonly durationOptions =
-    this.params.maxDurationSeconds == null
-      ? EXTENSION_DURATION_OPTIONS
-      : extensionDurationOptions(this.params.maxDurationSeconds);
+  protected readonly durationOptions = extensionDurationOptions(this.params.maxDurationSeconds);
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     durationSeconds: [this.durationOptions[0].seconds, Validators.required],
@@ -64,7 +55,7 @@ export class ExtendLeaseDialogComponent {
 
   static open(
     dialogService: DialogService,
-    data: ExtendLeaseDialogParams = {},
+    data: ExtendLeaseDialogParams,
   ): DialogRef<AccessLeaseExtensionRequest | undefined> {
     return dialogService.open(ExtendLeaseDialogComponent, { data });
   }

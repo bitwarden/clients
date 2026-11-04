@@ -11,7 +11,7 @@ import {
 } from "rxjs";
 
 import { AccessRefreshService, AccessRequestSdkService } from "@bitwarden/bit-pam";
-import { AccessRequestCancelService } from "@bitwarden/bit-pam/services/access-request-cancel.service";
+import { AccessRequestCancelService } from "@bitwarden/bit-pam-components";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {

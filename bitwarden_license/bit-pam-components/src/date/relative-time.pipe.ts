@@ -1,6 +1,6 @@
 import { LOCALE_ID, Pipe, PipeTransform, inject } from "@angular/core";
 
-import { formatRelativeTime } from "./relative-time";
+import { formatRelativeTime } from "@bitwarden/bit-pam";
 
 /** A localized relative phrase, e.g. "5 min. ago" or "in 2 hr.". */
 @Pipe({

@@ -18,13 +18,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
 
-import { formatRemaining } from "../date/format-remaining";
 
-import {
-  ACCESS_BADGE_LOOK,
-  AccessBadgeState,
-  ENDING_SOON_THRESHOLD_MS,
-} from "./access-badge-state";
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
 type BadgeIcon =
