@@ -19,13 +19,18 @@ type PrfExtensionInputs = {
  * Replaces `navigator.credentials.get()` for public key credentials with the platform's passkey
  * APIs, which Electron does not use. Other credential requests are passed through.
  *
- * Aborting the request's `signal` closes the platform's prompt.
+ * Requests are made for the origin returned by `getOrigin`, since the renderer's own origin is
+ * not a web origin. Aborting the request's `signal` closes the platform's prompt.
  *
  * Returned credentials pass `instanceof PublicKeyCredential` and
  * `instanceof AuthenticatorAssertionResponse` checks, but are plain objects: their members are own
  * properties rather than the native implementations.
  */
-export function installNativeWebAuthn(win: Window, ipc: NativeWebAuthnIpc): void {
+export function installNativeWebAuthn(
+  win: Window,
+  ipc: NativeWebAuthnIpc,
+  getOrigin: () => Promise<string>,
+): void {
   const credentials = win.navigator.credentials;
   const originalGet = credentials.get.bind(credentials);
   Object.defineProperty(credentials, "get", {
@@ -41,9 +46,16 @@ export function installNativeWebAuthn(win: Window, ipc: NativeWebAuthnIpc): void
       }
 
       const prf = (options.publicKey.extensions as { prf?: PrfExtensionInputs } | undefined)?.prf;
+      const publicKey = options.publicKey;
       const requestId = Utils.newGuid();
       const result = await rejectOnAbort(
-        ipc.getAssertion(requestId, toAssertionRequest(options.publicKey, prf)),
+        getOrigin().then((origin) => {
+          // Do not show a prompt that nothing is waiting for.
+          if (signal?.aborted) {
+            throw abortReason(signal);
+          }
+          return ipc.getAssertion(requestId, toAssertionRequest(origin, publicKey, prf));
+        }),
         signal,
         () => void ipc.cancel(requestId),
       );
@@ -85,11 +97,13 @@ function abortReason(signal: AbortSignal): unknown {
 }
 
 function toAssertionRequest(
+  origin: string,
   options: PublicKeyCredentialRequestOptions,
   prf: PrfExtensionInputs | undefined,
 ): webauthn.AssertionRequest {
   return {
-    // The native module rejects an RP ID that is not a valid domain.
+    origin,
+    // The native module rejects an RP ID that is not valid for the origin.
     rpId: options.rpId ?? "",
     challenge: toBytes(options.challenge),
     allowCredentials: (options.allowCredentials ?? []).map((c) => ({

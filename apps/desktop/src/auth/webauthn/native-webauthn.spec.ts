@@ -37,7 +37,7 @@ describe("installNativeWebAuthn", () => {
     ipc.getAssertion.mockResolvedValue({ response: assertion });
     credentials = { get: originalGet } as unknown as CredentialsContainer;
     const win = { navigator: { credentials } } as unknown as Window;
-    installNativeWebAuthn(win, ipc);
+    installNativeWebAuthn(win, ipc, () => Promise.resolve("https://vault.example.com"));
   });
 
   it("passes through requests that are not for public key credentials", async () => {
@@ -63,6 +63,7 @@ describe("installNativeWebAuthn", () => {
     });
 
     expect(ipc.getAssertion).toHaveBeenCalledWith(expect.any(String), {
+      origin: "https://vault.example.com",
       rpId: "example.com",
       challenge: new Uint8Array([1, 2]),
       allowCredentials: [{ id: new Uint8Array([1]), transports: ["internal"] }],
@@ -158,8 +159,7 @@ describe("installNativeWebAuthn", () => {
     expect(ipc.getAssertion).not.toHaveBeenCalled();
   });
 
-  it("cancels the request and rejects with the abort reason when the signal is aborted", async () => {
-    ipc.getAssertion.mockReturnValue(new Promise(() => {}));
+  it("does not send a request if the signal is aborted while the origin is looked up", async () => {
     const controller = new AbortController();
     const reason = new DOMException("Stop", "AbortError");
 
@@ -167,7 +167,24 @@ describe("installNativeWebAuthn", () => {
     controller.abort(reason);
 
     await expect(result).rejects.toBe(reason);
-    const requestId = ipc.getAssertion.mock.calls[0][0];
-    expect(ipc.cancel).toHaveBeenCalledWith(requestId);
+    expect(ipc.getAssertion).not.toHaveBeenCalled();
+  });
+
+  it("cancels the request and rejects with the abort reason when the signal is aborted", async () => {
+    let requestSent!: () => void;
+    const sent = new Promise<void>((resolve) => (requestSent = resolve));
+    ipc.getAssertion.mockImplementation(() => {
+      requestSent();
+      return new Promise(() => {});
+    });
+    const controller = new AbortController();
+    const reason = new DOMException("Stop", "AbortError");
+
+    const result = credentials.get({ publicKey: publicKey(), signal: controller.signal });
+    await sent;
+    controller.abort(reason);
+
+    await expect(result).rejects.toBe(reason);
+    expect(ipc.cancel).toHaveBeenCalledWith(ipc.getAssertion.mock.calls[0][0]);
   });
 });

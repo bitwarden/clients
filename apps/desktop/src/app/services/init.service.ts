@@ -1,4 +1,4 @@
-import { Inject, Injectable, DOCUMENT } from "@angular/core";
+import { Inject, Injectable, DOCUMENT, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
@@ -12,6 +12,7 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { DeviceType } from "@bitwarden/common/enums";
 import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -41,6 +42,8 @@ import { UpdateRestartService } from "./update-restart.service";
 
 @Injectable()
 export class InitService {
+  private environmentService = inject(EnvironmentService);
+
   constructor(
     @Inject(WINDOW) private win: Window,
     private vaultTimeoutService: DefaultVaultTimeoutService,
@@ -81,7 +84,11 @@ export class InitService {
       // Electron does not use the platform's passkey APIs, so route WebAuthn requests to them.
       // Only Windows is implemented so far.
       if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-        installNativeWebAuthn(this.win, ipc.auth.webauthn);
+        // WebAuthn requests are made on behalf of the web vault of the selected server.
+        installNativeWebAuthn(this.win, ipc.auth.webauthn, async () => {
+          const env = await firstValueFrom(this.environmentService.environment$);
+          return new URL(env.getWebVaultUrl()).origin;
+        });
       }
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
