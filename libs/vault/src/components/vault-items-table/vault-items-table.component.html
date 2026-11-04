@@ -146,8 +146,7 @@
         @if (itemAction()) {
           <button
             type="button"
-            bitLink
-            class="tw-truncate tw-text-start"
+            vaultTableRowName
             [title]="'editItemWithName' | i18n: row.name"
             (click)="itemAction()!(row)"
           >
