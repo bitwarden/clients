@@ -5,7 +5,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import {
@@ -17,10 +16,8 @@ import {
   OrganizationImportDestinationService,
 } from "../services";
 
+import { importOwnerFromParams } from "./import-owner";
 import { ImportShellStagingService } from "./import-shell-staging.service";
-
-/** The route param that makes an import an organization's own, from its admin console. */
-export const IMPORT_ORGANIZATION_ID_ROUTE_PARAM = "organizationId";
 
 /** Providers shared by the progress bar, credential parsing and location selection. Each app's
  *  import shell provides them so the state lives only as long as the shell: the hand-off between
@@ -62,8 +59,8 @@ export const importShellProviders = (
           i18nService: I18nService,
           organizationCollections: ImportCollectionServiceAbstraction,
         ): ImportDestinationServiceAbstraction => {
-          const organizationId = route.snapshot.paramMap.get(IMPORT_ORGANIZATION_ID_ROUTE_PARAM);
-          if (organizationId == null) {
+          const owner = importOwnerFromParams(route.snapshot.paramMap);
+          if (owner.kind === "personal") {
             return new DefaultImportDestinationService(
               organizationService,
               collections,
@@ -73,13 +70,8 @@ export const importShellProviders = (
               i18nService,
             );
           }
-          if (!isId<OrganizationId>(organizationId)) {
-            throw new Error(
-              `Invalid OrganizationId provided in route parameter \`${IMPORT_ORGANIZATION_ID_ROUTE_PARAM}\``,
-            );
-          }
           return new OrganizationImportDestinationService(
-            organizationId,
+            owner.organizationId,
             organizationService,
             organizationCollections,
             accountService,

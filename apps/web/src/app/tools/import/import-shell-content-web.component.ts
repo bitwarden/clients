@@ -37,9 +37,7 @@ import { ImportRouteContext } from "./import-route-context";
   ],
 })
 export class ImportShellContentWebComponent {
-  private readonly organizationId = inject(ImportRouteContext).organizationId(
-    inject(ActivatedRoute),
-  );
+  private readonly owner = inject(ImportRouteContext).owner(inject(ActivatedRoute));
 
   protected readonly showBreadcrumbs = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
@@ -48,7 +46,7 @@ export class ImportShellContentWebComponent {
 
   // The settings the import page sits under: the user's, or the organization's.
   protected readonly settingsRoute =
-    this.organizationId == null
+    this.owner.kind === "personal"
       ? ["/settings"]
-      : ["/organizations", this.organizationId, "settings"];
+      : ["/organizations", this.owner.organizationId, "settings"];
 }

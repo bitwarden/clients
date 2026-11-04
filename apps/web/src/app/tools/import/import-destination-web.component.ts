@@ -21,8 +21,8 @@ export class ImportDestinationWebComponent {
   private readonly routeContext = inject(ImportRouteContext);
 
   protected readonly importType = importTypeFromRoute(this.route);
-  private readonly organizationId = this.routeContext.organizationId(this.route);
-  private readonly basePath = this.routeContext.basePath(this.organizationId);
+  private readonly owner = this.routeContext.owner(this.route);
+  private readonly basePath = this.routeContext.basePath(this.owner);
   protected readonly returnTo = this.routeContext.returnTo(this.route);
   protected readonly scope = this.routeContext.scope(this.route);
 
@@ -41,6 +41,6 @@ export class ImportDestinationWebComponent {
   }
 
   protected onContinue(): void {
-    void this.routeContext.viewImportedItems(this.organizationId, this.route);
+    void this.routeContext.viewImportedItems(this.owner, this.route);
   }
 }

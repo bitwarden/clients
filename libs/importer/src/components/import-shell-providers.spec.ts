@@ -17,7 +17,8 @@ import {
   OrganizationImportDestinationService,
 } from "../services";
 
-import { IMPORT_ORGANIZATION_ID_ROUTE_PARAM, importShellProviders } from "./import-shell-providers";
+import { IMPORT_ORGANIZATION_ID_ROUTE_PARAM } from "./import-owner";
+import { importShellProviders } from "./import-shell-providers";
 
 abstract class PersonalCollections implements ImportDestinationCollections {
   abstract decryptedCollections$: ImportDestinationCollections["decryptedCollections$"];

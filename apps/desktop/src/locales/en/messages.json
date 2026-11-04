@@ -4935,6 +4935,9 @@
     "message": "passports",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
+  },
   "chooseFile": {
     "message": "Choose File"
   },

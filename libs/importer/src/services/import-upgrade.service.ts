@@ -149,8 +149,8 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     );
   }
 
-  toOrganizationShape(importResult: ImportResult, organizationId: string): void {
-    new KeeperDirectImporter().moveToOrganization(importResult, organizationId as OrganizationId);
+  toOrganizationShape(importResult: ImportResult, organizationId: OrganizationId): void {
+    new KeeperDirectImporter().moveToOrganization(importResult, organizationId);
   }
 
   /** The checks `importImportResult` runs before it imports, for a result parsed elsewhere. */

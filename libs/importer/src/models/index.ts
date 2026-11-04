@@ -26,5 +26,6 @@ export {
   ImportDestinationOption,
   ImportDestinationRestriction,
   ImportDestinations,
+  ImportDestinationsState,
 } from "./import-destination";
 export { chromiumBrowserNameFor } from "./chromium-browser-name";

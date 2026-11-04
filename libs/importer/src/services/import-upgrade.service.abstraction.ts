@@ -1,3 +1,5 @@
+import { OrganizationId } from "@bitwarden/common/types/guid";
+
 import { Importer } from "../importers/importer";
 import { ImportOption } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
@@ -15,7 +17,10 @@ export abstract class ImportUpgradeServiceAbstraction {
   /** The checks run before an import, for a result that was parsed elsewhere (e.g. Keeper). */
   abstract validateParsed: (importResult: ImportResult) => void;
   /** Reshapes, in place, a result the direct Keeper importer converted without an organization. */
-  abstract toOrganizationShape: (importResult: ImportResult, organizationId: string) => void;
+  abstract toOrganizationShape: (
+    importResult: ImportResult,
+    organizationId: OrganizationId,
+  ) => void;
   abstract getImporter: (
     format: UpgradeImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,

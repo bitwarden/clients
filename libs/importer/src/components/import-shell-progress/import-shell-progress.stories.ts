@@ -2,8 +2,10 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { defer, of } from "rxjs";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService } from "@bitwarden/components";
 
 import { ImportDestinationKind } from "../../models";
@@ -95,6 +97,10 @@ export default {
       providers: [
         provideRouter(routes, withHashLocation()),
         { provide: ImportDestinationServiceAbstraction, useValue: destinationService },
+        {
+          provide: LogService,
+          useValue: { error: action("LogService.error") } as Partial<LogService>,
+        },
         {
           provide: I18nService,
           useFactory: () =>

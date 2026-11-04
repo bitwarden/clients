@@ -9,11 +9,15 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { ImportOwner } from "@bitwarden/importer-ui";
 
 import { ImportRouteContext } from "./import-route-context";
 
 const userId = "user-1" as UserId;
 const orgId = "5bb2e4b0-5d4e-4a58-9a6a-3a5f5b8c2f11" as OrganizationId;
+
+const personalOwner: ImportOwner = { kind: "personal" };
+const organizationOwner: ImportOwner = { kind: "organization", organizationId: orgId };
 
 const orgBase = ["/organizations", orgId, "settings", "tools", "import"];
 
@@ -52,17 +56,17 @@ describe("ImportRouteContext", () => {
     context = TestBed.inject(ImportRouteContext);
   });
 
-  describe("organizationId", () => {
-    it("is undefined for the personal import", () => {
-      expect(context.organizationId(routeWith({}))).toBeUndefined();
+  describe("owner", () => {
+    it("is the personal import for a route with no organization", () => {
+      expect(context.owner(routeWith({}))).toEqual(personalOwner);
     });
 
     it("is the route's organization", () => {
-      expect(context.organizationId(routeWith({ organizationId: orgId }))).toBe(orgId);
+      expect(context.owner(routeWith({ organizationId: orgId }))).toEqual(organizationOwner);
     });
 
     it("throws for a route organization that is not an id", () => {
-      expect(() => context.organizationId(routeWith({ organizationId: "nope" }))).toThrow(
+      expect(() => context.owner(routeWith({ organizationId: "nope" }))).toThrow(
         "Invalid OrganizationId",
       );
     });
@@ -142,11 +146,11 @@ describe("ImportRouteContext", () => {
 
   describe("basePath", () => {
     it("is the personal import's path without an organization", () => {
-      expect(context.basePath(undefined)).toEqual(["/tools/import"]);
+      expect(context.basePath(personalOwner)).toEqual(["/tools/import"]);
     });
 
     it("is the organization's admin console import path with one", () => {
-      expect(context.basePath(orgId)).toEqual(orgBase);
+      expect(context.basePath(organizationOwner)).toEqual(orgBase);
     });
   });
 
@@ -156,20 +160,20 @@ describe("ImportRouteContext", () => {
       ({ snapshot: { queryParamMap: convertToParamMap(query) } }) as unknown as ActivatedRoute;
 
     it("opens the personal vault for a personal import started with no vault", async () => {
-      await context.viewImportedItems(undefined, withQuery());
+      await context.viewImportedItems(personalOwner, withQuery());
 
       expect(router.navigate).toHaveBeenCalledWith(["/vault"]);
     });
 
     it("goes back to the organization's vault a personal import was started from, as the legacy dialog left the user there", async () => {
-      await context.viewImportedItems(undefined, withQuery({ defaultOrganizationId: orgId }));
+      await context.viewImportedItems(personalOwner, withQuery({ defaultOrganizationId: orgId }));
 
       expect(router.navigate).toHaveBeenCalledWith(["/vault", orgId]);
     });
 
     it("goes back to the shared folder a personal import was started from", async () => {
       await context.viewImportedItems(
-        undefined,
+        personalOwner,
         withQuery({ defaultOrganizationId: orgId, defaultCollectionId: sharedFolderId }),
       );
 
@@ -189,7 +193,7 @@ describe("ImportRouteContext", () => {
     ])(
       "goes back to the personal page %s a personal import was started from",
       async (startedFrom, expected) => {
-        await context.viewImportedItems(undefined, withQuery({ startedFrom }));
+        await context.viewImportedItems(personalOwner, withQuery({ startedFrom }));
 
         expect(router.navigate).toHaveBeenCalledWith(expected);
       },
@@ -197,7 +201,7 @@ describe("ImportRouteContext", () => {
 
     it("goes back to an organization's My items page, not its shared folder", async () => {
       await context.viewImportedItems(
-        undefined,
+        personalOwner,
         withQuery({
           defaultOrganizationId: orgId,
           defaultCollectionId: sharedFolderId,
@@ -209,7 +213,10 @@ describe("ImportRouteContext", () => {
     });
 
     it("opens the personal vault when the vault scope in the URL is not an id", async () => {
-      await context.viewImportedItems(undefined, withQuery({ defaultOrganizationId: "not-an-id" }));
+      await context.viewImportedItems(
+        personalOwner,
+        withQuery({ defaultOrganizationId: "not-an-id" }),
+      );
 
       expect(router.navigate).toHaveBeenCalledWith(["/vault"]);
     });
@@ -219,7 +226,7 @@ describe("ImportRouteContext", () => {
         of([organization(OrganizationUserType.Admin)]),
       );
 
-      await context.viewImportedItems(orgId, withQuery());
+      await context.viewImportedItems(organizationOwner, withQuery());
 
       expect(router.navigate).toHaveBeenCalledWith(["organizations", orgId, "vault"]);
     });
@@ -230,7 +237,7 @@ describe("ImportRouteContext", () => {
       );
 
       await context.viewImportedItems(
-        orgId,
+        organizationOwner,
         withQuery({ defaultOrganizationId: "9c1d7e2a-3b4f-4c5d-8e6f-7a8b9c0d1e2f" }),
       );
 
@@ -242,7 +249,7 @@ describe("ImportRouteContext", () => {
         of([organization(OrganizationUserType.Custom)]),
       );
 
-      await context.viewImportedItems(orgId, withQuery());
+      await context.viewImportedItems(organizationOwner, withQuery());
 
       expect(router.navigate).not.toHaveBeenCalled();
     });
@@ -250,7 +257,7 @@ describe("ImportRouteContext", () => {
     it("stays where it is when the organization is not found", async () => {
       organizationService.organizations$.mockReturnValue(of([]));
 
-      await context.viewImportedItems(orgId, withQuery());
+      await context.viewImportedItems(organizationOwner, withQuery());
 
       expect(router.navigate).not.toHaveBeenCalled();
     });

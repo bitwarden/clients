@@ -56,7 +56,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import {
   ImportDestinationKind,
   ImportDestinationOption,
-  ImportDestinations,
+  ImportDestinationsState,
   ImportResult,
   ImportResultError,
   ImportResultErrorKey,
@@ -72,12 +72,15 @@ import {
   StagedImport,
 } from "../../services";
 import { ImportErrorDialogComponent } from "../dialog";
+import { errorName } from "../error-name";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
 import { presentImportOutcome } from "../import-controls/present-import-outcome";
 import { resolveImportReturnDestination } from "../import-return-destination";
 
-type DestinationsState =
-  { status: "pending" } | { status: "error" } | { status: "ready"; value: ImportDestinations };
+/** What an import runs on: parsed items to write, or an SDK import that parses as it writes. */
+type PreparedImport =
+  | { kind: "items"; items: ImportResult }
+  | { kind: "sdk"; staged: Extract<StagedImport, { kind: "sdk" }> };
 
 const RESTRICTED_TYPE_KEYS: Record<CipherType, string> = {
   [CipherType.Login]: "importRestrictedTypeLogin",
@@ -91,10 +94,6 @@ const RESTRICTED_TYPE_KEYS: Record<CipherType, string> = {
 };
 
 const POLICY_HELP_URL = "https://bitwarden.com/help/policies/#manage-item-types";
-
-// Name only: an import error's message can carry item names.
-const errorName = (error: unknown): string =>
-  error instanceof Error ? error.name : "unknown error";
 
 /**
  * Lets the user choose where the staged items land (My vault, My items, or an organization,
@@ -154,13 +153,13 @@ export class ImportDestinationComponent {
 
   private readonly state = toSignal(
     this.destinationService.destinations$.pipe(
-      map((value): DestinationsState => ({ status: "ready", value })),
+      map((value): ImportDestinationsState => ({ status: "ready", value })),
       catchError((error: unknown) => {
         this.logService.error("Error loading import destinations:", errorName(error));
-        return of<DestinationsState>({ status: "error" });
+        return of<ImportDestinationsState>({ status: "error" });
       }),
     ),
-    { initialValue: { status: "pending" } as DestinationsState },
+    { initialValue: { status: "pending" } as ImportDestinationsState },
   );
 
   protected readonly pending = computed(() => this.state().status === "pending");
@@ -175,7 +174,7 @@ export class ImportDestinationComponent {
   // key can read.
   private readonly typeCounts = this.stagedTypeCounts();
 
-  protected readonly destinationControl = new FormControl("", { nonNullable: true });
+  protected readonly destinationControl = new FormControl<string | null>(null);
   protected readonly moveToSharedFolderControl = new FormControl(false, { nonNullable: true });
 
   // Custom validator first so its message wins; Validators.required kept so the asterisk renders.
@@ -321,7 +320,7 @@ export class ImportDestinationComponent {
         return;
       }
       if (!options.some((option) => option.id === this.destinationControl.value)) {
-        this.destinationControl.setValue(options[0]?.id ?? "");
+        this.destinationControl.setValue(options[0]?.id ?? null);
       }
     });
 
@@ -443,9 +442,9 @@ export class ImportDestinationComponent {
     const sharedFolder = this.showSharedFolder() ? this.sharedFolderControl.value : null;
     const isOrganization = option.kind === ImportDestinationKind.Organization;
 
-    let items: ImportResult | undefined;
+    let prepared: PreparedImport;
     try {
-      items = await this.prepare(staged, option.organizationId);
+      prepared = await this.prepare(staged, option.organizationId);
     } catch (error) {
       this.reportFailure(error);
       return;
@@ -458,8 +457,8 @@ export class ImportDestinationComponent {
       isOrganization &&
       !option.allowsUnassignedItems &&
       sharedFolder == null &&
-      (items == null ||
-        (await this.destinationService.hasUnassignedItems(items, option.organizationId)))
+      (prepared.kind === "sdk" ||
+        (await this.destinationService.hasUnassignedItems(prepared.items, option.organizationId)))
     ) {
       this.requireSharedFolder();
       return;
@@ -493,8 +492,7 @@ export class ImportDestinationComponent {
     let outcome: FinishedImportOutcome;
     try {
       outcome = await this.runImport(
-        staged,
-        items,
+        prepared,
         option.organizationId,
         target,
         option.allowsUnassignedItems ?? false,
@@ -504,8 +502,7 @@ export class ImportDestinationComponent {
       return;
     }
 
-    // The items are in the vault now, so the staged copy goes whether or not showing the result
-    // succeeds.
+    // The items are in the vault, so a failure showing the result still moves on.
     try {
       await presentImportOutcome(
         outcome,
@@ -516,6 +513,8 @@ export class ImportDestinationComponent {
         },
         returnDestination,
       );
+    } catch (error) {
+      this.logService.error("Error showing import result:", errorName(error));
     } finally {
       this.stagingService.clear();
     }
@@ -595,11 +594,11 @@ export class ImportDestinationComponent {
 
   // The items to import, parsed or reshaped for the destination org (importers shape their output
   // by it). Built fresh on each attempt: the import modifies its input, so a retry on the same
-  // object would apply the target twice. Undefined for an SDK import, which parses as it writes.
+  // object would apply the target twice. An SDK import has no items: it parses as it writes.
   private async prepare(
     staged: StagedImport,
     organizationId: OrganizationId | undefined,
-  ): Promise<ImportResult | undefined> {
+  ): Promise<PreparedImport> {
     switch (staged.kind) {
       case "file": {
         const importer = this.importService.getImporter(
@@ -610,33 +609,29 @@ export class ImportDestinationComponent {
         if (importer == null) {
           throw new Error(this.i18nService.t("selectFormat"));
         }
-        return this.importService.parse(importer, staged.contents);
+        return { kind: "items", items: await this.importService.parse(importer, staged.contents) };
       }
       case "parsed": {
         const copy = cloneImportResult(staged.result);
         if (organizationId != null) {
           this.importService.toOrganizationShape(copy, organizationId);
         }
-        return copy;
+        return { kind: "items", items: copy };
       }
       case "sdk":
-        return undefined;
+        return { kind: "sdk", staged };
     }
   }
 
   private async runImport(
-    staged: StagedImport,
-    items: ImportResult | undefined,
+    prepared: PreparedImport,
     organizationId: OrganizationId | undefined,
     target: CollectionView | undefined,
     canAccessImportExport: boolean,
   ): Promise<FinishedImportOutcome> {
-    if (staged.kind !== "sdk") {
-      if (items == null) {
-        throw new Error("Nothing was prepared to import.");
-      }
+    if (prepared.kind === "items") {
       const result = await this.importService.importImportResult(
-        items,
+        prepared.items,
         organizationId,
         target,
         canAccessImportExport,
@@ -644,6 +639,7 @@ export class ImportDestinationComponent {
       return { kind: "imported", result };
     }
 
+    const { staged } = prepared;
     try {
       const sdkSummary = await this.importService.importWithSdk(
         staged.format,
