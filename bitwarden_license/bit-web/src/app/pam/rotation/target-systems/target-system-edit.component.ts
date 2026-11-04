@@ -119,6 +119,20 @@ const SYMBOL_POOL_SIZE = 8;
  */
 const MIN_PASSWORD_ENTROPY_BITS = 80;
 
+type SessionTerminationCapability = "always" | "never" | "operatorDeclared";
+
+/**
+ * Per kind rather than native versus custom script: an LDAP password reset cannot revoke Kerberos
+ * tickets already issued, and a kind this SDK cannot model must not claim the capability.
+ */
+const SESSION_TERMINATION_CAPABILITY: Partial<
+  Record<TargetSystemKind, SessionTerminationCapability>
+> = {
+  [TargetSystemKind.Entra]: "always",
+  [TargetSystemKind.CustomScript]: "operatorDeclared",
+  [TargetSystemKind.ActiveDirectory]: "never",
+};
+
 type PolicyControls = {
   minLength: FormControl<number>;
   maxLength: FormControl<number>;
@@ -388,6 +402,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
 
   protected readonly kindOptions = [
     { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
+    { value: TargetSystemKind.ActiveDirectory, label: "pamTargetSystemTypeActiveDirectory" },
     { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
   ] as const;
 
@@ -467,13 +482,9 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     return this.sealed()?.kind ?? this.editKind();
   });
 
-  /**
-   * Native integrations always terminate sessions after rotating, so the form shows a static
-   * "Supported" instead of a checkbox.
-   */
-  protected readonly isNativeIntegration = computed(() => {
+  private readonly sessionTermination = computed(() => {
     const kind = this.selectedKind();
-    return kind != null && kind !== TargetSystemKind.CustomScript;
+    return kind == null ? null : (SESSION_TERMINATION_CAPABILITY[kind] ?? "never");
   });
 
   /** A custom script cannot be assumed to end sessions, so the create form says so. */
@@ -481,12 +492,30 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     () => this.selectedKind() === TargetSystemKind.CustomScript,
   );
 
+  protected readonly sessionTerminationAlways = computed(
+    () => this.sessionTermination() === "always",
+  );
+
+  protected readonly sessionTerminationNever = computed(
+    () => this.sessionTermination() === "never",
+  );
+
+  /** A kind that cannot terminate sessions, on a target sealed as supporting it. */
+  protected readonly showRetainedTermination = computed(
+    () =>
+      this.editing &&
+      this.sessionTerminationNever() &&
+      this.sealed()?.supportsSessionTermination === true,
+  );
+
   /**
-   * Whether the target ends sessions after rotating: always for a native integration, and for a
-   * custom script only when its verified settings say so.
+   * Whether the target ends sessions after rotating: always for a kind that does, never for one
+   * that can't, and for a custom script only when its verified settings say so.
    */
   protected readonly endsSessions = computed(
-    () => this.isNativeIntegration() || this.sealed()?.supportsSessionTermination === true,
+    () =>
+      this.sessionTerminationAlways() ||
+      (this.isCustomScript() && this.sealed()?.supportsSessionTermination === true),
   );
 
   protected readonly nameForm = this.formBuilder.nonNullable.group({
@@ -721,6 +750,12 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
           kind: TargetSystemKind.Entra,
         });
         break;
+      case "active-directory":
+        this.createForm.patchValue({
+          method: TargetSystemMethod.Automatic,
+          kind: TargetSystemKind.ActiveDirectory,
+        });
+        break;
       case "custom-script":
         this.createForm.patchValue({
           method: TargetSystemMethod.Automatic,
@@ -830,11 +865,24 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
   }
 
   /**
-   * Native integrations always support it and custom scripts follow the checkbox. Only meaningful
-   * for an automatic target.
+   * Only a custom script reads the stored value, so a `true` sealed on one never reaches another
+   * kind. Only meaningful for an automatic target.
    */
   private resolvedSessionTermination(): boolean {
-    return this.isNativeIntegration() || this.policyForm.controls.supportsSessionTermination.value;
+    const capability = this.sessionTermination();
+    return capability === "operatorDeclared"
+      ? this.policyForm.controls.supportsSessionTermination.value
+      : capability === "always";
+  }
+
+  /**
+   * A kind that cannot terminate sessions re-seals the stored value rather than withdrawing a
+   * capability its managed credentials may rely on.
+   */
+  private sessionTerminationForUpdate(): boolean {
+    return this.sessionTerminationNever()
+      ? (this.sealed()?.supportsSessionTermination ?? false)
+      : this.resolvedSessionTermination();
   }
 
   protected readonly submitCreate = async (): Promise<void> => {
@@ -952,7 +1000,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
       name,
       kind: this.selectedKind() ?? TargetSystemKind.Entra,
       passwordPolicy,
-      supportsSessionTermination: this.resolvedSessionTermination(),
+      supportsSessionTermination: this.sessionTerminationForUpdate(),
     };
   }
 
