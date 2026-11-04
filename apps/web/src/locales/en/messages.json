@@ -18880,6 +18880,18 @@
       }
     }
   },
+  "cipherLeaseExpiresIn": {
+    "message": "Leased — expires in $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "47m"
+      }
+    }
+  },
+  "cipherLeaseRequiresApproval": {
+    "message": "Requires approval to view"
+  },
   "pendingStateCancelRequest": {
     "message": "Cancel request"
   },
@@ -18901,8 +18913,14 @@
   "pendingStateCancelError": {
     "message": "Couldn't cancel the request."
   },
+  "requestAccessModalTitle": {
+    "message": "Request access"
+  },
   "requestAccessModalSubmit": {
     "message": "Request access"
+  },
+  "requestAccessModalDismiss": {
+    "message": "Cancel"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Pick a duration. You'll get immediate access for that long."
@@ -19583,6 +19601,12 @@
         "example": "3"
       }
     }
+  },
+  "pamMyAccess": {
+    "message": "My access"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Access requests"
   },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
@@ -20601,8 +20625,14 @@
   "pamRotationConfigStatusPaused": {
     "message": "Paused"
   },
+  "pamRotationConfigInProgress": {
+    "message": "Rotation in progress"
+  },
   "pamRotationConfigRotatingBadge": {
     "message": "Rotating"
+  },
+  "pamRotationConfigManualDue": {
+    "message": "Manual rotation due"
   },
   "pamRotationConfigRotationDueBadge": {
     "message": "Rotation due"
@@ -20610,17 +20640,26 @@
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
   },
+  "pamRotationConfigRotateNowDisabledTitle": {
+    "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
+  },
   "pamRotationConfigRotateNowUnavailableTitle": {
     "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
   },
   "pamRotationConfigRotateNowSuccess": {
     "message": "Rotation dispatched."
   },
+  "pamRotationConfigRecordManual": {
+    "message": "Record manual rotation"
+  },
   "pamRotationConfigMarkRotated": {
     "message": "Mark as rotated"
   },
   "pamRotationConfigRecordManualDisabledTitle": {
     "message": "Nothing to mark yet. This becomes available when the next manual rotation is due."
+  },
+  "pamRotationConfigRecordManualTitle": {
+    "message": "Record manual rotation"
   },
   "pamRotationConfigMarkRotatedTitle": {
     "message": "Mark as rotated"
@@ -20640,11 +20679,17 @@
   "pamRotationConfigRemoveFromRotation": {
     "message": "Remove from rotation"
   },
+  "pamRotationConfigPause": {
+    "message": "Pause"
+  },
   "pamRotationConfigPauseRotation": {
     "message": "Pause rotation"
   },
   "pamRotationConfigPauseSuccess": {
     "message": "Rotation paused."
+  },
+  "pamRotationConfigResume": {
+    "message": "Resume"
   },
   "pamRotationConfigResumeRotation": {
     "message": "Resume rotation"
