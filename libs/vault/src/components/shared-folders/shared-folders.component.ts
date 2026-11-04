@@ -15,7 +15,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { combineLatest, map, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
@@ -71,6 +71,7 @@ import {
   SHARED_FOLDER_DECORATION,
   SharedFolderDecoration,
 } from "../../tokens/shared-folder-decoration.token";
+import { isRowActivationClick } from "../../utils/row-activation";
 import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 import {
   BULK_BAR_CLEARANCE,
@@ -198,6 +199,7 @@ export class SharedFoldersComponent {
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   /** Host-provided decoration after each folder's name; null when unprovided. */
   protected readonly decoration: SharedFolderDecoration | null = inject(SHARED_FOLDER_DECORATION, {
@@ -365,9 +367,26 @@ export class SharedFoldersComponent {
 
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
-  protected readonly vaultScopeCommands = vaultScopeCommands;
+  /** Where a row's name link and row click both lead: the shared folder's own vault page. */
+  protected sharedFolderCommands(row: SharedFolderRow): string[] {
+    return vaultScopeCommands({
+      type: VaultScopeType.Organization,
+      organizationId: row.organizationId,
+      collectionId: row.id,
+    });
+  }
 
-  protected readonly VaultScopeType = VaultScopeType;
+  /**
+   * Makes a whole data cell a click target that opens the row's folder. Pointer-only — the keyboard
+   * and assistive-tech path stays the name link, and nothing here enters the accessibility tree.
+   */
+  protected onCellActivate(row: SharedFolderRow, event: MouseEvent) {
+    if (!isRowActivationClick(event)) {
+      return;
+    }
+
+    void this.router.navigate(this.sharedFolderCommands(row));
+  }
 
   /** Separates "filtered down to nothing" from "no shared folders yet" for the empty state. */
   private readonly hasRows = computed(() => this.sharedFolders().length > 0);
