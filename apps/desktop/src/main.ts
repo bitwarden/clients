@@ -507,6 +507,11 @@ export class Main {
     argv
       .filter((s) => s.indexOf("bitwarden://") === 0)
       .forEach((s) => {
+        // WebAuthn connector callbacks are for the browser session in this process that is
+        // waiting for them, e.g. on Linux.
+        if (this.mainWebAuthnIpcListener?.handleCallbackUrl(s)) {
+          return;
+        }
         this.messagingService.send("deepLink", { urlString: s });
       });
   }

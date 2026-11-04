@@ -20,6 +20,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
     getAssertion: jest.fn(),
     requiresBrowser: jest.fn(),
     webAuthenticationSession: jest.fn(),
+    deliverCallback: jest.fn(),
     AssertionCancellation: jest.fn(),
     WebConnectorRequest: { start: jest.fn() },
   },
@@ -265,5 +266,31 @@ describe("MainWebAuthnIpcListener", () => {
       error: { name: "UnknownError", message: "Failed to get assertion." },
     });
     expect(logService.error).toHaveBeenCalled();
+  });
+
+  describe("handleCallbackUrl", () => {
+    let listener: MainWebAuthnIpcListener;
+
+    beforeEach(() => {
+      listener = new MainWebAuthnIpcListener(windowMain, logService);
+    });
+
+    it("delivers connector callbacks to the waiting browser session", () => {
+      const url = "bitwarden://webauthn-callback#state=abc&response=def";
+
+      expect(listener.handleCallbackUrl(url)).toBe(true);
+      expect(webauthn.deliverCallback).toHaveBeenCalledWith(url);
+    });
+
+    it("handles connector callbacks that no session is waiting for", () => {
+      (webauthn.deliverCallback as jest.Mock).mockReturnValue(false);
+
+      expect(listener.handleCallbackUrl("bitwarden://webauthn-callback#state=abc")).toBe(true);
+    });
+
+    it("does not handle other app links", () => {
+      expect(listener.handleCallbackUrl("bitwarden://sso-callback?code=abc&state=def")).toBe(false);
+      expect(webauthn.deliverCallback).not.toHaveBeenCalled();
+    });
   });
 });

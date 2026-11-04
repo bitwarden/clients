@@ -10,6 +10,7 @@ import {
   buildConnectorRequest,
   CONNECTOR_CALLBACK_SCHEME,
   connectorPageUrl,
+  isConnectorCallbackUrl,
   isValidWebVaultUrl,
   parseConnectorResponse,
 } from "./webauthn-connector";
@@ -43,6 +44,20 @@ export class MainWebAuthnIpcListener {
     ipcMain.handle(WEBAUTHN_IPC_CHANNELS.CANCEL, (_event: IpcMainInvokeEvent, requestId: string) =>
       this.pending.get(requestId)?.cancel(),
     );
+  }
+
+  /**
+   * Handles a URL from the app's URL scheme handler if it is a WebAuthn connector callback, by
+   * delivering it to the browser session waiting for it. Returns whether it was handled.
+   *
+   * Callbacks are handled even if no session is waiting, since they are only for this listener.
+   */
+  handleCallbackUrl(url: string): boolean {
+    if (!isConnectorCallbackUrl(url)) {
+      return false;
+    }
+    webauthn.deliverCallback(url);
+    return true;
   }
 
   private async getAssertion(

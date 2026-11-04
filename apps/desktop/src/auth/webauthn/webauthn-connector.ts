@@ -82,6 +82,18 @@ export function buildConnectorRequest(request: webauthn.AssertionRequest): Uint8
   return new TextEncoder().encode(JSON.stringify(options));
 }
 
+/** Whether `url` is a callback URL from the connector, rather than another app link. */
+export function isConnectorCallbackUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === `${CONNECTOR_CALLBACK_SCHEME}:` && parsed.host === "webauthn-callback"
+    );
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Converts the connector's decrypted response.
  *

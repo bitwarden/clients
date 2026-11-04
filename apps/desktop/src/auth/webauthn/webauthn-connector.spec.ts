@@ -3,6 +3,7 @@ import type { webauthn } from "@bitwarden/desktop-napi";
 import {
   buildConnectorRequest,
   connectorPageUrl,
+  isConnectorCallbackUrl,
   isValidWebVaultUrl,
   parseConnectorResponse,
 } from "./webauthn-connector";
@@ -63,6 +64,24 @@ describe("webauthn-connector", () => {
           prf: { eval: { first: "Bw", second: "CA" } },
         },
       });
+    });
+  });
+
+  describe("isConnectorCallbackUrl", () => {
+    it.each(["bitwarden://webauthn-callback#state=abc", "bitwarden://webauthn-callback"])(
+      "accepts %s",
+      (url) => {
+        expect(isConnectorCallbackUrl(url)).toBe(true);
+      },
+    );
+
+    it.each([
+      "bitwarden://duo-callback?code=abc",
+      "bitwarden://sso-callback?code=abc&state=def",
+      "https://webauthn-callback",
+      "not a url",
+    ])("rejects %s", (url) => {
+      expect(isConnectorCallbackUrl(url)).toBe(false);
     });
   });
 
