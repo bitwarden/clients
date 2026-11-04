@@ -17,4 +17,10 @@ export abstract class ApprovalSdkService {
    * onto the row already held rather than replacing it.
    */
   abstract decide(id: AccessRequestId, request: AccessDecisionRequest): Promise<AccessRequestView>;
+
+  /**
+   * Withdraws an approval the requester has not started. The server records it as the approver's
+   * deny decision and shows `reason` to the requester.
+   */
+  abstract revoke(id: AccessRequestId, reason: string): Promise<void>;
 }
