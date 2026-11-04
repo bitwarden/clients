@@ -14,6 +14,12 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { DurationLongPipe } from "../../date/duration-long.pipe";
+
+export type ExtendLeaseDialogParams = {
+  /** The governing rule's maximum extension length, in seconds. */
+  maxDurationSeconds: number;
+};
 
 /** Collects a lease extension. The reason is required because the server rejects an empty one. */
 @Component({
