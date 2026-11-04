@@ -1,4 +1,3 @@
-import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,6 +16,7 @@ import { NoResults } from "@bitwarden/assets/svg";
 import {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -80,7 +80,7 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
   templateUrl: "./access-connectors-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
+    TimestampPipe,
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,

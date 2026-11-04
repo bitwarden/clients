@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, LOCALE_ID, inject } from "@angular/core";
 
+import { formatTimeOfDay } from "@bitwarden/bit-pam";
+import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import {
   BadgeModule,
   DIALOG_DATA,
@@ -10,7 +12,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { formatRotationTimestamp } from "../../rotation-timestamp";
 import { EndingSessionsInfo, JobView } from "../rotation-job-row";
 
 export type RotationJobDrawerParams = {
@@ -26,7 +27,7 @@ export type RotationJobDrawerParams = {
   selector: "pam-rotation-job-drawer",
   templateUrl: "./rotation-job-drawer.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, BadgeModule, DialogModule, I18nPipe],
+  imports: [CommonModule, BadgeModule, DialogModule, I18nPipe, TimestampPipe],
 })
 export class RotationJobDrawerComponent {
   protected readonly params = inject<RotationJobDrawerParams>(DIALOG_DATA);
@@ -37,13 +38,9 @@ export class RotationJobDrawerComponent {
 
   private readonly locale = inject(LOCALE_ID);
 
-  protected formatTimestamp(iso: string): string {
-    return formatRotationTimestamp(iso, this.locale);
-  }
-
-  /** "7 PM" or "7:06 PM", the time of day alone. */
+  /** "7:06 PM", the time of day alone. */
   protected formatTime(iso: string): string {
-    return formatRotationTimestamp(iso, this.locale).split(", ").slice(2).join(", ");
+    return formatTimeOfDay(this.locale, Date.parse(iso));
   }
 
   protected get endingSessions(): EndingSessionsInfo | null {

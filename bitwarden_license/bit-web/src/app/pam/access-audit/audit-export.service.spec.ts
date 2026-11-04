@@ -31,7 +31,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     requestId: "req-1",
     leaseId: "lease-1",
     duration: "4 hours",
-    exactWindow: "6/30/26, 12:00 – 6/30/26, 16:00",
+    exactWindow: "Jun 30, 2026, 12:00 PM – Jun 30, 2026, 4:00 PM",
     extendedUntil: null,
     ...overrides,
   };

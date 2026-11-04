@@ -192,7 +192,7 @@
           *bitCellDef="table.columns.occurredAt; let row"
           class="tw-cursor-pointer"
           (click)="openDetails(row)"
-          >{{ row.occurredAt | date: "medium" }}</bit-cell
+          >{{ row.occurredAt | timestamp: "second" }}</bit-cell
         >
       </bit-column>
       <bit-column width="minmax(240px, 1fr)">
@@ -216,7 +216,7 @@
             [attr.aria-label]="
               (row.kindLabelKey | i18n) +
               ' ' +
-              (row.occurredAt | date: 'medium') +
+              (row.occurredAt | timestamp: 'second') +
               (row.inDoubt ? ' ' + ('pamAuditIncomplete' | i18n) : '')
             "
             (keydown.enter)="openDetails(row)"
@@ -324,9 +324,7 @@
           @if (row.duration; as duration) {
             <span [bitTooltip]="row.exactWindow">{{ duration }}</span>
           } @else if (row.extendedUntil) {
-            <span>{{
-              "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | date: "short")
-            }}</span>
+            <span>{{ "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | timestamp) }}</span>
           } @else {
             <span class="tw-text-muted">—</span>
           }

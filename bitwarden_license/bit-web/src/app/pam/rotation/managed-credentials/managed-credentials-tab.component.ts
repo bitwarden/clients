@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,6 +15,7 @@ import { firstValueFrom, map } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { NoResults } from "@bitwarden/assets/svg";
+import { CalendarDatePipe, TimestampPipe } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -92,7 +92,6 @@ import { RotationConfigsService } from "./rotation-configs.service";
   templateUrl: "./managed-credentials-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     BadgeModule,
     ButtonModule,
@@ -118,6 +117,8 @@ import { RotationConfigsService } from "./rotation-configs.service";
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
     I18nPipe,
+    CalendarDatePipe,
+    TimestampPipe,
   ],
 })
 export class ManagedCredentialsTabComponent {

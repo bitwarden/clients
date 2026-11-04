@@ -1,5 +1,4 @@
 import { OverlayContainer } from "@angular/cdk/overlay";
-import { formatDate } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -7,6 +6,7 @@ import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { formatTimestamp } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
@@ -829,7 +829,7 @@ describe("AccessConnectorsTabComponent", () => {
 
       // Format the row's own heartbeat, not `Date.now() - elapsedMs`, which drifts a second
       // when the render straddles a clock tick.
-      const expected = formatDate(row.lastSeenAtMs as number, "medium", "en-US");
+      const expected = formatTimestamp("en-US", row.lastSeenAtMs as number);
       expect(lastSeenCellText()).toBe(expected);
     });
 

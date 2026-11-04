@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -31,6 +30,7 @@ import {
   AccessStateBadgeComponent,
   DurationShortPipe,
   RemainingTimePipe,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -102,8 +102,8 @@ export type AccessRequestDialogParams = {
   templateUrl: "./access-request-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     I18nPipe,
+    TimestampPipe,
     AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,

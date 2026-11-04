@@ -1,9 +1,7 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  LOCALE_ID,
   computed,
   inject,
   input,
@@ -12,6 +10,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { take } from "rxjs";
 
+import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import {
   BadgeModule,
   BadgeVariant,
@@ -36,7 +35,6 @@ import {
   RotationSyncState,
   SessionTerminationOutcome,
 } from "../rotation";
-import { formatRotationTimestamp } from "../rotation-timestamp";
 
 import { RotationDurationComponent } from "./rotation-duration.component";
 import { RotationJobDrawerComponent } from "./rotation-job-drawer/rotation-job-drawer.component";
@@ -88,7 +86,6 @@ const SESSION_TERMINATION_LABEL_KEYS: Partial<Record<SessionTerminationOutcome, 
   templateUrl: "./rotation-history.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     BadgeModule,
     BitCellComponent,
     BitCellDefDirective,
@@ -98,13 +95,13 @@ const SESSION_TERMINATION_LABEL_KEYS: Partial<Record<SessionTerminationOutcome, 
     LinkModule,
     TableModule,
     I18nPipe,
+    TimestampPipe,
     RotationDurationComponent,
   ],
 })
 export class RotationHistoryComponent {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly locale = inject(LOCALE_ID);
 
   readonly jobs = input.required<RotationJob[]>();
 
@@ -137,10 +134,6 @@ export class RotationHistoryComponent {
   protected readonly detailsOpen = computed(() => this.detailsDrawer() != null);
 
   protected readonly table = defineTable<JobView>(this.jobViews);
-
-  protected formatTimestamp(iso: string): string {
-    return formatRotationTimestamp(iso, this.locale);
-  }
 
   /** Guards {@link showJob}'s focus restore against a still-pending, since-superseded open. */
   private readonly openSeq = signal(0);

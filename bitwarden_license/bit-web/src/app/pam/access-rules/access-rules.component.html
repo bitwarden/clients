@@ -158,7 +158,7 @@
           <span
             class="tw-text-muted"
             tabindex="0"
-            [bitTooltip]="r.revisionDate | date: 'medium'"
+            [bitTooltip]="r.revisionDate | timestamp"
             [addTooltipToDescribedby]="true"
             >{{ r.revisionDate | relativeTime }}</span
           >

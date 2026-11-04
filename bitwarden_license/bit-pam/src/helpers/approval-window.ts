@@ -1,4 +1,5 @@
 import type { AccessRequestView } from "../abstractions/access-lease";
+import { formatTimestamp } from "../date/format-date";
 import { formatCompoundDuration } from "../date/format-duration";
 
 import { requestedWindowSeconds } from "./requested-window";
@@ -44,24 +45,12 @@ export function relativeStart(
   return { key: "pamInboxStartInDays", value: diffDays };
 }
 
-const windowFormats = new Map<string, Intl.DateTimeFormat>();
-
 /** The exact window, for the tooltip, in the user's chosen locale rather than the browser's. */
 export function exactWindow(
   request: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
   locale: string,
 ): string {
-  const format = windowFormatFor(locale);
-  return `${format.format(new Date(request.leaseNotBefore))} – ${format.format(new Date(request.leaseNotAfter))}`;
-}
-
-function windowFormatFor(locale: string): Intl.DateTimeFormat {
-  let format = windowFormats.get(locale);
-  if (!format) {
-    format = new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" });
-    windowFormats.set(locale, format);
-  }
-  return format;
+  return `${formatTimestamp(locale, Date.parse(request.leaseNotBefore))} – ${formatTimestamp(locale, Date.parse(request.leaseNotAfter))}`;
 }
 
 /** Whole local calendar days from `from` to `to`, ignoring the time of day. */
