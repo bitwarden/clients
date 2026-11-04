@@ -11,10 +11,10 @@ import {
 } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { GovernedCollectionsService } from "../services/governed-collections.service";
-import { startClockAtStoryNow } from "../testing/story-fixtures";
 
 import { AccessRulesComponent } from "./access-rules.component";
 
