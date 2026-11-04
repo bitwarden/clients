@@ -9185,6 +9185,6 @@
     "message": "Access approved. Select Start access to begin."
   },
   "requestAccessModalRequestCreatedSuccessV2": {
-    "message": "Request submitted. Awaiting approval."
+    "message": "Access requested"
   }
 }
