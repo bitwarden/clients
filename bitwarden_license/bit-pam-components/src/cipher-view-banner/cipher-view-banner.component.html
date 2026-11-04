@@ -114,10 +114,6 @@
           </div>
         </div>
 
-        <!--
-          Design: the ending-soon card carries no actions, so the buttons show only while the
-          countdown is not in its last minutes.
-        -->
         @if (!leaseEndingSoon()) {
           <div class="tw-flex tw-items-center tw-gap-2" data-testid="active-lease-actions">
             @if (canExtendLease()) {
@@ -165,10 +161,6 @@
           </div>
         </div>
 
-        <!--
-          The design starts the countdown from Autofill or copy, which the cipher view does not
-          wire yet. This stays as the only way to start access until it does.
-        -->
         <button
           type="button"
           bitButton
@@ -245,10 +237,6 @@
   }
 
   @if (requestFormExpanded()) {
-    <!--
-      Bottom sheet over a dimmed page. A click on the dimmed area or Escape closes it, and the
-      sheet traps keyboard focus, since the page behind is inert only to the pointer.
-    -->
     <div
       class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-end tw-justify-center tw-bg-bg-overlay"
       data-testid="request-sheet-overlay"
@@ -324,10 +312,6 @@
             <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
           } @else if (requestMode() !== null) {
             @if (slotContention(); as contention) {
-              <!--
-                Warns that the slot is taken, since the immediate-access copy would be false. The
-                form stays enabled, since the request is still worth making.
-              -->
               <p bitTypography="body2" class="tw-m-0 tw-flex tw-items-start tw-gap-2">
                 <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />
                 <span>
