@@ -162,10 +162,10 @@
                   @if (lastSeenAtMs() != null) {
                     <span
                       tabindex="0"
-                      [bitTooltip]="lastSeenAtMs() | date: 'medium'"
+                      [bitTooltip]="lastSeenAtMs() | timestamp"
                       [addTooltipToDescribedby]="true"
                     >
-                      {{ lastSeenLabel() ?? (lastSeenAtMs() | date: "medium") }}
+                      {{ lastSeenLabel() ?? (lastSeenAtMs() | timestamp) }}
                     </span>
                   } @else {
                     <span class="tw-text-muted">{{ "never" | i18n }}</span>
@@ -179,7 +179,7 @@
                 </p>
                 <p bitTypography="body1" class="tw-m-0" data-testid="connector-created">
                   @if (d.connector.creationDate) {
-                    {{ d.connector.creationDate | date: "medium" }}
+                    {{ d.connector.creationDate | timestamp }}
                   } @else {
                     <span class="tw-text-muted">&mdash;</span>
                   }

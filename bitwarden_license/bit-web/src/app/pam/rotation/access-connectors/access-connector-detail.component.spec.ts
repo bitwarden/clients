@@ -1,4 +1,3 @@
-import { DatePipe } from "@angular/common";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -7,6 +6,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from "@angul
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { formatTimestamp } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -1144,9 +1144,9 @@ describe("AccessConnectorDetailComponent", () => {
     /** The timestamp `rotation-builders` seeds both `creationDate` and `lastHeartbeatAt` with. */
     const seeded = accessConnector().creationDate;
 
-    /** Formatted through the same pipe the template uses. */
-    function expectedMedium(): string {
-      return new DatePipe(TestBed.inject(LOCALE_ID)).transform(seeded, "medium") ?? "";
+    /** Formatted through the same helper the template's pipe uses. */
+    function expectedTimestamp(): string {
+      return formatTimestamp(TestBed.inject(LOCALE_ID), Date.parse(seeded));
     }
 
     async function renderDetail(accessConnector: AccessConnectorDetail) {
@@ -1161,15 +1161,15 @@ describe("AccessConnectorDetailComponent", () => {
     it("renders the creation date", async () => {
       const rendered = await renderDetail(makeAccessConnector());
 
-      expect(fieldText(rendered, "connector-created")).toBe(expectedMedium());
+      expect(fieldText(rendered, "connector-created")).toBe(expectedTimestamp());
     });
 
-    it("falls back to the medium date when the heartbeat is 400 days old", async () => {
+    it("falls back to the timestamp when the heartbeat is 400 days old", async () => {
       const old = new Date(Date.now() - 400 * 24 * 60 * 60_000).toISOString();
       const rendered = await renderDetail(makeAccessConnector({ lastHeartbeatAt: old }));
 
       expect(fieldText(rendered, "connector-last-seen")).toBe(
-        new DatePipe(TestBed.inject(LOCALE_ID)).transform(old, "medium") ?? "",
+        formatTimestamp(TestBed.inject(LOCALE_ID), Date.parse(old)),
       );
     });
 
@@ -1188,7 +1188,7 @@ describe("AccessConnectorDetailComponent", () => {
     it("still renders the creation date when the connector has never been seen", async () => {
       const rendered = await renderDetail(makeAccessConnector({ lastHeartbeatAt: undefined }));
 
-      expect(fieldText(rendered, "connector-created")).toBe(expectedMedium());
+      expect(fieldText(rendered, "connector-created")).toBe(expectedTimestamp());
     });
   });
 

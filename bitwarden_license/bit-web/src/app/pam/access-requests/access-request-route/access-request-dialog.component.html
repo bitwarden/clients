@@ -43,7 +43,7 @@
             <span bitBadge variant="secondary" data-testid="request-detail-lease-extended">
               {{
                 "pamExtendedBadge"
-                  | i18n: (ext.addedSeconds | durationShort) : (ext.until | date: "short")
+                  | i18n: (ext.addedSeconds | durationShort) : (ext.until | timestamp)
               }}
             </span>
           }
@@ -100,7 +100,7 @@
 
             @if (r.resolvedAt; as resolvedAt) {
               <pam-summary-field [label]="'pamColumnResolved' | i18n">
-                {{ resolvedAt | date: "medium" }}
+                {{ resolvedAt | timestamp }}
               </pam-summary-field>
             }
           </div>

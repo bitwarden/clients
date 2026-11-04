@@ -10,6 +10,7 @@ import {
   LeasingErrorService,
   ACCESS_BADGE_LOOK,
   formatDuration,
+  formatTimestamp,
   REQUEST_ACCESS_SERVER_ERRORS,
   composeRequestWindow,
   toDateInputValue,
@@ -630,16 +631,16 @@ describe("CipherViewBannerComponent", () => {
       jest.restoreAllMocks();
     });
 
-    function lowerTime(iso: string): string {
-      return formatTimeOfDay("en-US", Date.parse(iso)).toLocaleLowerCase("en-US");
+    function until(iso: string): string {
+      return `pamWindowUntil ${formatTimestamp("en-US", Date.parse(iso))}`;
     }
 
-    function collapseSpace(value: string | null | undefined): string {
-      return (value ?? "").replace(/\s+/g, " ").trim();
+    // The countdown runs on a real interval; a tick is only observed by outlasting it.
+    function waitForTick(): Promise<void> {
+      return new Promise((resolve) => setTimeout(resolve, 1_100));
     }
 
-    it("spells out the days left and the date the lease ends on", async () => {
-      const endsAt = new Date(NOON + 20 * 24 * 60 * 60 * 1000 + 60 * 1000).toISOString();
+    it("pairs the active lease's countdown with the wall-clock time it ends", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ activeLease: leaseView({ notAfter: endsAt }) }),
       );
@@ -679,10 +680,8 @@ describe("CipherViewBannerComponent", () => {
 
       await create(gatedCipher());
 
-      expect(collapseSpace(query('[data-testid="approved-access-window"]')?.textContent)).toBe(
-        collapseSpace(
-          `pamLeaseExpires ${formatCalendarDate("en-US", Date.parse(endsAt))} ${lowerTime(endsAt)}`,
-        ),
+      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
+        `${formatTimestamp("en-US", Date.parse(STARTS_AT))} – ${formatTimestamp("en-US", Date.parse(ENDS_AT))}`,
       );
     });
 
