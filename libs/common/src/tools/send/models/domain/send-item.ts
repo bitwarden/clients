@@ -50,7 +50,14 @@ export class SendItem extends Domain {
     return {
       encryptionVersion: this.encryptionVersion,
       data: this.data,
-      metadata: { itemId: asUuid(this.metadata.itemId) },
+      metadata: {
+        itemId: asUuid(this.metadata.itemId),
+        folderName: undefined,
+        collectionNames: undefined,
+        organizationName: undefined,
+        creationDate: undefined,
+        revisionDate: undefined,
+      },
     };
   }
 
