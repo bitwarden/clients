@@ -85,6 +85,9 @@ const decorators = (options: {
             environment$: of({
               getRegion: () => options.defaultRegion || Region.US,
             } as Partial<Environment>),
+            globalEnvironment$: of({
+              getRegion: () => options.defaultRegion || Region.US,
+            } as Partial<Environment>),
             availableRegions: () => [
               { key: Region.US, domain: "bitwarden.com", urls: {} },
               { key: Region.EU, domain: "bitwarden.eu", urls: {} },
