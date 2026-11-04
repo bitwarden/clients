@@ -43,4 +43,44 @@ describe("OrganizationSubscriptionResponse", () => {
     expect(response.lineItems).toHaveLength(1);
     expect(response.lineItems[0].name).toBe("Seat");
   });
+
+  describe("privileged controls fields", () => {
+    it("parses the Privileged Controls seat fields when present", () => {
+      const response = new OrganizationSubscriptionResponse({
+        PamSeats: 15,
+        MaxAutoscalePamSeats: 25,
+        IsOnPamSalesInitiatedTrial: true,
+      });
+
+      expect(response.pamSeats).toBe(15);
+      expect(response.maxAutoscalePamSeats).toBe(25);
+      expect(response.isOnPamSalesInitiatedTrial).toBe(true);
+    });
+
+    it("keeps isOnPamSalesInitiatedTrial false when the server sends false", () => {
+      const response = new OrganizationSubscriptionResponse({ IsOnPamSalesInitiatedTrial: false });
+
+      expect(response.isOnPamSalesInitiatedTrial).toBe(false);
+    });
+
+    it("leaves the Privileged Controls seat fields undefined when absent", () => {
+      const response = new OrganizationSubscriptionResponse({});
+
+      expect(response.pamSeats).toBeUndefined();
+      expect(response.maxAutoscalePamSeats).toBeUndefined();
+      expect(response.isOnPamSalesInitiatedTrial).toBeUndefined();
+    });
+
+    it("leaves the Privileged Controls seat fields undefined when null", () => {
+      const response = new OrganizationSubscriptionResponse({
+        PamSeats: null,
+        MaxAutoscalePamSeats: null,
+        IsOnPamSalesInitiatedTrial: null,
+      });
+
+      expect(response.pamSeats).toBeUndefined();
+      expect(response.maxAutoscalePamSeats).toBeUndefined();
+      expect(response.isOnPamSalesInitiatedTrial).toBeUndefined();
+    });
+  });
 });
