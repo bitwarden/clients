@@ -595,13 +595,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.inlineMenuHasFilter = normalized.length > 0;
     this.postMessageToPort(this.inlineMenuListPort, {
       command: "updateAutofillInlineMenuListCiphers",
-      ciphers: ciphers.filter(
-        (cipher) =>
-          cipher.type === CipherType.Login &&
-          [cipher.name, cipher.login?.username, cipher.login?.passkey?.userName].some((value) =>
-            value?.toLocaleLowerCase().includes(normalized),
-          ),
-      ),
+      ciphers: ciphers.filter((cipher) => {
+        if (cipher.type !== CipherType.Login) {
+          return false;
+        }
+        const username = cipher.login?.passkey?.userName || cipher.login?.username;
+        const searchableValue = username?.trim() ? username : cipher.name;
+        return searchableValue.toLocaleLowerCase().includes(normalized);
+      }),
       showInlineMenuAccountCreation: this.shouldShowInlineMenuAccountCreation(),
     });
   }

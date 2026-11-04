@@ -317,7 +317,7 @@ describe("OverlayBackground", () => {
   });
 
   describe("filterInlineMenuLogins", () => {
-    it("filters matching login names and usernames and restores the list when cleared", async () => {
+    it("filters by username, falling back to the name when the username is empty", async () => {
       const sender = mock<chrome.runtime.MessageSender>({
         tab: createChromeTabMock({ id: 1 }),
         frameId: 0,
@@ -327,15 +327,21 @@ describe("OverlayBackground", () => {
       const ciphers = [
         {
           id: "1",
-          name: "Work",
+          name: "the-internet.herokuapp.com",
           type: CipherType.Login,
           login: { username: "Alice", passkey: null },
         },
         {
           id: "2",
-          name: "Personal",
+          name: "the-internet.herokuapp.com",
           type: CipherType.Login,
           login: { username: "Bob", passkey: null },
+        },
+        {
+          id: "3",
+          name: "Alice without username",
+          type: CipherType.Login,
+          login: { username: "", passkey: null },
         },
       ] as any;
       jest.spyOn(overlayBackground as any, "getInlineMenuCipherData").mockResolvedValue(ciphers);
@@ -344,7 +350,12 @@ describe("OverlayBackground", () => {
       await overlayBackground["filterInlineMenuLogins"]("ALICE", sender);
       expect(post).toHaveBeenLastCalledWith(
         null,
-        expect.objectContaining({ ciphers: [ciphers[0]] }),
+        expect.objectContaining({ ciphers: [ciphers[0], ciphers[2]] }),
+      );
+      await overlayBackground["filterInlineMenuLogins"]("A", sender);
+      expect(post).toHaveBeenLastCalledWith(
+        null,
+        expect.objectContaining({ ciphers: [ciphers[0], ciphers[2]] }),
       );
       await overlayBackground["filterInlineMenuLogins"]("", sender);
       expect(post).toHaveBeenLastCalledWith(null, expect.objectContaining({ ciphers }));
