@@ -16,13 +16,25 @@ jest.mock("electron", () => ({
 }));
 
 jest.mock("@bitwarden/desktop-napi", () => ({
-  webauthn: { getAssertion: jest.fn(), AssertionCancellation: jest.fn() },
+  webauthn: {
+    getAssertion: jest.fn(),
+    requiresBrowser: jest.fn(),
+    webAuthenticationSession: jest.fn(),
+    AssertionCancellation: jest.fn(),
+    WebConnectorRequest: { start: jest.fn() },
+  },
 }));
 
 type Handler = (event: Partial<IpcMainInvokeEvent>, ...args: unknown[]) => Promise<unknown>;
 
 describe("MainWebAuthnIpcListener", () => {
-  const request = { rpId: "example.com" } as webauthn.AssertionRequest;
+  const request = {
+    origin: "https://vault.example.com",
+    rpId: "example.com",
+    challenge: new Uint8Array([1]),
+    allowCredentials: [],
+  } as webauthn.AssertionRequest;
+  const webVault = { url: "https://vault.example.com/vault", supportsConnector: true };
   const windowHandle = Buffer.from([1, 2, 3, 4]);
 
   let handlers: Map<string, Handler>;
@@ -33,7 +45,12 @@ describe("MainWebAuthnIpcListener", () => {
   let resolveAssertion: (result: webauthn.GetAssertionResult) => void;
 
   function getAssertion(requestId: string) {
-    return handlers.get(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION)!({ sender }, requestId, request);
+    return handlers.get(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION)!(
+      { sender },
+      requestId,
+      request,
+      webVault,
+    );
   }
 
   function cancelRequest(requestId: string) {
@@ -62,6 +79,7 @@ describe("MainWebAuthnIpcListener", () => {
       win: { getNativeWindowHandle: () => windowHandle, webContents: sender },
     } as unknown as WindowMain;
     logService = mock<LogService>();
+    (webauthn.requiresBrowser as jest.Mock).mockReturnValue(false);
 
     new MainWebAuthnIpcListener(windowMain, logService).init();
   });
@@ -133,6 +151,111 @@ describe("MainWebAuthnIpcListener", () => {
       error: { name: "NotAllowedError", message: "The request is not allowed." },
     });
     expect(webauthn.getAssertion).not.toHaveBeenCalled();
+  });
+
+  describe("in a browser", () => {
+    const connectorUrl =
+      "https://vault.example.com/vault/webauthn-desktop-connector.html#state=abc&request=def";
+    const callbackUrl = "bitwarden://webauthn-callback#state=abc&response=ghi";
+    const credential = {
+      rawId: "AQ",
+      response: { authenticatorData: "Ag", clientDataJson: "Aw", signature: "BA" },
+    };
+    let decryptResponse: jest.Mock;
+
+    beforeEach(() => {
+      decryptResponse = jest
+        .fn()
+        .mockReturnValue(new TextEncoder().encode(JSON.stringify({ credential })));
+      (webauthn.WebConnectorRequest.start as jest.Mock).mockReturnValue({
+        url: connectorUrl,
+        decryptResponse,
+      });
+      (webauthn.webAuthenticationSession as jest.Mock).mockResolvedValue({ callbackUrl });
+    });
+
+    it("uses the web vault's connector when the RP ID requires a browser", async () => {
+      (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
+
+      const result = (await getAssertion("1")) as webauthn.GetAssertionResult;
+
+      expect(webauthn.getAssertion).not.toHaveBeenCalled();
+      const [pageUrl, connectorRequest] = (webauthn.WebConnectorRequest.start as jest.Mock).mock
+        .calls[0];
+      expect(pageUrl).toBe("https://vault.example.com/vault/webauthn-desktop-connector.html");
+      expect(JSON.parse(Buffer.from(connectorRequest).toString("utf8"))).toMatchObject({
+        challenge: "AQ",
+        rpId: "example.com",
+      });
+      expect(webauthn.webAuthenticationSession).toHaveBeenCalledWith(
+        windowHandle,
+        connectorUrl,
+        "bitwarden",
+        expect.objectContaining({ cancel }),
+      );
+      expect(decryptResponse).toHaveBeenCalledWith(callbackUrl);
+      expect(result.response?.credentialId).toEqual(new Uint8Array([1]));
+    });
+
+    it("returns an UnknownError when the response can't be decrypted", async () => {
+      (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
+      decryptResponse.mockImplementation(() => {
+        throw new Error("Invalid connector response: Handshake failed");
+      });
+
+      await expect(getAssertion("1")).resolves.toEqual({
+        error: { name: "UnknownError", message: "Failed to get assertion." },
+      });
+    });
+
+    it("retries in the browser when the platform requires it", async () => {
+      const result = getAssertion("1");
+      resolveAssertion({ requiresBrowser: true });
+
+      expect(((await result) as webauthn.GetAssertionResult).response?.signature).toEqual(
+        new Uint8Array([4]),
+      );
+      expect(webauthn.webAuthenticationSession).toHaveBeenCalledTimes(1);
+    });
+
+    it("returns the session's error", async () => {
+      (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
+      const error = { name: "AbortError", message: "Cancelled" };
+      (webauthn.webAuthenticationSession as jest.Mock).mockResolvedValue({ error });
+
+      await expect(getAssertion("1")).resolves.toEqual({ error });
+    });
+
+    it("rejects a web vault URL with a different origin", async () => {
+      (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
+
+      const result = handlers.get(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION)!({ sender }, "1", request, {
+        url: "https://evil.example.com",
+        supportsConnector: true,
+      });
+
+      await expect(result).resolves.toEqual({
+        error: { name: "SecurityError", message: "The web vault URL is not valid." },
+      });
+      expect(webauthn.webAuthenticationSession).not.toHaveBeenCalled();
+    });
+  });
+
+  it("does not open the browser when the server doesn't support the connector", async () => {
+    (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
+
+    const result = handlers.get(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION)!({ sender }, "1", request, {
+      ...webVault,
+      supportsConnector: false,
+    });
+
+    await expect(result).resolves.toEqual({
+      error: {
+        name: "NotSupportedError",
+        message: "The server must be updated to use passkeys for this account on this device.",
+      },
+    });
+    expect(webauthn.webAuthenticationSession).not.toHaveBeenCalled();
   });
 
   it("returns an UnknownError when the native module throws", async () => {

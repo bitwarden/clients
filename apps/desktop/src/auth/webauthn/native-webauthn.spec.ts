@@ -26,6 +26,8 @@ describe("installNativeWebAuthn", () => {
     prf: { first: new Uint8Array([8]) },
   };
 
+  const webVault = { url: "https://vault.example.com/vault", supportsConnector: true };
+
   function publicKey(
     overrides: Partial<PublicKeyCredentialRequestOptions> = {},
   ): PublicKeyCredentialRequestOptions {
@@ -43,7 +45,7 @@ describe("installNativeWebAuthn", () => {
       win,
       ipc,
       () => Promise.resolve(enabled),
-      () => Promise.resolve("https://vault.example.com"),
+      () => Promise.resolve(webVault),
     );
   });
 
@@ -78,16 +80,20 @@ describe("installNativeWebAuthn", () => {
       }),
     });
 
-    expect(ipc.getAssertion).toHaveBeenCalledWith(expect.any(String), {
-      origin: "https://vault.example.com",
-      rpId: "example.com",
-      challenge: new Uint8Array([1, 2]),
-      allowCredentials: [{ id: new Uint8Array([1]), transports: ["internal"] }],
-      userVerification: "required",
-      timeout: 60000,
-      prf: { first: new Uint8Array([3]), second: undefined },
-      appId: undefined,
-    });
+    expect(ipc.getAssertion).toHaveBeenCalledWith(
+      expect.any(String),
+      {
+        origin: "https://vault.example.com",
+        rpId: "example.com",
+        challenge: new Uint8Array([1, 2]),
+        allowCredentials: [{ id: new Uint8Array([1]), transports: ["internal"] }],
+        userVerification: "required",
+        timeout: 60000,
+        prf: { first: new Uint8Array([3]), second: undefined },
+        appId: undefined,
+      },
+      webVault,
+    );
   });
 
   it("returns a credential that passes PublicKeyCredential checks", async () => {

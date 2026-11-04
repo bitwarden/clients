@@ -2,6 +2,7 @@ import { ipcRenderer } from "electron";
 
 import type { webauthn } from "@bitwarden/desktop-napi";
 
+import type { WebVault } from "./webauthn/native-webauthn";
 import { WEBAUTHN_IPC_CHANNELS } from "./webauthn/webauthn-ipc-channels";
 
 export default {
@@ -16,8 +17,9 @@ export default {
     getAssertion: (
       requestId: string,
       request: webauthn.AssertionRequest,
+      webVault: WebVault,
     ): Promise<webauthn.GetAssertionResult> =>
-      ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION, requestId, request),
+      ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION, requestId, request, webVault),
     cancel: (requestId: string): Promise<void> =>
       ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.CANCEL, requestId),
   },

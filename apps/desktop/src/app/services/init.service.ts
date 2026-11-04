@@ -27,7 +27,10 @@ import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto
 import { limitPerformanceMeasurements, LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
-import { installNativeWebAuthn } from "../../auth/webauthn/native-webauthn";
+import {
+  installNativeWebAuthn,
+  WEBAUTHN_CONNECTOR_MIN_SERVER_VERSION,
+} from "../../auth/webauthn/native-webauthn";
 import { nativeWebAuthnEnabled$ } from "../../auth/webauthn/native-webauthn-feature";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
@@ -83,16 +86,26 @@ export class InitService {
   init() {
     return async () => {
       limitPerformanceMeasurements();
-      // Electron does not use the platform's passkey APIs, so route WebAuthn requests to them,
-      // where the platform's feature flag is on. WebAuthn requests are made on behalf of the web
-      // vault of the selected server.
+      // Electron does not use the platform's passkey APIs, so route WebAuthn requests to them, or
+      // to the web vault's WebAuthn connector in a browser where they can't be used, where the
+      // platform's feature flag is on. WebAuthn requests are made on behalf of the web vault of the
+      // selected server.
       installNativeWebAuthn(
         this.win,
         ipc.auth.webauthn,
         () => firstValueFrom(nativeWebAuthnEnabled$(this.platformUtilsService, this.configService)),
         async () => {
           const env = await firstValueFrom(this.environmentService.environment$);
-          return new URL(env.getWebVaultUrl()).origin;
+          // Development builds are usually used with a local web vault built from the same
+          // branch, whose server version doesn't reflect what the web vault serves.
+          const supportsConnector =
+            this.platformUtilsService.isDev() ||
+            (await firstValueFrom(
+              this.configService.checkServerMeetsVersionRequirement$(
+                WEBAUTHN_CONNECTOR_MIN_SERVER_VERSION,
+              ),
+            ));
+          return { url: env.getWebVaultUrl(), supportsConnector };
         },
       );
       await this.sdkLoadService.loadAndInit();

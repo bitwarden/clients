@@ -1,11 +1,34 @@
+import { SemVer } from "semver";
+
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import type { webauthn } from "@bitwarden/desktop-napi";
 
+/**
+ * The first server version whose web vault serves the desktop WebAuthn connector
+ * (`webauthn-desktop-connector.html`). Servers and their web vaults are released together.
+ */
+export const WEBAUTHN_CONNECTOR_MIN_SERVER_VERSION = new SemVer("2026.11.0");
+
+/** The web vault that requests are made on behalf of. */
+export type WebVault = {
+  url: string;
+  /**
+   * Whether the web vault serves the desktop WebAuthn connector, which makes requests in a browser
+   * where the platform's passkey APIs can't be used.
+   */
+  supportsConnector: boolean;
+};
+
 /** The WebAuthn methods exposed to the renderer by the preload script. */
 export type NativeWebAuthnIpc = {
+  /**
+   * `webVault` is used if the request has to be made in a browser, with the web vault's WebAuthn
+   * connector. Its origin must be the request's origin.
+   */
   getAssertion(
     requestId: string,
     request: webauthn.AssertionRequest,
+    webVault: WebVault,
   ): Promise<webauthn.GetAssertionResult>;
   cancel(requestId: string): Promise<void>;
 };
@@ -21,8 +44,8 @@ type ExtensionInputs = {
  * APIs, which Electron does not use, while `enabled` resolves to `true`. Other credential requests
  * are passed through.
  *
- * Requests are made for the origin returned by `getOrigin`, since the renderer's own origin is
- * not a web origin. Aborting the request's `signal` closes the platform's prompt.
+ * Requests are made for the origin of the web vault returned by `getWebVault`, since the
+ * renderer's own origin is not a web origin. Aborting the request's `signal` closes the platform's prompt.
  *
  * Returned credentials pass `instanceof PublicKeyCredential` and
  * `instanceof AuthenticatorAssertionResponse` checks, but are plain objects: their members are own
@@ -32,7 +55,7 @@ export function installNativeWebAuthn(
   win: Window,
   ipc: NativeWebAuthnIpc,
   enabled: () => Promise<boolean>,
-  getOrigin: () => Promise<string>,
+  getWebVault: () => Promise<WebVault>,
 ): void {
   const credentials = win.navigator.credentials;
   const originalGet = credentials.get.bind(credentials);
@@ -52,12 +75,17 @@ export function installNativeWebAuthn(
       const publicKey = options.publicKey;
       const requestId = Utils.newGuid();
       const result = await rejectOnAbort(
-        getOrigin().then((origin) => {
+        getWebVault().then((webVault) => {
           // Do not show a prompt that nothing is waiting for.
           if (signal?.aborted) {
             throw abortReason(signal);
           }
-          return ipc.getAssertion(requestId, toAssertionRequest(origin, publicKey, extensions));
+          const origin = new URL(webVault.url).origin;
+          return ipc.getAssertion(
+            requestId,
+            toAssertionRequest(origin, publicKey, extensions),
+            webVault,
+          );
         }),
         signal,
         () => void ipc.cancel(requestId),

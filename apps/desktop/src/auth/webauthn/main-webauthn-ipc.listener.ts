@@ -5,10 +5,21 @@ import { webauthn } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../main/window.main";
 
+import type { WebVault } from "./native-webauthn";
+import {
+  buildConnectorRequest,
+  CONNECTOR_CALLBACK_SCHEME,
+  connectorPageUrl,
+  isValidWebVaultUrl,
+  parseConnectorResponse,
+} from "./webauthn-connector";
 import { WEBAUTHN_IPC_CHANNELS } from "./webauthn-ipc-channels";
 
 /**
  * Handles WebAuthn requests from the renderer by calling the platform's passkey APIs.
+ *
+ * Where those can't be used, e.g. on macOS for relying parties outside the app's associated
+ * domains, the request is made in a browser session with the web vault's WebAuthn connector.
  */
 export class MainWebAuthnIpcListener {
   /** Cancellations for in-progress requests, by renderer-chosen request ID. */
@@ -22,8 +33,12 @@ export class MainWebAuthnIpcListener {
   init() {
     ipcMain.handle(
       WEBAUTHN_IPC_CHANNELS.GET_ASSERTION,
-      (event: IpcMainInvokeEvent, requestId: string, request: webauthn.AssertionRequest) =>
-        this.getAssertion(event.sender, requestId, request),
+      (
+        event: IpcMainInvokeEvent,
+        requestId: string,
+        request: webauthn.AssertionRequest,
+        webVault: WebVault,
+      ) => this.getAssertion(event.sender, requestId, request, webVault),
     );
     ipcMain.handle(WEBAUTHN_IPC_CHANNELS.CANCEL, (_event: IpcMainInvokeEvent, requestId: string) =>
       this.pending.get(requestId)?.cancel(),
@@ -34,6 +49,7 @@ export class MainWebAuthnIpcListener {
     sender: WebContents,
     requestId: string,
     request: webauthn.AssertionRequest,
+    webVault: WebVault,
   ): Promise<webauthn.GetAssertionResult> {
     const win = this.windowMain.win;
     if (win == null) {
@@ -52,7 +68,14 @@ export class MainWebAuthnIpcListener {
       sender.once("did-start-loading", cancelOnRendererGone);
       sender.once("render-process-gone", cancelOnRendererGone);
       sender.once("destroyed", cancelOnRendererGone);
-      return await webauthn.getAssertion(win.getNativeWindowHandle(), request, cancellation);
+      const windowHandle = win.getNativeWindowHandle();
+      const result = webauthn.requiresBrowser(request.rpId)
+        ? { requiresBrowser: true }
+        : await webauthn.getAssertion(windowHandle, request, cancellation);
+      if (!result.requiresBrowser) {
+        return result;
+      }
+      return await this.getAssertionInBrowser(windowHandle, request, webVault, cancellation);
     } catch (e) {
       this.logService.error("[WebAuthn] Failed to get assertion", e);
       return { error: { name: "UnknownError", message: "Failed to get assertion." } };
@@ -64,5 +87,39 @@ export class MainWebAuthnIpcListener {
         sender.removeListener("destroyed", cancelOnRendererGone);
       }
     }
+  }
+
+  private async getAssertionInBrowser(
+    windowHandle: Buffer,
+    request: webauthn.AssertionRequest,
+    webVault: WebVault,
+    cancellation: webauthn.AssertionCancellation,
+  ): Promise<webauthn.GetAssertionResult> {
+    if (!webVault.supportsConnector) {
+      return {
+        error: {
+          name: "NotSupportedError",
+          message: "The server must be updated to use passkeys for this account on this device.",
+        },
+      };
+    }
+    if (!isValidWebVaultUrl(webVault.url, request.origin)) {
+      return { error: { name: "SecurityError", message: "The web vault URL is not valid." } };
+    }
+    // The connector encrypts its response to a key that doesn't leave the native module.
+    const connectorRequest = webauthn.WebConnectorRequest.start(
+      connectorPageUrl(webVault.url),
+      buildConnectorRequest(request),
+    );
+    const session = await webauthn.webAuthenticationSession(
+      windowHandle,
+      connectorRequest.url,
+      CONNECTOR_CALLBACK_SCHEME,
+      cancellation,
+    );
+    if (session.callbackUrl == null) {
+      return { error: session.error ?? { name: "UnknownError", message: "No result." } };
+    }
+    return parseConnectorResponse(connectorRequest.decryptResponse(session.callbackUrl), request);
   }
 }
