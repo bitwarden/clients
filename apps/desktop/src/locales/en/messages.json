@@ -2072,6 +2072,12 @@
   "unlockWithMasterPassword": {
     "message": "Unlock with master password"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "unlock": {
     "message": "Unlock"
   },

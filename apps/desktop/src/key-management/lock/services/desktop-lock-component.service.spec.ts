@@ -9,7 +9,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
-import { UnlockOptions } from "@bitwarden/key-management-ui";
+import { UnlockOptions, WebAuthnPrfUnlockService } from "@bitwarden/key-management-ui";
 
 import { DesktopLockComponentService } from "./desktop-lock-component.service";
 
@@ -36,6 +36,7 @@ describe("DesktopLockComponentService", () => {
   let pinService: MockProxy<PinServiceAbstraction>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let keyService: MockProxy<KeyService>;
+  let webAuthnPrfUnlockService: MockProxy<WebAuthnPrfUnlockService>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -44,6 +45,8 @@ describe("DesktopLockComponentService", () => {
     pinService = mock<PinServiceAbstraction>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     keyService = mock<KeyService>();
+    webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
+    webAuthnPrfUnlockService.isPrfUnlockAvailable.mockResolvedValue(false);
 
     TestBed.configureTestingModule({
       providers: [
@@ -71,6 +74,10 @@ describe("DesktopLockComponentService", () => {
         {
           provide: KeyService,
           useValue: keyService,
+        },
+        {
+          provide: WebAuthnPrfUnlockService,
+          useValue: webAuthnPrfUnlockService,
         },
       ],
     });
@@ -298,6 +305,21 @@ describe("DesktopLockComponentService", () => {
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 
       expect(unlockOptions).toEqual(expectedOutput);
+    });
+
+    it("enables PRF unlock when it is available for the user", async () => {
+      const userId = "userId" as UserId;
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of({ hasMasterPassword: true }),
+      );
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+      pinService.isPinDecryptionAvailable.mockResolvedValue(false);
+      webAuthnPrfUnlockService.isPrfUnlockAvailable.mockResolvedValue(true);
+
+      const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
+
+      expect(unlockOptions?.prf.enabled).toBe(true);
+      expect(webAuthnPrfUnlockService.isPrfUnlockAvailable).toHaveBeenCalledWith(userId);
     });
   });
 });

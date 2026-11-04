@@ -7,13 +7,18 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
-import { LockComponentService, UnlockOptions } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  UnlockOptions,
+  WebAuthnPrfUnlockService,
+} from "@bitwarden/key-management-ui";
 
 export class DesktopLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly biometricsService = inject(BiometricsService);
   private readonly pinService = inject(PinServiceAbstraction);
+  private readonly webAuthnPrfUnlockService = inject(WebAuthnPrfUnlockService);
 
   constructor() {}
 
@@ -56,26 +61,29 @@ export class DesktopLockComponentService implements LockComponentService {
       defer(() => this.biometricsService.getBiometricsStatusForUser(userId)),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       defer(() => this.pinService.isPinDecryptionAvailable(userId)),
+      defer(() => this.webAuthnPrfUnlockService.isPrfUnlockAvailable(userId)),
     ]).pipe(
-      map(([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable]) => {
-        const unlockOpts: UnlockOptions = {
-          masterPassword: {
-            enabled: userDecryptionOptions?.hasMasterPassword,
-          },
-          pin: {
-            enabled: pinDecryptionAvailable,
-          },
-          biometrics: {
-            enabled: biometricsStatus == BiometricsStatus.Available,
-            biometricsStatus: biometricsStatus,
-          },
-          prf: {
-            enabled: false,
-          },
-        };
+      map(
+        ([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable, prfUnlockAvailable]) => {
+          const unlockOpts: UnlockOptions = {
+            masterPassword: {
+              enabled: userDecryptionOptions?.hasMasterPassword,
+            },
+            pin: {
+              enabled: pinDecryptionAvailable,
+            },
+            biometrics: {
+              enabled: biometricsStatus == BiometricsStatus.Available,
+              biometricsStatus: biometricsStatus,
+            },
+            prf: {
+              enabled: prfUnlockAvailable,
+            },
+          };
 
-        return unlockOpts;
-      }),
+          return unlockOpts;
+        },
+      ),
     );
   }
 }
