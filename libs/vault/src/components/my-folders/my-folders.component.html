@@ -99,7 +99,11 @@
         <bit-skeleton-text class="tw-w-6" />
       </div>
     </bit-cell>
-    <bit-cell *bitCellDef="table.columns.options; let row">
+    <bit-cell
+      *bitCellDef="table.columns.options; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
       <button
         slot="end"
         type="button"

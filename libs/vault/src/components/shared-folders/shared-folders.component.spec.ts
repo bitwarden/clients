@@ -1368,10 +1368,14 @@ describe("SharedFoldersComponent", () => {
       expect(navigate).not.toHaveBeenCalled();
     });
 
-    it("doesn't open the shared folder from the options cell or its menu trigger", () => {
-      const optionsCell = firstRowCells().at(-1)!;
+    it("opens the shared folder from blank space in the options cell", () => {
+      click(firstRowCells().at(-1)!);
 
-      click(optionsCell);
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(["/vault", ORGANIZATION_ID, "shared-folders", "col-a"]);
+    });
+
+    it("leaves the options menu trigger to the menu", () => {
       click(fixture.debugElement.query(By.directive(MenuTriggerForDirective)).nativeElement);
 
       expect(navigate).not.toHaveBeenCalled();

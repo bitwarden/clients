@@ -366,14 +366,19 @@ describe("MyFoldersComponent", () => {
       expect(navigate).not.toHaveBeenCalled();
     });
 
-    it("doesn't open the folder from the options cell or its edit and delete buttons", () => {
+    it("opens the folder from blank space in the options cell", () => {
+      click(firstRowCells().at(-1)!);
+
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(["/folders", "2"]);
+    });
+
+    it("leaves the edit and delete buttons to themselves", () => {
       jest
         .spyOn(AddEditFolderDialogComponent, "open")
         .mockReturnValue({ closed: new BehaviorSubject(undefined) } as never);
       openDeleteDialog.mockReturnValue({ closed: of(false) } as never);
-      const optionsCell = firstRowCells().at(-1)!;
 
-      click(optionsCell);
       click(fixture.nativeElement.querySelector("#my-folders_button_edit-2"));
       click(fixture.nativeElement.querySelector("#my-folders_button_delete-2"));
 

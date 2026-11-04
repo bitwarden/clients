@@ -166,7 +166,11 @@
       </div>
     </bit-cell>
 
-    <bit-cell *bitCellDef="table.columns.options; let row">
+    <bit-cell
+      *bitCellDef="table.columns.options; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
       <!-- In the `end` slot so the cell's flex-grow middle element pushes the trigger hard right,
            anchoring it to the same position on every row. -->
       <div slot="end">
