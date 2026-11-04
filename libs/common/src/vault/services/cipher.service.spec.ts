@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, firstValueFrom, map, of, throwError } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -13,7 +13,6 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { Measurement } from "@bitwarden/logging";
-import { MessageSender } from "@bitwarden/messaging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
@@ -110,7 +109,6 @@ describe("Cipher Service", () => {
   const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const stateProvider = new FakeStateProvider(accountService);
   const cipherEncryptionService = mock<CipherEncryptionService>();
-  const messageSender = mock<MessageSender>();
   const cipherSdkService = mock<CipherSdkService>();
 
   const userId = "TestUserId" as UserId;
@@ -151,7 +149,6 @@ describe("Cipher Service", () => {
       accountService,
       logService,
       cipherEncryptionService,
-      messageSender,
       cipherSdkService,
     );
 
@@ -510,28 +507,6 @@ describe("Cipher Service", () => {
         mockUserId,
         newUserKey,
       );
-    });
-
-    it("sends overlay update when cipherViews$ emits", async () => {
-      (cipherService.cipherViews$ as jest.Mock)?.mockRestore();
-      stateProvider.singleUser
-        .getFake(mockUserId, ENCRYPTED_CIPHERS)
-        .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
-
-      const decryptedView = new CipherView(encryptionContext.cipher);
-      jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
-        .mockResolvedValue([decryptedView]);
-
-      const sendSpy = jest.spyOn(messageSender, "send");
-
-      await firstValueFrom(
-        cipherService
-          .cipherViews$(mockUserId)
-          .pipe(filter((cipherViews): cipherViews is CipherView[] => cipherViews != null)),
-      );
-      expect(sendSpy).toHaveBeenCalledWith("updateOverlayCiphers");
-      expect(sendSpy).toHaveBeenCalledTimes(1);
     });
   });
 

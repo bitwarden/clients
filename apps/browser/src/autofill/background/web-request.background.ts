@@ -19,8 +19,9 @@ import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 
 const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
   urls: ["http://*/*", "https://*/*"],
@@ -215,7 +216,7 @@ export default class WebRequestBackground {
 
   constructor(
     platformUtilsService: PlatformUtilsService,
-    private cipherService: CipherService,
+    private fillCipherPolicy: FillCipherPolicy,
     private authService: AuthService,
     private accountService: AccountService,
     private readonly webRequest: typeof chrome.webRequest,
@@ -387,11 +388,11 @@ export default class WebRequestBackground {
       // The Host strategy is only applied to URIs using "Default", and logins with any such URI are
       // removed by the eligibility filter below, so each remaining URI matched by its own strategy.
       // Host is still passed so that a "Default" URI is never matched more loosely.
-      const ciphers = await this.cipherService.getAllDecryptedForUrl(
+      const ciphers = await this.fillCipherPolicy.ciphersForUrl(
         details.url,
         activeUserId,
-        undefined,
-        UriMatchStrategy.Host,
+        CipherUse.AutomaticFill,
+        { defaultMatch: UriMatchStrategy.Host },
       );
 
       const eligibleCiphers = (ciphers ?? []).filter(isEligibleForHTTPAuthentication);
