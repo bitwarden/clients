@@ -9,16 +9,3 @@ export const POLICIES = UserKeyDefinition.record<PolicyData, PolicyId>(POLICIES_
   deserializer: (policyData) => policyData,
   clearOn: ["logout"],
 });
-
-/**
- * @deprecated No longer read or written; its data was migrated into {@link POLICIES}.
- * Kept only so it can be removed by a later migration (PM-45288).
- */
-export const POLICIES_NEW = UserKeyDefinition.record<PolicyData, PolicyId>(
-  POLICIES_DISK,
-  "policiesNew",
-  {
-    deserializer: (policyData) => policyData,
-    clearOn: ["logout"],
-  },
-);

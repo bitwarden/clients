@@ -33,7 +33,7 @@ describe("MigratePoliciesNewToPolicies", () => {
   }
 
   describe("migrate", () => {
-    it("overwrites policies with policiesNew and keeps policiesNew", async () => {
+    it("overwrites policies with policiesNew and removes policiesNew", async () => {
       const helper = await migrate({
         global_account_accounts: accounts,
         user_user1_policies_policies: oldPolicies,
@@ -41,7 +41,7 @@ describe("MigratePoliciesNewToPolicies", () => {
       });
 
       expect(await helper.getFromUser("user1", POLICIES)).toEqual(newPolicies);
-      expect(await helper.getFromUser("user1", POLICIES_NEW)).toEqual(newPolicies);
+      expect(await helper.getFromUser("user1", POLICIES_NEW)).toBeUndefined();
     });
 
     it("overwrites policies with an empty policiesNew", async () => {
@@ -52,7 +52,7 @@ describe("MigratePoliciesNewToPolicies", () => {
       });
 
       expect(await helper.getFromUser("user1", POLICIES)).toEqual({});
-      expect(await helper.getFromUser("user1", POLICIES_NEW)).toEqual({});
+      expect(await helper.getFromUser("user1", POLICIES_NEW)).toBeUndefined();
     });
 
     it("migrates each account independently", async () => {
@@ -64,11 +64,12 @@ describe("MigratePoliciesNewToPolicies", () => {
       });
 
       expect(await helper.getFromUser("user1", POLICIES)).toEqual(newPolicies);
+      expect(await helper.getFromUser("user1", POLICIES_NEW)).toBeUndefined();
       expect(await helper.getFromUser("user2", POLICIES)).toEqual(oldPolicies);
       expect(await helper.getFromUser("user2", POLICIES_NEW)).toBeUndefined();
     });
 
-    it("sets policies when only policiesNew exists", async () => {
+    it("moves policiesNew to policies when only policiesNew exists", async () => {
       const output = await runMigrator(sut, {
         global_account_accounts: accounts,
         user_user1_policies_policiesNew: newPolicies,
@@ -77,7 +78,6 @@ describe("MigratePoliciesNewToPolicies", () => {
       expect(output).toEqual({
         global_account_accounts: accounts,
         user_user1_policies_policies: newPolicies,
-        user_user1_policies_policiesNew: newPolicies,
       });
     });
 
@@ -93,7 +93,7 @@ describe("MigratePoliciesNewToPolicies", () => {
       });
     });
 
-    it("leaves policies unchanged when policiesNew is null", async () => {
+    it("leaves policies unchanged and removes policiesNew when policiesNew is null", async () => {
       const output = await runMigrator(sut, {
         global_account_accounts: accounts,
         user_user1_policies_policies: oldPolicies,
@@ -103,7 +103,6 @@ describe("MigratePoliciesNewToPolicies", () => {
       expect(output).toEqual({
         global_account_accounts: accounts,
         user_user1_policies_policies: oldPolicies,
-        user_user1_policies_policiesNew: null,
       });
     });
   });

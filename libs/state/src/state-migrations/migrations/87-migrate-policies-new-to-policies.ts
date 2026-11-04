@@ -12,9 +12,9 @@ export const POLICIES_NEW: KeyDefinitionLike = {
 };
 
 /**
- * Copies the accepted and confirmed policy data from `policiesNew` into `policies`, overwriting the
+ * Moves the accepted and confirmed policy data from `policiesNew` into `policies`, overwriting the
  * confirmed-only data, so that `policies` becomes the single source of policy state.
- * `policiesNew` is left in place and will be removed by a later migration (PM-45288).
+ * `policiesNew` is then removed.
  */
 export class MigratePoliciesNewToPolicies extends Migrator<86, 87> {
   async migrate(helper: MigrationHelper): Promise<void> {
@@ -24,6 +24,7 @@ export class MigratePoliciesNewToPolicies extends Migrator<86, 87> {
         if (policiesNew != null) {
           await helper.setToUser(userId, POLICIES, policiesNew);
         }
+        await helper.removeFromUser(userId, POLICIES_NEW);
       }),
     );
   }
