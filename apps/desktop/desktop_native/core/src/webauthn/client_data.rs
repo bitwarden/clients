@@ -1,7 +1,7 @@
 //! Client data for platforms where the app, rather than the OS, creates it.
 
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::Error;
 
@@ -10,6 +10,7 @@ use super::Error;
 /// [order]: https://www.w3.org/TR/webauthn-3/#clientdatajson-serialization
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 struct CollectedClientData<'a> {
     r#type: &'a str,
     challenge: String,
@@ -21,17 +22,13 @@ struct CollectedClientData<'a> {
 ///
 /// The RP ID must be the origin's host, or a domain that the host is a subdomain of, as WebAuthn
 /// requires of a web page.
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 pub(super) fn get_client_data_json(
     challenge: &[u8],
     origin: &str,
     rp_id: &str,
 ) -> Result<Vec<u8>, Error> {
-    validate_rp_id(rp_id)?;
-    if !is_same_or_subdomain(&origin_host(origin)?, rp_id) {
-        return Err(Error::InvalidRequest(format!(
-            "rpId {rp_id:?} is not valid for origin {origin:?}"
-        )));
-    }
+    validate_rp_id_for_origin(rp_id, origin)?;
 
     let client_data = CollectedClientData {
         r#type: "webauthn.get",
@@ -43,6 +40,78 @@ pub(super) fn get_client_data_json(
         message: format!("Failed to serialize client data: {err}"),
         dom_error_name: None,
     })
+}
+
+/// Checks that the RP ID is the origin's host, or a domain that the host is a subdomain of, as
+/// WebAuthn requires of a web page.
+pub(super) fn validate_rp_id_for_origin(rp_id: &str, origin: &str) -> Result<(), Error> {
+    validate_rp_id(rp_id)?;
+    if is_same_or_subdomain(&origin_host(origin)?, rp_id) {
+        Ok(())
+    } else {
+        Err(Error::InvalidRequest(format!(
+            "rpId {rp_id:?} is not valid for origin {origin:?}"
+        )))
+    }
+}
+
+/// The members of client data created by the platform that are checked by
+/// [validate_platform_client_data_json].
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ReceivedClientData {
+    r#type: String,
+    challenge: String,
+    origin: String,
+    #[serde(default)]
+    cross_origin: bool,
+}
+
+/// Checks that the client data of a `webauthn.get` ceremony, created by a platform that sets the
+/// origin to `https://<rpId>` itself, has the expected challenge and origin, and is not
+/// cross-origin.
+///
+/// This is a defense-in-depth check: the platform was given the challenge and derives the origin
+/// from the RP ID, so the JSON should echo the values we expect. Callers fail the ceremony when
+/// this fails, rather than forward unexpected bytes.
+///
+/// Adapted from `ValidateAppleClientDataJSON` in Electron's
+/// `shell/browser/webauthn/electron_platform_passkeys_authenticator_mac.mm`
+/// (<https://github.com/electron/electron/blob/050567d5793c2183eac49c6feb1e4c16ad020c54/shell/browser/webauthn/electron_platform_passkeys_authenticator_mac.mm>,
+/// added in <https://github.com/electron/electron/pull/51563>). Copyright (c) 2026 Salesforce, Inc.
+/// Use of this source code is governed by the MIT license that can be found in Electron's LICENSE
+/// file (<https://github.com/electron/electron/blob/050567d5793c2183eac49c6feb1e4c16ad020c54/LICENSE>).
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+pub(super) fn validate_platform_client_data_json(
+    client_data_json: &[u8],
+    challenge: &[u8],
+    rp_id: &str,
+) -> Result<(), Error> {
+    let invalid = |reason: &str| Error::Platform {
+        message: format!("The platform returned invalid client data: {reason}"),
+        dom_error_name: None,
+    };
+    let client_data: ReceivedClientData =
+        serde_json::from_slice(client_data_json).map_err(|_| invalid("malformed JSON"))?;
+    if client_data.r#type != "webauthn.get" {
+        return Err(invalid("unexpected type"));
+    }
+    if client_data.origin != format!("https://{rp_id}") {
+        return Err(invalid("unexpected origin"));
+    }
+    if URL_SAFE_NO_PAD
+        .decode(&client_data.challenge)
+        .ok()
+        .as_deref()
+        != Some(challenge)
+    {
+        return Err(invalid("unexpected challenge"));
+    }
+    // We don't request a cross-origin ceremony, so reject one.
+    if client_data.cross_origin {
+        return Err(invalid("unexpected crossOrigin"));
+    }
+    Ok(())
 }
 
 /// Checks that a U2F app ID, from the [`appid` extension][appid], may be used by the origin.
@@ -197,6 +266,40 @@ mod tests {
             assert!(
                 get_client_data_json(&[1], "https://example.com", rp_id).is_err(),
                 "{rp_id:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_accepts_platform_client_data() {
+        for json in [
+            r#"{"type":"webauthn.get","challenge":"AQID","origin":"https://example.com"}"#,
+            r#"{"type":"webauthn.get","challenge":"AQID","origin":"https://example.com","crossOrigin":false,"other":1}"#,
+        ] {
+            assert!(
+                validate_platform_client_data_json(json.as_bytes(), &[1, 2, 3], "example.com")
+                    .is_ok(),
+                "{json}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_rejects_unexpected_platform_client_data() {
+        for json in [
+            "",
+            "{}",
+            r#"{"type":"webauthn.create","challenge":"AQID","origin":"https://example.com"}"#,
+            r#"{"type":"webauthn.get","challenge":"AQIE","origin":"https://example.com"}"#,
+            r#"{"type":"webauthn.get","challenge":"AQID=","origin":"https://example.com"}"#,
+            r#"{"type":"webauthn.get","challenge":"AQID","origin":"https://vault.example.com"}"#,
+            r#"{"type":"webauthn.get","challenge":"AQID","origin":"http://example.com"}"#,
+            r#"{"type":"webauthn.get","challenge":"AQID","origin":"https://example.com","crossOrigin":true}"#,
+        ] {
+            assert!(
+                validate_platform_client_data_json(json.as_bytes(), &[1, 2, 3], "example.com")
+                    .is_err(),
+                "{json}"
             );
         }
     }

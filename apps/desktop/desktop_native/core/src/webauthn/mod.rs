@@ -5,11 +5,15 @@ use std::time::Duration;
 
 use thiserror::Error;
 
-#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+#[cfg_attr(not(any(target_os = "windows", target_os = "macos")), allow(dead_code))]
 mod client_data;
 
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
-#[cfg_attr(not(target_os = "windows"), path = "unimplemented.rs")]
+#[cfg_attr(target_os = "macos", path = "macos.rs")]
+#[cfg_attr(
+    not(any(target_os = "windows", target_os = "macos")),
+    path = "unimplemented.rs"
+)]
 mod platform;
 
 // These are WebAuthn client types, with an origin and a challenge. sdk-internal's
@@ -189,7 +193,8 @@ impl Cancellation {
 /// that may block.
 ///
 /// # Arguments
-/// - `window_handle`: The native window handle from Electron's `getNativeWindowHandle()`.
+/// - `window_handle`: The native window handle from Electron's `getNativeWindowHandle()`. On macOS
+///   this is a pointer to an `NSView`, so it must be the handle of a window that is open.
 /// - `request`: The assertion request.
 /// - `cancellation`: Can be used to cancel the call from another thread.
 pub fn get_assertion(

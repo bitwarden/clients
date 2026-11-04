@@ -35,6 +35,7 @@ fn main() {
     // Link required frameworks
     println!("cargo:rustc-link-lib=framework=Foundation");
     println!("cargo:rustc-link-lib=framework=AppKit");
+    println!("cargo:rustc-link-lib=framework=AuthenticationServices");
 }
 
 #[cfg(not(target_os = "macos"))]

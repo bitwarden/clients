@@ -7,6 +7,8 @@ use std::{
 
 use anyhow::{Context, Result};
 
+pub mod webauthn;
+
 #[repr(C)]
 pub struct ObjCString {
     value: *const c_char,
