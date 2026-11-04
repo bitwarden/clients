@@ -16,7 +16,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 
 import { DefaultPamNavBadgeService } from "./pam-nav-badge.service";

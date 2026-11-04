@@ -6,7 +6,6 @@ import { ExtendLeaseDialogComponent } from "@bitwarden/bit-pam-components";
 import { DialogRef } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-
 /** The dialog resolves through `DialogRef`; nothing here needs to observe the result. */
 const dialogRef = { close: () => {} };
 

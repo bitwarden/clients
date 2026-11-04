@@ -16,7 +16,6 @@ import type {
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
 
-
 import {
   AccessNameResolverService,
   ResolvedNames,

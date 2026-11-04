@@ -6,7 +6,6 @@ import type { AccessRuleView } from "@bitwarden/bit-pam";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-
 import { GovernedCollectionsService } from "./governed-collections.service";
 
 const ORG_ID = "org-1" as OrganizationId;

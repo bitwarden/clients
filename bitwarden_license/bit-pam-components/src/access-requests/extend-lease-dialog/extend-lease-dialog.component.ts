@@ -13,7 +13,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-
 /** Collects a lease extension. The reason is required because the server rejects an empty one. */
 @Component({
   selector: "pam-extend-lease-dialog",

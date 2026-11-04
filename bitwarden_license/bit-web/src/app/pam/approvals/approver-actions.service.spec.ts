@@ -8,7 +8,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-
 import { ApproverActionsService, rowBusy } from "./approver-actions.service";
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
 

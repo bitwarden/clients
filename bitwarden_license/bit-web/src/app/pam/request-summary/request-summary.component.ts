@@ -7,7 +7,6 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { CardComponent, IconModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-
 import { SummaryFieldComponent } from "./summary-field.component";
 
 /**

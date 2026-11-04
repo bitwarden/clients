@@ -17,7 +17,6 @@ import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
-
 import { PamRevealedCipherService } from "./pam-revealed-cipher.service";
 
 describe("PamRevealedCipherService", () => {

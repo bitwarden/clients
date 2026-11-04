@@ -42,7 +42,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { CipherViewComponent, CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-
 import {
   DAY,
   HOUR,

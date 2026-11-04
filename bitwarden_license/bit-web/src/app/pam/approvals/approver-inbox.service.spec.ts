@@ -14,7 +14,6 @@ import type { AccessLeaseId, AccessRequestId, AccessRequestView } from "@bitward
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-
 import {
   AccessNameResolverService,
   ResolvedNames,

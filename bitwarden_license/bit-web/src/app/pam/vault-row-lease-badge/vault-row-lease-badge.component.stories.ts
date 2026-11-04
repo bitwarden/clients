@@ -11,7 +11,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
 type BadgeState = string | { active: { expiresAt: string } };

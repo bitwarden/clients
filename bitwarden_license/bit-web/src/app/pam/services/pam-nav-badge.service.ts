@@ -34,7 +34,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 
-
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { isActionableInboxRequest } from "../approvals/inbox-request-filter";
 

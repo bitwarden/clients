@@ -6,7 +6,6 @@ import type { AccessRuleView } from "@bitwarden/bit-pam";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-
 /**
  * How long a cached per-organization read serves new consumers. Checked lazily, so an open callout
  * keeps its value.

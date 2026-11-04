@@ -20,7 +20,6 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 
-
 /** The one stream every ineligible cipher shares, so template reads stay referentially stable. */
 const NEVER_CANCELABLE$ = of(false);
 

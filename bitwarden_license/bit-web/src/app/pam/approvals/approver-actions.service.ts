@@ -7,7 +7,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
 
 /** Raised once the approver confirms and the mutation starts; lowered once it settles. */

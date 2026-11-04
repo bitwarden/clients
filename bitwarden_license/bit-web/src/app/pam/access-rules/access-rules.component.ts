@@ -63,7 +63,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";

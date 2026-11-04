@@ -10,7 +10,6 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-
 /**
  * Display names from local vault state, keyed by raw id. A missing entry means the id isn't in the
  * caller's vault; callers fall back to the raw id or render nothing.

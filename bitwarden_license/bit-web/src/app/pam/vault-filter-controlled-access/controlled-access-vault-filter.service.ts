@@ -41,7 +41,6 @@ import {
   VaultControlledAccessFilter,
 } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
 
-
 type ControlledAccessFilterDefinition = Omit<ControlledAccessFilterOption, "name"> & {
   readonly nameKey: string;
   readonly kinds: readonly AccessBadgeState["kind"][];

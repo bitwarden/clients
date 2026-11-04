@@ -5,7 +5,6 @@ import { AccessStateBadgeComponent } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
 
-
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 

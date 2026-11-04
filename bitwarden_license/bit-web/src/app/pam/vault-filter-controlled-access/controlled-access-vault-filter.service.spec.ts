@@ -18,7 +18,6 @@ import {
   UNAVAILABLE_FILTER_ID,
 } from "@bitwarden/vault";
 
-
 import { ControlledAccessVaultFilterService } from "./controlled-access-vault-filter.service";
 
 const PAM_ORG = "org-1";

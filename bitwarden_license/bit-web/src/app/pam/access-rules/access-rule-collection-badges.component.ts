@@ -8,7 +8,6 @@ import { BadgeModule } from "@bitwarden/components";
 import type { CollectionId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-
 /**
  * One count badge for a rule's collections, with their names as its tooltip so the column stays
  * narrow.

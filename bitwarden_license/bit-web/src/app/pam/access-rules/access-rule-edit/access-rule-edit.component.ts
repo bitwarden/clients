@@ -73,7 +73,6 @@ import {
 import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";

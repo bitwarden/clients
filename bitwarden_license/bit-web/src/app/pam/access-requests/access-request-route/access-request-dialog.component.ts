@@ -48,7 +48,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";

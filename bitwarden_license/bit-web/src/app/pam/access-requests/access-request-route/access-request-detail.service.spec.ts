@@ -3,7 +3,6 @@ import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, firstValueFrom, of } from "rxjs";
 
-
 import {
   AccessEventService,
   AccessLeaseSdkService,

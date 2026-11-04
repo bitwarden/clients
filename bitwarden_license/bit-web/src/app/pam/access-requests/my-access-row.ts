@@ -14,7 +14,6 @@ import {
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import type { BadgeVariant } from "@bitwarden/components";
 
-
 import { ResolvedNames } from "./access-name-resolver.service";
 
 /** Max items rendered per section, since there is no pagination. */

@@ -24,7 +24,6 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-
 import {
   AccessNameResolverService,
   ResolvedNames,

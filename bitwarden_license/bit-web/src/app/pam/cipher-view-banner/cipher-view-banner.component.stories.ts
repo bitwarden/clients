@@ -22,7 +22,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-
 import {
   HOUR,
   MINUTE,

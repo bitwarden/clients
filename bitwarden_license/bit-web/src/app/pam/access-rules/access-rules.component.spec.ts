@@ -18,7 +18,6 @@ import {
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-
 import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { AccessRulesComponent } from "./access-rules.component";

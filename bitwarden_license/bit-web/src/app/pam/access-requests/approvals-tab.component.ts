@@ -54,7 +54,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-
 import { ApprovalRow } from "../approvals/approval-row";
 import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";

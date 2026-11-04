@@ -11,7 +11,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef } from "@bitwarden/components";
 
-
 import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";

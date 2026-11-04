@@ -36,7 +36,6 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
-
 /** A revealed view and the end of the lease it was revealed under, in ms. */
 type Entry = { view: CipherView; endsAt: number };
 

@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, NEVER, of, Subscription } from "rxjs";
 
-
 import { AccessRequestSdkService, DefaultAccessRefreshService } from "@bitwarden/bit-pam";
 import type { AccessRequestId, CipherAccessStateView } from "@bitwarden/bit-pam";
 import { AccessRequestCancelService } from "@bitwarden/bit-pam-components";

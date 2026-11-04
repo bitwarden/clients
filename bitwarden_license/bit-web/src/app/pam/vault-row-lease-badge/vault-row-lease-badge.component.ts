@@ -21,7 +21,6 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
-
 /**
  * Structural, since the host passes its own `CollectionView`/`CollectionAdminView`, which this
  * component must not import. Optional for the vault's pseudo-collections, which carry no flag.

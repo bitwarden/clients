@@ -11,7 +11,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 
-
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
 const PAM_ORG = "org-1";

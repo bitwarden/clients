@@ -53,7 +53,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 
