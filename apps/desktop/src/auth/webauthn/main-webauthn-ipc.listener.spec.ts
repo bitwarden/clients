@@ -58,7 +58,9 @@ describe("MainWebAuthnIpcListener", () => {
     sender = Object.assign(new EventEmitter(), {
       isDestroyed: () => false,
     }) as unknown as WebContents;
-    windowMain = { win: { getNativeWindowHandle: () => windowHandle } } as unknown as WindowMain;
+    windowMain = {
+      win: { getNativeWindowHandle: () => windowHandle, webContents: sender },
+    } as unknown as WindowMain;
     logService = mock<LogService>();
 
     new MainWebAuthnIpcListener(windowMain, logService).init();
@@ -118,6 +120,17 @@ describe("MainWebAuthnIpcListener", () => {
 
     await expect(getAssertion("1")).resolves.toEqual({
       error: { name: "InvalidStateError", message: "No window is open." },
+    });
+    expect(webauthn.getAssertion).not.toHaveBeenCalled();
+  });
+
+  it("rejects requests from other windows", async () => {
+    sender = Object.assign(new EventEmitter(), {
+      isDestroyed: () => false,
+    }) as unknown as WebContents;
+
+    await expect(getAssertion("1")).resolves.toEqual({
+      error: { name: "NotAllowedError", message: "The request is not allowed." },
     });
     expect(webauthn.getAssertion).not.toHaveBeenCalled();
   });

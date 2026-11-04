@@ -39,6 +39,10 @@ export class MainWebAuthnIpcListener {
     if (win == null) {
       return { error: { name: "InvalidStateError", message: "No window is open." } };
     }
+    // Only the main window may show the platform's passkey prompt.
+    if (sender !== win.webContents) {
+      return { error: { name: "NotAllowedError", message: "The request is not allowed." } };
+    }
 
     // Close the platform's prompt if the renderer reloads or goes away while it is open.
     const cancelOnRendererGone = () => this.pending.get(requestId)?.cancel();
