@@ -80,6 +80,7 @@ export {
   DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
   DurationUnit,
   EXTENSION_DURATION_OPTIONS,
+  extensionDurationOptions,
   REQUEST_ACCESS_DURATION_PRESETS,
   snapToNearestDuration,
   snapToNearestAccessRuleDuration,

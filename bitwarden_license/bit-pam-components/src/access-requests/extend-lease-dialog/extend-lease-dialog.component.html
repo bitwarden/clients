@@ -5,7 +5,10 @@
       <bit-label>{{ "pamExtendLeaseDurationLabel" | i18n }}</bit-label>
       <bit-select id="extend-lease-dialog_select_duration" formControlName="durationSeconds">
         @for (opt of durationOptions; track opt.seconds) {
-          <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
+          <bit-option
+            [value]="opt.seconds"
+            [label]="opt.labelKey ? (opt.labelKey | i18n) : (opt.seconds | durationLong)"
+          />
         }
       </bit-select>
     </bit-form-field>
