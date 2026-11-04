@@ -1,12 +1,12 @@
 import type {
   AccessRequestId,
   AccessRequestView,
-} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+} from "@bitwarden/bit-pam/abstractions/access-lease";
 import {
   AccessBadgeState,
   ENDING_SOON_THRESHOLD_MS,
-} from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
-import { durationText, exactWindow } from "@bitwarden/bit-common/pam/helpers/approval-window";
+} from "@bitwarden/bit-pam/access-state-badge/access-badge-state";
+import { durationText, exactWindow } from "@bitwarden/bit-pam/helpers/approval-window";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 import { ResolvedNames } from "../access-requests/access-name-resolver.service";
