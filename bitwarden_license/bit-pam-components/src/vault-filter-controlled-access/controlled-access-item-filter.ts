@@ -4,7 +4,7 @@ import { VaultItemFilter } from "@bitwarden/vault";
 import { ControlledAccessVaultFilterService } from "./controlled-access-vault-filter.service";
 
 /**
- * The VFO1 vault table's "Controlled access" chip, over
+ * The vault tables' "Controlled access" chip (web VFO1 and the popup), over
  * {@link ControlledAccessVaultFilterService}'s state options and matches.
  */
 export function controlledAccessItemFilter(
@@ -15,6 +15,7 @@ export function controlledAccessItemFilter(
     // Kept so `vault.controlledAccess` links and legacy `?controlledAccess=` links keep working.
     key: "controlledAccess",
     label: i18nService.t("controlledAccess"),
+    icon: "bwi-lock-encrypted",
     options$: filterService.stateOptions$,
     matches$: (ciphers) => filterService.matches$(ciphers),
   };

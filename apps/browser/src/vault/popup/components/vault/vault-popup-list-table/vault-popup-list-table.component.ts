@@ -15,7 +15,7 @@ import {
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
-import { distinctUntilChanged, filter, map, skip, Subject, switchMap } from "rxjs";
+import { catchError, distinctUntilChanged, filter, map, of, skip, Subject, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -27,6 +27,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
@@ -50,6 +51,7 @@ import {
   FilterOptionNode,
   IconButtonModule,
   IconComponent,
+  IconTileOptions,
   ScrollCollapseSourceDirective,
   SearchModule,
   StatusLockupComponent,
@@ -66,6 +68,9 @@ import {
   NO_FOLDER,
   organizationNameForScope,
   OrgIconDirective,
+  VAULT_ITEM_FILTER,
+  type VaultItemFilter,
+  type VaultItemFilterOption,
   type VaultItemsTableFilters,
   VaultNavService,
   VaultScopeType,
@@ -98,6 +103,12 @@ import { VaultRowSubtitleComponent } from "../vault-row-access/vault-row-subtitl
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
   return nodes.flatMap((n) => [n.value, ...subtreeValues(n.options ?? [])]);
 }
+
+/**
+ * The Controlled access chip's selection key, persisted by {@link VaultPopupListTableFiltersService}.
+ * The popup uses it whatever key the provider names, since the provider's is the web table's URL key.
+ */
+const CONTROLLED_ACCESS_KEY = "controlledAccess";
 
 /** The chips a vault switch invalidates. Type is absent: item types span vaults. */
 const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
@@ -174,6 +185,11 @@ export class VaultPopupListTableComponent {
   private readonly revealedIds = revealedCipherIds();
   private readonly window = inject<Window>(WINDOW);
 
+  /** Host contribution of the Controlled access chip. Unprovided, the table has no such chip. */
+  protected readonly itemFilter: VaultItemFilter | null = inject(VAULT_ITEM_FILTER, {
+    optional: true,
+  });
+
   /** The projected `bit-table-v2`, used to seed and observe chip selections. */
   private readonly tableEl = viewChild(BitTableV2Component);
 
@@ -242,12 +258,31 @@ export class VaultPopupListTableComponent {
       organization?: string[];
       collection?: string[];
       folder?: string[];
+      controlledAccess?: string[];
     },
   ): boolean =>
     matchesType(row.cipher, values.cipherType) &&
     matchesVault(row.cipher, values.organization) &&
     matchesSharedFolder(row.cipher, values.collection) &&
-    matchesFolder(row.cipher, values.folder);
+    matchesFolder(row.cipher, values.folder) &&
+    this.matchesControlledAccess(row.cipher, values.controlledAccess);
+
+  /**
+   * Whether the cipher is among any selected Controlled access option's matches: OR within the
+   * chip, AND with the others. Unresolved matches let every row pass, and so does an option the
+   * provider does not offer (a stale cached selection).
+   */
+  private matchesControlledAccess(cipher: PopupCipherViewLike, selected?: string[]): boolean {
+    const byOption = this.controlledAccessMatches();
+    if (!selected?.length || byOption === undefined) {
+      return true;
+    }
+    const id = String(cipher.id) as CipherId;
+    return selected.some((optionId) => {
+      const matches = byOption.get(optionId);
+      return matches === undefined || matches.has(id);
+    });
+  }
 
   /**
    * The table's live chip/search selection, reshaped for `EmptyVaultComponent` — its `vault`/
@@ -268,6 +303,7 @@ export class VaultPopupListTableComponent {
           organization?: string[];
           collection?: string[];
           folder?: string[];
+          controlledAccess?: string[];
           search?: string;
         }
       | undefined;
@@ -278,6 +314,10 @@ export class VaultPopupListTableComponent {
       vault: values?.organization,
       sharedFolder: values?.collection,
       folder: values?.folder,
+      // No such key in the empty state's shape; carried so a selection alone reads as "filtered".
+      ...(values?.controlledAccess?.length
+        ? { [CONTROLLED_ACCESS_KEY]: values.controlledAccess }
+        : {}),
     };
   });
 
@@ -309,7 +349,14 @@ export class VaultPopupListTableComponent {
   /**
    * Cached filter state to seed the table's chips on load.
    */
-  protected readonly filtersToRestore = toSignal(this.listFiltersService.restoreFilters$());
+  protected readonly filtersToRestore = toSignal(
+    this.listFiltersService.restoreFilters$().pipe(
+      // Without the contributed chip (no PAM, or the flag off) a cached selection has no control.
+      map(({ controlledAccess, ...rest }) =>
+        this.itemFilter == null || controlledAccess == null ? rest : { ...rest, controlledAccess },
+      ),
+    ),
+  );
 
   /** Whether the user left the toolbar's filter dialog open; restored when the popup reopens. */
   private readonly filterDialogOpen = this.listFiltersService.filterDialogOpen;
@@ -358,6 +405,57 @@ export class VaultPopupListTableComponent {
   private readonly activeCiphers = toSignal(this.vaultPopupItemsService.activeCiphers$, {
     initialValue: [] as PopupCipherViewLike[],
   });
+
+  protected readonly controlledAccessKey = CONTROLLED_ACCESS_KEY;
+
+  /** The chip's options, already localized by the host. Empty hides the chip. */
+  protected readonly controlledAccessOptions = toSignal(
+    this.itemFilter?.options$ ?? of<readonly VaultItemFilterOption[]>([]),
+    { initialValue: [] as readonly VaultItemFilterOption[] },
+  );
+
+  /** Icon tile per option, so each option's binding keeps a stable identity across checks. */
+  protected readonly controlledAccessTiles = computed(() => {
+    const tiles = new Map<string, IconTileOptions>();
+    for (const option of this.controlledAccessOptions()) {
+      tiles.set(option.id, { icon: option.icon, variant: option.tileVariant });
+    }
+    return tiles;
+  });
+
+  /**
+   * Row IDs each option admits, read off the unsearched list so typing does not re-read. Read as
+   * soon as the chip is offered, since every option shows a count. Until it lands every row passes
+   * and counts are blank, and so after a failed read.
+   */
+  private readonly controlledAccessMatches = toSignal(
+    toObservable(
+      computed(() => ({
+        options: this.controlledAccessOptions(),
+        ciphers: this.activeCiphers(),
+      })),
+    ).pipe(
+      switchMap(({ options, ciphers }) =>
+        this.itemFilter == null || options.length === 0
+          ? of<ReadonlyMap<string, ReadonlySet<CipherId>> | undefined>(undefined)
+          : this.itemFilter
+              .matches$(ciphers)
+              .pipe(
+                catchError(() =>
+                  of<ReadonlyMap<string, ReadonlySet<CipherId>> | undefined>(undefined),
+                ),
+              ),
+      ),
+    ),
+    { initialValue: undefined },
+  );
+
+  /** An option's count, blank until its matches have landed. */
+  protected controlledAccessCount(optionId: string): number | undefined {
+    return this.controlledAccessMatches() === undefined
+      ? undefined
+      : this.optionCount(CONTROLLED_ACCESS_KEY, [optionId]);
+  }
 
   /**
    * Narrowed like {@link collectionOptions}, against the unsearched list: an option that vanished

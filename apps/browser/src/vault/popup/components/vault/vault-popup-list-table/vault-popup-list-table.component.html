@@ -91,6 +91,24 @@
         [options]="nestedFolderOptions()"
       ></bit-filter-menu>
     }
+
+    @if (itemFilter != null && controlledAccessOptions().length) {
+      <bit-filter-menu
+        [key]="controlledAccessKey"
+        [placeholderText]="itemFilter.label"
+        multiple
+        [icon]="itemFilter.icon"
+      >
+        @for (option of controlledAccessOptions(); track option.id) {
+          <bit-filter-option
+            [value]="option.id"
+            [iconTile]="controlledAccessTiles().get(option.id)"
+            [count]="controlledAccessCount(option.id)"
+            >{{ option.name }}</bit-filter-option
+          >
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
   <app-vault-filters-tour [toolbar]="toolbar" />
   <!--
