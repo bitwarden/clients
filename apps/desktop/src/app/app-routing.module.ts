@@ -13,6 +13,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
@@ -26,6 +27,7 @@ import {
   VaultIcon,
   LockIcon,
   DomainIcon,
+  SecurityKeyIcon,
 } from "@bitwarden/assets/svg";
 import {
   LoginComponent,
@@ -288,6 +290,31 @@ export const routes: Routes = [
         } satisfies AnonLayoutWrapperData,
         children: [
           { path: "", component: LoginViaAuthRequestComponent },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: AuthRoute.LoginWithPasskey,
+        data: {
+          pageIcon: SecurityKeyIcon,
+          pageTitle: {
+            key: "logInWithPasskey",
+          },
+          pageSubtitle: {
+            key: "readingPasskeyLoadingInfo",
+          },
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          { path: "", component: LoginViaWebAuthnComponent },
           {
             path: "",
             component: EnvironmentSelectorComponent,

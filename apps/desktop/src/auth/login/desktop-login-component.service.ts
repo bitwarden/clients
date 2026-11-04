@@ -1,11 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
+import { Injectable, Signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom } from "rxjs";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "@bitwarden/common/auth/sso-login";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -13,6 +15,8 @@ import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
+
+import { nativeWebAuthnEnabled$ } from "../webauthn/native-webauthn-feature";
 
 @Injectable()
 export class DesktopLoginComponentService
@@ -28,6 +32,7 @@ export class DesktopLoginComponentService
     protected i18nService: I18nService,
     protected toastService: ToastService,
     protected ssoUrlService: SsoUrlService,
+    configService: ConfigService,
   ) {
     super(
       cryptoFunctionService,
@@ -36,6 +41,20 @@ export class DesktopLoginComponentService
       platformUtilsService,
       ssoLoginService,
     );
+    this.webAuthnClientEnabled = toSignal(
+      nativeWebAuthnEnabled$(platformUtilsService, configService),
+      { initialValue: false },
+    );
+  }
+
+  private readonly webAuthnClientEnabled: Signal<boolean>;
+
+  /**
+   * Passkeys use the platform's passkey APIs, or the web vault's WebAuthn connector in a browser
+   * where they can't be used (see `installNativeWebAuthn`), when the platform's feature flag is on.
+   */
+  override isLoginWithPasskeySupported(): boolean {
+    return this.webAuthnClientEnabled();
   }
 
   /**

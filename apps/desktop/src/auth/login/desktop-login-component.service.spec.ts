@@ -1,11 +1,13 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -45,6 +47,8 @@ describe("DesktopLoginComponentService", () => {
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
   let ssoUrlService: MockProxy<SsoUrlService>;
+  let configService: MockProxy<ConfigService>;
+  let webAuthnClientFlag$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -64,6 +68,10 @@ describe("DesktopLoginComponentService", () => {
     toastService = mock<ToastService>();
     platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
     ssoUrlService = mock<SsoUrlService>();
+    configService = mock<ConfigService>();
+    webAuthnClientFlag$ = new BehaviorSubject(false);
+    configService.getFeatureFlag$.mockReturnValue(webAuthnClientFlag$);
+    platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
 
     TestBed.configureTestingModule({
       providers: [
@@ -79,6 +87,7 @@ describe("DesktopLoginComponentService", () => {
               i18nService,
               toastService,
               ssoUrlService,
+              configService,
             ),
         },
         { provide: DefaultLoginComponentService, useExisting: DesktopLoginComponentService },
@@ -105,6 +114,19 @@ describe("DesktopLoginComponentService", () => {
 
   it("creates the service", () => {
     expect(service).toBeTruthy();
+  });
+
+  describe("isLoginWithPasskeySupported", () => {
+    it("follows the platform's feature flag", () => {
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.PM46060_DesktopWebAuthnClientWindows,
+      );
+      expect(service.isLoginWithPasskeySupported()).toBe(false);
+
+      webAuthnClientFlag$.next(true);
+
+      expect(service.isLoginWithPasskeySupported()).toBe(true);
+    });
   });
 
   describe("redirectToSso", () => {
