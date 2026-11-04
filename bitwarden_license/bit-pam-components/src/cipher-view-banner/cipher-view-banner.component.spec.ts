@@ -524,7 +524,88 @@ describe("CipherViewBannerComponent", () => {
       expect(query('[data-testid="cipher-view-banner-approved-duration"]')).toBeNull();
       expect(query('[data-testid="approved-access-window"]')).toBeNull();
       expect(query("#pam-cipher-view-banner_button_start")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_cancel-approved")).toBeNull();
+      expect(query("#pam-cipher-view-banner_button_cancel-approved")).not.toBeNull();
+    });
+
+    it("shows Start access and Cancel request side by side, equal width, text only", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
+      );
+
+      await create(gatedCipher());
+
+      const start = query("#pam-cipher-view-banner_button_start");
+      const cancel = query("#pam-cipher-view-banner_button_cancel-approved");
+      expect(start?.parentElement).toBe(cancel?.parentElement);
+      expect(start?.classList.contains("tw-flex-1")).toBe(true);
+      expect(cancel?.classList.contains("tw-flex-1")).toBe(true);
+      expect(cancel?.textContent).toContain("pendingStateCancelRequest");
+      expect(cancel?.querySelector(".bwi-close")).toBeNull();
+    });
+
+    it("cancels the approved request from its Cancel request button", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView({ id: "request-4" } as never) }),
+      );
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      await create(gatedCipher());
+
+      query("#pam-cipher-view-banner_button_cancel-approved")?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("request-4");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamCancelRequestCanceledToast",
+      });
+    });
+
+    it("disables both buttons while the cancel is in flight", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView({ id: "request-4" } as never) }),
+      );
+      let confirm: (value: boolean) => void = () => undefined;
+      dialogService.openSimpleDialog.mockReturnValue(
+        new Promise<boolean>((resolve) => (confirm = resolve)),
+      );
+      await create(gatedCipher());
+
+      query("#pam-cipher-view-banner_button_cancel-approved")?.click();
+      fixture.detectChanges();
+
+      const isDisabled = (id: string) =>
+        (query(id) as HTMLButtonElement).getAttribute("aria-disabled") === "true" ||
+        (query(id) as HTMLButtonElement).disabled;
+      expect(isDisabled("#pam-cipher-view-banner_button_start")).toBe(true);
+      expect(isDisabled("#pam-cipher-view-banner_button_cancel-approved")).toBe(true);
+
+      confirm(false);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(isDisabled("#pam-cipher-view-banner_button_start")).toBe(false);
+      expect(isDisabled("#pam-cipher-view-banner_button_cancel-approved")).toBe(false);
+    });
+
+    it("toasts the same error as the pending cancel and re-enables the buttons", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView({ id: "request-4" } as never) }),
+      );
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
+      await create(gatedCipher());
+
+      query("#pam-cipher-view-banner_button_cancel-approved")?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pendingStateCancelError",
+      });
+      expect(component["cancelling"]()).toBe(false);
     });
   });
 
@@ -864,9 +945,8 @@ describe("CipherViewBannerComponent", () => {
       expect(query('[data-testid="request-sheet-summary"]')?.textContent).toContain(
         "pamRequestToUse",
       );
-      expect(query('[data-testid="request-sheet-details-heading"]')?.textContent).toContain(
-        "requestAccessModalDetailsHeading",
-      );
+      expect(query('[data-testid="request-sheet-details-heading"]')).toBeNull();
+      expect(text()).not.toContain("requestAccessModalDetailsHeading");
       expect(query("[data-testid='request-sheet'] footer")).not.toBeNull();
     });
 
@@ -1463,7 +1543,7 @@ describe("CipherViewBannerComponent", () => {
   });
 
   describe("submitting a request", () => {
-    it("sends only a duration on the automatic path", async () => {
+    it("sends a duration and the trimmed reason on the automatic path", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       requestsApi.submitAccessRequest.mockResolvedValue({
         approvalMode: "automatic",
@@ -1472,21 +1552,46 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
       await component["toggleRequestForm"]();
 
-      component["automaticForm"].patchValue({ durationSeconds: 1800, reason: "  " });
+      component["automaticForm"].patchValue({
+        durationSeconds: 1800,
+        reason: "  Quarterly audit ",
+      });
       await component["submitRequest"]();
 
       expect(requestsApi.submitAccessRequest).toHaveBeenCalledWith("cipher-1", {
         durationSeconds: 1800,
         start: undefined,
         end: undefined,
-        // A blank reason is optional on this path and must not be sent as an empty string.
-        reason: undefined,
+        reason: "Quarterly audit",
       });
       expect(component["requestFormExpanded"]()).toBe(false);
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
     });
+
+    it.each(["", "   "])(
+      "blocks the automatic path and shows the required error for reason %j",
+      async (reason) => {
+        requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+        await create(gatedCipher());
+        await component["toggleRequestForm"]();
+        fixture.detectChanges();
+
+        const textarea = query("#pam-cipher-view-banner_textarea_automatic-reason");
+        expect(textarea?.hasAttribute("required")).toBe(true);
+
+        component["automaticForm"].patchValue({ reason });
+        await component["submitRequest"]();
+        fixture.detectChanges();
+
+        expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
+        expect(component["requestFormExpanded"]()).toBe(true);
+        expect(component["automaticForm"].controls.reason.touched).toBe(true);
+        const error = textarea?.closest("bit-form-field")?.querySelector("bit-error");
+        expect(error?.textContent).toContain("inputRequired");
+      },
+    );
 
     it("sends a window and reason on the human path", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
@@ -1708,6 +1813,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.submitAccessRequest.mockRejectedValue(error);
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      component["automaticForm"].patchValue({ reason: "Quarterly audit" });
       await component["submitRequest"]();
     }
 

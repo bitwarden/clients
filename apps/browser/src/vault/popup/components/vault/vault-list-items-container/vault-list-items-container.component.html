@@ -110,7 +110,7 @@
               <app-vault-icon [cipher]="cipher"></app-vault-icon>
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
-            <div slot="default-trailing" class="tw-flex tw-gap-1.5">
+            <div slot="default-trailing" class="tw-flex tw-gap-1.5 tw-items-center">
               @if (cipher.organization; as organization) {
                 <i
                   slot="default-trailing"
@@ -127,12 +127,15 @@
                   [appA11yTitle]="'attachments' | i18n"
                 ></bit-icon>
               }
+              <app-vault-row-access-icon [cipher]="cipher"></app-vault-row-access-icon>
             </div>
-            <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher, i18nService) }}</span>
+            <span slot="secondary"
+              ><app-vault-row-subtitle [cipher]="cipher"></app-vault-row-subtitle
+            ></span>
           </button>
 
           <ng-container slot="end">
-            @if (showFillTextOnHover()) {
+            @if (showFillTextOnHover() && !isGated(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
@@ -144,7 +147,7 @@
                 </button>
               </bit-item-action>
             }
-            @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
+            @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher) && !isGated(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
@@ -155,7 +158,9 @@
                 ></button>
               </bit-item-action>
             }
-            <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
+            @if (!isGated(cipher)) {
+              <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
+            }
             <app-item-more-options
               [cipher]="cipher"
               [showAutofill]="showAutofillInMenu()"

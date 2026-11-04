@@ -7,8 +7,11 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CompactModeService, DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -23,6 +26,7 @@ describe("VaultListItemsContainerComponent", () => {
   let component: VaultListItemsContainerComponent;
 
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
+  const revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
 
   const mockCipher = {
     id: "cipher-1",
@@ -57,6 +61,7 @@ describe("VaultListItemsContainerComponent", () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     currentTabIsOnBlocklist$.next(false);
+    revealed$.next(new Map());
 
     await TestBed.configureTestingModule({
       imports: [VaultListItemsContainerComponent, NoopAnimationsModule],
@@ -67,6 +72,10 @@ describe("VaultListItemsContainerComponent", () => {
         { provide: I18nService, useValue: { t: (k: string) => k } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "UserId" }) } },
         { provide: CipherService, useValue: mock<CipherService>() },
+        {
+          provide: RevealedCipherService,
+          useValue: { revealed$: () => revealed$.asObservable() },
+        },
         { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
       ],
@@ -203,6 +212,74 @@ describe("VaultListItemsContainerComponent", () => {
       const result = titleKeyFn(cipherWithoutUsername);
 
       expect(result).toBe("viewItemTitle");
+    });
+
+    it("should return viewItemTitle for a gated cipher in an autofill list", () => {
+      fixture.componentRef.setInput("isAutofillList", true);
+      fixture.detectChanges();
+
+      const titleKeyFn = component.cipherItemTitleKey();
+      const result = titleKeyFn({ ...mockCipher, partial: true } as PopupCipherViewLike);
+
+      expect(result).toBe("viewItemTitleWithField");
+    });
+  });
+
+  describe("onCipherSelect", () => {
+    it("views a gated cipher instead of autofilling it, even when the list would otherwise autofill", () => {
+      fixture.componentRef.setInput("isAutofillList", true);
+      fixture.detectChanges();
+      jest.spyOn(component, "doAutofill").mockResolvedValue();
+      jest.spyOn(component, "onViewCipher").mockResolvedValue();
+
+      void component.onCipherSelect({ ...mockCipher, partial: true } as PopupCipherViewLike);
+
+      expect(component.doAutofill).not.toHaveBeenCalled();
+      expect(component.onViewCipher).toHaveBeenCalled();
+    });
+
+    it("autofills a normal cipher when the list autofills on select", () => {
+      fixture.componentRef.setInput("isAutofillList", true);
+      fixture.detectChanges();
+      jest.spyOn(component, "doAutofill").mockResolvedValue();
+      jest.spyOn(component, "onViewCipher").mockResolvedValue();
+
+      void component.onCipherSelect(mockCipher as PopupCipherViewLike);
+
+      expect(component.doAutofill).toHaveBeenCalled();
+      expect(component.onViewCipher).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("isGated", () => {
+    it("is true for a restricted row with no live reveal", () => {
+      fixture.detectChanges();
+
+      expect(component["isGated"]({ ...mockCipher, partial: true })).toBe(true);
+    });
+
+    it("is false for a normal row", () => {
+      fixture.detectChanges();
+
+      expect(component["isGated"]({ ...mockCipher, partial: false })).toBe(false);
+    });
+
+    it("is false for a restricted row while its reveal is live, so launch and copy return", () => {
+      revealed$.next(new Map([["cipher-1" as CipherId, {} as CipherView]]));
+      fixture.detectChanges();
+
+      expect(component["isGated"]({ ...mockCipher, partial: true })).toBe(false);
+    });
+
+    it("autofills a restricted row on select once its reveal is live", () => {
+      revealed$.next(new Map([["cipher-1" as CipherId, {} as CipherView]]));
+      fixture.componentRef.setInput("isAutofillList", true);
+      fixture.detectChanges();
+      jest.spyOn(component, "doAutofill").mockResolvedValue();
+
+      void component.onCipherSelect({ ...mockCipher, partial: true } as PopupCipherViewLike);
+
+      expect(component.doAutofill).toHaveBeenCalled();
     });
   });
 });

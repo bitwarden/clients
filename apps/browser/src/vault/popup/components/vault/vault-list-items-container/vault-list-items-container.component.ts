@@ -60,6 +60,9 @@ import {
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
+import { isGatedRow, revealedCipherIds } from "../vault-row-access/revealed-cipher-ids";
+import { VaultRowAccessIconComponent } from "../vault-row-access/vault-row-access-icon.component";
+import { VaultRowSubtitleComponent } from "../vault-row-access/vault-row-subtitle.component";
 
 @Component({
   imports: [
@@ -73,6 +76,8 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     SectionHeaderComponent,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
+    VaultRowAccessIconComponent,
+    VaultRowSubtitleComponent,
     OrgIconDirective,
     ScrollingModule,
     DisclosureComponent,
@@ -232,7 +237,7 @@ export class VaultListItemsContainerComponent {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
       // Use autofill title when autofill is the primary action
-      const key = this.canAutofill() ? "autofillTitle" : "viewItemTitle";
+      const key = this.canAutofill() && !this.isGated(cipher) ? "autofillTitle" : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
@@ -301,7 +306,16 @@ export class VaultListItemsContainerComponent {
   ) {}
 
   onCipherSelect(cipher: PopupCipherViewLike) {
-    return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
+    return this.canAutofill() && !this.isGated(cipher)
+      ? this.doAutofill(cipher)
+      : this.onViewCipher(cipher);
+  }
+
+  private readonly revealedIds = revealedCipherIds();
+
+  /** A restricted item with no live reveal: no credentials to launch, copy or fill. */
+  protected isGated(cipher: CipherViewLike): boolean {
+    return isGatedRow(cipher, this.revealedIds());
   }
 
   /**
@@ -309,7 +323,7 @@ export class VaultListItemsContainerComponent {
    */
   async launchCipher(cipher: CipherViewLike) {
     const launchURI = CipherViewLikeUtils.getLaunchUri(cipher);
-    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI) {
+    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI || this.isGated(cipher)) {
       return;
     }
 
