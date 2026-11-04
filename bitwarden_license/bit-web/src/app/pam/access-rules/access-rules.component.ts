@@ -1,5 +1,4 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -29,6 +28,7 @@ import {
   accessRuleDeleteConfirmOptions,
   DurationLongPipe,
   RelativeTimePipe,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -76,7 +76,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
-    DatePipe,
+    TimestampPipe,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
     BadgeModule,

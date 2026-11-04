@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -40,8 +39,11 @@ import {
   LeasingErrorService,
   ACCESS_BADGE_LOOK,
   ENDING_SOON_THRESHOLD_MS,
+  exactWindow,
   formatCompoundDuration,
   formatDuration,
+  formatTimeOfDay,
+  formatTimestamp,
   formatRemaining,
   activateAccessErrorMessageKey,
   isGovernedCipher,
@@ -88,6 +90,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
+import { DurationLongPipe } from "../date/duration-long.pipe";
+import { DurationShortPipe } from "../date/duration-short.pipe";
+import { TimestampPipe } from "../date/timestamp.pipe";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
@@ -117,15 +122,10 @@ import { type RequestTerms, requestTerms } from "./request-terms";
     NgTemplateOutlet,
     TooltipDirective,
     TypographyModule,
+    DurationLongPipe,
+    DurationShortPipe,
     I18nPipe,
-    AccessEndedCardComponent,
-    ActiveLeaseCardComponent,
-    ApprovedRequestCardComponent,
-    PendingRequestCardComponent,
-    RequestAccessCardComponent,
-    RequestAccessFormComponent,
-    UnavailableCardComponent,
-    UnlicensedCardComponent,
+    TimestampPipe,
   ],
 })
 export class CipherViewBannerComponent implements OnInit {
@@ -321,6 +321,11 @@ export class CipherViewBannerComponent implements OnInit {
     endedByUser: false,
   };
 
+  protected readonly approvedWindow = computed(() => {
+    const request = this.approvedRequest();
+    return request == null ? "" : exactWindow(request, this.locale);
+  });
+
   /** Whether anything on screen still reads {@link nowMs}. */
   private readonly clockAdvances = computed(
     () => this.activeLease() != null || this.pendingRequest() != null,
@@ -332,7 +337,159 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly requestToggleButton = viewChild("requestToggleButton", {
     read: ElementRef<HTMLElement>,
   });
-  private readonly requestFoldOut = viewChild("requestFoldOut", { read: ElementRef<HTMLElement> });
+  private readonly requestFoldOut = viewChild("requestFoldOut", {
+    read: ElementRef<HTMLElement>,
+  });
+  /** `null` until the fold-out's pre-check resolves the approval path. */
+  protected readonly requestMode = signal<AccessApprovalMode | null>(null);
+  protected readonly loadingRequestForm = signal(false);
+  protected readonly requestError = signal<string | null>(null);
+
+  /**
+   * The governing rule's bounds from the pre-check. Both paths read the cap here, so the picker and
+   * the window validator only offer what submit accepts.
+   */
+  private readonly requestBounds = signal<{ defaultSeconds: number; maxSeconds: number } | null>(
+    null,
+  );
+
+  /**
+   * Duration choices narrowed to the rule's cap. The unnarrowed fallback never renders, since no
+   * form shows until `requestMode` is set along with the bounds.
+   */
+  protected readonly durationOptions = computed<readonly RequestDurationOption[]>(() => {
+    const bounds = this.requestBounds();
+    return bounds == null
+      ? REQUEST_ACCESS_DURATION_PRESETS
+      : requestDurationOptions(bounds.maxSeconds, bounds.defaultSeconds);
+  });
+
+  /** The human path's window cap, for the message under the time fields. */
+  protected readonly maxWindowSeconds = computed(() => this.requestBounds()?.maxSeconds ?? null);
+
+  /**
+   * Start picker floor, pinned when the fold-out opened. Reactive forms ignore `min`, so
+   * `requestWindowEndValidator` is the real check.
+   */
+  protected readonly minRequestDate = signal("");
+
+  /**
+   * Set while another member holds the single-active-lease slot. `null` treats free, unknown and
+   * unsupported alike.
+   */
+  protected readonly slotContention = signal<{ freesAt: string | null } | null>(null);
+
+  protected readonly automaticForm = this.formBuilder.nonNullable.group({
+    durationSeconds: [DEFAULT_REQUEST_ACCESS_DURATION_SECONDS, Validators.required],
+    reason: [""],
+  });
+
+  protected readonly humanForm = this.formBuilder.nonNullable.group({
+    startDate: ["", Validators.required],
+    startTime: ["", Validators.required],
+    endDate: ["", Validators.required],
+    endTime: [
+      "",
+      [
+        Validators.required,
+        // Reads the cap live through the signal, not the value captured when the form was built.
+        requestWindowEndValidator(
+          () => this.maxWindowSeconds(),
+          (problem, max) => this.windowProblemMessage(problem, max),
+        ),
+      ],
+    ],
+    reason: ["", [Validators.required, nonBlank]],
+  });
+
+  private readonly humanFormValue = toSignal(this.humanForm.valueChanges, {
+    initialValue: this.humanForm.value,
+  });
+
+  protected readonly minEndDate = computed(
+    () => this.humanFormValue().startDate || this.minRequestDate(),
+  );
+
+  protected readonly CUSTOM_OPTION = CUSTOM_OPTION;
+  private readonly requestOpenedAt = signal(new Date());
+  protected readonly customStart = signal(false);
+  protected readonly customEnd = signal(false);
+  protected readonly startSlot = new FormControl("", {
+    nonNullable: true,
+    validators: Validators.required,
+  });
+  protected readonly endDuration = new FormControl("", {
+    nonNullable: true,
+    validators: Validators.required,
+  });
+
+  protected readonly startSlots = computed(() => {
+    const date = this.humanFormValue().startDate;
+    if (!date) {
+      return [];
+    }
+    const openedAt = this.requestOpenedAt();
+    const today = date === toDateInputValue(openedAt);
+    return startTimeSlots(date, openedAt).map((value, index) => {
+      const time = formatTimeOfDay(this.locale, new Date(`${date}T${value}`).getTime());
+      return {
+        value,
+        label: today && index === 0 ? this.i18nService.t("requestAccessModalStartNow", time) : time,
+      };
+    });
+  });
+
+  protected readonly endOptions = computed(() => {
+    const { startDate, startTime } = this.humanFormValue();
+    const start = windowEndAt(startDate, startTime, 0);
+    return this.durationOptions().map((option) => {
+      const duration = option.labelKey
+        ? this.i18nService.t(option.labelKey)
+        : formatDuration(this.locale, option.seconds, "long");
+      const end = windowEndAt(startDate, startTime, option.seconds);
+      return {
+        seconds: option.seconds,
+        label:
+          start == null || end == null
+            ? duration
+            : this.i18nService.t(
+                "requestAccessModalDurationUntil",
+                duration,
+                this.formatWindowPoint(end, start),
+              ),
+      };
+    });
+  });
+
+  protected readonly windowSummary = computed(() => {
+    const window = composeRequestWindow(this.humanFormValue());
+    if (window == null || window.end <= window.start) {
+      return null;
+    }
+    return this.i18nService.t(
+      "requestAccessModalWindowSummary",
+      formatCompoundDuration(
+        this.locale,
+        (window.end.getTime() - window.start.getTime()) / 1000,
+        "long",
+      ),
+      this.formatWindowPoint(window.start),
+      this.formatWindowPoint(window.end, window.start),
+    );
+  });
+
+  private readonly humanFormStatus = toSignal(this.humanForm.statusChanges, {
+    initialValue: this.humanForm.status,
+  });
+
+  /** The window error while the end is a duration, since the End time field carrying it is hidden. */
+  protected readonly durationWindowError = computed(() => {
+    this.humanFormStatus();
+    this.humanFormValue();
+    const error: RequestWindowError | undefined =
+      this.humanForm.controls.endTime.errors?.[REQUEST_WINDOW_ERROR_KEY];
+    return this.customEnd() ? null : (error?.message ?? null);
+  });
 
   constructor() {
     effect(() => {
@@ -441,13 +598,12 @@ export class CipherViewBannerComponent implements OnInit {
     }
   }
 
-  /** A time alone on the reference instant's day, else the day and time. */
+  /** A time alone on the reference instant's day, else the date and time. */
   private formatWindowPoint(date: Date, reference?: Date): string {
-    const time = formatDate(date, "shortTime", this.locale);
     if (reference != null && toDateInputValue(date) === toDateInputValue(reference)) {
-      return time;
+      return formatTimeOfDay(this.locale, date.getTime());
     }
-    return `${formatDate(date, "EEE, MMM d", this.locale)}, ${time}`;
+    return formatTimestamp(this.locale, date.getTime());
   }
 
   private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {

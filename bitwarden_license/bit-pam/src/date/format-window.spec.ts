@@ -1,33 +1,10 @@
-import {
-  formatClockTime,
-  formatRequestedWindow,
-  formatWindowDay,
-  windowParts,
-} from "./format-window";
+import { formatRequestedWindow, formatWindowDay, windowParts } from "./format-window";
 
 function at(year: number, month: number, day: number, hour: number, minute = 0): number {
   return new Date(year, month - 1, day, hour, minute, 0, 0).getTime();
 }
 
 const NOW = at(2026, 8, 20, 9, 0);
-
-describe("formatClockTime", () => {
-  it("drops the minutes on the hour", () => {
-    expect(formatClockTime("en-US", at(2026, 8, 20, 9, 0))).toBe("9 AM");
-    expect(formatClockTime("en-US", at(2026, 8, 20, 13, 0))).toBe("1 PM");
-  });
-
-  it("keeps the minutes off the hour", () => {
-    expect(formatClockTime("en-US", at(2026, 8, 20, 17, 11))).toBe("5:11 PM");
-  });
-
-  it("keeps the meridiem under a locale that would otherwise use the 24-hour clock", () => {
-    const afternoon = formatClockTime("en-GB", at(2026, 8, 20, 17, 11));
-
-    expect(afternoon.toLowerCase()).toContain("pm");
-    expect(afternoon).toContain("5:11");
-  });
-});
 
 describe("formatWindowDay", () => {
   it("says nothing for today, which the row is already read on", () => {
@@ -40,7 +17,8 @@ describe("formatWindowDay", () => {
   });
 
   it("dates anything further out", () => {
-    expect(formatWindowDay("en-US", at(2026, 8, 25, 9, 0), NOW)).toBe("Aug 25");
+    expect(formatWindowDay("en-US", at(2026, 8, 25, 9, 0), NOW)).toBe("Aug 25, 2026");
+    expect(formatWindowDay("en-US", at(2026, 9, 2, 9, 0), NOW)).toBe("Sept 2, 2026");
   });
 
   it("counts calendar days rather than elapsed hours", () => {
@@ -73,7 +51,7 @@ describe("windowParts", () => {
   it("dates a shared day that is neither today nor tomorrow", () => {
     const parts = windowParts("en-US", at(2026, 8, 25, 9, 0), at(2026, 8, 25, 13, 0), NOW);
 
-    expect(parts.sharedDay).toBe("Aug 25");
+    expect(parts.sharedDay).toBe("Aug 25, 2026");
   });
 
   it("gives each end its own day when the window spans days", () => {
@@ -81,8 +59,8 @@ describe("windowParts", () => {
 
     expect(parts).toEqual({
       sharedDay: "",
-      start: { day: "Aug 25", time: "9 AM" },
-      end: { day: "Aug 26", time: "1 PM" },
+      start: { day: "Aug 25, 2026", time: "9 AM" },
+      end: { day: "Aug 26, 2026", time: "1 PM" },
     });
   });
 
@@ -118,7 +96,7 @@ describe("formatRequestedWindow", () => {
 
   it("dates the end of an open window that runs past today", () => {
     expect(render("en-US", at(2026, 8, 20, 8, 0), at(2026, 8, 22, 9, 0))).toBe(
-      "Until Aug 22, 9 AM",
+      "Until Aug 22, 2026, 9 AM",
     );
   });
 
@@ -136,13 +114,13 @@ describe("formatRequestedWindow", () => {
 
   it("dates a single-day window further out", () => {
     expect(render("en-US", at(2026, 8, 25, 9, 0), at(2026, 8, 25, 10, 0))).toBe(
-      "Aug 25, 9 AM to 10 AM",
+      "Aug 25, 2026, 9 AM to 10 AM",
     );
   });
 
   it("dates both ends of a future window spanning days", () => {
     expect(render("en-US", at(2026, 8, 25, 9, 0), at(2026, 8, 26, 13, 0))).toBe(
-      "Aug 25, 9 AM to Aug 26, 1 PM",
+      "Aug 25, 2026, 9 AM to Aug 26, 2026, 1 PM",
     );
   });
 

@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
@@ -8,6 +7,7 @@ import { map } from "rxjs";
 import {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -89,7 +89,6 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TargetSystemsService, OrgCiphersService],
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     AssignmentPickerComponent,
     AsyncActionsModule,
@@ -115,6 +114,7 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
     TooltipDirective,
     TypographyModule,
     I18nPipe,
+    TimestampPipe,
   ],
 })
 export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {

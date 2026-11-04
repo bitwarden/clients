@@ -119,6 +119,7 @@ const minuteMs = 60_000;
     TooltipDirective,
     TypographyModule,
     I18nPipe,
+    TimestampPipe,
     Vfo1I18nPipe,
   ],
 })

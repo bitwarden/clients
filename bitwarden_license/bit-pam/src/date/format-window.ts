@@ -1,3 +1,5 @@
+import { formatCalendarDate, formatClockTime } from "./format-date";
+
 /** Resolves an i18n key against its placeholders; the i18n service's `t`, minus the service. */
 type Translate = (key: string, ...args: string[]) => string;
 
@@ -9,21 +11,6 @@ export type WindowParts = {
 
 export type WindowEndpoint = { day: string; time: string };
 
-class DateTimeFormatCache {
-  private readonly formats = new Map<string, Intl.DateTimeFormat>();
-
-  get(key: string, locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
-    let format = this.formats.get(key);
-    if (!format) {
-      format = new Intl.DateTimeFormat(locale, options);
-      this.formats.set(key, format);
-    }
-    return format;
-  }
-}
-
-const clockFormats = new DateTimeFormatCache();
-const dayFormats = new DateTimeFormatCache();
 const relativeFormats = new Map<string, Intl.RelativeTimeFormat>();
 
 const MS_PER_DAY = 86_400_000;
@@ -36,17 +23,6 @@ function startOfDay(epochMs: number): number {
   const date = new Date(epochMs);
   date.setHours(0, 0, 0, 0);
   return date.getTime();
-}
-
-export function formatClockTime(locale: string, epochMs: number): string {
-  const onTheHour = new Date(epochMs).getMinutes() === 0;
-  return clockFormats
-    .get(`${locale}|${onTheHour}`, locale, {
-      hour: "numeric",
-      hour12: true,
-      ...(onTheHour ? {} : { minute: "2-digit" }),
-    })
-    .format(epochMs);
 }
 
 export function formatWindowDay(locale: string, epochMs: number, nowMs: number): string {
@@ -62,7 +38,7 @@ export function formatWindowDay(locale: string, epochMs: number, nowMs: number):
     }
     return capitalize(locale, relative.format(offset, "day"));
   }
-  return dayFormats.get(locale, locale, { month: "short", day: "numeric" }).format(epochMs);
+  return formatCalendarDate(locale, epochMs);
 }
 
 function capitalize(locale: string, value: string): string {

@@ -165,10 +165,10 @@
             class="tw-text-sm"
             data-testid="last-seen"
             tabindex="0"
-            [bitTooltip]="r.lastSeenAtMs | date: 'medium'"
+            [bitTooltip]="r.lastSeenAtMs | timestamp"
             [addTooltipToDescribedby]="true"
           >
-            {{ r.lastSeenLabel ?? (r.lastSeenAtMs | date: "medium") }}
+            {{ r.lastSeenLabel ?? (r.lastSeenAtMs | timestamp) }}
           </span>
         } @else {
           <span class="tw-text-sm" data-testid="last-seen">{{ "never" | i18n }}</span>
