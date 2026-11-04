@@ -111,6 +111,15 @@ export enum FeatureFlag {
 
   /* VFO */
   VFO1Foundation = "vfo1-foundation",
+
+  /* Permanent */
+  // Operational flags that are never removed. They are exempt from the flag cleanup lifecycle.
+  /**
+   * Status of the beta channel: "open", "closing", or "closed". Read by ReleaseChannelService.
+   * The flag fails open: only an explicit "closing" or "closed" changes the channel, and anything
+   * else, including a missing value or an unknown string, means open.
+   */
+  BetaChannelStatus = "beta-channel-status",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -225,6 +234,9 @@ export const DefaultFeatureFlagValue = {
 
   /* VFO */
   [FeatureFlag.VFO1Foundation]: FALSE,
+
+  /* Permanent */
+  [FeatureFlag.BetaChannelStatus]: "open" as string,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

@@ -305,6 +305,7 @@ import {
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
+import { DefaultReleaseChannelService, ReleaseChannelService } from "@bitwarden/release-channel";
 import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
@@ -520,6 +521,7 @@ export default class MainBackground {
   configService: ConfigService;
   availableRegionsService: AvailableRegionsService;
   govModeService: GovModeService;
+  releaseChannelService: ReleaseChannelService;
   configApiService: ConfigApiServiceAbstraction;
   devicesApiService: DevicesApiServiceAbstraction;
   devicesService: DevicesServiceAbstraction;
@@ -1007,6 +1009,8 @@ export default class MainBackground {
     );
 
     this.govModeService = new DefaultGovModeService(this.environmentService);
+
+    this.releaseChannelService = new DefaultReleaseChannelService(this.configService);
 
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
       this.apiService,
