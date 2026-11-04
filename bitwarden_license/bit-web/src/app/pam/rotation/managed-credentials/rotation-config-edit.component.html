@@ -8,19 +8,24 @@
     [current]="titleText()"
   />
 
-  @if (editing) {
-    @if (detailStatus(); as status) {
-      <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">
-        <span class="tw-sr-only">{{ "status" | i18n }}:</span>
-        <span
-          bitBadge
-          [variant]="status.badge.variant"
-          [startIcon]="status.badge.icon"
-          id="rotation-config-edit_badge_status"
-          >{{ status.badge.labelKey | i18n }}</span
-        >
-      </span>
+  <!-- Named-slot projection through control flow only works when the block has a single root
+       element; a multi-root block falls into bit-header's default (actions) slot. Keep the
+       title-suffix and tabs in their own single-root blocks, separate from the actions. -->
+  @if (editing && detailStatus(); as status) {
+    <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">
+      <span class="tw-sr-only">{{ "status" | i18n }}:</span>
+      <span
+        bitBadge
+        [variant]="status.badge.variant"
+        [startIcon]="status.badge.icon"
+        id="rotation-config-edit_badge_status"
+        >{{ status.badge.labelKey | i18n }}</span
+      >
+    </span>
+  }
 
+  @if (editing) {
+    @if (detailStatus()) {
       @if (isManual()) {
         <button
           type="button"
@@ -70,7 +75,9 @@
         </button>
       }
     }
+  }
 
+  @if (editing) {
     <bit-tab-nav-bar slot="tabs" [label]="'pamRotationTabManagedCredentials' | i18n">
       <bit-tab-link [route]="configurationTabRoute">{{
         "pamRotationConfigTabConfiguration" | i18n
