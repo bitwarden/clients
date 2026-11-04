@@ -128,7 +128,7 @@ describe("ApprovalsSdkService", () => {
       const approvals = mockApprovalsClient();
       approvals.revoke.mockResolvedValue(undefined);
 
-      await service.revoke(requestId, "Approved by mistake");
+      await service.revoke(requestId, { reason: "Approved by mistake" });
 
       expect(approvals.revoke).toHaveBeenCalledWith(requestId, { reason: "Approved by mistake" });
     });
@@ -138,7 +138,7 @@ describe("ApprovalsSdkService", () => {
       const error = new Error("cannot revoke");
       approvals.revoke.mockRejectedValue(error);
 
-      await expect(service.revoke(requestId, "secret reason")).rejects.toBe(error);
+      await expect(service.revoke(requestId, { reason: "secret reason" })).rejects.toBe(error);
       expect(logService.error).toHaveBeenCalled();
       const logged = (logService.error as jest.Mock).mock.calls.flat().join(" ");
       expect(logged).not.toContain("secret reason");

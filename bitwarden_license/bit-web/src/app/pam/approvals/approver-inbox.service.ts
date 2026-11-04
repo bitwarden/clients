@@ -293,7 +293,7 @@ export class ApproverInboxService {
    * names whoever withdrew it.
    */
   async cancelApproval(requestId: AccessRequestId, reason: string): Promise<void> {
-    await this.approvalApi.revoke(requestId, reason);
+    await this.approvalApi.revoke(requestId, { reason });
     this.accessRefresh.notifyAccessChanged();
     await this.load();
   }

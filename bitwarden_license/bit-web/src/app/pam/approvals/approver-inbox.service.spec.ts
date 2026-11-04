@@ -382,7 +382,7 @@ describe("ApproverInboxService", () => {
     it("withdraws an approval via approvals().revoke() with the reason", async () => {
       await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      expect(approvalApi.revoke).toHaveBeenCalledWith("req-1", "Approved by mistake");
+      expect(approvalApi.revoke).toHaveBeenCalledWith("req-1", { reason: "Approved by mistake" });
     });
 
     it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
