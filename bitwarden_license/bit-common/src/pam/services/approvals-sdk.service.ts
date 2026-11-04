@@ -7,6 +7,7 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import type {
   AccessDecisionRequest,
   AccessRequestId,
+  AccessRequestRevokeRequest,
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
 
@@ -68,16 +69,16 @@ export class ApprovalsSdkService implements ApprovalSdkService {
     );
   }
 
-  async revoke(id: AccessRequestId, reason: string): Promise<void> {
+  async revoke(id: AccessRequestId, request: AccessRequestRevokeRequest): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value.commercial().pam().approvals().revoke(id, { reason });
+          return await ref.value.commercial().pam().approvals().revoke(id, request);
         }),
         catchError((error: unknown) => {
-          // The reason is approver-authored; never log it.
+          // The request carries the approver's reason; never log it.
           this.logService.error(`Failed to revoke the approval: ${error}`);
           throw error;
         }),
