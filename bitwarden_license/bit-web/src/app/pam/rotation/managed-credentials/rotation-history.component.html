@@ -14,7 +14,7 @@
           data-testid="rotation-history-job-result"
           (click)="openJob(job, $any($event.currentTarget))"
         >
-          {{ formatTimestamp(job.displayStartedAt) }}
+          {{ job.displayStartedAt | timestamp }}
         </button>
       </bit-cell>
     </bit-column>
@@ -119,11 +119,7 @@
               scope="row"
               class="tw-whitespace-nowrap tw-text-start tw-text-sm tw-font-normal"
             >
-              @if (showCredential()) {
-                {{ job.startedAt | date: "short" }}
-              } @else {
-                {{ formatTimestamp(job.displayStartedAt) }}
-              }
+              {{ job.startedAt | timestamp }}
             </th>
 
             @if (showCredential()) {
@@ -149,7 +145,7 @@
               id="rotation-history_button_details-{{ job.id }}"
               [attr.aria-label]="
                 (job.statusLabelKey | i18n) +
-                (job.startedAt ? ' ' + (job.startedAt | date: 'medium') : '')
+                (job.startedAt ? ' ' + (job.startedAt | timestamp) : '')
               "
               [attr.aria-describedby]="
                 job.sessionTerminationFailed ? 'rotation-history_note_term-failed-' + job.id : null

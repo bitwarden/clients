@@ -1,7 +1,7 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { RouterLink } from "@angular/router";
 
+import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import {
   BadgeModule,
   CopyClickDirective,
@@ -42,7 +42,6 @@ export type AuditEventDrawerParams = {
   templateUrl: "./audit-event-drawer.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     RouterLink,
     BadgeModule,
     CopyClickDirective,
@@ -50,6 +49,7 @@ export type AuditEventDrawerParams = {
     IconButtonModule,
     LinkModule,
     I18nPipe,
+    TimestampPipe,
     Vfo1I18nPipe,
   ],
 })

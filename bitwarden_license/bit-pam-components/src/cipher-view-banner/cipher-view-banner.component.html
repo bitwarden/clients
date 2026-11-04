@@ -49,7 +49,7 @@
             class="tw-text-fg-body-subtle"
             data-testid="active-lease-ends-at"
           >
-            {{ "pamWindowUntil" | i18n: (lease.notAfter | date: "short") }}
+            {{ "pamWindowUntil" | i18n: (lease.notAfter | timestamp) }}
           </span>
         </div>
 
@@ -103,10 +103,9 @@
         <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
           <span bitTypography="body2" data-testid="approved-access-window">
             @if (approvedRequestStartsNow()) {
-              {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | date: "short") }}
+              {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | timestamp) }}
             } @else {
-              {{ request.leaseNotBefore | date: "short" }} &ndash;
-              {{ request.leaseNotAfter | date: "short" }}
+              {{ approvedWindow() }}
             }
           </span>
           <span class="tw-flex tw-items-center tw-gap-2">
@@ -221,7 +220,7 @@
               <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />
               <span>
                 @if (contention.freesAt) {
-                  {{ "pamRequestSlotTakenUntil" | i18n: (contention.freesAt | date: "short") }}
+                  {{ "pamRequestSlotTakenUntil" | i18n: (contention.freesAt | timestamp) }}
                 } @else {
                   {{ "pamRequestSlotTaken" | i18n }}
                 }

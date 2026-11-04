@@ -13,6 +13,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { formatCalendarDate, formatTimestamp } from "@bitwarden/bit-pam";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -85,11 +86,7 @@ import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RotationScheduleInputComponent } from "../rotation-schedule-input/rotation-schedule-input.component";
 import { RotationConfigDescription, RotationSdkService } from "../rotation-sdk.service";
-import {
-  formatRotationAge,
-  formatRotationDate,
-  formatRotationTimestamp,
-} from "../rotation-timestamp";
+import { formatRotationAge } from "../rotation-timestamp";
 import { showSkeletonWhile } from "../skeleton-delay";
 import { AssignConnectorDialogComponent } from "../target-systems/assign-connector-dialog.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
@@ -489,7 +486,10 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       return this.i18nService.t("pamRotationDetailNone");
     }
     return config.awaitingManualRotation
-      ? this.i18nService.t("pamRotationDetailNextDue", formatRotationDate(at, this.locale))
+      ? this.i18nService.t(
+          "pamRotationDetailNextDue",
+          formatCalendarDate(this.locale, Date.parse(at)),
+        )
       : this.timestamp(at);
   });
 
@@ -507,7 +507,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   });
 
   private timestamp(iso: string): string {
-    return formatRotationTimestamp(iso, this.locale);
+    return formatTimestamp(this.locale, Date.parse(iso));
   }
 
   constructor() {

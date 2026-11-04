@@ -173,9 +173,9 @@
         <time
           class="tw-whitespace-nowrap"
           [attr.datetime]="row.resolvedAt"
-          [bitTooltip]="row.resolvedAt | date: 'medium'"
+          [bitTooltip]="row.resolvedAt | timestamp"
           >{{ row.elapsed.key | i18n: row.elapsed.value
-          }}<span class="tw-sr-only">, {{ row.resolvedAt | date: "medium" }}</span></time
+          }}<span class="tw-sr-only">, {{ row.resolvedAt | timestamp }}</span></time
         >
       </bit-cell>
     </bit-column>

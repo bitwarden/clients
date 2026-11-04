@@ -121,6 +121,7 @@ export {
 export type { AccessBadgeState } from "./access-state-badge/access-badge-state";
 export { formatCompoundDuration, formatDuration } from "./date/format-duration";
 export { formatRequestedWindow } from "./date/format-window";
+export { formatCalendarDate, formatTimeOfDay, formatTimestamp } from "./date/format-date";
 export { isGovernedCipher } from "./helpers/governed-cipher";
 export { isLeaseLive } from "./helpers/lease-liveness";
 export { isUnlicensedError } from "./helpers/pam-license-error";

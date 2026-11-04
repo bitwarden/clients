@@ -1,9 +1,9 @@
-import { DatePipe } from "@angular/common";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { MockProxy, mock } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
+import { formatTimestamp } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -713,15 +713,15 @@ describe("RotationHistoryComponent rendering", () => {
   });
 
   describe("the started column", () => {
-    const rendered = (iso: string, format: string) => new DatePipe("en-US").transform(iso, format)!;
-
-    it("keeps the connector page's short dates, and leaves a never-started job undated", () => {
+    it("leaves a never-started job undated", () => {
       const fixture = render(
         [rotationJob({ status: RotationJobStatus.Pending, attempts: [], createdAt: QUEUED_AT })],
         { showCredential: true },
       );
       expect(jobRows(fixture)[0].query(By.css("th")).nativeElement.textContent.trim()).toBe("");
-      expect(fixture.nativeElement.textContent).not.toContain(rendered(QUEUED_AT, "short"));
+      expect(fixture.nativeElement.textContent).not.toContain(
+        formatTimestamp("en-US", Date.parse(QUEUED_AT)),
+      );
     });
   });
 
