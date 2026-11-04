@@ -10,9 +10,10 @@ export type NativeWebAuthnIpc = {
   cancel(requestId: string): Promise<void>;
 };
 
-/** The subset of the PRF extension inputs that is supported. */
-type PrfExtensionInputs = {
-  eval?: { first: BufferSource; second?: BufferSource };
+/** The subset of the extension inputs that is supported. */
+type ExtensionInputs = {
+  appid?: string;
+  prf?: { eval?: { first: BufferSource; second?: BufferSource } };
 };
 
 /**
@@ -45,7 +46,7 @@ export function installNativeWebAuthn(
         throw abortReason(signal);
       }
 
-      const prf = (options.publicKey.extensions as { prf?: PrfExtensionInputs } | undefined)?.prf;
+      const extensions = (options.publicKey.extensions ?? {}) as ExtensionInputs;
       const publicKey = options.publicKey;
       const requestId = Utils.newGuid();
       const result = await rejectOnAbort(
@@ -54,7 +55,7 @@ export function installNativeWebAuthn(
           if (signal?.aborted) {
             throw abortReason(signal);
           }
-          return ipc.getAssertion(requestId, toAssertionRequest(origin, publicKey, prf));
+          return ipc.getAssertion(requestId, toAssertionRequest(origin, publicKey, extensions));
         }),
         signal,
         () => void ipc.cancel(requestId),
@@ -65,7 +66,7 @@ export function installNativeWebAuthn(
       if (result.response == null) {
         throw new DOMException("No assertion was returned.", "UnknownError");
       }
-      return toPublicKeyCredential(result.response, prf != null);
+      return toPublicKeyCredential(result.response, extensions);
     },
   });
 }
@@ -99,8 +100,9 @@ function abortReason(signal: AbortSignal): unknown {
 function toAssertionRequest(
   origin: string,
   options: PublicKeyCredentialRequestOptions,
-  prf: PrfExtensionInputs | undefined,
+  extensions: ExtensionInputs,
 ): webauthn.AssertionRequest {
+  const prf = extensions.prf;
   return {
     origin,
     // The native module rejects an RP ID that is not valid for the origin.
@@ -119,12 +121,14 @@ function toAssertionRequest(
             first: toBytes(prf.eval.first),
             second: prf.eval.second == null ? undefined : toBytes(prf.eval.second),
           },
+    // The native module rejects an app ID that is not valid for the origin.
+    appId: extensions.appid,
   };
 }
 
 function toPublicKeyCredential(
   assertion: webauthn.AssertionResponse,
-  prfRequested: boolean,
+  extensions: ExtensionInputs,
 ): PublicKeyCredential {
   const clientDataJSON = toArrayBuffer(assertion.clientDataJson);
   const authenticatorData = toArrayBuffer(assertion.authenticatorData);
@@ -136,7 +140,10 @@ function toPublicKeyCredential(
   defineValues(response, { clientDataJSON, authenticatorData, signature, userHandle });
 
   const clientExtensionResults: AuthenticationExtensionsClientOutputs = {};
-  if (prfRequested) {
+  if (extensions.appid != null) {
+    clientExtensionResults.appid = assertion.appIdUsed ?? false;
+  }
+  if (extensions.prf != null) {
     (clientExtensionResults as { prf: unknown }).prf =
       assertion.prf == null
         ? {}
@@ -180,11 +187,16 @@ function toPublicKeyCredential(
 function clientExtensionResultsJSON(
   results: AuthenticationExtensionsClientOutputs,
 ): Record<string, unknown> {
+  const json: Record<string, unknown> = {};
+  if (results.appid != null) {
+    json.appid = results.appid;
+  }
   const prf = (results as { prf?: { results?: { first: ArrayBuffer; second?: ArrayBuffer } } }).prf;
   if (prf == null) {
-    return {};
+    return json;
   }
   return {
+    ...json,
     prf:
       prf.results == null
         ? {}

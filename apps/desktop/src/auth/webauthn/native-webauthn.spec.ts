@@ -70,6 +70,7 @@ describe("installNativeWebAuthn", () => {
       userVerification: "required",
       timeout: 60000,
       prf: { first: new Uint8Array([3]), second: undefined },
+      appId: undefined,
     });
   });
 
@@ -186,5 +187,27 @@ describe("installNativeWebAuthn", () => {
 
     await expect(result).rejects.toBe(reason);
     expect(ipc.cancel).toHaveBeenCalledWith(ipc.getAssertion.mock.calls[0][0]);
+  });
+
+  it("passes the appid extension and returns whether it was used", async () => {
+    ipc.getAssertion.mockResolvedValue({
+      response: { ...assertion, prf: undefined, appIdUsed: true },
+    });
+
+    const credential = (await credentials.get({
+      publicKey: publicKey({ extensions: { appid: "https://vault.example.com/app-id.json" } }),
+    })) as PublicKeyCredential;
+
+    expect(ipc.getAssertion.mock.calls[0][1].appId).toBe("https://vault.example.com/app-id.json");
+    expect(credential.getClientExtensionResults()).toEqual({ appid: true });
+    expect(JSON.parse(JSON.stringify(credential)).clientExtensionResults).toEqual({ appid: true });
+  });
+
+  it("reports that the appid was not used when the platform does not say", async () => {
+    const credential = (await credentials.get({
+      publicKey: publicKey({ extensions: { appid: "https://vault.example.com/app-id.json" } }),
+    })) as PublicKeyCredential;
+
+    expect(credential.getClientExtensionResults()).toEqual({ appid: false });
   });
 });
