@@ -35,7 +35,11 @@ import {
 import { OrganizationWarningsService } from "../../../billing/organizations/warnings/services";
 import { GroupApiService } from "../core";
 
+// POC-PERF: TEMPORARY SPEED TEST IMPORT. Remove before release.
+import { PocOrgCipherBenchmarkHook } from "./poc-org-cipher-load-benchmark";
+// POC-PERF: END
 import { VaultCipherActionsService } from "./services/vault-cipher-actions.service";
+import { VaultCipherListService } from "./services/vault-cipher-list.service";
 import { VaultCollectionActionsService } from "./services/vault-collection-actions.service";
 import { VaultCollectionService } from "./services/vault-collection.service";
 import { VaultComponent } from "./vault.component";
@@ -72,8 +76,14 @@ describe("VaultComponent", () => {
     organizationService.organizations$.mockReturnValue(of([makeOrg(ORG_A_ID), makeOrg(ORG_B_ID)]));
 
     cipherService = mock<CipherService>();
-    cipherService.getAllFromApiForOrganization.mockResolvedValue([]);
-    cipherService.getManyFromApiForOrganization.mockResolvedValue([]);
+    cipherService.getAllListViewsFromApiForOrganization.mockResolvedValue({
+      ciphers: [],
+      views: [],
+    });
+    cipherService.getManyListViewsFromApiForOrganization.mockResolvedValue({
+      ciphers: [],
+      views: [],
+    });
 
     syncService = mock<SyncService>();
     syncService.fullSync.mockResolvedValue(undefined);
@@ -169,10 +179,14 @@ describe("VaultComponent", () => {
             { provide: VaultCollectionActionsService, useValue: collectionActionsService },
             { provide: VaultCollectionService, useValue: collectionService },
             { provide: VaultCipherActionsService, useValue: cipherActionsService },
+            VaultCipherListService,
             { provide: VaultBatchBarService, useValue: vaultBatchBarService },
             { provide: ASSIGN_COLLECTIONS_DIALOG, useValue: {} },
             { provide: BULK_DELETE_DIALOG, useValue: {} },
             { provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG, useValue: {} },
+            // POC-PERF: TEMPORARY SPEED TEST PROVIDER. Remove before release.
+            { provide: PocOrgCipherBenchmarkHook, useValue: mock<PocOrgCipherBenchmarkHook>() },
+            // POC-PERF: END
           ],
         },
       })
@@ -194,7 +208,7 @@ describe("VaultComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(ORG_A_ID);
+      expect(cipherService.getAllListViewsFromApiForOrganization).toHaveBeenCalledWith(ORG_A_ID);
     });
 
     it("re-fetches ciphers for the new organization when the route switches orgs", async () => {
@@ -205,22 +219,24 @@ describe("VaultComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(ORG_B_ID);
+      expect(cipherService.getAllListViewsFromApiForOrganization).toHaveBeenCalledWith(ORG_B_ID);
     });
 
     it("does not re-fetch when the same organization is emitted again", async () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const callsBefore = (cipherService.getAllFromApiForOrganization as jest.Mock).mock.calls
-        .length;
+      const callsBefore = (cipherService.getAllListViewsFromApiForOrganization as jest.Mock).mock
+        .calls.length;
 
       // Emit the same orgId — distinctUntilChanged should suppress the re-fetch
       filterSubject$.next({ organizationId: ORG_A_ID });
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledTimes(callsBefore);
+      expect(cipherService.getAllListViewsFromApiForOrganization).toHaveBeenCalledTimes(
+        callsBefore,
+      );
     });
   });
 

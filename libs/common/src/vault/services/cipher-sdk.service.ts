@@ -3,12 +3,12 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
-  CipherListView,
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   CreatedAttachment,
   DecryptCipherResult,
   isEditCipherError,
+  ListOrganizationCiphersResult,
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
@@ -20,7 +20,11 @@ import {
   OrganizationId,
   UserId,
 } from "../../types/guid";
-import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
+import {
+  CipherSdkService,
+  DecryptAllCiphersResult,
+  OrganizationCipherListResult,
+} from "../abstractions/cipher-sdk.service";
 import { RestrictedCipherWriteError } from "../abstractions/cipher.service";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
@@ -544,23 +548,19 @@ export class DefaultCipherSdkService implements CipherSdkService {
     organizationId: string,
     userId: UserId,
     includeMemberItems: boolean,
-  ): Promise<[Cipher[], CipherListView[]]> {
+  ): Promise<DecryptAllCiphersResult> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
 
-          const result = await ref.value
+          const decryptResult = await ref.value
             .vault()
             .ciphers()
             .admin()
-            .list_org_ciphers(asUuid(organizationId), includeMemberItems);
+            .list_org_cipher_views(asUuid(organizationId), includeMemberItems);
 
-          const ciphers = result.ciphers
-            .map((c) => Cipher.fromSdkCipher(c))
-            .filter((c): c is Cipher => c !== undefined);
-
-          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
+          return this.toDecryptAllCiphersResult(decryptResult);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list organization ciphers: ${error}`);
@@ -573,7 +573,58 @@ export class DefaultCipherSdkService implements CipherSdkService {
   async getManyFromApiForOrganization(
     organizationId: string,
     userId: UserId,
-  ): Promise<[Cipher[], CipherListView[]]> {
+  ): Promise<DecryptAllCiphersResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+
+          const decryptResult = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .list_assigned_org_cipher_views(asUuid(organizationId));
+
+          return this.toDecryptAllCiphersResult(decryptResult);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list assigned organization ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async getAllListViewsFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+    includeMemberItems: boolean,
+  ): Promise<OrganizationCipherListResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .list_org_ciphers(asUuid(organizationId), includeMemberItems);
+
+          return this.toOrganizationCipherListResult(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list organization cipher list views: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async getManyListViewsFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<OrganizationCipherListResult> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -585,14 +636,10 @@ export class DefaultCipherSdkService implements CipherSdkService {
             .admin()
             .list_assigned_org_ciphers(asUuid(organizationId));
 
-          const ciphers = result.ciphers
-            .map((c) => Cipher.fromSdkCipher(c))
-            .filter((c): c is Cipher => c !== undefined);
-
-          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
+          return this.toOrganizationCipherListResult(result);
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to list assigned organization ciphers: ${error}`);
+          this.logService.error(`Failed to list assigned organization cipher list views: ${error}`);
           throw error;
         }),
       ),
@@ -735,13 +782,39 @@ export class DefaultCipherSdkService implements CipherSdkService {
       .map((sdkCipherView) => CipherView.fromSdkCipherView(sdkCipherView))
       .filter((v): v is CipherView => v !== undefined);
 
-    const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure) => {
-      const cipherView = new CipherView(Cipher.fromSdkCipher(failure));
-      cipherView.name = DECRYPT_ERROR;
-      cipherView.decryptionFailure = true;
-      return cipherView;
-    });
+    const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure) =>
+      this.toDecryptionFailureView(Cipher.fromSdkCipher(failure)),
+    );
 
     return { successes, failures };
+  }
+
+  private toOrganizationCipherListResult(
+    result: ListOrganizationCiphersResult,
+  ): OrganizationCipherListResult {
+    // The SDK only returns list views for ciphers that decrypted, so a cipher without one failed
+    const decryptedIds = new Set(result.listViews.map((v) => v.id));
+    const ciphers: Cipher[] = [];
+    const failures: CipherView[] = [];
+
+    for (const sdkCipher of result.ciphers) {
+      const cipher = Cipher.fromSdkCipher(sdkCipher);
+      if (cipher == null) {
+        continue;
+      }
+      ciphers.push(cipher);
+      if (!decryptedIds.has(sdkCipher.id)) {
+        failures.push(this.toDecryptionFailureView(cipher));
+      }
+    }
+
+    return { ciphers, listViews: result.listViews, failures };
+  }
+
+  private toDecryptionFailureView(cipher: Cipher | undefined): CipherView {
+    const cipherView = new CipherView(cipher);
+    cipherView.name = DECRYPT_ERROR;
+    cipherView.decryptionFailure = true;
+    return cipherView;
   }
 }
