@@ -1,0 +1,24 @@
+<bit-simple-dialog>
+  <span bitDialogTitle>{{ "continueInYourBrowser" | i18n }}</span>
+  <span bitDialogContent>{{ "continueInYourBrowserDesc" | i18n }}</span>
+  <ng-container bitDialogFooter>
+    <button
+      id="webauthn-browser-session-dialog_button_open-again"
+      bitButton
+      type="button"
+      buttonType="primary"
+      (click)="data.reopen()"
+    >
+      {{ "openBrowserAgain" | i18n }}
+    </button>
+    <button
+      id="webauthn-browser-session-dialog_button_cancel"
+      bitButton
+      type="button"
+      buttonType="secondary"
+      bitDialogClose
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

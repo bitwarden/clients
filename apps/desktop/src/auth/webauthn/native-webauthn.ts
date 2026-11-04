@@ -31,6 +31,23 @@ export type NativeWebAuthnIpc = {
     webVault: WebVault,
   ): Promise<webauthn.GetAssertionResult>;
   cancel(requestId: string): Promise<void>;
+  /** Calls `listener` when a request continues in the user's browser. Returns a function that removes it. */
+  onBrowserSessionStarted(listener: (requestId: string) => void): () => void;
+  /** Opens the user's browser again for a request that continues there. */
+  reopenBrowser(requestId: string): Promise<void>;
+};
+
+/**
+ * A request that continues in the user's browser, e.g. on Linux, where the app can't tell whether
+ * the browser was opened, focused or closed.
+ */
+export type BrowserSession = {
+  /** Opens the browser again. */
+  reopen(): void;
+  /** Cancels the request, which rejects with an `AbortError`. */
+  cancel(): void;
+  /** Settles when the request ends, however it ends. */
+  ended: Promise<void>;
 };
 
 /** The subset of the extension inputs that is supported. */
@@ -56,6 +73,7 @@ export function installNativeWebAuthn(
   ipc: NativeWebAuthnIpc,
   enabled: () => Promise<boolean>,
   getWebVault: () => Promise<WebVault>,
+  onBrowserSession?: (session: BrowserSession) => void,
 ): void {
   const credentials = win.navigator.credentials;
   const originalGet = credentials.get.bind(credentials);
@@ -74,29 +92,45 @@ export function installNativeWebAuthn(
       const extensions = (options.publicKey.extensions ?? {}) as ExtensionInputs;
       const publicKey = options.publicKey;
       const requestId = Utils.newGuid();
-      const result = await rejectOnAbort(
-        getWebVault().then((webVault) => {
-          // Do not show a prompt that nothing is waiting for.
-          if (signal?.aborted) {
-            throw abortReason(signal);
-          }
-          const origin = new URL(webVault.url).origin;
-          return ipc.getAssertion(
-            requestId,
-            toAssertionRequest(origin, publicKey, extensions),
-            webVault,
-          );
-        }),
-        signal,
-        () => void ipc.cancel(requestId),
-      );
-      if (result.error != null) {
-        throw new DOMException(result.error.message, result.error.name);
+      let endBrowserSession = () => {};
+      const removeListener = ipc.onBrowserSessionStarted((startedId) => {
+        if (startedId !== requestId) {
+          return;
+        }
+        onBrowserSession?.({
+          reopen: () => void ipc.reopenBrowser(requestId),
+          cancel: () => void ipc.cancel(requestId),
+          ended: new Promise<void>((resolve) => (endBrowserSession = resolve)),
+        });
+      });
+      try {
+        const result = await rejectOnAbort(
+          getWebVault().then((webVault) => {
+            // Do not show a prompt that nothing is waiting for.
+            if (signal?.aborted) {
+              throw abortReason(signal);
+            }
+            const origin = new URL(webVault.url).origin;
+            return ipc.getAssertion(
+              requestId,
+              toAssertionRequest(origin, publicKey, extensions),
+              webVault,
+            );
+          }),
+          signal,
+          () => void ipc.cancel(requestId),
+        );
+        if (result.error != null) {
+          throw new DOMException(result.error.message, result.error.name);
+        }
+        if (result.response == null) {
+          throw new DOMException("No assertion was returned.", "UnknownError");
+        }
+        return toPublicKeyCredential(result.response, extensions);
+      } finally {
+        removeListener();
+        endBrowserSession();
       }
-      if (result.response == null) {
-        throw new DOMException("No assertion was returned.", "UnknownError");
-      }
-      return toPublicKeyCredential(result.response, extensions);
     },
   });
 }

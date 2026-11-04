@@ -1,18 +1,26 @@
 import { EventEmitter } from "events";
+import { setImmediate } from "node:timers";
 
 import { ipcMain, IpcMainInvokeEvent, WebContents } from "electron";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { webauthn } from "@bitwarden/desktop-napi";
 
+import { isLinux } from "../../main/platform-utils.main";
 import { WindowMain } from "../../main/window.main";
+import { SafeShell } from "../../platform/main/safe-shell.main";
 
 import { MainWebAuthnIpcListener } from "./main-webauthn-ipc.listener";
 import { WEBAUTHN_IPC_CHANNELS } from "./webauthn-ipc-channels";
 
 jest.mock("electron", () => ({
   ipcMain: { handle: jest.fn() },
+}));
+
+jest.mock("../../main/platform-utils.main", () => ({
+  isLinux: jest.fn().mockReturnValue(false),
 }));
 
 jest.mock("@bitwarden/desktop-napi", () => ({
@@ -39,8 +47,10 @@ describe("MainWebAuthnIpcListener", () => {
   const windowHandle = Buffer.from([1, 2, 3, 4]);
 
   let handlers: Map<string, Handler>;
+  let listener: MainWebAuthnIpcListener;
   let windowMain: WindowMain;
   let logService: LogService;
+  let shell: MockProxy<SafeShell>;
   let sender: WebContents;
   let cancel: jest.Mock;
   let resolveAssertion: (result: webauthn.GetAssertionResult) => void;
@@ -75,6 +85,7 @@ describe("MainWebAuthnIpcListener", () => {
 
     sender = Object.assign(new EventEmitter(), {
       isDestroyed: () => false,
+      send: jest.fn(),
     }) as unknown as WebContents;
     windowMain = {
       win: { getNativeWindowHandle: () => windowHandle, webContents: sender },
@@ -82,7 +93,9 @@ describe("MainWebAuthnIpcListener", () => {
     logService = mock<LogService>();
     (webauthn.requiresBrowser as jest.Mock).mockReturnValue(false);
 
-    new MainWebAuthnIpcListener(windowMain, logService).init();
+    shell = mock<SafeShell>();
+    listener = new MainWebAuthnIpcListener(windowMain, logService, shell);
+    listener.init();
   });
 
   it("requests an assertion for the window and returns the result", async () => {
@@ -227,6 +240,155 @@ describe("MainWebAuthnIpcListener", () => {
       await expect(getAssertion("1")).resolves.toEqual({ error });
     });
 
+    it("doesn't open the browser itself outside Linux", async () => {
+      (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
+
+      await getAssertion("1");
+
+      expect(shell.openExternal).not.toHaveBeenCalled();
+    });
+
+    describe("on Linux", () => {
+      beforeEach(() => {
+        (isLinux as jest.Mock).mockReturnValue(true);
+        (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
+      });
+
+      afterEach(() => {
+        (isLinux as jest.Mock).mockReturnValue(false);
+      });
+
+      it("opens the connector in the browser after the session starts waiting", async () => {
+        shell.openExternal.mockImplementation(() => {
+          expect(webauthn.webAuthenticationSession).toHaveBeenCalled();
+        });
+
+        const result = (await getAssertion("1")) as webauthn.GetAssertionResult;
+
+        expect(shell.openExternal).toHaveBeenCalledWith(connectorUrl, UrlType.WebUrl);
+        expect(result.response?.credentialId).toEqual(new Uint8Array([1]));
+      });
+
+      it("tells the renderer that the request continues in the browser", async () => {
+        await getAssertion("1");
+
+        expect(sender.send).toHaveBeenCalledWith(
+          WEBAUTHN_IPC_CHANNELS.BROWSER_SESSION_STARTED,
+          "1",
+        );
+      });
+
+      describe("reopening the browser", () => {
+        let endSession: () => void;
+
+        beforeEach(() => {
+          const ended = new Promise<void>((resolve) => (endSession = resolve));
+          (webauthn.webAuthenticationSession as jest.Mock).mockImplementation(async () => {
+            await ended;
+            return { callbackUrl };
+          });
+        });
+
+        async function startAndWaitForBrowser() {
+          const result = getAssertion("1");
+          while ((sender.send as jest.Mock).mock.calls.length === 0) {
+            await new Promise((resolve) => setImmediate(resolve));
+          }
+          return { result };
+        }
+
+        function reopen(from: WebContents) {
+          return handlers.get(WEBAUTHN_IPC_CHANNELS.REOPEN_BROWSER)!({ sender: from }, "1");
+        }
+
+        it("opens it again for the window that made the request", async () => {
+          const { result } = await startAndWaitForBrowser();
+
+          await reopen(sender);
+
+          expect(shell.openExternal).toHaveBeenCalledTimes(2);
+          expect(shell.openExternal.mock.calls[1]).toEqual(shell.openExternal.mock.calls[0]);
+          endSession();
+          await result;
+        });
+
+        it("doesn't open it for another window", async () => {
+          const { result } = await startAndWaitForBrowser();
+
+          await reopen(Object.assign(new EventEmitter(), {}) as unknown as WebContents);
+
+          expect(shell.openExternal).toHaveBeenCalledTimes(1);
+          endSession();
+          await result;
+        });
+
+        it("doesn't open it after the request ends", async () => {
+          const { result } = await startAndWaitForBrowser();
+          endSession();
+          await result;
+
+          await reopen(sender);
+
+          expect(shell.openExternal).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+
+    describe("when the session doesn't end", () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
+        (webauthn.webAuthenticationSession as jest.Mock).mockReturnValue(new Promise(() => {}));
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      /**
+       * Lets the listener create the connector session before advancing the timer. The result is
+       * wrapped, so that awaiting this doesn't wait for it.
+       */
+      async function startAndWaitForSession(requestTimeout?: number) {
+        const result = handlers.get(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION)!(
+          { sender },
+          "1",
+          { ...request, timeout: requestTimeout },
+          webVault,
+        );
+        while ((webauthn.webAuthenticationSession as jest.Mock).mock.calls.length === 0) {
+          await new Promise((resolve) => setImmediate(resolve));
+        }
+        return { result };
+      }
+
+      it("times out after the request's timeout and a grace period, and cancels the session", async () => {
+        const { result } = await startAndWaitForSession(10_000);
+
+        await jest.advanceTimersByTimeAsync(10_000 + 59_999);
+        expect(cancel).not.toHaveBeenCalled();
+        await jest.advanceTimersByTimeAsync(1);
+
+        await expect(result).resolves.toEqual({
+          error: {
+            name: "NotAllowedError",
+            message: "The operation either timed out or was not allowed.",
+          },
+        });
+        expect(cancel).toHaveBeenCalled();
+      });
+
+      it("uses WebAuthn's default timeout when the request has none", async () => {
+        const { result } = await startAndWaitForSession();
+
+        await jest.advanceTimersByTimeAsync(300_000 + 59_999);
+        expect(cancel).not.toHaveBeenCalled();
+        await jest.advanceTimersByTimeAsync(1);
+
+        await expect(result).resolves.toMatchObject({ error: { name: "NotAllowedError" } });
+      });
+    });
+
     it("rejects a web vault URL with a different origin", async () => {
       (webauthn.requiresBrowser as jest.Mock).mockReturnValue(true);
 
@@ -269,12 +431,6 @@ describe("MainWebAuthnIpcListener", () => {
   });
 
   describe("handleCallbackUrl", () => {
-    let listener: MainWebAuthnIpcListener;
-
-    beforeEach(() => {
-      listener = new MainWebAuthnIpcListener(windowMain, logService);
-    });
-
     it("delivers connector callbacks to the waiting browser session", () => {
       const url = "bitwarden://webauthn-callback#state=abc&response=def";
 

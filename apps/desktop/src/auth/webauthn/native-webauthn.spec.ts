@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import type { webauthn } from "@bitwarden/desktop-napi";
 
-import { installNativeWebAuthn, NativeWebAuthnIpc } from "./native-webauthn";
+import { BrowserSession, installNativeWebAuthn, NativeWebAuthnIpc } from "./native-webauthn";
 
 // jsdom does not implement WebAuthn, so provide the classes that the credential is created from.
 class FakePublicKeyCredential {}
@@ -14,6 +14,8 @@ describe("installNativeWebAuthn", () => {
   let originalGet: jest.Mock;
   let ipc: MockProxy<NativeWebAuthnIpc>;
   let credentials: CredentialsContainer;
+  let onBrowserSession: jest.Mock<void, [BrowserSession]>;
+  let removeBrowserSessionListener: jest.Mock;
   let enabled: boolean;
 
   const assertion: webauthn.AssertionResponse = {
@@ -38,14 +40,18 @@ describe("installNativeWebAuthn", () => {
     originalGet = jest.fn().mockResolvedValue("original");
     ipc = mock<NativeWebAuthnIpc>();
     ipc.getAssertion.mockResolvedValue({ response: assertion });
+    removeBrowserSessionListener = jest.fn();
+    ipc.onBrowserSessionStarted.mockReturnValue(removeBrowserSessionListener);
     credentials = { get: originalGet } as unknown as CredentialsContainer;
     const win = { navigator: { credentials } } as unknown as Window;
+    onBrowserSession = jest.fn();
     enabled = true;
     installNativeWebAuthn(
       win,
       ipc,
       () => Promise.resolve(enabled),
       () => Promise.resolve(webVault),
+      onBrowserSession,
     );
   });
 
@@ -231,5 +237,64 @@ describe("installNativeWebAuthn", () => {
     })) as PublicKeyCredential;
 
     expect(credential.getClientExtensionResults()).toEqual({ appid: false });
+  });
+
+  describe("when the request continues in the user's browser", () => {
+    let startBrowserSession: (requestId: string) => void;
+    let finishAssertion: (result: webauthn.GetAssertionResult) => void;
+
+    beforeEach(() => {
+      ipc.onBrowserSessionStarted.mockImplementation((listener) => {
+        startBrowserSession = listener;
+        return removeBrowserSessionListener;
+      });
+      ipc.getAssertion.mockReturnValue(new Promise((resolve) => (finishAssertion = resolve)));
+    });
+
+    async function startRequest() {
+      const result = credentials.get({ publicKey: publicKey() });
+      await Promise.resolve();
+      await Promise.resolve();
+      const requestId = ipc.getAssertion.mock.calls[0][0];
+      return { result, requestId };
+    }
+
+    it("reports the session, which reopens or cancels this request", async () => {
+      const { result, requestId } = await startRequest();
+
+      startBrowserSession(requestId);
+      const session = onBrowserSession.mock.calls[0][0];
+      session.reopen();
+      session.cancel();
+
+      expect(ipc.reopenBrowser).toHaveBeenCalledWith(requestId);
+      expect(ipc.cancel).toHaveBeenCalledWith(requestId);
+      finishAssertion({ error: { name: "AbortError", message: "Cancelled" } });
+      await expect(result).rejects.toMatchObject({ name: "AbortError" });
+    });
+
+    it("ends the session when the request ends", async () => {
+      const { result, requestId } = await startRequest();
+      startBrowserSession(requestId);
+      let ended = false;
+      void onBrowserSession.mock.calls[0][0].ended.then(() => (ended = true));
+
+      finishAssertion({ response: assertion });
+      await result;
+      await Promise.resolve();
+
+      expect(ended).toBe(true);
+      expect(removeBrowserSessionListener).toHaveBeenCalled();
+    });
+
+    it("ignores sessions for other requests", async () => {
+      const { result } = await startRequest();
+
+      startBrowserSession("another-request");
+      finishAssertion({ response: assertion });
+      await result;
+
+      expect(onBrowserSession).not.toHaveBeenCalled();
+    });
   });
 });

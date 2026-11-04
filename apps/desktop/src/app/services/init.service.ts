@@ -21,6 +21,7 @@ import { ServerNotificationsService } from "@bitwarden/common/platform/server-no
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserId } from "@bitwarden/common/types/guid";
+import { DialogService } from "@bitwarden/components";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -32,6 +33,7 @@ import {
   WEBAUTHN_CONNECTOR_MIN_SERVER_VERSION,
 } from "../../auth/webauthn/native-webauthn";
 import { nativeWebAuthnEnabled$ } from "../../auth/webauthn/native-webauthn-feature";
+import { WebAuthnBrowserSessionDialogComponent } from "../../auth/webauthn/webauthn-browser-session-dialog.component";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -48,6 +50,7 @@ import { UpdateRestartService } from "./update-restart.service";
 export class InitService {
   private environmentService = inject(EnvironmentService);
   private configService = inject(ConfigService);
+  private dialogService = inject(DialogService);
 
   constructor(
     @Inject(WINDOW) private win: Window,
@@ -87,9 +90,9 @@ export class InitService {
     return async () => {
       limitPerformanceMeasurements();
       // Electron does not use the platform's passkey APIs, so route WebAuthn requests to them, or
-      // to the web vault's WebAuthn connector in a browser where they can't be used, where the
-      // platform's feature flag is on. WebAuthn requests are made on behalf of the web vault of the
-      // selected server.
+      // to the web vault's WebAuthn connector in a browser where they can't be used, e.g. on
+      // Linux, which has none.
+      // WebAuthn requests are made on behalf of the web vault of the selected server.
       installNativeWebAuthn(
         this.win,
         ipc.auth.webauthn,
@@ -107,6 +110,7 @@ export class InitService {
             ));
           return { url: env.getWebVaultUrl(), supportsConnector };
         },
+        (session) => WebAuthnBrowserSessionDialogComponent.open(this.dialogService, session),
       );
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();

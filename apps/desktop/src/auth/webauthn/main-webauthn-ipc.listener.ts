@@ -1,9 +1,12 @@
 import { ipcMain, IpcMainInvokeEvent, WebContents } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { webauthn } from "@bitwarden/desktop-napi";
 
+import { isLinux } from "../../main/platform-utils.main";
 import { WindowMain } from "../../main/window.main";
+import { SafeShell } from "../../platform/main/safe-shell.main";
 
 import type { WebVault } from "./native-webauthn";
 import {
@@ -16,6 +19,12 @@ import {
 } from "./webauthn-connector";
 import { WEBAUTHN_IPC_CHANNELS } from "./webauthn-ipc-channels";
 
+/** WebAuthn's recommended default timeout, for requests without one. */
+const DEFAULT_TIMEOUT_MS = 300_000;
+
+/** Extra time for the browser to open, and for the user to switch to it. */
+const BROWSER_SESSION_GRACE_MS = 60_000;
+
 /**
  * Handles WebAuthn requests from the renderer by calling the platform's passkey APIs.
  *
@@ -25,10 +34,13 @@ import { WEBAUTHN_IPC_CHANNELS } from "./webauthn-ipc-channels";
 export class MainWebAuthnIpcListener {
   /** Cancellations for in-progress requests, by renderer-chosen request ID. */
   private pending = new Map<string, webauthn.AssertionCancellation>();
+  /** Requests waiting for the user's browser, by request ID, which the renderer may reopen. */
+  private browserSessions = new Map<string, { sender: WebContents; url: string }>();
 
   constructor(
     private windowMain: WindowMain,
     private logService: LogService,
+    private shell: SafeShell,
   ) {}
 
   init() {
@@ -43,6 +55,16 @@ export class MainWebAuthnIpcListener {
     );
     ipcMain.handle(WEBAUTHN_IPC_CHANNELS.CANCEL, (_event: IpcMainInvokeEvent, requestId: string) =>
       this.pending.get(requestId)?.cancel(),
+    );
+    ipcMain.handle(
+      WEBAUTHN_IPC_CHANNELS.REOPEN_BROWSER,
+      (event: IpcMainInvokeEvent, requestId: string) => {
+        const session = this.browserSessions.get(requestId);
+        // Only the window that made the request may reopen it.
+        if (session != null && session.sender === event.sender) {
+          this.shell.openExternal(session.url, UrlType.WebUrl);
+        }
+      },
     );
   }
 
@@ -90,7 +112,14 @@ export class MainWebAuthnIpcListener {
       if (!result.requiresBrowser) {
         return result;
       }
-      return await this.getAssertionInBrowser(windowHandle, request, webVault, cancellation);
+      return await this.getAssertionInBrowser(
+        sender,
+        requestId,
+        windowHandle,
+        request,
+        webVault,
+        cancellation,
+      );
     } catch (e) {
       this.logService.error("[WebAuthn] Failed to get assertion", e);
       return { error: { name: "UnknownError", message: "Failed to get assertion." } };
@@ -104,7 +133,36 @@ export class MainWebAuthnIpcListener {
     }
   }
 
+  /**
+   * Resolves with `null` and cancels the session if it doesn't end within the request's timeout,
+   * with time to open the browser. The connector enforces the timeout itself, but where the app
+   * can't tell that the browser was closed, e.g. on Linux, nothing would be returned.
+   */
+  private async withBrowserSessionTimeout(
+    session: Promise<webauthn.WebAuthenticationSessionResult>,
+    timeout: number | undefined,
+    cancellation: webauthn.AssertionCancellation,
+  ): Promise<webauthn.WebAuthenticationSessionResult | null> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timedOut = new Promise<null>((resolve) => {
+      timer = setTimeout(
+        () => {
+          cancellation.cancel();
+          resolve(null);
+        },
+        (timeout ?? DEFAULT_TIMEOUT_MS) + BROWSER_SESSION_GRACE_MS,
+      );
+    });
+    try {
+      return await Promise.race([session, timedOut]);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   private async getAssertionInBrowser(
+    sender: WebContents,
+    requestId: string,
     windowHandle: Buffer,
     request: webauthn.AssertionRequest,
     webVault: WebVault,
@@ -126,12 +184,36 @@ export class MainWebAuthnIpcListener {
       connectorPageUrl(webVault.url),
       buildConnectorRequest(request),
     );
-    const session = await webauthn.webAuthenticationSession(
+    const url = connectorRequest.url;
+    const pendingSession = webauthn.webAuthenticationSession(
       windowHandle,
-      connectorRequest.url,
+      url,
       CONNECTOR_CALLBACK_SCHEME,
       cancellation,
     );
+    if (isLinux()) {
+      // On Linux, the session only waits for the callback. Electron opens the browser with an
+      // activation token, so that it is focused. If it can't be opened, the session times out.
+      this.shell.openExternal(url, UrlType.WebUrl);
+      // The app can't tell whether the browser opened, was focused or was closed, so let the
+      // renderer show that the request continues there, and reopen or cancel it.
+      this.browserSessions.set(requestId, { sender, url });
+      sender.send(WEBAUTHN_IPC_CHANNELS.BROWSER_SESSION_STARTED, requestId);
+    }
+    let session: webauthn.WebAuthenticationSessionResult | null;
+    try {
+      session = await this.withBrowserSessionTimeout(pendingSession, request.timeout, cancellation);
+    } finally {
+      this.browserSessions.delete(requestId);
+    }
+    if (session == null) {
+      return {
+        error: {
+          name: "NotAllowedError",
+          message: "The operation either timed out or was not allowed.",
+        },
+      };
+    }
     if (session.callbackUrl == null) {
       return { error: session.error ?? { name: "UnknownError", message: "No result." } };
     }

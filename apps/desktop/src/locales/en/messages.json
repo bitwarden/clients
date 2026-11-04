@@ -2072,6 +2072,15 @@
   "unlockWithMasterPassword": {
     "message": "Unlock with master password"
   },
+  "continueInYourBrowser": {
+    "message": "Continue in your browser"
+  },
+  "continueInYourBrowserDesc": {
+    "message": "Use your passkey or security key in the browser window that opened, then return to Bitwarden. If you don't see it, open it again."
+  },
+  "openBrowserAgain": {
+    "message": "Open again"
+  },
   "unlockWithPasskey": {
     "message": "Unlock with passkey"
   },

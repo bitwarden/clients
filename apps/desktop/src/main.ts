@@ -341,7 +341,11 @@ export class Main {
       this.biometricsService,
       this.logService,
     );
-    this.mainWebAuthnIpcListener = new MainWebAuthnIpcListener(this.windowMain, this.logService);
+    this.mainWebAuthnIpcListener = new MainWebAuthnIpcListener(
+      this.windowMain,
+      this.logService,
+      this.shell,
+    );
 
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(stateProvider);
 

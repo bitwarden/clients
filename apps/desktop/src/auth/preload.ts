@@ -22,5 +22,14 @@ export default {
       ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION, requestId, request, webVault),
     cancel: (requestId: string): Promise<void> =>
       ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.CANCEL, requestId),
+    /** Returns a function that removes the listener. */
+    onBrowserSessionStarted: (listener: (requestId: string) => void): (() => void) => {
+      const handler = (_event: unknown, requestId: string) => listener(requestId);
+      ipcRenderer.on(WEBAUTHN_IPC_CHANNELS.BROWSER_SESSION_STARTED, handler);
+      return () =>
+        ipcRenderer.removeListener(WEBAUTHN_IPC_CHANNELS.BROWSER_SESSION_STARTED, handler);
+    },
+    reopenBrowser: (requestId: string): Promise<void> =>
+      ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.REOPEN_BROWSER, requestId),
   },
 };
