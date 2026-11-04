@@ -81,9 +81,18 @@ pub(super) fn get_assertion(
 ) -> Result<AssertionResponse, Error> {
     let view = parse_window_handle(window_handle)?;
 
-    // macOS creates the client data itself, with an origin of `https://<rpId>`, so the origin is
-    // only used to check that the request is one the web vault could make.
+    // macOS creates the client data itself, with an origin of `https://<rpId>`, so the request's
+    // origin is only checked: that the request is one the web vault could make, and that the
+    // platform's client data will have the same origin.
     client_data::validate_rp_id_for_origin(&request.rp_id, &request.origin)?;
+    // The RP would reject client data with an origin other than the request's, e.g. when the web
+    // vault is on another port or on a subdomain of the RP ID. A browser uses the request's origin.
+    if !is_platform_origin(&request.origin, &request.rp_id) {
+        return Err(Error::RequiresBrowser(format!(
+            "The platform would use the origin https://{} instead of {}",
+            request.rp_id, request.origin
+        )));
+    }
     if let Some(app_id) = &request.app_id {
         client_data::validate_app_id(app_id, &request.origin)?;
     }
@@ -182,6 +191,12 @@ pub(super) fn web_authentication_session(
             session_error(err)
         }
     })
+}
+
+/// Whether `origin` is the origin that macOS puts in the client data for `rp_id`, which is
+/// `https://<rpId>`.
+fn is_platform_origin(origin: &str, rp_id: &str) -> bool {
+    origin.eq_ignore_ascii_case(&format!("https://{rp_id}"))
 }
 
 /// Whether the system allows the platform passkey APIs for `rp_id`, given the app's
@@ -341,6 +356,27 @@ mod tests {
         ] {
             assert!(!is_associated_domain(rp_id, &domains), "{rp_id}");
         }
+    }
+
+    #[test]
+    fn test_is_platform_origin() {
+        assert!(is_platform_origin(
+            "https://vault.example.com",
+            "vault.example.com"
+        ));
+        assert!(is_platform_origin(
+            "https://Vault.Example.com",
+            "vault.example.com"
+        ));
+        assert!(!is_platform_origin(
+            "https://vault.example.com:8080",
+            "vault.example.com"
+        ));
+        assert!(!is_platform_origin(
+            "https://vault.example.com",
+            "example.com"
+        ));
+        assert!(!is_platform_origin("http://localhost", "localhost"));
     }
 
     #[test]
