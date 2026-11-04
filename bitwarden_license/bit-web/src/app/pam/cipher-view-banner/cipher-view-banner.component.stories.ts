@@ -2,6 +2,17 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { EMPTY, of } from "rxjs";
 
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  LeasingErrorService,
+} from "@bitwarden/bit-pam";
+import {
+  AccessRequestCancelService,
+  MyLeasesService,
+  CipherViewBannerComponent,
+} from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,20 +23,12 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { HOUR, MINUTE, liveFromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { LeasingErrorService } from "../abstractions/leasing-error.service";
-import { AccessRequestCancelService } from "../services/access-request-cancel.service";
-import { MyLeasesService } from "../services/my-leases.service";
 import {
   accessLease,
   accessRequest,
   provideStoryChangeDetection,
   provideStoryLogService,
 } from "../testing/story-fixtures";
-
-import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 const ORGANIZATION_ID = "org-1";
 

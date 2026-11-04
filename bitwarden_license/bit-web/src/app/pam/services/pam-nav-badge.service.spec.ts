@@ -1,6 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
+import {
+  AccessEventService,
+  AccessRequestSdkService,
+  ApprovalSdkService,
+  DefaultAccessRefreshService,
+} from "@bitwarden/bit-pam";
+import type { AccessRequestStatus, AccessRequestView } from "@bitwarden/bit-pam";
+import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -8,14 +16,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { AccessEventService } from "../abstractions/access-event.service";
-import type { AccessRequestStatus, AccessRequestView } from "../abstractions/access-lease";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { ApprovalSdkService } from "../abstractions/approval-sdk.service";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 
-import { DefaultAccessRefreshService } from "./default-access-refresh.service";
 import { DefaultPamNavBadgeService } from "./pam-nav-badge.service";
 
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
