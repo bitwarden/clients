@@ -14,5 +14,12 @@
 	<true/>
 	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
 	<true/>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>webcredentials:bitwarden.com</string>
+		<string>webcredentials:*.bitwarden.com</string>
+		<string>webcredentials:bitwarden.eu</string>
+		<string>webcredentials:*.bitwarden.eu</string>
+	</array>
 </dict>
 </plist>
