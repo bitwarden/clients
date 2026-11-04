@@ -452,6 +452,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: DesktopSettingsService,
+    useFactory: (stateProvider: StateProvider) =>
+      new DesktopSettingsService(stateProvider, ipc.platform.isMacAppStore),
     deps: [StateProvider],
   }),
   safeProvider({
