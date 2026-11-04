@@ -33,6 +33,7 @@ base64 = "=0.22.1"
 bitwarden-crypto = { git = "https://github.com/bitwarden/sdk-internal", rev = "c5e53d3e82ab80fdc9fd79ebd74058399a6444b6" }
 bitwarden-random = { git = "https://github.com/bitwarden/sdk-internal", rev = "c5e53d3e82ab80fdc9fd79ebd74058399a6444b6" }
 bitwarden-sensitive-value = { git = "https://github.com/bitwarden/sdk-internal", rev = "c5e53d3e82ab80fdc9fd79ebd74058399a6444b6" }
+bitwarden-web-connector = { git = "https://github.com/bitwarden/sdk-internal", rev = "c5e53d3e82ab80fdc9fd79ebd74058399a6444b6" }
 byteorder = "=1.5.0"
 bytes = "=1.11.1"
 cbc = "=0.1.2"
@@ -78,6 +79,7 @@ tracing-subscriber = { version = "=0.3.22", features = [
     "tracing-log",
 ] }
 uniffi = "=0.28.3"
+url = "=2.5.8"
 widestring = "=1.2.0"
 windows = "=0.62.2"
 windows-core = "=0.62.2"

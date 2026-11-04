@@ -493,6 +493,28 @@ export declare namespace webauthn {
     cancel(): void
   }
   /**
+   * A request to the web vault's WebAuthn connector. Its response is encrypted to an ephemeral
+   * key that doesn't leave the native module.
+   */
+  export class WebConnectorRequest {
+    /**
+     * Starts a request to the connector page at `connectorUrl`. `request` is sent in
+     * plaintext in the URL's fragment, but decrypting the response fails if it was modified.
+     */
+    static start(connectorUrl: string, request: Uint8Array): WebConnectorRequest
+    /**
+     * The URL to open with `webAuthenticationSession`. Its fragment has the `state` that
+     * identifies the request.
+     */
+    get url(): string
+    /**
+     * Decrypts the response from the connector's callback URL. A callback for another
+     * request, or one that was modified, throws and leaves the request pending. A response
+     * can only be decrypted once. It contains PRF outputs, which must not be logged.
+     */
+    decryptResponse(callbackUrl: string): Uint8Array
+  }
+  /**
    * Corresponds to WebAuthn's `PublicKeyCredentialRequestOptions`, with `BufferSource`s as
    * bytes.
    */

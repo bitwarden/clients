@@ -138,7 +138,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -149,7 +149,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -183,7 +183,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7af50940b73bf4e16c15c448a2b121c63f2d68e3e54b6a8731673cb4aa0cdff5"
 dependencies = [
  "base64ct",
- "blake2",
+ "blake2 0.11.0",
  "cpufeatures 0.3.1",
  "kdf",
  "password-hash",
@@ -506,9 +506,9 @@ dependencies = [
  "anyhow",
  "base64 0.22.1",
  "bitwarden-crypto",
- "bitwarden-random",
+ "bitwarden-random 4.0.0 (git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6)",
  "bitwarden-sensitive-value",
- "chacha20poly1305",
+ "chacha20poly1305 0.11.0",
  "desktop_core",
  "rand_core 0.10.1",
  "scopeguard",
@@ -575,13 +575,13 @@ dependencies = [
  "aes-gcm 0.11.0",
  "argon2",
  "bitwarden-api-key-connector",
- "bitwarden-encoding",
- "bitwarden-error",
+ "bitwarden-encoding 4.0.0 (git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6)",
+ "bitwarden-error 4.0.0 (git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6)",
  "bitwarden-logging",
- "bitwarden-random",
+ "bitwarden-random 4.0.0 (git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6)",
  "bitwarden-sensitive-value",
  "cbc 0.2.1",
- "chacha20poly1305",
+ "chacha20poly1305 0.11.0",
  "ciborium",
  "coset",
  "ed25519-dalek 3.0.0",
@@ -603,7 +603,7 @@ dependencies = [
  "sha1 0.11.0",
  "sha2 0.11.0",
  "subtle",
- "thiserror 2.0.17",
+ "thiserror 1.0.69",
  "tokio",
  "tracing",
  "typenum",
@@ -616,12 +616,30 @@ dependencies = [
 [[package]]
 name = "bitwarden-encoding"
 version = "4.0.0"
+dependencies = [
+ "bitwarden-ffi",
+ "data-encoding",
+ "data-encoding-macro",
+ "serde",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "bitwarden-encoding"
+version = "4.0.0"
 source = "git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6#c5e53d3e82ab80fdc9fd79ebd74058399a6444b6"
 dependencies = [
  "data-encoding",
  "data-encoding-macro",
  "serde",
- "thiserror 2.0.17",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "bitwarden-error"
+version = "4.0.0"
+dependencies = [
+ "bitwarden-error-macro 4.0.0",
 ]
 
 [[package]]
@@ -629,7 +647,17 @@ name = "bitwarden-error"
 version = "4.0.0"
 source = "git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6#c5e53d3e82ab80fdc9fd79ebd74058399a6444b6"
 dependencies = [
- "bitwarden-error-macro",
+ "bitwarden-error-macro 4.0.0 (git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6)",
+]
+
+[[package]]
+name = "bitwarden-error-macro"
+version = "4.0.0"
+dependencies = [
+ "darling 0.20.11",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]
@@ -638,6 +666,22 @@ version = "4.0.0"
 source = "git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6#c5e53d3e82ab80fdc9fd79ebd74058399a6444b6"
 dependencies = [
  "darling 0.20.11",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
+name = "bitwarden-ffi"
+version = "4.0.0"
+dependencies = [
+ "bitwarden-ffi-macro",
+]
+
+[[package]]
+name = "bitwarden-ffi-macro"
+version = "4.0.0"
+dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.119",
@@ -669,11 +713,23 @@ dependencies = [
 [[package]]
 name = "bitwarden-random"
 version = "4.0.0"
+dependencies = [
+ "bitwarden-error 4.0.0",
+ "bitwarden-ffi",
+ "rand 0.10.3",
+ "snow",
+ "thiserror 1.0.69",
+ "uuid",
+]
+
+[[package]]
+name = "bitwarden-random"
+version = "4.0.0"
 source = "git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6#c5e53d3e82ab80fdc9fd79ebd74058399a6444b6"
 dependencies = [
- "bitwarden-error",
+ "bitwarden-error 4.0.0 (git+https://github.com/bitwarden/sdk-internal?rev=c5e53d3e82ab80fdc9fd79ebd74058399a6444b6)",
  "rand 0.10.3",
- "thiserror 2.0.17",
+ "thiserror 1.0.69",
  "uuid",
 ]
 
@@ -686,13 +742,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitwarden-web-connector"
+version = "4.0.0"
+dependencies = [
+ "bitwarden-encoding 4.0.0",
+ "bitwarden-error 4.0.0",
+ "bitwarden-ffi",
+ "bitwarden-random 4.0.0",
+ "rand 0.10.3",
+ "snow",
+ "thiserror 1.0.69",
+ "url",
+]
+
+[[package]]
 name = "bitwarden_chromium_import_helper"
 version = "0.0.0"
 dependencies = [
  "aes-gcm 0.11.0",
  "anyhow",
  "base64 0.22.1",
- "chacha20poly1305",
+ "chacha20poly1305 0.11.0",
  "chromium_importer",
  "clap",
  "embed-resource",
@@ -702,6 +772,15 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "windows 0.62.2",
+]
+
+[[package]]
+name = "blake2"
+version = "0.10.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46502ad458c9a52b69d4d4d32775c788b7a1b85e8bc9d482d92250fc0e3f8efe"
+dependencies = [
+ "digest 0.10.7",
 ]
 
 [[package]]
@@ -916,6 +995,19 @@ dependencies = [
  "cipher 0.5.2",
  "cpufeatures 0.3.1",
  "rand_core 0.10.1",
+ "zeroize",
+]
+
+[[package]]
+name = "chacha20poly1305"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10cd79432192d1c0f4e1a0fef9527696cc039165d729fb41b3f4f4f354c2dc35"
+dependencies = [
+ "aead 0.5.2",
+ "chacha20 0.9.1",
+ "cipher 0.4.4",
+ "poly1305 0.8.0",
  "zeroize",
 ]
 
@@ -1529,6 +1621,7 @@ dependencies = [
  "arboard",
  "ashpd 0.13.11",
  "base64 0.22.1",
+ "bitwarden-web-connector",
  "bytes",
  "core-foundation",
  "desktop_objc",
@@ -1550,6 +1643,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+ "url",
  "widestring",
  "win_webauthn",
  "windows 0.62.2",
@@ -1649,7 +1743,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -1804,6 +1898,8 @@ dependencies = [
  "ff",
  "generic-array",
  "group",
+ "hkdf 0.12.4",
+ "pem-rfc7468 0.7.0",
  "pkcs8 0.10.2",
  "rand_core 0.6.4",
  "sec1",
@@ -1871,7 +1967,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -2462,7 +2558,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.62.2",
+ "windows-core 0.61.2",
 ]
 
 [[package]]
@@ -3151,7 +3247,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -3411,7 +3507,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d8fae84b431384b68627d0f9b3b1245fcf9f46f6c0e3dc902e9dce64edd1967"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.45.0",
 ]
 
 [[package]]
@@ -4215,7 +4311,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4282,7 +4378,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4776,13 +4872,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8e2fb0f499abb4d162f2bedad68f5ef91a1682b5a03596ddb67efd37768d100"
 
 [[package]]
+name = "snow"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "599b506ccc4aff8cf7844bc42cf783009a434c1e26c964432560fb6d6ad02d82"
+dependencies = [
+ "aes-gcm 0.10.3",
+ "blake2 0.10.6",
+ "chacha20poly1305 0.10.1",
+ "curve25519-dalek 4.1.3",
+ "getrandom 0.3.4",
+ "p256",
+ "rustc_version",
+ "sha2 0.10.9",
+ "subtle",
+]
+
+[[package]]
 name = "socket2"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -4994,10 +5107,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0136791f7c95b1f6dd99f9cc786b91bb81c3800b639b3478e561ddb7be95e5f1"
 dependencies = [
  "fastrand",
- "getrandom 0.4.3",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -5372,7 +5485,7 @@ checksum = "f2f6fb2847f6742cd76af783a2a2c49e9375d0a111c7bef6f71cd9e738c72d6e"
 dependencies = [
  "memoffset",
  "tempfile",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -5869,7 +5982,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

@@ -8,6 +8,9 @@ use thiserror::Error;
 #[cfg_attr(not(any(target_os = "windows", target_os = "macos")), allow(dead_code))]
 mod client_data;
 
+mod connector;
+pub use connector::ConnectorRequest;
+
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
 #[cfg_attr(

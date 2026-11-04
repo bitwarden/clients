@@ -22,6 +22,7 @@ file_secure_storage = []
 anyhow = { workspace = true }
 arboard = { workspace = true, features = ["wayland-data-control"] }
 base64 = { workspace = true }
+bitwarden-web-connector = { workspace = true }
 bytes = { workspace = true }
 dirs = { workspace = true }
 futures = { workspace = true }
@@ -32,6 +33,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "sync", "macros"] }
 tokio-util = { workspace = true, features = ["codec"] }
 tracing = { workspace = true }
+url = { workspace = true }
 
 [target.'cfg(not(windows))'.dependencies]
 zeroizing-alloc = { workspace = true }

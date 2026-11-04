@@ -190,6 +190,43 @@ pub mod webauthn {
         })
     }
 
+    /// A request to the web vault's WebAuthn connector. Its response is encrypted to an ephemeral
+    /// key that doesn't leave the native module.
+    #[napi]
+    pub struct WebConnectorRequest {
+        inner: core::ConnectorRequest,
+    }
+
+    #[napi]
+    impl WebConnectorRequest {
+        /// Starts a request to the connector page at `connectorUrl`. `request` is sent in
+        /// plaintext in the URL's fragment, but decrypting the response fails if it was modified.
+        #[napi(factory)]
+        pub fn start(connector_url: String, request: Uint8Array) -> napi::Result<Self> {
+            let inner = core::ConnectorRequest::start(&connector_url, &request)
+                .map_err(|err| napi::Error::from_reason(err.to_string()))?;
+            Ok(Self { inner })
+        }
+
+        /// The URL to open with `webAuthenticationSession`. Its fragment has the `state` that
+        /// identifies the request.
+        #[napi(getter)]
+        pub fn url(&self) -> String {
+            self.inner.url().to_string()
+        }
+
+        /// Decrypts the response from the connector's callback URL. A callback for another
+        /// request, or one that was modified, throws and leaves the request pending. A response
+        /// can only be decrypted once. It contains PRF outputs, which must not be logged.
+        #[napi]
+        pub fn decrypt_response(&mut self, callback_url: String) -> napi::Result<Uint8Array> {
+            self.inner
+                .decrypt_response(&callback_url)
+                .map(Into::into)
+                .map_err(|err| napi::Error::from_reason(err.to_string()))
+        }
+    }
+
     fn core_request(request: AssertionRequest) -> core::AssertionRequest {
         core::AssertionRequest {
             origin: request.origin,
