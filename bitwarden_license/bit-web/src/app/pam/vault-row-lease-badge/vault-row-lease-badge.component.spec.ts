@@ -1,13 +1,16 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
-import type { AccessBadgeState } from "@bitwarden/bit-pam";
-import { MyAccessRequestsService } from "@bitwarden/bit-pam-components";
+import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
@@ -18,9 +21,13 @@ describe("VaultRowLeaseBadgeComponent", () => {
   let fixture: ComponentFixture<VaultRowLeaseBadgeComponent>;
   let component: VaultRowLeaseBadgeComponent;
   let enabled$: BehaviorSubject<boolean>;
+  let accessRequestSdkService: {
+    getCipherAccessState: jest.Mock<Promise<CipherAccessStateView>, [string]>;
+  };
   let organizations$: BehaviorSubject<{ id: string; usePam: boolean }[]>;
-  // The caller's badges from their own requests; a Subject, so "not loaded yet" can be tested.
-  let badges$: Subject<ReadonlyMap<string, AccessBadgeState>>;
+  let accessChanged$: Subject<void>;
+  let accessRefresh: MockProxy<AccessRefreshService>;
+  let ticks$: Subject<number>;
 
   function create(cipher: CipherView): void {
     fixture = TestBed.createComponent(VaultRowLeaseBadgeComponent);
@@ -56,24 +63,25 @@ describe("VaultRowLeaseBadgeComponent", () => {
     return fixture.nativeElement.querySelector("[data-testid='vault-row-no-access-rule']");
   }
 
-  async function settle(): Promise<void> {
-    await fixture.whenStable();
-    fixture.detectChanges();
-  }
-
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
+    accessRequestSdkService = { getCipherAccessState: jest.fn() };
     organizations$ = new BehaviorSubject<{ id: string; usePam: boolean }[]>([
       { id: PAM_ORG, usePam: true },
       { id: PLAIN_ORG, usePam: false },
     ]);
-    badges$ = new Subject<ReadonlyMap<string, AccessBadgeState>>();
+    accessChanged$ = new Subject<void>();
+    accessRefresh = mock<AccessRefreshService>();
+    accessRefresh.accessChanged$.mockReturnValue(accessChanged$);
+    ticks$ = new Subject<number>();
 
     TestBed.configureTestingModule({
       imports: [VaultRowLeaseBadgeComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
-        { provide: MyAccessRequestsService, useValue: { badges$ } },
+        { provide: AccessRequestSdkService, useValue: accessRequestSdkService },
+        { provide: AccessRefreshService, useValue: accessRefresh },
+        { provide: AccessBadgeTickerService, useValue: { ticks$ } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         {
@@ -84,67 +92,145 @@ describe("VaultRowLeaseBadgeComponent", () => {
     });
   });
 
-  it("renders nothing for a non-gated cipher, and does not read the caller's badges", async () => {
+  it("renders nothing for a non-gated cipher", async () => {
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue({} as CipherAccessStateView);
+
     create(ungatedCipher(PAM_ORG));
-    await settle();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(component["badge"]()).toBeNull();
-    expect(badges$.observed).toBe(false);
+    expect(accessRequestSdkService.getCipherAccessState).not.toHaveBeenCalled();
   });
 
   it("renders nothing when the PAM flag is off, even if the cipher is gated", async () => {
     enabled$.next(false);
 
     create(gatedCipher());
-    await settle();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(component["badge"]()).toBeNull();
-    expect(badges$.observed).toBe(false);
+    expect(accessRequestSdkService.getCipherAccessState).not.toHaveBeenCalled();
   });
 
-  it("resolves the privileged (resting) state when the caller holds nothing on the cipher", async () => {
+  it("resolves the privileged (resting) state when gated with no request or lease", async () => {
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+      activeLease: undefined,
+      pendingRequest: undefined,
+      approvedRequest: undefined,
+      badgeState: "privileged",
+    } as unknown as CipherAccessStateView);
+
     create(gatedCipher());
-    badges$.next(new Map([["other-cipher", { kind: "pending" }]]));
-    await settle();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(component["badge"]()?.kind).toBe("privileged");
   });
 
   it("resolves the active state with the lease expiry when a lease is active", async () => {
-    const expiresAt = new Date(Date.now() + 60_000);
+    const notAfter = new Date(Date.now() + 60_000).toISOString();
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+      activeLease: { id: "lease-1", notAfter },
+      badgeState: { active: { expiresAt: notAfter } },
+    } as unknown as CipherAccessStateView);
 
     create(gatedCipher());
-    badges$.next(new Map([["cipher-1", { kind: "active", expiresAt }]]));
-    await settle();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-    expect(component["badge"]()).toEqual({ kind: "active", expiresAt });
+    const badge = component["badge"]();
+    expect(badge?.kind).toBe("active");
+    expect(badge).toEqual({ kind: "active", expiresAt: new Date(notAfter) });
   });
 
   it("resolves the pending state when a request is awaiting a decision", async () => {
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+      pendingRequest: {},
+      badgeState: "pending",
+    } as unknown as CipherAccessStateView);
+
     create(gatedCipher());
-    badges$.next(new Map([["cipher-1", { kind: "pending" }]]));
-    await settle();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(component["badge"]()?.kind).toBe("pending");
   });
 
-  it("renders nothing until the caller's requests have loaded", async () => {
+  it("renders nothing when the access-state fetch fails", async () => {
+    accessRequestSdkService.getCipherAccessState.mockRejectedValue(new Error("boom"));
+
     create(gatedCipher());
-    await settle();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(component["badge"]()).toBeNull();
   });
 
-  it("follows the caller's badges as they change, as after a cancel from the row's menu", async () => {
-    create(gatedCipher());
-    badges$.next(new Map([["cipher-1", { kind: "pending" }]]));
-    await settle();
-    expect(component["badge"]()?.kind).toBe("pending");
+  describe("refreshing", () => {
+    it("re-reads the access state when the row's access changes", async () => {
+      accessRequestSdkService.getCipherAccessState
+        .mockResolvedValueOnce({
+          pendingRequest: {},
+          badgeState: "pending",
+        } as unknown as CipherAccessStateView)
+        .mockResolvedValueOnce({ badgeState: "privileged" } as unknown as CipherAccessStateView);
 
-    badges$.next(new Map());
-    await settle();
+      create(gatedCipher());
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component["badge"]()?.kind).toBe("pending");
 
-    expect(component["badge"]()?.kind).toBe("privileged");
+      accessChanged$.next();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["badge"]()?.kind).toBe("privileged");
+    });
+
+    it("re-reads once the lease's window closes, picking up an extension made elsewhere", async () => {
+      const originalEnd = Date.now() + 60_000;
+      const extendedEnd = new Date(originalEnd + 1_800_000).toISOString();
+      accessRequestSdkService.getCipherAccessState
+        .mockResolvedValueOnce({
+          activeLease: { id: "lease-1", notAfter: new Date(originalEnd).toISOString() },
+          badgeState: { active: { expiresAt: new Date(originalEnd).toISOString() } },
+        } as unknown as CipherAccessStateView)
+        .mockResolvedValueOnce({
+          activeLease: { id: "lease-1", notAfter: extendedEnd },
+          badgeState: { active: { expiresAt: extendedEnd } },
+        } as unknown as CipherAccessStateView);
+
+      create(gatedCipher());
+      await fixture.whenStable();
+
+      ticks$.next(originalEnd + 1_000);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+      expect(component["badge"]()).toEqual({ kind: "active", expiresAt: new Date(extendedEnd) });
+    });
+
+    // A broadcast subscription would re-read every gated row in the viewport on any mutation.
+    it("scopes the subscription to the row's own cipher", async () => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+        badgeState: "privileged",
+      } as unknown as CipherAccessStateView);
+
+      create(gatedCipher());
+      await fixture.whenStable();
+
+      expect(accessRefresh.accessChanged$).toHaveBeenCalledWith("cipher-1");
+    });
+
+    it("does not subscribe for a non-gated cipher", async () => {
+      create(ungatedCipher(PAM_ORG));
+      await fixture.whenStable();
+
+      expect(accessRefresh.accessChanged$).not.toHaveBeenCalled();
+    });
   });
 
   describe("the no-access-rule placeholder", () => {
@@ -192,28 +278,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
       expect(placeholder()).toBeNull();
     });
 
-    it("draws an em dash for a personal cipher, which no rule can govern", async () => {
-      create(ungatedCipher());
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(component["showNoAccessRule"]()).toBe(true);
-      expect(placeholder()?.textContent?.trim()).toBe("—");
-    });
-
-    it("draws an em dash for a personal cipher even with no PAM organization loaded", async () => {
-      organizations$.next([]);
-
-      create(ungatedCipher());
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(component["showNoAccessRule"]()).toBe(true);
-    });
-
-    it("draws no em dash for a personal cipher while the PAM flag is off", async () => {
-      enabled$.next(false);
-
+    it("draws no em dash for a personal cipher, which belongs to no organization", async () => {
       create(ungatedCipher());
       await fixture.whenStable();
       fixture.detectChanges();
@@ -233,18 +298,25 @@ describe("VaultRowLeaseBadgeComponent", () => {
       expect(placeholder()).toBeNull();
     });
 
-    it("draws no em dash before the caller's requests load, which is not evidence of no rule", async () => {
+    it("draws no em dash when the access-state fetch fails, which is not evidence of no rule", async () => {
+      accessRequestSdkService.getCipherAccessState.mockRejectedValue(new Error("boom"));
+
       create(gatedCipher(PAM_ORG));
-      await settle();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component["showNoAccessRule"]()).toBe(false);
       expect(placeholder()).toBeNull();
     });
 
     it("draws the badge and no em dash when the row is governed", async () => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+        badgeState: "privileged",
+      } as unknown as CipherAccessStateView);
+
       create(gatedCipher(PAM_ORG));
-      badges$.next(new Map());
-      await settle();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component["showNoAccessRule"]()).toBe(false);
       expect(placeholder()).toBeNull();

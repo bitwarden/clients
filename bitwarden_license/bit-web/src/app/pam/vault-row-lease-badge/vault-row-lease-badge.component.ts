@@ -1,9 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, Observable, of, switchMap } from "rxjs";
+import { catchError, combineLatest, from, map, merge, Observable, of, switchMap } from "rxjs";
 
-import { AccessBadgeState, listedBadgeFor } from "@bitwarden/bit-pam";
-import { AccessStateBadgeComponent, MyAccessRequestsService } from "@bitwarden/bit-pam-components";
+import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import {
+  AccessBadgeState,
+  cipherAccessBadgeState,
+} from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
+import { rereadOnLapse } from "@bitwarden/bit-common/pam/helpers/lease-liveness";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
@@ -28,11 +35,9 @@ type BadgeCollection = { hasEnabledAccessRule?: boolean };
 type LeaseBadgeCell = AccessBadgeState | "none" | null;
 
 /**
- * A cipher row takes its badge from the caller's own requests ({@link MyAccessRequestsService}), one
- * read for the whole list that repeats on every access change, so a cancel from the row's own menu
- * can't leave the badge stale. The list never gives "unavailable", so such a row reads Privileged.
- * A collection row never draws the em dash, since an older server's missing `hasEnabledAccessRule`
- * reads as no rule.
+ * A cipher row re-reads on {@link AccessRefreshService}, so a cancel from its own menu can't leave
+ * the badge stale. A collection row never draws the em dash, since an older server's missing
+ * `hasEnabledAccessRule` reads as no rule.
  */
 @Component({
   selector: "app-pam-vault-row-lease-badge",
@@ -45,12 +50,18 @@ export class VaultRowLeaseBadgeComponent {
   readonly collection = input<BadgeCollection | null>(null);
 
   private readonly configService = inject(ConfigService);
-  private readonly myAccessRequestsService = inject(MyAccessRequestsService);
+  private readonly accessRequestSdkService = inject(AccessRequestSdkService);
+  private readonly accessRefreshService = inject(AccessRefreshService);
+  private readonly ticker = inject(AccessBadgeTickerService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
 
   protected readonly noAccessRuleLabel = inject(I18nService).t("pamNoAccessRule");
 
+  /**
+   * One PAM organization in view turns the column on for every row, so the em dash narrows to rows
+   * whose own organization uses PAM.
+   */
   private readonly pamOrganizationIds = toSignal(
     this.accountService.activeAccount$.pipe(
       getOptionalUserId,
@@ -94,14 +105,8 @@ export class VaultRowLeaseBadgeComponent {
     if (this.cell() !== "none") {
       return false;
     }
-    const cipher = this.cipher();
-    if (cipher == null) {
-      return false;
-    }
-    if (cipher.organizationId == null) {
-      return true;
-    }
-    return this.pamOrganizationIds().has(String(cipher.organizationId));
+    const organizationId = this.cipher()?.organizationId;
+    return organizationId != null && this.pamOrganizationIds().has(String(organizationId));
   });
 
   private cipherCell$(cipher: CipherViewLike): Observable<LeaseBadgeCell> {
@@ -114,8 +119,16 @@ export class VaultRowLeaseBadgeComponent {
       return of(null);
     }
     const cipherId = String(cipher.id);
-    return this.myAccessRequestsService.badges$.pipe(
-      map((badges): LeaseBadgeCell => listedBadgeFor(badges, cipherId)),
+    const read$ = () =>
+      from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+        // A failed read is not evidence of anything, so it must not draw the placeholder.
+        catchError(() => of(undefined)),
+      );
+    return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
+      switchMap(() => rereadOnLapse(read$, this.ticker.ticks$)),
+      map((state): LeaseBadgeCell =>
+        state === undefined ? null : (cipherAccessBadgeState(state) ?? "none"),
+      ),
     );
   }
 
