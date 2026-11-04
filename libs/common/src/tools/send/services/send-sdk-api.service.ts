@@ -534,6 +534,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       return {
         Item: {
           data: sendView.data.data.toSdkCipherView(),
+          // TESTONLY: the local SDK build requires metadata; 1182 does not. Remove with the patch.
+          metadata: {
+            itemId: asUuid(sendView.data.data.id),
+            folderName: undefined,
+            collectionNames: undefined,
+            organizationName: undefined,
+            creationDate: undefined,
+            revisionDate: undefined,
+          },
         },
       };
     }

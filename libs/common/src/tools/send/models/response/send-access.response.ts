@@ -76,7 +76,15 @@ export class SendAccessResponse extends BaseResponse {
           ? {
               encryptionVersion: obj.data?.encryptionVersion ?? undefined,
               data: obj.data?.data ?? undefined,
-              metadata: { itemId: asUuid(obj.data?.metadata?.itemId) },
+              // TESTONLY: the local SDK build requires these fields; 1182 does not. Remove with the patch.
+              metadata: {
+                itemId: asUuid(obj.data?.metadata?.itemId),
+                folderName: undefined,
+                collectionNames: undefined,
+                organizationName: undefined,
+                creationDate: undefined,
+                revisionDate: undefined,
+              },
             }
           : undefined,
     };

@@ -183,6 +183,13 @@ export abstract class ApiService {
     options?: UploadOptions,
   ): Promise<any>;
 
+  /**
+   * TESTONLY: Uploads an attachment through the deprecated single-request v1 endpoint
+   * (`POST /ciphers/{id}/attachment[-admin]`). The form carries only the file part, so the
+   * server stores the attachment without a per-attachment key.
+   */
+  abstract postCipherAttachmentLegacy(id: string, data: FormData, admin: boolean): Promise<any>;
+
   abstract getUserCollections(): Promise<ListResponse<CollectionResponse>>;
   abstract getCollections(organizationId: string): Promise<ListResponse<CollectionResponse>>;
   abstract getCollectionUsers(

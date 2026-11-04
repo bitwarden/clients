@@ -42,7 +42,9 @@ import {
   ButtonComponent,
   ButtonModule,
   CardComponent,
+  CheckboxModule,
   FileUploadComponent,
+  FormControlModule,
   FormFieldModule,
   ItemModule,
   ProgressBarComponent,
@@ -56,6 +58,8 @@ import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment
 
 type CipherAttachmentForm = FormGroup<{
   file: FormControl<File | null>;
+  /** TESTONLY: route the upload through the deprecated v1 endpoint */
+  useLegacyV1Upload: FormControl<boolean>;
 }>;
 
 @Component({
@@ -66,10 +70,12 @@ type CipherAttachmentForm = FormGroup<{
     AsyncActionsModule,
     ButtonModule,
     CardComponent,
+    CheckboxModule,
     CommonModule,
     DeleteAttachmentComponent,
     DownloadAttachmentComponent,
     FileUploadComponent,
+    FormControlModule,
     FormFieldModule,
     ItemModule,
     JslibModule,
@@ -120,6 +126,7 @@ export class CipherAttachmentsComponent {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    useLegacyV1Upload: new FormControl<boolean>(false, { nonNullable: true }),
   });
 
   private cipherDomain: Cipher | null = null;
@@ -248,6 +255,7 @@ export class CipherAttachmentsComponent {
         {
           onProgress: (p) => this.uploadProgress.set(p),
         },
+        this.attachmentForm.value.useLegacyV1Upload ?? false,
       );
 
       // Re-read rather than trust the echo, which is stripped for a PAM-gated cipher.

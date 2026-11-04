@@ -15,7 +15,12 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { Measurement, PerfTrackGroup } from "@bitwarden/logging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
@@ -940,6 +945,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin = false,
     options?: UploadOptions,
+    useLegacyV1Upload = false,
   ): Promise<Cipher> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -953,6 +959,7 @@ export class CipherService implements CipherServiceAbstraction {
             userId,
             admin,
             options,
+            useLegacyV1Upload,
           );
           resolve(cData);
         } catch (e) {
@@ -972,6 +979,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin = false,
     options?: UploadOptions,
+    useLegacyV1Upload = false,
   ): Promise<Cipher> {
     // The organization's symmetric key or the user's user key
     const vaultKey: UserKey | OrgKey =
@@ -989,6 +997,17 @@ export class CipherService implements CipherServiceAbstraction {
         : vaultKey;
 
     const encFileName = await this.encryptService.encryptString(filename, cipherKeyOrVaultKey);
+
+    if (useLegacyV1Upload) {
+      return await this.saveAttachmentLegacyV1WithServer(
+        cipher,
+        encFileName,
+        data,
+        cipherKeyOrVaultKey,
+        userId,
+        admin,
+      );
+    }
 
     const attachmentKey = await this.legacyCompatKeyService.makeDataEncKey(cipherKeyOrVaultKey);
     const encData = await this.encryptService.encryptFileData(
@@ -1027,6 +1046,41 @@ export class CipherService implements CipherServiceAbstraction {
       return Cipher.fromSdkCipher(created.cipher) ?? cipher;
     }
 
+    return await this.get(cipher.id, userId);
+  }
+
+  /**
+   * TESTONLY: Legacy v1 attachment upload. Encrypts the file with the cipher/vault key directly
+   * (so the stored attachment has no `key`) and posts a file-only multipart form to
+   * `POST /ciphers/{id}/attachment[-admin]`, as pre-v2 clients did.
+   */
+  private async saveAttachmentLegacyV1WithServer(
+    cipher: Cipher,
+    encFileName: EncString,
+    data: Uint8Array,
+    encryptionKey: SymmetricCryptoKey,
+    userId: UserId,
+    admin: boolean,
+  ): Promise<Cipher> {
+    const encData = await this.encryptService.encryptFileData(new Uint8Array(data), encryptionKey);
+
+    const fd = new FormData();
+    fd.append(
+      "data",
+      new Blob([encData.buffer as BlobPart], { type: "application/octet-stream" }),
+      encFileName.encryptedString,
+    );
+
+    await this.clearCache(userId);
+    await this.apiService.postCipherAttachmentLegacy(cipher.id, fd, admin);
+
+    if (admin) {
+      // Admin ops bypass local state; callers re-read the cipher from the server.
+      return cipher;
+    }
+
+    const response = await this.apiService.getCipher(cipher.id);
+    await this.upsert(new CipherData(response), userId);
     return await this.get(cipher.id, userId);
   }
 

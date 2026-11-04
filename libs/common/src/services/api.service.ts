@@ -439,6 +439,11 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
   }
 
+  async postCipherAttachmentLegacy(id: string, data: FormData, admin: boolean): Promise<any> {
+    const path = admin ? "/ciphers/" + id + "/attachment-admin" : "/ciphers/" + id + "/attachment";
+    return this.send("POST", path, data, true, true);
+  }
+
   // Collections APIs
 
   async getCollectionAccessDetails(

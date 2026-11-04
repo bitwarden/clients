@@ -136,6 +136,15 @@ export class SendView implements View {
         this.type === SendType.Item
           ? {
               data: this.data?.data?.toSdkCipherView() ?? undefined,
+              // TESTONLY: the local SDK build requires metadata; 1182 does not. Remove with the patch.
+              metadata: {
+                itemId: asUuid(this.data?.data?.id),
+                folderName: undefined,
+                collectionNames: undefined,
+                organizationName: undefined,
+                creationDate: undefined,
+                revisionDate: undefined,
+              },
             }
           : undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,

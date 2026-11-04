@@ -365,6 +365,7 @@ describe("CipherAttachmentsComponent", () => {
           mockUserId,
           false,
           expect.objectContaining({ onProgress: expect.any(Function) }),
+          false,
         );
       });
 
@@ -380,6 +381,29 @@ describe("CipherAttachmentsComponent", () => {
           mockUserId,
           true,
           expect.objectContaining({ onProgress: expect.any(Function) }),
+          false,
+        );
+      });
+
+      it("defaults the legacy v1 upload option to off", async () => {
+        await setupWithOrganization(false);
+
+        expect(component.attachmentForm.controls.useLegacyV1Upload.value).toBe(false);
+      });
+
+      it("calls `saveAttachmentWithServer` with useLegacyV1Upload=true when the option is checked", async () => {
+        await setupWithOrganization(false);
+        component.attachmentForm.controls.useLegacyV1Upload.setValue(true);
+
+        await component.submit();
+
+        expect(saveAttachmentWithServer).toHaveBeenCalledWith(
+          cipherDomain,
+          file,
+          mockUserId,
+          false,
+          expect.objectContaining({ onProgress: expect.any(Function) }),
+          true,
         );
       });
 

@@ -215,7 +215,13 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     admin?: boolean,
     options?: UploadOptions,
+    useLegacyV1Upload?: boolean,
   ): Promise<Cipher>;
+  /**
+   * @param useLegacyV1Upload - TESTONLY: upload through the deprecated single-request v1 endpoint,
+   * encrypting the file with the cipher/vault key directly (no per-attachment key). Upload
+   * progress is not reported on this path.
+   */
   abstract saveAttachmentRawWithServer(
     cipher: Cipher,
     filename: string,
@@ -223,6 +229,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     admin?: boolean,
     options?: UploadOptions,
+    useLegacyV1Upload?: boolean,
   ): Promise<Cipher>;
   /**
    * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.

@@ -1991,6 +1991,9 @@
   "attachmentSaved": {
     "message": "Attachment saved"
   },
+  "useLegacyV1UploadFlow": {
+    "message": "Use legacy v1 upload flow"
+  },
   "file": {
     "message": "File"
   },
