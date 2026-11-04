@@ -243,7 +243,10 @@ pub fn requires_browser(rp_id: &str) -> bool {
 ///   the callback URL to the system, which passes it to the app's URL scheme handler, where other
 ///   apps may see it, so it must not contain secrets unencrypted. The handler must pass it to
 ///   [deliver_callback]. `url` must have a `state` parameter in its fragment, which the page
-///   returns in the callback URL's fragment, to identify the session.
+///   returns in the callback URL's fragment, to identify the session. Where the app can't receive
+///   URLs with its scheme, e.g. in an AppImage, the page can instead return an `http` callback URL
+///   to a localhost port that the app listens on, with the `state` in its query; pass `http` as
+///   `callback_scheme`.
 ///
 /// # Arguments
 /// - `window_handle`: As for [get_assertion]. Unused on Linux.

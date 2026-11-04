@@ -82,14 +82,20 @@ impl Canceller {
 }
 
 /// Delivers `url` to the session waiting for it, if any, which is identified by its scheme and
-/// the `state` parameter in its fragment. Returns whether it was delivered.
+/// the `state` parameter in its fragment, or in its query for `http` callbacks to a localhost port,
+/// since browsers don't send the fragment to a server. Returns whether it was delivered.
 ///
 /// Only the first URL for a session is delivered.
 pub(super) fn deliver(url: &str) -> bool {
     let Some((scheme, _)) = url.split_once(':') else {
         return false;
     };
-    let Some(state) = fragment_param(url, "state") else {
+    let state = if scheme.eq_ignore_ascii_case("http") {
+        query_param(url, "state")
+    } else {
+        fragment_param(url, "state")
+    };
+    let Some(state) = state else {
         return false;
     };
     let mut pending = lock_pending();
@@ -106,6 +112,16 @@ pub(super) fn deliver(url: &str) -> bool {
 pub(super) fn fragment_param<'a>(url: &'a str, name: &str) -> Option<&'a str> {
     let (_, fragment) = url.split_once('#')?;
     fragment
+        .split('&')
+        .filter_map(|param| param.split_once('='))
+        .find_map(|(key, value)| (key == name).then_some(value))
+}
+
+/// Returns the raw value of the parameter `name` in the query of `url`.
+fn query_param<'a>(url: &'a str, name: &str) -> Option<&'a str> {
+    let url = url.split_once('#').map_or(url, |(url, _)| url);
+    let (_, query) = url.split_once('?')?;
+    query
         .split('&')
         .filter_map(|param| param.split_once('='))
         .find_map(|(key, value)| (key == name).then_some(value))
@@ -170,6 +186,18 @@ mod tests {
         ));
         assert!(!deliver("bitwarden://webauthn-callback?state=other-state"));
         assert!(!deliver("other://webauthn-callback#state=other-state"));
+    }
+
+    #[test]
+    fn test_delivers_loopback_callbacks_by_the_state_in_the_query() {
+        let pending = PendingCallback::register("http", "loopback-state").unwrap();
+        let url = "http://127.0.0.1:8065/webauthn-callback?state=loopback-state&response=abc";
+
+        assert!(!deliver(
+            "http://127.0.0.1:8065/webauthn-callback#state=loopback-state"
+        ));
+        assert!(deliver(url));
+        assert_eq!(pending.wait().as_deref(), Some(url));
     }
 
     #[test]

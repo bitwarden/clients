@@ -4,9 +4,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { webauthn } from "@bitwarden/desktop-napi";
 
-import { isLinux } from "../../main/platform-utils.main";
+import { isAppImage, isLinux } from "../../main/platform-utils.main";
 import { WindowMain } from "../../main/window.main";
 import { SafeShell } from "../../platform/main/safe-shell.main";
+import { isDev } from "../../utils";
 
 import type { WebVault } from "./native-webauthn";
 import {
@@ -18,6 +19,7 @@ import {
   parseConnectorResponse,
 } from "./webauthn-connector";
 import { WEBAUTHN_IPC_CHANNELS } from "./webauthn-ipc-channels";
+import { WebAuthnLoopbackCallback } from "./webauthn-loopback-callback";
 
 /** WebAuthn's recommended default timeout, for requests without one. */
 const DEFAULT_TIMEOUT_MS = 300_000;
@@ -160,6 +162,19 @@ export class MainWebAuthnIpcListener {
     }
   }
 
+  /** Requests focus for the main window. The window manager may not give it. */
+  private bringWindowToFront() {
+    const win = this.windowMain.win;
+    if (win == null || win.isDestroyed()) {
+      return;
+    }
+    if (win.isMinimized()) {
+      win.restore();
+    }
+    win.show();
+    win.focus();
+  }
+
   private async getAssertionInBrowser(
     sender: WebContents,
     requestId: string,
@@ -179,32 +194,46 @@ export class MainWebAuthnIpcListener {
     if (!isValidWebVaultUrl(webVault.url, request.origin)) {
       return { error: { name: "SecurityError", message: "The web vault URL is not valid." } };
     }
-    // The connector encrypts its response to a key that doesn't leave the native module.
-    const connectorRequest = webauthn.WebConnectorRequest.start(
-      connectorPageUrl(webVault.url),
-      buildConnectorRequest(request),
-    );
-    const url = connectorRequest.url;
-    const pendingSession = webauthn.webAuthenticationSession(
-      windowHandle,
-      url,
-      CONNECTOR_CALLBACK_SCHEME,
-      cancellation,
-    );
-    if (isLinux()) {
-      // On Linux, the session only waits for the callback. Electron opens the browser with an
-      // activation token, so that it is focused. If it can't be opened, the session times out.
-      this.shell.openExternal(url, UrlType.WebUrl);
-      // The app can't tell whether the browser opened, was focused or was closed, so let the
-      // renderer show that the request continues there, and reopen or cancel it.
-      this.browserSessions.set(requestId, { sender, url });
-      sender.send(WEBAUTHN_IPC_CHANNELS.BROWSER_SESSION_STARTED, requestId);
-    }
+    // AppImages and development builds on Linux don't register the app's URL scheme, so the
+    // connector returns its response to a localhost port instead.
+    const loopback =
+      isLinux() && (isAppImage() || isDev())
+        ? await WebAuthnLoopbackCallback.listen((url) => {
+            // Unlike the URL scheme handler, the callback doesn't activate the app.
+            if (webauthn.deliverCallback(url)) {
+              this.bringWindowToFront();
+            }
+          })
+        : null;
     let session: webauthn.WebAuthenticationSessionResult | null;
+    let connectorRequest: webauthn.WebConnectorRequest;
     try {
+      // The connector encrypts its response to a key that doesn't leave the native module.
+      connectorRequest = webauthn.WebConnectorRequest.start(
+        connectorPageUrl(webVault.url),
+        buildConnectorRequest(request),
+        loopback?.port,
+      );
+      const url = connectorRequest.url;
+      const pendingSession = webauthn.webAuthenticationSession(
+        windowHandle,
+        url,
+        loopback == null ? CONNECTOR_CALLBACK_SCHEME : "http",
+        cancellation,
+      );
+      if (isLinux()) {
+        // On Linux, the session only waits for the callback. Electron opens the browser with an
+        // activation token, so that it is focused. If it can't be opened, the session times out.
+        this.shell.openExternal(url, UrlType.WebUrl);
+        // The app can't tell whether the browser opened, was focused or was closed, so let the
+        // renderer show that the request continues there, and reopen or cancel it.
+        this.browserSessions.set(requestId, { sender, url });
+        sender.send(WEBAUTHN_IPC_CHANNELS.BROWSER_SESSION_STARTED, requestId);
+      }
       session = await this.withBrowserSessionTimeout(pendingSession, request.timeout, cancellation);
     } finally {
       this.browserSessions.delete(requestId);
+      loopback?.close();
     }
     if (session == null) {
       return {

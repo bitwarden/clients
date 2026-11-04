@@ -500,8 +500,13 @@ export declare namespace webauthn {
     /**
      * Starts a request to the connector page at `connectorUrl`. `request` is sent in
      * plaintext in the URL's fragment, but decrypting the response fails if it was modified.
+     *
+     * The connector returns the response to `bitwarden://webauthn-callback`, or, with
+     * `loopbackPort`, to `http://127.0.0.1:<loopbackPort>/webauthn-callback`, for apps that
+     * can't receive `bitwarden://` URLs. Pass `http` as the callback scheme to
+     * `webAuthenticationSession`.
      */
-    static start(connectorUrl: string, request: Uint8Array): WebConnectorRequest
+    static start(connectorUrl: string, request: Uint8Array, loopbackPort?: number | undefined | null): WebConnectorRequest
     /**
      * The URL to open with `webAuthenticationSession`. Its fragment has the `state` that
      * identifies the request.

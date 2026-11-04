@@ -20,12 +20,24 @@ pub struct ConnectorRequest {
 impl ConnectorRequest {
     /// Starts a request to the connector page at `connector_url`. `request` is sent in plaintext
     /// in the URL's fragment, but decrypting the response fails if it was modified.
-    pub fn start(connector_url: &str, request: &[u8]) -> Result<Self, Error> {
+    ///
+    /// The connector returns the response to `bitwarden://webauthn-callback`, or, with
+    /// `loopback_port`, to `http://127.0.0.1:<loopback_port>/webauthn-callback`, for apps that
+    /// can't receive `bitwarden://` URLs, e.g. AppImages on Linux, which don't register the scheme.
+    pub fn start(
+        connector_url: &str,
+        request: &[u8],
+        loopback_port: Option<u16>,
+    ) -> Result<Self, Error> {
         let connector_url = Url::parse(connector_url)
             .map_err(|err| Error::InvalidRequest(format!("Invalid connector URL: {err}")))?;
+        let callback = match loopback_port {
+            Some(port) => CallbackKind::Loopback { port },
+            None => CallbackKind::CustomScheme,
+        };
         let (initiator, _, url) = PendingInitiator::start(
             Connector::WebAuthnAssertion,
-            CallbackKind::CustomScheme,
+            callback,
             &connector_url,
             request,
         )
@@ -78,7 +90,7 @@ mod tests {
 
     #[test]
     fn test_round_trip() {
-        let mut request = ConnectorRequest::start(CONNECTOR_URL, b"options").unwrap();
+        let mut request = ConnectorRequest::start(CONNECTOR_URL, b"options", None).unwrap();
 
         assert!(request.url().starts_with(CONNECTOR_URL));
         let fragment = Url::parse(request.url())
@@ -93,9 +105,18 @@ mod tests {
     }
 
     #[test]
+    fn test_round_trip_through_a_loopback_port() {
+        let mut request = ConnectorRequest::start(CONNECTOR_URL, b"options", Some(8065)).unwrap();
+
+        let callback = respond(request.url(), b"assertion");
+        assert!(callback.starts_with("http://127.0.0.1:8065/webauthn-callback?"));
+        assert_eq!(request.decrypt_response(&callback).unwrap(), b"assertion");
+    }
+
+    #[test]
     fn test_rejects_response_for_another_request() {
-        let mut request = ConnectorRequest::start(CONNECTOR_URL, b"options").unwrap();
-        let other = ConnectorRequest::start(CONNECTOR_URL, b"options").unwrap();
+        let mut request = ConnectorRequest::start(CONNECTOR_URL, b"options", None).unwrap();
+        let other = ConnectorRequest::start(CONNECTOR_URL, b"options", None).unwrap();
 
         let callback = respond(other.url(), b"assertion");
         assert!(matches!(
@@ -107,7 +128,7 @@ mod tests {
     #[test]
     fn test_rejects_invalid_connector_url() {
         assert!(matches!(
-            ConnectorRequest::start("not a url", b"options"),
+            ConnectorRequest::start("not a url", b"options", None),
             Err(Error::InvalidRequest(_))
         ));
     }

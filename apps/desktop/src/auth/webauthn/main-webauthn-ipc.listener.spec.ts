@@ -8,12 +8,13 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { webauthn } from "@bitwarden/desktop-napi";
 
-import { isLinux } from "../../main/platform-utils.main";
+import { isAppImage, isLinux } from "../../main/platform-utils.main";
 import { WindowMain } from "../../main/window.main";
 import { SafeShell } from "../../platform/main/safe-shell.main";
 
 import { MainWebAuthnIpcListener } from "./main-webauthn-ipc.listener";
 import { WEBAUTHN_IPC_CHANNELS } from "./webauthn-ipc-channels";
+import { WebAuthnLoopbackCallback } from "./webauthn-loopback-callback";
 
 jest.mock("electron", () => ({
   ipcMain: { handle: jest.fn() },
@@ -21,6 +22,15 @@ jest.mock("electron", () => ({
 
 jest.mock("../../main/platform-utils.main", () => ({
   isLinux: jest.fn().mockReturnValue(false),
+  isAppImage: jest.fn().mockReturnValue(false),
+}));
+
+jest.mock("../../utils", () => ({
+  isDev: jest.fn().mockReturnValue(false),
+}));
+
+jest.mock("./webauthn-loopback-callback", () => ({
+  WebAuthnLoopbackCallback: { listen: jest.fn() },
 }));
 
 jest.mock("@bitwarden/desktop-napi", () => ({
@@ -267,6 +277,98 @@ describe("MainWebAuthnIpcListener", () => {
 
         expect(shell.openExternal).toHaveBeenCalledWith(connectorUrl, UrlType.WebUrl);
         expect(result.response?.credentialId).toEqual(new Uint8Array([1]));
+      });
+
+      it("receives the callback through the app's URL scheme", async () => {
+        await getAssertion("1");
+
+        expect(WebAuthnLoopbackCallback.listen).not.toHaveBeenCalled();
+        expect((webauthn.WebConnectorRequest.start as jest.Mock).mock.calls[0][2]).toBeUndefined();
+        expect((webauthn.webAuthenticationSession as jest.Mock).mock.calls[0][2]).toBe("bitwarden");
+      });
+
+      describe("in an AppImage, which doesn't register the app's URL scheme", () => {
+        let closeLoopback: jest.Mock;
+
+        beforeEach(() => {
+          (isAppImage as jest.Mock).mockReturnValue(true);
+          closeLoopback = jest.fn();
+          (WebAuthnLoopbackCallback.listen as jest.Mock).mockResolvedValue({
+            port: 43210,
+            close: closeLoopback,
+          });
+        });
+
+        afterEach(() => {
+          (isAppImage as jest.Mock).mockReturnValue(false);
+        });
+
+        it("receives the callback on a localhost port, which it closes afterwards", async () => {
+          const result = (await getAssertion("1")) as webauthn.GetAssertionResult;
+
+          expect((webauthn.WebConnectorRequest.start as jest.Mock).mock.calls[0][2]).toBe(43210);
+          expect((webauthn.webAuthenticationSession as jest.Mock).mock.calls[0][2]).toBe("http");
+          expect(result.response?.credentialId).toEqual(new Uint8Array([1]));
+          expect(closeLoopback).toHaveBeenCalled();
+        });
+
+        it("delivers callbacks from the port to the browser session", async () => {
+          await getAssertion("1");
+          const deliver = (WebAuthnLoopbackCallback.listen as jest.Mock).mock.calls[0][0];
+
+          deliver("http://127.0.0.1:43210/webauthn-callback?state=abc");
+
+          expect(webauthn.deliverCallback).toHaveBeenCalledWith(
+            "http://127.0.0.1:43210/webauthn-callback?state=abc",
+          );
+        });
+
+        describe("bringing the window to the front", () => {
+          let win: Record<string, jest.Mock>;
+
+          async function deliverCallback(delivered: boolean) {
+            await getAssertion("1");
+            const deliver = (WebAuthnLoopbackCallback.listen as jest.Mock).mock.calls[0][0];
+            (webauthn.deliverCallback as jest.Mock).mockReturnValue(delivered);
+            deliver("http://127.0.0.1:43210/webauthn-callback?state=abc");
+          }
+
+          beforeEach(() => {
+            win = {
+              isDestroyed: jest.fn().mockReturnValue(false),
+              isMinimized: jest.fn().mockReturnValue(true),
+              restore: jest.fn(),
+              show: jest.fn(),
+              focus: jest.fn(),
+              getNativeWindowHandle: jest.fn().mockReturnValue(windowHandle),
+            };
+            Object.assign(windowMain.win!, win, { webContents: sender });
+          });
+
+          it("restores, shows and focuses it when the callback is delivered", async () => {
+            await deliverCallback(true);
+
+            expect(win.restore).toHaveBeenCalled();
+            expect(win.show).toHaveBeenCalled();
+            expect(win.focus).toHaveBeenCalled();
+          });
+
+          it("leaves it alone for callbacks that no session is waiting for", async () => {
+            await deliverCallback(false);
+
+            expect(win.focus).not.toHaveBeenCalled();
+          });
+        });
+
+        it("closes the port when the request can't be started", async () => {
+          (webauthn.WebConnectorRequest.start as jest.Mock).mockImplementation(() => {
+            throw new Error("Invalid connector URL");
+          });
+
+          await getAssertion("1");
+
+          expect(closeLoopback).toHaveBeenCalled();
+        });
       });
 
       it("tells the renderer that the request continues in the browser", async () => {

@@ -207,9 +207,18 @@ pub mod webauthn {
     impl WebConnectorRequest {
         /// Starts a request to the connector page at `connectorUrl`. `request` is sent in
         /// plaintext in the URL's fragment, but decrypting the response fails if it was modified.
+        ///
+        /// The connector returns the response to `bitwarden://webauthn-callback`, or, with
+        /// `loopbackPort`, to `http://127.0.0.1:<loopbackPort>/webauthn-callback`, for apps that
+        /// can't receive `bitwarden://` URLs. Pass `http` as the callback scheme to
+        /// `webAuthenticationSession`.
         #[napi(factory)]
-        pub fn start(connector_url: String, request: Uint8Array) -> napi::Result<Self> {
-            let inner = core::ConnectorRequest::start(&connector_url, &request)
+        pub fn start(
+            connector_url: String,
+            request: Uint8Array,
+            loopback_port: Option<u16>,
+        ) -> napi::Result<Self> {
+            let inner = core::ConnectorRequest::start(&connector_url, &request, loopback_port)
                 .map_err(|err| napi::Error::from_reason(err.to_string()))?;
             Ok(Self { inner })
         }
