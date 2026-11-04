@@ -105,7 +105,10 @@ export abstract class TranslationService implements TranslationServiceAbstractio
         sensitivity: "base",
       });
     } catch {
-      this.collator = null;
+      this.collator = new Intl.Collator(this.defaultLocale, {
+        numeric: true,
+        sensitivity: "base",
+      });
     }
 
     if (this.supportedTranslationLocales.indexOf(this.translationLocale) === -1) {
