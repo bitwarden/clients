@@ -1630,6 +1630,7 @@ export default class MainBackground implements BackgroundRefresher {
       this.processReloadService,
       this.logService,
       this.keyService,
+      this.sdkService,
       this,
     );
 
