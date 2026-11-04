@@ -1,15 +1,15 @@
 import type {
   AccessRequestId,
   AccessRequestView,
-} from "@bitwarden/bit-common/pam/abstractions/access-lease";
-import { ElapsedLabel, elapsedLabel } from "@bitwarden/bit-common/pam/date/elapsed";
+} from "@bitwarden/bit-pam/abstractions/access-lease";
+import { ElapsedLabel, elapsedLabel } from "@bitwarden/bit-pam/date/elapsed";
 import {
   durationText,
   exactWindow,
   LabelValue,
   reasonText,
   relativeStart,
-} from "@bitwarden/bit-common/pam/helpers/approval-window";
+} from "@bitwarden/bit-pam/helpers/approval-window";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 import {

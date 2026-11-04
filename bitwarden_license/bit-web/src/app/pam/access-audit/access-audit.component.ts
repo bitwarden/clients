@@ -19,7 +19,7 @@ import { firstValueFrom, map, switchMap } from "rxjs";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
-import { selectedFilterStrings } from "@bitwarden/bit-common/pam/helpers/selected-filter-strings";
+import { selectedFilterStrings } from "@bitwarden/bit-pam/helpers/selected-filter-strings";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";

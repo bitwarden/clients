@@ -13,7 +13,7 @@ import { of } from "rxjs";
 import { findByLabelText, findByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { AccessRuleSdkService, AccessRuleView } from "@bitwarden/bit-common/pam";
+import { AccessRuleSdkService, AccessRuleView } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";

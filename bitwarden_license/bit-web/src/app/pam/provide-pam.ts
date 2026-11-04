@@ -8,19 +8,19 @@ import {
   AccessRequestSdkService,
   AccessRuleSdkService,
   LeasingErrorService,
-} from "@bitwarden/bit-common/pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
-import { CipherViewBannerComponent } from "@bitwarden/bit-common/pam/cipher-view-banner/cipher-view-banner.component";
-import { ItemDetailsStateBadgeComponent } from "@bitwarden/bit-common/pam/item-details-state-badge/item-details-state-badge.component";
-import { AccessLeasesSdkService } from "@bitwarden/bit-common/pam/services/access-leases-sdk.service";
-import { AccessRequestCancelService } from "@bitwarden/bit-common/pam/services/access-request-cancel.service";
-import { AccessRequestsSdkService } from "@bitwarden/bit-common/pam/services/access-requests-sdk.service";
-import { AccessRulesSdkService } from "@bitwarden/bit-common/pam/services/access-rules-sdk.service";
-import { ApprovalsSdkService } from "@bitwarden/bit-common/pam/services/approvals-sdk.service";
-import { DefaultAccessEventService } from "@bitwarden/bit-common/pam/services/default-access-event.service";
-import { DefaultAccessRefreshService } from "@bitwarden/bit-common/pam/services/default-access-refresh.service";
-import { DefaultLeasingErrorService } from "@bitwarden/bit-common/pam/services/default-leasing-error.service";
-import { MyLeasesService } from "@bitwarden/bit-common/pam/services/my-leases.service";
+} from "@bitwarden/bit-pam";
+import { AccessBadgeTickerService } from "@bitwarden/bit-pam/access-state-badge/access-badge-ticker.service";
+import { CipherViewBannerComponent } from "@bitwarden/bit-pam/cipher-view-banner/cipher-view-banner.component";
+import { ItemDetailsStateBadgeComponent } from "@bitwarden/bit-pam/item-details-state-badge/item-details-state-badge.component";
+import { AccessLeasesSdkService } from "@bitwarden/bit-pam/services/access-leases-sdk.service";
+import { AccessRequestCancelService } from "@bitwarden/bit-pam/services/access-request-cancel.service";
+import { AccessRequestsSdkService } from "@bitwarden/bit-pam/services/access-requests-sdk.service";
+import { AccessRulesSdkService } from "@bitwarden/bit-pam/services/access-rules-sdk.service";
+import { ApprovalsSdkService } from "@bitwarden/bit-pam/services/approvals-sdk.service";
+import { DefaultAccessEventService } from "@bitwarden/bit-pam/services/default-access-event.service";
+import { DefaultAccessRefreshService } from "@bitwarden/bit-pam/services/default-access-refresh.service";
+import { DefaultLeasingErrorService } from "@bitwarden/bit-pam/services/default-leasing-error.service";
+import { MyLeasesService } from "@bitwarden/bit-pam/services/my-leases.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
