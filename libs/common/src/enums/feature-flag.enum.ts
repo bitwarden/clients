@@ -29,6 +29,7 @@ export enum FeatureFlag {
   // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
+  PM46060_DesktopWebAuthnClientWindows = "pm-46060-desktop-webauthn-client-windows",
 
   /* Autofill */
   FillAssistTargetingRules = "fill-assist-targeting-rules",
@@ -181,6 +182,7 @@ export const DefaultFeatureFlagValue = {
   // TODO: PM-34091 - Remove this default value entry.
   [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
   [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
+  [FeatureFlag.PM46060_DesktopWebAuthnClientWindows]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,

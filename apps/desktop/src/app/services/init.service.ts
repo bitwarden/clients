@@ -9,9 +9,9 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
-import { DeviceType } from "@bitwarden/common/enums";
 import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -28,6 +28,7 @@ import { limitPerformanceMeasurements, LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { installNativeWebAuthn } from "../../auth/webauthn/native-webauthn";
+import { nativeWebAuthnEnabled$ } from "../../auth/webauthn/native-webauthn-feature";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -43,6 +44,7 @@ import { UpdateRestartService } from "./update-restart.service";
 @Injectable()
 export class InitService {
   private environmentService = inject(EnvironmentService);
+  private configService = inject(ConfigService);
 
   constructor(
     @Inject(WINDOW) private win: Window,
@@ -81,15 +83,18 @@ export class InitService {
   init() {
     return async () => {
       limitPerformanceMeasurements();
-      // Electron does not use the platform's passkey APIs, so route WebAuthn requests to them.
-      // Only Windows is implemented so far.
-      if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-        // WebAuthn requests are made on behalf of the web vault of the selected server.
-        installNativeWebAuthn(this.win, ipc.auth.webauthn, async () => {
+      // Electron does not use the platform's passkey APIs, so route WebAuthn requests to them,
+      // where the platform's feature flag is on. WebAuthn requests are made on behalf of the web
+      // vault of the selected server.
+      installNativeWebAuthn(
+        this.win,
+        ipc.auth.webauthn,
+        () => firstValueFrom(nativeWebAuthnEnabled$(this.platformUtilsService, this.configService)),
+        async () => {
           const env = await firstValueFrom(this.environmentService.environment$);
           return new URL(env.getWebVaultUrl()).origin;
-        });
-      }
+        },
+      );
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);

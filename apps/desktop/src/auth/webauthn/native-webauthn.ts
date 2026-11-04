@@ -18,7 +18,8 @@ type ExtensionInputs = {
 
 /**
  * Replaces `navigator.credentials.get()` for public key credentials with the platform's passkey
- * APIs, which Electron does not use. Other credential requests are passed through.
+ * APIs, which Electron does not use, while `enabled` resolves to `true`. Other credential requests
+ * are passed through.
  *
  * Requests are made for the origin returned by `getOrigin`, since the renderer's own origin is
  * not a web origin. Aborting the request's `signal` closes the platform's prompt.
@@ -30,6 +31,7 @@ type ExtensionInputs = {
 export function installNativeWebAuthn(
   win: Window,
   ipc: NativeWebAuthnIpc,
+  enabled: () => Promise<boolean>,
   getOrigin: () => Promise<string>,
 ): void {
   const credentials = win.navigator.credentials;
@@ -37,7 +39,7 @@ export function installNativeWebAuthn(
   Object.defineProperty(credentials, "get", {
     configurable: true,
     value: async (options?: CredentialRequestOptions): Promise<Credential | null> => {
-      if (options?.publicKey == null) {
+      if (options?.publicKey == null || !(await enabled())) {
         return originalGet(options);
       }
 

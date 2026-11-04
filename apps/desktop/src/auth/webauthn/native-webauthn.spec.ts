@@ -14,6 +14,7 @@ describe("installNativeWebAuthn", () => {
   let originalGet: jest.Mock;
   let ipc: MockProxy<NativeWebAuthnIpc>;
   let credentials: CredentialsContainer;
+  let enabled: boolean;
 
   const assertion: webauthn.AssertionResponse = {
     credentialId: new Uint8Array([1, 2, 3]),
@@ -37,7 +38,22 @@ describe("installNativeWebAuthn", () => {
     ipc.getAssertion.mockResolvedValue({ response: assertion });
     credentials = { get: originalGet } as unknown as CredentialsContainer;
     const win = { navigator: { credentials } } as unknown as Window;
-    installNativeWebAuthn(win, ipc, () => Promise.resolve("https://vault.example.com"));
+    enabled = true;
+    installNativeWebAuthn(
+      win,
+      ipc,
+      () => Promise.resolve(enabled),
+      () => Promise.resolve("https://vault.example.com"),
+    );
+  });
+
+  it("passes through public key requests when it isn't enabled", async () => {
+    enabled = false;
+
+    const result = await credentials.get({ publicKey: { challenge: new Uint8Array([1]) } });
+
+    expect(result).toBe("original");
+    expect(ipc.getAssertion).not.toHaveBeenCalled();
   });
 
   it("passes through requests that are not for public key credentials", async () => {
