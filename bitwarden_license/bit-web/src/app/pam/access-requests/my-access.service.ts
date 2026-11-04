@@ -25,9 +25,9 @@ import {
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
+  isLeaseLive,
 } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam/access-state-badge/access-badge-ticker.service";
-import { isLeaseLive } from "@bitwarden/bit-pam/helpers/lease-liveness";
+import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";

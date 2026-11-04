@@ -9,17 +9,16 @@ import {
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { EMPTY, switchMap } from "rxjs";
 
-import { formatRemaining, AccessBadgeState, ENDING_SOON_THRESHOLD_MS } from "@bitwarden/bit-pam";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
-
-import { formatRemaining } from "../date/format-remaining";
-
 import {
+  formatRemaining,
   ACCESS_BADGE_LOOK,
   AccessBadgeState,
   ENDING_SOON_THRESHOLD_MS,
-} from "./access-badge-state";
+} from "@bitwarden/bit-pam";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
+
+
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
 type BadgeIcon =

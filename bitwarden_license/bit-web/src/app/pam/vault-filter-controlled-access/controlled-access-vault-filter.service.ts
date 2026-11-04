@@ -12,12 +12,12 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AccessRequestSdkService } from "@bitwarden/bit-pam/abstractions/access-request-sdk.service";
 import {
+  AccessRequestSdkService,
   ACCESS_BADGE_LOOK,
   AccessBadgeState,
   cipherAccessBadgeState,
-} from "@bitwarden/bit-pam/access-state-badge/access-badge-state";
+} from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
