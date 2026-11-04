@@ -12,7 +12,8 @@ export interface ImportDestinationCollections {
 }
 
 export abstract class ImportDestinationServiceAbstraction {
-  /** Re-emits when orgs, collections or policies change. Errors if any lookup fails. */
+  /** Re-emits when orgs, policies or the user's collections change. An organization's admin
+   *  collections are read once per subscription. Errors if any lookup fails. */
   abstract readonly destinations$: Observable<ImportDestinations>;
 
   /**

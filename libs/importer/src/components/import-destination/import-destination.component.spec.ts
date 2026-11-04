@@ -1490,18 +1490,22 @@ describe("ImportDestinationComponent", () => {
         expect(continueSpy).toHaveBeenCalledTimes(1);
       });
 
-      it("clears the staged items even when showing the result fails after the import", async () => {
+      it("clears the staged items and continues even when showing the result fails after the import", async () => {
         orgImport();
         stageParsed();
         await setup();
         dialogService.open.mockImplementation(() => {
-          throw new Error("dialog failed");
+          throw new Error("dialog failed for Acme Co");
         });
+        const continueSpy = jest.fn();
+        component().continue.subscribe(continueSpy);
 
-        await expect(submit()).rejects.toThrow("dialog failed");
+        await submit();
 
         expect(importService.importImportResult).toHaveBeenCalledTimes(1);
+        expect(logService.error).toHaveBeenCalledWith("Error showing import result:", "Error");
         expect(stagingService.current()).toBeUndefined();
+        expect(continueSpy).toHaveBeenCalledTimes(1);
       });
 
       it("adds no button for a personal import into an organization, as only the admin console has one", async () => {

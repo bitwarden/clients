@@ -285,7 +285,7 @@ describe("ImportUpgradeService", () => {
       result.folders = [folder];
       result.folderRelationships = [[0, 0]];
 
-      importService.toOrganizationShape(result, "org-1");
+      importService.toOrganizationShape(result, "org-1" as OrganizationId);
 
       expect(result.folders).toEqual([]);
       expect(result.folderRelationships).toEqual([]);

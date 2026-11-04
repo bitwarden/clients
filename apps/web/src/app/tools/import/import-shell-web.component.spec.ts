@@ -141,4 +141,12 @@ describe("ImportShellWebComponent when only the organization in the URL changes"
     expect(shellServices().staging).toBe(before.staging);
     expect(ScreenComponent.instances).toBe(1);
   });
+
+  it("fails for an organization that is not an id, rather than opening the personal import", async () => {
+    await expect(
+      harness.navigateByUrl("/organizations/not-an-id/settings/tools/import"),
+    ).rejects.toThrow("Invalid OrganizationId");
+
+    expect(ScreenComponent.instances).toBe(0);
+  });
 });

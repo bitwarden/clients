@@ -50,7 +50,7 @@ import { KeeperRegion } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
 import {
   CredentialKind,
-  ImportDestinations,
+  ImportDestinationsState,
   ImportOption,
   ImportResult,
   ImportResultError,
@@ -71,6 +71,7 @@ import {
 } from "../../services";
 import { chromiumLoginsToCsv } from "../chrome/chromium-login-csv";
 import { FilePasswordPromptComponent, ImportErrorDialogComponent } from "../dialog";
+import { errorName } from "../error-name";
 import { pickerIconFor } from "../import-source-select/import-source-picker-metadata";
 import {
   pickerAlwaysPromptsFormat,
@@ -100,9 +101,6 @@ import {
   vendorSupportsPasteShapeNarrowing,
 } from "./paste-content-shape";
 import { presentImportOutcome } from "./present-import-outcome";
-
-type DestinationsState =
-  { status: "pending" } | { status: "error" } | { status: "ready"; value: ImportDestinations };
 
 /** How import data is provided: vendor direct importer, Chromium importer, or file/paste. */
 type ImportStrategy = "direct" | "chromium" | "manual";
@@ -391,17 +389,13 @@ export class ImportControlsComponent {
   // blockedByPersonalOwnershipPolicy).
   private readonly destinations = toSignal(
     this.destinationService.destinations$.pipe(
-      map((value): DestinationsState => ({ status: "ready", value })),
+      map((value): ImportDestinationsState => ({ status: "ready", value })),
       catchError((error: unknown) => {
-        // Name only: the message can carry organization or collection names.
-        this.logService.error(
-          "Error loading import destinations:",
-          error instanceof Error ? error.name : "unknown error",
-        );
-        return of<DestinationsState>({ status: "error" });
+        this.logService.error("Error loading import destinations:", errorName(error));
+        return of<ImportDestinationsState>({ status: "error" });
       }),
     ),
-    { initialValue: { status: "pending" } as DestinationsState },
+    { initialValue: { status: "pending" } as ImportDestinationsState },
   );
 
   protected readonly destinationsPending = computed(() => this.destinations().status === "pending");

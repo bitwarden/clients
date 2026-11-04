@@ -53,3 +53,7 @@ export type ImportDestinations = {
   /** False when the user has nowhere to choose from, so location selection is skipped. */
   hasStep: boolean;
 };
+
+/** A component's view of the destination lookup: still loading, failed, or loaded. */
+export type ImportDestinationsState =
+  { status: "pending" } | { status: "error" } | { status: "ready"; value: ImportDestinations };

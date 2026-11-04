@@ -5,16 +5,16 @@ import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { catchError, distinctUntilChanged, filter, map, of, skip, startWith } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ProgressBarComponent, ScrollLayoutService, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ImportDestinationKind, ImportDestinations } from "../../models";
+import { ImportDestinationKind, ImportDestinationsState } from "../../models";
 import { ImportDestinationServiceAbstraction } from "../../services";
+import { errorName } from "../error-name";
 import { IMPORT_DESTINATION_ROUTE_PATH } from "../import-destination/import-destination-route";
 
 type ImportStep = 1 | 2 | 3;
-
-type DestinationsState = { resolved: boolean; value: ImportDestinations | undefined };
 
 /**
  * The "Select source" / "Import data" / "Select vault" heading, progress bar, and step-count text
@@ -34,6 +34,7 @@ export class ImportShellProgressComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
+  private readonly logService = inject(LogService);
   private readonly scrollLayout = inject(ScrollLayoutService);
 
   private readonly destinationService = inject(ImportDestinationServiceAbstraction);
@@ -55,29 +56,37 @@ export class ImportShellProgressComponent {
     { initialValue: this.stepSnapshot() },
   );
 
-  // A failed lookup leaves `value` unset: the bar keeps two steps, and credential parsing's
+  // A failed lookup leaves no destinations: the bar keeps two steps, and credential parsing's
   // Continue fails closed on the same lookup.
-  private readonly destinations = toSignal(
+  private readonly destinationsState = toSignal(
     this.destinationService.destinations$.pipe(
-      map((value): DestinationsState => ({ resolved: true, value })),
-      catchError(() => of<DestinationsState>({ resolved: true, value: undefined })),
+      map((value): ImportDestinationsState => ({ status: "ready", value })),
+      catchError((error: unknown) => {
+        this.logService.error("Error loading import destinations:", errorName(error));
+        return of<ImportDestinationsState>({ status: "error" });
+      }),
     ),
-    { initialValue: { resolved: false, value: undefined } as DestinationsState },
+    { initialValue: { status: "pending" } as ImportDestinationsState },
   );
+
+  private readonly destinations = computed(() => {
+    const state = this.destinationsState();
+    return state.status === "ready" ? state.value : undefined;
+  });
 
   // Hides the count rather than flashing "of 2" and then "of 3". The location page only exists
   // when the user has somewhere to choose.
   private readonly countPending = computed(
-    () => this.currentStep() !== 3 && !this.destinations().resolved,
+    () => this.currentStep() !== 3 && this.destinationsState().status === "pending",
   );
 
   protected readonly totalSteps = computed(() =>
-    this.currentStep() === 3 || this.destinations().value?.hasStep ? 3 : 2,
+    this.currentStep() === 3 || this.destinations()?.hasStep ? 3 : 2,
   );
 
   // "Location" wording whenever a My items card is offered.
   private readonly destinationHeadingKey = computed(() =>
-    this.destinations().value?.options.some((o) => o.kind === ImportDestinationKind.MyItems)
+    this.destinations()?.options.some((o) => o.kind === ImportDestinationKind.MyItems)
       ? "selectLocation"
       : "selectVault",
   );
@@ -97,7 +106,7 @@ export class ImportShellProgressComponent {
   );
   protected readonly stepText = computed(() =>
     this.countPending()
-      ? ""
+      ? undefined
       : this.i18nService.t("importSourceStepCount", this.currentStep(), this.totalSteps()),
   );
 

@@ -3,7 +3,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs";
 
-import { IMPORT_ORGANIZATION_ID_ROUTE_PARAM } from "@bitwarden/importer-ui";
+import { importOwnerFromParams } from "@bitwarden/importer-ui";
 
 import { ImportShellContentWebComponent } from "./import-shell-content-web.component";
 
@@ -18,7 +18,10 @@ import { ImportShellContentWebComponent } from "./import-shell-content-web.compo
 export class ImportShellWebComponent {
   protected readonly organizationKey = toSignal(
     inject(ActivatedRoute).paramMap.pipe(
-      map((params) => params.get(IMPORT_ORGANIZATION_ID_ROUTE_PARAM) ?? ""),
+      map((params) => {
+        const owner = importOwnerFromParams(params);
+        return owner.kind === "organization" ? owner.organizationId : "personal";
+      }),
     ),
     { requireSync: true },
   );

@@ -8,10 +8,10 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
-  IMPORT_ORGANIZATION_ID_ROUTE_PARAM,
   IMPORT_RETURN_TO_PARAM,
+  ImportOwner,
+  importOwnerFromParams,
   ImportScope,
   importScopeFromQuery,
   navigateCarryingImportParams,
@@ -26,18 +26,9 @@ export class ImportRouteContext {
   private readonly organizationService = inject(OrganizationService);
   private readonly accountService = inject(AccountService);
 
-  /** The organization the import belongs to, or undefined for the personal import. */
-  organizationId(route: ActivatedRoute): OrganizationId | undefined {
-    const param = route.snapshot.paramMap.get(IMPORT_ORGANIZATION_ID_ROUTE_PARAM);
-    if (param == null) {
-      return undefined;
-    }
-    if (!isId<OrganizationId>(param)) {
-      throw new Error(
-        `Invalid OrganizationId provided in route parameter \`${IMPORT_ORGANIZATION_ID_ROUTE_PARAM}\``,
-      );
-    }
-    return param;
+  /** Whose import this is, as the route says. Throws for an organization id that isn't an id. */
+  owner(route: ActivatedRoute): ImportOwner {
+    return importOwnerFromParams(route.snapshot.paramMap);
   }
 
   /** Where an organization import was started from, carried in the URL across its screens. */
@@ -60,24 +51,22 @@ export class ImportRouteContext {
   }
 
   /** The first import screen, to which the others add their own segments. */
-  basePath(organizationId: OrganizationId | undefined): string[] {
-    return organizationId == null
+  basePath(owner: ImportOwner): string[] {
+    return owner.kind === "personal"
       ? ["/tools/import"]
-      : ["/organizations", organizationId, "settings", "tools", "import"];
+      : ["/organizations", owner.organizationId, "settings", "tools", "import"];
   }
 
   /** After an import: for a personal import, the page it was started from (All items if none); for
    *  an organization's, its vault when the user can open it. A user who can't stays where they are,
    *  as the legacy import does. */
-  async viewImportedItems(
-    organizationId: OrganizationId | undefined,
-    route: ActivatedRoute,
-  ): Promise<void> {
-    if (organizationId == null) {
+  async viewImportedItems(owner: ImportOwner, route: ActivatedRoute): Promise<void> {
+    if (owner.kind === "personal") {
       await this.router.navigate(vaultCommandsAfterImport(route));
       return;
     }
 
+    const { organizationId } = owner;
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const organization = await firstValueFrom(
       this.organizationService

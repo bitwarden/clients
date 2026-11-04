@@ -36,7 +36,12 @@
             @for (card of cards(); track card.id) {
               <bit-form-control-card>
                 <bit-icon-tile slot="start" [icon]="card.icon" />
-                <input type="radio" bitRadio [value]="card.id" />
+                <input
+                  type="radio"
+                  bitRadio
+                  [id]="'import-destination_radio_' + $index"
+                  [value]="card.id"
+                />
                 <bit-label>{{ card.label }}</bit-label>
                 <bit-hint>{{ card.hint }}</bit-hint>
               </bit-form-control-card>

@@ -14,9 +14,7 @@ import { ImportRouteContext } from "./import-route-context";
 export class ImportSourceSelectWebComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly routeContext = inject(ImportRouteContext);
-  private readonly basePath = this.routeContext.basePath(
-    this.routeContext.organizationId(this.route),
-  );
+  private readonly basePath = this.routeContext.basePath(this.routeContext.owner(this.route));
 
   protected readonly initialSource = importSourceFromQuery(this.route);
 

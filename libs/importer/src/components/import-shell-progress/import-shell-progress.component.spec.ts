@@ -21,6 +21,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, throwError } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ProgressBarComponent, ScrollLayoutService, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -64,9 +65,13 @@ describe("ImportShellProgressComponent", () => {
   let destinations$: BehaviorSubject<ImportDestinations>;
   let destinationService: MockProxy<ImportDestinationServiceAbstraction>;
   let liveAnnouncer: MockProxy<LiveAnnouncer>;
+  let logService: MockProxy<LogService>;
+  let translate: jest.Mock<string, [string, ...unknown[]]>;
   let scrollElement: HTMLElement;
 
   beforeEach(() => {
+    logService = mock<LogService>();
+    translate = jest.fn((key: string) => key);
     onDestinationRoute = false;
     destinations$ = new BehaviorSubject<ImportDestinations>(noStep);
     // Assigned after mock(): a property passed to mock() is wrapped and its subscribe goes silent.
@@ -114,7 +119,8 @@ describe("ImportShellProgressComponent", () => {
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: route },
         { provide: ImportDestinationServiceAbstraction, useValue: destinationService },
-        { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
+        { provide: I18nService, useValue: mock<I18nService>({ t: translate }) },
+        { provide: LogService, useValue: logService },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: ScrollLayoutService, useValue: scrollLayout },
       ],
@@ -307,20 +313,44 @@ describe("ImportShellProgressComponent", () => {
     hasImportTypeParam = false;
     await setup();
 
-    expect(component()["stepText"]()).toBe("");
+    expect(component()["stepText"]()).toBeUndefined();
     expect(component()["progressValue"]()).toBe(0);
     expect(liveAnnouncer.announce).toHaveBeenCalledWith("importSourceBreadcrumb", "polite");
   });
 
-  it("keeps two steps when the destination lookup fails", async () => {
+  it("gives the progress bar no accessible name or value text of its own until the count resolves", async () => {
+    (destinationService as { destinations$: unknown }).destinations$ = new Subject().asObservable();
+    hasImportTypeParam = false;
+    await setup();
+
+    const bar: ProgressBarComponent = fixture.debugElement.query(
+      By.directive(ProgressBarComponent),
+    ).componentInstance;
+    expect(bar.accessibleName()).toBeUndefined();
+    expect(bar.ariaValueText()).toBeUndefined();
+  });
+
+  it("names the progress bar by the step count once it is known", async () => {
+    hasImportTypeParam = false;
+    await setup();
+
+    const bar: ProgressBarComponent = fixture.debugElement.query(
+      By.directive(ProgressBarComponent),
+    ).componentInstance;
+    expect(bar.accessibleName()).toBe("importSourceStepCount");
+    expect(bar.ariaValueText()).toBe("importSourceStepCount");
+  });
+
+  it("keeps two steps and logs only the error name when the destination lookup fails", async () => {
     (destinationService as { destinations$: unknown }).destinations$ = throwError(
-      () => new Error("lookup failed"),
+      () => new Error("lookup failed for Acme Co"),
     );
     hasImportTypeParam = false;
     await setup();
 
     expect(component()["totalSteps"]()).toBe(2);
-    expect(component()["stepText"]()).toBe("importSourceStepCount");
+    expect(translate).toHaveBeenCalledWith("importSourceStepCount", 1, 2);
+    expect(logService.error).toHaveBeenCalledWith("Error loading import destinations:", "Error");
   });
 });
 
@@ -372,6 +402,7 @@ describe("ImportShellProgressComponent (real routing)", () => {
           },
         ]),
         { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: ImportDestinationServiceAbstraction,
           useValue: Object.assign(mock<ImportDestinationServiceAbstraction>(), {
