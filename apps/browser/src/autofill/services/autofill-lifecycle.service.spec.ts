@@ -196,6 +196,28 @@ describe("DefaultAutofillLifecycleService", () => {
 
       expect(service["connectedPorts"].value.size).toBe(0);
     });
+
+    it("reads the disconnect error and retires the port when a page enters the back/forward cache", () => {
+      const port = makePort(0);
+      connectPort(port);
+      const descriptor = Object.getOwnPropertyDescriptor(chrome.runtime, "lastError");
+      const readError = jest.fn(() => ({ message: "The page entered the back/forward cache" }));
+      Object.defineProperty(chrome.runtime, "lastError", { configurable: true, get: readError });
+      try {
+        service["handleInjectScriptPortOnDisconnect"](port);
+        expect(readError).toHaveBeenCalled();
+        expect(service["connectedPorts"].value.size).toBe(0);
+        expect(logService.debug).toHaveBeenCalledWith(
+          "Autofill script port disconnected: The page entered the back/forward cache",
+        );
+      } finally {
+        if (descriptor) {
+          Object.defineProperty(chrome.runtime, "lastError", descriptor);
+        } else {
+          delete (chrome.runtime as any).lastError;
+        }
+      }
+    });
   });
 
   describe("auth status transitions", () => {

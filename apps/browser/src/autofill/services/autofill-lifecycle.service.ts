@@ -394,6 +394,13 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
       return;
     }
 
+    // Chrome reports a port error when a page enters the back/forward cache.
+    // Read it during onDisconnect and retire the frame through the normal path.
+    const disconnectError = chrome.runtime.lastError;
+    if (disconnectError) {
+      this.logService.debug(`Autofill script port disconnected: ${disconnectError.message}`);
+    }
+
     this.portEvent$.next({ type: "disconnect", port });
 
     const tabId = port.sender?.tab?.id;
