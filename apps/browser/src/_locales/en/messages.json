@@ -9075,10 +9075,10 @@
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
   },
-  "requestAccessModalApprovedSuccess": {
-    "message": "Access approved — select Start access to begin."
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "Request submitted — awaiting approval."
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Request submitted. Awaiting approval."
   }
 }
