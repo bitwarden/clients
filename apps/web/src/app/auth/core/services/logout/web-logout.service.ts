@@ -9,6 +9,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { LogoutReason, LogoutService, NewActiveUser } from "@bitwarden/common/auth/logout";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -44,10 +45,15 @@ export class WebLogoutService implements LogoutService {
     private readonly accountService: AccountService,
     private readonly router: Router,
     private readonly processReloadService: ProcessReloadServiceAbstraction,
+    private readonly sdkService: SdkService,
   ) {}
 
   async logout(userId: UserId, logoutReason: LogoutReason): Promise<NewActiveUser | undefined> {
     this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
+
+    // Dispose the SDK client before clearing the user's keys and state, so nothing that
+    // reacts to the logout can still use it.
+    this.sdkService.logout(userId);
 
     // The reason is not shown to the user, because the page reload clears any toast before
     // it can be read.

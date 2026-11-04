@@ -13,6 +13,7 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -57,6 +58,7 @@ export class DesktopLogoutService implements LogoutService {
     private readonly messagingService: MessagingService,
     private readonly router: Router,
     private readonly processReloadService: ProcessReloadServiceAbstraction,
+    private readonly sdkService: SdkService,
   ) {}
 
   /**
@@ -69,6 +71,10 @@ export class DesktopLogoutService implements LogoutService {
 
   async logout(userId: UserId, logoutReason: LogoutReason): Promise<NewActiveUser | undefined> {
     this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
+
+    // Dispose the SDK client before clearing the user's keys and state, so nothing that
+    // reacts to the logout can still use it.
+    this.sdkService.logout(userId);
 
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),

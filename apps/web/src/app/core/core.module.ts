@@ -256,6 +256,7 @@ const safeProviders: SafeProvider[] = [
       AccountService,
       Router,
       ProcessReloadServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({ provide: LogoutService, useExisting: WebLogoutService }),

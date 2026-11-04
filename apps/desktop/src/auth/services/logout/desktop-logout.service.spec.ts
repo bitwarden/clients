@@ -12,6 +12,7 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -47,6 +48,7 @@ describe("DesktopLogoutService", () => {
   let messagingService: MockProxy<MessagingService>;
   let router: MockProxy<Router>;
   let processReloadService: MockProxy<ProcessReloadServiceAbstraction>;
+  let sdkService: MockProxy<SdkService>;
 
   let sut: DesktopLogoutService;
 
@@ -75,6 +77,7 @@ describe("DesktopLogoutService", () => {
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
     processReloadService = mock<ProcessReloadServiceAbstraction>();
+    sdkService = mock<SdkService>();
 
     sut = new DesktopLogoutService(
       logService,
@@ -96,6 +99,7 @@ describe("DesktopLogoutService", () => {
       messagingService,
       router,
       processReloadService,
+      sdkService,
     );
   });
 
@@ -107,6 +111,16 @@ describe("DesktopLogoutService", () => {
       activeUserId,
       "userInitiated",
     );
+  });
+
+  it("disposes the SDK client before it shows the logout reason or clears the user's data", async () => {
+    await sut.logout(activeUserId, "sessionExpired");
+
+    expect(sdkService.logout).toHaveBeenCalledWith(activeUserId);
+    const disposeOrder = sdkService.logout.mock.invocationCallOrder[0];
+    expect(disposeOrder).toBeLessThan(toastService.showToast.mock.invocationCallOrder[0]);
+    expect(disposeOrder).toBeLessThan(eventUploadService.uploadEvents.mock.invocationCallOrder[0]);
+    expect(disposeOrder).toBeLessThan(keyService.clearKeys.mock.invocationCallOrder[0]);
   });
 
   it("clears the user's data, then tells the auth service to log out", async () => {

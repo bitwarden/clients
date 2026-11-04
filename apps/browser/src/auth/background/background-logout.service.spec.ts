@@ -13,6 +13,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
@@ -53,6 +54,7 @@ describe("BackgroundLogoutService", () => {
   let systemService: MockProxy<SystemService>;
   let processReloadService: MockProxy<ProcessReloadServiceAbstraction>;
   let backgroundRefresher: MockProxy<BackgroundRefresher>;
+  let sdkService: MockProxy<SdkService>;
 
   let sut: BackgroundLogoutService;
 
@@ -82,6 +84,7 @@ describe("BackgroundLogoutService", () => {
     systemService = mock<SystemService>();
     processReloadService = mock<ProcessReloadServiceAbstraction>();
     backgroundRefresher = mock<BackgroundRefresher>();
+    sdkService = mock<SdkService>();
 
     sut = new BackgroundLogoutService(
       logService,
@@ -103,6 +106,7 @@ describe("BackgroundLogoutService", () => {
       systemService,
       processReloadService,
       backgroundRefresher,
+      sdkService,
     );
   });
 
@@ -118,6 +122,18 @@ describe("BackgroundLogoutService", () => {
       activeUserId,
       "userInitiated",
     );
+  });
+
+  it("disposes the SDK client before it switches accounts or clears the user's data", async () => {
+    await sut.logout(activeUserId, "userInitiated");
+
+    expect(sdkService.logout).toHaveBeenCalledWith(activeUserId);
+    const disposeOrder = sdkService.logout.mock.invocationCallOrder[0];
+    expect(disposeOrder).toBeLessThan(
+      accountSwitchService.switchAccount.mock.invocationCallOrder[0],
+    );
+    expect(disposeOrder).toBeLessThan(eventUploadService.uploadEvents.mock.invocationCallOrder[0]);
+    expect(disposeOrder).toBeLessThan(keyService.clearKeys.mock.invocationCallOrder[0]);
   });
 
   it("switches to the next account when the active account logs out", async () => {

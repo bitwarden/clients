@@ -1614,6 +1614,7 @@ export default class MainBackground implements BackgroundRefresher {
       this.systemService,
       this.processReloadService,
       this,
+      this.sdkService,
     );
     this.lockService = new ExtensionLockService(
       this.accountService,

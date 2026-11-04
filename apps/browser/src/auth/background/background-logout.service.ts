@@ -13,6 +13,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
@@ -54,10 +55,15 @@ export class BackgroundLogoutService implements LogoutService {
     private readonly systemService: SystemService,
     private readonly processReloadService: ProcessReloadServiceAbstraction,
     private readonly backgroundRefresher: BackgroundRefresher,
+    private readonly sdkService: SdkService,
   ) {}
 
   async logout(userId: UserId, logoutReason: LogoutReason): Promise<NewActiveUser | undefined> {
     this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
+
+    // Dispose the SDK client before clearing the user's keys and state, so nothing that
+    // reacts to the logout can still use it.
+    this.sdkService.logout(userId);
 
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(

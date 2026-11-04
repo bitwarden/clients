@@ -655,6 +655,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       Router,
       ProcessReloadServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({ provide: LogoutService, useExisting: DesktopLogoutService }),

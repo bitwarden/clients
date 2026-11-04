@@ -8,6 +8,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -34,6 +35,7 @@ describe("WebLogoutService", () => {
   let accountService: MockProxy<AccountService>;
   let router: MockProxy<Router>;
   let processReloadService: MockProxy<ProcessReloadServiceAbstraction>;
+  let sdkService: MockProxy<SdkService>;
 
   let sut: WebLogoutService;
 
@@ -51,6 +53,7 @@ describe("WebLogoutService", () => {
     accountService = mock<AccountService>();
     router = mock<Router>();
     processReloadService = mock<ProcessReloadServiceAbstraction>();
+    sdkService = mock<SdkService>();
 
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
 
@@ -68,6 +71,7 @@ describe("WebLogoutService", () => {
       accountService,
       router,
       processReloadService,
+      sdkService,
     );
   });
 
@@ -84,6 +88,15 @@ describe("WebLogoutService", () => {
       userId,
       "userInitiated",
     );
+  });
+
+  it("disposes the SDK client before it uploads events or clears the user's data", async () => {
+    await sut.logout(userId, "userInitiated");
+
+    expect(sdkService.logout).toHaveBeenCalledWith(userId);
+    const disposeOrder = sdkService.logout.mock.invocationCallOrder[0];
+    expect(disposeOrder).toBeLessThan(eventUploadService.uploadEvents.mock.invocationCallOrder[0]);
+    expect(disposeOrder).toBeLessThan(keyService.clearKeys.mock.invocationCallOrder[0]);
   });
 
   it("sets loggingOut to true", async () => {
