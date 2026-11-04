@@ -36,18 +36,14 @@
 
   @if (showFooter$ | async) {
     <popup-footer slot="footer">
-      @if (!cipher.isDeleted) {
-        <button
-          buttonType="primary"
-          type="button"
-          bitButton
-          [disabled]="!canEdit()"
-          (click)="editCipher()"
-        >
+      @if (!cipher.isDeleted && allows(RestrictedCipherAction.Edit)) {
+        <button buttonType="primary" type="button" bitButton (click)="editCipher()">
           {{ "edit" | i18n }}
         </button>
       }
-      @if (canRestore()) {
+      @if (
+        cipher.isDeleted && cipher.permissions.restore && allows(RestrictedCipherAction.Restore)
+      ) {
         <button buttonType="primary" type="button" bitButton [bitAction]="restore">
           {{ "restore" | i18n }}
         </button>

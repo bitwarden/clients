@@ -1,4 +1,5 @@
-import { AccessLeasesSdkService } from "@bitwarden/bit-pam";
+// Deep import: the `pam` barrel pulls Angular components into the worker bundle.
+import { AccessLeasesSdkService } from "@bitwarden/bit-common/pam/services/access-leases-sdk.service";
 import OssMainBackground from "@bitwarden/browser/background/main.background";
 
 import { PamLeaseRefreshService } from "../pam/background/pam-lease-refresh.service";

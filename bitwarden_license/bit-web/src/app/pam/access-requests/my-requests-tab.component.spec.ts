@@ -6,6 +6,7 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
+import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,8 +17,6 @@ import {
   FilterControl,
   ToastService,
 } from "@bitwarden/components";
-
-import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
 
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";

@@ -2,13 +2,11 @@ import { NgZone } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, Observable, Subject } from "rxjs";
 
-import {
-  AccessLeaseSdkService,
-  AccessRefreshService,
-  AccessRequestSdkService,
-} from "@bitwarden/bit-pam";
-import type { CipherAccessStateView } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
+import type { CipherAccessStateView } from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
+import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";

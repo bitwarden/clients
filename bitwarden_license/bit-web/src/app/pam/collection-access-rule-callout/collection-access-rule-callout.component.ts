@@ -3,7 +3,7 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { combineLatest, map, of, switchMap } from "rxjs";
 
-import { AccessRuleView } from "@bitwarden/bit-pam";
+import { AccessRuleView } from "@bitwarden/bit-common/pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";

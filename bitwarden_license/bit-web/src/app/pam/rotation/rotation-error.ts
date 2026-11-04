@@ -1,4 +1,4 @@
-import { apiErrorBodyMessage } from "@bitwarden/bit-pam";
+import { apiErrorBodyMessage } from "@bitwarden/bit-common/pam/abstractions/api-error";
 
 import type { RotationError, TargetSystemCreateError, TargetSystemId } from "./rotation";
 

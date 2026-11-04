@@ -1,4 +1,3 @@
-import { OverlayContainer } from "@angular/cdk/overlay";
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -24,15 +23,10 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { RestrictedCipherAction } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { ShareLinkService } from "@bitwarden/tools-share";
-import {
-  PasswordRepromptService,
-  VAULT_ROW_ACTIONS,
-  type VaultItemsTableRowAction,
-} from "@bitwarden/vault";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
@@ -52,8 +46,6 @@ describe("ItemMoreOptionsComponent", () => {
     open: jest.fn(),
   };
   const cipherService = {
-    get: jest.fn(),
-    decrypt: jest.fn(),
     getFullCipherView: jest.fn(),
     encrypt: jest.fn(),
     updateWithServer: jest.fn(),
@@ -79,8 +71,6 @@ describe("ItemMoreOptionsComponent", () => {
 
   const revealedCipherService = mock<RevealedCipherService>();
   let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
-  /** Contributed menu actions (`VAULT_ROW_ACTIONS`), read when the component is created. */
-  let rowActions: VaultItemsTableRowAction<CipherViewLike>[];
 
   const baseCipher = {
     id: "cipher-1",
@@ -102,12 +92,6 @@ describe("ItemMoreOptionsComponent", () => {
 
   beforeEach(waitForAsync(async () => {
     jest.clearAllMocks();
-    rowActions = [];
-    await setup();
-  }));
-
-  /** Builds the testing module and the component. Call again after a reset to change its inputs. */
-  async function setup() {
     revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
     revealedCipherService.revealed$.mockReturnValue(revealed$);
 
@@ -117,7 +101,6 @@ describe("ItemMoreOptionsComponent", () => {
       imports: [ItemMoreOptionsComponent, NoopAnimationsModule],
       providers: [
         { provide: RevealedCipherService, useValue: revealedCipherService },
-        { provide: VAULT_ROW_ACTIONS, useFactory: () => rowActions },
         { provide: CipherService, useValue: cipherService },
         { provide: VaultPopupAutofillService, useValue: autofillSvc },
 
@@ -161,7 +144,7 @@ describe("ItemMoreOptionsComponent", () => {
     fixture = TestBed.createComponent(ItemMoreOptionsComponent);
     component = fixture.componentInstance;
     component.cipher = baseCipher;
-  }
+  }));
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -436,21 +419,6 @@ describe("ItemMoreOptionsComponent", () => {
       expect(component["allows"](RestrictedCipherAction.UserFields)).toBe(true);
     });
 
-    it("allows edit, but not clone or delete, while a reveal of its restricted cipher is live", () => {
-      const restricted = { ...baseCipher, partial: true } as CipherView;
-      component.cipher = restricted;
-      expect(component["isLocked"]).toBe(true);
-
-      revealed$.next(
-        new Map([["cipher-1" as CipherId, { ...baseCipher, partial: false } as CipherView]]),
-      );
-
-      expect(component["isLocked"]).toBe(false);
-      expect(component.canEdit).toBe(true);
-      expect(component["allows"](RestrictedCipherAction.Delete)).toBe(false);
-      expect(component["allows"](RestrictedCipherAction.Clone)).toBe(false);
-    });
-
     it("allows edit of a revealed view, but not share or assign collections", () => {
       const revealed = { ...baseCipher, partial: false } as CipherView;
       revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
@@ -460,41 +428,6 @@ describe("ItemMoreOptionsComponent", () => {
       expect(component.canAutofill).toBe(true);
       expect(component["allows"](RestrictedCipherAction.Share)).toBe(false);
       expect(component["allows"](RestrictedCipherAction.AssignCollections)).toBe(false);
-    });
-  });
-
-  describe("toggleFavorite", () => {
-    beforeEach(() => {
-      cipherService.get.mockResolvedValue({ id: "cipher-1" });
-    });
-
-    it("saves the stored copy of a revealed row and reads the reveal again", async () => {
-      const revealed = { ...baseCipher, partial: false } as CipherView;
-      revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
-      component.cipher = revealed;
-      cipherService.decrypt.mockResolvedValue({ ...baseCipher, partial: true });
-
-      await component.toggleFavorite();
-
-      expect(cipherService.get).toHaveBeenCalledWith("cipher-1", "UserId");
-      expect(cipherService.updateWithServer).toHaveBeenCalledWith(
-        expect.objectContaining({ partial: true, favorite: true }),
-        "UserId",
-      );
-      expect(revealed.favorite).toBe(false);
-      expect(revealedCipherService.refresh).toHaveBeenCalledWith("UserId", "cipher-1");
-    });
-
-    it("does not read a reveal again for a row without one", async () => {
-      cipherService.decrypt.mockResolvedValue({ ...baseCipher });
-
-      await component.toggleFavorite();
-
-      expect(cipherService.updateWithServer).toHaveBeenCalledWith(
-        expect.objectContaining({ favorite: true }),
-        "UserId",
-      );
-      expect(revealedCipherService.refresh).not.toHaveBeenCalled();
     });
   });
 
@@ -533,157 +466,6 @@ describe("ItemMoreOptionsComponent", () => {
         expect(result).toBe(false);
         done();
       });
-    });
-  });
-
-  describe("restricted cipher menu", () => {
-    let overlayContainer: OverlayContainer;
-
-    const restrictedCipher = { ...baseCipher, partial: true, favorite: false };
-
-    function menuTrigger(): HTMLButtonElement | null {
-      return fixture.nativeElement.querySelector('button[biticonbutton="bwi-ellipsis-v"]');
-    }
-
-    function openMenu(): HTMLElement {
-      fixture.detectChanges();
-      menuTrigger()!.click();
-      fixture.detectChanges();
-      return overlayContainer.getContainerElement();
-    }
-
-    function menuItems(): string[] {
-      return Array.from(
-        openMenu().querySelectorAll<HTMLElement>("[bitmenuitem]"),
-        (item) => item.textContent?.trim() ?? "",
-      );
-    }
-
-    beforeEach(() => {
-      overlayContainer = TestBed.inject(OverlayContainer);
-      fixture.componentRef.setInput("showAutofill", true);
-    });
-
-    afterEach(() => {
-      overlayContainer.ngOnDestroy();
-    });
-
-    it("offers Favorite and Archive, but not Autofill, Edit, Clone or Delete, without a reveal", () => {
-      component.cipher = restrictedCipher;
-
-      expect(menuItems()).toEqual(["favorite", "archiveVerb"]);
-    });
-
-    it("offers Edit, but not Clone or Delete, on a revealed row", () => {
-      const revealed = { ...baseCipher, partial: false } as CipherView;
-      revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
-      component.cipher = revealed;
-
-      const items = menuItems();
-
-      expect(items).toContain("edit");
-      expect(items).not.toContain("clone");
-      expect(items).not.toContain("delete");
-    });
-
-    it("keeps the overflow trigger for a restricted row", () => {
-      component.cipher = restrictedCipher;
-      fixture.detectChanges();
-
-      expect(menuTrigger()).not.toBeNull();
-    });
-  });
-
-  describe("contributed actions", () => {
-    let overlayContainer: OverlayContainer;
-
-    const action = (
-      id: string,
-      overrides: Partial<VaultItemsTableRowAction<CipherViewLike>> = {},
-    ): VaultItemsTableRowAction<CipherViewLike> => ({
-      id,
-      label: id,
-      icon: "bwi-lock",
-      run: jest.fn(),
-      ...overrides,
-    });
-
-    async function provideActions(actions: VaultItemsTableRowAction<CipherViewLike>[]) {
-      TestBed.resetTestingModule();
-      rowActions = actions;
-      await setup();
-      overlayContainer = TestBed.inject(OverlayContainer);
-    }
-
-    function openMenu(): HTMLElement {
-      fixture.detectChanges();
-      fixture.nativeElement.querySelector('button[biticonbutton="bwi-ellipsis-v"]')!.click();
-      fixture.detectChanges();
-      return overlayContainer.getContainerElement();
-    }
-
-    function menuItem(label: string): HTMLButtonElement | undefined {
-      return Array.from(openMenu().querySelectorAll<HTMLButtonElement>("[bitmenuitem]")).find(
-        (item) => item.textContent?.trim() === label,
-      );
-    }
-
-    afterEach(() => {
-      overlayContainer?.ngOnDestroy();
-    });
-
-    it("shows contributed actions after View and before Favorite, in order", async () => {
-      await provideActions([action("first"), action("second")]);
-      fixture.componentRef.setInput("showViewOption", true);
-
-      const labels = Array.from(openMenu().querySelectorAll<HTMLElement>("[bitmenuitem]"), (item) =>
-        item.textContent?.trim(),
-      );
-
-      expect(labels.slice(0, 4)).toEqual(["view", "first", "second", "favorite"]);
-    });
-
-    it("hides an action whose show returns false for the row", async () => {
-      const show = jest.fn().mockReturnValue(false);
-      await provideActions([action("hidden", { show })]);
-
-      expect(menuItem("hidden")).toBeUndefined();
-      expect(show).toHaveBeenCalledWith(baseCipher);
-    });
-
-    it("disables an action whose disabled returns true for the row", async () => {
-      await provideActions([action("disabled", { disabled: () => true }), action("enabled")]);
-
-      const items = Array.from(openMenu().querySelectorAll<HTMLButtonElement>("[bitmenuitem]"));
-      const item = (label: string) => items.find((i) => i.textContent?.trim() === label);
-
-      expect(item("disabled")?.disabled).toBe(true);
-      expect(item("enabled")?.disabled).toBe(false);
-    });
-
-    it("runs the action with the row's cipher", async () => {
-      const run = jest.fn();
-      await provideActions([action("run", { run })]);
-
-      menuItem("run")!.click();
-
-      expect(run).toHaveBeenCalledWith(baseCipher);
-    });
-
-    it("shows contributed actions on a restricted row", async () => {
-      await provideActions([action("request")]);
-      component.cipher = { ...baseCipher, partial: true };
-
-      expect(menuItem("request")).toBeDefined();
-    });
-
-    it("throws in dev mode when an action ID matches a built-in action", async () => {
-      TestBed.resetTestingModule();
-      rowActions = [action("edit")];
-
-      await expect(setup()).rejects.toThrow(
-        'VAULT_ROW_ACTIONS action ID "edit" is already in use.',
-      );
     });
   });
 });

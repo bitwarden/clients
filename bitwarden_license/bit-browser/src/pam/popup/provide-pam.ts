@@ -1,27 +1,18 @@
 import { APP_INITIALIZER, NgZone } from "@angular/core";
 
-import {
-  AccessEventService,
-  AccessLeaseSdkService,
-  AccessRefreshService,
-  AccessRequestSdkService,
-  LeasingErrorService,
-  AccessLeasesSdkService,
-  AccessRequestsSdkService,
-  DefaultLeasingErrorService,
-} from "@bitwarden/bit-pam";
-import {
-  CipherViewBannerComponent,
-  ItemDetailsStateBadgeComponent,
-  AccessRequestCancelService,
-  controlledAccessItemFilter,
-  ControlledAccessVaultFilterService,
-  MyLeasesService,
-  CIPHER_VIEW_BANNER_LAYOUT,
-} from "@bitwarden/bit-pam-components";
+import { AccessEventService } from "@bitwarden/bit-common/pam/abstractions/access-event.service";
+import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
+import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import { LeasingErrorService } from "@bitwarden/bit-common/pam/abstractions/leasing-error.service";
+import { CipherViewBannerComponent } from "@bitwarden/bit-common/pam/cipher-view-banner/cipher-view-banner.component";
+import { ItemDetailsStateBadgeComponent } from "@bitwarden/bit-common/pam/item-details-state-badge/item-details-state-badge.component";
+import { AccessLeasesSdkService } from "@bitwarden/bit-common/pam/services/access-leases-sdk.service";
+import { AccessRequestCancelService } from "@bitwarden/bit-common/pam/services/access-request-cancel.service";
+import { AccessRequestsSdkService } from "@bitwarden/bit-common/pam/services/access-requests-sdk.service";
+import { DefaultLeasingErrorService } from "@bitwarden/bit-common/pam/services/default-leasing-error.service";
+import { MyLeasesService } from "@bitwarden/bit-common/pam/services/my-leases.service";
 import { FillCipherPolicy } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
-import { VAULT_ROW_ICON } from "@bitwarden/browser/vault/popup/components/vault/vault-row-slots/vault-row-icon.token";
-import { VAULT_ROW_SUBTITLE } from "@bitwarden/browser/vault/popup/components/vault/vault-row-slots/vault-row-subtitle.token";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -33,12 +24,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeInjectionToken, SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import {
-  CIPHER_VIEW_BANNER,
-  ITEM_DETAILS_BADGE,
-  VAULT_ITEM_FILTER,
-  VAULT_ROW_ACTIONS,
-} from "@bitwarden/vault";
+import { CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
 
 import { requestLeaseRefresh } from "../lease-messages";
 import { PamFillCipherPolicy } from "../pam-fill-cipher-policy";
@@ -46,8 +32,6 @@ import { PamFillCipherPolicy } from "../pam-fill-cipher-policy";
 import { BrowserAccessEventService } from "./browser-access-event.service";
 import { BrowserAccessRefreshService } from "./browser-access-refresh.service";
 import { PopupRevealedCipherService } from "./popup-revealed-cipher.service";
-import { BrowserVaultRowAccessService } from "./vault-row-access/browser-vault-row-access.service";
-import { VaultRowAccessIconComponent } from "./vault-row-access/vault-row-access-icon.component";
 
 /** PAM providers for the commercial popup. */
 export function providePam(): SafeProvider[] {
@@ -120,41 +104,6 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
-    }),
-    // The popup's item view has no room to fold the request form out in place.
-    safeProvider({
-      provide: CIPHER_VIEW_BANNER_LAYOUT,
-      useValue: "popup",
-    }),
-    // One per-row state read per list, shared by every option's count and the selection.
-    safeProvider({
-      provide: ControlledAccessVaultFilterService,
-      useClass: ControlledAccessVaultFilterService,
-      deps: [],
-    }),
-    safeProvider({
-      provide: VAULT_ITEM_FILTER,
-      useFactory: controlledAccessItemFilter,
-      deps: [I18nService, ControlledAccessVaultFilterService],
-    }),
-    // One instance behind the row's icon, subtitle and menu, so all three read the same statuses.
-    safeProvider({
-      provide: BrowserVaultRowAccessService,
-      useClass: BrowserVaultRowAccessService,
-      deps: [],
-    }),
-    safeProvider({
-      provide: VAULT_ROW_ICON,
-      useValue: VaultRowAccessIconComponent,
-    }),
-    safeProvider({
-      provide: VAULT_ROW_SUBTITLE,
-      useExisting: BrowserVaultRowAccessService,
-    }),
-    safeProvider({
-      provide: VAULT_ROW_ACTIONS,
-      useFactory: (rowAccess: BrowserVaultRowAccessService) => rowAccess.rowActions(),
-      deps: [BrowserVaultRowAccessService],
     }),
   ];
 }
