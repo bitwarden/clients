@@ -31,6 +31,7 @@ import {
   SsoComponentService,
   DefaultSsoComponentService,
   TwoFactorAuthDuoComponentService,
+  TwoFactorAuthWebAuthnComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -184,6 +185,7 @@ import {
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
+import { DesktopTwoFactorAuthWebAuthnComponentService } from "../../auth/webauthn/desktop-two-factor-auth-webauthn-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeGaPolicyService } from "../../autofill/services/desktop-autotype-ga-policy.service";
@@ -602,6 +604,11 @@ const safeProviders: SafeProvider[] = [
     provide: SsoUrlService,
     useClass: SsoUrlService,
     deps: [],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthWebAuthnComponentService,
+    useClass: DesktopTwoFactorAuthWebAuthnComponentService,
+    deps: [PlatformUtilsServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: LoginViaWebAuthnComponentService,
