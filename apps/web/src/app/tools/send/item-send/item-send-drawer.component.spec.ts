@@ -15,7 +15,6 @@ import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/defau
 import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -93,7 +92,6 @@ describe("ItemSendDrawerComponent", () => {
   let folderService: MockProxy<FolderService>;
   let organizationService: MockProxy<OrganizationService>;
   let deletionDatePolicyInfo$: BehaviorSubject<{ deletionHours: number; orgId: string } | null>;
-  let sendViews$: BehaviorSubject<SendView[]>;
 
   let cipher: CipherView;
   let send: SendView;
@@ -131,7 +129,6 @@ describe("ItemSendDrawerComponent", () => {
     deletionDatePolicyInfo$ = new BehaviorSubject<{ deletionHours: number; orgId: string } | null>(
       null,
     );
-    sendViews$ = new BehaviorSubject<SendView[]>([send]);
 
     const folder = new FolderView();
     folder.name = "Work";
@@ -158,7 +155,6 @@ describe("ItemSendDrawerComponent", () => {
         { provide: OrganizationService, useValue: organizationService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: SendApiService, useValue: sendApiService },
-        { provide: SendService, useValue: { sendViews$ } },
         {
           provide: SendPolicyService,
           useValue: { deletionDatePolicyInfo$ },
@@ -182,10 +178,6 @@ describe("ItemSendDrawerComponent", () => {
               linkExpiryAfterDeletionDate: "The link can't expire after the deletion date.",
               sendDeletionDateSetByOrg: "Set by __$1__",
               oneTimeShare: "One time share",
-              activeLinks: "Active links",
-              shareLinkExpires: "Expires",
-              current: "Current",
-              copyLink: "Copy link",
               oneHour: "1 hour",
               oneDay: "1 day",
               days: "__$1__ days",
@@ -493,104 +485,6 @@ describe("ItemSendDrawerComponent", () => {
         expect.objectContaining({ deletionDate, maxAccessCount: 1 }),
         null,
       );
-    });
-  });
-
-  describe("active links", () => {
-    let otherLink: SendView;
-
-    beforeEach(async () => {
-      otherLink = createItemSend("other-id", cipher, new Date(Date.now() + 2 * 24 * HOUR));
-      otherLink.emails = ["pika@bitwarden.com"];
-
-      const expiredLink = createItemSend("expired-id", cipher, new Date(Date.now() + 24 * HOUR));
-      expiredLink.expirationDate = new Date(Date.now() - HOUR);
-
-      const usedLink = createItemSend("used-id", cipher, new Date(Date.now() + 24 * HOUR));
-      usedLink.maxAccessCount = 1;
-      usedLink.accessCount = 1;
-
-      const otherCipher = new CipherView();
-      otherCipher.id = "other-cipher-id";
-      const otherItemLink = createItemSend("other-item-id", otherCipher, deletionDate);
-
-      sendViews$.next([send, otherLink, expiredLink, usedLink, otherItemLink]);
-      await createComponent();
-    });
-
-    it("lists the active links for the same item, soonest deletion first", () => {
-      const rows = fixture.debugElement.queryAll(By.css("[data-testid^='active-link-']"));
-      expect(rows.map((r) => r.attributes["data-testid"])).toEqual([
-        "active-link-other-id",
-        "active-link-send-id",
-      ]);
-    });
-
-    it("marks the link being viewed as current", () => {
-      expect(testId("active-link-send-id").nativeElement.textContent).toContain("Current");
-      expect(testId("active-link-other-id").nativeElement.textContent).not.toContain("Current");
-    });
-
-    it("copies a link from the list", async () => {
-      query("item-send-drawer_button_copy-link-other-id").nativeElement.click();
-      await fixture.whenStable();
-
-      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
-        "https://example.com/#/send/access-other-id/" + otherLink.urlB64Key,
-      );
-    });
-
-    it("edits a link from the list", async () => {
-      query("item-send-drawer_button_edit-link-other-id").nativeElement.click();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(query("item-send-drawer_button_save")).not.toBeNull();
-      expect(component.form.getRawValue().deletionDate).toBe(otherLink.deletionDate.toString());
-
-      query("item-send-drawer_button_save").nativeElement.click();
-      await fixture.whenStable();
-
-      expect(sendApiService.saveView).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "other-id" }),
-        null,
-      );
-    });
-
-    it("asks before switching to another link with unsaved edits, and stays put if the user keeps editing", async () => {
-      query("item-send-drawer_button_edit").nativeElement.click();
-      fixture.detectChanges();
-      component.form.controls.oneTimeShare.setValue(true);
-      dialogService.open.mockReturnValue({
-        closed: of({ result: UnsavedEditsDialogResult.Back }),
-      } as any);
-
-      query("item-send-drawer_button_edit-link-other-id").nativeElement.click();
-      await fixture.whenStable();
-
-      expect(dialogService.open).toHaveBeenCalledWith(UnsavedEditsDialogComponent);
-      expect(component.form.controls.oneTimeShare.value).toBe(true);
-      expect(component.form.getRawValue().deletionDate).toBe(deletionDate.toString());
-    });
-
-    it("deletes another link without closing the drawer", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
-      query("item-send-drawer_button_delete-link-other-id").nativeElement.click();
-      await fixture.whenStable();
-
-      expect(sendApiService.delete).toHaveBeenCalledWith("other-id");
-      expect(dialogRef.close).not.toHaveBeenCalled();
-    });
-
-    it("closes the drawer when the current link is deleted from the list", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
-      query("item-send-drawer_button_delete-link-send-id").nativeElement.click();
-      await fixture.whenStable();
-
-      expect(sendApiService.delete).toHaveBeenCalledWith("send-id");
-      expect(dialogRef.close).toHaveBeenCalledWith(ItemSendDrawerResult.Deleted);
     });
   });
 

@@ -1,6 +1,6 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { combineLatest, firstValueFrom, lastValueFrom, map, merge, of, switchMap } from "rxjs";
 
@@ -16,8 +16,6 @@ import {
 } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -125,7 +123,6 @@ export class ItemSendDrawerComponent {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly sendApiService = inject(SendApiService);
   private readonly sendPolicyService = inject(SendPolicyService);
-  private readonly sendService = inject(SendService);
   private readonly toastService = inject(ToastService);
 
   /** The Send being viewed. Replaced after a successful edit or when another link is edited. */
@@ -176,31 +173,6 @@ export class ItemSendDrawerComponent {
     }),
     oneTimeShare: new FormControl(false, { nonNullable: true }),
   });
-
-  /**
-   * Share links for the same item that can still be opened, oldest deletion date first. The
-   * Send being viewed is always included, even if it can no longer be opened.
-   */
-  protected readonly activeLinks = toSignal(
-    combineLatest([this.sendService.sendViews$, toObservable(this.send)]).pipe(
-      map(([sends, current]) => {
-        const cipherId = current.data?.data?.id;
-        if (!cipherId) {
-          return [];
-        }
-        return sends
-          .filter((s) => {
-            const isSameItem = s.type === SendType.Item && s.data?.data?.id === cipherId;
-            const isCurrent = s.id === current.id;
-            const isActive = !s.expired && !s.maxAccessCountReached;
-            const isCurrentOrActive = isCurrent || isActive;
-            return isSameItem && isCurrentOrActive;
-          })
-          .sort((a, b) => new Date(a.deletionDate).getTime() - new Date(b.deletionDate).getTime());
-      }),
-    ),
-    { initialValue: [] },
-  );
 
   constructor() {
     const cipher = this.cipher();
@@ -293,22 +265,8 @@ export class ItemSendDrawerComponent {
 
   protected readonly isOneTimeShare = computed(() => this.send().maxAccessCount === 1);
 
-  protected linkEmailDisplay(emails: string[] | undefined): string {
-    if (!emails?.length) {
-      return "";
-    }
-    return emails.length === 1 ? emails[0] : `${emails[0]}, +${emails.length - 1}`;
-  }
-
-  protected linkExpiry(link: SendView): Date {
-    return link.expirationDate ?? link.deletionDate;
-  }
-
   protected readonly copyLink = async () => {
-    await this.copyLinkFor(this.send());
-  };
-
-  protected async copyLinkFor(send: SendView) {
+    const send = this.send();
     const env = await firstValueFrom(this.environmentService.environment$);
     this.platformUtilsService.copyToClipboard(
       env.getSendUrl() + send.accessId + "/" + send.urlB64Key,
@@ -317,16 +275,7 @@ export class ItemSendDrawerComponent {
       variant: "success",
       message: this.i18nService.t("linkCopiedToClipboard"),
     });
-  }
-
-  /** Switches the drawer to another link for the same item and starts editing it. */
-  protected async editLink(link: SendView) {
-    if (!(await this.confirmDiscardEdits())) {
-      return;
-    }
-    this.send.set(link);
-    this.edit();
-  }
+  };
 
   protected edit() {
     const send = this.send();
@@ -410,10 +359,6 @@ export class ItemSendDrawerComponent {
   };
 
   protected readonly deleteSend = async () => {
-    await this.deleteLink(this.send());
-  };
-
-  protected async deleteLink(link: SendView) {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteSend" },
       content: { key: "deleteSendPermanentConfirmation" },
@@ -424,7 +369,7 @@ export class ItemSendDrawerComponent {
     }
 
     try {
-      await this.sendApiService.delete(link.id);
+      await this.sendApiService.delete(this.send().id);
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
@@ -438,10 +383,8 @@ export class ItemSendDrawerComponent {
       variant: "success",
       message: this.i18nService.t("deletedSend"),
     });
-    if (link.id === this.send().id) {
-      await this.dialogRef.close(ItemSendDrawerResult.Deleted);
-    }
-  }
+    await this.dialogRef.close(ItemSendDrawerResult.Deleted);
+  };
 
   private dateOptions(current: Date): Option<DateSelection>[] {
     return [
