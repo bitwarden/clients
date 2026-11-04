@@ -137,6 +137,56 @@ class FilterMenuDataDrivenNestedDemoComponent {
   ];
 }
 
+/** A shared-folder path ten levels deep, with a sibling leaf at each level. */
+const deepFolderPath = [
+  "Clients",
+  "Acme Corporation",
+  "Finance and accounting",
+  "Payroll",
+  "2026",
+  "Q4",
+  "Contractors",
+  "International",
+  "EMEA",
+  "Germany",
+];
+
+const buildDeepFolderTree = (depth = 0): FilterOptionNode<string>[] => {
+  if (depth === deepFolderPath.length) {
+    return [];
+  }
+  const name = deepFolderPath[depth];
+  return [
+    {
+      value: `folder-${depth}`,
+      label: name,
+      count: 12,
+      options: buildDeepFolderTree(depth + 1),
+    },
+    { value: `leaf-${depth}`, label: `${name} archive`, count: 3 },
+  ];
+};
+
+@Component({
+  selector: "filter-menu-deeply-nested-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="folder" placeholderText="Shared folders" multiple>
+        <bit-filter-section
+          label="Acme Corporation shared folders and everything nested beneath them"
+          collapsible
+          [options]="tree"
+        ></bit-filter-section>
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuDeeplyNestedDemoComponent {
+  protected readonly tree = buildDeepFolderTree();
+}
+
 /**
  * Nine rows alternating individual and group, each group opening the next level down.
  */
@@ -321,6 +371,7 @@ export default {
         FilterMenuDividerDemoComponent,
         FilterMenuNestedDemoComponent,
         FilterMenuDataDrivenNestedDemoComponent,
+        FilterMenuDeeplyNestedDemoComponent,
         FilterMenuNestedTilesDemoComponent,
         FilterMenuEmptyDemoComponent,
         FilterMenuLongLabelsDemoComponent,
@@ -403,6 +454,39 @@ export const DataDrivenNestedOptions: Story = {
   render: () => ({
     template: `<filter-menu-data-driven-nested-demo></filter-menu-data-driven-nested-demo>`,
   }),
+};
+
+/**
+ * A data-driven shared-folder tree ten levels deep under a long section header. Deep rows scroll
+ * sideways instead of truncating their labels to nothing.
+ */
+export const DeeplyNestedOptions: Story = {
+  render: () => ({
+    template: `<filter-menu-deeply-nested-demo></filter-menu-deeply-nested-demo>`,
+  }),
+  play: async (context) => {
+    const [trigger] = getAllByRole(context.canvasElement, "button");
+    await userEvent.click(trigger);
+    // Data-driven nodes start collapsed, so open each level in turn. The popover renders into
+    // the CDK overlay, outside the story canvas.
+    const collapsed = () =>
+      document.body.querySelector<HTMLElement>(
+        '[role="treeitem"][aria-expanded="false"] [data-filter-expander]',
+      );
+    await waitFor(() => expect(collapsed()).not.toBeNull());
+    let last: HTMLElement | undefined;
+    for (let next = collapsed(); next; next = collapsed()) {
+      await userEvent.click(next);
+      last = next;
+    }
+    // The pointer and focus end on the last row, whose tooltip would otherwise land in the snapshot.
+    if (last) {
+      await userEvent.unhover(last);
+    }
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  },
 };
 
 /**
