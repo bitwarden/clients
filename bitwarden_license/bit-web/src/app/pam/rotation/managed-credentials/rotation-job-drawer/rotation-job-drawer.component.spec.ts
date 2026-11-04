@@ -2,10 +2,10 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
+import { formatTimeOfDay, formatTimestamp } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogModule, DIALOG_DATA } from "@bitwarden/components";
 
-import { formatRotationTimestamp } from "../../rotation-timestamp";
 import { attemptId, jobId } from "../../testing/rotation-builders";
 import type { AttemptView, JobView } from "../rotation-job-row";
 
@@ -156,7 +156,7 @@ describe("RotationJobDrawerComponent", () => {
     await render(retriedFailure());
 
     expect(query("drawer-started").nativeElement.textContent.trim()).toBe(
-      formatRotationTimestamp("2026-01-01T00:01:00Z", "en-US"),
+      formatTimestamp("en-US", Date.parse("2026-01-01T00:01:00Z")),
     );
   });
 
@@ -224,7 +224,7 @@ describe("RotationJobDrawerComponent", () => {
       expect(rowHeader.nativeElement.getAttribute("scope")).toBe("row");
       expect(rowHeader.nativeElement.textContent).toContain("1");
       expect(rowHeader.nativeElement.textContent).toContain(
-        formatRotationTimestamp("2026-01-01T00:01:00Z", "en-US").split(", ").slice(2).join(", "),
+        formatTimeOfDay("en-US", Date.parse("2026-01-01T00:01:00Z")),
       );
     });
 

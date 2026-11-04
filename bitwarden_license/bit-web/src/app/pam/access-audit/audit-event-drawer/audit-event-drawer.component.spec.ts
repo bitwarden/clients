@@ -4,6 +4,7 @@ import { Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { formatTimestamp } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -52,7 +53,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     requestId: REQUEST_ID,
     leaseId: LEASE_ID,
     duration: "1 hour",
-    exactWindow: "18/08/2026, 09:00 – 18/08/2026, 10:00",
+    exactWindow: "Aug 18, 2026, 9:00 AM – Aug 18, 2026, 10:00 AM",
     extendedUntil: null,
     ...overrides,
   };
@@ -171,9 +172,9 @@ describe("AuditEventDrawerComponent", () => {
     it("renders the whole timestamp", async () => {
       await render();
 
-      // The `long` format carries seconds and the zone.
-      expect(text("timestamp")).toContain("2026");
-      expect(text("timestamp")).toContain(":00:00");
+      expect(text("timestamp")).toBe(
+        formatTimestamp("en-US", Date.parse("2026-08-18T09:00:00.000Z"), "second"),
+      );
     });
 
     it("renders each populated field", async () => {
@@ -184,7 +185,7 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("item")).toBe("Prod database");
       expect(text("collection")).toBe("Production");
       expect(text("duration")).toBe("1 hour");
-      expect(text("window")).toBe("18/08/2026, 09:00 – 18/08/2026, 10:00");
+      expect(text("window")).toBe("Aug 18, 2026, 9:00 AM – Aug 18, 2026, 10:00 AM");
       expect(text("detail")).toBe("Approved for the incident window.");
       expect(text("request-id")).toBe("3a9d5f74");
       expect(text("lease-id")).toBe("b27e4c91");

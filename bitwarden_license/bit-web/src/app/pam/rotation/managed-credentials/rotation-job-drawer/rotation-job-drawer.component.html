@@ -13,7 +13,7 @@
           <dt class="tw-text-sm tw-font-bold tw-text-muted">
             {{ "pamRotationAttemptStarted" | i18n }}
           </dt>
-          <dd class="tw-m-0" data-testid="drawer-started">{{ formatTimestamp(job.startedAt) }}</dd>
+          <dd class="tw-m-0" data-testid="drawer-started">{{ job.startedAt | timestamp }}</dd>
         </div>
       }
 

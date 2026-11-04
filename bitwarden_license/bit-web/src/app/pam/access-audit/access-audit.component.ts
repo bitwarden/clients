@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,6 +19,7 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
 import { selectedFilterStrings } from "@bitwarden/bit-pam";
+import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -142,7 +142,6 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
   templateUrl: "./access-audit.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     RouterLink,
     AsyncActionsModule,
     BadgeModule,
@@ -161,6 +160,7 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
     BitCellDefDirective,
     TooltipDirective,
     I18nPipe,
+    TimestampPipe,
   ],
   providers: [UserNamePipe],
 })

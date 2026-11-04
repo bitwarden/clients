@@ -78,15 +78,14 @@ describe("relativeStart", () => {
 });
 
 describe("exactWindow", () => {
-  it("formats both bounds", () => {
+  it("formats both bounds as timestamps", () => {
     const text = exactWindow(
       {
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T01:00:00.000Z",
+        leaseNotBefore: new Date(2024, 0, 1, 9, 0).toISOString(),
+        leaseNotAfter: new Date(2024, 0, 1, 10, 30).toISOString(),
       },
       "en-US",
     );
-    expect(text).toContain("–");
-    expect(text.length).toBeGreaterThan(0);
+    expect(text).toBe("Jan 1, 2024, 9:00 AM – Jan 1, 2024, 10:30 AM");
   });
 });

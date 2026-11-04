@@ -2101,14 +2101,16 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       );
     });
 
-    it("formats the dates without minutes on the hour", async () => {
+    it("formats the dates as timestamps", async () => {
       const lastRotationAt = new Date(2026, 8, 19, 19, 0).toISOString();
       const nextRotationAt = new Date(2026, 9, 8, 13, 12).toISOString();
       const fixture = await renderPage({
         connectors: [connected()],
         existingConfig: loadedConfig({ lastRotationAt, nextRotationAt }),
       });
-      expect(text(fixture, "#rotation-config-edit_text_last-rotated")).toBe("Sep 19, 2026, 7 PM");
+      expect(text(fixture, "#rotation-config-edit_text_last-rotated")).toBe(
+        "Sept 19, 2026, 7:00 PM",
+      );
       expect(text(fixture, "#rotation-config-edit_text_next-rotation")).toBe(
         "Oct 8, 2026, 1:12 PM",
       );

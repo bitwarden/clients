@@ -1,4 +1,3 @@
-import { formatDate } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, NEVER, of, Subject } from "rxjs";
@@ -10,6 +9,7 @@ import {
   LeasingErrorService,
   ACCESS_BADGE_LOOK,
   formatDuration,
+  formatTimestamp,
   REQUEST_ACCESS_SERVER_ERRORS,
   composeRequestWindow,
   toDateInputValue,
@@ -554,13 +554,8 @@ describe("CipherViewBannerComponent", () => {
       jest.restoreAllMocks();
     });
 
-    // `formatDate` separates the meridiem with a narrow no-break space.
-    function collapseSpace(value: string | null | undefined): string {
-      return (value ?? "").replace(/\s+/g, " ").trim();
-    }
-
     function until(iso: string): string {
-      return `pamWindowUntil ${formatDate(iso, "short", "en-US")}`;
+      return `pamWindowUntil ${formatTimestamp("en-US", Date.parse(iso))}`;
     }
 
     // The countdown runs on a real interval; a tick is only observed by outlasting it.
@@ -608,10 +603,8 @@ describe("CipherViewBannerComponent", () => {
 
       await create(gatedCipher());
 
-      expect(collapseSpace(query('[data-testid="approved-access-window"]')?.textContent)).toBe(
-        collapseSpace(
-          `${formatDate(STARTS_AT, "short", "en-US")} – ${formatDate(ENDS_AT, "short", "en-US")}`,
-        ),
+      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
+        `${formatTimestamp("en-US", Date.parse(STARTS_AT))} – ${formatTimestamp("en-US", Date.parse(ENDS_AT))}`,
       );
     });
 

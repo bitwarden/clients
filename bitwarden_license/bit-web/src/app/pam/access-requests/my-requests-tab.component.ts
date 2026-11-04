@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -29,6 +28,7 @@ import {
   DurationCompoundPipe,
   DurationShortPipe,
   RequestedWindowPipe,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -102,7 +102,6 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
   templateUrl: "./my-requests-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     AccessStateBadgeComponent,
@@ -125,6 +124,7 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
     SearchModule,
     TypographyModule,
     I18nPipe,
+    TimestampPipe,
     DurationCompoundPipe,
     Vfo1I18nPipe,
     DurationShortPipe,

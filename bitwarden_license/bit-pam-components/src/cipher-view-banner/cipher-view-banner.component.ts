@@ -1,4 +1,3 @@
-import { DatePipe, formatDate } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -41,8 +40,11 @@ import {
   LeasingErrorService,
   ACCESS_BADGE_LOOK,
   ENDING_SOON_THRESHOLD_MS,
+  exactWindow,
   formatCompoundDuration,
   formatDuration,
+  formatTimeOfDay,
+  formatTimestamp,
   formatRemaining,
   activateAccessErrorMessageKey,
   isGovernedCipher,
@@ -94,6 +96,7 @@ import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dial
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
+import { TimestampPipe } from "../date/timestamp.pipe";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
@@ -123,10 +126,10 @@ const CUSTOM_OPTION = "custom";
     IconTileComponent,
     ReactiveFormsModule,
     TypographyModule,
-    DatePipe,
     DurationLongPipe,
     DurationShortPipe,
     I18nPipe,
+    TimestampPipe,
   ],
 })
 export class CipherViewBannerComponent implements OnInit {
@@ -345,6 +348,11 @@ export class CipherViewBannerComponent implements OnInit {
     return request != null && Date.parse(request.leaseNotBefore) <= this.nowMs();
   });
 
+  protected readonly approvedWindow = computed(() => {
+    const request = this.approvedRequest();
+    return request == null ? "" : exactWindow(request, this.locale);
+  });
+
   /** Whether anything on screen still reads {@link nowMs}. */
   private readonly clockAdvances = computed(
     () =>
@@ -450,7 +458,7 @@ export class CipherViewBannerComponent implements OnInit {
     const openedAt = this.requestOpenedAt();
     const today = date === toDateInputValue(openedAt);
     return startTimeSlots(date, openedAt).map((value, index) => {
-      const time = formatDate(new Date(`${date}T${value}`), "shortTime", this.locale);
+      const time = formatTimeOfDay(this.locale, new Date(`${date}T${value}`).getTime());
       return {
         value,
         label: today && index === 0 ? this.i18nService.t("requestAccessModalStartNow", time) : time,
@@ -691,13 +699,12 @@ export class CipherViewBannerComponent implements OnInit {
     }
   }
 
-  /** A time alone on the reference instant's day, else the day and time. */
+  /** A time alone on the reference instant's day, else the date and time. */
   private formatWindowPoint(date: Date, reference?: Date): string {
-    const time = formatDate(date, "shortTime", this.locale);
     if (reference != null && toDateInputValue(date) === toDateInputValue(reference)) {
-      return time;
+      return formatTimeOfDay(this.locale, date.getTime());
     }
-    return `${formatDate(date, "EEE, MMM d", this.locale)}, ${time}`;
+    return formatTimestamp(this.locale, date.getTime());
   }
 
   private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {

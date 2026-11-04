@@ -1,4 +1,3 @@
-import { DatePipe } from "@angular/common";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -11,6 +10,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserUserMiniResponse,
 } from "@bitwarden/admin-console/common";
+import { formatTimestamp } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -2135,8 +2135,7 @@ describe("AccessAuditComponent", () => {
     it("renders the whole timestamp rather than an abbreviated one", async () => {
       await renderRow();
 
-      const medium = new DatePipe("en-US").transform(new Date(OCCURRED_AT), "medium")!;
-      expect(text(0)).toBe(medium);
+      expect(text(0)).toBe(formatTimestamp("en-US", Date.parse(OCCURRED_AT), "second"));
     });
 
     // The cell renders the whole timestamp, so a hover has nothing left to reveal.
@@ -2275,8 +2274,8 @@ describe("AccessAuditComponent", () => {
     ]);
 
     expect(bodyRows()).toHaveLength(3);
-    const medium = (iso: string) => new DatePipe("en-US").transform(new Date(iso), "medium")!;
-    expect(text(0, 0)).toBe(medium("2026-08-18T09:00:00.000Z"));
-    expect(text(0, 2)).toBe(medium("2026-08-18T07:00:00.000Z"));
+    const timestamp = (iso: string) => formatTimestamp("en-US", Date.parse(iso), "second");
+    expect(text(0, 0)).toBe(timestamp("2026-08-18T09:00:00.000Z"));
+    expect(text(0, 2)).toBe(timestamp("2026-08-18T07:00:00.000Z"));
   });
 });
