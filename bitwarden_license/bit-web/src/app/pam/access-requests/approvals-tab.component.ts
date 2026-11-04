@@ -12,15 +12,13 @@ import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import type {
-  AccessDecisionVerdict,
-  AccessLeaseId,
-} from "@bitwarden/bit-pam/abstractions/access-lease";
-import { AccessBadgeState } from "@bitwarden/bit-pam/access-state-badge/access-badge-state";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam/access-state-badge/access-badge-ticker.service";
-import { AccessStateBadgeComponent } from "@bitwarden/bit-pam/access-state-badge/access-state-badge.component";
-import { RequestedWindowPipe } from "@bitwarden/bit-pam/date/requested-window.pipe";
-import { selectedFilterStrings } from "@bitwarden/bit-pam/helpers/selected-filter-strings";
+import { AccessBadgeState, selectedFilterStrings } from "@bitwarden/bit-pam";
+import type { AccessDecisionVerdict, AccessLeaseId } from "@bitwarden/bit-pam";
+import {
+  AccessBadgeTickerService,
+  AccessStateBadgeComponent,
+  RequestedWindowPipe,
+} from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";

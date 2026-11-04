@@ -1,24 +1,16 @@
 const { pathsToModuleNameMapper } = require("ts-jest");
+
 const { compilerOptions } = require("../../tsconfig.base");
-const sharedConfig = require("../../libs/shared/jest.config.angular");
+
+const sharedConfig = require("../../libs/shared/jest.config.ts");
 
 /** @type {import('jest').Config} */
 module.exports = {
   ...sharedConfig,
   displayName: "bit-pam tests",
+  preset: "ts-jest",
   testEnvironment: "jsdom",
-  moduleNameMapper: pathsToModuleNameMapper(
-    {
-      "@bitwarden/common/spec": ["libs/common/spec"],
-      "@bitwarden/common": ["libs/common/src/*"],
-      "@bitwarden/admin-console/common": ["libs/admin-console/src/common"],
-      ...(compilerOptions?.paths ?? {}),
-    },
-    {
-      prefix: "<rootDir>/../../",
-    },
-  ),
-  setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
-  transformIgnorePatterns: ["node_modules/(?!(.*\\.mjs$|@angular|rxjs|@bitwarden))"],
-  moduleFileExtensions: ["ts", "js", "html", "mjs"],
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths ?? {}, {
+    prefix: "<rootDir>/../../",
+  }),
 };

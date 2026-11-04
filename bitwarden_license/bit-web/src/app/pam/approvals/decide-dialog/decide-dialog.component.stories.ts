@@ -1,7 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
-import type { AccessRequestView } from "@bitwarden/bit-pam/abstractions/access-lease";
+import type { AccessRequestView } from "@bitwarden/bit-pam";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 import { STORY_NOW } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";

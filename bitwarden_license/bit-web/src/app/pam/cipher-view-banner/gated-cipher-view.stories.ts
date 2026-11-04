@@ -5,14 +5,18 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { EMPTY, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { AccessLeaseSdkService } from "@bitwarden/bit-pam/abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "@bitwarden/bit-pam/abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "@bitwarden/bit-pam/abstractions/access-request-sdk.service";
-import { LeasingErrorService } from "@bitwarden/bit-pam/abstractions/leasing-error.service";
-import { CipherViewBannerComponent } from "@bitwarden/bit-pam/cipher-view-banner/cipher-view-banner.component";
-import { ItemDetailsStateBadgeComponent } from "@bitwarden/bit-pam/item-details-state-badge/item-details-state-badge.component";
-import { AccessRequestCancelService } from "@bitwarden/bit-pam/services/access-request-cancel.service";
-import { MyLeasesService } from "@bitwarden/bit-pam/services/my-leases.service";
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  LeasingErrorService,
+} from "@bitwarden/bit-pam";
+import {
+  CipherViewBannerComponent,
+  ItemDetailsStateBadgeComponent,
+  AccessRequestCancelService,
+  MyLeasesService,
+} from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";

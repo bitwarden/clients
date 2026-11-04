@@ -4,7 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { AccessRuleSdkService } from "@bitwarden/bit-pam";
-import type { AccessRuleView } from "@bitwarden/bit-pam/abstractions/access-rule";
+import type { AccessRuleView } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

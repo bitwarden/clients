@@ -2,8 +2,8 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { userEvent } from "storybook/test";
 
-import { ExtendLeaseDialogComponent } from "@bitwarden/bit-pam/access-requests/extend-lease-dialog/extend-lease-dialog.component";
-import { DialogRef } from "@bitwarden/components";
+import { ExtendLeaseDialogComponent } from "@bitwarden/bit-pam-components";
+import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 /** The dialog resolves through `DialogRef`; nothing here needs to observe the result. */

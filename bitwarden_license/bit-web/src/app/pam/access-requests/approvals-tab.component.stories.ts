@@ -4,10 +4,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
-import type {
-  AccessLeaseId,
-  AccessRequestView,
-} from "@bitwarden/bit-pam/abstractions/access-lease";
+import type { AccessLeaseId, AccessRequestView } from "@bitwarden/bit-pam";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";

@@ -6,6 +6,7 @@ import type { AccessLeaseView } from "@bitwarden/bit-pam";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
+
 /** How long a cached read serves new consumers, checked lazily on access. */
 const CACHE_TTL_MS = 30_000;
 
