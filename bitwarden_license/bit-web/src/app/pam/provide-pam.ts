@@ -21,6 +21,8 @@ import {
   CipherViewBannerComponent,
   ItemDetailsStateBadgeComponent,
   AccessRequestCancelService,
+  controlledAccessItemFilter,
+  ControlledAccessVaultFilterService,
   MyLeasesService,
 } from "@bitwarden/bit-pam-components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -67,8 +69,6 @@ import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
 import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
-import { controlledAccessItemFilter } from "./vault-filter-controlled-access/controlled-access-item-filter";
-import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-access/controlled-access-vault-filter.service";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 import { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
