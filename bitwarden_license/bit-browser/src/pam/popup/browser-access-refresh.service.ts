@@ -1,5 +1,5 @@
-import { AccessEventService } from "@bitwarden/bit-common/pam/abstractions/access-event.service";
-import { DefaultAccessRefreshService } from "@bitwarden/bit-common/pam/services/default-access-refresh.service";
+import { AccessEventService } from "@bitwarden/bit-pam/abstractions/access-event.service";
+import { DefaultAccessRefreshService } from "@bitwarden/bit-pam/services/default-access-refresh.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 

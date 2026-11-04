@@ -5,7 +5,7 @@ import type {
   AccessLeaseView,
   AccessRequestDecisionView,
   AccessRequestView,
-} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+} from "@bitwarden/bit-pam/abstractions/access-lease";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

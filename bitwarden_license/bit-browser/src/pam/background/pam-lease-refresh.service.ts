@@ -17,8 +17,8 @@ import {
 } from "rxjs";
 
 // Deep imports: the `pam` barrel pulls Angular components into the worker bundle.
-import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
-import { isLeaseLive } from "@bitwarden/bit-common/pam/helpers/lease-liveness";
+import { AccessLeaseSdkService } from "@bitwarden/bit-pam/abstractions/access-lease-sdk.service";
+import { isLeaseLive } from "@bitwarden/bit-pam/helpers/lease-liveness";
 import { BrowserTaskSchedulerService } from "@bitwarden/browser/platform/services/abstractions/browser-task-scheduler.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";

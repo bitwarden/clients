@@ -1,4 +1,4 @@
-import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-pam/access-state-badge/access-badge-state";
 import { IconTileOptions } from "@bitwarden/components";
 
 /**

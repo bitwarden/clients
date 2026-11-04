@@ -21,16 +21,13 @@ export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
  * The requester's duration presets. Topping out at a day is a default, not a limit, since
  * {@link requestDurationOptions} still offers a rule's higher cap.
  */
-export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
-  seconds: number;
-  labelKey: string;
-}> = [
-  { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
-  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
-  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
-  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
-  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
-  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration1d" },
+export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{ seconds: number }> = [
+  { seconds: 15 * 60 },
+  { seconds: 30 * 60 },
+  { seconds: 60 * 60 },
+  { seconds: 4 * 60 * 60 },
+  { seconds: 8 * 60 * 60 },
+  { seconds: 24 * 60 * 60 },
 ];
 
 /** The automatic form's placeholder until the pre-check supplies the rule's own default. */
@@ -39,8 +36,8 @@ export const DEFAULT_REQUEST_ACCESS_DURATION_SECONDS = 60 * 60;
 /** The server's ceiling, which its pre-check reports as the cap of a rule with no maximum. */
 const GLOBAL_MAX_LEASE_SECONDS = 365 * 24 * 60 * 60;
 
-/** A requester duration option; one without a `labelKey` is formatted from its value. */
-export type RequestDurationOption = { seconds: number; labelKey?: string };
+/** A requester duration option. */
+export type RequestDurationOption = { seconds: number };
 
 /**
  * The presets under `maxSeconds`, plus the cap and default themselves, so the picker is never empty

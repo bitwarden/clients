@@ -442,12 +442,11 @@ export default tseslint.config(
     },
   },
   {
-    files: ["bitwarden_license/bit-sm/src/**/*.ts"],
+    files: ["bitwarden_license/bit-pam/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports([
-        "@bitwarden/bit-sm",
-        "@bitwarden/bit-web/*",
-        "@bitwarden/bit-cli/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam/*",
       ]),
     },
   },
@@ -458,11 +457,9 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
-        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
-        "@bitwarden/bit-pam-components",
+        "@bitwarden/bit-pam/*",
         "@bitwarden/bit-web/*",
-        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -472,9 +469,8 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
-        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
-        "@bitwarden/bit-pam-components",
+        "@bitwarden/bit-pam/*",
         "@bitwarden/bit-web/*",
 
         "**/app/core/*",
@@ -493,9 +489,8 @@ export default tseslint.config(
         "@angular",
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
-        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
-        "@bitwarden/bit-pam-components",
+        "@bitwarden/bit-pam/*",
         "@bitwarden/bit-web/*",
 
         "**/popup/*",
@@ -509,11 +504,9 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
-        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
-        "@bitwarden/bit-pam-components",
+        "@bitwarden/bit-pam/*",
         "@bitwarden/bit-web/*",
-        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -555,7 +548,7 @@ export default tseslint.config(
       "apps/web/**/*.html",
       "apps/browser/**/*.html",
       "bitwarden_license/bit-web/**/*.html",
-      "bitwarden_license/bit-common/**/*.html",
+      "bitwarden_license/bit-pam/**/*.html",
       "libs/**/*.html",
     ],
     rules: {
@@ -819,9 +812,7 @@ export default tseslint.config(
     files: [
       "libs/**/*.ts",
       "bitwarden_license/bit-common/src/**/*.ts",
-      "bitwarden_license/bit-sm/src/**/*.ts",
       "bitwarden_license/bit-pam/src/**/*.ts",
-      "bitwarden_license/bit-pam-components/src/**/*.ts",
     ],
     rules: {
       "@bitwarden/platform/no-self-package-import": "error",

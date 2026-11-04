@@ -6,7 +6,7 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
-import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-pam/access-state-badge/access-badge-state";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
