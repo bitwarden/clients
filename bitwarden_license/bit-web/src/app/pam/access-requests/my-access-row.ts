@@ -1,6 +1,3 @@
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import type { BadgeVariant } from "@bitwarden/components";
-
 import {
   AccessLeaseId,
   AccessLeaseStatus,
@@ -12,8 +9,10 @@ import {
   findHumanDecision,
   humanApprover,
   requestedWindowSeconds,
-} from "..";
-import { AccessBadgeState } from "../access-state-badge/access-badge-state";
+  AccessBadgeState,
+} from "@bitwarden/bit-pam";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import type { BadgeVariant } from "@bitwarden/components";
 
 import { ResolvedNames } from "./access-name-resolver.service";
 

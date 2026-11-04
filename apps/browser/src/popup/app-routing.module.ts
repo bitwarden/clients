@@ -111,6 +111,7 @@ import {
 } from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
+import { restoreVaultScopeGuard } from "../vault/popup/guards/restore-vault-scope.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
@@ -802,7 +803,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultComponent,
-        canActivate: [authGuard],
+        canActivate: [authGuard, restoreVaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
