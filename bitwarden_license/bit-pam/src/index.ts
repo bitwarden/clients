@@ -15,7 +15,6 @@ export {
 } from "./abstractions/access-rule";
 export { AccessRuleSdkService } from "./abstractions/access-rule-sdk.service";
 export { apiErrorBodyMessage } from "./abstractions/api-error";
-
 export type {
   AccessApprovalMode,
   AccessApprover,
@@ -42,7 +41,6 @@ export { AccessLeaseSdkService } from "./abstractions/access-lease-sdk.service";
 export { AccessRefreshService } from "./abstractions/access-refresh.service";
 export { AccessEventService } from "./abstractions/access-event.service";
 export { LeasingErrorService } from "./abstractions/leasing-error.service";
-
 export {
   ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   ACCESS_RULE_NAME_MAX_LENGTH,
@@ -55,8 +53,6 @@ export type { AccessRuleFormPatch, AccessRuleFormValue } from "./helpers/access-
 export { accessRuleToCopyRequest, copyRuleName } from "./helpers/access-rule-copy";
 export { resolveCollectionNames } from "./helpers/collection-names";
 export { conflictingCollectionIds } from "./helpers/collection-conflicts";
-export { accessRuleDeleteConfirmOptions } from "./helpers/access-rule-delete-confirm";
-export { accessRuleDeactivateConfirmOptions } from "./helpers/access-rule-deactivate-confirm";
 export { filterRulesToToggle } from "./helpers/filter-rules-to-toggle";
 export { approvalMethodLabelKeys } from "./helpers/approval-method";
 export {
@@ -116,3 +112,23 @@ export {
   isRequestNoLongerPendingError,
 } from "./helpers/decide-access-error";
 export { selectedFilterStrings } from "./helpers/selected-filter-strings";
+export {
+  ACCESS_BADGE_LOOK,
+  cipherAccessBadgeState,
+  ENDING_SOON_THRESHOLD_MS,
+} from "./access-state-badge/access-badge-state";
+export type { AccessBadgeState } from "./access-state-badge/access-badge-state";
+export { formatCompoundDuration, formatDuration } from "./date/format-duration";
+export { formatRequestedWindow } from "./date/format-window";
+export { isGovernedCipher } from "./helpers/governed-cipher";
+export { isLeaseLive } from "./helpers/lease-liveness";
+export { isUnlicensedError } from "./helpers/pam-license-error";
+export { sharedFolderKey } from "./helpers/shared-folder-key";
+export { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
+export { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
+export { AccessRulesSdkService } from "./services/access-rules-sdk.service";
+export { ApprovalsSdkService } from "./services/approvals-sdk.service";
+export { DefaultAccessEventService } from "./services/default-access-event.service";
+export { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
+export { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
+export { callerOrganizations$, unlicensedForPam } from "./services/pam-membership";

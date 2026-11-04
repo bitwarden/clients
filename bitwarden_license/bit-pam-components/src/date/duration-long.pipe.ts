@@ -1,6 +1,6 @@
 import { LOCALE_ID, Pipe, PipeTransform, inject } from "@angular/core";
 
-import { formatDuration } from "./format-duration";
+import { formatDuration } from "@bitwarden/bit-pam";
 
 /** Spelled-out, localized duration label, e.g. `15 minutes`, `4 hours`, `1 day`. */
 @Pipe({

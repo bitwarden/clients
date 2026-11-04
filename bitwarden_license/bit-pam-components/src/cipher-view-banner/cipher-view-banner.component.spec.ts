@@ -3,6 +3,24 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, NEVER, of, Subject } from "rxjs";
 
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  LeasingErrorService,
+  ACCESS_BADGE_LOOK,
+  formatDuration,
+  REQUEST_ACCESS_SERVER_ERRORS,
+  composeRequestWindow,
+  toDateInputValue,
+  DefaultAccessRefreshService,
+} from "@bitwarden/bit-pam";
+import type {
+  AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestView,
+  CipherAccessStateView,
+} from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,22 +32,8 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type {
-  AccessLeaseView,
-  AccessPreCheckView,
-  AccessRequestView,
-  CipherAccessStateView,
-} from "../abstractions/access-lease";
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { LeasingErrorService } from "../abstractions/leasing-error.service";
-import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
-import { formatDuration } from "../date/format-duration";
-import { REQUEST_ACCESS_SERVER_ERRORS } from "../helpers/request-access-error";
-import { composeRequestWindow, toDateInputValue } from "../helpers/request-access-window";
+
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
-import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";

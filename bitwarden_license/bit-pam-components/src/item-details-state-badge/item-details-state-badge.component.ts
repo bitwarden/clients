@@ -13,6 +13,15 @@ import {
   take,
 } from "rxjs";
 
+import {
+  AccessRefreshService,
+  AccessRequestSdkService,
+  AccessBadgeState,
+  cipherAccessBadgeState,
+  isGovernedCipher,
+  liveActiveLease,
+} from "@bitwarden/bit-pam";
+import type { CipherAccessStateView } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -22,14 +31,9 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import type { CipherAccessStateView } from "../abstractions/access-lease";
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
+
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
-import { isGovernedCipher } from "../helpers/governed-cipher";
-import { liveActiveLease } from "../helpers/lease-liveness";
 
 /**
  * Binds `ITEM_DETAILS_BADGE`, the access-state pill on the open item's name row. A live

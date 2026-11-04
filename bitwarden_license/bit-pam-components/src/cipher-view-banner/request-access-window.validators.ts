@@ -4,7 +4,7 @@ import {
   type RequestWindowFormValue,
   type RequestWindowProblem,
   requestWindowProblem,
-} from "../helpers/request-access-window";
+} from "@bitwarden/bit-pam";
 
 export const REQUEST_WINDOW_ERROR_KEY = "requestWindow";
 

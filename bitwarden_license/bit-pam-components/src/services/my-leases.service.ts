@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
 import { catchError, defer, map, Observable, of, shareReplay } from "rxjs";
 
+import { AccessLeaseSdkService } from "@bitwarden/bit-pam";
+import type { AccessLeaseView } from "@bitwarden/bit-pam";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
-import type { AccessLeaseView } from "../abstractions/access-lease";
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
 
 /** How long a cached read serves new consumers, checked lazily on access. */
 const CACHE_TTL_MS = 30_000;

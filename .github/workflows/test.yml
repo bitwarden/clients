@@ -83,7 +83,7 @@ jobs:
             artifact: jest-coverage-cli
             junit: junit-cli.xml
           - name: Libs
-            paths: libs bitwarden_license/bit-common bitwarden_license/bit-pam
+            paths: libs bitwarden_license/bit-common bitwarden_license/bit-pam bitwarden_license/bit-pam-components
             artifact: jest-coverage-libs
             junit: junit-libs.xml
 

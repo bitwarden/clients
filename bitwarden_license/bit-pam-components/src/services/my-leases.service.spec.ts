@@ -1,10 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import type { AccessLeaseView } from "../abstractions/access-lease";
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
+import { AccessLeaseSdkService } from "@bitwarden/bit-pam";
+import type { AccessLeaseView } from "@bitwarden/bit-pam";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { MyLeasesService } from "./my-leases.service";
 

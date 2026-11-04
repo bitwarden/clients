@@ -1,5 +1,5 @@
-import type { AccessRuleView } from "@bitwarden/bit-pam/abstractions/access-rule";
-import { approvalMethodLabelKeys } from "@bitwarden/bit-pam/helpers/approval-method";
+import { approvalMethodLabelKeys } from "@bitwarden/bit-pam";
+import type { AccessRuleView } from "@bitwarden/bit-pam";
 
 type SummarizableRule = Pick<AccessRuleView, "conditions" | "singleActiveLease">;
 

@@ -24,9 +24,8 @@ import {
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam/access-state-badge/access-badge-ticker.service";
-import { ElapsedLabel, elapsedLabel } from "@bitwarden/bit-pam/date/elapsed";
-import { selectedFilterStrings } from "@bitwarden/bit-pam/helpers/selected-filter-strings";
+import { ElapsedLabel, elapsedLabel, selectedFilterStrings } from "@bitwarden/bit-pam";
+import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";

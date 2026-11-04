@@ -1,15 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { NEVER } from "rxjs";
 
+import { AccessRequestSdkService, DefaultAccessRefreshService } from "@bitwarden/bit-pam";
+import type { AccessRequestId, CipherAccessStateView } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessRequestId, CipherAccessStateView } from "../abstractions/access-lease";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
 import { AccessRequestCancelService } from "./access-request-cancel.service";
-import { DefaultAccessRefreshService } from "./default-access-refresh.service";
 
 const CIPHER_ID = "cipher-1";
 const REQUEST_ID = "request-1" as unknown as AccessRequestId;

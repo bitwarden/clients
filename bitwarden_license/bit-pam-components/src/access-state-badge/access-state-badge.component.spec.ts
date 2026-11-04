@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
+import { AccessBadgeState } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { AccessBadgeState } from "./access-badge-state";
 import { AccessStateBadgeComponent } from "./access-state-badge.component";
 
 describe("AccessStateBadgeComponent", () => {

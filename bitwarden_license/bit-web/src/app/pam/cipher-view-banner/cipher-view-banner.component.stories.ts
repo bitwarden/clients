@@ -2,13 +2,17 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { EMPTY, of } from "rxjs";
 
-import { AccessLeaseSdkService } from "@bitwarden/bit-pam/abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "@bitwarden/bit-pam/abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "@bitwarden/bit-pam/abstractions/access-request-sdk.service";
-import { LeasingErrorService } from "@bitwarden/bit-pam/abstractions/leasing-error.service";
-import { CipherViewBannerComponent } from "@bitwarden/bit-pam/cipher-view-banner/cipher-view-banner.component";
-import { AccessRequestCancelService } from "@bitwarden/bit-pam/services/access-request-cancel.service";
-import { MyLeasesService } from "@bitwarden/bit-pam/services/my-leases.service";
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  LeasingErrorService,
+} from "@bitwarden/bit-pam";
+import {
+  CipherViewBannerComponent,
+  AccessRequestCancelService,
+  MyLeasesService,
+} from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

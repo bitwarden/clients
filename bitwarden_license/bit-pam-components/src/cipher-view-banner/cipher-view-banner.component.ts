@@ -31,6 +31,41 @@ import {
   switchMap,
 } from "rxjs";
 
+import {
+  type AccessApprovalMode,
+  type AccessRequestCreateRequest,
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  apiErrorBodyMessage,
+  LeasingErrorService,
+  ACCESS_BADGE_LOOK,
+  ENDING_SOON_THRESHOLD_MS,
+  formatCompoundDuration,
+  formatDuration,
+  formatRemaining,
+  activateAccessErrorMessageKey,
+  isGovernedCipher,
+  liveActiveLease,
+  rereadOnLapse,
+  DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
+  REQUEST_ACCESS_DURATION_PRESETS,
+  type RequestDurationOption,
+  requestDurationOptions,
+  snapToNearestDuration,
+  isUnlicensedError,
+  classifyRequestAccessError,
+  type RequestWindowProblem,
+  composeRequestWindow,
+  defaultRequestWindow,
+  startTimeSlots,
+  toDateInputValue,
+  toTimeInputValue,
+  windowEndAt,
+  requestedWindowSeconds,
+  callerOrganizations$,
+  unlicensedForPam,
+} from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -55,50 +90,12 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  type AccessApprovalMode,
-  type AccessRequestCreateRequest,
-} from "../abstractions/access-lease";
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { apiErrorBodyMessage } from "../abstractions/api-error";
-import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
-import {
-  ACCESS_BADGE_LOOK,
-  ENDING_SOON_THRESHOLD_MS,
-} from "../access-state-badge/access-badge-state";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
-import { formatCompoundDuration, formatDuration } from "../date/format-duration";
-import { formatRemaining } from "../date/format-remaining";
-import { activateAccessErrorMessageKey } from "../helpers/activate-access-error";
-import { isGovernedCipher } from "../helpers/governed-cipher";
-import { liveActiveLease, rereadOnLapse } from "../helpers/lease-liveness";
-import {
-  DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
-  REQUEST_ACCESS_DURATION_PRESETS,
-  type RequestDurationOption,
-  requestDurationOptions,
-  snapToNearestDuration,
-} from "../helpers/lease-window.utils";
-import { isUnlicensedError } from "../helpers/pam-license-error";
-import { classifyRequestAccessError } from "../helpers/request-access-error";
-import {
-  type RequestWindowProblem,
-  composeRequestWindow,
-  defaultRequestWindow,
-  startTimeSlots,
-  toDateInputValue,
-  toTimeInputValue,
-  windowEndAt,
-} from "../helpers/request-access-window";
-import { requestedWindowSeconds } from "../helpers/requested-window";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
-import { callerOrganizations$, unlicensedForPam } from "../services/pam-membership";
 
 import {
   REQUEST_WINDOW_ERROR_KEY,
