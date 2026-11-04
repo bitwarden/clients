@@ -9117,6 +9117,15 @@
     "message": "<1m left",
     "description": "Badge for a vault item whose access ends in under a minute."
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "In use"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Ending soon"
+  },
   "pamEndedBannerHeading": {
     "message": "Your access has ended"
   },

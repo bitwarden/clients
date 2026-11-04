@@ -14,6 +14,8 @@ import {
   CipherViewBannerComponent,
   ItemDetailsStateBadgeComponent,
   AccessRequestCancelService,
+  controlledAccessItemFilter,
+  ControlledAccessVaultFilterService,
   MyLeasesService,
 } from "@bitwarden/bit-pam-components";
 import { FillCipherPolicy } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
@@ -29,7 +31,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeInjectionToken, SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import { CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
+import { CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE, VAULT_ITEM_FILTER } from "@bitwarden/vault";
 
 import { requestLeaseRefresh } from "../lease-messages";
 import { PamFillCipherPolicy } from "../pam-fill-cipher-policy";
@@ -110,6 +112,17 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
+    }),
+    // One per-row state read per list, shared by every option's count and the selection.
+    safeProvider({
+      provide: ControlledAccessVaultFilterService,
+      useClass: ControlledAccessVaultFilterService,
+      deps: [],
+    }),
+    safeProvider({
+      provide: VAULT_ITEM_FILTER,
+      useFactory: controlledAccessItemFilter,
+      deps: [I18nService, ControlledAccessVaultFilterService],
     }),
     safeProvider({
       provide: VAULT_ROW_ACCESS,
