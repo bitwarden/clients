@@ -346,6 +346,7 @@ export class Program extends BaseProgram {
       .option("-c, --capitalize", "Title case passphrase.")
       .option("--includeNumber", "Passphrase includes number.")
       .option("--ambiguous", "Avoid ambiguous characters.")
+      .option("--copy", "Copy the generated value to the clipboard instead of printing it.")
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
@@ -364,6 +365,7 @@ export class Program extends BaseProgram {
         writeLn("    bw generate -p --separator _");
         writeLn("    bw generate -p --words 5 --separator space");
         writeLn("    bw generate -p --words 5 --separator empty");
+        writeLn("    bw generate -ulns --length 24 --copy");
         writeLn("", true);
       })
       .action(async (options) => {
@@ -372,7 +374,13 @@ export class Program extends BaseProgram {
           this.serviceContainer.tokenService,
           this.serviceContainer.accountService,
         );
-        const response = await command.run(options);
+        let response = await command.run(options);
+        if (options.copy) {
+          response = await this.serviceContainer.cliClipboardService.copyResponse(
+            response,
+            options.passphrase ? "passphrase" : "password",
+          );
+        }
         this.processResponse(response);
       });
 

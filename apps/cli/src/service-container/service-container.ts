@@ -260,6 +260,7 @@ import { CliProcessReloadService } from "../key-management/cli-process-reload.se
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
+import { CliClipboardService } from "../platform/services/cli-clipboard.service";
 import { CliIpcService } from "../platform/services/cli-ipc.service";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
@@ -289,6 +290,7 @@ export class ServiceContainer {
   migrationRunner: MigrationRunner;
   i18nService: I18nService;
   platformUtilsService: CliPlatformUtilsService;
+  cliClipboardService: CliClipboardService;
   keyService: KeyService;
   legacyCompatKeyService: LegacyCompatKeyService;
   tokenService: TokenService;
@@ -973,6 +975,8 @@ export class ServiceContainer {
     this.cliRestrictedItemTypesService = new CliRestrictedItemTypesService(
       this.restrictedItemTypesService,
     );
+
+    this.cliClipboardService = new CliClipboardService();
 
     // FIXME: CLI does not support autofill
     this.autofillSettingsService = new AutofillSettingsService(
