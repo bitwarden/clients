@@ -83,6 +83,7 @@ const colorizedPasswordStyles = (theme: Theme) => css`
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: 0.05rem;
+  white-space: pre;
   color: ${themes[theme].text.main};
 `;
 

@@ -597,6 +597,7 @@ body * {
     justify-content: flex-start;
     flex-wrap: wrap;
     width: 100%;
+    white-space: pre;
 
     .password-special {
       @include themify($themes) {
