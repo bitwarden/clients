@@ -2,9 +2,9 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+import { DAY, STORY_NOW, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { DAY, STORY_NOW, startClockAtStoryNow } from "../../testing/story-fixtures";
 import { AUDIT_HISTORY_DAYS, auditRangeValue } from "../access-audit-row";
 
 import {

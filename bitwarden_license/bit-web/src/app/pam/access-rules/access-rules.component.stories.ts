@@ -6,11 +6,11 @@ import { of } from "rxjs";
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "..";
 import { GovernedCollectionsService } from "../services/governed-collections.service";
-import { startClockAtStoryNow } from "../testing/story-fixtures";
 
 import { AccessRulesComponent } from "./access-rules.component";
 
