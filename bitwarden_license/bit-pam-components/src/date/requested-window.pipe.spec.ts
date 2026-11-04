@@ -43,7 +43,7 @@ describe("RequestedWindowPipe", () => {
   it("formats a future window as a range", () => {
     const text = pipeFor("en-US").transform(at(2026, 8, 25, 9, 0), at(2026, 8, 25, 10, 0), NOW);
 
-    expect(text).toBe("Aug 25, 9 AM to 10 AM");
+    expect(text).toBe("Aug 25, 2026, 9 AM to 10 AM");
   });
 
   it("formats a window already open as its end alone", () => {

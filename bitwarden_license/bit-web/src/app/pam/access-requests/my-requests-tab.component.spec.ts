@@ -6,7 +6,7 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
-import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-pam";
+import { ACCESS_BADGE_LOOK, formatCalendarDate } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -633,11 +633,7 @@ describe("MyRequestsTabComponent", () => {
         ]);
         create();
 
-        const expected = new Intl.DateTimeFormat(undefined, {
-          month: "short",
-          day: "numeric",
-        }).format(opens);
-        expect(text(rows()[0])).toContain(expected);
+        expect(text(rows()[0])).toContain(formatCalendarDate("en-US", opens.getTime()));
       });
 
       it("leaves a window inside today with bare times", () => {

@@ -49,7 +49,7 @@
             class="tw-text-fg-body-subtle"
             data-testid="active-lease-ends-at"
           >
-            {{ "pamWindowUntil" | i18n: (lease.notAfter | date: "short") }}
+            {{ "pamWindowUntil" | i18n: (lease.notAfter | timestamp) }}
           </span>
         </div>
 
@@ -103,10 +103,9 @@
         <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
           <span bitTypography="body2" data-testid="approved-access-window">
             @if (approvedRequestStartsNow()) {
-              {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | date: "short") }}
+              {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | timestamp) }}
             } @else {
-              {{ request.leaseNotBefore | date: "short" }} &ndash;
-              {{ request.leaseNotAfter | date: "short" }}
+              {{ approvedWindow() }}
             }
           </span>
           <span class="tw-flex tw-items-center tw-gap-2">
@@ -232,56 +231,33 @@
     </h2>
   }
 
-  @if (activeLease(); as lease) {
-    <app-pam-active-lease-card
-      class="tw-mb-5 bit-compact:tw-mb-4"
-      [lease]="lease"
-      [nowMs]="nowMs()"
-      [canExtend]="canExtendLease()"
-      [extendAction]="extendLease"
-      [endAction]="endLease"
-    />
-  } @else if (approvedRequest(); as request) {
-    <app-pam-approved-request-card
-      class="tw-mb-5 bit-compact:tw-mb-4"
-      [request]="request"
-      [nowMs]="nowMs()"
-      [startAction]="activateRequest"
-    />
-  } @else if (pendingRequest(); as request) {
-    <app-pam-pending-request-card
-      class="tw-mb-5 bit-compact:tw-mb-4"
-      [request]="request"
-      [nowMs]="nowMs()"
-    >
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        size="small"
-        class="tw-self-start"
-        [bitAction]="cancelRequest"
-        id="pam-cipher-view-banner_button_cancel"
-      >
-        {{ "pendingStateCancelRequest" | i18n }}
-      </button>
-    </app-pam-pending-request-card>
-  } @else if (unavailable()) {
-    <app-pam-unavailable-card class="tw-mb-5 bit-compact:tw-mb-4" />
-  } @else if (accessEnded()) {
-    <app-pam-access-ended-card class="tw-mb-5 bit-compact:tw-mb-4">
-      @if (canRequestAccess()) {
-        <ng-container [ngTemplateOutlet]="requestAccessAction" />
-      }
-    </app-pam-access-ended-card>
-  } @else if (canRequestAccess()) {
-    <app-pam-request-access-card
-      class="tw-mb-5 bit-compact:tw-mb-4"
-      [terms]="restingRequestTerms()"
-    >
-      <ng-container [ngTemplateOutlet]="requestAccessAction" />
-    </app-pam-request-access-card>
-  }
+        @if (loadingRequestForm()) {
+          <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
+        } @else if (requestMode() !== null) {
+          @if (slotContention(); as contention) {
+            <!--
+              Replaces the description, whose immediate-access copy is false while the slot is
+              taken. The form stays enabled, since the request is still worth making.
+            -->
+            <p bitTypography="body2" class="tw-mb-4 tw-mt-0 tw-flex tw-items-start tw-gap-2">
+              <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />
+              <span>
+                @if (contention.freesAt) {
+                  {{ "pamRequestSlotTakenUntil" | i18n: (contention.freesAt | timestamp) }}
+                } @else {
+                  {{ "pamRequestSlotTaken" | i18n }}
+                }
+              </span>
+            </p>
+          } @else {
+            <p bitTypography="body2" class="tw-mb-4 tw-mt-0">
+              @if (requestMode() === "automatic") {
+                {{ "requestAccessModalAutomaticDescription" | i18n }}
+              } @else {
+                {{ "requestAccessModalHumanDescription" | i18n }}
+              }
+            </p>
+          }
 
   <!-- Request access, inside whichever card offers a new request. -->
   <ng-template #requestAccessAction>
