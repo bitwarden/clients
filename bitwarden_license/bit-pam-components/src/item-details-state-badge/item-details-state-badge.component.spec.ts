@@ -11,6 +11,7 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 
+
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge.component";
 
 describe("ItemDetailsStateBadgeComponent", () => {

@@ -44,6 +44,10 @@
       "name": "pam (bit)",
       "path": "bitwarden_license/bit-pam",
     },
+    {
+      "name": "pam components (bit)",
+      "path": "bitwarden_license/bit-pam-components",
+    },
   ],
   "settings": {
     "eslint.options": {

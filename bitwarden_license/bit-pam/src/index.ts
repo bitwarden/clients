@@ -113,13 +113,17 @@ export {
 } from "./helpers/decide-access-error";
 export { selectedFilterStrings } from "./helpers/selected-filter-strings";
 export {
+  ACCESS_BADGE_LOOK,
   cipherAccessBadgeState,
   ENDING_SOON_THRESHOLD_MS,
 } from "./access-state-badge/access-badge-state";
 export type { AccessBadgeState } from "./access-state-badge/access-badge-state";
 export { formatCompoundDuration, formatDuration } from "./date/format-duration";
+export { formatRequestedWindow } from "./date/format-window";
 export { isGovernedCipher } from "./helpers/governed-cipher";
+export { isLeaseLive } from "./helpers/lease-liveness";
 export { isUnlicensedError } from "./helpers/pam-license-error";
+export { sharedFolderKey } from "./helpers/shared-folder-key";
 export { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 export { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
 export { AccessRulesSdkService } from "./services/access-rules-sdk.service";
