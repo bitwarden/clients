@@ -232,7 +232,7 @@ export class NativeMessagingMain {
 
             try {
               let manifest: any = await this.generateChromeJson(binaryPath);
-              if (key === "Firefox" || key === "Zen") {
+              if (key === "Firefox" || key === "Zen" || key === "Sval") {
                 await fs.mkdir(nmhsPath, { recursive: true });
                 manifest = await this.generateFirefoxJson(binaryPath);
               }
@@ -493,6 +493,7 @@ export class NativeMessagingMain {
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
+      Sval: `${this.homedir()}/Library/Application\ Support/Sval/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
       Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
       "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
