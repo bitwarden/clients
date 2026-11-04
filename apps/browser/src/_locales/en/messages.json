@@ -4385,9 +4385,6 @@
       }
     }
   },
-  "loggingInOn": {
-    "message": "Logging in on:"
-  },
   "serverVersion": {
     "message": "Server version"
   },
