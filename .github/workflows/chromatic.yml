@@ -57,6 +57,7 @@ jobs:
           filters: |
             storyFiles:
               - "apps/!(cli)/**"
+              - "bitwarden_license/bit-pam-components/**"
               - "bitwarden_license/bit-web/src/app/**"
               - "libs/!(eslint)/**"
               - "package.json"

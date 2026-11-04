@@ -57,6 +57,10 @@ import {
 } from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import {
+  PrivilegedControlsAdjustSubscriptionComponent,
+  PrivilegedControlsSubscriptionOptions,
+} from "./privileged-controls-adjust-subscription.component";
 import { PrivilegedControlsPurchaseComponent } from "./privileged-controls-purchase.component";
 import { resolveOrgSubscriptionAccess } from "./resolve-org-subscription-access";
 import {
@@ -114,6 +118,7 @@ const SubscriptionStatusLabels: Record<string, string> = {
     SecretsManagerSubscribeStandaloneComponent,
     SecretsManagerAdjustSubscriptionComponent,
     PrivilegedControlsPurchaseComponent,
+    PrivilegedControlsAdjustSubscriptionComponent,
     ErrorCardComponent,
     CalloutComponent,
     DatePipe,
@@ -138,6 +143,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   // Seeded so the streams load once on init, then reload each time refreshAll() emits.
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
   readonly organizationId: string = this.route.snapshot.params.organizationId;
+  protected readonly typedOrganizationId = this.organizationId as OrganizationId;
   readonly gearIcon = GearIcon;
 
   constructor() {
@@ -375,6 +381,20 @@ export class OrganizationSubscriptionCloudVNextComponent {
     );
   });
 
+  readonly showAdjustPrivilegedControls = computed(() => {
+    const org = this.organization();
+    const sub = this.organizationSubscription();
+    if (!this.pamBillingSupportEnabled() || org == null || sub == null) {
+      return false;
+    }
+    return (
+      org.usePam &&
+      this.privilegedControlsOptions() != null &&
+      sub.isOnPamSalesInitiatedTrial !== true &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
+    );
+  });
+
   /**
    * Determines if the password manager seats can be adjusted.
    * @returns True if the password manager seats can be adjusted, false otherwise.
@@ -499,6 +519,25 @@ export class OrganizationSubscriptionCloudVNextComponent {
       graceServiceAccounts: sub.smServiceAccountsGrace ?? 0,
     };
   });
+
+  readonly privilegedControlsOptions = computed<PrivilegedControlsSubscriptionOptions | null>(
+    () => {
+      const sub = this.organizationSubscription();
+      const plan = sub?.plan;
+      const privilegedControls = plan?.PrivilegedControls;
+      if (sub == null || plan == null || privilegedControls == null || sub.pamSeats == null) {
+        return null;
+      }
+      return {
+        seatCount: sub.pamSeats,
+        maxAutoscaleSeats: sub.maxAutoscalePamSeats,
+        passwordManagerSeats: sub.seats,
+        passwordManagerMaxAutoscaleSeats: sub.maxAutoscaleSeats ?? undefined,
+        seatPrice: privilegedControls.seatPrice,
+        interval: plan.isAnnual ? "year" : "month",
+      };
+    },
+  );
 
   /**
    * Retrieves the description of the subscription for display purposes.

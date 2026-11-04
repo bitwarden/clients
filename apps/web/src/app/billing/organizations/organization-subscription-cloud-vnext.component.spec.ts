@@ -26,6 +26,7 @@ import { OrganizationBillingClient } from "../clients";
 import { AdjustSubscription } from "./adjust-subscription.component";
 import { OrganizationSubscriptionCloudVNextComponent } from "./organization-subscription-cloud-vnext.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import { PrivilegedControlsAdjustSubscriptionComponent } from "./privileged-controls-adjust-subscription.component";
 import { PrivilegedControlsPurchaseComponent } from "./privileged-controls-purchase.component";
 import * as restartSubscriptionDialog from "./restart-subscription-dialog.component";
 import { RestartSubscriptionDialogResultType } from "./restart-subscription-dialog.component";
@@ -98,6 +99,17 @@ class MockSmAdjustSubscriptionComponent {
 }
 
 @Component({
+  selector: "app-privileged-controls-adjust-subscription",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockPrivilegedControlsAdjustSubscriptionComponent {
+  readonly organizationId = input<unknown>();
+  readonly options = input<unknown>();
+  readonly adjusted = output<void>();
+}
+
+@Component({
   selector: "app-organization-scheduled-price-increase-warning",
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -117,9 +129,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   };
   let router: jest.Mocked<Router>;
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
+  let configService: jest.Mocked<ConfigService>;
   let previewCartFlag$: BehaviorSubject<boolean>;
   let openRestartDialog: jest.SpyInstance;
-  let configService: jest.Mocked<ConfigService>;
 
   const buildOrganization = (overrides: Partial<Organization> = {}): Organization =>
     ({
@@ -153,6 +165,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       maxAutoscaleSmServiceAccounts: 10,
       smServiceAccounts: 60,
       smServiceAccountsGrace: 0,
+      pamSeats: 15,
+      maxAutoscalePamSeats: undefined,
+      isOnPamSalesInitiatedTrial: false,
       customerDiscount: null,
       plan: {
         nameLocalizationKey: "teams",
@@ -169,6 +184,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           seatPrice: 6,
           baseServiceAccount: 50,
           additionalPricePerServiceAccount: 0.5,
+        },
+        PrivilegedControls: {
+          seatPrice: 5,
         },
       },
       subscription: {
@@ -265,9 +283,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: Router, useValue: router },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: ConfigService, useValue: configService },
         DatePipe,
         { provide: AccountService, useValue: mock<AccountService>() },
-        { provide: ConfigService, useValue: configService },
       ],
     });
 
@@ -278,6 +296,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           AdjustSubscription,
           SecretsManagerSubscribeStandaloneComponent,
           SecretsManagerAdjustSubscriptionComponent,
+          PrivilegedControlsAdjustSubscriptionComponent,
           OrganizationScheduledPriceIncreaseWarningComponent,
           PrivilegedControlsPurchaseComponent,
         ],
@@ -288,6 +307,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           MockAdjustSubscriptionComponent,
           MockSmSubscribeStandaloneComponent,
           MockSmAdjustSubscriptionComponent,
+          MockPrivilegedControlsAdjustSubscriptionComponent,
           MockScheduledPriceIncreaseWarningComponent,
           MockPrivilegedControlsPurchaseComponent,
         ],
@@ -1045,6 +1065,204 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       fixture.detectChanges();
       expect(component.showSecretsManagerSubscribe()).toBe(true);
       expect(moreFromBitwardenHeadings().length).toBe(0);
+    });
+  });
+
+  describe("privileged controls adjust gating", () => {
+    const enablePamBillingSupport = () =>
+      configService.getFeatureFlag$.mockImplementation(
+        (flag) => of(flag === FeatureFlag.PamBillingSupport) as any,
+      );
+
+    const renderAdjust = async (options?: {
+      organization?: Organization;
+      subscription?: OrganizationSubscriptionResponse;
+    }) => {
+      createComponent({
+        organization:
+          options?.organization ?? buildOrganization({ canEditSubscription: true, usePam: true }),
+        subscription: options?.subscription,
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const adjustElement = () =>
+      fixture.nativeElement.querySelector("app-privileged-controls-adjust-subscription");
+
+    beforeEach(() => enablePamBillingSupport());
+
+    it("shows the adjust block for an active Privileged Controls subscription", async () => {
+      await renderAdjust();
+
+      expect(component.showAdjustPrivilegedControls()).toBe(true);
+      expect(adjustElement()).not.toBeNull();
+    });
+
+    it("hides the adjust block when the feature flag is off", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+
+      await renderAdjust();
+
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.PamBillingSupport);
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the organization does not use Privileged Controls", async () => {
+      await renderAdjust({
+        organization: buildOrganization({ canEditSubscription: true, usePam: false }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the plan has no Privileged Controls pricing", async () => {
+      const subscription = buildSubscriptionResponse();
+      subscription.plan = { ...subscription.plan, PrivilegedControls: undefined } as any;
+
+      await renderAdjust({ subscription });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the organization has no Privileged Controls seats", async () => {
+      await renderAdjust({ subscription: buildSubscriptionResponse({ pamSeats: undefined }) });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block during a sales-initiated Privileged Controls trial", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({ isOnPamSalesInitiatedTrial: true }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("shows the adjust block when the server omits the sales-initiated trial flag", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({ isOnPamSalesInitiatedTrial: undefined }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(true);
+      expect(adjustElement()).not.toBeNull();
+    });
+
+    it("hides the adjust block when the subscription is cancelled", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({
+          subscription: { cancelled: true, items: [] } as any,
+        }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the subscription is pending cancellation", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({
+          subscription: {
+            cancelled: false,
+            cancelAtEndDate: true,
+            status: "active",
+            items: [],
+          } as any,
+        }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("does not render the adjust block for a user who cannot edit the subscription", async () => {
+      await renderAdjust({
+        organization: buildOrganization({ canEditSubscription: false, usePam: true }),
+      });
+
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("passes the organization id and options to the adjust block", async () => {
+      await renderAdjust();
+
+      const child = fixture.debugElement.query(
+        (el) => el.componentInstance instanceof MockPrivilegedControlsAdjustSubscriptionComponent,
+      ).componentInstance as MockPrivilegedControlsAdjustSubscriptionComponent;
+
+      expect(child.organizationId()).toBe("org-123");
+      expect(child.options()).toEqual(component.privilegedControlsOptions());
+    });
+
+    it("refreshes the subscription and preview when the adjust block reports a change", async () => {
+      await renderAdjust();
+
+      const subscriptionReload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+      const previewReload = jest.spyOn(component.subscriptionPreview, "reload");
+      const child = fixture.debugElement.query(
+        (el) => el.componentInstance instanceof MockPrivilegedControlsAdjustSubscriptionComponent,
+      ).componentInstance as MockPrivilegedControlsAdjustSubscriptionComponent;
+
+      child.adjusted.emit();
+
+      expect(subscriptionReload).toHaveBeenCalled();
+      expect(previewReload).toHaveBeenCalled();
+    });
+  });
+
+  describe("privileged controls options", () => {
+    it("maps the Privileged Controls seat options from the subscription", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ maxAutoscalePamSeats: 25 }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()).toEqual({
+        seatCount: 15,
+        maxAutoscaleSeats: 25,
+        passwordManagerSeats: 10,
+        passwordManagerMaxAutoscaleSeats: 20,
+        seatPrice: 5,
+        interval: "year",
+      });
+    });
+
+    it("passes no Password Manager limit when the organization has none", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ maxAutoscaleSeats: null as unknown as number }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(
+        component.privilegedControlsOptions()?.passwordManagerMaxAutoscaleSeats,
+      ).toBeUndefined();
+    });
+
+    it("uses a monthly interval for a monthly plan", async () => {
+      const subscription = buildSubscriptionResponse();
+      subscription.plan = { ...subscription.plan, isAnnual: false } as any;
+      createComponent({ subscription, detectChanges: true });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()?.interval).toBe("month");
+    });
+
+    it("returns null when the organization has no Privileged Controls seats", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ pamSeats: undefined }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()).toBeNull();
     });
   });
 

@@ -12,6 +12,11 @@ export type PurchasePrivilegedControlsRequest = {
   maxAutoscaleSeats: number | null;
 };
 
+export type UpdatePrivilegedControlsSubscriptionRequest = {
+  seatAdjustment: number;
+  maxAutoscaleSeats: number | null;
+};
+
 export class ChurnMitigationOfferResponseModel extends BaseResponse {
   couponId: string;
   percentOff: number | null;
@@ -113,6 +118,19 @@ export class OrganizationBillingClient {
     await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/billing/subscription/privileged-controls/purchase`,
+      request,
+      true,
+      false,
+    );
+  };
+
+  updatePrivilegedControlsSubscription = async (
+    organizationId: OrganizationId,
+    request: UpdatePrivilegedControlsSubscriptionRequest,
+  ): Promise<void> => {
+    await this.apiService.send(
+      "PUT",
+      `/organizations/${organizationId}/billing/subscription/privileged-controls`,
       request,
       true,
       false,
