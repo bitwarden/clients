@@ -149,7 +149,10 @@
           @for (preset of timePresets; track preset.value) {
             <bit-filter-option [value]="preset.value">{{ preset.label }}</bit-filter-option>
           }
-          <bit-filter-option value="custom">{{ customPeriodLabel }}</bit-filter-option>
+          @if (customRangeLabel(); as label) {
+            <bit-filter-option value="custom">{{ label }}</bit-filter-option>
+          }
+          <bit-filter-option [value]="chooseCustomRange">{{ customPeriodLabel }}</bit-filter-option>
         </bit-filter-menu>
       </bit-table-toolbar>
       <ng-container slot="empty">
