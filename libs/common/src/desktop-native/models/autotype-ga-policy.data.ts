@@ -29,11 +29,20 @@ const AUTOTYPE_SHORTCUT_TEXT_MODIFIERS: Record<string, string> = {
   `default` stores the built-in shortcut, ["Control", "Alt", "B"] (Ctrl+Alt+B).
   `custom` stores Electron modifier names (Control, Alt, Super) plus a letter.
   Super is the Windows key, and the Command key on macOS.
+  `alwaysAskBeforeFilling` is an enforcement. Missing or non-boolean values are off.
 */
 export type AutotypeGaPolicyData = {
   shortcutOption: AutotypeShortcutOption;
   defaultKeyboardShortcut: string[] | null;
+  alwaysAskBeforeFilling: boolean;
 };
+
+/** True only for an explicit boolean true. Missing and non-boolean values are off. */
+export function alwaysAskBeforeFillingEnabled(
+  data: Partial<AutotypeGaPolicyData> | null | undefined,
+): boolean {
+  return data?.alwaysAskBeforeFilling === true;
+}
 
 /** One or two distinct modifiers, then a single letter A–Z. */
 export function isAutotypeGaShortcut(value: unknown): value is string[] {

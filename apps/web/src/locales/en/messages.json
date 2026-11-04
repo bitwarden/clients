@@ -9563,6 +9563,12 @@
   "defaultKeyboardShortcutPolicyHint": {
     "message": "Include Ctrl, Alt, or Win and at least 1 letter."
   },
+  "alwaysAskBeforeFilling": {
+    "message": "Always ask before filling"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Always show members a confirmation prompt when the desktop shortcut is entered."
+  },
   "invalidShortcut": {
     "message": "Invalid shortcut"
   },
