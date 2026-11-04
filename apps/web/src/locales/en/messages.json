@@ -20273,7 +20273,8 @@
     "message": "Custom script"
   },
   "pamTargetSystemTypeActiveDirectory": {
-    "message": "Active Directory (on-premises)"
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
   },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
