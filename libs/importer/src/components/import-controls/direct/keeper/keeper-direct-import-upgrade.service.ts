@@ -1,4 +1,6 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { ClientOptions, KeeperRegion, Ui, Vault } from "../../../../importers/keeper/access";
 import {
@@ -10,6 +12,8 @@ import {
  *  login prompts render in the import card rather than in the legacy dialog. */
 @Injectable({ providedIn: "root" })
 export class KeeperDirectImportUpgradeService {
+  private readonly logService = inject(LogService);
+
   async handleImport(
     email: string,
     region: KeeperRegion,
@@ -17,6 +21,6 @@ export class KeeperDirectImportUpgradeService {
   ): Promise<KeeperDirectImportResult> {
     const options: ClientOptions = { ui, region, accountDeviceApproval: true };
     const vault = await Vault.open(email, options);
-    return new KeeperDirectImporter().convertVaultToImportResult(vault);
+    return new KeeperDirectImporter(this.logService).convertVaultToImportResult(vault);
   }
 }

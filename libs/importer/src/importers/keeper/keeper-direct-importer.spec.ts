@@ -2,7 +2,9 @@
  * @jest-environment node
  */
 import { fromBinary } from "@bufbuild/protobuf";
+import { mock } from "jest-mock-extended";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -43,7 +45,7 @@ describe("Keeper Direct Importer", () => {
       new Uint8Array(Buffer.from(fixture.masterKey, "base64")),
     );
 
-    const importer = new KeeperDirectImporter();
+    const importer = new KeeperDirectImporter(mock<LogService>());
     ({ result, errors } = importer.convertVaultToImportResult(vault));
   });
 
@@ -574,7 +576,7 @@ describe("Keeper Direct Importer error handling", () => {
 
   function importWith(items: VaultItem[], vaultErrors: VaultRecordError[]) {
     const vault = new (Vault as any)(items, vaultErrors) as Vault;
-    return new KeeperDirectImporter().convertVaultToImportResult(vault);
+    return new KeeperDirectImporter(mock<LogService>()).convertVaultToImportResult(vault);
   }
 
   it("maps an UnsupportedVersion vault error to UnsupportedFeature with the UID as name", () => {

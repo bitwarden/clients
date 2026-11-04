@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, CipherType, BankAccountType } from "@bitwarden/common/vault/enums";
@@ -33,7 +34,7 @@ describe("Protonpass Json Importer", () => {
   beforeEach(() => {
     // By default disable all feature flags
     configService.getFeatureFlag.mockResolvedValue(false);
-    importer = new ProtonPassJsonImporter(i18nService, configService);
+    importer = new ProtonPassJsonImporter(i18nService, configService, mock<LogService>());
   });
 
   it("should parse login data", async () => {

@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 
 import { PasswordBossJsonImporter } from "./passwordboss-json-importer";
@@ -79,7 +82,7 @@ describe("Password Boss JSON Importer", () => {
   let importer: PasswordBossJsonImporter;
 
   beforeEach(() => {
-    importer = new PasswordBossJsonImporter();
+    importer = new PasswordBossJsonImporter(mock<LogService>());
   });
 
   it("parses the current flat-array export format", async () => {

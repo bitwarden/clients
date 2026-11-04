@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { DelineaXmlImporter } from "./delinea-xml-importer";
@@ -10,21 +13,21 @@ import {
 
 describe("Delinea Xml Importer", () => {
   it("should parse XML data", async () => {
-    const importer = new DelineaXmlImporter();
+    const importer = new DelineaXmlImporter(mock<LogService>());
     const result = await importer.parse(DelineaXmlTestDataNote);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();
   });
 
   it("should return error with missing root tag", async () => {
-    const importer = new DelineaXmlImporter();
+    const importer = new DelineaXmlImporter(mock<LogService>());
     const result = await importer.parse(DelineaXmlTestDataMissingRoot);
     expect(result.success).toEqual(false);
     expect(result.errorMessage).toBe("Missing `ImportFile` node.");
   });
 
   it("should import folders if they exist", async () => {
-    const importer = new DelineaXmlImporter();
+    const importer = new DelineaXmlImporter(mock<LogService>());
     const result = await importer.parse(DelineaXmlTestDataLogin);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();
@@ -36,7 +39,7 @@ describe("Delinea Xml Importer", () => {
   });
 
   it("should import Secrets without a url slug as Secure Notes with custom fields for all Secret info except notes", async () => {
-    const importer = new DelineaXmlImporter();
+    const importer = new DelineaXmlImporter(mock<LogService>());
     const result = await importer.parse(DelineaXmlTestDataNote);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();
@@ -60,7 +63,7 @@ describe("Delinea Xml Importer", () => {
   });
 
   it("should import Secrets with a url slug as Logins with Secret info set in the correct place", async () => {
-    const importer = new DelineaXmlImporter();
+    const importer = new DelineaXmlImporter(mock<LogService>());
     const result = await importer.parse(DelineaXmlTestDataLogin);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();
@@ -87,7 +90,7 @@ describe("Delinea Xml Importer", () => {
   });
 
   it("should ignore slugs whose values are empty", async () => {
-    const importer = new DelineaXmlImporter();
+    const importer = new DelineaXmlImporter(mock<LogService>());
     const result = await importer.parse(DelineaXmlTestDataEmptySlugValue);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();
