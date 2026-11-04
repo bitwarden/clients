@@ -25,15 +25,15 @@ import {
   humanApprover,
   reasonText,
   relativeStart,
-} from "@bitwarden/bit-common/pam";
+} from "@bitwarden/bit-pam";
 import type {
   AccessApprover,
   AccessDecisionVerdict,
-} from "@bitwarden/bit-common/pam/abstractions/access-lease";
-import type { AccessBadgeState } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
-import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
-import { DurationShortPipe } from "@bitwarden/bit-common/pam/date/duration-short.pipe";
-import { RemainingTimePipe } from "@bitwarden/bit-common/pam/date/remaining-time.pipe";
+} from "@bitwarden/bit-pam/abstractions/access-lease";
+import type { AccessBadgeState } from "@bitwarden/bit-pam/access-state-badge/access-badge-state";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-pam/access-state-badge/access-state-badge.component";
+import { DurationShortPipe } from "@bitwarden/bit-pam/date/duration-short.pipe";
+import { RemainingTimePipe } from "@bitwarden/bit-pam/date/remaining-time.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";

@@ -23,10 +23,10 @@ import {
   AccessRequestSdkService,
   liveActiveLease,
   rereadOnLapse,
-} from "@bitwarden/bit-common/pam";
-import type { CipherAccessStateView } from "@bitwarden/bit-common/pam/abstractions/access-lease";
-import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
-import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+} from "@bitwarden/bit-pam";
+import type { CipherAccessStateView } from "@bitwarden/bit-pam/abstractions/access-lease";
+import { AccessLeaseSdkService } from "@bitwarden/bit-pam/abstractions/access-lease-sdk.service";
+import { AccessBadgeTickerService } from "@bitwarden/bit-pam/access-state-badge/access-badge-ticker.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";

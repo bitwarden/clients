@@ -39,8 +39,8 @@ import {
   NO_DURATION_CAP,
   resolveCollectionNames,
   snapToNearestAccessRuleDuration,
-} from "@bitwarden/bit-common/pam";
-import { sharedFolderKey } from "@bitwarden/bit-common/pam/helpers/shared-folder-key";
+} from "@bitwarden/bit-pam";
+import { sharedFolderKey } from "@bitwarden/bit-pam/helpers/shared-folder-key";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";

@@ -26,7 +26,7 @@ import {
   LeasingErrorService,
   canApprove,
   isRequestNoLongerPendingError,
-} from "@bitwarden/bit-common/pam";
+} from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
