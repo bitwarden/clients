@@ -61,7 +61,6 @@ import {
   IconModule,
   IconTileComponent,
   IconTileOptions,
-  LinkModule,
   PopoverService,
   SearchModule,
   SelectionConfig,
@@ -71,6 +70,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { TableRowNameDirective } from "../../directives/table-row-name.directive";
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
 import {
   ALL_ITEMS_SCOPE,
@@ -292,10 +292,10 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     I18nPipe,
     IconModule,
     IconTileComponent,
-    LinkModule,
     NgComponentOutlet,
     SearchModule,
     SkeletonTextComponent,
+    TableRowNameDirective,
     VaultIconComponent,
     VaultItemsTableActionsColumnComponent,
   ],

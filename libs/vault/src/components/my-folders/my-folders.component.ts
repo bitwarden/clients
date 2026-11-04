@@ -37,7 +37,6 @@ import {
   IconButtonModule,
   IconTileComponent,
   LayoutFooterService,
-  LinkModule,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
@@ -46,6 +45,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { TableRowNameDirective } from "../../directives/table-row-name.directive";
 import { buildFolderRows, FolderTableRow } from "../../models/folder-table-row";
 import { folderCommands } from "../../models/vault-scope";
 import { MyFolderActionsService } from "../../services/my-folder-actions.service";
@@ -92,10 +92,10 @@ import { EmptyFoldersComponent } from "./empty-folders.component";
     I18nPipe,
     IconButtonModule,
     IconTileComponent,
-    LinkModule,
     RouterLink,
     SearchModule,
     SkeletonTextComponent,
+    TableRowNameDirective,
     TooltipDirective,
   ],
 })

@@ -488,7 +488,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       const links = fixture.debugElement
-        .queryAll(By.css("a[bitLink]"))
+        .queryAll(By.css("a[vaultTableRowName]"))
         .map((link) => (link.nativeElement as HTMLAnchorElement).getAttribute("href"));
 
       expect(links).toEqual([

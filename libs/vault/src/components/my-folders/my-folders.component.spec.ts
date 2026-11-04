@@ -342,7 +342,7 @@ describe("MyFoldersComponent", () => {
     const names = () =>
       fixture.debugElement
         .queryAll(By.css("bit-row"))
-        .map((row) => row.query(By.css("a[bitLink]")).nativeElement.textContent.trim());
+        .map((row) => row.query(By.css("a[vaultTableRowName]")).nativeElement.textContent.trim());
 
     const subtitleOf = (id: string): string | undefined =>
       fixture.debugElement

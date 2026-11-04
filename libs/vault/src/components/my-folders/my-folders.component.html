@@ -54,8 +54,7 @@
     <bit-cell *bitCellDef="table.columns.name; let row">
       <bit-icon-tile slot="start" icon="bwi-folder" size="sm" aria-hidden="true" />
       <a
-        bitLink
-        truncate
+        vaultTableRowName
         [bitTooltip]="row.displayName"
         [attr.id]="'my-folders_link_name-' + row.id"
         [routerLink]="folderCommands(row.id)"

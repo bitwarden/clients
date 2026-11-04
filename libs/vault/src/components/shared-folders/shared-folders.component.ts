@@ -46,7 +46,6 @@ import {
   IconModule,
   IconTileComponent,
   LayoutFooterService,
-  LinkModule,
   MenuModule,
   SearchModule,
   SelectionConfig,
@@ -59,6 +58,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { TableRowNameDirective } from "../../directives/table-row-name.directive";
 import { vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 import { BULK_DELETE_DIALOG, BulkDeleteDialogRef } from "../../tokens/bulk-delete-dialog.token";
@@ -177,7 +177,6 @@ export type SharedFoldersTableFilters = {
     I18nPipe,
     IconModule,
     IconTileComponent,
-    LinkModule,
     MenuModule,
     NgComponentOutlet,
     RouterLink,
@@ -185,6 +184,7 @@ export type SharedFoldersTableFilters = {
     SkeletonTextComponent,
     StatusLockupComponent,
     SvgComponent,
+    TableRowNameDirective,
     TooltipDirective,
   ],
 })

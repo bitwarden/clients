@@ -89,8 +89,7 @@
       <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
       <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
         <a
-          bitLink
-          truncate
+          vaultTableRowName
           [bitTooltip]="row.name"
           [attr.id]="'shared-folders_link_name-' + row.id"
           [routerLink]="
