@@ -18437,6 +18437,9 @@
   "pamMyRequestsLoaded": {
     "message": "Requests loaded"
   },
+  "pamCollectionFilter": {
+    "message": "Collection"
+  },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
@@ -19131,6 +19134,18 @@
       }
     }
   },
+  "cipherLeaseExpiresIn": {
+    "message": "Leased — expires in $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "47m"
+      }
+    }
+  },
+  "cipherLeaseRequiresApproval": {
+    "message": "Requires approval to view"
+  },
   "pendingStateCancelRequest": {
     "message": "Cancel request"
   },
@@ -19152,8 +19167,14 @@
   "pendingStateCancelError": {
     "message": "Couldn't cancel the request."
   },
-  "requestAccessModalSubmitV2": {
-    "message": "Send request"
+  "requestAccessModalTitle": {
+    "message": "Request access"
+  },
+  "requestAccessModalSubmit": {
+    "message": "Request access"
+  },
+  "requestAccessModalDismiss": {
+    "message": "Cancel"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Pick a duration. You'll get immediate access for that long."
@@ -19806,6 +19827,9 @@
         "example": "3"
       }
     }
+  },
+  "pamMyAccess": {
+    "message": "My access"
   },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
@@ -20768,29 +20792,17 @@
   "pamTokenCopied": {
     "message": "Token copied."
   },
+  "pamRotationConfigNew": {
+    "message": "New managed credential"
+  },
   "pamRotationConfigSearch": {
     "message": "Search managed credentials"
   },
   "pamRotationConfigEmptyState": {
     "message": "No managed credentials configured"
   },
-  "pamRotationConfigEmptyTitle": {
-    "message": "No managed credentials yet"
-  },
   "pamRotationConfigEmptyStateDescription": {
     "message": "Add a managed credential to start rotating it automatically."
-  },
-  "pamRotationConfigEmptyDescription": {
-    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends."
-  },
-  "pamTargetSystemCredentialsEmptyDescription": {
-    "message": "Managed credentials on this target system show here."
-  },
-  "pamRotationConfigEmptyStateGetStarted": {
-    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends. To get started, add an access connector and a target system."
-  },
-  "pamRotationConfigAddAccessConnectorCta": {
-    "message": "Add access connector"
   },
   "pamRotationListLoadErrorTitle": {
     "message": "Unable to load"
@@ -20798,8 +20810,14 @@
   "pamRotationListLoadErrorDescription": {
     "message": "Check your connection and try again. If the problem continues, refresh the page."
   },
+  "pamRotationConfigNoTargetSystems": {
+    "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
+  },
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Set up a target system"
+  },
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "No managed credentials match your filters."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Credential"
@@ -20816,6 +20834,9 @@
   "pamRotationConfigColumnRotateOnAccessEnd": {
     "message": "Rotate on access end"
   },
+  "pamRotationConfigColumnLastRotation": {
+    "message": "Last rotation"
+  },
   "pamRotationConfigColumnLastRotated": {
     "message": "Last rotated"
   },
@@ -20825,272 +20846,14 @@
   "pamRotationConfigStatusPaused": {
     "message": "Paused"
   },
-  "pamRotationConfigStatusFailed": {
-    "message": "Failed"
-  },
-  "pamRotationConfigStatusNotConnected": {
-    "message": "Not connected"
-  },
-  "pamRotationConfigStatusManualRotation": {
-    "message": "Manual rotation"
-  },
-  "pamRotationConfigColumnAccount": {
-    "message": "Account"
-  },
-  "pamRotationFilterTrigger": {
-    "message": "Rotation trigger"
-  },
-  "pamRotationTriggerSchedule": {
-    "message": "On a schedule"
-  },
-  "pamRotationTriggerAccessEnd": {
-    "message": "When access ends"
-  },
-  "pamRotationTriggerOnDemand": {
-    "message": "Only on demand"
-  },
-  "pamRotationNextInProgress": {
-    "message": "In progress"
-  },
-  "pamRotationNextNone": {
-    "message": "None"
-  },
-  "pamRotationRelativeMinutesAgo": {
-    "message": "$COUNT$m ago",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "pamRotationRelativeHoursAgo": {
-    "message": "$COUNT$hr ago",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "pamRotationRelativeDaysAgo": {
-    "message": "$COUNT$d ago",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "pamRotationRelativeWeeksAgo": {
-    "message": "$COUNT$w ago",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "pamRotationRelativeMonthsAgo": {
-    "message": "$COUNT$mo ago",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "pamRotationRelativeYesterday": {
-    "message": "Yesterday"
-  },
-  "pamRotationRelativeInHours": {
-    "message": "In $COUNT$hr",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "pamRotationRelativeInWeeks": {
-    "message": "In $COUNT$w",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "pamRotationRelativeDueDaysAgo": {
-    "message": "Due $COUNT$d ago",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "pamRotationDetailNone": {
-    "message": "None"
-  },
-  "pamRotationDetailCalloutPaused": {
-    "message": "Rotation is paused, so this credential won't rotate on its schedule or when someone's access ends."
-  },
-  "pamRotationDetailCalloutRetrying": {
-    "message": "The first attempt failed, so Bitwarden is retrying. No action is needed unless all attempts fail."
-  },
-  "pamRotationDetailCalloutNoConnector": {
-    "message": "This target system has no access connector, so this credential can't rotate."
-  },
-  "pamRotationDetailCalloutDisconnected": {
-    "message": "The access connectors are disconnected, so this credential can't rotate."
-  },
-  "pamRotationDetailCalloutTimedOut": {
-    "message": "The last rotation didn't finish in time. Select $ACTION$ to try again.",
-    "placeholders": {
-      "action": {
-        "content": "$1",
-        "example": "Rotate now"
-      }
-    }
-  },
-  "pamRotationDetailCalloutDue": {
-    "message": "This credential was due $AGE$. Change its password, update the vault item, then mark it as rotated.",
-    "placeholders": {
-      "age": {
-        "content": "$1",
-        "example": "3 days ago"
-      }
-    }
-  },
-  "pamRotationDetailViewConnectors": {
-    "message": "View access connectors"
-  },
-  "pamRotationDetailConnectorsLabel": {
-    "message": "Access connectors for this target system"
-  },
-  "pamRotationDetailConnectorsHint": {
-    "message": "Every credential on this target system uses these."
-  },
-  "pamRotationDetailUsernameHintEntra": {
-    "message": "The account's sign-in name, for example name@company.onmicrosoft.com."
-  },
-  "pamRotationDetailUsernameHintCustomScript": {
-    "message": "The value your script uses to identify the account, for example its username."
-  },
-  "pamRotationDetailUsernameHintManual": {
-    "message": "The account's username on the target system, for your records. Bitwarden doesn't use it to rotate."
-  },
-  "pamRotationDetailUsernameHintDefault": {
-    "message": "The account's username on the target system, entered exactly as that system expects it."
-  },
-  "pamRotationDetailNextDue": {
-    "message": "Due $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "Oct 1, 2026"
-      }
-    }
-  },
-  "pamRotationDetailDueSchedule": {
-    "message": "Due schedule"
-  },
-  "pamRotationHistoryColumnRotationTrigger": {
-    "message": "Rotation trigger"
-  },
-  "pamRotationHistoryRetrySucceeded": {
-    "message": "The first attempt failed; the retry succeeded."
-  },
-  "pamRotationHistoryColumnRotationStarted": {
-    "message": "Rotation started"
-  },
-  "pamRotationHistoryColumnFinalResult": {
-    "message": "Final result"
-  },
-  "pamRotationHistoryAttemptFailed": {
-    "message": "Attempt $NUMBER$ failed.",
-    "placeholders": {
-      "number": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "pamRotationHistoryNoConnectorPickedUp": {
-    "message": "No access connector picked up this rotation."
-  },
-  "pamRotationHistorySessionsEnded": {
-    "message": "Sessions ended"
-  },
-  "pamRotationHistorySessionsNotEnded": {
-    "message": "Couldn't end sessions"
-  },
-  "pamRotationDetailsDrawerTitle": {
-    "message": "Rotation details"
-  },
-  "pamRotationAttemptResultFailed": {
-    "message": "Failed"
-  },
-  "pamRotationAttemptResultSucceeded": {
-    "message": "Succeeded"
-  },
-  "pamRotationAttemptCauseTargetUnreachable": {
-    "message": "The target system didn't respond."
-  },
-  "pamRotationConfigRotateNowInProgress": {
-    "message": "A rotation is in progress."
-  },
-  "pamRotationConfigRotateNowPaused": {
-    "message": "Resume rotation to rotate now."
-  },
-  "pamRotationConfigRotateNowNotConnected": {
-    "message": "No access connector is connected"
-  },
-  "pamRotationConfigRemoveLockedReason": {
-    "message": "Available when the rotation finishes."
-  },
-  "pamRotationConfigEditSettings": {
-    "message": "Edit rotation settings"
-  },
-  "pamRotationConfigViewHistory": {
-    "message": "View rotation history"
-  },
-  "pamRotationConfigRotateNowStarted": {
-    "message": "Rotation started."
-  },
-  "pamRotationConfigRotateNowFailed": {
-    "message": "Rotation didn't start. Try again."
-  },
-  "pamRotationConfigMarkedRotated": {
-    "message": "Marked as rotated."
-  },
-  "pamRotationConfigMarkRotatedFailed": {
-    "message": "Couldn't mark as rotated. Try again."
-  },
-  "pamRotationConfigPauseWhileRotatingSuccess": {
-    "message": "Rotation paused. The rotation in progress will finish."
-  },
-  "pamRotationConfigPauseContent": {
-    "message": "This credential won't rotate on its schedule or when someone's access ends. A rotation already in progress will finish."
-  },
-  "pamRotationConfigMarkRotatedContent": {
-    "message": "Only do this after you've changed the password on the target system and updated the vault item."
-  },
-  "pamRotationSubtitleManage": {
-    "message": "Manage credential rotation across target systems, using access connectors running inside your network."
-  },
-  "pamRotationAddManagedCredential": {
-    "message": "Managed credential"
-  },
-  "pamRotationAddTargetSystem": {
-    "message": "Target system"
-  },
-  "pamRotationAddAccessConnector": {
-    "message": "Access connector"
+  "pamRotationConfigInProgress": {
+    "message": "Rotation in progress"
   },
   "pamRotationConfigRotatingBadge": {
     "message": "Rotating"
+  },
+  "pamRotationConfigManualDue": {
+    "message": "Manual rotation due"
   },
   "pamRotationConfigRotationDueBadge": {
     "message": "Rotation due"
@@ -21098,14 +20861,38 @@
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
   },
+  "pamRotationConfigRotateNowDisabledTitle": {
+    "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
+  },
+  "pamRotationConfigRotateNowUnavailableTitle": {
+    "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
+  },
+  "pamRotationConfigRotateNowSuccess": {
+    "message": "Rotation dispatched."
+  },
+  "pamRotationConfigRecordManual": {
+    "message": "Record manual rotation"
+  },
   "pamRotationConfigMarkRotated": {
     "message": "Mark as rotated"
   },
   "pamRotationConfigRecordManualDisabledTitle": {
     "message": "Nothing to mark yet. This becomes available when the next manual rotation is due."
   },
+  "pamRotationConfigRecordManualTitle": {
+    "message": "Record manual rotation"
+  },
   "pamRotationConfigMarkRotatedTitle": {
     "message": "Mark as rotated"
+  },
+  "pamRotationConfigRecordManualContent": {
+    "message": "This records that the credential was rotated outside Bitwarden and resets the schedule. The audit log will reflect the manual rotation."
+  },
+  "pamRotationConfigRecordManualConfirm": {
+    "message": "Record rotation"
+  },
+  "pamRotationConfigRecordManualSuccess": {
+    "message": "Manual rotation recorded."
   },
   "pamRotationConfigEditCredential": {
     "message": "Edit credential"
@@ -21113,14 +20900,17 @@
   "pamRotationConfigRemoveFromRotation": {
     "message": "Remove from rotation"
   },
+  "pamRotationConfigPause": {
+    "message": "Pause"
+  },
   "pamRotationConfigPauseRotation": {
     "message": "Pause rotation"
   },
   "pamRotationConfigPauseSuccess": {
     "message": "Rotation paused."
   },
-  "pamRotationConfigPauseFailed": {
-    "message": "Rotation wasn't paused. Try again."
+  "pamRotationConfigResume": {
+    "message": "Resume"
   },
   "pamRotationConfigResumeRotation": {
     "message": "Resume rotation"
@@ -21131,14 +20921,8 @@
   "pamRotationConfigDeleteConfirmTitle": {
     "message": "Remove managed credential"
   },
-  "pamRotationConfigRemoveConfirmTitle": {
-    "message": "Remove from rotation"
-  },
   "pamRotationConfigDeleteConfirmContent": {
     "message": "This removes rotation management for this credential. The item stays in your vault and the rotation history remains in the audit log."
-  },
-  "pamRotationConfigRemoveConfirmContent": {
-    "message": "This credential and its settings will be removed from Managed credentials. The vault item won't change, and its history stays in the audit log."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Can't remove while a rotation is in progress. It clears when the current job finishes or times out."
@@ -21146,32 +20930,26 @@
   "pamRotationConfigDeleteSuccess": {
     "message": "Managed credential removed."
   },
-  "pamRotationConfigRemoveSuccess": {
-    "message": "Removed from rotation."
-  },
-  "pamRotationConfigRemoveFailed": {
-    "message": "Couldn't remove from rotation. Try again."
-  },
   "pamRotationConfigNeverRotated": {
     "message": "Never"
-  },
-  "pamRotationConfigHistoryEmptyTitle": {
-    "message": "No rotations yet"
-  },
-  "pamRotationConfigAddEmptyCta": {
-    "message": "Add managed credential"
-  },
-  "pamRotationConfigRotateNowConfirmContent": {
-    "message": "Rotating this credential will also sign out anyone still using the current password."
   },
   "pamRotationConfigHistoryEmpty": {
     "message": "No rotations have run yet."
   },
-  "pamRotationConfigHistoryEmptyState": {
-    "message": "Rotations for this credential will show up here."
+  "pamRotationConfigRemoveLockedContentConnector": {
+    "message": "A rotation job is currently in progress. You can remove this credential from rotation once the access connector finishes it, or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Credential details"
+  },
+  "pamRotationConfigDetailsHeading": {
+    "message": "Details"
+  },
+  "pamRotationConfigSettingsHeading": {
+    "message": "Rotation settings"
+  },
+  "pamRotationConfigAccountHeading": {
+    "message": "Account"
   },
   "pamRotationConfigTabConfiguration": {
     "message": "Configuration"
@@ -21179,11 +20957,32 @@
   "pamRotationConfigTabHistory": {
     "message": "History"
   },
+  "pamRotationConfigCipher": {
+    "message": "Credential"
+  },
+  "pamRotationConfigCipherPlaceholder": {
+    "message": "Select a credential"
+  },
+  "pamRotationConfigCipherHint": {
+    "message": "Select the vault item whose password will be rotated."
+  },
   "pamRotationConfigTargetSystem": {
     "message": "Target system"
   },
   "pamRotationConfigTargetSystemPlaceholder": {
     "message": "Select a target system"
+  },
+  "pamRotationConfigAccountIdentity": {
+    "message": "Account identity"
+  },
+  "pamRotationConfigAccountIdentityHintConnector": {
+    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the access connector as-is."
+  },
+  "pamRotationConfigTerminateSessions": {
+    "message": "Terminate active sessions after rotation"
+  },
+  "pamRotationConfigTerminateSessionsHint": {
+    "message": "Requires the target system to support session termination."
   },
   "pamRotationConfigTerminationUnknownHint": {
     "message": "This target system's support for session termination could not be verified."
@@ -21191,8 +20990,20 @@
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Rotate when access ends"
   },
+  "pamRotationConfigRotateWhenAccessEndsHint": {
+    "message": "Automatically rotate this credential when PAM access to it ends."
+  },
+  "pamRotationConfigCreated": {
+    "message": "Managed credential created."
+  },
   "pamRotationConfigSaved": {
     "message": "Managed credential saved."
+  },
+  "pamRotationConfigAccountLockedTitle": {
+    "message": "Settings unavailable"
+  },
+  "pamRotationConfigAccountLockedContent": {
+    "message": "Changes can't be saved while a rotation job is in progress. You can save again once the job finishes or times out."
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
     "message": "Integrity check failed"
@@ -21233,6 +21044,9 @@
   "pamRotationJobStatusPending": {
     "message": "Pending"
   },
+  "pamRotationJobStatusClaimed": {
+    "message": "Claimed"
+  },
   "pamRotationJobStatusSucceeded": {
     "message": "Succeeded"
   },
@@ -21241,9 +21055,6 @@
   },
   "pamRotationJobStatusTimedOut": {
     "message": "Timed out"
-  },
-  "pamRotationJobStatusRetrying": {
-    "message": "Retrying"
   },
   "pamRotationJobStatusUnknown": {
     "message": "Unknown"
@@ -21311,6 +21122,15 @@
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
   },
+  "pamRotationFailureReportedDetail": {
+    "message": "Reported by the access connector: $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "target_rejected: LDAP result code 50"
+      }
+    }
+  },
   "pamRotationHistoryCaption": {
     "message": "Rotation jobs, newest first"
   },
@@ -21325,6 +21145,15 @@
   },
   "pamRotationHistoryAttemptsCaption": {
     "message": "Attempts, oldest first"
+  },
+  "pamRotationHistoryAttemptsAllAlike": {
+    "message": "Every attempt ended the same way."
+  },
+  "pamRotationJobDrawerTitle": {
+    "message": "Rotation job"
+  },
+  "pamRotationHistoryFailureHeading": {
+    "message": "Why it failed"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$s",
@@ -21505,68 +21334,8 @@
   "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
     "message": "This target system and its access connector assignments will be deleted. To stop rotations but keep it, deactivate it instead."
   },
-  "pamRotationConfigVaultItem": {
-    "message": "Vault item"
-  },
-  "pamRotationConfigCredentialName": {
-    "message": "Credential name"
-  },
-  "pamRotationConfigCredentialPlaceholder": {
-    "message": "Select credential"
-  },
-  "pamRotationConfigCredentialHint": {
-    "message": "Credentials that are already in rotation aren't listed."
-  },
-  "pamRotationConfigTargetSystemHint": {
-    "message": "The credential lives on the target system."
-  },
-  "pamRotationConfigTargetManual": {
-    "message": "Manual"
-  },
-  "pamRotationConfigTargetNoConnector": {
-    "message": "No connected access connector"
-  },
-  "pamRotationConfigCalloutTargetManual": {
-    "message": "This target system uses manual rotation. You'll change this credential's password yourself, then mark it as rotated."
-  },
-  "pamRotationConfigCalloutTargetNotConnected": {
-    "message": "This target system has no connected access connector, so this credential won't rotate yet. You can still save it."
-  },
-  "pamRotationConfigAccountId": {
-    "message": "Account ID"
-  },
-  "pamRotationConfigAccountIdPlaceholder": {
-    "message": "Enter an ID"
-  },
-  "pamRotationConfigUsernameHint": {
-    "message": "The username on the target system, for example name@company.com."
-  },
-  "pamRotationConfigTriggersHeading": {
-    "message": "Rotation triggers"
-  },
-  "pamRotationConfigAfterRotationHeading": {
-    "message": "After rotation"
-  },
   "pamRotationConfigScheduleLabel": {
     "message": "Schedule"
-  },
-  "pamRotationConfigRotateOnAccessEndHintAdd": {
-    "message": "Changes the password when someone's access ends, so the old password stops working."
-  },
-  "pamRotationConfigAutomaticOnly": {
-    "message": "Only available for automatic rotation."
-  },
-  "pamRotationConfigEndSessions": {
-    "message": "End active sessions"
-  },
-  "pamRotationConfigEndSessionsHint": {
-    "message": "Signs out anyone still using the old password after each rotation. If this fails, the rotation still counts."
-  },
-  "pamRotationConfigEndSessionsAvailableOnce": {
-    "message": "Available once you select a target system that supports it."
-  },
-  "pamRotationConfigAddedSuccess": {
-    "message": "Managed credential added."
   },
   "pamTargetSystemAddedSuccess": {
     "message": "Target system added."
@@ -21585,12 +21354,6 @@
   },
   "pamTargetSystemSystemTypeHint": {
     "message": "Tells the access connector how to change passwords on this system."
-  },
-  "pamTargetSystemEndingSessions": {
-    "message": "Ending sessions"
-  },
-  "pamTargetSystemEndingSessionsEntraHint": {
-    "message": "Entra can sign out active sessions after rotation."
   },
   "pamTargetSystemEndingSessionsCustomScriptHint": {
     "message": "This system type can't sign out active sessions after rotation."
