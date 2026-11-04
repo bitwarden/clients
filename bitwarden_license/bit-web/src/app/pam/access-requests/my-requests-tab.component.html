@@ -65,12 +65,7 @@
         "
         [formControl]="searchControl"
       ></bit-search>
-      <bit-filter-menu
-        multiple
-        key="status"
-        [placeholderText]="'pamColumnStatus' | i18n"
-        [unsetLabel]="'all' | i18n"
-      >
+      <bit-filter-menu multiple key="status" [placeholderText]="'pamColumnStatus' | i18n">
         @for (option of statusOptions(); track option.value) {
           <bit-filter-option
             [value]="option.value"
@@ -84,7 +79,6 @@
         multiple
         key="collection"
         [placeholderText]="'sharedFolders' | i18n"
-        [unsetLabel]="'all' | i18n"
         [disabled]="noCollectionOptions()"
         [disabledTooltip]="'pamNoSharedFoldersToFilter' | i18n"
       >
