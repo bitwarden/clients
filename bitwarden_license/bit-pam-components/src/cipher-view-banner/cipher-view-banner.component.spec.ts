@@ -32,7 +32,6 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
@@ -1866,6 +1865,7 @@ describe("CipherViewBannerComponent", () => {
         accessState({
           activeLease: leaseView({ id: "lease-8" } as never),
           extensionsAllowed: true,
+          maxExtensionDurationSeconds: 3600,
         }),
       );
       const request = { durationSeconds: 3600, reason: "still working" };
@@ -1875,6 +1875,9 @@ describe("CipherViewBannerComponent", () => {
 
       await component["extendLease"]();
 
+      expect(dialogService.open).toHaveBeenCalledWith(expect.anything(), {
+        data: { maxDurationSeconds: 3600 },
+      });
       expect(leasesApi.extendLease).toHaveBeenCalledWith("lease-8", request);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -1887,6 +1890,7 @@ describe("CipherViewBannerComponent", () => {
         accessState({
           activeLease: leaseView({ id: "lease-8" } as never),
           extensionsAllowed: true,
+          maxExtensionDurationSeconds: 3600,
         }),
       );
       dialogService.open.mockReturnValue({
@@ -1906,7 +1910,11 @@ describe("CipherViewBannerComponent", () => {
 
     it("does not extend when the dialog is dismissed", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ activeLease: leaseView(), extensionsAllowed: true }),
+        accessState({
+          activeLease: leaseView(),
+          extensionsAllowed: true,
+          maxExtensionDurationSeconds: 3600,
+        }),
       );
       dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
       await create(gatedCipher());
