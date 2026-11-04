@@ -233,7 +233,7 @@ export class Main {
       ClientType.Desktop,
     );
 
-    this.desktopSettingsService = new DesktopSettingsService(stateProvider);
+    this.desktopSettingsService = new DesktopSettingsService(stateProvider, isMacAppStore());
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
 
     this.shell = new SafeShell(this.logService);
