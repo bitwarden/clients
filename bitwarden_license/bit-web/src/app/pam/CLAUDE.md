@@ -148,11 +148,11 @@ SDK has no audit client yet (see `access-audit/README.md`).
 `ApprovalSdkService` are the abstract contracts; `services/*-sdk.service.ts` compose the
 SDK client. `ApprovalSdkService` (`services/approvals-sdk.service.ts`) covers the
 approver-facing surface, the pending inbox, the decided history, recording a
-decision, and revoking an approval, via `commercial().pam().approvals()`.
+decision, and withdrawing an approval, via `commercial().pam().approvals()`.
 
 **If a PAM capability turns out to be missing from the SDK, that is SDK work, not a
-raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
-(`leases().end()`, `approvals().revoke()`) for the same reason.
+raw-HTTP route.** An approver ending a lease and an approver withdrawing an approval go
+through the SDK (`leases().end()` and `approvals().revoke()`) for the same reason.
 
 ## Error shape
 

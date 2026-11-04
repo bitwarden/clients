@@ -2060,8 +2060,8 @@ surface ApproverInbox {
     --
     -- Its two reads and its decision write go through the SDK's approver-scoped
     -- ApprovalsClient (list_inbox, list_history, decide), like every other PAM call.
-    -- Revoke and cancel-approval are served by LeasesClient::end and
-    -- AccessRequestsClient::cancel.
+    -- Withdrawing an approval (ApproverRetractsRequest) is ApprovalsClient::revoke;
+    -- ending a lease (ApproverRevokesLease) is LeasesClient::end.
     facing viewer: Approver
 
     context viewer: Approver
