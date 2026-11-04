@@ -1,14 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
-import {
-  AccessEventService,
-  AccessRequestSdkService,
-  ApprovalSdkService,
-  DefaultAccessRefreshService,
-} from "@bitwarden/bit-pam";
-import type { AccessRequestStatus, AccessRequestView } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService, MyAccessRequestsService } from "@bitwarden/bit-pam-components";
+import { AccessEventService } from "@bitwarden/bit-common/pam/abstractions/access-event.service";
+import type {
+  AccessRequestStatus,
+  AccessRequestView,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import { ApprovalSdkService } from "@bitwarden/bit-common/pam/abstractions/approval-sdk.service";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { DefaultAccessRefreshService } from "@bitwarden/bit-common/pam/services/default-access-refresh.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -85,19 +86,16 @@ describe("DefaultPamNavBadgeService", () => {
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
     approvalsApi.listInbox.mockResolvedValue([]);
 
-    const ticker = { ticks$ } as unknown as AccessBadgeTickerService;
-    const accountService = {
-      activeAccount$: new BehaviorSubject({ id: "user-id" as UserId }),
-    } as unknown as AccountService;
     service = new DefaultPamNavBadgeService(
-      // The real one, so the caller's half reads through it as in the app.
-      new MyAccessRequestsService(requestsApi, accessRefresh, accountService, ticker, logService),
+      requestsApi,
       approvalsApi,
       approvalPrivileges,
       accessEvents,
       accessRefresh,
-      ticker,
-      accountService,
+      { ticks$ } as unknown as AccessBadgeTickerService,
+      {
+        activeAccount$: new BehaviorSubject({ id: "user-id" as UserId }),
+      } as unknown as AccountService,
       { organizations$: () => organizations$ } as unknown as OrganizationService,
       configService,
       logService,
@@ -120,35 +118,6 @@ describe("DefaultPamNavBadgeService", () => {
     await settle();
 
     expect(seen.at(-1)).toBe(2);
-  });
-
-  it("never counts an applied extension, before or after its lease ends (PAM-408)", async () => {
-    // The original request was activated; the applied extension mints no lease of its own, so it
-    // never gains a `producedLeaseId` and must not read as an approval still to start.
-    const original = {
-      ...request("approved", "original"),
-      producedLeaseId: "lease-1",
-      producedLeaseStatus: "active",
-    } as unknown as AccessRequestView;
-    const extension = {
-      ...request("approved", "extension"),
-      extensionOfLeaseId: "lease-1",
-    } as unknown as AccessRequestView;
-    requestsApi.listMyAccessRequests.mockResolvedValue([original, extension]);
-    approvalsApi.listInbox.mockResolvedValue([]);
-
-    const seen = watch();
-    await settle();
-    expect(seen.at(-1)).toBe(0);
-
-    requestsApi.listMyAccessRequests.mockResolvedValue([
-      { ...original, producedLeaseStatus: "canceled" } as unknown as AccessRequestView,
-      extension,
-    ]);
-    accessRefresh.notifyAccessChanged();
-    await settle();
-
-    expect(seen.at(-1)).toBe(0);
   });
 
   it("adds the requests awaiting the caller's decision", async () => {
@@ -382,8 +351,6 @@ describe("DefaultPamNavBadgeService", () => {
     expect(inboxPush$.observed).toBe(true);
 
     subscription.unsubscribe();
-    // The shared requests read lets go a task later, for a consumer swapping its inputs.
-    await settle();
 
     expect(push$.observed).toBe(false);
     expect(inboxPush$.observed).toBe(false);

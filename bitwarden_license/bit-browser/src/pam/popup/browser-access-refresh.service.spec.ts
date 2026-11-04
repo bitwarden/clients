@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
-import { AccessEventService } from "@bitwarden/bit-pam";
+import { AccessEventService } from "@bitwarden/bit-common/pam/abstractions/access-event.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { awaitAsync, FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";

@@ -5,8 +5,11 @@ import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { AccessRuleSdkService, AccessRuleView } from "@bitwarden/bit-pam";
-import { accessRuleDeactivateConfirmOptions } from "@bitwarden/bit-pam-components";
+import {
+  accessRuleDeactivateConfirmOptions,
+  AccessRuleSdkService,
+  AccessRuleView,
+} from "@bitwarden/bit-common/pam";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";

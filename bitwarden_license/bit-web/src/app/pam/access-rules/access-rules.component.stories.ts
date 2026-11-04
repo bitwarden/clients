@@ -8,7 +8,7 @@ import {
   ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   AccessRuleSdkService,
   AccessRuleView,
-} from "@bitwarden/bit-pam";
+} from "@bitwarden/bit-common/pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { startClockAtStoryNow } from "@bitwarden/storybook";

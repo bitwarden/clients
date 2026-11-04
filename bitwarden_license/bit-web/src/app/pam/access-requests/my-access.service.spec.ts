@@ -7,8 +7,7 @@ import {
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
-  DefaultAccessRefreshService,
-} from "@bitwarden/bit-pam";
+} from "@bitwarden/bit-common/pam";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import type {
   AccessLeaseId,
@@ -69,7 +68,7 @@ describe("MyAccessService", () => {
   let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
-  let accessRefresh: DefaultAccessRefreshService;
+  let accessRefresh: MockProxy<AccessRefreshService>;
   let push$: Subject<void>;
   let activeAccount$: BehaviorSubject<Account | null>;
 
@@ -83,12 +82,7 @@ describe("MyAccessService", () => {
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
-    // The real one, so a push and a local announcement both reach the service as in the app.
-    accessRefresh = new DefaultAccessRefreshService({
-      accessChanged$: () => push$.asObservable(),
-      approverInboxChanged$: () => new Subject<void>(),
-    } as AccessEventService);
-    jest.spyOn(accessRefresh, "notifyAccessChanged");
+    accessRefresh = mock<AccessRefreshService>();
 
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
     leasesApi.listMyLeases.mockResolvedValue([]);
@@ -97,6 +91,7 @@ describe("MyAccessService", () => {
     TestBed.configureTestingModule({
       providers: [
         MyAccessService,
+        { provide: AccessEventService, useValue: { accessChanged$: () => push$.asObservable() } },
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
@@ -525,21 +520,6 @@ describe("MyAccessService", () => {
       const rows = await firstValueFrom(service.pendingRows$);
       expect(rows).toHaveLength(1);
       expect(rows[0].status).toBe("approved");
-    });
-
-    it("re-reads on a mutation announced elsewhere, such as the request dialog (PAM-408)", async () => {
-      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
-      await service.load();
-      expect(await firstValueFrom(service.pendingRows$)).toHaveLength(1);
-
-      // No push arrives; only the dialog's local announcement.
-      requestsApi.listMyAccessRequests.mockResolvedValue([
-        request("req-1", { status: "canceled" }),
-      ]);
-      accessRefresh.notifyAccessChanged();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(await firstValueFrom(service.pendingRows$)).toHaveLength(0);
     });
 
     it("serialises overlapping pushes so state never mixes two loads", async () => {

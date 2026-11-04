@@ -1,6 +1,5 @@
+import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
 import { IconTileOptions } from "@bitwarden/components";
-
-import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
 
 /**
  * How each access state reads in a Status chip, shared by the Approvals and My requests tabs so
