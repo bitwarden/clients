@@ -126,6 +126,7 @@ export type TargetSystemRow = {
 
 const FILTERABLE_KINDS: readonly TargetSystemKind[] = [
   TargetSystemKind.Entra,
+  TargetSystemKind.ActiveDirectory,
   TargetSystemKind.CustomScript,
 ];
 

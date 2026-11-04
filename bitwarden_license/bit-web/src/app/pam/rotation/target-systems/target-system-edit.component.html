@@ -365,7 +365,7 @@
               <p bitTypography="body2" class="tw-mb-1 tw-font-semibold">
                 {{ "pamTargetSystemEndingSessions" | i18n }}
               </p>
-              @if (isNativeIntegration()) {
+              @if (sessionTerminationAlways()) {
                 <span bitBadge variant="success" startIcon="bwi-check-circle">{{
                   "pamTargetSystemSessionTerminationSupported" | i18n
                 }}</span>
@@ -378,6 +378,17 @@
                 }}</span>
                 <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
                   {{ "pamTargetSystemEndingSessionsCustomScriptHint" | i18n }}
+                </p>
+              } @else if (sessionTerminationNever()) {
+                <span bitBadge variant="warning" startIcon="bwi-warning">{{
+                  "pamTargetSystemSessionTerminationNo" | i18n
+                }}</span>
+                <p
+                  bitTypography="helper"
+                  class="tw-mb-0 tw-mt-1 tw-text-muted"
+                  id="target-system-edit_session-termination-unsupported"
+                >
+                  {{ "pamTargetSystemSessionTerminationUnsupportedHint" | i18n }}
                 </p>
               } @else {
                 <p bitTypography="helper" class="tw-mb-0 tw-text-muted">
@@ -571,7 +582,7 @@
                 }}</span>
                 <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
                   {{
-                    (isNativeIntegration()
+                    (sessionTerminationAlways()
                       ? "pamTargetSystemEndingSessionsEntraHint"
                       : "pamTargetSystemEndingSessionsCustomScriptSupportedHint"
                     ) | i18n
@@ -581,9 +592,28 @@
                 <span bitBadge variant="warning" startIcon="bwi-warning">{{
                   "pamTargetSystemSessionTerminationNo" | i18n
                 }}</span>
-                <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
-                  {{ "pamTargetSystemEndingSessionsCustomScriptHint" | i18n }}
-                </p>
+                @if (sessionTerminationNever()) {
+                  <p
+                    bitTypography="helper"
+                    class="tw-mb-0 tw-mt-1 tw-text-muted"
+                    id="target-system-edit_session-termination-unsupported"
+                  >
+                    {{ "pamTargetSystemSessionTerminationUnsupportedHint" | i18n }}
+                  </p>
+                  @if (showRetainedTermination()) {
+                    <p
+                      bitTypography="helper"
+                      class="tw-mb-0 tw-mt-1 tw-text-muted"
+                      id="target-system-edit_session-termination-retained"
+                    >
+                      {{ "pamTargetSystemSessionTerminationRetainedHint" | i18n }}
+                    </p>
+                  }
+                } @else {
+                  <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
+                    {{ "pamTargetSystemEndingSessionsCustomScriptHint" | i18n }}
+                  </p>
+                }
               }
             </div>
 
