@@ -73,45 +73,45 @@ export class DesktopAutotypeGaPolicyService {
   ): Observable<T | null> {
     let held: { userId: UserId; value: T | null } | null = null;
 
+    const clearHeld$ = () => {
+      held = null;
+      return of(null);
+    };
+
+    const policyWhileUnlocked$ = (userId: UserId) =>
+      userPolicy$(userId).pipe(
+        tap((value) => {
+          held = { userId, value };
+        }),
+      );
+
+    const policyWhileLocked$ = (userId: UserId) => {
+      if (keepLastWhileLocked && held != null && held.userId === userId) {
+        return of(held.value);
+      }
+
+      return of(null);
+    };
+
+    const policyForUser$ = (userId: UserId) =>
+      this.authService.authStatusFor$(userId).pipe(
+        map((status) => status === AuthenticationStatus.Unlocked),
+        distinctUntilChanged(),
+        switchMap((unlocked) =>
+          unlocked ? policyWhileUnlocked$(userId) : policyWhileLocked$(userId),
+        ),
+      );
+
     return autotypeFeatureFlagState$(this.configService).pipe(
       switchMap((autotypeFeatureFlagState) => {
         if (autotypeFeatureFlagState !== AutotypeFeatureFlagState.Ga) {
-          held = null;
-          return of(null);
+          return clearHeld$();
         }
 
         return this.accountService.activeAccount$.pipe(
           map((account) => account?.id ?? null),
           distinctUntilChanged(),
-          switchMap((userId) => {
-            if (userId == null) {
-              held = null;
-              return of(null);
-            }
-
-            const isUnlocked$ = this.authService.authStatusFor$(userId).pipe(
-              map((status) => status === AuthenticationStatus.Unlocked),
-              distinctUntilChanged(),
-            );
-
-            return isUnlocked$.pipe(
-              switchMap((unlocked) => {
-                if (unlocked) {
-                  return userPolicy$(userId).pipe(
-                    tap((value) => {
-                      held = { userId, value };
-                    }),
-                  );
-                }
-
-                if (keepLastWhileLocked && held != null && held.userId === userId) {
-                  return of(held.value);
-                }
-
-                return of(null);
-              }),
-            );
-          }),
+          switchMap((userId) => (userId == null ? clearHeld$() : policyForUser$(userId))),
         );
       }),
       distinctUntilChanged(isSame),
