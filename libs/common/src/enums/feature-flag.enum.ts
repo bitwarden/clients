@@ -30,6 +30,7 @@ export enum FeatureFlag {
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
   PM46060_DesktopWebAuthnClientWindows = "pm-46060-desktop-webauthn-client-windows",
+  PM46059_DesktopWebAuthnClientMacOs = "pm-46059-desktop-webauthn-client-macos",
 
   /* Autofill */
   FillAssistTargetingRules = "fill-assist-targeting-rules",
@@ -183,6 +184,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
   [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
   [FeatureFlag.PM46060_DesktopWebAuthnClientWindows]: FALSE,
+  [FeatureFlag.PM46059_DesktopWebAuthnClientMacOs]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,

@@ -18,19 +18,19 @@ describe("nativeWebAuthnEnabled$", () => {
     configService.getFeatureFlag$.mockReturnValue(of(true));
   });
 
-  it.each([[DeviceType.WindowsDesktop, FeatureFlag.PM46060_DesktopWebAuthnClientWindows]])(
-    "uses the feature flag for device type %s",
-    async (device, flag) => {
-      platformUtilsService.getDevice.mockReturnValue(device);
+  it.each([
+    [DeviceType.WindowsDesktop, FeatureFlag.PM46060_DesktopWebAuthnClientWindows],
+    [DeviceType.MacOsDesktop, FeatureFlag.PM46059_DesktopWebAuthnClientMacOs],
+  ])("uses the feature flag for device type %s", async (device, flag) => {
+    platformUtilsService.getDevice.mockReturnValue(device);
 
-      await expect(
-        firstValueFrom(nativeWebAuthnEnabled$(platformUtilsService, configService)),
-      ).resolves.toBe(true);
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(flag);
-    },
-  );
+    await expect(
+      firstValueFrom(nativeWebAuthnEnabled$(platformUtilsService, configService)),
+    ).resolves.toBe(true);
+    expect(configService.getFeatureFlag$).toHaveBeenCalledWith(flag);
+  });
 
-  it.each([DeviceType.MacOsDesktop, DeviceType.LinuxDesktop, DeviceType.ChromeExtension])(
+  it.each([DeviceType.LinuxDesktop, DeviceType.ChromeExtension])(
     "is off for device type %s",
     async (device) => {
       platformUtilsService.getDevice.mockReturnValue(device);
