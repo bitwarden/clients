@@ -773,6 +773,16 @@ describe("MyRequestsTabComponent", () => {
         expect(chipFor("requester")).toBeUndefined();
       });
 
+      it("labels each chip by its name alone while nothing is selected", () => {
+        oneOfEach();
+        create();
+
+        const label = (key: string) =>
+          text(chipFor(key)!.querySelector<HTMLElement>("button[bit-chip-content]")!);
+        expect(label("status")).toBe("pamColumnStatus");
+        expect(label("collection")).toBe("sharedFolders");
+      });
+
       it("lists every status, whether or not a row currently holds one", () => {
         oneOfEach();
         create();
