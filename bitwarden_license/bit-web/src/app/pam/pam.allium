@@ -1906,10 +1906,10 @@ surface RequestAccessModal {
     -- which creates it (MemberSubmitsAccessRequest). Dismissing without submitting
     -- creates nothing.
     --
-    -- Implemented as a bottom sheet over a dimmed overlay, opened from CipherViewBanner
-    -- rather than a separate modal route, so the item stays behind it. Which fields
-    -- it collects comes from pre_check: a duration alone on the automatic path, a
-    -- window plus a required reason on the human path. The name is kept because the
+    -- Implemented as a bottom sheet over a dimmed overlay (request-access-sheet.component),
+    -- opened from CipherViewBanner rather than a separate modal route, so the item stays
+    -- behind it. Which fields it collects comes from pre_check: a duration alone on the
+    -- automatic path, a window plus a required reason on the human path. The name is kept because the
     -- copy keys (requestAccessModal*) are shared with it.
     facing requester: Member
 

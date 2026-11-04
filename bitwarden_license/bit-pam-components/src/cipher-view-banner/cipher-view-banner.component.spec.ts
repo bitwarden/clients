@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, NEVER, of, Subject } from "rxjs";
 
@@ -38,6 +39,7 @@ import { AccessRequestCancelService } from "../services/access-request-cancel.se
 import { MyLeasesService } from "../services/my-leases.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
+import { RequestAccessSheetComponent } from "./request-access-sheet/request-access-sheet.component";
 import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
 
 /**
@@ -188,6 +190,23 @@ describe("CipherViewBannerComponent", () => {
     requestsApi.getCipherAccessState.mockResolvedValue(next);
     TestBed.inject(AccessRefreshService).notifyAccessChanged("cipher-1");
     await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  function sheet(): RequestAccessSheetComponent {
+    return fixture.debugElement.query(By.directive(RequestAccessSheetComponent))
+      .componentInstance as RequestAccessSheetComponent;
+  }
+
+  /** Opens the sheet as its toggle does, or closes it as Cancel does, and lets its pre-check land. */
+  async function toggleSheet(): Promise<void> {
+    if (component["requestSheetOpen"]()) {
+      component["closeRequestSheet"]();
+    } else {
+      component["openRequestSheet"]();
+    }
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -853,7 +872,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher({ name: "Github" }));
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       expect(query('[data-testid="request-sheet-overlay"]')).not.toBeNull();
@@ -875,7 +894,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       expect(text()).not.toContain("requestAccessModalAutomaticDescription");
@@ -894,21 +913,21 @@ describe("CipherViewBannerComponent", () => {
             new KeyboardEvent("keydown", { key: "Escape" }),
           ),
       ]) {
-        await component["toggleRequestForm"]();
+        await toggleSheet();
         fixture.detectChanges();
-        expect(component["requestFormExpanded"]()).toBe(true);
+        expect(component["requestSheetOpen"]()).toBe(true);
 
         close();
         fixture.detectChanges();
 
-        expect(component["requestFormExpanded"]()).toBe(false);
+        expect(component["requestSheetOpen"]()).toBe(false);
       }
     });
 
     it("does not let Escape bubble past the sheet, so a host dialog stays open", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       const hostListener = jest.fn();
@@ -918,14 +937,14 @@ describe("CipherViewBannerComponent", () => {
       );
 
       expect(hostListener).not.toHaveBeenCalled();
-      expect(component["requestFormExpanded"]()).toBe(false);
+      expect(component["requestSheetOpen"]()).toBe(false);
     });
 
     it("hints the duration and marks it required on the automatic path too", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       expect(text()).toContain("requestAccessModalDurationHint");
@@ -938,14 +957,18 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
-      const sheet = query('[data-testid="request-sheet"]');
-      expect(sheet?.previousElementSibling?.classList.contains("cdk-focus-trap-anchor")).toBe(true);
-      expect(sheet?.nextElementSibling?.classList.contains("cdk-focus-trap-anchor")).toBe(true);
+      const sheetElement = query('[data-testid="request-sheet"]');
+      expect(
+        sheetElement?.previousElementSibling?.classList.contains("cdk-focus-trap-anchor"),
+      ).toBe(true);
+      expect(sheetElement?.nextElementSibling?.classList.contains("cdk-focus-trap-anchor")).toBe(
+        true,
+      );
 
-      component["automaticForm"].patchValue({ reason: "Quarterly audit" });
+      sheet()["automaticForm"].patchValue({ reason: "Quarterly audit" });
       query("#pam-cipher-view-banner_button_automatic-reason-copy")?.click();
 
       expect(platformUtils.copyToClipboard).toHaveBeenCalledWith("Quarterly audit");
@@ -955,11 +978,11 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       expect(requestsApi.preCheck).toHaveBeenCalledWith("cipher-1");
-      expect(component["requestMode"]()).toBe("automatic");
+      expect(sheet()["requestMode"]()).toBe("automatic");
       expect(query("#pam-cipher-view-banner_select_duration")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_input_start-date")).toBeNull();
     });
@@ -968,7 +991,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       const cancel = query("#pam-cipher-view-banner_button_request-cancel");
@@ -982,13 +1005,13 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       query("#pam-cipher-view-banner_button_request-cancel")?.click();
       fixture.detectChanges();
 
-      expect(component["requestFormExpanded"]()).toBe(false);
+      expect(component["requestSheetOpen"]()).toBe(false);
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_request-cancel")).toBeNull();
     });
@@ -997,7 +1020,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockRejectedValue(new Error("boom"));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       expect(query("#pam-cipher-view-banner_button_request-submit")).toBeNull();
@@ -1006,7 +1029,7 @@ describe("CipherViewBannerComponent", () => {
       query("#pam-cipher-view-banner_button_request-cancel")?.click();
       fixture.detectChanges();
 
-      expect(component["requestFormExpanded"]()).toBe(false);
+      expect(component["requestSheetOpen"]()).toBe(false);
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
     });
 
@@ -1014,7 +1037,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       const focused = document.activeElement as HTMLElement | null;
@@ -1030,7 +1053,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       query("#pam-cipher-view-banner_button_request-cancel")?.click();
@@ -1042,9 +1065,9 @@ describe("CipherViewBannerComponent", () => {
     it("leaves focus where it is when the toggle remounts on its own", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       const elsewhere = document.createElement("input");
@@ -1064,15 +1087,15 @@ describe("CipherViewBannerComponent", () => {
     it("still moves focus on a toggle made after the banner changed state", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       await refreshTo(accessState({ activeLease: leaseView() }));
       await refreshTo(accessState());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       const focused = document.activeElement as HTMLElement | null;
@@ -1083,11 +1106,11 @@ describe("CipherViewBannerComponent", () => {
     it("drops a toggle's pending focus when the card unmounts before either target renders", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       // Cancelling while access changes unmounts the whole card; nothing remains to hold focus.
-      await component["toggleRequestForm"]();
+      component["closeRequestSheet"]();
       await refreshTo(accessState({ activeLease: leaseView() }));
       expect(query('[data-testid="cipher-view-banner-request"]')).toBeNull();
 
@@ -1105,7 +1128,7 @@ describe("CipherViewBannerComponent", () => {
     it("does not render the fold-out back open when the card cycles away and returns", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
       expect(query("#pam-cipher-view-banner_button_request-submit")).not.toBeNull();
 
@@ -1114,7 +1137,7 @@ describe("CipherViewBannerComponent", () => {
 
       await refreshTo(accessState());
 
-      expect(component["requestFormExpanded"]()).toBe(false);
+      expect(component["requestSheetOpen"]()).toBe(false);
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_request-submit")).toBeNull();
     });
@@ -1123,20 +1146,20 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
-      expect(component["requestMode"]()).toBe("human");
+      expect(sheet()["requestMode"]()).toBe("human");
       expect(query("#pam-cipher-view-banner_input_start-date")).not.toBeNull();
-      expect(component["humanForm"].getRawValue().startDate).not.toBe("");
-      expect(component["humanForm"].getRawValue().startTime).not.toBe("");
+      expect(sheet()["humanForm"].getRawValue().startDate).not.toBe("");
+      expect(sheet()["humanForm"].getRawValue().startTime).not.toBe("");
     });
 
     it("renders the automatic path's Reason field as a multi-line textarea", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       const reason = query("#pam-cipher-view-banner_textarea_automatic-reason");
@@ -1148,7 +1171,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       expect(
@@ -1160,7 +1183,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       const reason = query("#pam-cipher-view-banner_textarea_human-reason");
@@ -1172,7 +1195,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
       expect(reasonHint("#pam-cipher-view-banner_textarea_human-reason")?.textContent).toContain(
@@ -1190,10 +1213,14 @@ describe("CipherViewBannerComponent", () => {
       );
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
 
-      expect(component["durationOptions"]().map((o) => o.seconds)).toEqual([900, 1800]);
+      expect(
+        sheet()
+          ["durationOptions"]()
+          .map((o) => o.seconds),
+      ).toEqual([900, 1800]);
       const rendered = queryAll("#pam-cipher-view-banner_select_duration option").map((o) =>
         o.textContent?.trim(),
       );
@@ -1210,9 +1237,9 @@ describe("CipherViewBannerComponent", () => {
       );
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
-      expect(component["automaticForm"].getRawValue().durationSeconds).toBe(900);
+      expect(sheet()["automaticForm"].getRawValue().durationSeconds).toBe(900);
     });
 
     it("seeds the human path's window from the rule's default duration", async () => {
@@ -1221,10 +1248,10 @@ describe("CipherViewBannerComponent", () => {
       );
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
       // Composed from the fold-out's open time, not a fixed date.
-      const window = composeRequestWindow(component["humanForm"].getRawValue());
+      const window = composeRequestWindow(sheet()["humanForm"].getRawValue());
       const spanMinutes = (window!.end.getTime() - window!.start.getTime()) / 60_000;
       expect(spanMinutes).toBe(15);
     });
@@ -1234,24 +1261,24 @@ describe("CipherViewBannerComponent", () => {
         preCheck({ approvalMode: "human", defaultDurationSeconds: 900, maxDurationSeconds: 1800 }),
       );
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      component["endDuration"].setValue("custom");
+      await toggleSheet();
+      sheet()["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
       // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap.
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "09:00",
         endDate: futureDate,
         endTime: "11:00",
       });
-      component["humanForm"].controls.endTime.markAsTouched();
+      sheet()["humanForm"].controls.endTime.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["humanForm"].invalid).toBe(true);
+      expect(sheet()["humanForm"].invalid).toBe(true);
       const maxWindow = formatDuration("en-US", 1800, "long");
       const error = endFieldError();
       expect(error).not.toBeNull();
@@ -1261,24 +1288,24 @@ describe("CipherViewBannerComponent", () => {
     it("rejects a window that has already ended", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      component["endDuration"].setValue("custom");
+      await toggleSheet();
+      sheet()["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
       const pastDate = toDateInputValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000));
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: pastDate,
         startTime: "09:00",
         endDate: pastDate,
         endTime: "10:00",
       });
-      component["humanForm"].controls.endTime.markAsTouched();
+      sheet()["humanForm"].controls.endTime.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["humanForm"].invalid).toBe(true);
+      expect(sheet()["humanForm"].invalid).toBe(true);
       const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalWindowInPast");
@@ -1287,13 +1314,13 @@ describe("CipherViewBannerComponent", () => {
     it("rejects an end date before the start date", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      component["endDuration"].setValue("custom");
+      await toggleSheet();
+      sheet()["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
       const [year, month, day] = futureDate.split("-").map(Number);
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "09:00",
         endDate: toDateInputValue(new Date(year, month - 1, day - 1)),
@@ -1303,7 +1330,7 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["humanForm"].controls.endTime.touched).toBe(true);
+      expect(sheet()["humanForm"].controls.endTime.touched).toBe(true);
       expect(endFieldError()?.textContent).toContain("requestAccessModalEndNotAfterStart");
     });
 
@@ -1311,24 +1338,24 @@ describe("CipherViewBannerComponent", () => {
       // `min` is only an affordance; reactive forms never read ValidityState.rangeUnderflow.
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
       await fixture.whenStable();
 
       const date = query("#pam-cipher-view-banner_input_start-date") as HTMLInputElement | null;
       expect(date?.getAttribute("min")).toBe(toDateInputValue(new Date()));
-      expect(component["humanForm"].controls.startDate.value).toBe(date?.getAttribute("min"));
+      expect(sheet()["humanForm"].controls.startDate.value).toBe(date?.getAttribute("min"));
     });
 
     it("floors the end date picker at the chosen start date", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      component["endDuration"].setValue("custom");
+      await toggleSheet();
+      sheet()["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].controls.startDate.setValue(futureDate);
+      sheet()["humanForm"].controls.startDate.setValue(futureDate);
       fixture.detectChanges();
 
       const endDate = query("#pam-cipher-view-banner_input_end-date") as HTMLInputElement | null;
@@ -1344,8 +1371,8 @@ describe("CipherViewBannerComponent", () => {
         }),
       );
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      await component["toggleRequestForm"]();
+      await toggleSheet();
+      await toggleSheet();
 
       requestsApi.preCheck.mockResolvedValue(
         preCheck({
@@ -1354,30 +1381,30 @@ describe("CipherViewBannerComponent", () => {
           maxDurationSeconds: 86_400,
         }),
       );
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
-      expect(component["automaticForm"].getRawValue().durationSeconds).toBe(3600);
-      expect(component["maxWindowSeconds"]()).toBe(86_400);
+      expect(sheet()["automaticForm"].getRawValue().durationSeconds).toBe(3600);
+      expect(sheet()["maxWindowSeconds"]()).toBe(86_400);
     });
 
     it("collapses without asking when the pre-check reports a lease raced in", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ hasActiveLease: true }));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
-      expect(component["requestFormExpanded"]()).toBe(false);
-      expect(component["requestMode"]()).toBeNull();
+      expect(component["requestSheetOpen"]()).toBe(false);
+      expect(query('[data-testid="request-sheet"]')).toBeNull();
     });
 
     it("surfaces a generic error when the pre-check fails", async () => {
       requestsApi.preCheck.mockRejectedValue(new Error("boom"));
       await create(gatedCipher());
 
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
-      expect(component["requestError"]()).toBe("requestAccessModalGenericError");
-      expect(component["requestMode"]()).toBeNull();
+      expect(sheet()["requestError"]()).toBe("requestAccessModalGenericError");
+      expect(sheet()["requestMode"]()).toBeNull();
     });
 
     describe("when another member holds the single-active-lease slot", () => {
@@ -1387,7 +1414,7 @@ describe("CipherViewBannerComponent", () => {
         );
         await create(gatedCipher());
 
-        await component["toggleRequestForm"]();
+        await toggleSheet();
         fixture.detectChanges();
 
         const text = fixture.nativeElement.textContent as string;
@@ -1401,7 +1428,7 @@ describe("CipherViewBannerComponent", () => {
         );
         await create(gatedCipher());
 
-        await component["toggleRequestForm"]();
+        await toggleSheet();
         fixture.detectChanges();
 
         const text = fixture.nativeElement.textContent as string;
@@ -1415,7 +1442,7 @@ describe("CipherViewBannerComponent", () => {
         );
         await create(gatedCipher());
 
-        await component["toggleRequestForm"]();
+        await toggleSheet();
         fixture.detectChanges();
 
         expect(query("#pam-cipher-view-banner_select_duration")).not.toBeNull();
@@ -1434,10 +1461,10 @@ describe("CipherViewBannerComponent", () => {
         );
         await create(gatedCipher());
 
-        await component["toggleRequestForm"]();
+        await toggleSheet();
         fixture.detectChanges();
 
-        expect(component["slotContention"]()).toBeNull();
+        expect(sheet()["slotContention"]()).toBeNull();
         const text = fixture.nativeElement.textContent as string;
         expect(text).not.toContain("pamRequestSlotTaken");
         expect(text).toContain("requestAccessModalStartDate");
@@ -1449,15 +1476,15 @@ describe("CipherViewBannerComponent", () => {
         );
         await create(gatedCipher());
 
-        await component["toggleRequestForm"]();
-        expect(component["slotContention"]()).not.toBeNull();
+        await toggleSheet();
+        expect(sheet()["slotContention"]()).not.toBeNull();
 
-        await component["toggleRequestForm"]();
+        await toggleSheet();
         requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: true }));
-        await component["toggleRequestForm"]();
+        await toggleSheet();
         fixture.detectChanges();
 
-        expect(component["slotContention"]()).toBeNull();
+        expect(sheet()["slotContention"]()).toBeNull();
         expect(fixture.nativeElement.textContent).toContain("requestAccessModalDurationV2");
       });
     });
@@ -1471,10 +1498,10 @@ describe("CipherViewBannerComponent", () => {
         request: requestView(),
       } as never);
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
-      component["automaticForm"].patchValue({ durationSeconds: 1800, reason: "  " });
-      await component["submitRequest"]();
+      sheet()["automaticForm"].patchValue({ durationSeconds: 1800, reason: "  " });
+      await sheet()["submitRequest"]();
 
       expect(requestsApi.submitAccessRequest).toHaveBeenCalledWith("cipher-1", {
         durationSeconds: 1800,
@@ -1483,7 +1510,7 @@ describe("CipherViewBannerComponent", () => {
         // A blank reason is optional on this path and must not be sent as an empty string.
         reason: undefined,
       });
-      expect(component["requestFormExpanded"]()).toBe(false);
+      expect(component["requestSheetOpen"]()).toBe(false);
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
@@ -1496,16 +1523,16 @@ describe("CipherViewBannerComponent", () => {
         request: requestView(),
       } as never);
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "09:00",
         endDate: futureDate,
         endTime: "10:00",
         reason: " prod incident ",
       });
-      await component["submitRequest"]();
+      await sheet()["submitRequest"]();
 
       expect(requestsApi.submitAccessRequest).toHaveBeenCalledWith("cipher-1", {
         durationSeconds: undefined,
@@ -1524,18 +1551,18 @@ describe("CipherViewBannerComponent", () => {
         request: requestView(),
       } as never);
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
       const [year, month, day] = futureDate.split("-").map(Number);
       const endDate = toDateInputValue(new Date(year, month - 1, day + 2));
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "23:00",
         endDate,
         endTime: "01:00",
         reason: "overnight cutover",
       });
-      await component["submitRequest"]();
+      await sheet()["submitRequest"]();
 
       expect(requestsApi.submitAccessRequest).toHaveBeenCalledWith("cipher-1", {
         durationSeconds: undefined,
@@ -1548,10 +1575,10 @@ describe("CipherViewBannerComponent", () => {
     it("re-checks the window on submit when it elapsed while the form sat open", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
-      const end = component["humanForm"].controls.endTime;
-      component["humanForm"].patchValue({
+      const end = sheet()["humanForm"].controls.endTime;
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "09:00",
         endDate: futureDate,
@@ -1565,7 +1592,7 @@ describe("CipherViewBannerComponent", () => {
       try {
         expect(end.errors).toBeNull();
 
-        await component["submitRequest"]();
+        await sheet()["submitRequest"]();
 
         expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
         expect(end.errors?.[REQUEST_WINDOW_ERROR_KEY]).toEqual(
@@ -1579,16 +1606,16 @@ describe("CipherViewBannerComponent", () => {
     it("does not submit an invalid human form", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
 
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "10:00",
         endDate: futureDate,
         endTime: "10:00",
         reason: "",
       });
-      await component["submitRequest"]();
+      await sheet()["submitRequest"]();
 
       expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
     });
@@ -1596,18 +1623,18 @@ describe("CipherViewBannerComponent", () => {
     it("shows the window error once the requester zeroes the window", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      component["endDuration"].setValue("custom");
+      await toggleSheet();
+      sheet()["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "10:00",
         endDate: futureDate,
         endTime: "10:00",
       });
-      component["humanForm"].controls.endTime.markAsTouched();
+      sheet()["humanForm"].controls.endTime.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
@@ -1623,23 +1650,23 @@ describe("CipherViewBannerComponent", () => {
     it("reveals the window error when a start edit breaks a window the requester never touched", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      component["endDuration"].setValue("custom");
+      await toggleSheet();
+      sheet()["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "09:00",
         endDate: futureDate,
         endTime: "10:00",
       });
-      component["humanForm"].controls.startTime.setValue("10:00");
+      sheet()["humanForm"].controls.startTime.setValue("10:00");
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["humanForm"].controls.endTime.touched).toBe(true);
+      expect(sheet()["humanForm"].controls.endTime.touched).toBe(true);
       const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndNotAfterStart");
@@ -1648,45 +1675,45 @@ describe("CipherViewBannerComponent", () => {
     it("clears the window error once the window is valid again", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "10:00",
         endDate: futureDate,
         endTime: "10:00",
       });
-      component["humanForm"].controls.endTime.markAsTouched();
+      sheet()["humanForm"].controls.endTime.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].controls.startTime.setValue("09:00");
+      sheet()["humanForm"].controls.startTime.setValue("09:00");
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["humanForm"].controls.endTime.errors).toBeNull();
+      expect(sheet()["humanForm"].controls.endTime.errors).toBeNull();
       expect(endFieldError()).toBeNull();
     });
 
     it("reveals the window error on submit rather than submitting", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      component["endDuration"].setValue("custom");
+      await toggleSheet();
+      sheet()["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "10:00",
         endDate: futureDate,
         endTime: "10:00",
         reason: "prod incident",
       });
-      await component["submitRequest"]();
+      await sheet()["submitRequest"]();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
@@ -1708,8 +1735,8 @@ describe("CipherViewBannerComponent", () => {
       leasingErrors.isLeasingError.mockReturnValue(true);
       requestsApi.submitAccessRequest.mockRejectedValue(error);
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      await component["submitRequest"]();
+      await toggleSheet();
+      await sheet()["submitRequest"]();
     }
 
     // A real rule cap, since the server interpolates its effective maximum.
@@ -1728,8 +1755,8 @@ describe("CipherViewBannerComponent", () => {
         variant: "info",
         message: "requestAccessModalAlreadyPending",
       });
-      expect(component["requestFormExpanded"]()).toBe(false);
-      expect(component["requestError"]()).toBeNull();
+      expect(component["requestSheetOpen"]()).toBe(false);
+      expect(sheet()["requestError"]()).toBeNull();
     });
 
     it("re-reads the access state so the existing state drives the banner", async () => {
@@ -1743,50 +1770,50 @@ describe("CipherViewBannerComponent", () => {
     it("echoes a validation failure inline and keeps the fold-out open", async () => {
       await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd);
 
-      expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd);
-      expect(component["requestFormExpanded"]()).toBe(true);
+      expect(sheet()["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd);
+      expect(component["requestSheetOpen"]()).toBe(true);
     });
 
     // "7 days" is the 604800 the server sent, read back out of its sentence and localized.
     it("re-renders an over-long window in the requester's own language", async () => {
       await submitAndFail(windowExceedsMax);
 
-      expect(component["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
-      expect(component["requestFormExpanded"]()).toBe(true);
+      expect(sheet()["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
+      expect(component["requestSheetOpen"]()).toBe(true);
     });
 
     it("echoes an over-long duration rather than wording it as a window", async () => {
       const durationExceedsMax = "The requested duration exceeds the maximum of 1800 seconds.";
       await submitAndFail(durationExceedsMax);
 
-      expect(component["requestError"]()).toBe(durationExceedsMax);
-      expect(component["requestFormExpanded"]()).toBe(true);
+      expect(sheet()["requestError"]()).toBe(durationExceedsMax);
+      expect(component["requestSheetOpen"]()).toBe(true);
     });
 
     it("classifies on the server's message decoded out of the serialized response", async () => {
       await submitAndFail(wireBody(windowExceedsMax));
 
-      expect(component["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
-      expect(component["requestFormExpanded"]()).toBe(true);
+      expect(sheet()["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
+      expect(component["requestSheetOpen"]()).toBe(true);
     });
 
     it("ignores a catalog sentence carried elsewhere in the envelope", async () => {
       await submitAndFail(wireBody(windowExceedsMax, REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive));
 
-      expect(component["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
-      expect(component["requestFormExpanded"]()).toBe(true);
+      expect(sheet()["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
+      expect(component["requestSheetOpen"]()).toBe(true);
     });
 
     it("pins a missing reason to the reason control", async () => {
       await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.ReasonRequired);
 
-      expect(component["humanForm"].controls.reason.errors).toEqual({ required: true });
+      expect(sheet()["humanForm"].controls.reason.errors).toEqual({ required: true });
     });
 
     it("falls back to generic copy for an unrecognised failure", async () => {
       await submitAndFail("the server exploded");
 
-      expect(component["requestError"]()).toBe("requestAccessModalGenericError");
+      expect(sheet()["requestError"]()).toBe("requestAccessModalGenericError");
     });
 
     it("announces a network failure without the SDK's transport text", async () => {
@@ -1998,22 +2025,22 @@ describe("CipherViewBannerComponent", () => {
         }),
       );
       await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await toggleSheet();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
     }
 
     function spanSeconds(): number {
-      const window = composeRequestWindow(component["humanForm"].getRawValue());
+      const window = composeRequestWindow(sheet()["humanForm"].getRawValue());
       return (window!.end.getTime() - window!.start.getTime()) / 1000;
     }
 
     it("opens on the now slot and the rule's default duration", async () => {
       await openHumanForm();
 
-      expect(component["startSlot"].value).toBe(component["humanForm"].controls.startTime.value);
-      expect(component["endDuration"].value).toBe("3600");
+      expect(sheet()["startSlot"].value).toBe(sheet()["humanForm"].controls.startTime.value);
+      expect(sheet()["endDuration"].value).toBe("3600");
       expect(spanSeconds()).toBe(3600);
       expect(query("#pam-cipher-view-banner_select_end")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_input_end")).toBeNull();
@@ -2025,75 +2052,75 @@ describe("CipherViewBannerComponent", () => {
     it("moves the end when another duration is picked", async () => {
       await openHumanForm();
 
-      component["endDuration"].setValue(String(86400));
+      sheet()["endDuration"].setValue(String(86400));
 
       expect(spanSeconds()).toBe(86400);
     });
 
     it("keeps the duration when the start date moves, snapping the start to the next slot", async () => {
       await openHumanForm();
-      component["endDuration"].setValue(String(4 * 3600));
-      component["humanForm"].controls.startTime.setValue("10:10");
+      sheet()["endDuration"].setValue(String(4 * 3600));
+      sheet()["humanForm"].controls.startTime.setValue("10:10");
 
-      component["humanForm"].controls.startDate.setValue(futureDate);
+      sheet()["humanForm"].controls.startDate.setValue(futureDate);
 
-      expect(component["humanForm"].controls.startTime.value).toBe("10:30");
-      expect(component["startSlot"].value).toBe("10:30");
+      expect(sheet()["humanForm"].controls.startTime.value).toBe("10:30");
+      expect(sheet()["startSlot"].value).toBe("10:30");
       expect(spanSeconds()).toBe(4 * 3600);
     });
 
     it("leaves a custom end alone when the start moves", async () => {
       await openHumanForm();
-      component["endDuration"].setValue("custom");
-      component["humanForm"].patchValue({
+      sheet()["endDuration"].setValue("custom");
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "09:00",
         endDate: futureDate,
         endTime: "17:00",
       });
 
-      component["humanForm"].controls.startTime.setValue("11:00");
+      sheet()["humanForm"].controls.startTime.setValue("11:00");
 
-      expect(component["humanForm"].controls.endTime.value).toBe("17:00");
+      expect(sheet()["humanForm"].controls.endTime.value).toBe("17:00");
     });
 
     it("returns from a custom end to the nearest duration", async () => {
       await openHumanForm();
-      component["endDuration"].setValue("custom");
+      sheet()["endDuration"].setValue("custom");
       const [year, month, day] = futureDate.split("-").map(Number);
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: futureDate,
         startTime: "09:00",
         endDate: toDateInputValue(new Date(year, month - 1, day + 1)),
         endTime: "05:00",
       });
 
-      component["showEndPresets"]();
+      sheet()["showEndPresets"]();
 
-      expect(component["customEnd"]()).toBe(false);
-      expect(component["endDuration"].value).toBe(String(86400));
+      expect(sheet()["customEnd"]()).toBe(false);
+      expect(sheet()["endDuration"].value).toBe(String(86400));
       expect(spanSeconds()).toBe(86400);
     });
 
     it("swaps the start slot for a time input and back", async () => {
       await openHumanForm();
 
-      component["startSlot"].setValue("custom");
+      sheet()["startSlot"].setValue("custom");
       fixture.detectChanges();
       expect(query("#pam-cipher-view-banner_input_start")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_select_start")).toBeNull();
 
-      component["showStartPresets"]();
+      sheet()["showStartPresets"]();
       fixture.detectChanges();
       expect(query("#pam-cipher-view-banner_select_start")).not.toBeNull();
-      expect(component["startSlot"].value).toBe(component["humanForm"].controls.startTime.value);
+      expect(sheet()["startSlot"].value).toBe(sheet()["humanForm"].controls.startTime.value);
     });
 
     it("shows the window error under the duration while the end field is hidden", async () => {
       await openHumanForm();
-      component["startSlot"].setValue("custom");
+      sheet()["startSlot"].setValue("custom");
 
-      component["humanForm"].patchValue({
+      sheet()["humanForm"].patchValue({
         startDate: toDateInputValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)),
         startTime: "09:00",
       });

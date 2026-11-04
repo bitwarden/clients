@@ -64,8 +64,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `rotation/`, the Admin Console's rotation pages at `rotation` (access connectors and
   managed credentials), lazy-loaded from `rotation.routes.ts` behind
   `FeatureFlag.PamAccessConnector`.
-- `cipher-view-banner/`, the requester's entry point on an open gated cipher: six
-  states, five off `cipher_access_state()` (including Access ended) plus a request form that
+- `cipher-view-banner/`, the requester's entry point on an open gated cipher (it lives in
+  `bit-pam-components`, with each state's card under `cards/` and the form in
+  `request-access-sheet/`): six states, five off `cipher_access_state()` (including Access ended) plus a request form that
   opens as a bottom sheet over a dimmed overlay, and the licensing block (PM-39423). The block comes FIRST and replaces every other state, active lease
   included, because the server stops releasing a gated cipher's secrets to an unlicensed
   holder whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`), withdrawing a seat
