@@ -51,6 +51,7 @@ export type TargetSystemMethod = SdkTargetSystemMethod;
 export const TargetSystemKind = Object.freeze({
   Entra: "entra",
   CustomScript: "custom_script",
+  ActiveDirectory: "active_directory",
   Unknown: "unknown",
 } as const satisfies Record<string, SdkTargetSystemKind>);
 export type TargetSystemKind = SdkTargetSystemKind;

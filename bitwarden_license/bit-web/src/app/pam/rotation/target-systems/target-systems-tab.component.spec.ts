@@ -1561,6 +1561,7 @@ describe("TargetSystemsTabComponent filter options", () => {
 
     expect(component.kindOptions).toEqual([
       { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
+      { value: TargetSystemKind.ActiveDirectory, label: "pamTargetSystemTypeActiveDirectory" },
       { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
     ]);
   });

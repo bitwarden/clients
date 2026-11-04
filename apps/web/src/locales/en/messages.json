@@ -20309,6 +20309,9 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
   },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden automatically rotates a domain account password on an Active Directory server you run."
+  },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
     "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
   },
@@ -20408,6 +20411,10 @@
   "pamTargetSystemTypeCustomScript": {
     "message": "Custom script"
   },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
+  },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
     "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
@@ -20482,6 +20489,12 @@
   },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "This integration cannot end sessions that are already open. Rotating the credential blocks new sign-ins, but existing sessions continue until they expire."
+  },
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "This target system is recorded as supporting session termination, and its managed credentials can still use it. Saving here leaves that record as it is."
   },
   "pamTargetSystemCreated": {
     "message": "Target system created."
