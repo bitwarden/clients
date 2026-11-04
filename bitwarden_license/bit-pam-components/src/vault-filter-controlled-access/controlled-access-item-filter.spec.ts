@@ -26,6 +26,12 @@ describe("controlledAccessItemFilter", () => {
     expect(filter.label).toBe("t:controlledAccess");
   });
 
+  it("gives the chip an icon for hosts that show one", () => {
+    const { filter } = setup();
+
+    expect(filter.icon).toBe("bwi-lock-encrypted");
+  });
+
   it("offers the service's state options", async () => {
     const { filter } = setup();
 

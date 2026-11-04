@@ -18706,6 +18706,10 @@
     "message": "Active",
     "description": "Controlled access filter option in the vault table: items with an active access session."
   },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Ending soon",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
+  },
   "pamAuditKindAccessEndedByRequester": {
     "message": "Access ended by requester"
   },
