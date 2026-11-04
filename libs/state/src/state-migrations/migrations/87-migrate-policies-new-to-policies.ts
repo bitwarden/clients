@@ -1,12 +1,12 @@
 import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
 import { IRREVERSIBLE, Migrator } from "../migrator";
 
-const POLICIES: KeyDefinitionLike = {
+export const POLICIES: KeyDefinitionLike = {
   key: "policies",
   stateDefinition: { name: "policies" },
 };
 
-const POLICIES_NEW: KeyDefinitionLike = {
+export const POLICIES_NEW: KeyDefinitionLike = {
   key: "policiesNew",
   stateDefinition: { name: "policies" },
 };

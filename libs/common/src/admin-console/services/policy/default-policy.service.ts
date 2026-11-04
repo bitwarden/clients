@@ -41,17 +41,17 @@ export class DefaultPolicyService implements PolicyService {
     return this.stateProvider.getUser(userId, POLICIES);
   }
 
-  /** @returns policies for organizations in which the user is accepted or confirmed. */
-  private allPolicies$(userId: UserId): Observable<Policy[]> {
+  /** @returns policy data for organizations in which the user is accepted or confirmed. */
+  private policyData$(userId: UserId): Observable<PolicyData[]> {
     return this.policyState(userId).state$.pipe(
-      map((policiesMap) => Object.values(policiesMap || {}).map((p) => new Policy(p))),
+      map((policiesMap) => Object.values(policiesMap || {})),
     );
   }
 
   policies$(userId: UserId): Observable<Policy[]> {
     // Limit to confirmed organizations only to keep existing contract.
     return combineLatest([
-      this.allPolicies$(userId),
+      this.policyData$(userId),
       this.organizationService.organizations$(userId),
     ]).pipe(
       map(([policies, confirmedOrganizations]) => {
@@ -76,7 +76,7 @@ export class DefaultPolicyService implements PolicyService {
     return combineLatest([
       this.organizationService.organizations$(userId),
       this.organizationService.acceptedOrganizations$(userId),
-      this.allPolicies$(userId),
+      this.policyData$(userId),
       this.sdkService().client$,
     ]).pipe(
       map(([confirmedOrganizations, acceptedOrganizations, policies, sdkClient]) => {

@@ -1,7 +1,11 @@
 import { mockMigrationHelper, runMigrator } from "../migration-helper.spec";
 import { IRREVERSIBLE } from "../migrator";
 
-import { MigratePoliciesNewToPolicies } from "./87-migrate-policies-new-to-policies";
+import {
+  MigratePoliciesNewToPolicies,
+  POLICIES,
+  POLICIES_NEW,
+} from "./87-migrate-policies-new-to-policies";
 
 describe("MigratePoliciesNewToPolicies", () => {
   const sut = new MigratePoliciesNewToPolicies(86, 87);
@@ -25,52 +29,43 @@ describe("MigratePoliciesNewToPolicies", () => {
   async function migrate(storage: Record<string, unknown>) {
     const helper = mockMigrationHelper(storage, 86);
     await sut.migrate(helper);
-    return storage;
+    return helper;
   }
 
   describe("migrate", () => {
     it("overwrites policies with policiesNew and keeps policiesNew", async () => {
-      const output = await migrate({
+      const helper = await migrate({
         global_account_accounts: accounts,
         user_user1_policies_policies: oldPolicies,
         user_user1_policies_policiesNew: newPolicies,
       });
 
-      expect(output).toEqual({
-        global_account_accounts: accounts,
-        user_user1_policies_policies: newPolicies,
-        user_user1_policies_policiesNew: newPolicies,
-      });
+      expect(await helper.getFromUser("user1", POLICIES)).toEqual(newPolicies);
+      expect(await helper.getFromUser("user1", POLICIES_NEW)).toEqual(newPolicies);
     });
 
     it("overwrites policies with an empty policiesNew", async () => {
-      const output = await migrate({
+      const helper = await migrate({
         global_account_accounts: accounts,
         user_user1_policies_policies: oldPolicies,
         user_user1_policies_policiesNew: {},
       });
 
-      expect(output).toEqual({
-        global_account_accounts: accounts,
-        user_user1_policies_policies: {},
-        user_user1_policies_policiesNew: {},
-      });
+      expect(await helper.getFromUser("user1", POLICIES)).toEqual({});
+      expect(await helper.getFromUser("user1", POLICIES_NEW)).toEqual({});
     });
 
     it("migrates each account independently", async () => {
-      const output = await migrate({
+      const helper = await migrate({
         global_account_accounts: accounts,
         user_user1_policies_policies: oldPolicies,
         user_user1_policies_policiesNew: newPolicies,
         user_user2_policies_policies: oldPolicies,
       });
 
-      expect(output).toEqual({
-        global_account_accounts: accounts,
-        user_user1_policies_policies: newPolicies,
-        user_user1_policies_policiesNew: newPolicies,
-        user_user2_policies_policies: oldPolicies,
-      });
+      expect(await helper.getFromUser("user1", POLICIES)).toEqual(newPolicies);
+      expect(await helper.getFromUser("user2", POLICIES)).toEqual(oldPolicies);
+      expect(await helper.getFromUser("user2", POLICIES_NEW)).toBeUndefined();
     });
 
     it("sets policies when only policiesNew exists", async () => {
