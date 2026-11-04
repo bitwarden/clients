@@ -149,6 +149,7 @@ export class VaultProgram extends BaseProgram {
       "fingerprint",
       "send",
     ];
+    const copyObjects = ["username", "password", "uri", "totp", "notes"];
     return new Command("get")
       .argument("<object>", "Valid objects are: " + getObjects.join(", "))
       .argument("<id>", "Search term or object's globally unique `id`.")
@@ -156,15 +157,26 @@ export class VaultProgram extends BaseProgram {
       .option("--itemid <itemid>", "Attachment's item id.")
       .option("--output <output>", "Output directory or filename for attachment.")
       .option("--organizationid <organizationid>", "Organization id for an organization object.")
+      .option(
+        "--copy",
+        "Copy the value to the clipboard instead of printing it. Valid for: " +
+          copyObjects.join(", ") +
+          ".",
+      )
       .on("--help", () => {
         writeLn("\n  If raw output is specified and no output filename or directory is given for");
         writeLn("  an attachment query, the attachment content is written to stdout.");
+        writeLn("");
+        writeLn("  With --copy, the value is copied to the system clipboard and is not printed.");
+        writeLn("  This uses pbcopy on macOS, clip.exe on Windows, and wl-copy, xclip or xsel");
+        writeLn("  on Linux. The clipboard is not cleared automatically.");
         writeLn("");
         writeLn("  Examples:");
         writeLn("");
         writeLn("    bw get item 99ee88d2-6046-4ea7-92c2-acac464b1412");
         writeLn("    bw get password https://google.com");
         writeLn("    bw get totp google.com");
+        writeLn("    bw get password google.com --copy");
         writeLn("    bw get notes google.com");
         writeLn("    bw get exposed yahoo.com");
         writeLn(
@@ -180,6 +192,15 @@ export class VaultProgram extends BaseProgram {
       })
       .action(async (object, id, cmd) => {
         if (!this.validateObject(object, getObjects)) {
+          return;
+        }
+
+        if (cmd.copy && !copyObjects.includes(object.toLowerCase())) {
+          this.processResponse(
+            Response.badRequest(
+              "The --copy option is only valid for: " + copyObjects.join(", ") + ".",
+            ),
+          );
           return;
         }
 
@@ -202,7 +223,13 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cliRestrictedItemTypesService,
           this.serviceContainer.configService,
         );
-        const response = await command.run(object, id, cmd);
+        let response = await command.run(object, id, cmd);
+        if (cmd.copy) {
+          response = await this.serviceContainer.cliClipboardService.copyResponse(
+            response,
+            object.toLowerCase(),
+          );
+        }
         this.processResponse(response);
       });
   }
