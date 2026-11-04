@@ -84,13 +84,6 @@ if (access === BetaClientAccess.Blocked) {
 
 The Desktop main process does not create the service, because it has no `ConfigService`. It only reads `isBetaChannel()`.
 
-These beta logos still read `flagEnabled("prereleaseBuild")` directly, pending their move to `isBetaChannel()` in a separate change owned by UI Foundation:
-
-- `apps/browser/src/platform/popup/layout/popup-header.component.ts`
-- `apps/browser/src/popup/components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component.ts`
-- `libs/components/src/landing-layout/landing-header.component.ts`
-- `libs/components/src/navigation/nav-logo.component.ts`
-
 Outside of these exceptions, the package API surface should be used as described.
 
 ## Test in a real build
