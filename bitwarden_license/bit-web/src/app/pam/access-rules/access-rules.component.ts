@@ -25,10 +25,10 @@ import {
   copyRuleName,
   resolveCollectionNames,
   filterRulesToToggle,
-} from "@bitwarden/bit-common/pam";
-import { DurationLongPipe } from "@bitwarden/bit-common/pam/date/duration-long.pipe";
-import { RelativeTimePipe } from "@bitwarden/bit-common/pam/date/relative-time.pipe";
-import { sharedFolderKey } from "@bitwarden/bit-common/pam/helpers/shared-folder-key";
+} from "@bitwarden/bit-pam";
+import { DurationLongPipe } from "@bitwarden/bit-pam/date/duration-long.pipe";
+import { RelativeTimePipe } from "@bitwarden/bit-pam/date/relative-time.pipe";
+import { sharedFolderKey } from "@bitwarden/bit-pam/helpers/shared-folder-key";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";

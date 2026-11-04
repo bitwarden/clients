@@ -7,7 +7,7 @@ import {
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
-} from "@bitwarden/bit-common/pam";
+} from "@bitwarden/bit-pam";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import type {
   AccessLeaseId,

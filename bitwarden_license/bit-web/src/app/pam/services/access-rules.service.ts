@@ -8,7 +8,7 @@ import {
   accessRuleToCopyRequest,
   accessRuleToRequest,
   filterRulesToToggle,
-} from "@bitwarden/bit-common/pam";
+} from "@bitwarden/bit-pam";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";

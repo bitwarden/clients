@@ -27,7 +27,7 @@ import {
 import { ActivatedRoute, Router } from "@angular/router";
 import { merge } from "rxjs";
 
-import { apiErrorBodyMessage } from "@bitwarden/bit-common/pam/abstractions/api-error";
+import { apiErrorBodyMessage } from "@bitwarden/bit-pam/abstractions/api-error";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";

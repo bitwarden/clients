@@ -40,6 +40,10 @@
       "name": "common (bit)",
       "path": "bitwarden_license/bit-common",
     },
+    {
+      "name": "pam (bit)",
+      "path": "bitwarden_license/bit-pam",
+    },
   ],
   "settings": {
     "eslint.options": {

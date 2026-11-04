@@ -195,12 +195,14 @@ jobs:
           mkdir -p browser-source/apps/browser
           cp -r apps/browser/* browser-source/apps/browser
 
-          # Copy bitwarden_license/bit-browser and its bit-common dependency to the Browser source directory
+          # Copy bitwarden_license/bit-browser and its bit-common and bit-pam dependencies to the Browser source directory
           if [[ ${{matrix.license_type.include_bitwarden_license_folder}} == "true" ]]; then
             mkdir -p browser-source/bitwarden_license/bit-browser
             cp -r bitwarden_license/bit-browser/* browser-source/bitwarden_license/bit-browser
             mkdir -p browser-source/bitwarden_license/bit-common
             cp -r bitwarden_license/bit-common/* browser-source/bitwarden_license/bit-common
+            mkdir -p browser-source/bitwarden_license/bit-pam
+            cp -r bitwarden_license/bit-pam/* browser-source/bitwarden_license/bit-pam
           fi
 
           # Copy libs to Browser source directory

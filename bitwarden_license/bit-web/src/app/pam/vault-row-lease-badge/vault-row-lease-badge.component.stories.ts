@@ -2,8 +2,8 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { EMPTY, of } from "rxjs";
 
-import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import { AccessRefreshService } from "@bitwarden/bit-pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-pam/abstractions/access-request-sdk.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

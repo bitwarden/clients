@@ -412,12 +412,23 @@ export default tseslint.config(
     },
   },
   {
+    files: ["bitwarden_license/bit-pam/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam/*",
+      ]),
+    },
+  },
+  {
     files: ["apps/**/*.ts"],
     rules: {
       // Catches static imports
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam/*",
         "@bitwarden/bit-web/*",
       ]),
     },
@@ -428,6 +439,8 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam/*",
         "@bitwarden/bit-web/*",
 
         "**/app/core/*",
@@ -446,6 +459,8 @@ export default tseslint.config(
         "@angular",
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam/*",
         "@bitwarden/bit-web/*",
 
         "**/popup/*",
@@ -459,6 +474,8 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam/*",
         "@bitwarden/bit-web/*",
       ]),
     },
@@ -475,7 +492,7 @@ export default tseslint.config(
       "apps/web/**/*.html",
       "apps/browser/**/*.html",
       "bitwarden_license/bit-web/**/*.html",
-      "bitwarden_license/bit-common/**/*.html",
+      "bitwarden_license/bit-pam/**/*.html",
       "libs/**/*.html",
     ],
     rules: {
@@ -736,7 +753,11 @@ export default tseslint.config(
   // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.
   // https://contributing.bitwarden.com/contributing/code-style/web/typescript#imports-within-the-same-package
   {
-    files: ["libs/**/*.ts", "bitwarden_license/bit-common/src/**/*.ts"],
+    files: [
+      "libs/**/*.ts",
+      "bitwarden_license/bit-common/src/**/*.ts",
+      "bitwarden_license/bit-pam/src/**/*.ts",
+    ],
     rules: {
       "@bitwarden/platform/no-self-package-import": "error",
     },
