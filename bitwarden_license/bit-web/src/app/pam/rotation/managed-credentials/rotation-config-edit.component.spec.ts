@@ -2059,6 +2059,23 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
     });
   });
 
+  describe("the header slots", () => {
+    it("projects the badge and tabs into their own slots, not the actions container", async () => {
+      const fixture = await renderPage({ connectors: [connected()] });
+      const el: HTMLElement = fixture.nativeElement;
+      const actions = el.querySelector("#rotation-config-edit_button_rotate-now")?.parentElement;
+      const badge = el.querySelector("#rotation-config-edit_badge_status");
+      const tabs = el.querySelector("bit-tab-nav-bar");
+
+      expect(actions).toBeTruthy();
+      expect(badge).toBeTruthy();
+      expect(tabs).toBeTruthy();
+      expect(actions!.contains(badge)).toBe(false);
+      expect(actions!.contains(tabs)).toBe(false);
+      expect(tabs!.closest("[data-tabs]")).toBeTruthy();
+    });
+  });
+
   describe("the status badge", () => {
     it("reads Active for an idle credential on a connected target", async () => {
       const fixture = await renderPage({ connectors: [connected()] });
