@@ -31,6 +31,7 @@ export enum FeatureFlag {
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
   PM46060_DesktopWebAuthnClientWindows = "pm-46060-desktop-webauthn-client-windows",
   PM46059_DesktopWebAuthnClientMacOs = "pm-46059-desktop-webauthn-client-macos",
+  PM46061_DesktopWebAuthnClientLinux = "pm-46061-desktop-webauthn-client-linux",
 
   /* Autofill */
   FillAssistTargetingRules = "fill-assist-targeting-rules",
@@ -185,6 +186,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
   [FeatureFlag.PM46060_DesktopWebAuthnClientWindows]: FALSE,
   [FeatureFlag.PM46059_DesktopWebAuthnClientMacOs]: FALSE,
+  [FeatureFlag.PM46061_DesktopWebAuthnClientLinux]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,

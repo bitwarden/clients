@@ -7,7 +7,9 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 /** The feature flags for each platform's passkey login, passkey unlock and WebAuthn 2FA. */
 type NativeWebAuthnFlag =
-  FeatureFlag.PM46060_DesktopWebAuthnClientWindows | FeatureFlag.PM46059_DesktopWebAuthnClientMacOs;
+  | FeatureFlag.PM46060_DesktopWebAuthnClientWindows
+  | FeatureFlag.PM46059_DesktopWebAuthnClientMacOs
+  | FeatureFlag.PM46061_DesktopWebAuthnClientLinux;
 
 /** The feature flag for a platform's passkey login, passkey unlock and WebAuthn 2FA. */
 function platformFlag(device: DeviceType): NativeWebAuthnFlag | null {
@@ -16,6 +18,8 @@ function platformFlag(device: DeviceType): NativeWebAuthnFlag | null {
       return FeatureFlag.PM46060_DesktopWebAuthnClientWindows;
     case DeviceType.MacOsDesktop:
       return FeatureFlag.PM46059_DesktopWebAuthnClientMacOs;
+    case DeviceType.LinuxDesktop:
+      return FeatureFlag.PM46061_DesktopWebAuthnClientLinux;
     default:
       return null;
   }
