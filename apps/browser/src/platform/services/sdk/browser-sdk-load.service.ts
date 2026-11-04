@@ -1,5 +1,6 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { wasmSimdSupported } from "@bitwarden/common/platform/services/sdk/wasm-simd";
 
 import { BrowserApi } from "../../browser/browser-api";
 
@@ -24,6 +25,9 @@ const supported = (() => {
   return false;
 })();
 
+// Loads the SIMD build, or the slower MVP build on engines without SIMD
+const importWasm = () => (wasmSimdSupported ? import("./wasm") : import("./wasm-mvp"));
+
 // Due to using webpack as bundler, sync imports will return an async module. Since we do support
 // top level awaits, we define a promise we can await in the `load` function.
 let loadingPromise: Promise<any> | undefined;
@@ -33,7 +37,7 @@ if (BrowserApi.isManifestVersion(3)) {
   if (supported) {
     // eslint-disable-next-line no-console
     console.info("WebAssembly is supported in this environment");
-    loadingPromise = import("./wasm");
+    loadingPromise = importWasm();
   } else {
     loadingPromise = new Promise((_, reject) => {
       reject(new Error("WebAssembly is not supported in this environment"));
@@ -49,7 +53,7 @@ async function importModule(): Promise<GlobalWithWasmInit["initSdk"]> {
   } else if (supported) {
     // eslint-disable-next-line no-console
     console.info("WebAssembly is supported in this environment");
-    await import("./wasm");
+    await importWasm();
   } else {
     throw new Error("WebAssembly is not supported in this environment");
   }

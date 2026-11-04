@@ -1,4 +1,5 @@
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { wasmSimdSupported } from "@bitwarden/common/platform/services/sdk/wasm-simd";
 import * as sdk from "@bitwarden/sdk-internal";
 
 // https://stackoverflow.com/a/47880734
@@ -21,8 +22,10 @@ const supported = (() => {
 export class WebSdkLoadService extends SdkLoadService {
   async load(): Promise<void> {
     let module: any;
-    if (supported) {
+    if (supported && wasmSimdSupported) {
       module = await import("@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.wasm");
+    } else if (supported) {
+      module = await import("@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.mvp.wasm");
     } else {
       module = await import("@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.wasm.js");
     }
