@@ -106,7 +106,7 @@ describe("DesktopAutotypePairingUri", () => {
       }
     });
 
-    it.each(["Notepad", "Café 日本語 🚀", "<<???>>", "~~~", ""])(
+    it.each(["Notepad", "Café 日本語 🚀", "<<???>>", "~~~"])(
       "round-trips a pairing URI created with the app name '%s'",
       (name) => {
         const pairingUri = new DesktopAutotypePairingUri("1.0.0", createPairingData(name));
@@ -118,11 +118,17 @@ describe("DesktopAutotypePairingUri", () => {
       },
     );
 
-    it.each(["1.0.0", "1.2.3", "1.10.20"])("accepts the supported version '%s'", (version) => {
-      const uri = createUriString({ version, data: ENCODED_PAIRING_DATA });
+    it.each(["1.0.0", "1.2.3", "1.10.20"])(
+      "accepts the supported version '%s' and writes it back unchanged",
+      (version) => {
+        const uri = createUriString({ version, data: ENCODED_PAIRING_DATA });
 
-      expect(DesktopAutotypePairingUri.fromString(uri)?.version).toBe(version);
-    });
+        const pairingUri = DesktopAutotypePairingUri.fromString(uri);
+
+        expect(pairingUri?.version).toBe(version);
+        expect(pairingUri?.toString()).toBe(uri);
+      },
+    );
 
     it.each(["2.0.0", "0.1.0", "1.0", "1", "1.0.0-beta", "v1.0.0", "1.0.0.0", ""])(
       "returns null for the unsupported version '%s'",
@@ -187,6 +193,8 @@ describe("DesktopAutotypePairingUri", () => {
       ["a different host", createUriString({ version: "1.0.0" }, "desktopapp://other")],
       ["a path", createUriString({ version: "1.0.0" }, "desktopapp://autotype/path")],
       ["no host", createUriString({ version: "1.0.0" }, "desktopapp:autotype")],
+      ["an uppercase scheme", createUriString({ version: "1.0.0" }, "DESKTOPAPP://autotype")],
+      ["an uppercase host", createUriString({ version: "1.0.0" }, "desktopapp://AUTOTYPE")],
     ])("returns null for a URI with %s", (_, uriWithoutData) => {
       const uri = `${uriWithoutData}&data=${ENCODED_PAIRING_DATA}`;
 
@@ -236,6 +244,12 @@ describe("DesktopAutotypePairingUri", () => {
       expect(DesktopAutotypePairingUri.fromString(uri)).toBeNull();
     });
 
+    it("returns null when the app name is empty", () => {
+      const pairingUri = new DesktopAutotypePairingUri("1.0.0", createPairingData(""));
+
+      expect(DesktopAutotypePairingUri.fromString(pairingUri.toString())).toBeNull();
+    });
+
     it("returns null when the data is of the unsupported schema version 0.1.0", () => {
       const data = {
         ...createPairingData(),
@@ -272,11 +286,16 @@ describe("DesktopAutotypePairingUri", () => {
       expect(pairingUri?.toString()).toBe(uri);
     });
 
-    it.each(["", "   ", "not a uri", DESKTOP_APP_URI_PREFIX, "https://bitwarden.com"])(
-      "returns null for the string '%s'",
-      (uri) => {
-        expect(DesktopAutotypePairingUri.fromString(uri)).toBeNull();
-      },
-    );
+    it.each([
+      "",
+      "   ",
+      "not a uri",
+      DESKTOP_APP_URI_PREFIX,
+      // No query
+      "desktopapp://autotype",
+      "https://bitwarden.com",
+    ])("returns null for the string '%s'", (uri) => {
+      expect(DesktopAutotypePairingUri.fromString(uri)).toBeNull();
+    });
   });
 });

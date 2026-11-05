@@ -142,10 +142,14 @@ describe("isAutotypePairingData", () => {
     ["minor", 1.5],
     ["minor", "0"],
     ["minor", null],
+    ["minor", Number.NaN],
+    ["minor", Number.POSITIVE_INFINITY],
     ["patch", -1],
     ["patch", 1.5],
     ["patch", "0"],
     ["patch", null],
+    ["patch", Number.NaN],
+    ["patch", Number.POSITIVE_INFINITY],
   ])("returns false when schemaVersion.%s is %p", (part, value) => {
     const data = createModifiedPairingData((d) => (d.metadata.schemaVersion[part] = value));
 
@@ -172,7 +176,7 @@ describe("isAutotypePairingData", () => {
     expect(isAutotypePairingData(createModifiedPairingData(modify))).toBe(false);
   });
 
-  it.each(["macos-dmg", ""])(
+  it.each(["macos-dmg", "linux-flatpak"])(
     "returns true for the unknown packaging type '%s'",
     (packagingType) => {
       const data = createModifiedPairingData((d) => (d.clientData.packagingType = packagingType));
@@ -189,6 +193,14 @@ describe("isAutotypePairingData", () => {
       expect(isAutotypePairingData(data)).toBe(false);
     },
   );
+
+  it.each<[string, PairingDataModification]>([
+    ["appData.name", (d) => (d.appData.name = "")],
+    ["appData.normalizedPath", (d) => (d.appData.normalizedPath = "")],
+    ["clientData.packagingType", (d) => (d.clientData.packagingType = "")],
+  ])("returns false when %s is an empty string", (_, modify) => {
+    expect(isAutotypePairingData(createModifiedPairingData(modify))).toBe(false);
+  });
 
   it.each<[string, PairingDataModification]>([
     ["metadata", (d) => (d.metadata = [])],

@@ -57,15 +57,18 @@ export type AutotypePairingData = {
     pairingTimestamp: number;
   };
   appData: {
-    /** The name of the application paired. */
+    /** The name of the application paired. Never empty. */
     name: string;
-    /** The normalized absolute path of the application paired, including the file name. */
+    /**
+     * The normalized absolute path of the application paired, including the file name. Never
+     * empty.
+     */
     normalizedPath: string;
   };
   clientData: {
     /**
      * The type of packaging of the Bitwarden client this pairing was made on, usually one of
-     * {@link AutotypePairingPackagingType}. Later 1.x versions may add values.
+     * {@link AutotypePairingPackagingType}. Later 1.x versions may add values. Never empty.
      */
     packagingType: string;
   };
@@ -114,23 +117,28 @@ function isSchemaVersion(value: unknown): boolean {
   );
 }
 
-// Validates `appData`: a string name and a string path.
+// Validates `appData`: a non-empty name and a non-empty path.
 function isAppData(value: unknown): boolean {
   return (
     isPlainObject(value) &&
     hasKeys(value, ["name", "normalizedPath"]) &&
-    typeof value.name === "string" &&
-    typeof value.normalizedPath === "string"
+    isNonEmptyString(value.name) &&
+    isNonEmptyString(value.normalizedPath)
   );
 }
 
-// Validates `clientData`: a string packaging type, known or not.
+// Validates `clientData`: a non-empty packaging type, known or not.
 function isClientData(value: unknown): boolean {
   return (
     isPlainObject(value) &&
     hasKeys(value, ["packagingType"]) &&
-    typeof value.packagingType === "string"
+    isNonEmptyString(value.packagingType)
   );
+}
+
+// Matches the schema's `"type": "string", "minLength": 1`.
+function isNonEmptyString(value: unknown): boolean {
+  return typeof value === "string" && value.length > 0;
 }
 
 // Matches the schema's `"type": "integer", "minimum": 0`.
