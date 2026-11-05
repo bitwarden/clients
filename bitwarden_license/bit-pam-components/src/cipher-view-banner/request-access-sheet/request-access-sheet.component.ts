@@ -10,6 +10,7 @@ import {
   DialogService,
   IconModule,
   IconTileComponent,
+  SkeletonComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -37,6 +38,7 @@ export type RequestAccessSheetParams = {
     DialogModule,
     IconModule,
     IconTileComponent,
+    SkeletonComponent,
     TypographyModule,
     DurationLongPipe,
     I18nPipe,
