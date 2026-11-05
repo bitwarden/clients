@@ -479,18 +479,14 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-deny-req-1"]')).toBeNull();
     });
 
-    it("reveals the actions on row hover, keyboard focus, or any device without hover", () => {
+    it("reveals the actions on row hover or keyboard focus", () => {
       inbox.approverRows$.next([pending()]);
 
       create();
 
-      const strip = query('[data-testid="approvals-approve-req-1"]')?.parentElement;
-      expect(strip?.className).toContain("tw-opacity-0");
-      expect(strip?.className).toContain("group-hover/row:tw-opacity-100");
-      expect(strip?.className).toContain("group-has-[:focus-visible]/row:tw-opacity-100");
-      // Without this the strip is invisible and untappable for the whole of a touch device.
-      expect(strip?.className).toContain("[@media(hover:none)]:tw-opacity-100");
-      expect(strip?.className).toContain("[@media(hover:none)]:tw-pointer-events-auto");
+      const strip = query('[data-testid="approvals-approve-req-1"]')!.parentElement!;
+      expect(strip.className).toContain("tw-opacity-[var(--bit-hover-reveal,1)]");
+      expect(strip.closest("bit-row")?.className).toContain("[--bit-hover-reveal:0]");
     });
 
     it("disables both decisions on the caller's own request, saying why", () => {

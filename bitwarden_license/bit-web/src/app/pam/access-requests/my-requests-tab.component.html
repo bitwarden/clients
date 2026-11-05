@@ -173,9 +173,7 @@
         <span class="tw-w-full tw-text-end">{{ "pamColumnActions" | i18n }}</span>
       </bit-header-cell>
       <bit-cell *bitCellDef="myRequestsTable.columns.actions; let row" [truncate]="false">
-        <div
-          class="tw-flex tw-items-center tw-justify-end tw-gap-2 tw-opacity-0 tw-transition-opacity tw-pointer-events-none group-hover/row:tw-opacity-100 group-hover/row:tw-pointer-events-auto group-has-[:focus-visible]/row:tw-opacity-100 group-has-[:focus-visible]/row:tw-pointer-events-auto [@media(hover:none)]:tw-opacity-100 [@media(hover:none)]:tw-pointer-events-auto"
-        >
+        <div class="tw-flex tw-items-center tw-justify-end tw-gap-2" bitHoverReveal>
           @if (row.lease; as lease) {
             <button
               type="button"
