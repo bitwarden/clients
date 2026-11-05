@@ -28,6 +28,21 @@ const WINDOW_TIMEOUT_MS = 60_000;
 const REMOTE_DEBUGGING_PORT = 9719;
 const DEVTOOLS_URL = "devtools://";
 
+// On a narrow window the side nav opens as a modal overlay (libs/components side-nav).
+const SIDE_NAV_OVERLAY = "Side navigation";
+
+/**
+ * Closes the side nav whenever it opens as an overlay. Dismissing the new look dialog opens it
+ * (vault-v3), and it then covers the vault and matches every `getByRole("dialog")`.
+ */
+async function closeSideNavOverlay(window: Page) {
+  const overlay = window.getByRole("dialog", { name: SIDE_NAV_OVERLAY });
+
+  await window.addLocatorHandler(overlay, async () => {
+    await window.keyboard.press("Escape");
+  });
+}
+
 async function launch(
   extraArgs: string[],
   extraEnv: Record<string, string>,
@@ -104,6 +119,7 @@ export const test = base.extend<{
     await window.waitForLoadState("domcontentloaded");
     // E.g. "Bitwarden has a new look" opens over the vault after login.
     await skipOnboardingDialogs(window);
+    await closeSideNavOverlay(window);
 
     await use(window);
   },
