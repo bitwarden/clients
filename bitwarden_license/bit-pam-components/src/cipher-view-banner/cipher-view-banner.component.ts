@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -55,6 +56,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AsyncActionsModule,
   ButtonModule,
+  DialogRef,
   DialogService,
   ToastService,
   TooltipDirective,
@@ -73,8 +75,10 @@ import { ApprovedRequestCardComponent } from "./cards/approved-request-card.comp
 import { PendingRequestCardComponent } from "./cards/pending-request-card.component";
 import { RequestAccessCardComponent } from "./cards/request-access-card.component";
 import { UnlicensedCardComponent } from "./cards/unlicensed-card.component";
+import { CIPHER_VIEW_BANNER_LAYOUT } from "./cipher-view-banner-layout";
+import { RequestAccessFormComponent } from "./request-access-form/request-access-form.component";
 import { RequestAccessSheetComponent } from "./request-access-sheet/request-access-sheet.component";
-import type { RequestTerms } from "./request-terms";
+import { type RequestTerms, requestTerms } from "./request-terms";
 
 /**
  * Cipher-view banner for PAM-governed items. The unlicensed state replaces every other, since the
@@ -87,6 +91,7 @@ import type { RequestTerms } from "./request-terms";
   imports: [
     AsyncActionsModule,
     ButtonModule,
+    NgTemplateOutlet,
     TooltipDirective,
     TypographyModule,
     I18nPipe,
@@ -95,7 +100,7 @@ import type { RequestTerms } from "./request-terms";
     ApprovedRequestCardComponent,
     PendingRequestCardComponent,
     RequestAccessCardComponent,
-    RequestAccessSheetComponent,
+    RequestAccessFormComponent,
     UnlicensedCardComponent,
   ],
 })
@@ -122,6 +127,8 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
   private readonly injector = inject(Injector);
+  protected readonly popupLayout =
+    (inject(CIPHER_VIEW_BANNER_LAYOUT, { optional: true }) ?? "dialog") === "popup";
 
   /** Advanced every second while {@link clockAdvances}. */
   protected readonly nowMs = signal(Date.now());
@@ -244,27 +251,14 @@ export class CipherViewBannerComponent implements OnInit {
       this.pendingRequest() == null,
   );
 
-  /**
-   * The governing rule's terms for the resting banner, from `preCheck`, since {@link state} carries
-   * none. `null` when the cap is missing, rather than a made-up limit.
-   */
+  /** The governing rule's terms for the resting banner, from `preCheck`, since {@link state} carries none. */
   protected readonly restingRequestTerms = toSignal<RequestTerms | null>(
     toObservable(computed(() => (this.canRequestAccess() ? this.cipher().id : null))).pipe(
       switchMap((cipherId) =>
         cipherId == null
           ? of(null)
           : from(this.accessRequestSdkService.preCheck(String(cipherId))).pipe(
-              map(({ approvalMode, maxDurationSeconds }) =>
-                Number.isFinite(maxDurationSeconds)
-                  ? {
-                      maxSeconds: maxDurationSeconds,
-                      messageKey:
-                        approvalMode === "automatic"
-                          ? "pamRequestAccessBannerMaxDurationAutomatic"
-                          : "pamRequestAccessBannerMaxDuration",
-                    }
-                  : null,
-              ),
+              map(requestTerms),
               catchError((e: unknown) => {
                 this.logService.error(e);
                 return of(null);
@@ -291,10 +285,13 @@ export class CipherViewBannerComponent implements OnInit {
     () => this.activeLease() != null || this.pendingRequest() != null,
   );
 
-  protected readonly requestSheetOpen = signal(false);
+  /** The inline form, open in place of Request access. */
+  protected readonly requestFormOpen = signal(false);
+  private readonly requestSheet = signal<DialogRef<boolean> | undefined>(undefined);
   private readonly requestToggleButton = viewChild("requestToggleButton", {
     read: ElementRef<HTMLElement>,
   });
+  private readonly requestFoldOut = viewChild("requestFoldOut", { read: ElementRef<HTMLElement> });
 
   constructor() {
     effect(() => {
@@ -322,12 +319,15 @@ export class CipherViewBannerComponent implements OnInit {
       });
     });
 
-    // Closes the sheet with the card, or it reopens stale, seeded from an old rule, on remount.
+    // Closes the form with the card, so it never offers a request that no longer applies. The sheet
+    // also closes with the banner, since DialogService leaves it open across navigation.
     effect(() => {
       if (!this.canRequestAccess()) {
-        this.requestSheetOpen.set(false);
+        this.requestFormOpen.set(false);
+        void untracked(this.requestSheet)?.close();
       }
     });
+    this.destroyRef.onDestroy(() => void this.requestSheet()?.close());
   }
 
   ngOnInit(): void {
@@ -343,21 +343,47 @@ export class CipherViewBannerComponent implements OnInit {
     });
   }
 
-  protected openRequestSheet(): void {
-    this.requestSheetOpen.set(true);
+  protected openRequest(): void {
+    if (this.popupLayout) {
+      void this.openRequestSheet();
+      return;
+    }
+    this.requestFormOpen.set(true);
+    // The form replaces the button that opened it, which would otherwise take focus with it.
+    afterNextRender(() => this.requestFoldOut()?.nativeElement.focus(), {
+      injector: this.injector,
+    });
   }
 
-  /** Returns focus to the toggle, which the sheet covered. */
-  protected closeRequestSheet(): void {
-    this.requestSheetOpen.set(false);
+  /** Returns focus to Request access, which the form replaced. */
+  protected closeRequestForm(): void {
+    this.requestFormOpen.set(false);
     afterNextRender(() => this.requestToggleButton()?.nativeElement.focus(), {
       injector: this.injector,
     });
   }
 
-  protected closeSheetAndRefreshAccess(): void {
-    this.requestSheetOpen.set(false);
+  protected closeRequestFormAndRefresh(): void {
+    this.requestFormOpen.set(false);
     this.notifyAccessChanged();
+  }
+
+  private async openRequestSheet(): Promise<void> {
+    // A second activation can land before focus moves into the sheet.
+    if (this.requestSheet() != null) {
+      return;
+    }
+    const cipher = this.cipher();
+    const sheet = RequestAccessSheetComponent.open(this.dialogService, {
+      cipherId: cipher.id,
+      itemName: cipher.name,
+    });
+    this.requestSheet.set(sheet);
+    const accessChanged = await firstValueFrom(sheet.closed);
+    this.requestSheet.set(undefined);
+    if (accessChanged) {
+      this.notifyAccessChanged();
+    }
   }
 
   protected readonly activateRequest = async (): Promise<void> => {

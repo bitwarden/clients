@@ -17,6 +17,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -133,6 +134,7 @@ function pam(
         useValue: { cancelOutstandingRequest: () => Promise.resolve() },
       },
       { provide: LeasingErrorService, useValue: { isLeasingError: () => false } },
+      { provide: PlatformUtilsService, useValue: { copyToClipboard: () => {} } },
       {
         provide: DialogService,
         useValue: {
