@@ -66,6 +66,9 @@ import {
   targetedFormCategoryFillTypes,
 } from "./autofill-constants";
 
+/** An element that embeds a sub frame document: an iframe, or a frame of a legacy frameset. */
+type SubFrameElement = HTMLIFrameElement | HTMLFrameElement;
+
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
   private showInlineMenuIdentities: boolean = false;
@@ -1593,8 +1596,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Queries all iframe elements within the document and returns the
-   * sub frame offsets for each iframe element.
+   * Queries all iframe and frame elements within the document and returns the
+   * sub frame offsets for each element.
    *
    * @param message - The message object from the extension.
    */
@@ -1608,8 +1611,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return null;
     }
 
-    let iframeElement: HTMLIFrameElement | null = null;
-    const iframeElements = globalThis.document.getElementsByTagName("iframe");
+    let iframeElement: SubFrameElement | null = null;
+    // Legacy framesets embed their documents with `frame` rather than `iframe` elements.
+    const iframeElements = globalThis.document.querySelectorAll<SubFrameElement>("iframe, frame");
 
     for (let iframeIndex = 0; iframeIndex < iframeElements.length; iframeIndex++) {
       const iframe = iframeElements[iframeIndex];
@@ -1659,12 +1663,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Calculates the bounding rect for the queried frame and returns the
    * offset data for the sub frame.
    *
-   * @param iframeElement - The iframe element to calculate the sub frame offsets for.
+   * @param iframeElement - The iframe or frame element to calculate the sub frame offsets for.
    * @param subFrameUrl - The URL of the sub frame.
    * @param frameId - The frame ID of the sub frame.
    */
   private calculateSubFrameOffsets(
-    iframeElement: HTMLIFrameElement,
+    iframeElement: SubFrameElement,
     subFrameUrl?: string,
     frameId?: number,
   ): SubFrameOffsetData {
@@ -1706,30 +1710,24 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    let subFrameOffsets: SubFrameOffsetData;
-    const iframes = globalThis.document.querySelectorAll("iframe");
-    for (let i = 0; i < iframes.length; i++) {
-      if (iframes[i].contentWindow === event.source) {
-        const iframeElement = iframes[i];
-        subFrameOffsets = this.calculateSubFrameOffsets(
-          iframeElement,
-          undefined,
-          subFrameData.frameId,
-        );
+    const iframeElement = this.findIframeElementByContentWindow(event.source);
+    if (iframeElement) {
+      const subFrameOffsets = this.calculateSubFrameOffsets(
+        iframeElement,
+        undefined,
+        subFrameData.frameId,
+      );
 
-        if (!subFrameOffsets) {
-          return;
-        }
+      if (!subFrameOffsets) {
+        return;
+      }
 
-        subFrameData.top += subFrameOffsets.top;
-        subFrameData.left += subFrameOffsets.left;
+      subFrameData.top += subFrameOffsets.top;
+      subFrameData.left += subFrameOffsets.left;
 
-        const parentFrameId = await this.sendExtensionMessage("getCurrentTabFrameId");
-        if (typeof parentFrameId !== "undefined") {
-          subFrameData.parentFrameIds?.push(parentFrameId);
-        }
-
-        break;
+      const parentFrameId = await this.sendExtensionMessage("getCurrentTabFrameId");
+      if (typeof parentFrameId !== "undefined") {
+        subFrameData.parentFrameIds?.push(parentFrameId);
       }
     }
 
@@ -1740,6 +1738,35 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     void this.sendExtensionMessage("updateSubFrameData", { subFrameData });
   };
+
+  /**
+   * Finds the iframe or frame element whose content window is the source of a window message.
+   * Elements within shadow roots are only queried when the light DOM has no match.
+   *
+   * @param source - The source of the window message event.
+   */
+  private findIframeElementByContentWindow(
+    source: MessageEventSource | null,
+  ): SubFrameElement | undefined {
+    const isSourceIframeElement = (element: Element): element is SubFrameElement =>
+      (element instanceof HTMLIFrameElement || element instanceof HTMLFrameElement) &&
+      element.contentWindow === source;
+
+    const iframeElement = Array.from(globalThis.document.querySelectorAll("iframe, frame")).find(
+      isSourceIframeElement,
+    );
+    if (iframeElement) {
+      return iframeElement;
+    }
+
+    // Shadow roots attached to elements already in the DOM are not reported by mutation observers.
+    this.domQueryService.refreshShadowDomStateForUserRequest();
+    return this.domQueryService.query<SubFrameElement>(
+      globalThis.document,
+      "iframe, frame",
+      isSourceIframeElement,
+    )[0];
+  }
 
   /**
    * Sets up global event listeners and the mutation
