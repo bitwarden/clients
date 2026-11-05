@@ -1801,11 +1801,12 @@ actor CollectionManager {
 
 surface CipherViewBanner {
     -- The requester's entry point on an open gated cipher: renders exactly one of
-    -- five states. Unlicensed comes first and replaces every other state, an active
+    -- six states. Unlicensed comes first and replaces every other state, an active
     -- lease included (CipherOpenBlockedUnlicensed): it explains the block and offers
-    -- nothing. Otherwise: active lease (countdown, extend, end), approved request
-    -- (start, withdraw), pending request (withdraw), or none of those (request
-    -- access, which folds out RequestAccessModal inline). Also the surface that reveals the
+    -- nothing. Otherwise: active lease (countdown, extend, end; in its last five
+    -- minutes, ENDING_SOON_THRESHOLD_MS, the design shows the countdown alone with no
+    -- actions), approved request (start only), pending request (withdraw), access ended, or none of those
+    -- (request access, which opens RequestAccessModal as a bottom sheet). Also the surface that reveals the
     -- credential in place the moment a lease becomes active, without reopening the
     -- item. See cipher-view-banner.component, bound to the CIPHER_VIEW_BANNER seam;
     -- the reveal itself goes through Vault's RevealedCipherService.
@@ -1836,13 +1837,13 @@ surface CipherViewBanner {
                                              and request.status = approved
              and request.lease = null
              and HoldsPamSeat(viewer, target_cipher.organization)
-        -- Withdraw, on the pending and approved states. Hidden behind the unlicensed
-        -- block here, but the vault row's menu (VaultRowAccessState) and the My
-        -- requests tab still offer it, since giving access back needs no seat.
+        -- Withdraw, on the pending state only. The approved card offers just Start
+        -- access; the vault row's menu (VaultRowAccessState) and the My requests tab
+        -- still withdraw an approved request, and offer it behind the unlicensed
+        -- block, since giving access back needs no seat.
         MemberCancelsRequest(viewer, request)
             when request.requester = viewer and request.cipher = target_cipher
-             and (request.status = pending
-                  or (request.status = approved and request.lease = null))
+             and request.status = pending
              and HoldsPamSeat(viewer, target_cipher.organization)
         -- Extending and ending the lease are offered here as well, through
         -- extend-lease-dialog.component; ActiveLeasesPage states them once for every
@@ -1906,10 +1907,10 @@ surface RequestAccessModal {
     -- which creates it (MemberSubmitsAccessRequest). Dismissing without submitting
     -- creates nothing.
     --
-    -- Implemented as a fold-out INSIDE CipherViewBanner rather than a separate modal,
-    -- so the requester never loses sight of the item they are asking for. Which fields
-    -- it collects comes from pre_check: a duration alone on the automatic path, a
-    -- window plus a required reason on the human path. The name is kept because the
+    -- Implemented as a bottom sheet over a dimmed overlay (request-access-sheet.component),
+    -- opened from CipherViewBanner rather than a separate modal route, so the item stays
+    -- behind it. Which fields it collects comes from pre_check: a duration alone on the
+    -- automatic path, a window plus a required reason on the human path. The name is kept because the
     -- copy keys (requestAccessModal*) are shared with it.
     facing requester: Member
 
@@ -2023,7 +2024,8 @@ surface ActiveLeasesPage {
     -- No page of its own. Both actions it provides ARE reachable: the
     -- "Active access" section of my-requests-tab.component ends a lease, and
     -- cipher-view-banner.component ends or extends the lease on the item itself
-    -- (through extend-lease-dialog.component). This surface is kept as the domain
+    -- (through extend-lease-dialog.component) until its last five minutes, when the
+    -- banner drops both actions. This surface is kept as the domain
     -- statement of what a lease holder may do to their own lease, independently of
     -- which screen offers it.
     facing viewer: Member
