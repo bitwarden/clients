@@ -18434,10 +18434,6 @@
   "pamMyRequestsLoaded": {
     "message": "Requests loaded"
   },
-  "pamAccessRequestsSearchPlaceholderSharedFolder": {
-    "message": "Search credential, shared folder, requester",
-    "description": "VFO1 terminology feature flag variant of pamAccessRequestsSearchPlaceholder"
-  },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
