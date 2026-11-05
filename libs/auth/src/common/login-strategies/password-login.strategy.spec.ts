@@ -146,9 +146,6 @@ describe("PasswordLoginStrategy", () => {
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue(masterKey);
 
-    // The strategy no longer reads the prelogin flag; this default is for the base class.
-    configService.getFeatureFlag.mockResolvedValue(false);
-
     legacyCompatKeyService.hashMasterKey
       .calledWith(masterPassword, expect.anything())
       .mockResolvedValue(hashedPassword);
