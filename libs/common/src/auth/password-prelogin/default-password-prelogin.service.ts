@@ -37,6 +37,11 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
       catchError((err: unknown) => {
         // If the fetch fails, we want to reset the stored email and prelogin data so that future calls will attempt to fetch again
         // otherwise, there isn't a way to recover from a failed call since the failed result would be cached indefinitely
+        // TODO: This clears the cache even when it now holds a different email's request. If a
+        // subscribed request for email A fails after a request for email B has replaced it, B's
+        // entry is dropped and B is fetched again. The data stays correct; only the request
+        // repeats. Fix: keep a reference to the observable built here and clear only while
+        // currentPreloginData$ still points at it.
         this.currentEmail = null;
         this.currentPreloginData$ = null;
         throw err;
