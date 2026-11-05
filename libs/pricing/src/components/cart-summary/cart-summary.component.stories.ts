@@ -76,7 +76,7 @@ export default {
                 case "passwordManagerProratedCharge":
                   return "Password Manager prorated charge";
                 case "prorationChargeMayDiffer":
-                  return "The final charge may differ slightly from this preview because proration is calculated up to the moment you submit.";
+                  return "Your final charge may differ slightly, since proration is calculated up to the moment you submit.";
                 case "discount":
                   return "discount";
                 case "appliedBalance":

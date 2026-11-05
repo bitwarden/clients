@@ -9464,7 +9464,7 @@
     "message": "Estimated tax"
   },
   "prorationChargeMayDiffer": {
-    "message": "The final charge may differ slightly from this preview because proration is calculated up to the moment you submit."
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
   },
   "subtotal": {
     "message": "Subtotal"
