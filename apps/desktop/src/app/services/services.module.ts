@@ -61,10 +61,13 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { AccountSwitcherService } from "@bitwarden/common/auth/account-switcher";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import {
@@ -121,10 +124,17 @@ import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/d
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
-import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
+import {
+  GlobalStateProvider,
+  StateEventRunnerService,
+  StateProvider,
+} from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import {
+  InternalFolderService,
+  FolderService,
+} from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -181,6 +191,7 @@ import {
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
+import { DesktopLogoutService } from "../../auth/services/logout";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeGaPolicyService } from "../../autofill/services/desktop-autotype-ga-policy.service";
@@ -624,6 +635,33 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
     ],
   }),
+  safeProvider({
+    provide: DesktopLogoutService,
+    useClass: DesktopLogoutService,
+    deps: [
+      LogService,
+      I18nServiceAbstraction,
+      ToastService,
+      DialogService,
+      AccountServiceAbstraction,
+      AccountSwitcherService,
+      AuthServiceAbstraction,
+      EventUploadService,
+      CipherServiceAbstraction,
+      InternalFolderService,
+      BiometricStateService,
+      PinServiceAbstraction,
+      KeyServiceAbstraction,
+      StateEventRunnerService,
+      StateServiceAbstraction,
+      TokenService,
+      MessagingServiceAbstraction,
+      Router,
+      ProcessReloadServiceAbstraction,
+      SdkService,
+    ],
+  }),
+  safeProvider({ provide: LogoutService, useExisting: DesktopLogoutService }),
   safeProvider({
     provide: SdkClientFactory,
     useClass: flagEnabled("sdk") ? DefaultSdkClientFactory : NoopSdkClientFactory,

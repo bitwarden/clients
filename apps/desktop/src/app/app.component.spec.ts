@@ -16,17 +16,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AccountSwitcherService } from "@bitwarden/common/auth/account-switcher";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
-import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -34,21 +30,19 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LockService } from "@bitwarden/unlock";
+
+import { DesktopLogoutService } from "../auth/services/logout";
 
 import { AppComponent } from "./app.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
@@ -72,6 +66,7 @@ describe("AppComponent (desktop)", () => {
   let keyService: MockProxy<KeyService>;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let accountSwitcherService: MockProxy<AccountSwitcherService>;
+  let logoutService: MockProxy<DesktopLogoutService>;
 
   let broadcasterCallback: (message: any) => Promise<void>;
   let lastZoneRunResult: unknown;
@@ -98,6 +93,7 @@ describe("AppComponent (desktop)", () => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     accountSwitcherService = mock<AccountSwitcherService>();
     accountSwitcherService.resolveActiveAccount.mockResolvedValue({ action: "keep" });
+    logoutService = mock<DesktopLogoutService>();
 
     accountService.activeAccount$ = of({ id: userId } as any);
     (accountService as any).showHeader$ = EMPTY;
@@ -118,9 +114,7 @@ describe("AppComponent (desktop)", () => {
       () =>
         new AppComponent(
           broadcasterService,
-          mock<InternalFolderService>(),
           syncService,
-          mock<CipherService>(),
           authService,
           router,
           mock<ToastService>(),
@@ -134,23 +128,16 @@ describe("AppComponent (desktop)", () => {
           mock<ServerNotificationsService>(),
           mock<PlatformUtilsService>(),
           mock<SystemService>(),
-          mock<ProcessReloadServiceAbstraction>(),
-          mock<StateService>(),
-          mock<EventUploadService>(),
           modalService,
           mock<UserVerificationService>(),
           configService,
           dialogService,
-          mock<BiometricStateService>(),
-          mock<StateEventRunnerService>(),
           accountService,
           deviceTrustToastService,
           userDecryptionOptionsService,
           mock<DestroyRef>(),
           documentLangSetter,
           mock<RestrictedItemTypesService>(),
-          mock<PinServiceAbstraction>(),
-          mock<TokenService>(),
           mock<LockService>(),
           mock<PremiumUpgradePromptService>(),
           mock<PendingAuthRequestsStateService>(),
@@ -161,6 +148,7 @@ describe("AppComponent (desktop)", () => {
           premiumCheckoutPendingService,
           mock<BillingAccountProfileStateService>(),
           accountSwitcherService,
+          logoutService,
         ),
     );
 
@@ -402,38 +390,22 @@ describe("AppComponent (desktop)", () => {
   });
 
   describe("logout message", () => {
-    it("switches to the next switchable account when the active account logs out", async () => {
-      const nextUserId = "user-2" as UserId;
-      accountSwitcherService.nextSwitchableAccount$ = of({ id: nextUserId } as any);
-      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
+    it("logs out the user named in the message", async () => {
+      const otherUserId = "user-2" as UserId;
 
-      await dispatchMessage({ command: "logout", userId });
+      await dispatchMessage({
+        command: "logout",
+        userId: otherUserId,
+        logoutReason: "vaultTimeout",
+      });
 
-      expect(messagingService.send).toHaveBeenCalledWith("switchAccount", { userId: nextUserId });
-      expect(accountService.switchAccount).not.toHaveBeenCalledWith(null);
-      expect(router.navigate).not.toHaveBeenCalledWith(["login"]);
+      expect(logoutService.logout).toHaveBeenCalledWith(otherUserId, "vaultTimeout");
     });
 
-    it("does not switch accounts when a background account logs out", async () => {
-      const backgroundUserId = "user-3" as UserId;
-      accountSwitcherService.nextSwitchableAccount$ = of({ id: "user-2" } as any);
-      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
+    it("logs out the active user when the message names no user", async () => {
+      await dispatchMessage({ command: "logout", logoutReason: "keyConnectorError" });
 
-      await dispatchMessage({ command: "logout", userId: backgroundUserId });
-
-      expect(messagingService.send).not.toHaveBeenCalledWith("switchAccount", expect.anything());
-      expect(accountService.switchAccount).not.toHaveBeenCalled();
-      expect(router.navigate).not.toHaveBeenCalledWith(["login"]);
-    });
-
-    it("clears the active account and navigates to login when no account is switchable", async () => {
-      accountSwitcherService.nextSwitchableAccount$ = of(null);
-      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
-
-      await dispatchMessage({ command: "logout", userId });
-
-      expect(accountService.switchAccount).toHaveBeenCalledWith(null);
-      expect(router.navigate).toHaveBeenCalledWith(["login"]);
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorError");
     });
   });
 });

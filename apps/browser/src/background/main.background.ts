@@ -15,7 +15,6 @@ import {
   merge,
   of,
   switchMap,
-  timeout,
 } from "rxjs";
 
 import {
@@ -65,8 +64,11 @@ import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/ab
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { DefaultLogoutService, LogoutReason } from "@bitwarden/common/auth/logout";
-import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { LogoutReason } from "@bitwarden/common/auth/logout";
+import {
+  AccountServiceImplementation,
+  getOptionalUserId,
+} from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -336,6 +338,11 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import {
+  BackgroundAccountSwitchService,
+  BackgroundLogoutService,
+  BackgroundRefresher,
+} from "../auth/background";
 import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
@@ -431,7 +438,7 @@ import IdleBackground from "./idle.background";
 import { NativeMessagingBackground } from "./nativeMessaging.background";
 import RuntimeBackground from "./runtime.background";
 
-export default class MainBackground {
+export default class MainBackground implements BackgroundRefresher {
   messagingService: MessageSender;
   storageService: BrowserLocalStorageService;
   secureStorageService: AbstractStorageService;
@@ -459,6 +466,8 @@ export default class MainBackground {
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   collectionService: CollectionService;
   lockService: LockService;
+  accountSwitchService: BackgroundAccountSwitchService;
+  logoutService: BackgroundLogoutService;
   vaultTimeoutService?: VaultTimeoutService;
   vaultTimeoutSettingsService: VaultTimeoutSettingsService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
@@ -625,12 +634,11 @@ export default class MainBackground {
   private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
-    // Downstream services receive this callback and invoke it directly instead of
-    // going through LogoutService, so the log line that lives in DefaultLogoutService
-    // is mirrored here to cover this path.
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) => {
-      this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
-      await this.logout(logoutReason, userId);
+      await this.logoutService.logout(
+        userId ?? (await firstValueFrom(getOptionalUserId(this.accountService.activeAccount$))),
+        logoutReason,
+      );
     };
 
     const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
@@ -951,7 +959,7 @@ export default class MainBackground {
       this.appIdService,
       refreshAccessTokenErrorCallback,
       this.logService,
-      (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
+      logoutCallback,
       this.vaultTimeoutSettingsService,
       this.accountService,
       { createRequest: (url, request) => new Request(url, request) },
@@ -1577,16 +1585,42 @@ export default class MainBackground {
       permissionsPolicyBackground,
     );
 
-    const logoutService = new DefaultLogoutService(
+    this.accountSwitchService = new BackgroundAccountSwitchService(
+      this.accountService,
+      this.authService,
       this.messagingService,
+      this.popupViewCacheBackgroundService,
+      this.systemService,
+      this.syncService,
+      this,
+    );
+    this.logoutService = new BackgroundLogoutService(
       this.logService,
+      this.accountService,
+      this.accountSwitchService,
+      this.authService,
+      this.eventUploadService,
+      this.cipherService,
+      this.folderService,
+      this.biometricStateService,
+      this.popupViewCacheBackgroundService,
+      this.pinService,
+      this.keyService,
+      this.vaultTimeoutSettingsService,
+      this.stateService,
+      this.tokenService,
+      this.stateEventRunnerService,
+      this.messagingService,
+      this.systemService,
+      this.processReloadService,
+      this,
       this.sdkService,
     );
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
       this.vaultTimeoutSettingsService,
-      logoutService,
+      this.logoutService,
       this.messagingService,
       this.folderService,
       this.stateEventRunnerService,
@@ -1608,7 +1642,7 @@ export default class MainBackground {
       this.taskSchedulerService,
       this.logService,
       this.lockService,
-      logoutService,
+      this.logoutService,
     );
 
     // TODO: Update or remove this temporary note during fill assist M6. This receiver
@@ -1754,7 +1788,7 @@ export default class MainBackground {
       this.accountService,
       this.vaultTimeoutSettingsService,
       this.lockService,
-      logoutService,
+      this.logoutService,
     );
 
     this.usernameGenerationService = legacyUsernameGenerationServiceFactory(
@@ -1942,7 +1976,7 @@ export default class MainBackground {
       );
       if (authStatus === AuthenticationStatus.LoggedOut) {
         const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
-        await this.switchAccount(nextUpAccount?.id);
+        await this.accountSwitchService.switchAccount(nextUpAccount?.id);
       }
     }
 
@@ -2009,153 +2043,6 @@ export default class MainBackground {
     if (this.overlayBackground) {
       await this.overlayBackground.updateOverlayCiphers();
     }
-  }
-
-  /**
-   * Switch accounts to indicated userId -- null is no active user
-   */
-  async switchAccount(userId: UserId) {
-    let nextAccountStatus: AuthenticationStatus;
-    try {
-      // HACK to ensure account is switched before proceeding
-      const switchPromise = firstValueFrom(
-        this.accountService.activeAccount$.pipe(
-          filter((account) => (account?.id ?? null) === (userId ?? null)),
-          timeout({
-            first: 1_000,
-            with: () => {
-              throw new Error(
-                "The account switch process did not complete in a reasonable amount of time.",
-              );
-            },
-          }),
-        ),
-      );
-      await this.popupViewCacheBackgroundService.clearState();
-      await this.accountService.switchAccount(userId);
-      await switchPromise;
-
-      if (userId == null) {
-        await this.refreshMenu();
-        await this.updateOverlayCiphers();
-        this.messagingService.send("goHome");
-        return;
-      }
-
-      nextAccountStatus = await this.authService.getAuthStatus(userId);
-
-      await this.systemService.clearPendingClipboard();
-
-      if (nextAccountStatus === AuthenticationStatus.LoggedOut) {
-        this.messagingService.send("goHome");
-      } else if (nextAccountStatus === AuthenticationStatus.Locked) {
-        this.messagingService.send("locked", { userId: userId });
-      } else {
-        this.messagingService.send("unlocked", { userId: userId });
-        await this.refreshMenu();
-        await this.updateOverlayCiphers();
-        await this.syncService.fullSync(false);
-      }
-    } finally {
-      this.messagingService.send("switchAccountFinish", {
-        userId: userId,
-        status: nextAccountStatus,
-      });
-    }
-  }
-
-  // TODO: PM-21212 - consolidate the logic of this method into the new ExtensionLogoutService
-  async logout(logoutReason: LogoutReason, userId?: UserId) {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        map((a) => a?.id),
-        timeout({
-          first: 2000,
-          with: () => {
-            throw new Error("No active account found to logout");
-          },
-        }),
-      ),
-    );
-
-    const userBeingLoggedOut = userId ?? activeUserId;
-
-    await this.eventUploadService.uploadEvents(userBeingLoggedOut);
-
-    // TODO: PM-44635 - Use AccountSwitcherService.nextSwitchableAccount$ from
-    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
-    const newActiveUser =
-      userBeingLoggedOut === activeUserId
-        ? await firstValueFrom(this.accountService.nextUpAccount$.pipe(map((a) => a?.id)))
-        : null;
-
-    await this.switchAccount(newActiveUser);
-
-    // HACK: We shouldn't wait for the authentication status to change but instead subscribe to the
-    // authentication status to do various actions.
-    const logoutPromise = firstValueFrom(
-      this.authService.authStatusFor$(userBeingLoggedOut).pipe(
-        filter((authenticationStatus) => authenticationStatus === AuthenticationStatus.LoggedOut),
-        timeout({
-          first: 5_000,
-          with: () => {
-            throw new Error("The logout process did not complete in a reasonable amount of time.");
-          },
-        }),
-      ),
-    );
-
-    await Promise.all([
-      this.cipherService.clear(userBeingLoggedOut),
-      this.folderService.clear(userBeingLoggedOut),
-      this.biometricStateService.logout(userBeingLoggedOut),
-      this.popupViewCacheBackgroundService.clearState(),
-      this.pinService.logout(userBeingLoggedOut),
-      /* We intentionally do not clear:
-       *  - autofillSettingsService
-       *  - badgeSettingsService
-       *  - userNotificationSettingsService
-       */
-    ]);
-
-    await this.keyService.clearKeys(userBeingLoggedOut);
-
-    //Needs to be checked before state is cleaned
-    const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
-
-    await this.stateService.clean({ userId: userBeingLoggedOut });
-    await this.tokenService.clearTokens(userBeingLoggedOut);
-    await this.accountService.clean(userBeingLoggedOut);
-
-    await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
-
-    // HACK: Wait for the user logging outs authentication status to transition to LoggedOut
-    await logoutPromise;
-
-    this.messagingService.send("doneLoggingOut", {
-      logoutReason: logoutReason,
-      userId: userBeingLoggedOut,
-    });
-
-    if (needStorageReseed) {
-      await this.reseedStorage();
-    }
-
-    if (BrowserApi.isManifestVersion(3)) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      BrowserApi.sendMessage("updateBadge");
-    }
-    await this.mainContextMenuHandler?.noAccess();
-    await this.systemService.clearPendingClipboard();
-    await this.processReloadService.reloadProcess();
-  }
-
-  private async needsStorageReseed(userId: UserId): Promise<boolean> {
-    const currentVaultTimeout = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
-    );
-    return currentVaultTimeout == VaultTimeoutStringType.Never ? false : true;
   }
 
   /**

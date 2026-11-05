@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -19,6 +19,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { BackgroundLogoutService } from "../auth/background";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -572,20 +573,27 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
 });
 
 // The logout dispatch reads `msg.logoutReason` off the incoming message and
-// forwards it to `MainBackground.logout`. It previously read `msg.expired`, a
+// forwards it to the background logout service. It previously read `msg.expired`, a
 // stale field no producer sets, so the reason was silently dropped and the
 // popup lost its post-logout toast. This guards against that field-name drift.
 describe("RuntimeBackground logout dispatch", () => {
   let runtimeBackground: RuntimeBackground;
   let mainBackground: MockProxy<MainBackground>;
+  let logoutService: MockProxy<BackgroundLogoutService>;
 
   const userId = "user-1" as UserId;
+  const activeUserId = "active-user" as UserId;
   const logoutReason: LogoutReason = "userInitiated";
 
   beforeEach(() => {
     (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
 
     mainBackground = mock<MainBackground>();
+    logoutService = mock<BackgroundLogoutService>();
+    mainBackground.logoutService = logoutService;
+
+    const accountService = mock<AccountService>();
+    accountService.activeAccount$ = of({ id: activeUserId } as Account);
 
     runtimeBackground = new RuntimeBackground(
       mainBackground,
@@ -597,7 +605,7 @@ describe("RuntimeBackground logout dispatch", () => {
       mock<LogService>(),
       undefined as any,
       undefined as any,
-      undefined as any,
+      accountService,
       undefined as any,
       undefined as any,
       undefined as any,
@@ -609,16 +617,16 @@ describe("RuntimeBackground logout dispatch", () => {
     );
   });
 
-  it("forwards logoutReason and userId from the message to MainBackground.logout", async () => {
+  it("forwards logoutReason and userId from the message to the logout service", async () => {
     await runtimeBackground.processMessage({ command: "logout", logoutReason, userId });
 
-    expect(mainBackground.logout).toHaveBeenCalledWith(logoutReason, userId);
+    expect(logoutService.logout).toHaveBeenCalledWith(userId, logoutReason);
   });
 
-  it("forwards undefined userId when the message does not include one", async () => {
+  it("logs out the active user when the message does not include a userId", async () => {
     await runtimeBackground.processMessage({ command: "logout", logoutReason });
 
-    expect(mainBackground.logout).toHaveBeenCalledWith(logoutReason, undefined);
+    expect(logoutService.logout).toHaveBeenCalledWith(activeUserId, logoutReason);
   });
 });
 
