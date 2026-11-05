@@ -353,6 +353,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     { initialValue: false },
   );
 
+  /** Self-serve Privileged Controls: seat change and removal, shown only while PAM billing support is on. */
   readonly showAdjustPrivilegedControls = computed(() => {
     const org = this.organization();
     const sub = this.organizationSubscription();
@@ -362,6 +363,38 @@ export class OrganizationSubscriptionCloudVNextComponent {
     return (
       org.usePam &&
       this.privilegedControlsOptions() != null &&
+      sub.isOnPamSalesInitiatedTrial !== true &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
+    );
+  });
+
+  /**
+   * With PAM billing support off, Privileged Controls is sold only through sales: an organization that has it
+   * sees a "Contact sales" call to action, with its seats when the subscription carries them.
+   */
+  readonly showPrivilegedControlsContactSalesToChange = computed(() => {
+    const org = this.organization();
+    if (this.pamBillingSupportEnabled() || org == null) {
+      return false;
+    }
+    return org.usePam && !org.hasProvider;
+  });
+
+  /**
+   * With PAM billing support off, Privileged Controls is sold only through sales: an Enterprise organization
+   * without it sees a "Contact sales" call to action. The plan's Privileged Controls features are not sent
+   * while the flag is off, so this keys off the Enterprise tier.
+   */
+  readonly showPrivilegedControlsContactSalesToAdd = computed(() => {
+    const org = this.organization();
+    const sub = this.organizationSubscription();
+    if (this.pamBillingSupportEnabled() || org == null || sub == null) {
+      return false;
+    }
+    return (
+      !org.hasProvider &&
+      !org.usePam &&
+      sub.plan?.productTier === ProductTierType.Enterprise &&
       sub.isOnPamSalesInitiatedTrial !== true &&
       !this.isSubscriptionCanceledOrPendingCancellation()
     );

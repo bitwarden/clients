@@ -5772,6 +5772,21 @@
   "trialIncludesPrivilegedControls": {
     "message": "Your trial includes Privileged Controls."
   },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included in this trial."
+  },
+  "contactSales": {
+    "message": "Contact sales"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team. Contact sales to add it to your organization."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "To change your Privileged Controls seats or seat limit, contact sales."
+  },
+  "privilegedControlsSeatLimit": {
+    "message": "Seat limit"
+  },
   "monthly": {
     "message": "Monthly"
   },

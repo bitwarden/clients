@@ -1042,6 +1042,212 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
   });
 
+  describe("privileged controls contact sales", () => {
+    const setPamBillingSupport = (enabled: boolean) =>
+      configService.getFeatureFlag$.mockImplementation(
+        (flag) => of(flag === FeatureFlag.PamBillingSupport && enabled) as any,
+      );
+
+    // With PAM billing support off the server leaves the plan's Privileged Controls features out.
+    const enterpriseSubscription = (overrides: Partial<OrganizationSubscriptionResponse> = {}) => {
+      const subscription = buildSubscriptionResponse(overrides);
+      subscription.plan = {
+        ...subscription.plan,
+        productTier: ProductTierType.Enterprise,
+        PrivilegedControls: undefined,
+      } as any;
+      return subscription;
+    };
+
+    const render = async (options?: {
+      organization?: Organization;
+      subscription?: OrganizationSubscriptionResponse;
+    }) => {
+      createComponent({
+        organization:
+          options?.organization ?? buildOrganization({ canEditSubscription: true, usePam: true }),
+        subscription: options?.subscription ?? enterpriseSubscription(),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const changeElement = () =>
+      fixture.nativeElement.querySelector("#privileged-controls-contact-sales-to-change");
+    const addElement = () =>
+      fixture.nativeElement.querySelector("#privileged-controls-contact-sales-to-add");
+    const seatsElement = () =>
+      fixture.nativeElement.querySelector("#privileged-controls-read-only-seats");
+    const seatLimitElement = () =>
+      fixture.nativeElement.querySelector("#privileged-controls-read-only-seat-limit");
+
+    describe("organization with Privileged Controls", () => {
+      it("shows its seats and a Contact sales link when PAM billing support is off", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          subscription: enterpriseSubscription({ pamSeats: 7, maxAutoscalePamSeats: 9 }),
+        });
+
+        expect(component.showPrivilegedControlsContactSalesToChange()).toBe(true);
+        expect(component.showAdjustPrivilegedControls()).toBe(false);
+        expect(
+          fixture.nativeElement.querySelector("app-privileged-controls-adjust-subscription"),
+        ).toBeNull();
+        expect(seatsElement().textContent).toContain("7");
+        expect(seatLimitElement().textContent).toContain("9");
+        const link = changeElement().querySelector("a");
+        expect(link.getAttribute("href")).toBe("https://bitwarden.com/contact/");
+        expect(link.getAttribute("target")).toBe("_blank");
+        expect(changeElement().textContent).toContain("privilegedControlsChangeThroughSales");
+      });
+
+      it("shows the Contact sales link without counts when the subscription carries none", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          subscription: enterpriseSubscription({
+            pamSeats: undefined,
+            maxAutoscalePamSeats: undefined,
+          }),
+        });
+
+        expect(changeElement()).not.toBeNull();
+        expect(changeElement().querySelector("a")).not.toBeNull();
+        expect(seatsElement()).toBeNull();
+        expect(seatLimitElement()).toBeNull();
+      });
+
+      it("omits the seat limit when none is set", async () => {
+        setPamBillingSupport(false);
+
+        await render({ subscription: enterpriseSubscription({ maxAutoscalePamSeats: undefined }) });
+
+        expect(seatsElement()).not.toBeNull();
+        expect(seatLimitElement()).toBeNull();
+      });
+
+      it("does not offer to add Privileged Controls", async () => {
+        setPamBillingSupport(false);
+
+        await render();
+
+        expect(component.showPrivilegedControlsContactSalesToAdd()).toBe(false);
+        expect(addElement()).toBeNull();
+      });
+
+      it("shows no Contact sales link for a provider-managed organization", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          organization: buildOrganization({
+            canEditSubscription: true,
+            usePam: true,
+            hasProvider: true,
+          }),
+        });
+
+        expect(changeElement()).toBeNull();
+      });
+
+      it("shows the adjust form and no Contact sales link when PAM billing support is on", async () => {
+        setPamBillingSupport(true);
+
+        await render({ subscription: buildSubscriptionResponse() });
+
+        expect(component.showPrivilegedControlsContactSalesToChange()).toBe(false);
+        expect(changeElement()).toBeNull();
+        expect(
+          fixture.nativeElement.querySelector("app-privileged-controls-adjust-subscription"),
+        ).not.toBeNull();
+      });
+    });
+
+    describe("Enterprise organization without Privileged Controls", () => {
+      const withoutPrivilegedControls = (overrides: Partial<Organization> = {}) =>
+        buildOrganization({ canEditSubscription: true, usePam: false, ...overrides });
+
+      it("shows a Contact sales call to action when PAM billing support is off", async () => {
+        setPamBillingSupport(false);
+
+        await render({ organization: withoutPrivilegedControls() });
+
+        expect(component.showPrivilegedControlsContactSalesToAdd()).toBe(true);
+        const link = addElement().querySelector("a");
+        expect(link.getAttribute("href")).toBe("https://bitwarden.com/contact/");
+        expect(link.getAttribute("target")).toBe("_blank");
+        expect(addElement().textContent).toContain("privilegedControlsAddThroughSales");
+        expect(changeElement()).toBeNull();
+      });
+
+      it("shows no call to action when PAM billing support is on", async () => {
+        setPamBillingSupport(true);
+
+        await render({ organization: withoutPrivilegedControls() });
+
+        expect(component.showPrivilegedControlsContactSalesToAdd()).toBe(false);
+        expect(addElement()).toBeNull();
+      });
+
+      it("shows no call to action on a non-Enterprise plan", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          organization: withoutPrivilegedControls(),
+          subscription: buildSubscriptionResponse(),
+        });
+
+        expect(addElement()).toBeNull();
+      });
+
+      it("shows no call to action for a provider-managed organization", async () => {
+        setPamBillingSupport(false);
+
+        await render({ organization: withoutPrivilegedControls({ hasProvider: true }) });
+
+        expect(addElement()).toBeNull();
+      });
+
+      it("shows no call to action during a sales-initiated Privileged Controls trial", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          organization: withoutPrivilegedControls(),
+          subscription: enterpriseSubscription({ isOnPamSalesInitiatedTrial: true }),
+        });
+
+        expect(addElement()).toBeNull();
+      });
+
+      it("shows no call to action when the subscription is pending cancellation", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          organization: withoutPrivilegedControls(),
+          subscription: enterpriseSubscription({
+            subscription: {
+              cancelled: false,
+              cancelAtEndDate: true,
+              status: "active",
+              items: [],
+            } as any,
+          }),
+        });
+
+        expect(addElement()).toBeNull();
+      });
+
+      it("does not render for a user who cannot edit the subscription", async () => {
+        setPamBillingSupport(false);
+
+        await render({ organization: withoutPrivilegedControls({ canEditSubscription: false }) });
+
+        expect(addElement()).toBeNull();
+      });
+    });
+  });
+
   describe("privileged controls options", () => {
     it("maps the Privileged Controls seat options from the subscription", async () => {
       createComponent({
