@@ -19028,8 +19028,27 @@
   "pamApprovedRequestBannerHeadingV2": {
     "message": "Ready to use"
   },
-  "pamApprovedRequestBannerHint": {
-    "message": "Copy credentials to get started"
+  "pamApprovedAccessUntilToday": {
+    "message": "You have access to this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You have access to this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
   },
   "pamRequestAccessBannerBody": {
     "message": "Credentials are masked until access is granted."

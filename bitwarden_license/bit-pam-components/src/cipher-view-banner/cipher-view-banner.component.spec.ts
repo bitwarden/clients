@@ -566,7 +566,7 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
     });
 
-    it("tells an approved request how to get started, with no duration or window line", async () => {
+    it("offers Start access on an approved request, with no duration or window line", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
       );
@@ -576,7 +576,7 @@ describe("CipherViewBannerComponent", () => {
       expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
       expect(text()).toContain("pamApprovedRequestBannerHeadingV2");
       expect(query('[data-testid="cipher-view-banner-approved-hint"]')?.textContent).toContain(
-        "pamApprovedRequestBannerHint",
+        "pamApprovedAccessUntil",
       );
       expect(query('[data-testid="cipher-view-banner-approved-duration"]')).toBeNull();
       expect(query('[data-testid="approved-access-window"]')).toBeNull();
@@ -633,6 +633,53 @@ describe("CipherViewBannerComponent", () => {
       expect(text()).toContain("pamActiveLeaseBannerTitleV2 30 minutes");
       expect(collapseSpace(query('[data-testid="active-lease-ends-at"]')?.textContent)).toBe(
         collapseSpace(`pamLeaseExpiresToday ${lowerTime(endsAt)}`),
+      );
+    });
+  });
+
+  describe("the end time on an approved request", () => {
+    // Local noon, so a half-hour window is "today" in any zone.
+    const NOON = new Date(2026, 0, 1, 12, 0).getTime();
+
+    // Pinned rather than faked, for the reason given on the countdown suite above.
+    beforeEach(() => {
+      jest.spyOn(Date, "now").mockReturnValue(NOON);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    function hint(): string {
+      return (query('[data-testid="cipher-view-banner-approved-hint"]')?.textContent ?? "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    it("says until when today, from the end of the approved window", async () => {
+      const endsAt = new Date(NOON + 30 * 60 * 1000).toISOString();
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView({ leaseNotAfter: endsAt } as never) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(hint()).toBe(
+        `pamApprovedAccessUntilToday ${formatTimeOfDay("en-US", Date.parse(endsAt))}`,
+      );
+    });
+
+    it("adds the date for a window that ends on another day", async () => {
+      const endsAt = new Date(NOON + 2 * 24 * 60 * 60 * 1000).toISOString();
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView({ leaseNotAfter: endsAt } as never) }),
+      );
+
+      await create(gatedCipher());
+
+      const endMs = Date.parse(endsAt);
+      expect(hint()).toBe(
+        `pamApprovedAccessUntil ${formatTimeOfDay("en-US", endMs)} ${formatCalendarDate("en-US", endMs)}`,
       );
     });
   });

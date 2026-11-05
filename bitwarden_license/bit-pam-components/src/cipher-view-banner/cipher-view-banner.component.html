@@ -82,9 +82,11 @@
       [extendAction]="extendLease"
       [endAction]="endLease"
     />
-  } @else if (approvedRequest()) {
+  } @else if (approvedRequest(); as request) {
     <app-pam-approved-request-card
       class="tw-mb-5 bit-compact:tw-mb-4"
+      [request]="request"
+      [nowMs]="nowMs()"
       [startAction]="activateRequest"
     />
   } @else if (pendingRequest(); as request) {
