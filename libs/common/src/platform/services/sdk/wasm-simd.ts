@@ -11,27 +11,24 @@ const SIMD_PROBE = Uint8Array.of(
 // Empty module: header only.
 const WASM_PROBE = Uint8Array.of(0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00);
 
-/**
- * True when the runtime compiles WebAssembly SIMD. Selects the SIMD or MVP build of the SDK.
- * Also false when WebAssembly itself is unsupported.
- */
-const wasmSimdSupported = (() => {
-  try {
-    return new WebAssembly.Module(SIMD_PROBE) instanceof WebAssembly.Module;
-  } catch {
-    return false;
-  }
-})();
-
+// True when the runtime compiles and instantiates `probe`. False when WebAssembly is missing.
 // https://stackoverflow.com/a/47880734
-const wasmSupported = (() => {
+function instantiates(probe: BufferSource): boolean {
   try {
-    const module = new WebAssembly.Module(WASM_PROBE);
+    const module = new WebAssembly.Module(probe);
     return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
   } catch {
     return false;
   }
-})();
+}
+
+/**
+ * True when the runtime runs WebAssembly SIMD. Selects the SIMD or MVP build of the SDK.
+ * Also false when WebAssembly itself is unsupported.
+ */
+const wasmSimdSupported = instantiates(SIMD_PROBE);
+
+const wasmSupported = instantiates(WASM_PROBE);
 
 /**
  * Imports the SIMD build of the SDK .wasm, or the MVP build on engines without SIMD.
