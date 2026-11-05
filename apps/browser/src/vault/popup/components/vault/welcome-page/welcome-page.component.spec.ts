@@ -4,7 +4,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ToastService } from "@bitwarden/components";
@@ -44,7 +43,6 @@ describe("WelcomePageComponent", () => {
         { provide: ToastService, useValue: mockToastService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: AbstractThemingService, useValue: { theme$: of(ThemeTypes.Light) } },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     })
       .overrideComponent(WelcomePageComponent, { set: { template: "" } })

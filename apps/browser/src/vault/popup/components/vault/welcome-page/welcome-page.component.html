@@ -6,17 +6,7 @@
 
   <popup-page class="tw-relative tw-z-10 [&_main]:!tw-bg-transparent" [disablePadding]="true">
     <!-- The page titles itself in its own content, so the title bar would be empty. -->
-    <popup-header
-      slot="header"
-      hideTitleBar
-      background="alt"
-      pageTitle=""
-      [class]="
-        vfo1Enabled()
-          ? ''
-          : '[&_header]:!tw-bg-transparent [&_header]:!tw-px-6 bit-compact:[&_header]:!tw-px-3'
-      "
-    >
+    <popup-header slot="header" hideTitleBar background="alt" pageTitle="">
       <div class="tw-w-32">
         <bit-svg [content]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-svg>
       </div>
