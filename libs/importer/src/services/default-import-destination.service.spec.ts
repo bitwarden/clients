@@ -3,7 +3,7 @@ import { firstValueFrom, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
   CollectionType,
   CollectionTypes,
@@ -30,8 +30,19 @@ import { ImportDestinationCollections } from "./import-destination.service.abstr
 
 const userId = "user-1" as UserId;
 
-function org(id: string, name: string, productTierType = ProductTierType.Teams): Organization {
-  return Object.assign(new Organization(), { id, name, productTierType });
+function org(
+  id: string,
+  name: string,
+  productTierType = ProductTierType.Teams,
+  access: { enabled?: boolean; status?: OrganizationUserStatusType } = {},
+): Organization {
+  return Object.assign(new Organization(), {
+    id,
+    name,
+    productTierType,
+    enabled: access.enabled ?? true,
+    status: access.status ?? OrganizationUserStatusType.Confirmed,
+  });
 }
 
 function collection(
@@ -126,31 +137,54 @@ describe("DefaultImportDestinationService", () => {
       expect(result.options[1].organizationName).toBe("Acme");
     });
 
-    it("leaves out an org where the user manages no collection", async () => {
+    it("lists an org where the user manages no collection, with no shared folders to choose", async () => {
       orgs = [org("a", "Acme")];
       collections = [collection("c1", "a", "Eng", { manage: false })];
 
       const result = await firstValueFrom(build().destinations$);
 
-      expect(result.hasStep).toBe(false);
-      expect(result.options.map((o) => o.id)).toEqual(["myVault"]);
+      expect(result.hasStep).toBe(true);
+      expect(result.options.map((o) => o.id)).toEqual(["myVault", "organization:a"]);
+      expect(result.options[1].sharedFolders).toEqual([]);
     });
 
-    // Every default collection is managed by its owner, so it alone must not make a card or add
-    // location selection.
-    it("gives an org whose only managed collection is My items no card and no location selection without the policy", async () => {
+    it("lists an org with no collections at all", async () => {
       orgs = [org("a", "Acme")];
-      collections = [
-        collection("d1", "a", "me@example.com", { type: CollectionTypes.DefaultUserCollection }),
+
+      const result = await firstValueFrom(build().destinations$);
+
+      expect(result.options.map((o) => o.id)).toEqual(["myVault", "organization:a"]);
+      expect(result.options[1].sharedFolders).toEqual([]);
+    });
+
+    it("leaves out an org the user cannot access: disabled, or not yet confirmed", async () => {
+      orgs = [
+        org("a", "Acme", ProductTierType.Teams, { enabled: false }),
+        org("b", "Beta", ProductTierType.Teams, { status: OrganizationUserStatusType.Accepted }),
+        org("c", "Gamma"),
       ];
 
       const result = await firstValueFrom(build().destinations$);
 
-      expect(result.hasStep).toBe(false);
-      expect(result.options.map((o) => o.id)).toEqual(["myVault"]);
+      expect(result.options.map((o) => o.id)).toEqual(["myVault", "organization:c"]);
     });
 
-    it("lists only managed shared folders and never the My items collection", async () => {
+    // The policy gives My items its own card; without it the collection is left over, and the
+    // legacy import listed it with the user's other managed collections.
+    it("lists a leftover My items collection as a target when the policy doesn't apply", async () => {
+      orgs = [org("a", "Acme")];
+      const myItems = collection("d1", "a", "me@example.com", {
+        type: CollectionTypes.DefaultUserCollection,
+      });
+      collections = [myItems];
+
+      const result = await firstValueFrom(build().destinations$);
+
+      expect(result.options.map((o) => o.id)).toEqual(["myVault", "organization:a"]);
+      expect(result.options[1].sharedFolders).toEqual([myItems]);
+    });
+
+    it("lists only managed collections of the org", async () => {
       orgs = [org("a", "Acme")];
       collections = [
         collection("c2", "a", "Zeta"),
@@ -162,7 +196,7 @@ describe("DefaultImportDestinationService", () => {
 
       const result = await firstValueFrom(build().destinations$);
 
-      expect(result.options[1].sharedFolders.map((c) => c.name)).toEqual(["Alpha", "Zeta"]);
+      expect(result.options[1].sharedFolders.map((c) => c.name)).toEqual(["Alpha", "Mine", "Zeta"]);
     });
 
     it("carries the org's product tier for the card icon", async () => {
@@ -230,7 +264,7 @@ describe("DefaultImportDestinationService", () => {
         ]);
       });
 
-      it("offers only My items for an org whose only managed collection is My items", async () => {
+      it("offers My items and the org, with no shared folders, when the only collection is My items", async () => {
         orgs = [org("a", "Acme")];
         collections = [
           collection("d1", "a", "me@example.com", { type: CollectionTypes.DefaultUserCollection }),
@@ -239,19 +273,50 @@ describe("DefaultImportDestinationService", () => {
 
         const result = await firstValueFrom(build().destinations$);
 
-        expect(result.options.map((o) => o.id)).toEqual(["myItems:a"]);
+        expect(result.options.map((o) => o.id)).toEqual(["myItems:a", "organization:a"]);
+        expect(result.options[1].sharedFolders).toEqual([]);
         expect(result.hasStep).toBe(true);
       });
 
-      it("offers nothing, and no location selection, when the policy applies and no org is importable", async () => {
+      // The legacy import disables its form here; with no step the controls block the import.
+      it("offers nothing, and no location selection, when the policy applies and the user manages no collection", async () => {
         orgs = [org("a", "Acme")];
-        collections = [];
+        collections = [collection("c1", "a", "Eng", { manage: false })];
         ownershipPolicies = [ownershipPolicy("a")];
 
         const result = await firstValueFrom(build().destinations$);
 
         expect(result.options).toEqual([]);
         expect(result.hasStep).toBe(false);
+      });
+
+      it("offers nothing when the policy applies and the user has no collections at all", async () => {
+        orgs = [org("a", "Acme")];
+        ownershipPolicies = [ownershipPolicy("a")];
+
+        const result = await firstValueFrom(build().destinations$);
+
+        expect(result).toEqual({ options: [], hasStep: false });
+      });
+
+      it("still offers every accessible org without the policy, whatever the user manages", async () => {
+        orgs = [org("a", "Acme")];
+        collections = [collection("c1", "a", "Eng", { manage: false })];
+
+        const result = await firstValueFrom(build().destinations$);
+
+        expect(result.options.map((o) => o.id)).toEqual(["myVault", "organization:a"]);
+      });
+
+      it("does not block when the user manages a collection in some org, even if another has none", async () => {
+        orgs = [org("a", "Acme"), org("b", "Beta")];
+        collections = [collection("c2", "b", "Ops")];
+        ownershipPolicies = [ownershipPolicy("a")];
+
+        const result = await firstValueFrom(build().destinations$);
+
+        expect(result.hasStep).toBe(true);
+        expect(result.options.map((o) => o.id)).toContain("organization:b");
       });
     });
 

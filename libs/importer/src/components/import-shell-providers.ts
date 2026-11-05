@@ -1,3 +1,5 @@
+import { ActivatedRoute } from "@angular/router";
+
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -8,35 +10,91 @@ import { DialogService } from "@bitwarden/components";
 
 import {
   DefaultImportDestinationService,
+  ImportCollectionServiceAbstraction,
   ImportDestinationCollections,
   ImportDestinationServiceAbstraction,
   ImportStagingServiceAbstraction,
+  OrganizationImportDestinationService,
 } from "../services";
 
 import { DialogImportOutcomePresenter } from "./import-confirmation/dialog-import-outcome-presenter";
 import { ImportOutcomePresenter } from "./import-confirmation/import-outcome-presenter";
+import { importOwnerFromParams } from "./import-owner";
 import { ImportShellStagingService } from "./import-shell-staging.service";
 
 /** Providers shared by the progress bar, credential parsing and location selection. Each app's
  *  import shell provides them so the state lives only as long as the shell: the hand-off between
  *  the screens holds decrypted vault data.
  *
- *  `collectionService` is passed in because the importer can't import admin-console. */
+ *  `collectionService` is passed in because the importer can't import admin-console.
+ *
+ *  Passing `organizationCollections` makes the location step depend on the route: with an
+ *  `organizationId` it offers only that organization, from its admin collections; without one it is
+ *  the personal location step. */
 export const importShellProviders = (
   collectionService: abstract new (...args: any) => ImportDestinationCollections,
+  options: {
+    organizationCollections?: abstract new (...args: any) => ImportCollectionServiceAbstraction;
+  } = {},
 ): SafeProvider[] => [
-  safeProvider({
-    provide: ImportDestinationServiceAbstraction,
-    useClass: DefaultImportDestinationService,
-    deps: [
-      OrganizationService,
-      collectionService,
-      PolicyService,
-      AccountService,
-      RestrictedItemTypesService,
-      I18nService,
-    ],
-  }),
+  options.organizationCollections == null
+    ? safeProvider({
+        provide: ImportDestinationServiceAbstraction,
+        useClass: DefaultImportDestinationService,
+        deps: [
+          OrganizationService,
+          collectionService,
+          PolicyService,
+          AccountService,
+          RestrictedItemTypesService,
+          I18nService,
+        ],
+      })
+    : safeProvider({
+        provide: ImportDestinationServiceAbstraction,
+        useFactory: (
+          route: ActivatedRoute,
+          organizationService: OrganizationService,
+          collections: ImportDestinationCollections,
+          policyService: PolicyService,
+          accountService: AccountService,
+          restrictedItemTypesService: RestrictedItemTypesService,
+          i18nService: I18nService,
+          organizationCollections: ImportCollectionServiceAbstraction,
+        ): ImportDestinationServiceAbstraction => {
+          const owner = importOwnerFromParams(route.snapshot.paramMap);
+          if (owner.kind === "personal") {
+            return new DefaultImportDestinationService(
+              organizationService,
+              collections,
+              policyService,
+              accountService,
+              restrictedItemTypesService,
+              i18nService,
+            );
+          }
+          return new OrganizationImportDestinationService(
+            owner.organizationId,
+            organizationService,
+            organizationCollections,
+            accountService,
+            restrictedItemTypesService,
+            i18nService,
+            policyService,
+            collections,
+          );
+        },
+        deps: [
+          ActivatedRoute,
+          OrganizationService,
+          collectionService,
+          PolicyService,
+          AccountService,
+          RestrictedItemTypesService,
+          I18nService,
+          options.organizationCollections,
+        ],
+      }),
   safeProvider({
     provide: ImportStagingServiceAbstraction,
     useClass: ImportShellStagingService,

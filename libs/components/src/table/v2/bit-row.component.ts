@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, forwardRef, inject } from "@angular/core";
 
+import { HoverRevealContainerDirective } from "../../hover-reveal";
+
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
@@ -19,6 +21,9 @@ import { BitTableV2Component } from "./table-v2.component";
  *   so projected `<bit-cell>` children each get an equal share.
  *
  * In `list`, `<bit-table-v2>` wraps the row in a `<bit-item>` that owns the chrome.
+ *
+ * The row is a `bitHoverRevealContainer`, so `bitHoverReveal` elements in its cells show on row
+ * hover or focus.
  */
 @Component({
   selector: "bit-row",
@@ -29,6 +34,7 @@ import { BitTableV2Component } from "./table-v2.component";
     "[style.grid-template-columns]": "gridTemplateColumns()",
     "[style.height.px]": "fixedHeight()",
   },
+  hostDirectives: [HoverRevealContainerDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BitRowComponent {
@@ -49,9 +55,9 @@ export class BitRowComponent {
   /** Row chrome. Grid in both presentations; the rest is `table`-only. */
   protected readonly hostClasses = computed(() =>
     [
-      // `group/row` lets cell templates reveal row-hover affordances (e.g. quick
-      // copy/launch actions) with `group-hover/row:*`. Rows don't nest, so the
-      // shared group name scopes to each row's own subtree without collisions.
+      // `group/row` lets cell templates style on row hover with `group-hover/row:*`. Rows don't
+      // nest, so the shared group name scopes to each row's own subtree. To show actions on row
+      // hover, prefer `bitHoverReveal`.
       "tw-group/row",
       "tw-grid",
       "tw-grid-flow-col",

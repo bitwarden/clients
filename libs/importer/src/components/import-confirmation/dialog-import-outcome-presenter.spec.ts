@@ -6,7 +6,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
 import { ImportResult } from "../../models";
-import { ImportSkippedItemsDialogComponent } from "../dialog";
+import { ImportSkippedItemsDialogComponent, ImportSuccessDialogComponent } from "../dialog";
 
 import { DialogImportOutcomePresenter } from "./dialog-import-outcome-presenter";
 import { ImportConfirmationDialogComponent } from "./import-confirmation-dialog.component";
@@ -51,5 +51,49 @@ describe("DialogImportOutcomePresenter", () => {
       ImportSkippedItemsDialogComponent,
       expect.objectContaining({ data: { errors } }),
     );
+  });
+
+  describe("with a page to return to", () => {
+    const returnDestination = {
+      returnUrl: "/organizations/org-1/access-intelligence",
+      returnLabel: "Go",
+    };
+
+    it("keeps the success dialog, which has the return button, instead of the confirmation dialog", () => {
+      const result = resultWith();
+
+      presenter.present({ kind: "imported", result }, { userId, returnDestination });
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportSuccessDialogComponent,
+        expect.objectContaining({ data: { importResult: result, ...returnDestination } }),
+      );
+    });
+
+    it("keeps the success dialog for an SDK import too", () => {
+      const sdkSummary = { total: 3 } as never;
+
+      presenter.present({ kind: "importedWithSdk", sdkSummary }, { userId, returnDestination });
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportSuccessDialogComponent,
+        expect.objectContaining({ data: { sdkSummary, ...returnDestination } }),
+      );
+    });
+
+    it("gives the skipped-items dialog the return button as well", () => {
+      const errors = [{ message: "bad item" }] as unknown as ImportResult["errors"];
+
+      presenter.present(
+        { kind: "imported", result: resultWith(errors) },
+        { userId, returnDestination },
+      );
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportSkippedItemsDialogComponent,
+        expect.objectContaining({ data: { errors, ...returnDestination } }),
+      );
+    });
   });
 });

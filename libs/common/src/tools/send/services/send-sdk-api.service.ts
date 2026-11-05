@@ -531,9 +531,23 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       if (!sendView.data?.data) {
         throw new Error("Item Send is missing data");
       }
+      // The SDK no longer derives a sealed item send's id from the `CipherView`; it reads it
+      // from `metadata.itemId`, which the caller supplies.
+      const itemId = sendView.data.data.id;
+      if (!itemId) {
+        throw new Error("Item Send is missing its item id");
+      }
       return {
         Item: {
           data: sendView.data.data.toSdkCipherView(),
+          metadata: {
+            itemId: asUuid(itemId),
+            folderName: undefined,
+            collectionNames: undefined,
+            organizationName: undefined,
+            creationDate: undefined,
+            revisionDate: undefined,
+          },
         },
       };
     }

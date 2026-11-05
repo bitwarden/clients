@@ -156,8 +156,12 @@ export default {
                 `Move all items into an ${org} shared folder`,
               sharedFolder: "Shared folder",
               importSharedFolderHint:
-                "Move everything to a parent folder, the nested folder structure will be maintained",
+                "Move everything to a parent folder, the nested folder structure will be maintained.",
               importSharedFolderRequired: "A shared folder is required.",
+              importIntoOrganization: (org?: string) => `Items will be imported into ${org}.`,
+              importMoveAllItemsIntoSharedFolder: "Move all items into a shared folder",
+              importNoSharedFoldersForOrg: (org?: string) =>
+                `Items can't be imported into ${org} without a shared folder, and you don't manage any in it. Choose another location.`,
               importItemsCount: (count?: string) => `Import ${count} items`,
               importItemsSingular: "Import 1 item",
               importVerb: "Import",
@@ -218,6 +222,31 @@ export const OrganizationWithSharedFolders: Story = {
           productTierType: ProductTierType.Free,
           sharedFolders: [sharedFolder("f3", "c", "Shared")],
         }),
+      ]),
+    ),
+  ],
+};
+
+/** An org with no shared folder the user manages is still offered, and shows no checkbox. */
+export const OrganizationWithoutSharedFolders: Story = {
+  decorators: [
+    withDestinations(() =>
+      ready([
+        myVault,
+        organization("a", "Acme Co", { sharedFolders: [sharedFolder("f1", "a", "Engineering")] }),
+        organization("n", "No Folders Co"),
+      ]),
+    ),
+  ],
+};
+
+/** The admin console: the one organization, a sentence saying where the items go, and the shared
+ *  folder choice always showing, here with no folder to pick. */
+export const AdminConsole: Story = {
+  decorators: [
+    withDestinations(() =>
+      ready([
+        organization("a", "Acme Co", { lockedToOrganization: true, allowsUnassignedItems: true }),
       ]),
     ),
   ],

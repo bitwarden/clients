@@ -15,7 +15,7 @@
       } @else {
         <h2 bitTypography="h2" noMargin class="tw-mb-0">{{ titleKey() | i18n }}</h2>
         <p bitTypography="body1" class="tw-text-fg-body tw-mt-1 tw-mb-4">
-          {{ "importDestinationDescription" | i18n }}
+          {{ description() }}
         </p>
 
         @for (callout of restrictionCallouts(); track callout.key) {
@@ -41,7 +41,12 @@
             @for (card of cards(); track card.id) {
               <bit-form-control-card>
                 <bit-icon-tile slot="start" [icon]="card.icon" />
-                <input type="radio" bitRadio [value]="card.id" />
+                <input
+                  type="radio"
+                  bitRadio
+                  [id]="'import-destination_radio_' + $index"
+                  [value]="card.id"
+                />
                 <bit-label>{{ card.label }}</bit-label>
                 <bit-hint>{{ card.hint }}</bit-hint>
               </bit-form-control-card>
@@ -49,10 +54,14 @@
           </div>
         </bit-form-control-group>
 
+        @if (noSharedFolderError(); as message) {
+          <bit-callout type="danger">{{ message }}</bit-callout>
+        }
+
         @if (showMoveToSharedFolder()) {
           <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
             <div class="tw-flex tw-flex-col tw-gap-4">
-              <bit-form-control>
+              <bit-form-control disableMargin>
                 <input
                   #moveToSharedFolder
                   bitCheckbox
@@ -71,7 +80,11 @@
                     id="import-destination_select_shared-folder"
                   >
                     @for (folder of selectedOption()?.sharedFolders; track folder.id) {
-                      <bit-option [value]="folder" [label]="folder.name" />
+                      <bit-option
+                        [value]="folder"
+                        [label]="folder.name"
+                        [icon]="folderIcon(folder)"
+                      />
                     }
                   </bit-select>
                   <bit-hint class="tw-text-fg-body tw-leading-4">{{

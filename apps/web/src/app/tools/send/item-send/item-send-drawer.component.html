@@ -1,0 +1,242 @@
+<bit-dialog dialogSize="large" background="alt">
+  <span bitDialogTitle>{{ (editing() ? "editSharedItem" : "viewSharedItem") | i18n }}</span>
+
+  <ng-container bitDialogContent>
+    @if (cipher(); as sharedCipher) {
+      <bit-card class="tw-mb-4">
+        <bit-accordion
+          [title]="sharedCipher.name"
+          [startIcon]="cipherTypeIcon()"
+          [open]="true"
+          variant="subtle"
+          height="auto"
+          data-testid="shared-item-accordion"
+        >
+          <div class="tw-flex tw-flex-col tw-gap-2 tw-mb-4">
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <bit-icon name="bwi-user" class="tw-text-muted" />
+              <span bitTypography="body2" data-testid="shared-item-owner">{{ ownerName() }}</span>
+            </div>
+            @if (folderName(); as folder) {
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <bit-icon name="bwi-folder" class="tw-text-muted" />
+                <span bitTypography="body2" data-testid="shared-item-folder">{{ folder }}</span>
+              </div>
+            }
+          </div>
+          <div data-testid="shared-item-details">
+            <app-cipher-view
+              [cipher]="sharedCipher"
+              [hideChangePasswordLink]="true"
+              [hideItemHistory]="true"
+            ></app-cipher-view>
+          </div>
+        </bit-accordion>
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          class="tw-mt-4"
+          [block]="true"
+          startIcon="bwi-clone"
+          [bitAction]="copyLink"
+          id="item-send-drawer_button_copy-share-link"
+        >
+          {{ "copyShareLink" | i18n }}
+        </button>
+      </bit-card>
+    }
+
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "sendDetails" | i18n }}</h2>
+      </bit-section-header>
+
+      @if (!editing()) {
+        <div class="tw-flex tw-flex-col tw-gap-4">
+          <div>
+            <p bitTypography="helper" class="tw-text-muted tw-mb-1">{{ "emails" | i18n }}</p>
+            <p bitTypography="body2" class="tw-mb-0 tw-break-words" data-testid="send-emails">
+              {{ emails() }}
+            </p>
+          </div>
+          <div>
+            <p bitTypography="helper" class="tw-text-muted tw-mb-1">
+              {{ "linkExpiresAfter" | i18n }}
+            </p>
+            <p bitTypography="body2" class="tw-mb-0" data-testid="send-expires-after">
+              {{ expiresAfter() }}
+            </p>
+          </div>
+          <div>
+            <p bitTypography="helper" class="tw-text-muted tw-mb-1">
+              {{ "deletionDate" | i18n }}
+            </p>
+            <p bitTypography="body2" class="tw-mb-0" data-testid="send-deletion-date">
+              {{ deletionDateDisplay() }}
+            </p>
+          </div>
+          @if (isOneTimeShare()) {
+            <div class="tw-flex tw-items-center tw-gap-2" data-testid="send-one-time-share">
+              <bit-icon name="bwi-check" class="tw-text-muted" />
+              <span bitTypography="body2">{{ "oneTimeShare" | i18n }}</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <form [formGroup]="form" id="itemSendForm" [bitSubmit]="save">
+          <bit-card>
+            <bit-form-field>
+              <bit-label>{{ "emails" | i18n }}</bit-label>
+              <textarea
+                id="item-send-drawer_textarea_emails"
+                bitInput
+                rows="2"
+                [value]="emails()"
+                readonly
+              ></textarea>
+            </bit-form-field>
+            <bit-form-field>
+              <bit-label>{{ "linkExpiresAfter" | i18n }}</bit-label>
+              <bit-select formControlName="expiry" id="item-send-drawer_select_expiry">
+                @for (option of expiryOptions(); track option.value) {
+                  <bit-option [value]="option.value" [label]="option.label"></bit-option>
+                }
+              </bit-select>
+              <bit-hint>{{ "shareLinkExpiryHint" | i18n }}</bit-hint>
+            </bit-form-field>
+            <bit-form-field>
+              <bit-label>{{ "deletionDate" | i18n }}</bit-label>
+              <bit-select formControlName="deletionDate" id="item-send-drawer_select_deletion-date">
+                @for (option of deletionDateOptions(); track option.value) {
+                  <bit-option [value]="option.value" [label]="option.label"></bit-option>
+                }
+              </bit-select>
+              <!-- To be projected correctly into the bit-hint slot <bit-hint> must be the only element in its block -->
+              @if (policyDeletionHoursOrgName()) {
+                <bit-hint>{{
+                  "sendDeletionDateSetByOrg" | i18n: policyDeletionHoursOrgName()
+                }}</bit-hint>
+              } @else {
+                <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
+              }
+            </bit-form-field>
+            <bit-form-control disableMargin>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="oneTimeShare"
+                id="item-send-drawer_checkbox_one-time-share"
+              />
+              <bit-label>{{ "oneTimeShare" | i18n }}</bit-label>
+            </bit-form-control>
+          </bit-card>
+        </form>
+      }
+    </bit-section>
+
+    @if (activeLinks().length > 0) {
+      <bit-section disableMargin data-testid="active-links">
+        <bit-section-header>
+          <h2 bitTypography="h6">{{ "activeLinks" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card class="tw-py-0">
+          @for (link of activeLinks(); track link.id; let last = $last) {
+            <div
+              class="tw-flex tw-items-center tw-gap-3 tw-py-2"
+              [class.tw-border-b]="!last"
+              [class.tw-border-secondary-100]="!last"
+              [class.tw-border-solid]="!last"
+              [attr.data-testid]="'active-link-' + link.id"
+            >
+              <bit-icon name="bwi-share-link" class="tw-text-primary-600 tw-shrink-0" />
+              <div class="tw-flex tw-flex-col tw-min-w-0 tw-flex-1">
+                <span bitTypography="body2" class="tw-truncate">
+                  {{ linkEmailDisplay(link.emails) }}
+                  @if (link.id === send().id) {
+                    <span bitBadge variant="secondary" class="tw-ml-1">{{ "current" | i18n }}</span>
+                  }
+                </span>
+                <span bitTypography="helper" class="tw-text-muted">
+                  {{ "shareLinkExpires" | i18n }} {{ linkExpiry(link) | date: "mediumDate" }}
+                </span>
+              </div>
+              <div class="tw-flex tw-items-center tw-shrink-0">
+                <button
+                  type="button"
+                  bitIconButton="bwi-clone"
+                  buttonType="subtleGhost"
+                  size="small"
+                  id="item-send-drawer_button_copy-link-{{ link.id }}"
+                  [label]="'copyLink' | i18n"
+                  (click)="copyLinkFor(link)"
+                ></button>
+                <button
+                  type="button"
+                  bitIconButton="bwi-pencil-square"
+                  buttonType="subtleGhost"
+                  size="small"
+                  id="item-send-drawer_button_edit-link-{{ link.id }}"
+                  [label]="'edit' | i18n"
+                  (click)="editLink(link)"
+                ></button>
+                <button
+                  type="button"
+                  bitIconButton="bwi-trash"
+                  buttonType="subtleGhost"
+                  size="small"
+                  id="item-send-drawer_button_delete-link-{{ link.id }}"
+                  [label]="'delete' | i18n"
+                  (click)="deleteLink(link)"
+                ></button>
+              </div>
+            </div>
+          }
+        </bit-card>
+      </bit-section>
+    }
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    @if (editing()) {
+      <button
+        id="item-send-drawer_button_save"
+        bitButton
+        type="submit"
+        form="itemSendForm"
+        buttonType="primary"
+      >
+        {{ "save" | i18n }}
+      </button>
+      <button
+        id="item-send-drawer_button_cancel"
+        bitButton
+        type="button"
+        buttonType="secondary"
+        (click)="cancelEdit()"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    } @else {
+      <button
+        id="item-send-drawer_button_edit"
+        bitButton
+        type="button"
+        buttonType="secondary"
+        (click)="edit()"
+      >
+        {{ "edit" | i18n }}
+      </button>
+    }
+    <div class="tw-ml-auto">
+      <button
+        type="button"
+        buttonType="dangerGhost"
+        bitIconButton="bwi-trash"
+        [bitAction]="deleteSend"
+        [label]="'delete' | i18n"
+        id="item-send-drawer_button_delete"
+      ></button>
+    </div>
+  </ng-container>
+</bit-dialog>

@@ -18,16 +18,15 @@ import {
 import {
   ImportDestinationKind,
   ImportDestinationOption,
-  ImportDestinationRestriction,
   ImportDestinations,
 } from "../models/import-destination";
 import { ImportResult } from "../models/import-result";
 
+import { hasUnassignedItemsAfterRestrictions, restrictionsFor } from "./import-destination-helpers";
 import {
   ImportDestinationCollections,
   ImportDestinationServiceAbstraction,
 } from "./import-destination.service.abstraction";
-import { countAfterRemoval, countCipherTypes } from "./item-type-counts";
 import { restrictedTypesForDestination } from "./restricted-types-for-destination";
 
 export class DefaultImportDestinationService implements ImportDestinationServiceAbstraction {
@@ -66,12 +65,7 @@ export class DefaultImportDestinationService implements ImportDestinationService
     organizationId?: OrganizationId,
   ): Promise<boolean> {
     const restricted = await firstValueFrom(this.restrictedItemTypesService.restricted$);
-    const importable = countAfterRemoval(
-      countCipherTypes(result.ciphers),
-      restrictedTypesForDestination(restricted, organizationId),
-    );
-    // Same rule as ImportService.importImportResult, which compares against the filtered count.
-    return result.collectionRelationships.length < importable;
+    return hasUnassignedItemsAfterRestrictions(result, restricted, organizationId);
   }
 
   private build(
@@ -82,11 +76,17 @@ export class DefaultImportDestinationService implements ImportDestinationService
   ): ImportDestinations {
     const sortByName = Utils.getSortFunction<Organization>(this.i18nService, "name");
     const sortedOrgs = [...orgs].sort(sortByName);
-    // Legacy rule: an org is importable when the user can manage at least one of its collections.
-    const importable = sortedOrgs.filter((org) =>
+    const accessible = sortedOrgs.filter((org) => org.canAccess);
+    const policyApplies = ownershipOrgIds.size > 0;
+
+    // As in the legacy import: with the policy on there is no personal vault, so a user who manages
+    // no collection in any org has nowhere to import and gets no location step to choose from.
+    const canImportAnywhere = accessible.some((org) =>
       collections.some((c) => c.organizationId === org.id && c.manage),
     );
-    const policyApplies = ownershipOrgIds.size > 0;
+    if (policyApplies && !canImportAnywhere) {
+      return { options: [], hasStep: false };
+    }
 
     const options: ImportDestinationOption[] = [];
     if (!policyApplies) {
@@ -94,21 +94,21 @@ export class DefaultImportDestinationService implements ImportDestinationService
         id: "myVault",
         kind: ImportDestinationKind.MyVault,
         sharedFolders: [],
-        restrictions: this.restrictionsFor(sortedOrgs, restricted),
+        restrictions: restrictionsFor(sortedOrgs, restricted),
         removedTypes: restrictedTypesForDestination(restricted),
       });
     }
 
     // My items leads, so orgs enforcing the policy come first; each My items sits before its org.
     const ordered = [
-      ...importable.filter((org) => ownershipOrgIds.has(org.id)),
-      ...importable.filter((org) => !ownershipOrgIds.has(org.id)),
+      ...accessible.filter((org) => ownershipOrgIds.has(org.id)),
+      ...accessible.filter((org) => !ownershipOrgIds.has(org.id)),
     ];
     for (const org of ordered) {
       const orgId = org.id as OrganizationId;
       const orgCollections = collections.filter((c) => c.organizationId === org.id);
       // Items imported into an org follow that org's rule, not the other orgs'.
-      const restrictions = this.restrictionsFor([org], restricted);
+      const restrictions = restrictionsFor([org], restricted);
       const removedTypes = restrictedTypesForDestination(restricted, org.id);
 
       const defaultCollection = ownershipOrgIds.has(org.id)
@@ -128,39 +128,27 @@ export class DefaultImportDestinationService implements ImportDestinationService
         });
       }
 
-      // Every default collection is managed by its owner, so an org can count as importable with
-      // nothing in it to target; importing without a target is refused, so it gets no card.
+      // The card is always offered; an org with no shared folder the user manages has an empty list.
+      // Under the policy My items has its own card; without it a leftover My items collection is
+      // listed, as in the legacy import.
       const sharedFolders = orgCollections
-        .filter((c) => c.manage && !c.isDefaultCollection)
+        .filter((c) => c.manage && (!c.isDefaultCollection || !ownershipOrgIds.has(org.id)))
         .sort(Utils.getSortFunction<CollectionView>(this.i18nService, "name"));
-      if (sharedFolders.length > 0) {
-        options.push({
-          id: `organization:${org.id}`,
-          kind: ImportDestinationKind.Organization,
-          organizationId: orgId,
-          organizationName: org.name,
-          productTierType: org.productTierType,
-          sharedFolders,
-          restrictions,
-          removedTypes,
-        });
-      }
+      options.push({
+        id: `organization:${org.id}`,
+        kind: ImportDestinationKind.Organization,
+        organizationId: orgId,
+        organizationName: org.name,
+        productTierType: org.productTierType,
+        sharedFolders,
+        restrictions,
+        removedTypes,
+      });
     }
 
     return {
       options,
       hasStep: options.some((option) => option.kind !== ImportDestinationKind.MyVault),
     };
-  }
-
-  /** An org restricts a type when it is restricted for the user and this org doesn't allow it. */
-  private restrictionsFor(
-    orgs: readonly Organization[],
-    restricted: RestrictedCipherType[],
-  ): ImportDestinationRestriction[] {
-    return orgs.flatMap((org) => {
-      const types = restrictedTypesForDestination(restricted, org.id).sort((a, b) => a - b);
-      return types.length > 0 ? [{ organizationName: org.name, types }] : [];
-    });
   }
 }

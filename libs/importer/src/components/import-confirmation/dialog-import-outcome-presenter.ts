@@ -3,8 +3,9 @@ import { Injectable } from "@angular/core";
 import { DialogService } from "@bitwarden/components";
 
 import { ImportedFile } from "../../models";
-import { ImportSkippedItemsDialogComponent } from "../dialog";
+import { ImportSkippedItemsDialogComponent, ImportSuccessDialogComponent } from "../dialog";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
+import { ImportReturnDestination } from "../import-return-destination";
 
 import { ImportConfirmationDialogComponent } from "./import-confirmation-dialog.component";
 import { ImportOutcomeContext, ImportOutcomePresenter } from "./import-outcome-presenter";
@@ -16,8 +17,8 @@ export class DialogImportOutcomePresenter extends ImportOutcomePresenter {
     super();
   }
 
-  present(outcome: FinishedImportOutcome, { file }: ImportOutcomeContext): void {
-    presentInDialog(this.dialogService, outcome, file);
+  present(outcome: FinishedImportOutcome, { file, returnDestination }: ImportOutcomeContext): void {
+    presentInDialog(this.dialogService, outcome, file, returnDestination);
   }
 }
 
@@ -26,10 +27,24 @@ export function presentInDialog(
   dialogService: DialogService,
   outcome: FinishedImportOutcome,
   file?: ImportedFile,
+  returnDestination?: ImportReturnDestination,
 ): void {
   if (outcome.kind === "imported" && outcome.result.errors.length > 0) {
     dialogService.open(ImportSkippedItemsDialogComponent, {
-      data: { errors: outcome.result.errors },
+      data: { errors: outcome.result.errors, ...returnDestination },
+    });
+    return;
+  }
+  // The confirmation dialog has no return button, so an import with a page to return to keeps the
+  // success dialog.
+  if (returnDestination != null) {
+    dialogService.open(ImportSuccessDialogComponent, {
+      data: {
+        ...(outcome.kind === "imported"
+          ? { importResult: outcome.result }
+          : { sdkSummary: outcome.sdkSummary }),
+        ...returnDestination,
+      },
     });
     return;
   }

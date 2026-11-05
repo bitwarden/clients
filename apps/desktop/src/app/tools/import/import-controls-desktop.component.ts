@@ -11,9 +11,11 @@ import {
   ImportControlsComponent,
   ImportUpgradeProviders,
   importTypeFromRoute,
+  navigateCarryingImportParams,
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
 import { safeProvider } from "@bitwarden/ui-common";
+import { vaultCommandsAfterImport } from "@bitwarden/vault";
 
 import { DesktopImportUpgradeMetadataService } from "./desktop-import-upgrade-metadata.service";
 
@@ -38,15 +40,21 @@ export class ImportControlsDesktopComponent {
   protected readonly importType = importTypeFromRoute(this.route);
 
   protected onBack(): void {
-    void this.router.navigate(["/import"], { queryParams: { source: this.importType() } });
+    void navigateCarryingImportParams(this.router, this.route, ["/import"], {
+      queryParams: { source: this.importType() },
+    });
   }
 
   protected onContinue(): void {
     // Staged items mean the user still has to pick where they go.
     if (this.stagingService.current() != null) {
-      void this.router.navigate(["/import", this.importType(), IMPORT_DESTINATION_SEGMENT]);
+      void navigateCarryingImportParams(this.router, this.route, [
+        "/import",
+        this.importType(),
+        IMPORT_DESTINATION_SEGMENT,
+      ]);
       return;
     }
-    void this.router.navigate(["/vault"]);
+    void this.router.navigate(vaultCommandsAfterImport(this.route));
   }
 }

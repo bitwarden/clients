@@ -85,14 +85,14 @@
 </ng-template>
 
 <ng-template #itemGroup>
-  <bit-item-group>
-    @for (group of cipherGroups(); track $index) {
-      @if (group.subHeaderKey) {
-        <h3 class="tw-text-muted tw-text-xs tw-font-medium tw-pl-1 tw-mb-1 bit-compact:tw-m-0">
-          {{ group.subHeaderKey | i18n }}
-        </h3>
-      }
+  @for (group of cipherGroups(); track $index) {
+    @if (group.subHeaderKey) {
+      <h3 class="tw-text-muted tw-text-xs tw-font-medium tw-pl-1 tw-mb-1 bit-compact:tw-m-0">
+        {{ group.subHeaderKey | i18n }}
+      </h3>
+    }
 
+    <bit-item-group>
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
         <bit-item *cdkVirtualFor="let cipher of group.ciphers" class="tw-group/vault-item">
           <button
@@ -164,6 +164,6 @@
           </ng-container>
         </bit-item>
       </cdk-virtual-scroll-viewport>
-    }
-  </bit-item-group>
+    </bit-item-group>
+  }
 </ng-template>
