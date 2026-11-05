@@ -600,7 +600,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "serde_repr",
- "sha1 0.11.0",
+ "sha1",
  "sha2 0.11.0",
  "subtle",
  "thiserror 2.0.17",
@@ -953,7 +953,7 @@ dependencies = [
  "security-framework",
  "serde",
  "serde_json",
- "sha1 0.11.0",
+ "sha1",
  "tokio",
  "tracing",
  "verifysign",
@@ -4637,17 +4637,6 @@ dependencies = [
 
 [[package]]
 name = "sha1"
-version = "0.10.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a978451301f4db1d02937a4ab3ccce137717b81826e79b7d49ffe3244a13c3b8"
-dependencies = [
- "cfg-if",
- "cpufeatures 0.2.17",
- "digest 0.10.7",
-]
-
-[[package]]
-name = "sha1"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aacc4cc499359472b4abe1bf11d0b12e688af9a805fa5e3016f9a386dc2d0214"
@@ -5606,13 +5595,11 @@ checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
 name = "verifysign"
-version = "0.2.4"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ebfe12e38930c3b851aea35e93fab1a6c29279cad7e8e273f29a21678fee8c0"
+checksum = "6acfcc42a8d44f340d001193d97ef56bf33210b51ad760ae8308c97d5241ca51"
 dependencies = [
  "core-foundation",
- "sha1 0.10.7",
- "sha2 0.10.9",
  "windows-sys 0.61.2",
 ]
 
