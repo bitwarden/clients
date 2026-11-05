@@ -1,5 +1,11 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
-import { ConnectedPosition, Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
+import {
+  ConnectedPosition,
+  FlexibleConnectedPositionStrategy,
+  Overlay,
+  OverlayConfig,
+  OverlayRef,
+} from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
   Directive,
@@ -14,12 +20,15 @@ import {
 } from "@angular/core";
 import { outputToObservable } from "@angular/core/rxjs-interop";
 import { merge, Subscription } from "rxjs";
-import { filter, skip, takeUntil } from "rxjs/operators";
+import { filter, skip, take, takeUntil } from "rxjs/operators";
 
 import { TooltipDirective } from "../tooltip/tooltip.directive";
 
 import { MenuPositionIdentifier, defaultPositions } from "./default-positions";
 import { MenuComponent } from "./menu.component";
+
+/** 16px from every edge; CDK counts overflow from 0 against the narrowed viewport, so start/top cover end/bottom too. */
+const viewportMargin = { start: 16, top: 16 };
 
 @Directive({
   selector: "[bitMenuTriggerFor]",
@@ -81,12 +90,14 @@ export class MenuTriggerForDirective implements OnDestroy {
         .withPositions(this.positions)
         .withLockedPosition(true)
         .withFlexibleDimensions(false)
-        .withPush(true),
+        .withPush(true)
+        .withViewportMargin(viewportMargin),
     };
   }
   private closedEventsSub: Subscription | null = null;
   private keyDownEventsSub: Subscription | null = null;
   private menuCloseListenerSub: Subscription | null = null;
+  private resizeObserver: ResizeObserver | null = null;
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -133,14 +144,28 @@ export class MenuTriggerForDirective implements OnDestroy {
           .withLockedPosition(false)
           .withFlexibleDimensions(false)
           .withPush(true)
+          .withViewportMargin(viewportMargin)
       : baseConfig.positionStrategy;
 
     const config = { ...baseConfig, positionStrategy, hasBackdrop: !event };
 
     this.overlayRef = this.overlay.create(config);
 
+    // A locked position also freezes its push, so pin the first placement instead: the menu
+    // still can't flip, but re-pushes on-screen as its content resizes it.
+    if (positionStrategy instanceof FlexibleConnectedPositionStrategy) {
+      positionStrategy.positionChanges
+        .pipe(take(1))
+        .subscribe(({ connectionPair }) =>
+          positionStrategy.withPositions([connectionPair]).withLockedPosition(false),
+        );
+    }
+
     const templatePortal = new TemplatePortal(menu.templateRef(), this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
+
+    this.resizeObserver = new ResizeObserver(() => this.overlayRef?.updatePosition());
+    this.resizeObserver.observe(this.overlayRef.overlayElement);
 
     // Context menus are opened with a MouseEvent
     const isContextMenu = !!event;
@@ -243,6 +268,7 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.closedEventsSub?.unsubscribe();
     this.keyDownEventsSub?.unsubscribe();
     this.menuCloseListenerSub?.unsubscribe();
+    this.resizeObserver?.disconnect();
     this.overlayRef?.dispose();
   }
 }
