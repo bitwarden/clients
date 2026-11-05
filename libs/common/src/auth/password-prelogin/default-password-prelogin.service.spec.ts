@@ -7,6 +7,7 @@ import { PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { MasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { MockSdkService } from "../../platform/spec/mock-sdk.service";
@@ -28,6 +29,7 @@ describe("DefaultPasswordPreloginService", () => {
   let apiService: MockProxy<PasswordPreloginApiService>;
   let sdkService: MockSdkService;
   let configService: MockProxy<ConfigService>;
+  let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
   let sut: DefaultPasswordPreloginService;
 
   const email = "user@example.com";
@@ -47,11 +49,13 @@ describe("DefaultPasswordPreloginService", () => {
     kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
     salt: sdkSalt,
   };
+  // Distinct from the email so assertions prove the salt is emailToSalt's output.
+  const emailSaltFor = (forEmail: string) => `email-salt:${forEmail}` as MasterPasswordSalt;
   // With the flag off, the API path ignores the server's salt and derives from the email.
   const expectedDataFor = (forEmail: string) =>
     new PasswordPreloginData(
       new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-      forEmail as MasterPasswordSalt,
+      emailSaltFor(forEmail),
     );
   const expectedData = expectedDataFor(email);
   const expectedSdkData = new PasswordPreloginData(
@@ -72,7 +76,15 @@ describe("DefaultPasswordPreloginService", () => {
     configService = mock<ConfigService>();
     configService.getFeatureFlag.mockResolvedValue(false);
 
-    sut = new DefaultPasswordPreloginService(apiService, sdkService, configService);
+    masterPasswordService = mock<MasterPasswordServiceAbstraction>();
+    masterPasswordService.emailToSalt.mockImplementation(emailSaltFor);
+
+    sut = new DefaultPasswordPreloginService(
+      apiService,
+      sdkService,
+      configService,
+      masterPasswordService,
+    );
   });
 
   afterEach(() => {
@@ -152,10 +164,10 @@ describe("DefaultPasswordPreloginService", () => {
     });
 
     describe("salt resolution", () => {
-      it("ignores the server-supplied salt and uses the email when the flag is off", async () => {
+      it("ignores the server-supplied salt and derives the salt from the email when the flag is off", async () => {
         const result = await firstValueFrom(sut.getPreloginData$(email));
 
-        expect(result.salt).toBe(email);
+        expect(result.salt).toBe(emailSaltFor(email));
         expect(result.salt).not.toBe(apiSalt);
       });
 
@@ -165,7 +177,7 @@ describe("DefaultPasswordPreloginService", () => {
         { description: "omits Salt", body: {} },
         { description: "sends an explicit null Salt", body: { Salt: null } },
       ])(
-        "uses the email when the flag is off and the API response $description",
+        "derives the salt from the email when the flag is off and the API response $description",
         async ({ body }) => {
           apiService.getPreloginData.mockResolvedValue(
             new PasswordPreloginResponse({
@@ -176,14 +188,14 @@ describe("DefaultPasswordPreloginService", () => {
 
           const result = await firstValueFrom(sut.getPreloginData$(email));
 
-          expect(result.salt).toBe(email);
+          expect(result.salt).toBe(emailSaltFor(email));
         },
       );
 
-      it("uses the normalized email when the flag is off", async () => {
-        const result = await firstValueFrom(sut.getPreloginData$("  USER@EXAMPLE.COM  "));
+      it("passes the normalized email to emailToSalt when the flag is off", async () => {
+        await firstValueFrom(sut.getPreloginData$("  USER@EXAMPLE.COM  "));
 
-        expect(result.salt).toBe(email);
+        expect(masterPasswordService.emailToSalt).toHaveBeenCalledWith(email);
       });
 
       it("uses the salt the SDK resolved when the flag is on", async () => {
@@ -192,6 +204,7 @@ describe("DefaultPasswordPreloginService", () => {
         const result = await firstValueFrom(sut.getPreloginData$(email));
 
         expect(result.salt).toBe(sdkSalt);
+        expect(masterPasswordService.emailToSalt).not.toHaveBeenCalled();
       });
     });
 

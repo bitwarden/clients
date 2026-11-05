@@ -918,6 +918,7 @@ export class ServiceContainer {
       passwordPreloginApiService,
       this.sdkService,
       this.configService,
+      this.masterPasswordService,
     );
 
     const loginStrategyCacheService = new DefaultLoginStrategyCacheService(

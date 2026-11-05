@@ -6,6 +6,7 @@ import { fromSdkKdfConfig } from "@bitwarden/legacy-crypto";
 import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { MasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
@@ -23,6 +24,7 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
     private passwordPreloginApiService: PasswordPreloginApiService,
     private sdkService: SdkService,
     private configService: ConfigService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   getPreloginData$(email: string): Observable<PasswordPreloginData> {
@@ -81,8 +83,10 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
     const response = await this.passwordPreloginApiService.getPreloginData(
       new PasswordPreloginRequest(email),
     );
-    // `email` is already normalized by getPreloginData$.
-    return PasswordPreloginData.fromResponse(response, email as MasterPasswordSalt);
+    return PasswordPreloginData.fromResponse(
+      response,
+      this.masterPasswordService.emailToSalt(email),
+    );
   }
 
   private async fetchPreloginDataFromSdk(email: string): Promise<PasswordPreloginData> {
