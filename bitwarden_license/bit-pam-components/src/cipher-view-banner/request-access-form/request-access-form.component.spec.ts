@@ -79,7 +79,7 @@ describe("RequestAccessFormComponent", () => {
   function fillHumanForm({
     reason,
     ...window
-  }: { [K in keyof RequestWindowFormValue]-?: string } & { reason?: string }): void {
+  }: RequestWindowFormValue & { reason?: string }): void {
     windowFields()["form"].patchValue(window);
     if (reason != null) {
       component["humanForm"].controls.reason.setValue(reason);

@@ -4,7 +4,10 @@ import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-pam";
 import { CardComponent, IconTileComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-/** Explains why the item went back to masked after a lease ran out on its own. */
+/**
+ * Explains why the item went back to masked after a lease ran out on its own, with any projected
+ * action.
+ */
 @Component({
   selector: "app-pam-access-ended-card",
   changeDetection: ChangeDetectionStrategy.OnPush,

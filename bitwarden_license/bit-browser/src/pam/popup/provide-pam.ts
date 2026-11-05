@@ -17,6 +17,7 @@ import {
   controlledAccessItemFilter,
   ControlledAccessVaultFilterService,
   MyLeasesService,
+  CIPHER_VIEW_BANNER_LAYOUT,
 } from "@bitwarden/bit-pam-components";
 import { FillCipherPolicy } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
 import { VAULT_ROW_ACCESS } from "@bitwarden/browser/vault/popup/components/vault/vault-row-access/vault-row-access.token";
@@ -112,6 +113,11 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
+    }),
+    // The popup's item view has no room to fold the request form out in place.
+    safeProvider({
+      provide: CIPHER_VIEW_BANNER_LAYOUT,
+      useValue: "popup",
     }),
     // One per-row state read per list, shared by every option's count and the selection.
     safeProvider({
