@@ -253,6 +253,9 @@ describe("CipherViewBannerComponent", () => {
       organization({ usePam: true, accessPam: true }),
     ]);
 
+    // jsdom does no layout, so it has no scrollIntoView for an invalid submit to call.
+    Element.prototype.scrollIntoView = jest.fn();
+
     requestsApi.getCipherAccessState.mockResolvedValue(accessState());
     // The resting banner pre-checks on its own to render the rule's maximum.
     requestsApi.preCheck.mockResolvedValue(preCheck());
@@ -1529,6 +1532,28 @@ describe("CipherViewBannerComponent", () => {
       await sheet()["submitRequest"]();
 
       expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
+    });
+
+    it("scrolls a missing reason's error into view rather than leave it below the fold", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+      await toggleSheet();
+
+      fillHumanForm({
+        startDate: futureDate,
+        startTime: "09:00",
+        endDate: futureDate,
+        endTime: "10:00",
+        reason: "",
+      });
+      await sheet()["submitRequest"]();
+      fixture.detectChanges();
+
+      const scrollIntoView = jest.mocked(Element.prototype.scrollIntoView);
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+      expect(scrollIntoView.mock.contexts).toEqual([
+        query("#pam-cipher-view-banner_textarea_human-reason")?.closest("bit-form-field"),
+      ]);
     });
 
     it("reveals the window error on submit rather than submitting", async () => {

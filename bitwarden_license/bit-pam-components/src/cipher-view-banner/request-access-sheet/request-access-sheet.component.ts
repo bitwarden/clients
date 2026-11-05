@@ -4,6 +4,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   LOCALE_ID,
   OnInit,
   afterNextRender,
@@ -98,6 +99,7 @@ export class RequestAccessSheetComponent implements OnInit {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly locale = inject(LOCALE_ID);
 
   private readonly sheet = viewChild.required("sheet", { read: ElementRef<HTMLElement> });
@@ -190,6 +192,7 @@ export class RequestAccessSheetComponent implements OnInit {
     }
     form.markAllAsTouched();
     if (form.invalid) {
+      this.scrollToFirstError();
       return;
     }
     this.requestError.set(null);
@@ -266,6 +269,18 @@ export class RequestAccessSheetComponent implements OnInit {
     if (!this.destroyRef.destroyed) {
       this.accessChanged.emit();
     }
+  }
+
+  /** A short window, such as the extension popup, can leave a field's error below the fold. */
+  private scrollToFirstError(): void {
+    afterNextRender(
+      () =>
+        this.sheet()
+          .nativeElement.querySelector('[aria-invalid="true"]')
+          ?.closest("bit-form-field")
+          ?.scrollIntoView({ block: "nearest" }),
+      { injector: this.injector },
+    );
   }
 
   /** Copies the reason as typed, for reuse in the next request. */
