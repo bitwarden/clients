@@ -24,9 +24,7 @@
       </bit-filter-menu>
       <bit-filter-menu
         key="collection"
-        [placeholderText]="
-          'pamAccessRuleCollectionsColumn' | vfo1I18n: 'pamAccessRuleSharedFoldersColumn'
-        "
+        [placeholderText]="'pamAccessRuleSharedFoldersColumn' | i18n"
         multiple
       >
         @for (option of collectionOptions(); track option.value) {

@@ -533,7 +533,7 @@ describe("MyRequestsTabComponent", () => {
         create();
 
         const secondary = query('bit-table-v2 [slot="secondary"]');
-        expect(secondary?.textContent).toContain("pamInboxInCollection Production");
+        expect(secondary?.textContent).toContain("pamInboxInSharedFolder Production");
         expect(secondary?.querySelector("bit-icon")).toBeNull();
       });
 

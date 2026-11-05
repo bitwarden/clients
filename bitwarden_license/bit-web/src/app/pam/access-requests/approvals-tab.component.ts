@@ -47,7 +47,6 @@ import {
   isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
@@ -127,7 +126,6 @@ const STATUS_OPTIONS: ReadonlyArray<{
     SvgComponent,
     TypographyModule,
     I18nPipe,
-    Vfo1I18nPipe,
   ],
   providers: [ApproverActionsService],
 })

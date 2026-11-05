@@ -120,7 +120,7 @@
         @if (row.collectionName) {
           <span slot="secondary" class="tw-flex tw-items-center tw-gap-1">
             <bit-icon name="bwi-collection-shared" class="tw-shrink-0" />
-            {{ "pamInboxInCollection" | vfo1I18n: "pamInboxInSharedFolder" : row.collectionName }}
+            {{ "pamInboxInSharedFolder" | i18n: row.collectionName }}
           </span>
         }
       </bit-cell>

@@ -399,7 +399,7 @@ describe("ApprovalsTabComponent", () => {
 
       const item = query('[data-testid="approvals-cell-item-req-1"]');
       expect(text(item)).toContain("Prod database");
-      expect(text(item)).toContain("pamInboxInCollection Production");
+      expect(text(item)).toContain("pamInboxInSharedFolder Production");
       expect(item?.querySelector('bit-icon[name="bwi-collection-shared"]')).not.toBeNull();
       expect(item?.querySelector("a")?.getAttribute("href")).toBe("/pam/requests/req-1");
     });

@@ -9,7 +9,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { ACCESS_RULE_TEMPLATES, AccessRuleTemplateKey } from "../access-rule-templates";
 
@@ -26,7 +25,6 @@ import { ACCESS_RULE_TEMPLATES, AccessRuleTemplateKey } from "../access-rule-tem
     ItemModule,
     StatusLockupComponent,
     I18nPipe,
-    Vfo1I18nPipe,
   ],
   host: {
     class: "tw-block",
