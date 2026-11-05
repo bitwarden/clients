@@ -45,7 +45,7 @@ import {
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { canActivateImportType } from "@bitwarden/importer-ui";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
@@ -111,6 +111,7 @@ import {
 } from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
+import { restoreVaultScopeGuard } from "../vault/popup/guards/restore-vault-scope.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
@@ -321,6 +322,15 @@ const routes: Routes = [
         loadComponent: () =>
           import("../tools/popup/settings/import/import-controls-browser.component").then(
             (m) => m.ImportControlsBrowserComponent,
+          ),
+        canActivate: [canActivateImportType("/import-source-select")],
+        data: { elevation: 1 } satisfies RouteDataProperties,
+      },
+      {
+        path: IMPORT_DESTINATION_ROUTE_PATH,
+        loadComponent: () =>
+          import("../tools/popup/settings/import/import-destination-browser.component").then(
+            (m) => m.ImportDestinationBrowserComponent,
           ),
         canActivate: [canActivateImportType("/import-source-select")],
         data: { elevation: 1 } satisfies RouteDataProperties,
@@ -802,7 +812,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultComponent,
-        canActivate: [authGuard],
+        canActivate: [authGuard, restoreVaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },

@@ -68,7 +68,6 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
-  SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
   ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
@@ -94,7 +93,6 @@ export enum FeatureFlag {
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-  PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
@@ -149,7 +147,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
-  [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
   [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
@@ -175,7 +172,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,

@@ -611,6 +611,42 @@ describe("ImportService", () => {
     });
   });
 
+  describe("importImportResult restricted types", () => {
+    const resultWith = (...types: CipherType[]) => {
+      const result = new ImportResult();
+      result.success = true;
+      result.ciphers = types.map((type) => Object.assign(new CipherView(), { type, name: "item" }));
+      return result;
+    };
+
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: "user-1" } as any);
+      i18nService.t.mockImplementation((key) => key);
+      importService["handleIndividualImport"] = jest.fn();
+      importService["handleOrganizationalImport"] = jest.fn();
+      // Only org-1 allows cards.
+      (restrictedItemTypesService as any).restricted$ = of([
+        { cipherType: CipherType.Card, allowViewOrgIds: ["org-1"] },
+      ]);
+    });
+
+    it("removes every restricted type from a personal import", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+
+    it("removes every restricted type from an organization import, even into an org that allows it", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result, "org-1" as OrganizationId, null, true);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+  });
+
   describe("onePasswordSignInMethods", () => {
     const signInAddress = { subdomain: "my", domain: "Global" } as const;
     let onePasswordSignInMethods: jest.Mock;
