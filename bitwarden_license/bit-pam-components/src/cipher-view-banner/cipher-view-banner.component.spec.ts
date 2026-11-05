@@ -9,7 +9,6 @@ import {
   AccessRequestSdkService,
   LeasingErrorService,
   ACCESS_BADGE_LOOK,
-  formatDuration,
   formatCalendarDate,
   formatTimeOfDay,
   REQUEST_ACCESS_SERVER_ERRORS,
@@ -22,6 +21,7 @@ import type {
   AccessPreCheckView,
   AccessRequestView,
   CipherAccessStateView,
+  RequestWindowFormValue,
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -40,7 +40,8 @@ import { MyLeasesService } from "../services/my-leases.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 import { RequestAccessSheetComponent } from "./request-access-sheet/request-access-sheet.component";
-import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
+import { REQUEST_WINDOW_ERROR_KEY } from "./request-window-fields/request-access-window.validators";
+import { RequestWindowFieldsComponent } from "./request-window-fields/request-window-fields.component";
 
 /**
  * The SDK views are wide, so the builders below set only the fields the banner reads and widen
@@ -198,6 +199,22 @@ describe("CipherViewBannerComponent", () => {
   function sheet(): RequestAccessSheetComponent {
     return fixture.debugElement.query(By.directive(RequestAccessSheetComponent))
       .componentInstance as RequestAccessSheetComponent;
+  }
+
+  function windowFields(): RequestWindowFieldsComponent {
+    return fixture.debugElement.query(By.directive(RequestWindowFieldsComponent))
+      .componentInstance as RequestWindowFieldsComponent;
+  }
+
+  /** Types a window into the human path's fields and, when given, a reason beside them. */
+  function fillHumanForm({
+    reason,
+    ...window
+  }: RequestWindowFormValue & { reason?: string }): void {
+    windowFields()["form"].patchValue(window);
+    if (reason != null) {
+      sheet()["humanForm"].controls.reason.setValue(reason);
+    }
   }
 
   /** Opens the sheet as its toggle does, or closes it as Cancel does, and lets its pre-check land. */
@@ -1151,8 +1168,8 @@ describe("CipherViewBannerComponent", () => {
 
       expect(sheet()["requestMode"]()).toBe("human");
       expect(query("#pam-cipher-view-banner_input_start-date")).not.toBeNull();
-      expect(sheet()["humanForm"].getRawValue().startDate).not.toBe("");
-      expect(sheet()["humanForm"].getRawValue().startTime).not.toBe("");
+      expect(sheet()["humanForm"].getRawValue().window?.startDate).not.toBe("");
+      expect(sheet()["humanForm"].getRawValue().window?.startTime).not.toBe("");
     });
 
     it("renders the automatic path's Reason field as a multi-line textarea", async () => {
@@ -1251,115 +1268,9 @@ describe("CipherViewBannerComponent", () => {
       await toggleSheet();
 
       // Composed from the fold-out's open time, not a fixed date.
-      const window = composeRequestWindow(sheet()["humanForm"].getRawValue());
+      const window = composeRequestWindow(sheet()["humanForm"].getRawValue().window!);
       const spanMinutes = (window!.end.getTime() - window!.start.getTime()) / 60_000;
       expect(spanMinutes).toBe(15);
-    });
-
-    it("validates the human path's window against the rule's maximum", async () => {
-      requestsApi.preCheck.mockResolvedValue(
-        preCheck({ approvalMode: "human", defaultDurationSeconds: 900, maxDurationSeconds: 1800 }),
-      );
-      await create(gatedCipher());
-      await toggleSheet();
-      sheet()["endDuration"].setValue("custom");
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap.
-      sheet()["humanForm"].patchValue({
-        startDate: futureDate,
-        startTime: "09:00",
-        endDate: futureDate,
-        endTime: "11:00",
-      });
-      sheet()["humanForm"].controls.endTime.markAsTouched();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(sheet()["humanForm"].invalid).toBe(true);
-      const maxWindow = formatDuration("en-US", 1800, "long");
-      const error = endFieldError();
-      expect(error).not.toBeNull();
-      expect(error?.textContent).toContain(maxWindow);
-    });
-
-    it("rejects a window that has already ended", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await toggleSheet();
-      sheet()["endDuration"].setValue("custom");
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const pastDate = toDateInputValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000));
-      sheet()["humanForm"].patchValue({
-        startDate: pastDate,
-        startTime: "09:00",
-        endDate: pastDate,
-        endTime: "10:00",
-      });
-      sheet()["humanForm"].controls.endTime.markAsTouched();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(sheet()["humanForm"].invalid).toBe(true);
-      const error = endFieldError();
-      expect(error).not.toBeNull();
-      expect(error?.textContent).toContain("requestAccessModalWindowInPast");
-    });
-
-    it("rejects an end date before the start date", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await toggleSheet();
-      sheet()["endDuration"].setValue("custom");
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const [year, month, day] = futureDate.split("-").map(Number);
-      sheet()["humanForm"].patchValue({
-        startDate: futureDate,
-        startTime: "09:00",
-        endDate: toDateInputValue(new Date(year, month - 1, day - 1)),
-        endTime: "10:00",
-      });
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(sheet()["humanForm"].controls.endTime.touched).toBe(true);
-      expect(endFieldError()?.textContent).toContain("requestAccessModalEndNotAfterStart");
-    });
-
-    it("floors the start date picker at the day the fold-out opened", async () => {
-      // `min` is only an affordance; reactive forms never read ValidityState.rangeUnderflow.
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await toggleSheet();
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const date = query("#pam-cipher-view-banner_input_start-date") as HTMLInputElement | null;
-      expect(date?.getAttribute("min")).toBe(toDateInputValue(new Date()));
-      expect(sheet()["humanForm"].controls.startDate.value).toBe(date?.getAttribute("min"));
-    });
-
-    it("floors the end date picker at the chosen start date", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await toggleSheet();
-      sheet()["endDuration"].setValue("custom");
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      sheet()["humanForm"].controls.startDate.setValue(futureDate);
-      fixture.detectChanges();
-
-      const endDate = query("#pam-cipher-view-banner_input_end-date") as HTMLInputElement | null;
-      expect(endDate?.getAttribute("min")).toBe(futureDate);
     });
 
     it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
@@ -1525,7 +1436,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
       await toggleSheet();
 
-      sheet()["humanForm"].patchValue({
+      fillHumanForm({
         startDate: futureDate,
         startTime: "09:00",
         endDate: futureDate,
@@ -1555,7 +1466,7 @@ describe("CipherViewBannerComponent", () => {
 
       const [year, month, day] = futureDate.split("-").map(Number);
       const endDate = toDateInputValue(new Date(year, month - 1, day + 2));
-      sheet()["humanForm"].patchValue({
+      fillHumanForm({
         startDate: futureDate,
         startTime: "23:00",
         endDate,
@@ -1577,8 +1488,8 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
       await toggleSheet();
 
-      const end = sheet()["humanForm"].controls.endTime;
-      sheet()["humanForm"].patchValue({
+      const end = windowFields()["form"].controls.endTime;
+      fillHumanForm({
         startDate: futureDate,
         startTime: "09:00",
         endDate: futureDate,
@@ -1608,7 +1519,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
       await toggleSheet();
 
-      sheet()["humanForm"].patchValue({
+      fillHumanForm({
         startDate: futureDate,
         startTime: "10:00",
         endDate: futureDate,
@@ -1620,93 +1531,15 @@ describe("CipherViewBannerComponent", () => {
       expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
     });
 
-    it("shows the window error once the requester zeroes the window", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await toggleSheet();
-      sheet()["endDuration"].setValue("custom");
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      sheet()["humanForm"].patchValue({
-        startDate: futureDate,
-        startTime: "10:00",
-        endDate: futureDate,
-        endTime: "10:00",
-      });
-      sheet()["humanForm"].controls.endTime.markAsTouched();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      const error = endFieldError();
-      expect(error).not.toBeNull();
-      expect(error?.textContent).toContain("requestAccessModalEndNotAfterStart");
-      expect(error?.getAttribute("aria-live")).toBe("assertive");
-      const endInput = query("#pam-cipher-view-banner_input_end");
-      expect(endInput?.getAttribute("aria-invalid")).toBe("true");
-    });
-
-    it("reveals the window error when a start edit breaks a window the requester never touched", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await toggleSheet();
-      sheet()["endDuration"].setValue("custom");
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      sheet()["humanForm"].patchValue({
-        startDate: futureDate,
-        startTime: "09:00",
-        endDate: futureDate,
-        endTime: "10:00",
-      });
-      sheet()["humanForm"].controls.startTime.setValue("10:00");
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(sheet()["humanForm"].controls.endTime.touched).toBe(true);
-      const error = endFieldError();
-      expect(error).not.toBeNull();
-      expect(error?.textContent).toContain("requestAccessModalEndNotAfterStart");
-    });
-
-    it("clears the window error once the window is valid again", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await toggleSheet();
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      sheet()["humanForm"].patchValue({
-        startDate: futureDate,
-        startTime: "10:00",
-        endDate: futureDate,
-        endTime: "10:00",
-      });
-      sheet()["humanForm"].controls.endTime.markAsTouched();
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      sheet()["humanForm"].controls.startTime.setValue("09:00");
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(sheet()["humanForm"].controls.endTime.errors).toBeNull();
-      expect(endFieldError()).toBeNull();
-    });
-
     it("reveals the window error on submit rather than submitting", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await toggleSheet();
-      sheet()["endDuration"].setValue("custom");
+      windowFields()["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
-      sheet()["humanForm"].patchValue({
+      fillHumanForm({
         startDate: futureDate,
         startTime: "10:00",
         endDate: futureDate,
@@ -2012,124 +1845,6 @@ describe("CipherViewBannerComponent", () => {
       await component["extendLease"]();
 
       expect(leasesApi.extendLease).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("the human path's window pickers", () => {
-    async function openHumanForm(): Promise<void> {
-      requestsApi.preCheck.mockResolvedValue(
-        preCheck({
-          approvalMode: "human",
-          defaultDurationSeconds: 3600,
-          maxDurationSeconds: 3 * 86400,
-        }),
-      );
-      await create(gatedCipher());
-      await toggleSheet();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-    }
-
-    function spanSeconds(): number {
-      const window = composeRequestWindow(sheet()["humanForm"].getRawValue());
-      return (window!.end.getTime() - window!.start.getTime()) / 1000;
-    }
-
-    it("opens on the now slot and the rule's default duration", async () => {
-      await openHumanForm();
-
-      expect(sheet()["startSlot"].value).toBe(sheet()["humanForm"].controls.startTime.value);
-      expect(sheet()["endDuration"].value).toBe("3600");
-      expect(spanSeconds()).toBe(3600);
-      expect(query("#pam-cipher-view-banner_select_end")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_input_end")).toBeNull();
-      expect(query("[data-testid='request-window-summary']")?.textContent).toContain(
-        "requestAccessModalWindowSummary",
-      );
-    });
-
-    it("moves the end when another duration is picked", async () => {
-      await openHumanForm();
-
-      sheet()["endDuration"].setValue(String(86400));
-
-      expect(spanSeconds()).toBe(86400);
-    });
-
-    it("keeps the duration when the start date moves, snapping the start to the next slot", async () => {
-      await openHumanForm();
-      sheet()["endDuration"].setValue(String(4 * 3600));
-      sheet()["humanForm"].controls.startTime.setValue("10:10");
-
-      sheet()["humanForm"].controls.startDate.setValue(futureDate);
-
-      expect(sheet()["humanForm"].controls.startTime.value).toBe("10:30");
-      expect(sheet()["startSlot"].value).toBe("10:30");
-      expect(spanSeconds()).toBe(4 * 3600);
-    });
-
-    it("leaves a custom end alone when the start moves", async () => {
-      await openHumanForm();
-      sheet()["endDuration"].setValue("custom");
-      sheet()["humanForm"].patchValue({
-        startDate: futureDate,
-        startTime: "09:00",
-        endDate: futureDate,
-        endTime: "17:00",
-      });
-
-      sheet()["humanForm"].controls.startTime.setValue("11:00");
-
-      expect(sheet()["humanForm"].controls.endTime.value).toBe("17:00");
-    });
-
-    it("returns from a custom end to the nearest duration", async () => {
-      await openHumanForm();
-      sheet()["endDuration"].setValue("custom");
-      const [year, month, day] = futureDate.split("-").map(Number);
-      sheet()["humanForm"].patchValue({
-        startDate: futureDate,
-        startTime: "09:00",
-        endDate: toDateInputValue(new Date(year, month - 1, day + 1)),
-        endTime: "05:00",
-      });
-
-      sheet()["showEndPresets"]();
-
-      expect(sheet()["customEnd"]()).toBe(false);
-      expect(sheet()["endDuration"].value).toBe(String(86400));
-      expect(spanSeconds()).toBe(86400);
-    });
-
-    it("swaps the start slot for a time input and back", async () => {
-      await openHumanForm();
-
-      sheet()["startSlot"].setValue("custom");
-      fixture.detectChanges();
-      expect(query("#pam-cipher-view-banner_input_start")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_select_start")).toBeNull();
-
-      sheet()["showStartPresets"]();
-      fixture.detectChanges();
-      expect(query("#pam-cipher-view-banner_select_start")).not.toBeNull();
-      expect(sheet()["startSlot"].value).toBe(sheet()["humanForm"].controls.startTime.value);
-    });
-
-    it("shows the window error under the duration while the end field is hidden", async () => {
-      await openHumanForm();
-      sheet()["startSlot"].setValue("custom");
-
-      sheet()["humanForm"].patchValue({
-        startDate: toDateInputValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)),
-        startTime: "09:00",
-      });
-      fixture.detectChanges();
-
-      expect(query("[data-testid='request-window-error']")?.textContent).toContain(
-        "requestAccessModalWindowInPast",
-      );
-      expect(query("[data-testid='request-window-summary']")).toBeNull();
     });
   });
 });

@@ -65,8 +65,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   managed credentials), lazy-loaded from `rotation.routes.ts` behind
   `FeatureFlag.PamAccessConnector`.
 - `cipher-view-banner/`, the requester's entry point on an open gated cipher (it lives in
-  `bit-pam-components`, with each state's card under `cards/` and the form in
-  `request-access-sheet/`): six states, five off `cipher_access_state()` (including Access ended) plus a request form that
+  `bit-pam-components`, with each state's card under `cards/`, the form in
+  `request-access-sheet/`, and the human path's window picker in `request-window-fields/`):
+  six states, five off `cipher_access_state()` (including Access ended) plus a request form that
   opens as a bottom sheet over a dimmed overlay, and the licensing block (PM-39423). The block comes FIRST and replaces every other state, active lease
   included, because the server stops releasing a gated cipher's secrets to an unlicensed
   holder whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`), withdrawing a seat

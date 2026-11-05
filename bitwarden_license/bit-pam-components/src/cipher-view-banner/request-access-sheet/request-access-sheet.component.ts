@@ -14,9 +14,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { merge } from "rxjs";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import {
   type AccessApprovalMode,
@@ -25,23 +23,14 @@ import {
   apiErrorBodyMessage,
   LeasingErrorService,
   ACCESS_BADGE_LOOK,
-  formatCompoundDuration,
-  formatDuration,
-  formatTimeOfDay,
-  formatTimestamp,
   DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
   type RequestDurationOption,
   requestDurationOptions,
-  snapToNearestDuration,
   classifyRequestAccessError,
-  type RequestWindowProblem,
+  type RequestWindowFormValue,
   composeRequestWindow,
   defaultRequestWindow,
-  startTimeSlots,
-  toDateInputValue,
-  toTimeInputValue,
-  windowEndAt,
 } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -61,14 +50,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { DurationLongPipe } from "../../date/duration-long.pipe";
 import { DurationShortPipe } from "../../date/duration-short.pipe";
 import { TimestampPipe } from "../../date/timestamp.pipe";
-import {
-  REQUEST_WINDOW_ERROR_KEY,
-  type RequestWindowError,
-  requestWindowEndValidator,
-} from "../request-access-window.validators";
 import type { RequestTerms } from "../request-terms";
-
-const CUSTOM_OPTION = "custom";
+import { requestWindowProblemMessage } from "../request-window-fields/request-access-window.validators";
+import { RequestWindowFieldsComponent } from "../request-window-fields/request-window-fields.component";
 
 /**
  * The bottom sheet a requester fills in to ask for access to a governed item. Each mount resolves
@@ -91,6 +75,7 @@ const CUSTOM_OPTION = "custom";
     DurationLongPipe,
     DurationShortPipe,
     I18nPipe,
+    RequestWindowFieldsComponent,
     TimestampPipe,
   ],
 })
@@ -116,6 +101,7 @@ export class RequestAccessSheetComponent implements OnInit {
   private readonly locale = inject(LOCALE_ID);
 
   private readonly sheet = viewChild.required("sheet", { read: ElementRef<HTMLElement> });
+  private readonly windowFields = viewChild(RequestWindowFieldsComponent);
 
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
 
@@ -143,14 +129,15 @@ export class RequestAccessSheetComponent implements OnInit {
       : requestDurationOptions(bounds.maxSeconds, bounds.defaultSeconds);
   });
 
+  protected readonly defaultSeconds = computed(
+    () => this.requestBounds()?.defaultSeconds ?? DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
+  );
+
   /** The human path's window cap, for the message under the time fields. */
   protected readonly maxWindowSeconds = computed(() => this.requestBounds()?.maxSeconds ?? null);
 
-  /**
-   * Start picker floor, pinned when the sheet opened. Reactive forms ignore `min`, so
-   * `requestWindowEndValidator` is the real check.
-   */
-  protected readonly minRequestDate = signal("");
+  /** One clock reading for the window's seed and its pickers' floor. */
+  protected readonly requestOpenedAt = signal(new Date());
 
   /**
    * Set while another member holds the single-active-lease slot. `null` treats free, unknown and
@@ -163,111 +150,9 @@ export class RequestAccessSheetComponent implements OnInit {
     reason: [""],
   });
 
-  protected readonly humanForm = this.formBuilder.nonNullable.group({
-    startDate: ["", Validators.required],
-    startTime: ["", Validators.required],
-    endDate: ["", Validators.required],
-    endTime: [
-      "",
-      [
-        Validators.required,
-        // Reads the cap live through the signal, not the value captured when the form was built.
-        requestWindowEndValidator(
-          () => this.maxWindowSeconds(),
-          (problem, max) => this.windowProblemMessage(problem, max),
-        ),
-      ],
-    ],
-    reason: ["", [Validators.required, nonBlank]],
-  });
-
-  private readonly humanFormValue = toSignal(this.humanForm.valueChanges, {
-    initialValue: this.humanForm.value,
-  });
-
-  protected readonly minEndDate = computed(
-    () => this.humanFormValue().startDate || this.minRequestDate(),
-  );
-
-  protected readonly CUSTOM_OPTION = CUSTOM_OPTION;
-  private readonly requestOpenedAt = signal(new Date());
-  protected readonly customStart = signal(false);
-  protected readonly customEnd = signal(false);
-  protected readonly startSlot = new FormControl("", {
-    nonNullable: true,
-    validators: Validators.required,
-  });
-  protected readonly endDuration = new FormControl("", {
-    nonNullable: true,
-    validators: Validators.required,
-  });
-
-  protected readonly startSlots = computed(() => {
-    const date = this.humanFormValue().startDate;
-    if (!date) {
-      return [];
-    }
-    const openedAt = this.requestOpenedAt();
-    const today = date === toDateInputValue(openedAt);
-    return startTimeSlots(date, openedAt).map((value, index) => {
-      const time = formatTimeOfDay(this.locale, new Date(`${date}T${value}`).getTime());
-      return {
-        value,
-        label: today && index === 0 ? this.i18nService.t("requestAccessModalStartNow", time) : time,
-      };
-    });
-  });
-
-  protected readonly endOptions = computed(() => {
-    const { startDate, startTime } = this.humanFormValue();
-    const start = windowEndAt(startDate, startTime, 0);
-    return this.durationOptions().map((option) => {
-      const duration = option.labelKey
-        ? this.i18nService.t(option.labelKey)
-        : formatDuration(this.locale, option.seconds, "long");
-      const end = windowEndAt(startDate, startTime, option.seconds);
-      return {
-        seconds: option.seconds,
-        label:
-          start == null || end == null
-            ? duration
-            : this.i18nService.t(
-                "requestAccessModalDurationUntil",
-                duration,
-                this.formatWindowPoint(end, start),
-              ),
-      };
-    });
-  });
-
-  protected readonly windowSummary = computed(() => {
-    const window = composeRequestWindow(this.humanFormValue());
-    if (window == null || window.end <= window.start) {
-      return null;
-    }
-    return this.i18nService.t(
-      "requestAccessModalWindowSummary",
-      formatCompoundDuration(
-        this.locale,
-        (window.end.getTime() - window.start.getTime()) / 1000,
-        "long",
-      ),
-      this.formatWindowPoint(window.start),
-      this.formatWindowPoint(window.end, window.start),
-    );
-  });
-
-  private readonly humanFormStatus = toSignal(this.humanForm.statusChanges, {
-    initialValue: this.humanForm.status,
-  });
-
-  /** The window error while the end is a duration, since the End time field carrying it is hidden. */
-  protected readonly durationWindowError = computed(() => {
-    this.humanFormStatus();
-    this.humanFormValue();
-    const error: RequestWindowError | undefined =
-      this.humanForm.controls.endTime.errors?.[REQUEST_WINDOW_ERROR_KEY];
-    return this.customEnd() ? null : (error?.message ?? null);
+  protected readonly humanForm = this.formBuilder.group({
+    window: this.formBuilder.control<RequestWindowFormValue | null>(null),
+    reason: this.formBuilder.nonNullable.control("", [Validators.required, nonBlank]),
   });
 
   constructor() {
@@ -276,61 +161,11 @@ export class RequestAccessSheetComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Subscribed to the sibling controls, not the group, to avoid re-entrant validation.
-    const { startDate, startTime, endDate, endTime } = this.humanForm.controls;
-    merge(startDate.valueChanges, startTime.valueChanges, endDate.valueChanges)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        endTime.updateValueAndValidity();
-        // Only a fresh window error from a sibling edit, so this never nags a blank End or races
-        // `BitInputDirective.onInput`'s own `markAsUntouched`.
-        if (endTime.errors?.[REQUEST_WINDOW_ERROR_KEY] != null) {
-          endTime.markAsTouched();
-        }
-      });
-
-    this.startSlot.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
-      if (value === CUSTOM_OPTION) {
-        this.customStart.set(true);
-      } else {
-        startTime.setValue(value);
-      }
-    });
-    this.endDuration.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
-      if (value === CUSTOM_OPTION) {
-        this.customEnd.set(true);
-      } else {
-        this.followStartWithEnd();
-      }
-    });
-    startDate.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.keepStartOnASlot());
-    merge(startDate.valueChanges, startTime.valueChanges)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.followStartWithEnd());
-
     void this.loadRequestForm();
   }
 
   protected dismiss(): void {
     this.dismissed.emit();
-  }
-
-  protected showStartPresets(): void {
-    this.customStart.set(false);
-    this.keepStartOnASlot();
-  }
-
-  protected showEndPresets(): void {
-    const window = composeRequestWindow(this.humanForm.getRawValue());
-    const options = this.durationOptions();
-    const seconds =
-      window == null || options.length === 0
-        ? (this.requestBounds()?.defaultSeconds ?? DEFAULT_REQUEST_ACCESS_DURATION_SECONDS)
-        : snapToNearestDuration((window.end.getTime() - window.start.getTime()) / 1000, options);
-    this.customEnd.set(false);
-    this.endDuration.setValue(String(seconds));
   }
 
   protected readonly copyReasonFromAutomatic = (): void =>
@@ -350,7 +185,8 @@ export class RequestAccessSheetComponent implements OnInit {
     // `markAllAsTouched` does not re-run validators, so a sheet left open past its own seeded
     // window still carries a stale verdict; re-validate before trusting `form.invalid`.
     if (mode === "human") {
-      this.humanForm.controls.endTime.updateValueAndValidity();
+      this.humanForm.controls.window.updateValueAndValidity();
+      this.windowFields()?.markAllAsTouched();
     }
     form.markAllAsTouched();
     if (form.invalid) {
@@ -399,12 +235,11 @@ export class RequestAccessSheetComponent implements OnInit {
       this.requestBounds.set(bounds);
 
       if (preCheck.approvalMode === "human") {
-        // One clock reading for both, so the picker's floor is the day it pre-fills.
         const openedAt = new Date();
-        this.minRequestDate.set(toDateInputValue(openedAt));
         this.requestOpenedAt.set(openedAt);
-        this.endDuration.setValue(String(bounds.defaultSeconds), { emitEvent: false });
-        this.humanForm.patchValue(defaultRequestWindow(openedAt, bounds.defaultSeconds));
+        this.humanForm.patchValue({
+          window: defaultRequestWindow(openedAt, bounds.defaultSeconds),
+        });
         // `canStartLease` answers about now, not this future window, so no contention warning here.
       } else {
         // `requestDurationOptions` always offers the rule's default, so this select cannot render
@@ -433,63 +268,6 @@ export class RequestAccessSheetComponent implements OnInit {
     }
   }
 
-  /**
-   * In preset mode the start must be an offered slot, or the select renders blank, so this keeps
-   * the nearest one at or after it.
-   */
-  private keepStartOnASlot(): void {
-    if (this.customStart()) {
-      return;
-    }
-    const { startDate, startTime } = this.humanForm.controls;
-    const slots = startDate.value ? startTimeSlots(startDate.value, this.requestOpenedAt()) : [];
-    if (slots.length === 0) {
-      return;
-    }
-    if (slots.includes(startTime.value)) {
-      this.startSlot.setValue(startTime.value, { emitEvent: false });
-    } else {
-      this.startSlot.setValue(slots.find((slot) => slot >= startTime.value) ?? slots[0]);
-    }
-  }
-
-  /** While the end is a duration, it moves with the start. */
-  private followStartWithEnd(): void {
-    if (this.customEnd()) {
-      return;
-    }
-    const { startDate, startTime } = this.humanForm.getRawValue();
-    const end = windowEndAt(startDate, startTime, Number(this.endDuration.value));
-    if (end != null) {
-      this.humanForm.patchValue({
-        endDate: toDateInputValue(end),
-        endTime: toTimeInputValue(end),
-      });
-    }
-  }
-
-  /** A time alone on the reference instant's day, else the date and time. */
-  private formatWindowPoint(date: Date, reference?: Date): string {
-    if (reference != null && toDateInputValue(date) === toDateInputValue(reference)) {
-      return formatTimeOfDay(this.locale, date.getTime());
-    }
-    return formatTimestamp(this.locale, date.getTime());
-  }
-
-  private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {
-    switch (problem) {
-      case "endNotAfterStart":
-        return this.i18nService.t("requestAccessModalEndNotAfterStart");
-      case "endInPast":
-        return this.i18nService.t("requestAccessModalWindowInPast");
-      case "exceedsMaxWindow":
-        return this.i18nService.t(
-          "requestAccessModalWindowExceedsMax",
-          formatDuration(this.locale, maxWindowSeconds, "long"),
-        );
-    }
-  }
-
   /** Copies the reason as typed, for reuse in the next request. */
   private copyReason(value: string): void {
     if (value.length === 0) {
@@ -509,8 +287,8 @@ export class RequestAccessSheetComponent implements OnInit {
   }
 
   private buildHumanRequest(): AccessRequestCreateRequest | null {
-    const { reason, ...requested } = this.humanForm.getRawValue();
-    const window = composeRequestWindow(requested);
+    const { window: requested, reason } = this.humanForm.getRawValue();
+    const window = requested == null ? null : composeRequestWindow(requested);
     if (window == null) {
       return null;
     }
@@ -555,7 +333,12 @@ export class RequestAccessSheetComponent implements OnInit {
         // than getting its own string.
         this.requestError.set(
           outcome.scope === "window"
-            ? this.windowProblemMessage("exceedsMaxWindow", outcome.maxSeconds)
+            ? requestWindowProblemMessage(
+                this.i18nService,
+                this.locale,
+                "exceedsMaxWindow",
+                outcome.maxSeconds,
+              )
             : outcome.serverMessage,
         );
         return;
