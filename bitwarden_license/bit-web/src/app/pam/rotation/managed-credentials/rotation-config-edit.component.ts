@@ -87,7 +87,6 @@ import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer
 import { RotationScheduleInputComponent } from "../rotation-schedule-input/rotation-schedule-input.component";
 import { RotationConfigDescription, RotationSdkService } from "../rotation-sdk.service";
 import { formatRotationAge } from "../rotation-timestamp";
-import { showSkeletonWhile } from "../skeleton-delay";
 import { AssignConnectorDialogComponent } from "../target-systems/assign-connector-dialog.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -196,11 +195,6 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   );
 
   protected readonly loading = signal(true);
-
-  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
-  protected readonly showSkeleton = showSkeletonWhile(this.loading);
-
-  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
   protected readonly loadError = signal<unknown | null>(null);
 

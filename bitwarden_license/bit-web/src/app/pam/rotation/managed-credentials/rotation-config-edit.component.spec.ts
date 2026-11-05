@@ -1557,28 +1557,10 @@ describe("RotationConfigEditComponent: action row", () => {
 });
 
 describe("RotationConfigEditComponent: loading skeleton", () => {
-  beforeEach(() => {
-    jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-  });
-
-  afterEach(() => jest.useRealTimers());
-
-  function advance(fixture: ComponentFixture<RotationConfigEditComponent>, ms: number): void {
-    fixture.detectChanges();
-    jest.advanceTimersByTime(ms);
-    fixture.detectChanges();
-  }
-
   /** The page mid-load: `setup` renders before the config read resolves. */
   function renderLoading(options: SetupOptions = {}) {
     const { fixture } = setup({ configId: configId("cfg-1"), template: "real", ...options });
     return { fixture, el: fixture.nativeElement as HTMLElement };
-  }
-
-  function renderSkeleton(options: SetupOptions = {}) {
-    const rendered = renderLoading(options);
-    advance(rendered.fixture, 1000);
-    return rendered;
   }
 
   async function settle(fixture: ComponentFixture<RotationConfigEditComponent>) {
@@ -1589,7 +1571,7 @@ describe("RotationConfigEditComponent: loading skeleton", () => {
   }
 
   it("stands skeleton fields in for the form, inside the real card furniture", () => {
-    const { el } = renderSkeleton();
+    const { el } = renderLoading();
     const loading = el.querySelector('[data-testid="rotation-config-edit-loading"]');
 
     expect(el.querySelector("bit-spinner")).toBeNull();
@@ -1601,6 +1583,15 @@ describe("RotationConfigEditComponent: loading skeleton", () => {
     expect(el.querySelector("form")).toBeNull();
   });
 
+  it("draws the skeleton from the first render, beside the page's own chrome", () => {
+    const { el } = renderLoading();
+
+    expect(
+      el.querySelector('[data-testid="rotation-config-edit-loading"] bit-skeleton'),
+    ).not.toBeNull();
+    expect(el.querySelector("pam-detail-breadcrumb")).not.toBeNull();
+  });
+
   it("keeps the placeholder itself out of the accessibility tree", () => {
     const { el } = renderLoading();
 
@@ -1610,7 +1601,7 @@ describe("RotationConfigEditComponent: loading skeleton", () => {
   });
 
   it("mirrors the history table instead when the history tab is the one loading", () => {
-    const { el } = renderSkeleton({ tab: "history" });
+    const { el } = renderLoading({ tab: "history" });
     const loading = el.querySelector('[data-testid="rotation-config-edit-loading"]');
 
     expect(loading!.querySelector("app-rotation-history-skeleton")).not.toBeNull();
@@ -1620,7 +1611,6 @@ describe("RotationConfigEditComponent: loading skeleton", () => {
 
   it("shows the create page's own fields when there is no config to read", () => {
     const { fixture } = setup({ template: "real" });
-    advance(fixture, 1000);
     const el = fixture.nativeElement as HTMLElement;
     const loading = el.querySelector('[data-testid="rotation-config-edit-loading"]');
 
@@ -1630,7 +1620,7 @@ describe("RotationConfigEditComponent: loading skeleton", () => {
   });
 
   it("announces the load from a live region, then the arrival", async () => {
-    const { fixture, el } = renderSkeleton();
+    const { fixture, el } = renderLoading();
 
     const status = el.querySelector('[data-testid="rotation-loading-status"]');
     expect(status!.getAttribute("role")).toBe("status");
@@ -1638,67 +1628,20 @@ describe("RotationConfigEditComponent: loading skeleton", () => {
     expect(status!.textContent).toContain("loading");
 
     await settle(fixture);
-    advance(fixture, 1000);
 
     expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
       "pamRotationPageLoaded",
     );
   });
 
-  it("replaces the skeleton with the real form once the config lands", async () => {
-    const { fixture, el } = renderSkeleton();
+  it("replaces the skeleton with the real form as soon as the config lands", async () => {
+    const { fixture, el } = renderLoading();
 
     await settle(fixture);
-    advance(fixture, 1000);
 
     expect(el.querySelector('[data-testid="rotation-config-edit-loading"]')).toBeNull();
     expect(el.querySelector("bit-skeleton")).toBeNull();
     expect(el.querySelector("form")).not.toBeNull();
-  });
-
-  it("renders the page's own chrome, not a blank area, before the delay is up", () => {
-    const { fixture, el } = renderLoading();
-    advance(fixture, 999);
-
-    expect(el.querySelector('[data-testid="rotation-config-edit-loading"]')).not.toBeNull();
-    expect(el.querySelector("bit-skeleton")).toBeNull();
-    expect(el.querySelector("pam-detail-breadcrumb")).not.toBeNull();
-  });
-
-  it("never draws the placeholder for a config that arrives inside the delay", async () => {
-    const { fixture, el } = renderLoading();
-    advance(fixture, 500);
-
-    await settle(fixture);
-    advance(fixture, 1000);
-
-    expect(el.querySelector("bit-skeleton")).toBeNull();
-    expect(el.querySelector('[data-testid="rotation-config-edit-loading"]')).toBeNull();
-    expect(el.querySelector("form")).not.toBeNull();
-  });
-
-  it("holds the placeholder its minimum time once it is up, so it cannot blink", async () => {
-    const { fixture, el } = renderSkeleton();
-    expect(el.querySelector("bit-skeleton")).not.toBeNull();
-
-    await settle(fixture);
-    advance(fixture, 300);
-
-    expect(el.querySelector("bit-skeleton")).not.toBeNull();
-
-    advance(fixture, 700);
-
-    expect(el.querySelector("bit-skeleton")).toBeNull();
-    expect(el.querySelector("form")).not.toBeNull();
-  });
-
-  it("announces the load at once, not on the placeholder's clock", () => {
-    const { el } = renderLoading();
-
-    expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
-      "loading",
-    );
-    expect(el.querySelector("bit-skeleton")).toBeNull();
   });
 });
 
