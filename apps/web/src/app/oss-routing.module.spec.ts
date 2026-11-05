@@ -4,6 +4,7 @@ import { firstValueFrom, of } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 
 import { OssRoutingModule } from "./oss-routing.module";
 
@@ -36,6 +37,7 @@ describe("web import routes", () => {
     expect((importRoutes[0].children ?? []).map((child) => child.path)).toEqual([
       "",
       ":importType",
+      IMPORT_DESTINATION_ROUTE_PATH,
     ]);
     expect(importRoutes[1].canMatch).toBeUndefined();
     expect(importRoutes[1].children).toBeUndefined();

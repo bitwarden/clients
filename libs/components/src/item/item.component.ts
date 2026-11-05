@@ -4,12 +4,14 @@ import {
   Component,
   computed,
   ElementRef,
+  inject,
   input,
   signal,
   viewChild,
 } from "@angular/core";
 
 import { ItemActionComponent } from "./item-action.component";
+import { ItemGroupComponent } from "./item-group.component";
 
 export type ItemSize = "base" | "lg";
 
@@ -34,12 +36,16 @@ export const ITEM_END_SLOT_TRAILING_OVERRIDES =
   templateUrl: "item.component.html",
   host: {
     "[class]": "hostClasses()",
+    "[attr.role]": "role",
     "(focusin)": "onFocusIn($event.target)",
     "(focusout)": "onFocusOut()",
   },
 })
 export class ItemComponent implements AfterContentChecked {
   readonly size = input<ItemSize>("base");
+
+  /** Standalone items may already be wrapped in a consumer's own list, so only claim `listitem` inside a group. */
+  protected readonly role = inject(ItemGroupComponent, { optional: true }) ? "listitem" : null;
 
   readonly endSlot = viewChild<ElementRef<HTMLDivElement>>("endSlot");
 
