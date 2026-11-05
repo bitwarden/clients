@@ -127,7 +127,8 @@ export type Credit = {
 
 import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
 
-// The renderer's discount shape. Legacy carts supply only `type` and `value`, and the component
+// The renderer's discount shape. Locally built fallback carts (no server preview) supply only
+// `type` and `value`, and the component
 // derives the applied amount and display label from them. Preview-driven carts (built by the
 // invoice-preview adapter from the server's `InvoicePreviewDiscount`) also supply `amount` — the
 // authoritative applied amount computed by Stripe — and `label` (the coupon name), which the
