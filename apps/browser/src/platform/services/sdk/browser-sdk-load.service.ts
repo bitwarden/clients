@@ -1,12 +1,9 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { wasmSimdSupported } from "@bitwarden/common/platform/services/sdk/wasm-simd";
+import { importSdkWasm } from "@bitwarden/common/platform/services/sdk/wasm-simd";
+import * as sdk from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
-
-export type GlobalWithWasmInit = typeof globalThis & {
-  initSdk: () => void;
-};
 
 // https://stackoverflow.com/a/47880734
 const supported = (() => {
@@ -25,9 +22,6 @@ const supported = (() => {
   return false;
 })();
 
-// Loads the SIMD build, or the slower MVP build on engines without SIMD
-const importWasm = () => (wasmSimdSupported ? import("./wasm") : import("./wasm-mvp"));
-
 // Due to using webpack as bundler, sync imports will return an async module. Since we do support
 // top level awaits, we define a promise we can await in the `load` function.
 let loadingPromise: Promise<any> | undefined;
@@ -37,7 +31,7 @@ if (BrowserApi.isManifestVersion(3)) {
   if (supported) {
     // eslint-disable-next-line no-console
     console.info("WebAssembly is supported in this environment");
-    loadingPromise = importWasm();
+    loadingPromise = importSdkWasm();
   } else {
     loadingPromise = new Promise((_, reject) => {
       reject(new Error("WebAssembly is not supported in this environment"));
@@ -46,20 +40,19 @@ if (BrowserApi.isManifestVersion(3)) {
 }
 
 // Manifest v2 expects dynamic imports to prevent timing issues.
-async function importModule(): Promise<GlobalWithWasmInit["initSdk"]> {
+async function importModule(): Promise<any> {
   if (BrowserApi.isManifestVersion(3)) {
     // Ensure we have loaded the module
-    await loadingPromise;
-  } else if (supported) {
-    // eslint-disable-next-line no-console
-    console.info("WebAssembly is supported in this environment");
-    await importWasm();
-  } else {
+    return await loadingPromise;
+  }
+
+  if (!supported) {
     throw new Error("WebAssembly is not supported in this environment");
   }
 
-  // the wasm and fallback imports mutate globalThis to add the initSdk function
-  return (globalThis as GlobalWithWasmInit).initSdk;
+  // eslint-disable-next-line no-console
+  console.info("WebAssembly is supported in this environment");
+  return await importSdkWasm();
 }
 
 export class BrowserSdkLoadService extends SdkLoadService {
@@ -69,7 +62,7 @@ export class BrowserSdkLoadService extends SdkLoadService {
 
   async load(): Promise<void> {
     const startTime = performance.now();
-    await importModule().then((initSdk) => initSdk());
+    (sdk as any).init(await importModule());
     const endTime = performance.now();
 
     this.logService.info(`WASM SDK loaded in ${Math.round(endTime - startTime)}ms`);
