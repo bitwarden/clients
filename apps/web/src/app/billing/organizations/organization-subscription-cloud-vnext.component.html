@@ -206,15 +206,18 @@
       @if (showPrivilegedControlsContactSalesToChange()) {
         <div id="privileged-controls-contact-sales-to-change">
           <h3 bitTypography="h3" class="tw-mt-9">{{ "privilegedControls" | i18n }}</h3>
-          @if (orgSub?.pamSeats != null) {
-            <p bitTypography="body1" id="privileged-controls-read-only-seats">
-              {{ "subscriptionSeats" | i18n }}: {{ orgSub.pamSeats }}
-            </p>
-          }
-          @if (orgSub?.maxAutoscalePamSeats != null) {
-            <p bitTypography="body1" id="privileged-controls-read-only-seat-limit">
-              {{ "privilegedControlsSeatLimit" | i18n }}: {{ orgSub.maxAutoscalePamSeats }}
-            </p>
+          <!-- A sales-initiated trial has no purchased seats, so only the paid counts are shown. -->
+          @if (orgSub?.isOnPamSalesInitiatedTrial !== true) {
+            @if (orgSub?.pamSeats != null) {
+              <p bitTypography="body1" id="privileged-controls-read-only-seats">
+                {{ "subscriptionSeats" | i18n }}: {{ orgSub.pamSeats }}
+              </p>
+            }
+            @if (orgSub?.maxAutoscalePamSeats != null) {
+              <p bitTypography="body1" id="privileged-controls-read-only-seat-limit">
+                {{ "privilegedControlsSeatLimit" | i18n }}: {{ orgSub.maxAutoscalePamSeats }}
+              </p>
+            }
           }
           <p bitTypography="body1">{{ "privilegedControlsChangeThroughSales" | i18n }}</p>
           <a

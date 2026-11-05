@@ -1128,6 +1128,23 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         expect(seatLimitElement()).toBeNull();
       });
 
+      it("hides the seat count and limit for a sales-initiated trial but keeps the Contact sales link", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          subscription: enterpriseSubscription({
+            pamSeats: 12,
+            maxAutoscalePamSeats: 20,
+            isOnPamSalesInitiatedTrial: true,
+          }),
+        });
+
+        expect(changeElement()).not.toBeNull();
+        expect(changeElement().querySelector("a")).not.toBeNull();
+        expect(seatsElement()).toBeNull();
+        expect(seatLimitElement()).toBeNull();
+      });
+
       it("does not offer to add Privileged Controls", async () => {
         setPamBillingSupport(false);
 
