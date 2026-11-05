@@ -5773,7 +5773,10 @@
     "message": "Your trial includes Privileged Controls."
   },
   "trialPrivilegedControlsThroughSales": {
-    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included in this trial."
+    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included with this organization."
+  },
+  "trialPrivilegedControlsUnavailable": {
+    "message": "Privileged Controls can't be added to this organization right now."
   },
   "contactSales": {
     "message": "Contact sales"

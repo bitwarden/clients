@@ -88,10 +88,18 @@ export class CompleteTrialInitiationComponent {
   includesPrivilegedControls = false;
 
   /**
-   * True when the link asked for Privileged Controls but it cannot be included (no self-serve path and not a
-   * no-payment sales invitation) while the PAM-billing flag is off.
+   * True when the link asked for Privileged Controls but it is not included, or the server created the
+   * organization without it. The callout always points to sales; privilegedControlsCalloutKey picks its copy.
    */
   showPrivilegedControlsSalesCallout = false;
+
+  /**
+   * Copy for the Privileged Controls callout: the sales-only message while the PAM-billing flag is off, or a
+   * neutral unavailable message when the flag is on but the preview cart that prices it is off.
+   */
+  privilegedControlsCalloutKey:
+    "trialPrivilegedControlsThroughSales" | "trialPrivilegedControlsUnavailable" =
+    "trialPrivilegedControlsThroughSales";
 
   /**
    * True when the trial asked the server for Privileged Controls but the created organization does not have
@@ -183,6 +191,7 @@ export class CompleteTrialInitiationComponent {
 
     this.trialLength = params.trialLength;
     this.paymentOptional = params.paymentOptional;
+    this.warnOnSalesInvitationWithPayment(params);
     this.applyPrivilegedControls(params);
 
     this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
@@ -312,6 +321,7 @@ export class CompleteTrialInitiationComponent {
     this.privilegedControlsNotProvisioned = true;
     this.includesPrivilegedControls = false;
     this.showPrivilegedControlsSalesCallout = true;
+    this.privilegedControlsCalloutKey = "trialPrivilegedControlsThroughSales";
     this.logService.warning(
       `Privileged Controls was requested on a no-payment trial but not provisioned for organization ${organization.id}.`,
     );
@@ -497,8 +507,30 @@ export class CompleteTrialInitiationComponent {
       !this.privilegedControlsNotProvisioned &&
       (fromSalesInvitation || this.privilegedControlsSelfServe);
     this.showPrivilegedControlsSalesCallout =
-      this.privilegedControlsNotProvisioned ||
-      (requested && !this.includesPrivilegedControls && !this.pamBillingSupportEnabled);
+      this.privilegedControlsNotProvisioned || (requested && !this.includesPrivilegedControls);
+    // With the PAM-billing flag on, the only reason to drop a requested Privileged Controls is that the
+    // preview cart is off, so the copy must not say it is sold only through sales.
+    this.privilegedControlsCalloutKey =
+      this.pamBillingSupportEnabled && !this.privilegedControlsNotProvisioned
+        ? "trialPrivilegedControlsUnavailable"
+        : "trialPrivilegedControlsThroughSales";
+  }
+
+  /**
+   * A sales invitation is meant to start a trial without payment. Log one that doesn't, so a malformed
+   * sales link can be traced. Never logs the token.
+   */
+  private warnOnSalesInvitationWithPayment(params: TrialInitiationParams): void {
+    if (
+      !params.salesAssistedToken ||
+      this.startsWithoutPayment(params.paymentOptional, params.trialLength)
+    ) {
+      return;
+    }
+
+    this.logService.warning(
+      `Sales-assisted trial link does not start without payment (paymentOptional: ${params.paymentOptional}, trialLength: ${params.trialLength}).`,
+    );
   }
 
   get trial(): Trial {

@@ -615,6 +615,15 @@ describe("CompleteTrialInitiationComponent", () => {
         expect(component.includesPrivilegedControls).toBe(false);
         expect(component.trial.privilegedControls).toBeUndefined();
         expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+        expect(component.privilegedControlsCalloutKey).toBe("trialPrivilegedControlsThroughSales");
+      });
+
+      it("shows the sales callout on a direct-purchase self-serve link with no trial period", () => {
+        mockActivatedRoute.queryParams.next({ ...selfServeParams, trialLength: "0" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+        expect(component.privilegedControlsCalloutKey).toBe("trialPrivilegedControlsThroughSales");
       });
 
       it("shows the sales callout when a sales invitation goes through the paid billing step", () => {
@@ -672,12 +681,37 @@ describe("CompleteTrialInitiationComponent", () => {
         expect(component.showPrivilegedControlsSalesCallout).toBe(false);
       });
 
-      it("shows no sales callout when the preview cart is off", () => {
+      it("shows the neutral unavailable callout when the preview cart is off", () => {
         previewDrivenCart$.next(false);
         mockActivatedRoute.queryParams.next(selfServeParams);
 
         expect(component.includesPrivilegedControls).toBe(false);
-        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+        expect(component.privilegedControlsCalloutKey).toBe("trialPrivilegedControlsUnavailable");
+      });
+    });
+
+    describe("malformed sales invitation links", () => {
+      let logService: MockProxy<LogService>;
+
+      beforeEach(() => {
+        logService = TestBed.inject(LogService) as MockProxy<LogService>;
+      });
+
+      it("logs a warning without the token when a sales invitation does not start without payment", () => {
+        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, paymentOptional: "false" });
+
+        expect(logService.warning).toHaveBeenCalledTimes(1);
+        const message = logService.warning.mock.calls[0][0] as string;
+        expect(message).toContain("paymentOptional: false");
+        expect(message).toContain("trialLength: 14");
+        expect(message).not.toContain("sales-assisted-token-123");
+      });
+
+      it("logs no warning for a sales invitation that starts without payment", () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+
+        expect(logService.warning).not.toHaveBeenCalled();
       });
     });
 
