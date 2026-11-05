@@ -560,11 +560,25 @@
   "noItemsInMyVault": {
     "message": "Brak elementów w Moim sejfie"
   },
+  "noItemsInFolder": {
+    "message": "Brak elementów w folderze $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Dodaj elementy do folderu. Będziesz mieć do nich szybki dostęp dzięki filtrom sejfu.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Brak elementów w Moich elementach"
   },
   "noItemsInOrganizationVault": {
-    "message": "Brak elementów w $VAULT_NAME$",
+    "message": "Brak elementów w sejfie $VAULT_NAME$",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -573,7 +587,7 @@
     }
   },
   "noItemsInSharedFolder": {
-    "message": "Brak elementów w $VAULT_NAME$",
+    "message": "Brak elementów w sejfie $VAULT_NAME$",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -582,7 +596,7 @@
     }
   },
   "noItemsInVaults": {
-    "message": "Twoje sejfy są puste"
+    "message": "Sejfy są puste"
   },
   "noItemsMatchSelectedFilters": {
     "message": "Brak elementów pasujących do wybranych filtrów"
@@ -663,6 +677,10 @@
   },
   "resetSearch": {
     "message": "Zresetuj wyszukiwanie"
+  },
+  "clearSearchTooltip": {
+    "message": "Aby wyczyścić, kliknij tutaj lub naciśnij klawisz Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
     "message": "Archiwum",
@@ -801,7 +819,7 @@
     "message": "Uruchom stronę internetową"
   },
   "launchWebsiteForName": {
-    "message": "Otwórz witrynę dla $ITEMNAME$",
+    "message": "Uruchom stronę $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1150,7 +1168,7 @@
     "message": "Folder edytowany"
   },
   "enterAName": {
-    "message": "Wprowadź nazwę."
+    "message": "Wpisz nazwę."
   },
   "twoStepLoginConfirmation": {
     "message": "Logowanie dwustopniowe zwiększa bezpieczeństwo konta, wymagając weryfikacji logowania za pomocą innego urządzenia, takiego jak klucz bezpieczeństwa, aplikacja uwierzytelniająca, wiadomość SMS, połączenie telefoniczne lub wiadomość e-mail. Logowanie dwustopniowe możesz skonfigurować w sejfie internetowym bitwarden.com. Czy chcesz przejść do strony?"
@@ -1232,6 +1250,12 @@
   },
   "deletedItem": {
     "message": "Element został przeniesiony do kosza"
+  },
+  "deleteItemError": {
+    "message": "Nie można usunąć elementu."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Element jest ograniczony. Zmiana nie została zapisana."
   },
   "overwritePassword": {
     "message": "Zastąp hasło"
@@ -1465,13 +1489,13 @@
     "message": "Autouzupełnianie korzysta z pomocy przy wypełnianiu na tej stronie."
   },
   "activateFillAssistV2": {
-    "message": "Włącz pomoc przy wypełnianiu"
+    "message": "Włącz asystenta autouzupełniania"
   },
   "activateFillAssistDescriptionV2": {
     "message": "Pomoc przy wypełnianiu zwiększa dokładność autouzupełniania w obsługiwanych witrynach, korzystając z reguł specyficznych dla witryny. Gdy korzystasz z tej funkcji, żadne dane nie są zbierane ani zapisywane."
   },
   "aboutFillAssistLabelV2": {
-    "message": "Informacje o pomocy przy wypełnianiu"
+    "message": "O asystencie autouzupełniania"
   },
   "honorDataBitwardenIgnoreAttributeLabel": {
     "message": "Zezwalaj witrynom na wykluczanie pól z autouzupełniania"
@@ -1484,6 +1508,17 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Używaj elementów span, które witryna oznacza atrybutem `data-bwautofill`."
+  },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Pokaż opcje w menu kontekstowym"
@@ -1540,8 +1575,11 @@
   "importSourceBreadcrumb": {
     "message": "Wybierz źródło"
   },
+  "importData": {
+    "message": "Importuj dane"
+  },
   "importSourceSelectTitle": {
-    "message": "Wybierz swoje źródło"
+    "message": "Wybierz źródło"
   },
   "importSourceSelectDescription": {
     "message": "Wybierz menedżera haseł lub przeglądarkę, z której importujesz."
@@ -1641,9 +1679,6 @@
   },
   "addSharedFolder": {
     "message": "Dodaj udostępniony folder"
-  },
-  "newSharedFolder": {
-    "message": "Nowy udostępniony folder"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden dla firm pozwala na udostępnianie zawartości sejfu innym użytkownikom za pośrednictwem organizacji. Dowiedz się więcej na stronie bitwarden.com."
@@ -1759,6 +1794,27 @@
   },
   "selectFile": {
     "message": "Wybierz plik"
+  },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file"
+  },
+  "pasteContentRequired": {
+    "message": "Wklej wyeksportowaną zawartość"
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format"
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read"
   },
   "itemsTransferred": {
     "message": "Elementy zostały przeniesione"
@@ -2548,42 +2604,6 @@
     "message": "Dodaj paszport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nowe dane logowania",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nowa karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nowa tożsamość",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nowa notatka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nowa notatka",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nowy klucz SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nowe konto bankowe",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nowe prawo jazdy",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nowy paszport",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nowy tekst",
     "description": "Header for new text send"
@@ -2591,22 +2611,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nowy plik",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Edytuj dane logowania",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Edytuj kartę",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Edytuj tożsamość",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Edytuj notatkę",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Edytuj notatkę",
@@ -2855,7 +2859,7 @@
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ wyników",
+    "message": "$COUNT$ results",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4298,6 +4302,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Wpisz prawidłowy adres URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Wykryto niebezpieczny adres URL",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Zaufaj adresowi URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Adres URL został oznaczony jako zaufany. Możesz edytować go w dowolnym momencie.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Wystąpił nieznany błąd $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -5085,6 +5113,9 @@
   "importFormatError": {
     "message": "Dane nie są prawidłowo sformatowane. Sprawdź plik i spróbuj ponownie."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Nic nie zostało zaimportowane."
   },
@@ -5165,19 +5196,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Dowiedz się więcej o opcjach importu"
-  },
-  "selectImportFolder": {
-    "message": "Wybierz folder"
-  },
-  "selectImportCollection": {
-    "message": "Wybierz kolekcję"
-  },
-  "selectImportSharedFolder": {
-    "message": "Wybierz folder współdzielony"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Wybierz tę opcję, jeśli chcesz przenieść dane do kolekcji"
@@ -5305,15 +5323,149 @@
   "importHelpCenterLinkText": {
     "message": "Centrum pomocy"
   },
+  "uploadFile": {
+    "message": "Prześlij plik"
+  },
+  "pasteAsPlainText": {
+    "message": "Wklej jako zwykły tekst"
+  },
+  "plainText": {
+    "message": "Zwykły tekst"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "importManuallyInstead": {
+    "message": "Importuj ręcznie"
+  },
+  "directlyImportInstead": {
+    "message": "Importuj bezpośrednio"
+  },
+  "fastest": {
+    "message": "Najszybsze"
+  },
+  "importDataTitle": {
+    "message": "Importuj dane"
+  },
+  "importDataDirectTitle": {
+    "message": "Importuj dane w kilka minut"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importuj elementy bezpośrednio z",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": ", aby pobrać wszystkie dane.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importuj z $VENDOR$ lub skopiuj i wklej zawartość eksportu.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Wybierz profil, z którego chcesz zaimportować hasła."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Nie znaleziono profili przeglądarki"
+  },
+  "importDataLoginTitle": {
+    "message": "Zaloguj się do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "Zaloguj się na konto $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Szybkie i bezpieczne"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Proces jest szyfrowany end-to-end. Plik eksportu nie jest potrzebny."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Potrzebujesz danych logowania"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "Wpisz dane logowania $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Co zostanie przeniesione"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
   "importChromiumAliasPreamble": {
     "message": "Proces jest dokładnie taki sam jak import z Google Chrome.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "W aplikacji KeePassX na komputerze przejdź do \"Baza danych\" → \"Eksportuj do pliku CSV\" i zapisz plik CSV."
+    "message": "W aplikacji desktopowej KeePassX przejdź do „Baza danych” → „Eksportuj do pliku CSV” i zapisz plik CSV."
   },
   "importAviraInstructions": {
-    "message": "W sejfie internetowym Avira przejdź do \"Ustawienia\" → \"Moje dane\" → \"Eksportuj dane\" i zapisz plik CSV."
+    "message": "W sejfie internetowym Avira przejdź do „Ustawienia” → „Moje dane” → „Eksportuj dane” i zapisz plik CSV."
   },
   "importBlurInstructions": {
     "message": "W sejfie internetowym Blur kliknij swoją nazwę użytkownika u góry i przejdź do \"Ustawienia\" → \"Eksportuj dane\", a następnie kliknij \"Eksportuj CSV\" dla swoich \"Kont\"."
@@ -5505,10 +5657,43 @@
   "keePassMasterPassword": {
     "message": "Hasło główne KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Hasło $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Hasło jest wymagane."
+  },
+  "filePasswordRequired": {
+    "message": "Hasło pliku jest wymagane"
+  },
+  "filePasswordInvalid": {
+    "message": "Wpisz hasło pliku."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Przesłany plik jest chroniony hasłem. Wpisz hasło, aby kontynuować."
+  },
+  "selectProfile": {
+    "message": "Wybierz profil"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Wpisz hasło"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Dodaj plik klucza"
   },
   "keyFileUpload": {
+    "message": "Plik klucza"
+  },
+  "keyFileUploadV2": {
     "message": "Plik klucza"
   },
   "kdbxFileUpload": {
@@ -5534,6 +5719,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "Podczas eksportowania danych pominięto 1 uszkodzony załącznik. Wszystkie pozostałe dane zostały wyeksportowane."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "Podczas eksportu pominięto $COUNT$ uszkodzonych załączników. Wszystkie pozostałe dane sejfu i załączniki wyeksportowano pomyślnie.",
@@ -5637,8 +5834,92 @@
   "lastPassEmail": {
     "message": "Adres e-mail LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Adres e-mail jest wymagany."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Wpisz prawidłowy adres e-mail."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Hasło jest wymagane."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Wpisz prawidłowe hasło"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Wpisz prawidłowy kod weryfikacyjny."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Wpisz hasło główne LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Wpisz kod weryfikacyjny."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "Importowanie konta..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Serwer"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Adres e-mail jest wymagany."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Wpisz prawidłowy adres e-mail."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Wpisz prawidłowy kod weryfikacyjny."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Wpisz kod weryfikacyjny wysłany na adres e-mail."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Wpisz kod z aplikacji uwierzytelniającej."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Wpisz kod z wiadomości tekstowej."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Wpisz hasło główne Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Hasło jest wymagane."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Wpisz prawidłowe hasło."
   },
   "lastPassMFARequired": {
     "message": "Logowanie dwustopniowe LastPass jest wymagane"
@@ -5679,14 +5960,71 @@
   "lastPassYubikeyDesc": {
     "message": "Włóż klucz YubiKey powiązany z kontem LastPass do portu USB urządzenia, a następnie dotknij jego przycisku."
   },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Adres e-mail jest wymagany."
+  },
+  "enterValidEmailAddress": {
+    "message": "Wpisz prawidłowy adres e-mail."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Wpisz prawidłowy adres logowania."
+  },
+  "secretKeyIsRequired": {
+    "message": "Klucz tajny jest wymagany."
+  },
+  "enterValidSecretKey": {
+    "message": "Wpisz prawidłowy klucz tajny."
+  },
+  "passwordIsRequired": {
+    "message": "Hasło jest wymagane."
+  },
+  "enterValidVerificationCode": {
+    "message": "Wpisz prawidłowy kod weryfikacyjny."
+  },
+  "signInAddress": {
+    "message": "Adres logowania"
+  },
+  "onePasswordEmail": {
+    "message": "Adres e-mail 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Wpisz adres e-mail, którego używasz do logowania się do 1Password"
+  },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Klucz tajny"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Klucz tajny i hasło"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Konto jest zabezpieczone za pomocą klucza tajnego i hasła. Aby kontynuować, musisz wpisać oba elementy."
   },
   "keeperEmail": {
     "message": "Adres e-mail Keeper"
@@ -5770,7 +6108,7 @@
     "message": "Weryfikacja e-mail"
   },
   "approvalEmailDesc": {
-    "message": "Sprawdź swoją pocztę e-mail i wprowadź poniższy kod weryfikacyjny"
+    "message": "Wpisz kod weryfikacyjny wysłany na adres e-mail"
   },
   "otherDeviceApprovalPushDesc": {
     "message": "Wysłano powiadomienie push Keeper do zatwierdzonego urządzenia"
@@ -7743,17 +8081,17 @@
   "sharedUnlock": {
     "message": "Odblokuj powiązane aplikacje"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "Udostępnij odblokowanie aplikacji Desktop"
+  "syncUnlockWithDesktop": {
+    "message": "Sync unlock with desktop app"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "Stan odblokowania będzie współdzielony z aplikacją desktopową Bitwarden."
+  "syncUnlockWithDesktopDescription": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
   },
-  "sharedUnlockWithWeb": {
-    "message": "Udostępnij odblokowanie sejfowi internetowemu"
+  "syncUnlockWithWeb": {
+    "message": "Sync unlock with web app"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "Stan odblokowania będzie współdzielony z sejfem internetowym Bitwarden."
+  "syncUnlockWithWebDescription": {
+    "message": "The Bitwarden browser extension and web app lock and unlock together."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Współdzielone odblokowanie jest niedostępne, ponieważ wybrano, aby nie zapamiętywać tego urządzenia. Aby włączyć to ustawienie, spróbuj zalogować się ponownie."
@@ -7975,14 +8313,14 @@
     "message": "Przedstawiamy kondycję"
   },
   "healthIntroDescription": {
-    "message": "Monitoruj i popraw stan swojego sejfu, naprawiając hasła ujawnione, słabe i używane ponownie."
+    "message": "Zadbaj o bezpieczeństwo sejfu, zmieniając ujawnione, słabe i identyczne hasła."
   },
   "yourVaultIsHealthy": {
-    "message": "Twój sejf jest w dobrym stanie",
+    "message": "Kondycja sejfu jest dobra",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Ryzyko dla Twojego sejfu jest wysokie",
+    "message": "Kondycja sejfu jest zła",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
@@ -8022,7 +8360,7 @@
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "Żadne z Twoich haseł nie zostało znalezione w naruszeniach danych",
+    "message": "Żadne z Twoich haseł nie zostało znalezione w wyciekach danych",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
@@ -8034,7 +8372,7 @@
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ słabych haseł",
+    "message": "Słabe hasła: $COUNT$",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -8048,15 +8386,15 @@
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "Wszystkie Twoje hasła są silne",
+    "message": "Wszystkie hasła są silne",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "Brak haseł używanych ponownie",
+    "message": "Brak identycznych haseł",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 hasło używane ponownie",
+    "message": "1 identyczne hasło",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
@@ -8074,11 +8412,11 @@
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "Wszystkie Twoje hasła są unikalne",
+    "message": "Wszystkie hasła są unikalne",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Zidentyfikowane ryzyka",
+    "message": "Zidentyfikowane zagrożenia",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "upgradeToViewPasswords": {
@@ -8093,7 +8431,7 @@
     "description": "Heading shown while the vault health scan is running."
   },
   "scanningYourVaultDescription": {
-    "message": "Sprawdzanie haseł ujawnionych, słabych i używanych ponownie.",
+    "message": "Sprawdzanie ujawnionych, słabych i identycznych haseł.",
     "description": "Explains what the vault health scan is doing while it runs."
   },
   "scanInProgress": {
@@ -8105,32 +8443,41 @@
     "description": "Heading shown when the vault health scan did not complete."
   },
   "healthScanFailedDescription": {
-    "message": "Skanowanie sejfu nie zostało ukończone z powodu nieoczekiwanego błędu.",
+    "message": "Skanowanie sejfu nie zostało zakończone z powodu nieoczekiwanego błędu.",
     "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Ujawnione hasła"
   },
   "exposedPasswordsDescription": {
-    "message": "Hasła dla tych danych logowania zostały ujawnione w naruszeniach danych. Zmień je natychmiast, aby chronić swoje konta."
+    "message": "Hasła dla tych danych logowania zostały ujawnione. Zmień je natychmiast, aby chronić swoje konta."
   },
   "weakPasswordsTitle": {
     "message": "Słabe hasła"
   },
   "weakPasswordsDescription": {
-    "message": "Te hasła można łatwo odgadnąć, ponieważ są zbyt krótkie lub proste. Wzmocnij je, czyniąc je bardziej złożonymi."
+    "message": "Te hasła można łatwo odgadnąć, ponieważ są zbyt proste. Zwiększ ich bezpieczeństwo, tworząc bardziej złożone hasła."
   },
   "reusedPasswordsTitle": {
-    "message": "Hasła używane ponownie"
+    "message": "Identyczne hasła"
   },
   "reusedPasswordsDescription": {
-    "message": "Te dane logowania mają ponownie użyte hasło. Utwórz unikalne hasło dla każdego konta, aby uniemożliwić komuś dostęp do wielu kont za pomocą jednego hasła."
+    "message": "Te dane logowania mają identyczne hasła. Utwórz unikalne hasło dla każdego konta, aby uniemożliwić dostęp do wielu kont za pomocą jednego hasła."
   },
   "deleteAtRiskItemDesc": {
     "message": "Najpierw zmień hasło. Usunięcie tylko usuwa element z sejfu, nie naprawia ryzyka."
   },
   "passwordHasAdditionalRisks": {
     "message": "To hasło ma dodatkowe ryzyka:"
+  },
+  "excludeFromList": {
+    "message": "Wyklucz z listy"
+  },
+  "excludeFromListDesc": {
+    "message": "Excluding doesn’t fix the risk to your password. To protect your account, change your password first."
+  },
+  "excludeAnyway": {
+    "message": "Exclude anyway"
   },
   "reused": {
     "message": "Używane ponownie",
@@ -8150,10 +8497,10 @@
     "message": "Żadne z Twoich haseł nie zostało znalezione w naruszeniach danych."
   },
   "weakPasswordEmpty": {
-    "message": "Wszystkie Twoje hasła są silne."
+    "message": "Wszystkie hasła są silne."
   },
   "reusedPasswordEmpty": {
-    "message": "Wszystkie Twoje hasła są unikalne."
+    "message": "Wszystkie hasła są unikalne."
   },
   "youreAllSet": {
     "message": "Wszystko gotowe!"
@@ -8201,11 +8548,11 @@
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link skopiowany do schowka",
+    "message": "Link został skopiowany do schowka",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Nie można utworzyć linku udostępniania",
+    "message": "Nie udało się utworzyć linku udostępniania",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
@@ -8217,7 +8564,7 @@
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Link udostępniania usunięty",
+    "message": "Link udostępniania został usunięty",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
@@ -8251,5 +8598,114 @@
   },
   "unknownCipher": {
     "message": "Nieznany element. Może być konieczne poproszenie o uprawnienie dostępu do tego elementu."
+  },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Kopiuj link udostępniania"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Odkryj nowy sejf",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Switch between vaults"
+  },
+  "coachmarkVaultSwitcherDescription": {
+    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
+  "customize": {
+    "message": "Dostosuj"
+  },
+  "customizeYourView": {
+    "message": "Dostosuj widok"
+  },
+  "showColumns": {
+    "message": "Pokaż kolumny"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   }
 }

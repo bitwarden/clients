@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -7,6 +7,8 @@ import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/a
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
+import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { ITrustedDeviceUserDecryptionOptionServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/trusted-device-user-decryption-option.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -46,8 +48,8 @@ import {
 import { UserDecryptionOptions } from "../models";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
-import { SsoLoginStrategy, SsoLoginStrategyData } from "./sso-login.strategy";
+import { identityTokenResponseFactory } from "./login.strategy.spec-util";
+import { SsoLoginStrategy } from "./sso-login.strategy";
 
 describe("SsoLoginStrategy", () => {
   let accountService: FakeAccountService;
@@ -142,7 +144,7 @@ describe("SsoLoginStrategy", () => {
     );
 
     ssoLoginStrategy = new SsoLoginStrategy(
-      {} as SsoLoginStrategyData,
+      undefined,
       keyConnectorService,
       unlockService,
       deviceTrustService,
@@ -191,10 +193,29 @@ describe("SsoLoginStrategy", () => {
     );
   });
 
+  it("keeps the email and SSO email 2FA session token from a two-factor response", async () => {
+    apiService.postIdentityToken.mockResolvedValue(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["1"],
+        TwoFactorProviders2: { 1: { Email: "e***@bitwarden.com" } },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: "EMAIL",
+        ssoEmail2faSessionToken: "SSO_EMAIL_2FA_SESSION_TOKEN",
+      }),
+    );
+
+    await ssoLoginStrategy.logIn(credentials);
+
+    expect(await firstValueFrom(ssoLoginStrategy.email$)).toBe("EMAIL");
+    expect(await firstValueFrom(ssoLoginStrategy.ssoEmail2FaSessionToken$)).toBe(
+      "SSO_EMAIL_2FA_SESSION_TOKEN",
+    );
+  });
+
   it("does not set keys for new SSO user flow", async () => {
     const tokenResponse = identityTokenResponseFactory();
-    tokenResponse.key = null;
-    tokenResponse.privateKey = null;
+    tokenResponse.key = undefined;
     tokenResponse.accountKeysResponseModel = null;
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
@@ -209,10 +230,8 @@ describe("SsoLoginStrategy", () => {
       // Arrange
       const mockUserDecryptionOptions: IUserDecryptionOptionsServerResponse = {
         HasMasterPassword: false,
-        TrustedDeviceOption: null,
-        KeyConnectorOption: null,
       };
-      const tokenResponse = identityTokenResponseFactory(null, mockUserDecryptionOptions);
+      const tokenResponse = identityTokenResponseFactory(undefined, mockUserDecryptionOptions);
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
       keyService.hasUserKey.mockResolvedValue(false);
@@ -244,27 +263,29 @@ describe("SsoLoginStrategy", () => {
     const mockEncUserKey =
       "4.Xht6K9GA9jKcSNy4TaIvdj7f9+WsgQycs/HdkrJi33aC//roKkjf3UTGpdzFLxVP3WhyOVGyo9f2Jymf1MFPdpg7AuMnpGJlcrWLDbnPjOJo4x5gUwwBUmy3nFw6+wamyS1LRmrBPcv56yKpf80k5Q3hUrum8q9YS9m2I10vklX/TaB1YML0yo+K1feWUxg8vIx+vloxhUdkkysvcV5xU3R+AgYLrwvJS8TLL7Ug/P5HxinCaIroRrNe8xcv84vyVnzPFdXe0cfZ0cpcrm586LwfEXP2seeldO/bC51Uk/mudeSALJURPC64f5ch2cOvk48GOTapGnssCqr6ky5yFw==";
 
+    const trustedDeviceOptionServerResponse: ITrustedDeviceUserDecryptionOptionServerResponse = {
+      HasAdminApproval: true,
+      HasLoginApprovingDevice: true,
+      HasManageResetPasswordPermission: false,
+      IsTdeOffboarding: false,
+      EncryptedPrivateKey: mockEncDevicePrivateKey,
+      EncryptedUserKey: mockEncUserKey,
+    };
+
     const userDecryptionOptsServerResponseWithTdeOption: IUserDecryptionOptionsServerResponse = {
       HasMasterPassword: true,
-      TrustedDeviceOption: {
-        HasAdminApproval: true,
-        HasLoginApprovingDevice: true,
-        HasManageResetPasswordPermission: false,
-        IsTdeOffboarding: false,
-        EncryptedPrivateKey: mockEncDevicePrivateKey,
-        EncryptedUserKey: mockEncUserKey,
-      },
+      TrustedDeviceOption: trustedDeviceOptionServerResponse,
     };
 
     const mockIdTokenResponseWithModifiedTrustedDeviceOption = (key: string, value: any) => {
       const userDecryptionOpts: IUserDecryptionOptionsServerResponse = {
         ...userDecryptionOptsServerResponseWithTdeOption,
         TrustedDeviceOption: {
-          ...userDecryptionOptsServerResponseWithTdeOption.TrustedDeviceOption,
+          ...trustedDeviceOptionServerResponse,
           [key]: value,
         },
       };
-      return identityTokenResponseFactory(null, userDecryptionOpts);
+      return identityTokenResponseFactory(undefined, userDecryptionOpts);
     };
 
     beforeEach(() => {
@@ -274,7 +295,7 @@ describe("SsoLoginStrategy", () => {
     it("decrypts and sets user key when trusted device decryption option exists with valid device key and enc key data", async () => {
       // Arrange
       const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-        null,
+        undefined,
         userDecryptionOptsServerResponseWithTdeOption,
       );
 
@@ -295,7 +316,7 @@ describe("SsoLoginStrategy", () => {
     it("does not set the user key when deviceKey is missing", async () => {
       // Arrange
       const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-        null,
+        undefined,
         userDecryptionOptsServerResponseWithTdeOption,
       );
       apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
@@ -335,7 +356,7 @@ describe("SsoLoginStrategy", () => {
     it("does not set user key when decrypted user key is null", async () => {
       // Arrange
       const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-        null,
+        undefined,
         userDecryptionOptsServerResponseWithTdeOption,
       );
       apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
@@ -352,12 +373,17 @@ describe("SsoLoginStrategy", () => {
 
     it("logs when a device key is found but no decryption keys were received in token response", async () => {
       // Arrange
-      const userDecryptionOpts = userDecryptionOptsServerResponseWithTdeOption;
-      userDecryptionOpts.TrustedDeviceOption.EncryptedPrivateKey = null;
-      userDecryptionOpts.TrustedDeviceOption.EncryptedUserKey = null;
+      const userDecryptionOpts: IUserDecryptionOptionsServerResponse = {
+        ...userDecryptionOptsServerResponseWithTdeOption,
+        TrustedDeviceOption: {
+          ...trustedDeviceOptionServerResponse,
+          EncryptedPrivateKey: undefined,
+          EncryptedUserKey: undefined,
+        },
+      };
 
       const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-        null,
+        undefined,
         userDecryptionOpts,
       );
 
@@ -375,7 +401,7 @@ describe("SsoLoginStrategy", () => {
       let tokenResponse: IdentityTokenResponse;
 
       beforeEach(() => {
-        tokenResponse = identityTokenResponseFactory(null, {
+        tokenResponse = identityTokenResponseFactory(undefined, {
           HasMasterPassword: true,
           TrustedDeviceOption: {
             HasAdminApproval: true,
@@ -463,7 +489,7 @@ describe("SsoLoginStrategy", () => {
   describe("Key Connector", () => {
     let tokenResponse: IdentityTokenResponse;
     beforeEach(() => {
-      tokenResponse = identityTokenResponseFactory(null, {
+      tokenResponse = identityTokenResponseFactory(undefined, {
         HasMasterPassword: false,
         KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
       });
@@ -497,6 +523,31 @@ describe("SsoLoginStrategy", () => {
         },
         userId,
       );
+    });
+
+    it("does not enroll an existing master-password user whose org has key connector", async () => {
+      tokenResponse = identityTokenResponseFactory(undefined, {
+        HasMasterPassword: true,
+        KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
+      });
+      tokenResponse.key = undefined;
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      await ssoLoginStrategy.logIn(credentials);
+
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).not.toHaveBeenCalled();
+    });
+
+    it("does not enroll a new SSO user whose org has no key connector", async () => {
+      tokenResponse = identityTokenResponseFactory(undefined, {
+        HasMasterPassword: false,
+      });
+      tokenResponse.key = undefined;
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      await ssoLoginStrategy.logIn(credentials);
+
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).not.toHaveBeenCalled();
     });
 
     it("does not derive the user key from the master key for an enrolled user", async () => {

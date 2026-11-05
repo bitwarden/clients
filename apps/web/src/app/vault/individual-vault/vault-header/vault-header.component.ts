@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   EventEmitter,
   inject,
   Input,
@@ -46,7 +45,6 @@ import {
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
-import { CoachmarkComponent, CoachmarkService } from "../../components/coachmark";
 import { PipesModule } from "../pipes/pipes.module";
 
 @Component({
@@ -61,7 +59,6 @@ import { PipesModule } from "../pipes/pipes.module";
     PipesModule,
     JslibModule,
     NewCipherMenuComponent,
-    CoachmarkComponent,
     IconModule,
     Vfo1I18nPipe,
     Vfo1IconPipe,
@@ -75,13 +72,6 @@ export class VaultHeaderComponent {
   protected readonly All = All;
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
   protected readonly CipherType = CipherType;
-
-  protected readonly coachmarkService = inject(CoachmarkService);
-
-  /** Computed signal for add item coachmark open state */
-  protected readonly addItemCoachmarkOpen = computed(
-    () => this.coachmarkService.activeStepId() === "addItem",
-  );
 
   /**
    * Boolean to determine the loading state of the header.

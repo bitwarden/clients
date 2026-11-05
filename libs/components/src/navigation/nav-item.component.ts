@@ -47,6 +47,7 @@ export abstract class NavGroupAbstraction {
     "(focusin)": "onFocusIn($event.target)",
     "(focusout)": "onFocusOut()",
     class: "tw-block",
+    "data-spotlight-host": "",
   },
 })
 export class NavItemComponent extends NavBaseComponent {
@@ -116,6 +117,12 @@ export class NavItemComponent extends NavBaseComponent {
     }
 
     return "0";
+  });
+
+  /** Indent for depth 2+ rows; depth 1 is indented by the top-level group's container. */
+  protected readonly nestedIndent = computed(() => {
+    const depth = this.treeDepth();
+    return depth > 1 ? `${(depth - 1) * this.TREE_DEPTH_PADDING}rem` : null;
   });
 
   /**

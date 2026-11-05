@@ -1,9 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -36,24 +33,16 @@ export class GroupAddDialogComponent {
   private readonly params = inject<GroupAddDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject<DialogRef<GroupAddEditDialogResultType>>(DialogRef);
   private readonly groupAddEditService = inject(GroupAddEditService);
-  private readonly configService = inject(ConfigService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
 
   private readonly organizationId = this.params.organizationId;
 
-  private readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
-
   protected readonly PermissionMode = PermissionMode;
   protected readonly ResultType = GroupAddEditDialogResultType;
 
   protected readonly tabIndex = signal<number>(this.params.initialTab ?? GroupAddEditTabType.Info);
-  protected readonly title = computed(() =>
-    this.i18nService.t(this.btnTextAddCreateFeatureFlag() ? "addGroup" : "newGroup"),
-  );
+  protected readonly title = computed(() => this.i18nService.t("addGroup"));
   protected readonly groupForm: GroupFormGroup = this.groupAddEditService.buildForm();
 
   private readonly organization$ = this.groupAddEditService.organization$(this.organizationId);

@@ -25,6 +25,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
@@ -127,9 +128,9 @@ export default {
         {
           provide: ConfigService,
           useValue: {
-            getFeatureFlag$() {
-              // does not currently affect any display logic, default all to OFF
-              return of(false);
+            getFeatureFlag$(flag: FeatureFlag) {
+              // Show VFO1 shared folder terminology and icons; all other flags OFF
+              return of(flag === FeatureFlag.VFO1Foundation);
             },
           },
         },
@@ -297,7 +298,7 @@ export const IndividualTrash: Story = {
   },
 };
 
-export const IndividualTopLevelCollection: Story = {
+export const IndividualTopLevelSharedFolder: Story = {
   args: {
     ciphers: [],
     collections,
@@ -308,7 +309,7 @@ export const IndividualTopLevelCollection: Story = {
   },
 };
 
-export const IndividualSecondLevelCollection: Story = {
+export const IndividualSecondLevelSharedFolder: Story = {
   args: {
     ciphers,
     collections,
@@ -346,7 +347,7 @@ const unassignedCollection = new CollectionAdminView({
   name: "Unassigned",
   organizationId: "org id" as OrganizationId,
 });
-export const OrganizationTopLevelCollection: Story = {
+export const OrganizationTopLevelSharedFolder: Story = {
   args: {
     ciphers: [],
     collections: collections.concat(unassignedCollection),
@@ -357,7 +358,7 @@ export const OrganizationTopLevelCollection: Story = {
   },
 };
 
-export const OrganizationSecondLevelCollection: Story = {
+export const OrganizationSecondLevelSharedFolder: Story = {
   args: {
     ciphers: organizationOnlyCiphers,
     collections,
@@ -404,7 +405,7 @@ function createCollectionView(i: number): CollectionAdminView {
   const group = groups[i % (groups.length + 1)];
   const view = new CollectionAdminView({
     id: `collection-${i}` as CollectionId,
-    name: `Collection ${i}`,
+    name: `Shared folder ${i}`,
     organizationId: organization?.id ?? ("orgId" as OrganizationId),
   });
 

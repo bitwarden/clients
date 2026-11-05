@@ -25,6 +25,7 @@ behavior across Bitwarden applications.
   - [With Secrets Manager](#with-secrets-manager)
   - [With Secrets Manager and Additional Service Accounts](#with-secrets-manager-and-additional-service-accounts)
   - [All Products](#all-products)
+  - [With Privileged Controls](#with-privileged-controls)
   - [With Account Credit](#with-account-credit)
   - [All Proration Invoice](#all-proration-invoice)
   - [Recurring Items With Proration](#recurring-items-with-proration)
@@ -103,6 +104,11 @@ export type Cart = {
     additionalServiceAccounts?: CartItem; // Optional service accounts
     prorationCharges?: CartItem[]; // Optional mid-cycle proration charges
   };
+  privilegedControls?: {
+    // Optional Privileged Controls section
+    seats?: CartItem; // Privileged Controls seats
+    prorationCharges?: CartItem[]; // Optional mid-cycle proration charges
+  };
   cadence: "annually" | "monthly"; // Billing period for entire cart
   hidePricingTerm?: boolean; // Optional set if term should be removed
   discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
@@ -121,7 +127,8 @@ export type Credit = {
 
 import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
 
-// The renderer's discount shape. Legacy carts supply only `type` and `value`, and the component
+// The renderer's discount shape. Locally built fallback carts (no server preview) supply only
+// `type` and `value`, and the component
 // derives the applied amount and display label from them. Preview-driven carts (built by the
 // invoice-preview adapter from the server's `InvoicePreviewDiscount`) also supply `amount` — the
 // authoritative applied amount computed by Stripe — and `label` (the coupon name), which the
@@ -362,12 +369,60 @@ Show a cart with all available products:
         cost: 6.00
       }
     },
+    privilegedControls: {
+      seats: {
+        quantity: 4,
+        translationKey: 'members',
+        cost: 20.00
+      }
+    },
     cadence: 'monthly',
     estimatedTax: 19.20
   }"
 >
 </billing-cart-summary>
 ```
+
+### With Privileged Controls
+
+Show a cart with a Privileged Controls section rendered after Secrets Manager:
+
+<Canvas of={CartSummaryStories.WithPrivilegedControls} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        translationKey: 'members',
+        cost: 72.00
+      }
+    },
+    secretsManager: {
+      seats: {
+        quantity: 3,
+        translationKey: 'members',
+        cost: 144.00
+      }
+    },
+    privilegedControls: {
+      seats: {
+        quantity: 4,
+        translationKey: 'members',
+        cost: 20.00
+      }
+    },
+    cadence: 'annually',
+    estimatedTax: 0
+  }"
+>
+</billing-cart-summary>
+```
+
+A section with only proration charges renders its charge lines without a seat line:
+
+<Canvas of={CartSummaryStories.PrivilegedControlsProrationOnly} />
 
 ### With Account Credit
 
@@ -419,7 +474,7 @@ term is dropped:
     },
     cadence: 'annually',
     credit: {
-      translationKey: 'appliedSubscriptionCredits',
+      translationKey: 'appliedProrationCredits',
       value: 37.64
     },
     estimatedTax: 12.05,
@@ -808,7 +863,8 @@ Show cart with families plan:
 
 - **Collapsible Interface**: Users can toggle between a summary view showing only the total and a
   detailed view showing all line items
-- **Line Item Grouping**: Organizes items by product category (Password Manager, Secrets Manager)
+- **Line Item Grouping**: Organizes items by product category (Password Manager, Secrets Manager,
+  Privileged Controls)
 - **Dynamic Calculations**: Automatically calculates subtotals, discounts, credits, taxes, and
   totals using Angular signals and computed values
 - **Discount Support**: Displays both cart-level and item-level discounts. Cart-level discounts

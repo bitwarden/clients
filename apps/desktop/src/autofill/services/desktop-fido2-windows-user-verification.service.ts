@@ -37,9 +37,9 @@ export class DesktopFido2WindowsUserVerificationService extends DesktopFido2User
 
   protected messageKey(operation: Fido2UserVerificationOperation): string {
     return {
-      registration: "confirmPasskeyRegistrationWindows",
-      overwrite: "confirmPasskeyOverwriteWindows",
-      assertion: "confirmPasskeyAssertionWindows",
+      registration: "confirmPasskeyRegistrationMfaWindows",
+      overwrite: "confirmPasskeyOverwriteMfaWindows",
+      assertion: "confirmPasskeyAssertionMfaWindows",
     }[operation];
   }
 }

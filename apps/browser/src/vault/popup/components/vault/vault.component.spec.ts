@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -28,7 +28,9 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -36,12 +38,17 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
+  ALL_ITEMS_SCOPE,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
+  NewExperienceDialogComponent,
+  NewExperienceDialogResult,
   VaultCopyButtonsService,
   VaultItemsTransferService,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
+  VaultScopeType,
+  Vfo1TourCalloutService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -55,6 +62,7 @@ import { VaultPopupListTableFiltersService } from "../../services/vault-popup-li
 import { VaultPopupListTableService } from "../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
+import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 
 import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
@@ -185,6 +193,9 @@ class VaultListItemsContainerStubComponent {
 class VaultPopupListTableStubComponent {
   /** Declares `scope` so the page's binding resolves with the real table removed. */
   readonly scope = input<unknown>(null);
+
+  /** Restores from a field initializer, as the real table does, so the page's scope must be set first. */
+  protected readonly restored = inject(VaultPopupListTableFiltersService).restoreFilters$();
 }
 
 const mockDialogRef = {
@@ -204,6 +215,10 @@ jest
 const autoConfirmDialogSpy = jest
   .spyOn(AutoConfirmExtensionSetupDialogComponent, "open")
   .mockImplementation((_: DialogService) => mockDialogRef as any);
+
+const newExperienceDialogSpy = jest
+  .spyOn(NewExperienceDialogComponent, "open")
+  .mockResolvedValue(NewExperienceDialogResult.Dismissed);
 
 jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
 jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
@@ -234,6 +249,16 @@ describe("VaultComponent", () => {
   /** Rows as the list table service builds them; the header counts the `allItems` section. */
   const itemCount$ = new BehaviorSubject<number>(0);
   const listTableSvc = { setScope: jest.fn(), itemCount$ };
+
+  /** The chip filter cache, which the page points at the route's vault. */
+  const listTableFiltersSvc = {
+    cachedFilters: jest.fn().mockReturnValue({}),
+    restoreFilters$: jest.fn().mockReturnValue(of({})),
+    setScope: jest.fn(),
+    setCachedVaultScopeId: jest.fn(),
+  };
+
+  const routeParams$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
 
   /** The account's vaults, as the header reads them to decide whether to show a page title. */
   const vaultNav$ = new BehaviorSubject<any>({ vaults: [], organizationDataOwnership: false });
@@ -267,7 +292,12 @@ describe("VaultComponent", () => {
     openSimpleDialog: jest.fn().mockResolvedValue(false),
   } as Partial<DialogService>;
 
+  const vaultTourSvc = mock<VaultPopupTourService>();
+
+  const introCarouselState$ = new BehaviorSubject<boolean>(true);
+
   const introSvc = {
+    introCarouselState$,
     setIntroCarouselDismissed: jest.fn().mockResolvedValue(undefined),
   } as Partial<IntroCarouselService>;
 
@@ -291,9 +321,12 @@ describe("VaultComponent", () => {
     hasPremiumFromAnySource$: (_: string) => hasPremiumFromAnySource$,
   };
 
+  const serverSettings$ = new BehaviorSubject<ServerSettings>(new ServerSettings());
+
   const configSvc = {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
     getFeatureFlag: jest.fn().mockResolvedValue(false),
+    serverSettings$,
   };
 
   const importUpgradeNavigationSvc = mock<ImportUpgradeNavigationService>();
@@ -313,6 +346,8 @@ describe("VaultComponent", () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     premiumUpsellSvc.showUpsell.mockReturnValue(false);
+    routeParams$.next(convertToParamMap({}));
+    vaultNav$.next({ vaults: [], organizationDataOwnership: false });
     await TestBed.configureTestingModule({
       imports: [VaultComponent, RouterTestingModule],
       providers: [
@@ -358,14 +393,13 @@ describe("VaultComponent", () => {
           useValue: { translate: (key: string) => key, t: (key: string) => key },
         },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
+        { provide: Vfo1TourCalloutService, useValue: mock<Vfo1TourCalloutService>() },
+        { provide: LogService, useValue: mock<LogService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
-        {
-          provide: VaultPopupListTableFiltersService,
-          useValue: { cachedFilters: jest.fn().mockReturnValue({}) },
-        },
+        { provide: VaultPopupListTableFiltersService, useValue: listTableFiltersSvc },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
+        { provide: ActivatedRoute, useValue: { paramMap: routeParams$ } },
         { provide: AuthService, useValue: mock<AuthService>() },
         { provide: AutofillService, useValue: mock<AutofillService>() },
         {
@@ -374,6 +408,7 @@ describe("VaultComponent", () => {
         },
         { provide: TaskService, useValue: mock<TaskService>() },
         { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: VaultPopupTourService, useValue: vaultTourSvc },
         {
           provide: ConfigService,
           useValue: configSvc,
@@ -513,6 +548,32 @@ describe("VaultComponent", () => {
 
     sub.unsubscribe();
   });
+
+  it("marks the vault rendered only once, on the first render", fakeAsync(() => {
+    const vaultLoading$ = loadingSvc.loading$ as unknown as BehaviorSubject<boolean>;
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const logService = TestBed.inject(LogService) as MockProxy<LogService>;
+    logService.mark.mockClear();
+
+    // loading$ has several subscribers, and background syncs flip it back to loading
+    const subs = [
+      getObs<boolean>(component, "loading$").subscribe(),
+      getObs<boolean>(component, "loading$").subscribe(),
+    ];
+    readySubject$.next(true);
+    vaultLoading$.next(false);
+    defaultFixture.detectChanges();
+
+    vaultLoading$.next(true);
+    vaultLoading$.next(false);
+    defaultFixture.detectChanges();
+    flush();
+
+    expect(logService.mark).toHaveBeenCalledTimes(1);
+    expect(logService.mark).toHaveBeenCalledWith("Vault rendered");
+
+    subs.forEach((sub) => sub.unsubscribe());
+  }));
 
   it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
     const fixture = TestBed.createComponent(VaultComponent);
@@ -656,6 +717,64 @@ describe("VaultComponent", () => {
       flush();
       fixture.destroy();
     }));
+
+    /** Each vault keeps its own chips, so the cache must be pointed at it before the table restores. */
+    describe("chip filter scope", () => {
+      const ORG_ID = "11111111-1111-4111-8111-111111111111";
+
+      /** Routes the page fresh, without the shared fixture also reacting to the new params. */
+      function createOnRoute(params: Record<string, string>) {
+        defaultFixture.destroy();
+        routeParams$.next(convertToParamMap(params));
+        listTableFiltersSvc.setScope.mockClear();
+        listTableFiltersSvc.restoreFilters$.mockClear();
+
+        return createWithFlag(true);
+      }
+
+      it("is set from the route before the table restores its chips", fakeAsync(() => {
+        const fixture = createOnRoute({ vaultId: ORG_ID });
+
+        expect(listTableFiltersSvc.setScope).toHaveBeenCalledWith({
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID,
+        });
+        expect(listTableFiltersSvc.restoreFilters$).toHaveBeenCalledTimes(1);
+        expect(listTableFiltersSvc.setScope.mock.invocationCallOrder[0]).toBeLessThan(
+          listTableFiltersSvc.restoreFilters$.mock.invocationCallOrder[0],
+        );
+
+        flush();
+        fixture.destroy();
+      }));
+
+      it("is All items on the unscoped route", fakeAsync(() => {
+        const fixture = createOnRoute({});
+
+        expect(listTableFiltersSvc.setScope).toHaveBeenCalledWith(ALL_ITEMS_SCOPE);
+
+        flush();
+        fixture.destroy();
+      }));
+
+      /**
+       * A personal-only account resolves All items to My vault once its vaults load; keying by that
+       * would save under one key and restore from the other on the next open.
+       */
+      it("keys by the route rather than the resolved scope", fakeAsync(() => {
+        vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
+
+        const fixture = createOnRoute({});
+
+        // The rows narrow to the resolved scope, while the chips stay keyed by the route.
+        expect(listTableSvc.setScope).toHaveBeenLastCalledWith({ type: VaultScopeType.MyVault });
+        expect(listTableFiltersSvc.setScope).toHaveBeenCalledTimes(1);
+        expect(listTableFiltersSvc.setScope).toHaveBeenCalledWith(ALL_ITEMS_SCOPE);
+
+        flush();
+        fixture.destroy();
+      }));
+    });
 
     it("renders the table and drops the legacy header and list when the flag is on", fakeAsync(() => {
       const fixture = createWithFlag(true);
@@ -1212,6 +1331,122 @@ describe("VaultComponent", () => {
       tick();
 
       expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe("NewExperienceDialog", () => {
+    function initVault() {
+      const fixture = TestBed.createComponent(VaultComponent);
+      void fixture.componentInstance.ngOnInit();
+      tick();
+    }
+
+    beforeEach(() => {
+      vaultTourSvc.start.mockClear();
+      newExperienceDialogSpy.mockClear();
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Dismissed);
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
+        of(type === NudgeType.Vfo1NewExperience),
+      );
+      configSvc.getFeatureFlag$.mockImplementation((flag: string) =>
+        of(flag === FeatureFlag.VFO1Foundation),
+      );
+      introCarouselState$.next(true);
+      serverSettings$.next(new ServerSettings());
+    });
+
+    afterEach(() => {
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((_type: NudgeType) => of(false));
+      configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
+    });
+
+    it("opens the dialog when the nudge is active and onboarding was already dismissed", fakeAsync(() => {
+      initVault();
+
+      expect(newExperienceDialogSpy).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({
+          userId: "user-1",
+          lightImgSrc: expect.stringContaining("new-experience.light.png"),
+          darkImgSrc: expect.stringContaining("new-experience.dark.png"),
+        }),
+      );
+    }));
+
+    it("leaves dismissing the nudge to the dialog's actions", fakeAsync(() => {
+      newExperienceDialogSpy.mockReturnValue(new Promise(() => {}));
+
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).not.toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        expect.anything(),
+      );
+    }));
+
+    it("does not open the dialog when the nudge is already dismissed", fakeAsync(() => {
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((_type: NudgeType) => of(false));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog for a user who has not dismissed the onboarding welcome", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog when the server suppresses onboarding interstitials", fakeAsync(() => {
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog when the vfo1-foundation flag is off", fakeAsync(() => {
+      configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("starts the vault tour when the user chooses to explore", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+
+      initVault();
+
+      expect(vaultTourSvc.start).toHaveBeenCalledWith("user-1");
+    }));
+
+    it("does not start the vault tour when the dialog is dismissed", fakeAsync(() => {
+      initVault();
+
+      expect(vaultTourSvc.start).not.toHaveBeenCalled();
+    }));
+
+    it("does not start the vault tour when the dialog never opens", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(vaultTourSvc.start).not.toHaveBeenCalled();
+    }));
+
+    it("leaves the nudge undismissed when the dialog never opens", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).not.toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        expect.anything(),
+      );
     }));
   });
 });

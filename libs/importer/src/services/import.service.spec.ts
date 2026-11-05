@@ -300,6 +300,16 @@ describe("ImportService", () => {
       expect(importResult.folderRelationships[1]).toEqual([0, 1]);
     });
 
+    it("passing importTarget assigns it to ciphers whose folderId has no folder relationship", async () => {
+      // Bitwarden JSON exports keep the source vault's folder id on each item
+      importResult.ciphers.push(createCipher({ name: "cipher1", folderId: "source-folder-id" }));
+
+      await importService["setImportTarget"](importResult, undefined, mockImportTargetFolder);
+
+      expect(importResult.ciphers[0].folderId).toBe(mockImportTargetFolder.id);
+      expect(importResult.folderRelationships).toEqual([[0, 0]]);
+    });
+
     it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
@@ -597,6 +607,79 @@ describe("ImportService", () => {
 
       await expect(
         importService.importWithSdk("keepasskdbx", file, credentials, null, null, false),
+      ).rejects.toThrow("SDK not available");
+    });
+  });
+
+  describe("importImportResult restricted types", () => {
+    const resultWith = (...types: CipherType[]) => {
+      const result = new ImportResult();
+      result.success = true;
+      result.ciphers = types.map((type) => Object.assign(new CipherView(), { type, name: "item" }));
+      return result;
+    };
+
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: "user-1" } as any);
+      i18nService.t.mockImplementation((key) => key);
+      importService["handleIndividualImport"] = jest.fn();
+      importService["handleOrganizationalImport"] = jest.fn();
+      // Only org-1 allows cards.
+      (restrictedItemTypesService as any).restricted$ = of([
+        { cipherType: CipherType.Card, allowViewOrgIds: ["org-1"] },
+      ]);
+    });
+
+    it("removes every restricted type from a personal import", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+
+    it("removes every restricted type from an organization import, even into an org that allows it", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result, "org-1" as OrganizationId, null, true);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+  });
+
+  describe("onePasswordSignInMethods", () => {
+    const signInAddress = { subdomain: "my", domain: "Global" } as const;
+    let onePasswordSignInMethods: jest.Mock;
+
+    beforeEach(() => {
+      onePasswordSignInMethods = jest.fn().mockResolvedValue({ password: false, sso: true });
+      const sdkValue = {
+        importers: jest.fn().mockReturnValue({
+          onepassword_sign_in_methods: onePasswordSignInMethods,
+        }),
+      };
+      const sdkClient = {
+        take: jest.fn().mockReturnValue({ value: sdkValue, [Symbol.dispose]: jest.fn() }),
+      };
+      sdkService.userClient$.mockReturnValue(of(sdkClient) as any);
+      accountService.activeAccount$ = of({ id: Utils.newGuid() as UserId } as any);
+    });
+
+    it("asks the SDK how the account signs in", async () => {
+      const result = await importService.onePasswordSignInMethods(
+        "user@example.com",
+        signInAddress,
+      );
+
+      expect(result).toEqual({ password: false, sso: true });
+      expect(onePasswordSignInMethods).toHaveBeenCalledWith("user@example.com", signInAddress);
+    });
+
+    it("throws when the SDK client is unavailable", async () => {
+      sdkService.userClient$.mockReturnValue(of(null) as any);
+
+      await expect(
+        importService.onePasswordSignInMethods("user@example.com", signInAddress),
       ).rejects.toThrow("SDK not available");
     });
   });

@@ -15,6 +15,8 @@ default = [
     "dep:zbus",
 ]
 manual_test = []
+# Store passwords in a plaintext JSON file instead of the OS keyring. Local debugging only.
+file_secure_storage = []
 
 [dependencies]
 anyhow = { workspace = true }
@@ -57,7 +59,9 @@ widestring = { workspace = true, optional = true }
 win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [
     "ApplicationModel_PackageExtensions",
+    "Foundation",
     "Storage_Search",
+    "System",
     "Win32_Foundation",
     "Win32_Security_Credentials",
 ], optional = true }

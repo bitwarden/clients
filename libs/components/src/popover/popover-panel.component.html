@@ -4,7 +4,9 @@
     class="has-[:focus-visible]:tw-outline tw-outline-border-focus tw-outline-2 tw-outline-offset-2 tw-rounded-xl"
   >
     <div
-      class="tw-p-6 [outline:none] tw-overflow-auto tw-max-h-[25rem]"
+      class="[outline:none] tw-overflow-auto tw-max-h-[25rem]"
+      [class.tw-p-6]="padding() === 'default'"
+      [class.tw-p-4]="padding() === 'compact'"
       tabindex="0"
       cdkFocusInitial
     >

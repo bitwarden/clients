@@ -1,8 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, signal, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, Subject, switchMap, takeUntil, tap } from "rxjs";
+import { BehaviorSubject, combineLatest, map, merge, shareReplay, switchMap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -13,11 +12,10 @@ import { PendingAuthRequestWithFingerprintView } from "@bitwarden/bit-common/adm
 import { PendingAuthRequestView } from "@bitwarden/bit-common/admin-console/auth-requests/pending-auth-request.view";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   TableDataSource,
   StatusLockupComponent,
@@ -54,140 +52,136 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
   ] satisfies SafeProvider[],
   imports: [SharedModule, StatusLockupComponent, HeaderModule, IconModule],
 })
-export class DeviceApprovalsComponent implements OnInit, OnDestroy {
-  tableDataSource = new TableDataSource<PendingAuthRequestWithFingerprintView>();
-  organizationId: string;
-  loading = true;
-  actionInProgress = false;
+export class DeviceApprovalsComponent implements OnInit {
+  private organizationAuthRequestService = inject(OrganizationAuthRequestService);
+  private route = inject(ActivatedRoute);
+  private i18nService = inject(I18nService);
+  private logService = inject(LogService);
+  private validationService = inject(ValidationService);
+  private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
+
+  protected tableDataSource = new TableDataSource<PendingAuthRequestWithFingerprintView>();
 
   protected readonly DevicesIcon = DevicesIcon;
 
-  private destroy$ = new Subject<void>();
-  private refresh$ = new BehaviorSubject<void>(null);
+  protected readonly actionInProgress = signal(false);
 
-  constructor(
-    private organizationAuthRequestService: OrganizationAuthRequestService,
-    private route: ActivatedRoute,
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
-    private logService: LogService,
-    private validationService: ValidationService,
-    private configService: ConfigService,
-    private toastService: ToastService,
-  ) {}
+  protected orgId$ = this.route.params.pipe(
+    map((params): OrganizationId => params.organizationId as OrganizationId),
+  );
+
+  private refresh$ = new BehaviorSubject<void>(undefined);
+
+  protected requests$ = combineLatest([this.orgId$, this.refresh$]).pipe(
+    switchMap(([organizationId]) =>
+      this.organizationAuthRequestService.listPendingRequestsWithFingerprint(organizationId),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  protected loading$ = merge(
+    combineLatest([this.orgId$, this.refresh$]).pipe(map(() => true)),
+    this.requests$.pipe(map(() => false)),
+  );
 
   async ngOnInit() {
-    this.route.params
-      .pipe(
-        tap((params) => (this.organizationId = params.organizationId)),
-        switchMap(() =>
-          this.refresh$.pipe(
-            tap(() => (this.loading = true)),
-            switchMap(() =>
-              this.organizationAuthRequestService.listPendingRequestsWithFingerprint(
-                this.organizationId,
-              ),
-            ),
-          ),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((r) => {
-        this.tableDataSource.data = r;
-        this.loading = false;
-      });
+    this.requests$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((r) => {
+      this.tableDataSource.data = r;
+    });
   }
 
-  async approveRequest(authRequest: PendingAuthRequestView) {
-    await this.performAsyncAction(async () => {
+  async approveRequest(organizationId: OrganizationId, authRequest: PendingAuthRequestView) {
+    await this.withActionInProgress(async () => {
       try {
         await this.organizationAuthRequestService.approvePendingRequest(
-          this.organizationId,
+          organizationId,
           authRequest,
         );
-
+        this.refresh$.next();
         this.toastService.showToast({
           variant: "success",
-          title: null,
           message: this.i18nService.t("loginRequestApproved"),
         });
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        this.toastService.showToast({
-          variant: "error",
-          title: null,
-          message: this.i18nService.t("resetPasswordDetailsError"),
-        });
+      } catch (err: unknown) {
+        this.logService.error(String(err));
+        this.validationService.showError(err);
       }
     });
   }
 
-  async approveAllRequests() {
+  async approveAllRequests(organizationId: OrganizationId) {
     if (this.tableDataSource.data.length === 0) {
       return;
     }
 
-    await this.performAsyncAction(async () => {
-      await this.organizationAuthRequestService.approvePendingRequests(
-        this.organizationId,
-        this.tableDataSource.data,
-      );
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("allLoginRequestsApproved"),
-      });
+    await this.withActionInProgress(async () => {
+      try {
+        await this.organizationAuthRequestService.approvePendingRequests(
+          organizationId,
+          this.tableDataSource.data,
+        );
+        this.refresh$.next();
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("allLoginRequestsApproved"),
+        });
+      } catch (err: unknown) {
+        this.logService.error(String(err));
+        this.validationService.showError(err);
+      }
     });
   }
 
-  async denyRequest(requestId: string) {
-    await this.performAsyncAction(async () => {
-      await this.organizationAuthRequestService.denyPendingRequests(this.organizationId, requestId);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("loginRequestDenied"),
-      });
+  async denyRequest(organizationId: OrganizationId, requestId: string) {
+    await this.withActionInProgress(async () => {
+      try {
+        await this.organizationAuthRequestService.denyPendingRequests(organizationId, requestId);
+        this.refresh$.next();
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("loginRequestDenied"),
+        });
+      } catch (err: unknown) {
+        this.logService.error(String(err));
+        this.validationService.showError(err);
+      }
     });
   }
 
-  async denyAllRequests() {
+  async denyAllRequests(organizationId: OrganizationId) {
     if (this.tableDataSource.data.length === 0) {
       return;
     }
 
-    await this.performAsyncAction(async () => {
-      await this.organizationAuthRequestService.denyPendingRequests(
-        this.organizationId,
-        ...this.tableDataSource.data.map((r) => r.id),
-      );
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("allLoginRequestsDenied"),
-      });
+    await this.withActionInProgress(async () => {
+      try {
+        await this.organizationAuthRequestService.denyPendingRequests(
+          organizationId,
+          ...this.tableDataSource.data.map((r) => r.id),
+        );
+        this.refresh$.next();
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("allLoginRequestsDenied"),
+        });
+      } catch (err: unknown) {
+        this.logService.error(String(err));
+        this.validationService.showError(err);
+      }
     });
   }
 
-  private async performAsyncAction(action: () => Promise<void>) {
-    if (this.actionInProgress) {
+  private async withActionInProgress(action: () => Promise<void>) {
+    if (this.actionInProgress()) {
       return;
     }
-    this.actionInProgress = true;
+
+    this.actionInProgress.set(true);
     try {
       await action();
-      this.refresh$.next();
-    } catch (err: unknown) {
-      this.logService.error(err.toString());
-      this.validationService.showError(err);
     } finally {
-      this.actionInProgress = false;
+      this.actionInProgress.set(false);
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

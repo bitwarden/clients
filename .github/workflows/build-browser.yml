@@ -1,6 +1,6 @@
 # This workflow will run in the context of the source of the PR.
 # On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
-# If additional artifacts are needed, the failed "build-browser-target.yml" workflow held up by the check-run should be re-run.
+# If additional artifacts are needed for a fork PR, review it and add the "ci:signed-build" label to run "build-browser-target.yml".
 
 name: Build Browser
 
@@ -195,12 +195,16 @@ jobs:
           mkdir -p browser-source/apps/browser
           cp -r apps/browser/* browser-source/apps/browser
 
-          # Copy bitwarden_license/bit-browser and its bit-common dependency to the Browser source directory
+          # Copy bitwarden_license/bit-browser and its bit-common, bit-pam and bit-pam-components dependencies to the Browser source directory
           if [[ ${{matrix.license_type.include_bitwarden_license_folder}} == "true" ]]; then
             mkdir -p browser-source/bitwarden_license/bit-browser
             cp -r bitwarden_license/bit-browser/* browser-source/bitwarden_license/bit-browser
             mkdir -p browser-source/bitwarden_license/bit-common
             cp -r bitwarden_license/bit-common/* browser-source/bitwarden_license/bit-common
+            mkdir -p browser-source/bitwarden_license/bit-pam
+            cp -r bitwarden_license/bit-pam/* browser-source/bitwarden_license/bit-pam
+            mkdir -p browser-source/bitwarden_license/bit-pam-components
+            cp -r bitwarden_license/bit-pam-components/* browser-source/bitwarden_license/bit-pam-components
           fi
 
           # Copy libs to Browser source directory
@@ -597,9 +601,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main

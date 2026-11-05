@@ -15,17 +15,16 @@ import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Organization } from "../../models/domain/organization";
 import { Policy } from "../../models/domain/policy";
+import { PolicyRecordMapper } from "../../models/domain/policy-sdk-mapper";
 import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-policy-options";
 
 import { POLICIES } from "./policy-state";
 
-export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }): Policy[] {
-  return Object.values(policiesMap || {}).map((f) => new Policy(f));
-}
-
 export const getFirstPolicy = map<Policy[], Policy | undefined>((policies) => {
   return policies.at(0) ?? undefined;
 });
+
+const policyRecordMapper = new PolicyRecordMapper();
 
 export class DefaultPolicyService implements PolicyService {
   constructor(
@@ -44,12 +43,19 @@ export class DefaultPolicyService implements PolicyService {
     return this.stateProvider.getUser(userId, POLICIES);
   }
 
-  private policyData$(userId: UserId) {
-    return this.policyState(userId).state$.pipe(map((policyData) => policyData ?? {}));
-  }
-
-  policies$(userId: UserId) {
-    return this.policyData$(userId).pipe(map((policyData) => policyRecordToArray(policyData)));
+  policies$(userId: UserId): Observable<Policy[]> {
+    // Limit to confirmed organizations only to keep existing contract.
+    return combineLatest([
+      this.newPolicyService.policies$(userId),
+      this.organizationService.organizations$(userId),
+    ]).pipe(
+      map(([policies, confirmedOrganizations]) => {
+        const confirmedOrganizationIds = new Set(confirmedOrganizations.map((o) => o.id));
+        return policies
+          .map((p) => new Policy(p))
+          .filter((p) => confirmedOrganizationIds.has(p.organizationId));
+      }),
+    );
   }
 
   policiesByType$(policyType: PolicyType, userId: UserId): Observable<Policy[]> {
@@ -70,7 +76,7 @@ export class DefaultPolicyService implements PolicyService {
       this.sdkService().client$,
     ]).pipe(
       map(([confirmedOrganizations, acceptedOrganizations, policies, sdkClient]) => {
-        const sdkPolicies = policies.map((p) => p.toSdkPolicy());
+        const sdkPolicies = policies.map((p) => policyRecordMapper.toSdk(p));
         const sdkOrganizationContext = confirmedOrganizations
           .concat(acceptedOrganizations)
           .map((o) => DefaultPolicyService.toSdkOrganizationUserPolicyContext(o));
@@ -78,7 +84,7 @@ export class DefaultPolicyService implements PolicyService {
           .policies()
           .filter_by_type(sdkPolicies, sdkOrganizationContext, policyType);
 
-        return filteredViews.map((v) => Policy.fromSdkPolicy(v));
+        return filteredViews.map((v) => new Policy(policyRecordMapper.fromSdk(v)));
       }),
     );
   }

@@ -39,6 +39,12 @@ export default {
                   return "Password Manager";
                 case "secretsManager":
                   return "Secrets Manager";
+                case "privilegedControls":
+                  return "Privileged Controls";
+                case "privilegedControlsPlanPrice":
+                  return "Privileged Controls plan price";
+                case "privilegedControlsProratedCharge":
+                  return "Privileged Controls prorated charge";
                 case "additionalStorage":
                   return "Additional Storage";
                 case "estimatedTax":
@@ -65,6 +71,8 @@ export default {
                   return "Account credit";
                 case "appliedSubscriptionCredits":
                   return "Applied subscription credits";
+                case "appliedProrationCredits":
+                  return "Applied proration credits";
                 case "passwordManagerProratedCharge":
                   return "Password Manager prorated charge";
                 case "discount":
@@ -225,6 +233,13 @@ export const AllProducts: Story = {
           quantity: 2,
           translationKey: "additionalServiceAccountsV2",
           cost: 6.0,
+        },
+      },
+      privilegedControls: {
+        seats: {
+          quantity: 4,
+          translationKey: "members",
+          cost: 20.0,
         },
       },
       cadence: "monthly",
@@ -505,39 +520,6 @@ export const SinglePerLineDiscount: Story = {
   },
 };
 
-export const FlagOffRegression: Story = {
-  name: "Flag-Off Regression (Legacy One-Element Shim)",
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "The shape the legacy `CartItemResponse` shim emits when the feature flag is off: a " +
-          "one-element `discounts` array with no `amount` and no `label`. Proves the renderer " +
-          "still derives both via `getAmount` / `getLabel`, so flag-off carts render unchanged.",
-      },
-    },
-  },
-  args: {
-    cart: {
-      passwordManager: {
-        seats: {
-          quantity: 5,
-          translationKey: "members",
-          cost: 50.0,
-          discounts: [
-            {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
-          ],
-        },
-      },
-      cadence: "monthly",
-      estimatedTax: 9.6,
-    } satisfies Cart,
-  },
-};
-
 export const MultiplePerLineDiscounts: Story = {
   name: "With Multiple Per-Line Discounts",
   parameters: {
@@ -740,7 +722,7 @@ export const AllProrationInvoice: Story = {
       },
       cadence: "annually",
       credit: {
-        translationKey: "appliedSubscriptionCredits",
+        translationKey: "appliedProrationCredits",
         value: 37.64,
       },
       estimatedTax: 12.05,
@@ -776,10 +758,70 @@ export const RecurringWithProration: Story = {
       },
       cadence: "annually",
       credit: {
-        translationKey: "appliedSubscriptionCredits",
+        translationKey: "appliedProrationCredits",
         value: 9.02,
       },
       estimatedTax: 0.36,
+    } satisfies Cart,
+  },
+};
+
+export const WithPrivilegedControls: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 72.0,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 144.0,
+        },
+      },
+      privilegedControls: {
+        seats: {
+          quantity: 4,
+          translationKey: "members",
+          cost: 20.0,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 0,
+    } satisfies Cart,
+  },
+};
+
+export const PrivilegedControlsProrationOnly: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 72.0,
+        },
+      },
+      privilegedControls: {
+        prorationCharges: [
+          {
+            translationKey: "privilegedControlsProratedCharge",
+            quantity: 1,
+            cost: 12.5,
+            hideBreakdown: true,
+          },
+        ],
+      },
+      cadence: "annually",
+      credit: {
+        translationKey: "appliedProrationCredits",
+        value: 3.0,
+      },
+      estimatedTax: 0,
     } satisfies Cart,
   },
 };

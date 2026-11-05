@@ -13,11 +13,14 @@ import {
   IconTileComponent,
   IconTileOptions,
   MenuModule,
+  PopoverModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   ALL_ITEMS_SCOPE,
+  CoachmarkComponent,
+  CoachmarkService,
   MY_VAULT_ROUTE,
   navIconTile,
   VAULT_BASE_ROUTE,
@@ -48,11 +51,13 @@ interface VaultSwitcherEntry {
   templateUrl: "vault-switcher.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    CoachmarkComponent,
     I18nPipe,
     IconButtonModule,
     IconModule,
     IconTileComponent,
     MenuModule,
+    PopoverModule,
     TypographyModule,
   ],
 })
@@ -64,6 +69,7 @@ export class VaultSwitcherComponent {
   private readonly i18nService = inject(I18nService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly scrollPositionService = inject(VaultPopupScrollPositionService);
+  protected readonly coachmark = inject(CoachmarkService);
 
   /** The scope the page resolved from the route. */
   readonly scope = input<VaultScope | null>(ALL_ITEMS_SCOPE);
@@ -98,6 +104,8 @@ export class VaultSwitcherComponent {
     ];
   });
 
+  protected readonly coachmarkActive = computed(() => this.coachmark.isStepActive("switchVaults"));
+
   /** The selected entry's id, or `null` for All items. */
   protected readonly selectedId = computed((): string | null => {
     const scope = this.scope();
@@ -116,19 +124,18 @@ export class VaultSwitcherComponent {
     return this.entries().find((entry) => entry.id === id) ?? null;
   });
 
-  protected select(id: string | null): void {
+  protected async select(id: string | null): Promise<void> {
     // The entry in view is clickable too, and the route would reload rather than no-op.
     if (id === this.selectedId()) {
       return;
     }
 
-    // Cleared from the user's action, not the scope publish — that also fires on popup open.
-    if (id != null) {
-      this.listFiltersService.clearVaultScopedFilters();
-    }
-
     // The offset names nothing in a different list, and the rebuilt page would restore it.
     this.scrollPositionService.stop(true);
+
+    // Recorded before navigating: the unscoped route restores the last selection, so choosing All
+    // items has to land first or it would be sent back to the vault just left.
+    await this.listFiltersService.setCachedVaultScopeId(id);
 
     void this.router.navigate(this.commandsFor(id), {
       // The scoped vault is the same page narrowed, not a step to return from.

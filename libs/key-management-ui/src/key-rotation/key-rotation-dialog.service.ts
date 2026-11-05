@@ -1,7 +1,8 @@
 import { inject, Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -57,7 +58,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userKeyRotation");
       return true;
     }
     return false;
@@ -96,7 +97,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userKeyRotation");
       return true;
     }
     return false;
@@ -121,7 +122,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userKeyRotation");
       return true;
     }
 

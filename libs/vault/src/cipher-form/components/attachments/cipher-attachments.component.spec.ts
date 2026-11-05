@@ -9,14 +9,13 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -24,8 +23,10 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { ButtonComponent, ToastService } from "@bitwarden/components";
 
 import { DownloadAttachmentComponent } from "../../..";
@@ -61,9 +62,7 @@ describe("CipherAttachmentsComponent", () => {
     edit: true,
   } as CipherView;
 
-  const cipherDomain = {
-    decrypt: () => cipherView,
-  };
+  const cipherDomain = {};
 
   const organization = new Organization();
   organization.id = "org-123" as OrganizationId;
@@ -74,6 +73,8 @@ describe("CipherAttachmentsComponent", () => {
   const cipherServiceDecrypt = jest.fn().mockResolvedValue(cipherView);
   const saveAttachmentWithServer = jest.fn().mockResolvedValue(cipherDomain);
 
+  const apiService = mock<ApiService>();
+  const cipherAuthorizationService = mock<CipherAuthorizationService>();
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const organizations$ = new BehaviorSubject<Organization[]>([organization]);
@@ -83,6 +84,8 @@ describe("CipherAttachmentsComponent", () => {
     cipherServiceDecrypt.mockClear().mockResolvedValue(cipherView);
     showToast.mockClear();
     saveAttachmentWithServer.mockClear().mockResolvedValue(cipherDomain);
+    apiService.getFullCipherDetails.mockClear();
+    cipherAuthorizationService.canDeleteCipher$.mockReset().mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [CipherAttachmentsComponent],
@@ -93,7 +96,6 @@ describe("CipherAttachmentsComponent", () => {
             organization,
             get: cipherServiceGet,
             saveAttachmentWithServer,
-            getKeyForCipherKeyDecryption: () => Promise.resolve(null),
             decrypt: cipherServiceDecrypt,
           },
         },
@@ -105,7 +107,6 @@ describe("CipherAttachmentsComponent", () => {
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: AccountService,
@@ -113,7 +114,11 @@ describe("CipherAttachmentsComponent", () => {
         },
         {
           provide: ApiService,
-          useValue: mock<ApiService>(),
+          useValue: apiService,
+        },
+        {
+          provide: CipherAuthorizationService,
+          useValue: cipherAuthorizationService,
         },
         {
           provide: OrganizationService,
@@ -367,7 +372,7 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           false,
-          undefined,
+          expect.objectContaining({ onProgress: expect.any(Function) }),
         );
       });
 
@@ -382,7 +387,7 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           true,
-          undefined,
+          expect.objectContaining({ onProgress: expect.any(Function) }),
         );
       });
 
@@ -418,9 +423,6 @@ describe("CipherAttachmentsComponent", () => {
 
     describe("uploadProgress", () => {
       beforeEach(async () => {
-        const configService = TestBed.inject(ConfigService);
-        (configService.getFeatureFlag as jest.Mock).mockResolvedValue(true);
-
         fixture = TestBed.createComponent(CipherAttachmentsComponent);
         component = fixture.componentInstance;
         fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
@@ -535,6 +537,113 @@ describe("CipherAttachmentsComponent", () => {
       // After removal, there should be no attachments displayed
       const attachmentItems = fixture.debugElement.queryAll(By.css('[data-testid="file-name"]'));
       expect(attachmentItems.length).toEqual(0);
+    });
+  });
+
+  describe("delete attachment visibility", () => {
+    const attachment = { id: "1234-5678", fileName: "test.txt" } as AttachmentView;
+
+    async function initialize(): Promise<void> {
+      cipherServiceDecrypt.mockResolvedValue({ ...cipherView, attachments: [attachment] });
+      fixture = TestBed.createComponent(CipherAttachmentsComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+      fixture.detectChanges();
+      await waitForInitialization();
+    }
+
+    it("shows the delete button when the user can delete the cipher", async () => {
+      await initialize();
+
+      expect(fixture.debugElement.query(By.directive(DeleteAttachmentComponent))).not.toBeNull();
+    });
+
+    it("hides the delete button when the user cannot delete the cipher", async () => {
+      cipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(false));
+
+      await initialize();
+
+      expect(fixture.debugElement.query(By.directive(DeleteAttachmentComponent))).toBeNull();
+    });
+
+    it("checks delete permission in the admin context when in the admin console", async () => {
+      fixture = TestBed.createComponent(CipherAttachmentsComponent);
+      fixture.componentRef.setInput("admin", true);
+      fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+      apiService.getCipherAdmin.mockResolvedValue(new CipherResponse({}));
+      fixture.detectChanges();
+      await waitForInitialization();
+
+      expect(cipherAuthorizationService.canDeleteCipher$).toHaveBeenCalledWith(
+        expect.anything(),
+        true,
+      );
+    });
+  });
+
+  describe("PAM-gated cipher", () => {
+    /** What local state holds for a gated cipher: stripped, and so carrying no attachments. */
+    const strippedCipher = { id: "5555-444-3333", partialData: '{"name":"gated"}' };
+
+    /** What the server releases under a valid active lease. */
+    const fullCipherResponse = {
+      id: "5555-444-3333",
+      type: CipherType.Login,
+      name: "2.aaa|bbb|ccc",
+      creationDate: "2026-09-01T13:11:20.676Z",
+      revisionDate: "2026-09-04T10:30:59.922Z",
+      login: {},
+      attachments: [{ id: "attachment-1", fileName: "2.ddd|eee|fff", size: "97" }],
+    };
+
+    /** Stand the component up fresh so the initialization effect picks the mocks up. */
+    async function initialize(): Promise<void> {
+      fixture = TestBed.createComponent(CipherAttachmentsComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+      fixture.detectChanges();
+      await waitForInitialization();
+    }
+
+    beforeEach(() => {
+      cipherServiceGet.mockResolvedValue(strippedCipher);
+    });
+
+    afterEach(() => {
+      cipherServiceGet.mockResolvedValue(cipherDomain);
+    });
+
+    it("reads the full cipher from the server rather than the stripped local copy", async () => {
+      apiService.getFullCipherDetails.mockResolvedValue(fullCipherResponse as never);
+
+      await initialize();
+
+      expect(apiService.getFullCipherDetails).toHaveBeenCalledWith("5555-444-3333");
+      // Decrypting the stripped copy would show no attachments.
+      expect(cipherServiceDecrypt).toHaveBeenCalledWith(
+        expect.objectContaining({ partialData: undefined }),
+        mockUserId,
+      );
+    });
+
+    it("keeps the stripped copy when the server withholds the full one anyway", async () => {
+      // No lease covers the cipher, so the read comes back stripped a second time.
+      apiService.getFullCipherDetails.mockResolvedValue({
+        ...fullCipherResponse,
+        partialData: '{"name":"gated"}',
+      } as never);
+
+      await initialize();
+
+      expect(cipherServiceDecrypt).toHaveBeenCalledWith(strippedCipher, mockUserId);
+    });
+
+    it("keeps the stripped copy when the read fails", async () => {
+      apiService.getFullCipherDetails.mockRejectedValue(new Error("network"));
+
+      await initialize();
+
+      expect(cipherServiceDecrypt).toHaveBeenCalledWith(strippedCipher, mockUserId);
     });
   });
 });

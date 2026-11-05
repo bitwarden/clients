@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "我的保險庫中沒有項目"
   },
+  "noItemsInFolder": {
+    "message": "$FOLDER_NAME$ 裡沒有項目",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "將項目新增至此資料夾。您可以使用密碼庫篩選器快速存取這些項目。",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "我的項目中沒有項目"
   },
@@ -663,6 +677,10 @@
   },
   "resetSearch": {
     "message": "重設搜尋"
+  },
+  "clearSearchTooltip": {
+    "message": "按此或Esc鍵以清除。",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
     "message": "封存",
@@ -1233,6 +1251,12 @@
   "deletedItem": {
     "message": "項目已移至垃圾桶"
   },
+  "deleteItemError": {
+    "message": "無法刪除項目。"
+  },
+  "restrictedItemChangeRefused": {
+    "message": "此項目已受限制。您作出的變更尚未儲存。"
+  },
   "overwritePassword": {
     "message": "覆寫密碼"
   },
@@ -1485,6 +1509,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "使用網站以 `data-bwautofill` 屬性標記的任何 span 元素。"
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "自動填入瀏覽器登入提示",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "當密碼庫中的登入項目與網站相符時，回應 HTTP 基本驗證提示。"
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "網站可能在您不知情的情況下觸發這些提示，導致您的登入憑證外洩。",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
   },
@@ -1539,6 +1574,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "選擇來源"
+  },
+  "importData": {
+    "message": "匯入資料"
   },
   "importSourceSelectTitle": {
     "message": "選擇您的來源"
@@ -1640,9 +1678,6 @@
     "message": "我的資料夾"
   },
   "addSharedFolder": {
-    "message": "新增共享資料夾"
-  },
-  "newSharedFolder": {
     "message": "新增共享資料夾"
   },
   "bitwardenForBusinessPageDesc": {
@@ -1759,6 +1794,27 @@
   },
   "selectFile": {
     "message": "選取檔案"
+  },
+  "selectFileUnsupportedType": {
+    "message": "此來源不接受該檔案類別。請選擇其他檔案"
+  },
+  "pasteContentRequired": {
+    "message": "貼上匯出的內容"
+  },
+  "fileTypeNotSupported": {
+    "message": "不支援此檔案類型。請選取 $TYPES$ 檔案",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "貼上的內容與所選格式不符"
+  },
+  "errorReadingFile": {
+    "message": "無法讀取已選的檔案"
   },
   "itemsTransferred": {
     "message": "項目已轉移"
@@ -2548,42 +2604,6 @@
     "message": "新增護照",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "新增登入資料",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新增付款卡",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新增身分",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新增備註",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新增安全筆記",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新增 SSH 金鑰",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新增銀行帳戶",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新增駕照",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新增護照",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "新增文字",
     "description": "Header for new text send"
@@ -2591,22 +2611,6 @@
   "newItemHeaderFileSendV2": {
     "message": "新增檔案",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "編輯登入資訊",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "編輯付款卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "編輯身分",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "編輯備註",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "編輯安全筆記",
@@ -4298,6 +4302,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "不允許使用此 URL。必須使用 https，且不得指向本機或私人網路位址。",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "輸入有效的網址",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "偵測到不安全的網址",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "此 URL 可能不安全，或指向私人網路。使用此 URL 可能導致私人資料外洩。只有在您信任此伺服器時才繼續。",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "信任 URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "此 URL 已標記為受信任。您可以隨時編輯。",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "發生未知的 $SERVICENAME$ 錯誤。",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -5085,6 +5113,9 @@
   "importFormatError": {
     "message": "資料格式不正確。請檢查匯入檔案後再試一次。"
   },
+  "importUnsupportedKdfSettings": {
+    "message": "此檔案使用不支援的加密設定並無法匯入。"
+  },
   "importNothingError": {
     "message": "未匯入任何內容。"
   },
@@ -5165,19 +5196,6 @@
   },
   "learnAboutImportOptions": {
     "message": "瞭解更多匯入選項"
-  },
-  "selectImportFolder": {
-    "message": "選擇一個資料夾"
-  },
-  "selectImportCollection": {
-    "message": "選擇一個分類"
-  },
-  "selectImportSharedFolder": {
-    "message": "選擇共用資料夾"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "若你希望將匯入檔案的內容移至集合，請選擇此選項"
@@ -5304,6 +5322,140 @@
   },
   "importHelpCenterLinkText": {
     "message": "說明中心"
+  },
+  "uploadFile": {
+    "message": "上傳檔案"
+  },
+  "pasteAsPlainText": {
+    "message": "以純文字貼上"
+  },
+  "plainText": {
+    "message": "純文字"
+  },
+  "profile": {
+    "message": "設定檔"
+  },
+  "importManuallyInstead": {
+    "message": "改為手動匯入"
+  },
+  "directlyImportInstead": {
+    "message": "改為直接匯入"
+  },
+  "fastest": {
+    "message": "最快"
+  },
+  "importDataTitle": {
+    "message": "匯入您的資料"
+  },
+  "importDataDirectTitle": {
+    "message": "幾分鐘內即可匯入您的資料"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "直接從",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "匯入您的所有資料。",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "從 $VENDOR$ 匯入，或複製並貼上匯出的內容。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "選取您要從中匯入密碼的設定檔。"
+  },
+  "noBrowserProfilesFound": {
+    "message": "找不到瀏覽器設定檔"
+  },
+  "importDataLoginTitle": {
+    "message": "登入 $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "您的登入憑證在傳輸過程中會經過加密，且絕不會儲存。"
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "安全設計"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "透過端對端加密傳輸資料。Bitwarden 絕不會取得您的 $VENDOR$ 登入資料。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "我們會向您索取登入資訊"
+  },
+  "importDataLoginInfoBody": {
+    "message": "下一個步驟中，請登入您的 $VENDOR$ 帳戶。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "完整轉移所有資料"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "登入資料、卡片、身分、加密筆記及 TOTP，並保留原有資料夾結構。"
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "快速又安全"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "此程序採用端對端加密，無須匯出檔案。"
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "只需提供登入資料"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "下一個步驟中，您將輸入 $VENDOR$ 登入資料。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "將轉移的資料"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "您的登入資料、其他項目及資料夾都會轉移，但可能不包含通行金鑰與附件。"
+  },
+  "importAcceptedFormats": {
+    "message": "接受的格式：$FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ 檔案類型",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "程序與從 Google Chrome 匯入完全相同。",
@@ -5505,11 +5657,44 @@
   "keePassMasterPassword": {
     "message": "Keepass 主密碼"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ 密碼",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "必須輸入密碼。"
+  },
+  "filePasswordRequired": {
+    "message": "必須輸入檔案密碼"
+  },
+  "filePasswordInvalid": {
+    "message": "請輸入有效的檔案密碼。"
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "上傳的檔案受到密碼保護。請輸入密碼以繼續。"
+  },
+  "selectProfile": {
+    "message": "選取設定檔"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "請輸入有效的密碼"
+  },
+  "importAccountMismatchError": {
+    "message": "此檔案只能匯入至原本匯出該檔案的帳戶。"
+  },
   "addKeyFile": {
     "message": "新增金鑰檔案"
   },
   "keyFileUpload": {
     "message": "上傳金鑰檔案"
+  },
+  "keyFileUploadV2": {
+    "message": "金鑰檔案"
   },
   "kdbxFileUpload": {
     "message": "上傳 KDBX 檔案"
@@ -5534,6 +5719,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "匯出時已略過 1 個損毀的附件。其餘保管庫資料與附件皆已成功匯出。"
+  },
+  "exportExcludedGatedItem": {
+    "message": "有 1 個項目未包含在此次匯出中。此項目受到特殊權限存取規則保護，因此無法在此裝置上取得其登入憑證。"
+  },
+  "exportExcludedGatedItems": {
+    "message": "有 $COUNT$ 個項目未包含在此次匯出中。這些項目受到特殊權限存取規則保護，因此無法在此裝置上取得其登入憑證。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "匯出時已略過 $COUNT$ 個損毀的附件。其餘保管庫資料與附件皆已成功匯出。",
@@ -5637,8 +5834,92 @@
   "lastPassEmail": {
     "message": "LastPass 電子郵件"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "必須輸入電子郵件地址。"
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "請輸入有效的電子郵件地址。"
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "必須輸入密碼。"
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "請輸入有效的密碼"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "請輸入有效的驗證碼。"
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "請輸入您的 LastPass 主密碼。"
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "請在下方輸入驗證碼。"
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "正在等待 SSO 驗證"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "登入後，我們將自動繼續匯入。"
+  },
   "importingYourAccount": {
     "message": "正在匯入您的帳戶..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "伺服器"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "必須輸入電子郵件地址。"
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "請輸入有效的電子郵件地址。"
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "不支援此雙重驗證方式。請切換驗證方式或手動匯入。"
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "裝置核准方式"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "請輸入有效的驗證碼。"
+  },
+  "keeperLoginCodeResent": {
+    "message": "已重新傳送驗證碼"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "已將 Keeper Push 推播通知傳送至已核准的裝置。"
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "請選取下方其中一種方式來核准此裝置。"
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "請查看您的電子郵件，並在下方輸入驗證碼。"
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "請輸入驗證器應用程式中的驗證碼。"
+  },
+  "keeperLoginSmsDesc": {
+    "message": "請輸入透過簡訊傳送的驗證碼。"
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "請輸入您的 Keeper 主密碼。"
+  },
+  "keeperLoginDnaSent": {
+    "message": "已傳送 Keeper DNA 通知"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "請在您的裝置上核准 Keeper DNA 通知。"
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "您的核准要求將被取消。確定要繼續嗎？"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "我們已向您的管理員傳送管理員核准要求。"
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "必須輸入密碼。"
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "請輸入有效的密碼。"
   },
   "lastPassMFARequired": {
     "message": "需要進行 LastPass 多因素驗證"
@@ -5679,14 +5960,71 @@
   "lastPassYubikeyDesc": {
     "message": "將與您的 LastPass 帳戶連結的 YubiKey 插入電腦的 USB 連接埠，然後按下按鈕。"
   },
+  "onePasswordPartialImport": {
+    "message": "無法匯入 $COUNT$ 個 1Password 項目或密碼庫",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "發生錯誤。請檢查您的登入憑證，然後再試一次。"
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "僅支援使用密碼登入。"
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "僅支援使用密碼登入。請再試一次，或使用其他匯入方式。"
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "請輸入有效的電子郵件地址，或使用其他匯入方式。"
+  },
+  "onePasswordImportError": {
+    "message": "發生錯誤。請再試一次，或使用其他匯入方式。"
+  },
+  "emailIsRequired": {
+    "message": "必須輸入電子郵件地址。"
+  },
+  "enterValidEmailAddress": {
+    "message": "請輸入有效的電子郵件地址。"
+  },
+  "signInAddressIsRequired": {
+    "message": "必須輸入登入網址。"
+  },
+  "enterValidSignInAddress": {
+    "message": "請輸入有效的登入網址。"
+  },
+  "secretKeyIsRequired": {
+    "message": "必須輸入秘密金鑰。"
+  },
+  "enterValidSecretKey": {
+    "message": "請輸入有效的秘密金鑰。"
+  },
+  "passwordIsRequired": {
+    "message": "必須輸入密碼。"
+  },
+  "enterValidVerificationCode": {
+    "message": "輸入有效的驗證碼。"
+  },
+  "signInAddress": {
+    "message": "登入網址"
+  },
+  "onePasswordEmail": {
+    "message": "1Password 電子郵件"
+  },
+  "onePasswordEmailHint": {
+    "message": "輸入您用來登入 1Password 的電子郵件地址"
+  },
   "secretKey": {
-    "message": "Secret key"
+    "message": "金鑰"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "金鑰及密碼"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "您的帳號已受金鑰及密碼保護。您需要輸入兩者才能繼續。"
   },
   "keeperEmail": {
     "message": "Keeper電子郵件"
@@ -7743,17 +8081,17 @@
   "sharedUnlock": {
     "message": "共享解鎖"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "與桌面版共用解鎖狀態"
+  "syncUnlockWithDesktop": {
+    "message": "與桌面應用程式同步解鎖"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "啟用後，解鎖狀態將與 Bitwarden 桌面版應用程式共用。"
+  "syncUnlockWithDesktopDescription": {
+    "message": "Bitwarden 瀏覽器擴充功能與桌面應用程式會同步鎖定及解鎖。"
   },
-  "sharedUnlockWithWeb": {
-    "message": "與網頁密碼庫共用解鎖狀態"
+  "syncUnlockWithWeb": {
+    "message": "與網頁應用程式同步解鎖"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "啟用後，解鎖狀態將與 Bitwarden 網頁密碼庫共用。"
+  "syncUnlockWithWebDescription": {
+    "message": "Bitwarden 瀏覽器擴充功能與網頁應用程式會同步鎖定及解鎖。"
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "由於您選擇不記住此裝置，因此無法使用共用解鎖功能。若要啟用此設定，請嘗試重新登入。"
@@ -8132,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "此密碼有其他風險："
   },
+  "excludeFromList": {
+    "message": "從清單中排除"
+  },
+  "excludeFromListDesc": {
+    "message": "排除項目並不會消除密碼的風險。為了保護您的帳戶，請先變更密碼。"
+  },
+  "excludeAnyway": {
+    "message": "仍要排除"
+  },
   "reused": {
     "message": "重複使用",
     "description": "ex. A password that is reused across multiple logins."
@@ -8251,5 +8598,114 @@
   },
   "unknownCipher": {
     "message": "未知項目，您可能需要要求權限才能存取此項目。"
+  },
+  "viewSharedItem": {
+    "message": "檢視共享項目"
+  },
+  "copyShareLink": {
+    "message": "複製分享連結"
+  },
+  "unableToDetermineItemId": {
+    "message": "無法判定項目 ID"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden 有了新外觀",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "更好的使用體驗，同樣值得信賴的安全性。Bitwarden密碼庫已就您們的回饋重新設計，因此項目將會更容易被找到，亦會如您所料地運作。",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "全新改版的Bitwarden密碼庫之預覽。",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "匯出該新的密碼庫",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "切換密碼庫"
+  },
+  "coachmarkVaultSwitcherDescription": {
+    "message": "透過新的密碼庫切換器，您可以快速檢視個人項目，或與其他人共享的密碼庫中的項目。"
+  },
+  "coachmarkFiltersTitle": {
+    "message": "組合使用篩選器"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "您可以同時選取多個篩選器，縮小結果範圍以精確找到所需項目。即使離開目前頁面，篩選條件仍會保留。"
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "收藏集和資料夾已重新命名"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "功能不變，名稱更清楚。收藏集現在稱為共享資料夾，資料夾則改稱我的資料夾。"
+  },
+  "customize": {
+    "message": "自訂"
+  },
+  "customizeYourView": {
+    "message": "自訂您的介面檢視"
+  },
+  "showColumns": {
+    "message": "顯示直欄"
+  },
+  "resetToDefault": {
+    "message": "重設至預設值"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "自動填入瀏覽器登入提示",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "回應與此登入項目相符的網站所顯示的 HTTP 基本驗證提示。"
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "開啟自動填入瀏覽器登入提示的說明文章"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "網站可能在您不知情的情況下觸發這些提示，導致您的登入憑證外洩。",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "若要使用此設定，請為此登入項目的每個網站選取「預設」以外的比對偵測選項。"
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "要開啟瀏覽器登入提示的自動填入功能嗎？"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "此項目的主密碼重新提示功能將關閉。這兩項設定無法同時啟用。"
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "要開啟主密碼重新提示功能嗎？"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "此項目的瀏覽器登入提示自動填入功能將關閉。這兩項設定無法同時啟用。"
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "要使用預設比對偵測嗎？"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "使用預設比對偵測的網站無法搭配瀏覽器登入提示使用。此項目的瀏覽器登入提示自動填入功能將關閉。"
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "已關閉瀏覽器登入提示自動填入功能"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "此項目已啟用主密碼重新提示功能，因此已關閉瀏覽器登入提示自動填入功能。請儲存項目以保留此變更。"
   }
 }

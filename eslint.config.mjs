@@ -289,6 +289,7 @@ export default tseslint.config(
       "apps/browser/src/autofill/{deprecated/content,content,notification}/**/*.ts",
       "apps/browser/src/**/background/**/*.ts", // It's okay to have long lived listeners in the background
       "apps/browser/src/platform/background.ts",
+      "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
     ],
     rules: {
       "no-restricted-syntax": [
@@ -307,6 +308,24 @@ export default tseslint.config(
           selector:
             "CallExpression > [object.object.object.object.name='chrome'][property.name='addListener']",
         },
+        // This block owns the non-background browser files; the background block below covers the rest, so
+        // together they follow these methods everywhere without a third, colliding `no-restricted-syntax` block.
+        doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
+      ],
+    },
+  },
+  {
+    files: ["apps/browser/src/**/background/**/*.ts"],
+    ignores: [
+      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
+      "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
       ],
     },
   },
@@ -359,6 +378,27 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports(["@bitwarden/bit-common/*"]),
     },
   },
+  // bit-pam stays free of Angular so background scripts can use it; UI code goes in bit-pam-components.
+  {
+    files: ["bitwarden_license/bit-pam/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
+        "@angular",
+        "@bitwarden/angular",
+        "@bitwarden/components",
+        "@bitwarden/ui-common",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["bitwarden_license/bit-pam-components/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports(["@bitwarden/bit-pam-components"]),
+    },
+  },
   {
     files: ["apps/**/*.ts"],
     rules: {
@@ -366,6 +406,8 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
       ]),
     },
@@ -376,6 +418,8 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
 
         "**/app/core/*",
@@ -394,6 +438,8 @@ export default tseslint.config(
         "@angular",
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
 
         "**/popup/*",
@@ -407,6 +453,8 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
       ]),
     },
@@ -423,6 +471,7 @@ export default tseslint.config(
       "apps/web/**/*.html",
       "apps/browser/**/*.html",
       "bitwarden_license/bit-web/**/*.html",
+      "bitwarden_license/bit-pam-components/**/*.html",
       "libs/**/*.html",
     ],
     rules: {
@@ -683,7 +732,12 @@ export default tseslint.config(
   // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.
   // https://contributing.bitwarden.com/contributing/code-style/web/typescript#imports-within-the-same-package
   {
-    files: ["libs/**/*.ts", "bitwarden_license/bit-common/src/**/*.ts"],
+    files: [
+      "libs/**/*.ts",
+      "bitwarden_license/bit-common/src/**/*.ts",
+      "bitwarden_license/bit-pam/src/**/*.ts",
+      "bitwarden_license/bit-pam-components/src/**/*.ts",
+    ],
     rules: {
       "@bitwarden/platform/no-self-package-import": "error",
     },
@@ -696,6 +750,7 @@ export default tseslint.config(
       "apps/web/src/app/admin-console/**/*.ts",
       "bitwarden_license/bit-cli/src/admin-console/**/*.ts",
       "bitwarden_license/bit-web/src/app/admin-console/**/*.ts",
+      "bitwarden_license/bit-web/src/app/providers/**/*.ts",
       "libs/admin-console/src/**/*.ts",
     ],
     rules: {
@@ -743,6 +798,16 @@ export default tseslint.config(
     },
     rules: {
       "jest/no-alias-methods": "error",
+    },
+  },
+
+  // Playwright fixtures
+  {
+    files: ["e2e/**/*.ts"],
+    rules: {
+      // Playwright requires a destructuring pattern as the first fixture argument, so a
+      // fixture that depends on nothing has to be declared as `async ({}, use)`.
+      "no-empty-pattern": "off",
     },
   },
 
@@ -818,4 +883,32 @@ function buildNoRestrictedImports(
       ],
     },
   ];
+}
+
+/**
+ * A `no-restricted-syntax` entry that flags direct calls to the `AutofillService.doAutoFill*`
+ * methods.
+ * @returns {any}
+ */
+function doAutoFillSyntaxRule() {
+  return {
+    selector:
+      "CallExpression[callee.type='MemberExpression'][callee.property.name=/^doAutoFill(ActiveTab|OnTab)?$/]",
+    message:
+      "Request a fill using the AutofillOrchestrator (fillCipher / autofillTabWithCipher). See autofill.design.md and orchestrator.design.md for additional information.",
+  };
+}
+
+/**
+ * A `no-restricted-syntax` entry that flags every call to
+ * `AutofillOrchestrator.unsafeAutofillTabWithCipher`.
+ * @returns {any}
+ */
+function unsafeAutofillTabWithCipherSyntaxRule() {
+  return {
+    selector:
+      "CallExpression[callee.type='MemberExpression'][callee.property.name='unsafeAutofillTabWithCipher']",
+    message:
+      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is internal to the extension with BrowserApi.senderIsInternal, and disable this rule inline with that justification. See orchestrator.design.md for additional information.",
+  };
 }
