@@ -113,6 +113,44 @@ describe("DefaultPasswordPreloginService", () => {
       expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
     });
 
+    // Server config can finish loading between a prefetch and the submit that consumes it, so
+    // the flag can read off for the fetch and on afterward. The cached data must keep the
+    // outcome of the read that produced it.
+    it("keeps the cached data's transport and salt when the flag changes before a cache hit", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      void sut.getPreloginData$(email);
+      await flushPromises();
+
+      configService.getFeatureFlag.mockResolvedValue(true);
+      const result = await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(result).toEqual(expectedData);
+      expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
+      expect(sdkService.client.auth().login().get_password_prelogin).not.toHaveBeenCalled();
+    });
+
+    it("reads the feature flag again for a fetch after the cache is cleared", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      await firstValueFrom(sut.getPreloginData$(email));
+      sut.clearCache();
+
+      configService.getFeatureFlag.mockResolvedValue(true);
+      const result = await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(result).toEqual(expectedSdkData);
+      expect(configService.getFeatureFlag).toHaveBeenCalledTimes(2);
+    });
+
+    // The SDK substitutes this email as the salt when the server has none, so it must arrive
+    // normalized.
+    it("sends the normalized email to the SDK", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await firstValueFrom(sut.getPreloginData$("  USER@EXAMPLE.COM  "));
+
+      expect(sdkService.client.auth().login().get_password_prelogin).toHaveBeenCalledWith(email);
+    });
+
     describe("salt resolution", () => {
       it("ignores the server-supplied salt and uses the email when the flag is off", async () => {
         const result = await firstValueFrom(sut.getPreloginData$(email));
