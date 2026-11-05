@@ -65,6 +65,7 @@ import { autofillToolsDevFlagGuard } from "../autofill/popup/autofill-tools/auto
 import { DefaultPasswordManagerPromptComponent } from "../autofill/popup/default-password-manager/default-password-manager-prompt.component";
 import { DefaultPasswordManagerPromptGuard } from "../autofill/popup/default-password-manager/default-password-manager-prompt.guard";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
+import { HttpAuthenticationComponent } from "../autofill/popup/http-authentication/http-authentication.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
@@ -174,6 +175,12 @@ const routes: Routes = [
     path: "fido2",
     component: Fido2Component,
     canActivate: [fido2AuthGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "http-authentication",
+    component: HttpAuthenticationComponent,
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

@@ -1520,6 +1520,27 @@
     "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
     "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
+  "httpAuthenticationPopoutTitle": {
+    "message": "Sign in with Bitwarden?",
+    "description": "Title of the window that asks which login to use for a website's HTTP authentication prompt"
+  },
+  "httpAuthenticationPopoutDescription": {
+    "message": "$ORIGIN$ is asking for a username and password. Only choose a login if you expected this website to ask.",
+    "description": "Explains which website asked for credentials in the HTTP authentication login window",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "httpAuthenticationChooseLogin": {
+    "message": "Choose a login to send"
+  },
+  "httpAuthenticationUseBrowserPrompt": {
+    "message": "Use browser prompt",
+    "description": "Button that dismisses the Bitwarden window and shows the browser's own HTTP authentication prompt instead"
+  },
   "enableContextMenuItem": {
     "message": "Show context menu options"
   },

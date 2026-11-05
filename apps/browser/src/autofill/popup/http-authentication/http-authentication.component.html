@@ -1,0 +1,43 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'httpAuthenticationPopoutTitle' | i18n"></popup-header>
+
+  <div class="tw-p-2">
+    <p bitTypography="body1">
+      {{ "httpAuthenticationPopoutDescription" | i18n: requestOrigin() }}
+    </p>
+
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "httpAuthenticationChooseLogin" | i18n }}</h2>
+      </bit-section-header>
+      @for (cipher of ciphers(); track cipher.id) {
+        <bit-item>
+          <button
+            bit-item-content
+            type="button"
+            [disabled]="submitting()"
+            [attr.id]="'http-authentication_button_select-' + cipher.id"
+            (click)="selectCipher(cipher)"
+          >
+            <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>
+            <span data-testid="item-name">{{ cipher.name }}</span>
+            <ng-container slot="secondary">{{ cipher.login.username }}</ng-container>
+          </button>
+        </bit-item>
+      }
+    </bit-section>
+  </div>
+
+  <popup-footer slot="footer">
+    <button
+      id="http-authentication_button_use-browser-prompt"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [disabled]="submitting()"
+      (click)="useBrowserPrompt()"
+    >
+      {{ "httpAuthenticationUseBrowserPrompt" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>

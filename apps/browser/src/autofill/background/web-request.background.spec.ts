@@ -20,12 +20,24 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
 import { flushPromises } from "../spec/testing-utils";
+import {
+  closeHttpAuthenticationPopout,
+  HttpAuthenticationPopoutMessage,
+  openHttpAuthenticationPopout,
+} from "../utils/http-authentication-popout";
 
 import WebRequestBackground, {
   getInitiatorOrigin,
   shouldAnswerAuthChallenge,
 } from "./web-request.background";
+
+jest.mock("../utils/http-authentication-popout", () => ({
+  ...jest.requireActual("../utils/http-authentication-popout"),
+  openHttpAuthenticationPopout: jest.fn(),
+  closeHttpAuthenticationPopout: jest.fn(),
+}));
 
 type WebRequestEventMock = {
   addListener: jest.Mock;
@@ -309,24 +321,90 @@ describe("WebRequestBackground", () => {
       );
     };
 
+    const popoutWindowId = 42;
+
+    /** How the simulated popout responds once opened: select a login, decline, close, or wait. */
+    type PopoutResponse = { cipherId?: string } | "close" | "pending";
+    let respondFromPopout: (offeredCipherIds: string[]) => PopoutResponse;
+    let openedPopouts: { sessionId: string; cipherIds: string[] }[];
+
+    const getActiveListeners = (event: unknown): ((...args: unknown[]) => void)[] => {
+      const eventMock = event as WebRequestEventMock;
+      const removedListeners = new Set(
+        eventMock.removeListener.mock.calls.map(([listener]) => listener),
+      );
+
+      return eventMock.addListener.mock.calls
+        .map(([listener]) => listener)
+        .filter((listener) => !removedListeners.has(listener));
+    };
+
+    const getPopoutSenderUrl = (sessionId: string) =>
+      `chrome-extension://id/popup/index.html?uilocation=popout&singleActionPopout=autofill_HttpAuthenticationPopout_${sessionId}#/http-authentication`;
+
+    const sendRuntimeMessage = (message: unknown, senderUrl: string) => {
+      getActiveListeners(chrome.runtime.onMessage).forEach((listener) =>
+        listener(message, { url: senderUrl }, jest.fn()),
+      );
+    };
+
+    const respondInPopout = (sessionId: string, cipherId?: string) => {
+      sendRuntimeMessage(
+        { command: HttpAuthenticationPopoutMessage.SelectionResponse, sessionId, cipherId },
+        getPopoutSenderUrl(sessionId),
+      );
+    };
+
+    const closePopoutWindow = () => {
+      getActiveListeners(chrome.windows.onRemoved).forEach((listener) => listener(popoutWindowId));
+    };
+
+    const startAuthRequired = (
+      requestId = "request-1",
+      overrides: Partial<chrome.webRequest.OnAuthRequiredDetails> = {},
+    ): Promise<chrome.webRequest.BlockingResponse> => {
+      const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
+      return handleAuthRequired(
+        buildAuthRequiredDetails({ url, requestId, ...overrides }),
+        callback,
+      );
+    };
+
     const triggerAuthRequired = async (
       requestId = "request-1",
       overrides: Partial<chrome.webRequest.OnAuthRequiredDetails> = {},
     ) => {
-      const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
-      await handleAuthRequired(
-        buildAuthRequiredDetails({ url, requestId, ...overrides }),
-        callback,
-      );
+      await startAuthRequired(requestId, overrides);
       await flushPromises();
     };
 
     beforeEach(() => {
       callback = jest.fn();
+      openedPopouts = [];
+      // By default the user selects the first login offered.
+      respondFromPopout = (offeredCipherIds) => ({ cipherId: offeredCipherIds[0] });
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue({ windowId: 3 } as chrome.tabs.Tab);
+      jest.mocked(closeHttpAuthenticationPopout).mockResolvedValue(undefined);
+      jest
+        .mocked(openHttpAuthenticationPopout)
+        .mockImplementation(async ({ sessionId, cipherIds }) => {
+          openedPopouts.push({ sessionId, cipherIds });
+          setTimeout(() => {
+            const response = respondFromPopout(cipherIds);
+
+            if (response === "close") {
+              closePopoutWindow();
+            } else if (response !== "pending") {
+              respondInPopout(sessionId, response.cipherId);
+            }
+          });
+
+          return popoutWindowId;
+        });
       webRequestBackground.startListening();
     });
 
-    it("responds with the credentials of the single matching login", async () => {
+    it("responds with the credentials of the login selected in the popout", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
         createCipher("jane.doe@example.com", "fake-password"),
       ]);
@@ -339,9 +417,162 @@ describe("WebRequestBackground", () => {
         undefined,
         UriMatchStrategy.Host,
       );
+      expect(openHttpAuthenticationPopout).toHaveBeenCalledWith({
+        sessionId: expect.any(String),
+        senderWindowId: 3,
+        requestUrl: url,
+        cipherIds: ["cipher-id"],
+      });
       expect(callback).toHaveBeenCalledWith({
         authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
       });
+    });
+
+    it("closes the popout once the challenge is resolved", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+
+      await triggerAuthRequired();
+
+      expect(closeHttpAuthenticationPopout).toHaveBeenCalledWith(openedPopouts[0].sessionId);
+    });
+
+    it("does not open a popout when no login is a candidate", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
+
+      await triggerAuthRequired();
+
+      expect(openHttpAuthenticationPopout).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("defers to the browser when the user chooses the browser prompt", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      respondFromPopout = () => ({});
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
+    });
+
+    it("defers to the browser when the popout window is closed", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      respondFromPopout = () => "close";
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
+    });
+
+    it("defers to the browser when the popout fails to open", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      jest.mocked(openHttpAuthenticationPopout).mockResolvedValue(undefined);
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("does not release a login that was not offered", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password", "offered-id"),
+      ]);
+      respondFromPopout = () => ({ cipherId: "unoffered-id" });
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
+    });
+
+    it("ignores a selection from a sender other than the session's popout", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      respondFromPopout = () => "pending";
+
+      const challenge = startAuthRequired();
+      await flushPromises();
+      const { sessionId } = openedPopouts[0];
+      sendRuntimeMessage(
+        {
+          command: HttpAuthenticationPopoutMessage.SelectionResponse,
+          sessionId,
+          cipherId: "cipher-id",
+        },
+        "https://attacker.example/",
+      );
+      await flushPromises();
+
+      expect(callback).not.toHaveBeenCalled();
+
+      closePopoutWindow();
+      await challenge;
+
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("defers to the browser when the request ends while the popout is open", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      respondFromPopout = () => "pending";
+
+      const challenge = startAuthRequired("request-1");
+      await flushPromises();
+      const handleErrorOccurred = webRequest.onErrorOccurred.addListener.mock.calls[0][0];
+      handleErrorOccurred({ requestId: "request-1" });
+      await challenge;
+
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("defers to the browser when the listeners are removed while the popout is open", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      respondFromPopout = () => "pending";
+
+      const challenge = startAuthRequired();
+      await flushPromises();
+      resolvedSetting$.next(false);
+      await challenge;
+
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("does not release credentials when the vault locks while the popout is open", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      authService.authStatusFor$
+        .mockReturnValueOnce(of(AuthenticationStatus.Unlocked))
+        .mockReturnValue(of(AuthenticationStatus.Locked));
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
+    });
+
+    it("does not release credentials when the selected login no longer matches", async () => {
+      cipherService.getAllDecryptedForUrl
+        .mockResolvedValueOnce([createCipher("jane.doe@example.com", "fake-password")])
+        .mockResolvedValue([]);
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
     });
 
     it("records a release event for the released login before responding", async () => {
@@ -394,25 +625,29 @@ describe("WebRequestBackground", () => {
       });
     });
 
-    it("does not respond with credentials when more than one login matches", async () => {
+    it("offers every matching login and responds with the one selected", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
-        createCipher("jane.doe@example.com", "fake-password"),
-        createCipher("john.doe@example.com", "other-fake-password"),
+        createCipher("jane.doe@example.com", "fake-password", "first-id"),
+        createCipher("john.doe@example.com", "other-fake-password", "second-id"),
       ]);
+      respondFromPopout = () => ({ cipherId: "second-id" });
 
       await triggerAuthRequired();
 
-      expect(callback).toHaveBeenCalledWith({});
-      expect(eventCollectionService.collect).not.toHaveBeenCalled();
+      expect(openedPopouts[0].cipherIds).toEqual(["first-id", "second-id"]);
+      expect(callback).toHaveBeenCalledWith({
+        authCredentials: { username: "john.doe@example.com", password: "other-fake-password" },
+      });
     });
 
-    it("does not respond with credentials when the matching login has no password", async () => {
+    it("does not offer a login with no password", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
         createCipher("jane.doe@example.com", null),
       ]);
 
       await triggerAuthRequired();
 
+      expect(openHttpAuthenticationPopout).not.toHaveBeenCalled();
       expect(callback).toHaveBeenCalledWith({});
       expect(eventCollectionService.collect).not.toHaveBeenCalled();
     });
@@ -527,7 +762,7 @@ describe("WebRequestBackground", () => {
       await triggerAuthRequired();
 
       expect(callback).toHaveBeenCalledWith({});
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+      expect(openHttpAuthenticationPopout).toHaveBeenCalledTimes(1);
     });
 
     it("does not look up ciphers for a cross-origin subresource challenge", async () => {
@@ -561,7 +796,7 @@ describe("WebRequestBackground", () => {
       callback.mockClear();
       await triggerAuthRequired();
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(2);
+      expect(openHttpAuthenticationPopout).toHaveBeenCalledTimes(2);
     });
 
     describe("eligibility", () => {
@@ -573,7 +808,7 @@ describe("WebRequestBackground", () => {
         expect(eventCollectionService.collect).not.toHaveBeenCalled();
       };
 
-      it("declines a login with master password reprompt on, even when it is the only match", async () => {
+      it("offers a login with master password reprompt on, leaving the reprompt to the popout", async () => {
         cipherService.getAllDecryptedForUrl.mockResolvedValue([
           createCipher("jane.doe@example.com", "fake-password", "cipher-id", "organization-id", {
             reprompt: CipherRepromptType.Password,
@@ -582,7 +817,8 @@ describe("WebRequestBackground", () => {
 
         await triggerAuthRequired();
 
-        expectDeclined();
+        expect(openedPopouts[0].cipherIds).toEqual(["cipher-id"]);
+        expectAnswered();
       });
 
       it("declines a login whose only URI uses the default match strategy", async () => {
@@ -700,34 +936,23 @@ describe("WebRequestBackground", () => {
         expectAnswered();
       });
 
-      it("answers with the one eligible login when it matches alongside ineligible logins", async () => {
+      it("offers only the candidate logins when they match alongside ineligible logins", async () => {
         cipherService.getAllDecryptedForUrl.mockResolvedValue([
-          createCipher("reprompt@example.com", "reprompt-password", "reprompt-id", null, {
-            reprompt: CipherRepromptType.Password,
-          }),
           createCipher("default@example.com", "default-password", "default-id", null, {
             uris: [createLoginUri(url, null)],
           }),
-          createCipher("jane.doe@example.com", "fake-password", "eligible-id", null),
-        ]);
-
-        await triggerAuthRequired();
-
-        expectAnswered();
-      });
-
-      it("declines when more than one eligible login matches alongside ineligible logins", async () => {
-        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("no-password@example.com", null, "no-password-id", null),
           createCipher("reprompt@example.com", "reprompt-password", "reprompt-id", null, {
             reprompt: CipherRepromptType.Password,
           }),
-          createCipher("jane.doe@example.com", "fake-password", "first-eligible-id", null),
-          createCipher("john.doe@example.com", "other-fake-password", "second-eligible-id", null),
+          createCipher("jane.doe@example.com", "fake-password", "eligible-id", null),
         ]);
+        respondFromPopout = () => ({ cipherId: "eligible-id" });
 
         await triggerAuthRequired();
 
-        expectDeclined();
+        expect(openedPopouts[0].cipherIds).toEqual(["reprompt-id", "eligible-id"]);
+        expectAnswered();
       });
     });
 
@@ -744,7 +969,7 @@ describe("WebRequestBackground", () => {
         webRequestBackground.startListening();
       });
 
-      it("returns the credentials of the single matching login without a callback", async () => {
+      it("returns the credentials of the selected login without a callback", async () => {
         cipherService.getAllDecryptedForUrl.mockResolvedValue([
           createCipher("jane.doe@example.com", "fake-password"),
         ]);
@@ -767,7 +992,7 @@ describe("WebRequestBackground", () => {
         await triggerFirefoxAuthRequired();
 
         await expect(triggerFirefoxAuthRequired()).resolves.toEqual({});
-        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+        expect(openHttpAuthenticationPopout).toHaveBeenCalledTimes(1);
       });
     });
   });
