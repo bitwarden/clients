@@ -18,6 +18,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -191,10 +192,10 @@ describe("BrowserVaultRowAccessService", () => {
 
   describe("requestAccess", () => {
     it("opens the item, whose banner carries the request form", async () => {
-      await service.requestAccess({ ...gated, type: 1 } as unknown as CipherViewLike);
+      await service.requestAccess({ ...gated, type: { login: {} } } as unknown as CipherViewLike);
 
       expect(router.navigate).toHaveBeenCalledWith(["/view-cipher"], {
-        queryParams: { cipherId: "c1", type: 1 },
+        queryParams: { cipherId: "c1", type: CipherType.Login },
       });
     });
 
