@@ -66,7 +66,6 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   };
 
   readonly route = input<string | any[]>();
-  /** Query parameters sent with the link. They never decide whether the tab is active. */
   readonly queryParams = input<Params>();
   readonly label = input<string>();
   readonly berryValue = input<number>();
