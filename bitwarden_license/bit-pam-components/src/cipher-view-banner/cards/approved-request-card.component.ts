@@ -23,6 +23,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { injectPopupLayout } from "../cipher-view-banner-layout";
+
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
 /** An approved request the requester has not started yet. */
@@ -43,6 +45,7 @@ export class ApprovedRequestCardComponent {
   private readonly locale = inject(LOCALE_ID);
 
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
+  protected readonly popupLayout = injectPopupLayout();
 
   /** "…until 4:45 PM today." while the approved window ends on the current day, else its date too. */
   protected readonly accessUntilLabel = computed(() => {
