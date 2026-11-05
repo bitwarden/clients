@@ -3,7 +3,7 @@
     <app-pam-banner-card-header [icon]="badgeLook.ready.icon" variant="success">
       <span slot="title">{{ "pamApprovedRequestBannerHeadingV2" | i18n }}</span>
       <span slot="description" data-testid="cipher-view-banner-approved-hint">
-        {{ "pamApprovedRequestBannerHint" | i18n }}
+        {{ accessUntilLabel() }}
       </span>
     </app-pam-banner-card-header>
 

@@ -1,6 +1,20 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  LOCALE_ID,
+  computed,
+  inject,
+  input,
+} from "@angular/core";
 
-import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-pam";
+import {
+  type AccessRequestView,
+  ACCESS_BADGE_LOOK,
+  formatCalendarDate,
+  formatTimeOfDay,
+  toDateInputValue,
+} from "@bitwarden/bit-pam";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -20,7 +34,27 @@ import { BannerCardHeaderComponent } from "./banner-card-header.component";
   templateUrl: "./approved-request-card.component.html",
 })
 export class ApprovedRequestCardComponent {
+  readonly request = input.required<AccessRequestView>();
+  /** The banner's clock, so "today" turns over with it. */
+  readonly nowMs = input.required<number>();
   readonly startAction = input.required<FunctionReturningAwaitable>();
 
+  private readonly i18nService = inject(I18nService);
+  private readonly locale = inject(LOCALE_ID);
+
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
+
+  /** "…until 4:45 PM today." while the approved window ends on the current day, else its date too. */
+  protected readonly accessUntilLabel = computed(() => {
+    const endMs = Date.parse(this.request().leaseNotAfter);
+    const time = formatTimeOfDay(this.locale, endMs);
+    if (toDateInputValue(new Date(endMs)) === toDateInputValue(new Date(this.nowMs()))) {
+      return this.i18nService.t("pamApprovedAccessUntilToday", time);
+    }
+    return this.i18nService.t(
+      "pamApprovedAccessUntil",
+      time,
+      formatCalendarDate(this.locale, endMs),
+    );
+  });
 }
