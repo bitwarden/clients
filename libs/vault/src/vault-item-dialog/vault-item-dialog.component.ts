@@ -107,6 +107,11 @@ export interface VaultItemDialogParams {
    * Function to restore a cipher from the trash.
    */
   restore?: (c: CipherViewLike) => Promise<void>;
+
+  /**
+   * Called each time a cipher is saved while the dialog stays open, e.g. after adding a new item.
+   */
+  cipherSaved?: (cipher: CipherView) => void;
 }
 
 export const VaultItemDialogResult = {
@@ -548,6 +553,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // Store the updated cipher so any following edits use the most up to date cipher
     this.formConfig.originalCipher = cipher;
     this._cipherModified = true;
+    this.params.cipherSaved?.(cipherView);
 
     // Update canEdit based on the saved cipher (important for newly created items where canEdit was never set)
     this.canEdit = await firstValueFrom(
