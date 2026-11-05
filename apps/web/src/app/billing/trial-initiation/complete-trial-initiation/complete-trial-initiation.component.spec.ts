@@ -526,6 +526,70 @@ describe("CompleteTrialInitiationComponent", () => {
         );
       });
 
+      describe("reconciling with the created organization", () => {
+        let logService: MockProxy<LogService>;
+
+        beforeEach(() => {
+          logService = TestBed.inject(LogService) as MockProxy<LogService>;
+          mockActivatedRoute.queryParams.next(salesInvitationParams);
+          component.orgInfoFormGroup.patchValue({
+            name: "Test Org",
+            billingEmail: "test@example.com",
+          });
+          component.verticalStepper = { next: jest.fn() } as any;
+        });
+
+        it("stops claiming Privileged Controls when the organization was created without it", async () => {
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+            id: "org-id",
+            name: "Test Org",
+            usePam: false,
+          } as any);
+
+          await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+          expect(component.includesPrivilegedControls).toBe(false);
+          expect(component.privilegedControlsNotProvisioned).toBe(true);
+          expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+          expect(component.trial.privilegedControls).toBeUndefined();
+          expect(component.verticalStepper.next).toHaveBeenCalledTimes(1);
+          expect(logService.warning).toHaveBeenCalledTimes(1);
+          const message = logService.warning.mock.calls[0][0] as string;
+          expect(message).toContain("org-id");
+          expect(message).not.toContain("sales-assisted-token-123");
+          expect(message).not.toContain("test@example.com");
+        });
+
+        it("keeps the claim off when a flag changes after the organization was created without it", async () => {
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+            id: "org-id",
+            name: "Test Org",
+            usePam: false,
+          } as any);
+          await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+          pamBillingSupport$.next(true);
+
+          expect(component.includesPrivilegedControls).toBe(false);
+          expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+        });
+
+        it("keeps Privileged Controls when the organization was created with it", async () => {
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+            id: "org-id",
+            name: "Test Org",
+            usePam: true,
+          } as any);
+
+          await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+          expect(component.includesPrivilegedControls).toBe(true);
+          expect(component.privilegedControlsNotProvisioned).toBe(false);
+          expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+          expect(logService.warning).not.toHaveBeenCalled();
+        });
+      });
+
       it("sends no sales-assisted token for a self-serve link", async () => {
         mockActivatedRoute.queryParams.next({ ...selfServeParams, product: "0" });
         component.orgInfoFormGroup.patchValue({

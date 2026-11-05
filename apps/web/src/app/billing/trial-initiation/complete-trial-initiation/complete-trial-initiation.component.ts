@@ -28,6 +28,7 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -92,6 +93,12 @@ export class CompleteTrialInitiationComponent {
    */
   showPrivilegedControlsSalesCallout = false;
 
+  /**
+   * True when the trial asked the server for Privileged Controls but the created organization does not have
+   * it. The confirmation then shows the sales callout instead of saying the trial includes it.
+   */
+  privilegedControlsNotProvisioned = false;
+
   orgInfoSubLabel = "";
   orgId = "";
   orgLabel = "";
@@ -131,6 +138,7 @@ export class CompleteTrialInitiationComponent {
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private configService: ConfigService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((queryParams) => {
       this.params = parseTrialInitiationParams(queryParams);
@@ -238,6 +246,7 @@ export class CompleteTrialInitiationComponent {
 
       this.orgId = response.id;
       this.billingSubLabel = response.name.toString();
+      this.reconcilePrivilegedControls(response);
       this.verticalStepper.next();
     } catch (e: unknown) {
       this.validationService.showError(e);
@@ -291,6 +300,20 @@ export class CompleteTrialInitiationComponent {
       },
       activeUserId,
       this.trialLength,
+    );
+  }
+
+  /** Stop claiming Privileged Controls when the server created the organization without it. */
+  private reconcilePrivilegedControls(organization: OrganizationResponse): void {
+    if (!this.includesPrivilegedControls || organization.usePam) {
+      return;
+    }
+
+    this.privilegedControlsNotProvisioned = true;
+    this.includesPrivilegedControls = false;
+    this.showPrivilegedControlsSalesCallout = true;
+    this.logService.warning(
+      `Privileged Controls was requested on a no-payment trial but not provisioned for organization ${organization.id}.`,
     );
   }
 
@@ -467,10 +490,15 @@ export class CompleteTrialInitiationComponent {
       !!params.salesAssistedToken &&
       this.startsWithoutPayment(params.paymentOptional, params.trialLength);
 
+    // Once the server has created the organization without Privileged Controls, later flag changes
+    // must not bring the claim back.
     this.includesPrivilegedControls =
-      requested && (fromSalesInvitation || this.privilegedControlsSelfServe);
+      requested &&
+      !this.privilegedControlsNotProvisioned &&
+      (fromSalesInvitation || this.privilegedControlsSelfServe);
     this.showPrivilegedControlsSalesCallout =
-      requested && !this.includesPrivilegedControls && !this.pamBillingSupportEnabled;
+      this.privilegedControlsNotProvisioned ||
+      (requested && !this.includesPrivilegedControls && !this.pamBillingSupportEnabled);
   }
 
   get trial(): Trial {

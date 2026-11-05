@@ -39,24 +39,7 @@
             {{ "trialIncludesPrivilegedControls" | i18n }}
           </bit-callout>
         } @else if (showPrivilegedControlsSalesCallout) {
-          <bit-callout
-            type="info"
-            [title]="null"
-            [accessibleName]="'privilegedControls' | i18n"
-            class="tw-mb-3 tw-block"
-            id="privileged-controls-sales-callout"
-          >
-            {{ "trialPrivilegedControlsThroughSales" | i18n }}
-            <a
-              bitLink
-              href="https://bitwarden.com/contact/"
-              target="_blank"
-              rel="noreferrer"
-              id="complete-trial-initiation_link_privileged-controls-contact-sales"
-            >
-              {{ "contactSales" | i18n }}
-            </a>
-          </bit-callout>
+          <ng-container [ngTemplateOutlet]="privilegedControlsSalesCallout"></ng-container>
         }
         <app-org-info [nameOnly]="true" [formGroup]="orgInfoFormGroup"></app-org-info>
         <button
@@ -80,6 +63,9 @@
         </app-trial-billing-step>
       </app-vertical-step>
       <app-vertical-step label="Confirmation Details" [applyBorder]="false">
+        @if (privilegedControlsNotProvisioned) {
+          <ng-container [ngTemplateOutlet]="privilegedControlsSalesCallout"></ng-container>
+        }
         <app-trial-confirmation-details
           [email]="email"
           [orgLabel]="orgLabel"
@@ -114,3 +100,25 @@
     </app-vertical-stepper>
   </div>
 }
+
+<!-- Only the selected step renders, so the ids below appear at most once in the page. -->
+<ng-template #privilegedControlsSalesCallout>
+  <bit-callout
+    type="info"
+    [title]="null"
+    [accessibleName]="'privilegedControls' | i18n"
+    class="tw-mb-3 tw-block"
+    id="privileged-controls-sales-callout"
+  >
+    {{ "trialPrivilegedControlsThroughSales" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/contact/"
+      target="_blank"
+      rel="noreferrer"
+      id="complete-trial-initiation_link_privileged-controls-contact-sales"
+    >
+      {{ "contactSales" | i18n }}
+    </a>
+  </bit-callout>
+</ng-template>
