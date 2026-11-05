@@ -107,7 +107,7 @@
     <!-- Options in a section combine with OR, and the two sections combine with AND. -->
     <bit-filter-menu key="policies" [placeholderText]="'policies' | i18n" multiple>
       @if (showAccountRecoverySection()) {
-        <bit-filter-section [label]="'accountRecovery' | i18n">
+        <bit-filter-section [label]="'accountRecovery' | i18n" collapsible>
           <bit-filter-option [value]="accountRecoveryFilter.Enrolled">{{
             "enrolled" | i18n
           }}</bit-filter-option>
@@ -116,7 +116,7 @@
           }}</bit-filter-option>
         </bit-filter-section>
       }
-      <bit-filter-section [label]="'twoStepLogin' | i18n">
+      <bit-filter-section [label]="'twoStepLogin' | i18n" collapsible>
         <bit-filter-option [value]="twoFactorFilter.Active">{{
           "active" | i18n
         }}</bit-filter-option>
