@@ -204,7 +204,7 @@ export class BrowserVaultRowAccessService implements VaultRowAccess {
       return;
     }
     await this.router.navigate(["/view-cipher"], {
-      queryParams: { cipherId: cipher.id, type: cipher.type },
+      queryParams: { cipherId: cipher.id, type: CipherViewLikeUtils.getType(cipher) },
     });
   }
 
