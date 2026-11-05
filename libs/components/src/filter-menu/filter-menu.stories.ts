@@ -1,14 +1,18 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { ChangeDetectionStrategy, Component, inject, viewChildren } from "@angular/core";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { expect, findByLabelText, getAllByRole, userEvent, waitFor, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { ButtonModule } from "../button";
+import { DialogModule, DialogService } from "../dialog";
 import { TOOLTIP_DELAY_MS } from "../tooltip";
 import { I18nMockService } from "../utils";
 
+import { FilterDialogComponent } from "./filter-dialog.component";
 import { FilterMenuModule } from "./filter-menu.module";
 import { FilterOptionIconTile, FilterOptionNode } from "./filter-option.component";
+import { FILTER_PRESENTER } from "./filter-tokens";
 
 /**
  * Each chip declares a `key` and owns its own selection — no `ngModel`. Inside a
@@ -137,18 +141,23 @@ class FilterMenuDataDrivenNestedDemoComponent {
   ];
 }
 
-/** A shared-folder path ten levels deep, with a sibling leaf at each level. */
+/** A shared-folder path fifteen levels deep, with a sibling leaf at each level. */
 const deepFolderPath = [
-  "Clients",
-  "Acme Corporation",
-  "Finance and accounting",
-  "Payroll",
-  "2026",
-  "Q4",
-  "Contractors",
-  "International",
-  "EMEA",
-  "Germany",
+  "Clients and partner organizations",
+  "Acme Corporation international holdings",
+  "Finance and accounting department",
+  "Payroll and compensation records",
+  "Fiscal year 2026 reporting period",
+  "Fourth quarter closing documents",
+  "Independent contractors and consultants",
+  "International operations and subsidiaries",
+  "Europe, Middle East, and Africa region",
+  "Germany country office and entities",
+  "Berlin headquarters and satellite offices",
+  "Monthly payroll runs and adjustments",
+  "March payroll cycle and corrections",
+  "Approved by finance leadership",
+  "Signed copies with wet ink signatures",
 ];
 
 const buildDeepFolderTree = (depth = 0): FilterOptionNode<string>[] => {
@@ -170,21 +179,30 @@ const buildDeepFolderTree = (depth = 0): FilterOptionNode<string>[] => {
 @Component({
   selector: "filter-menu-deeply-nested-demo",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FilterMenuModule],
+  imports: [ButtonModule, FilterMenuModule],
   template: `
     <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
       <bit-filter-menu key="folder" placeholderText="Shared folders" multiple>
         <bit-filter-section
-          label="Acme Corporation shared folders and everything nested beneath them"
+          label="Acme Corporation shared folders"
           collapsible
           [options]="tree"
         ></bit-filter-section>
       </bit-filter-menu>
+      <button bitButton buttonType="secondary" type="button" size="small" (click)="openDialog()">
+        Open in filter dialog
+      </button>
     </div>
   `,
 })
 class FilterMenuDeeplyNestedDemoComponent {
   protected readonly tree = buildDeepFolderTree();
+  private readonly filters = viewChildren(FILTER_PRESENTER);
+  private readonly dialogService = inject(DialogService);
+
+  protected openDialog(): void {
+    this.dialogService.open(FilterDialogComponent, { data: { filters: this.filters } });
+  }
 }
 
 /**
@@ -362,6 +380,27 @@ class FilterMenuLongLabelsWithCountsDemoComponent {
 })
 class FilterMenuDisabledReasonDemoComponent {}
 
+const i18nMock = () =>
+  new I18nMockService({
+    all: "All",
+    removeItem: (name) => `Remove ${name}`,
+    noMatchingItems: "No matching items",
+    noFiltersMatchTerm: (term) => `No filters match \u201c${term}\u201d`,
+    clearSearch: "Clear search",
+    oneFilterResult: "1 result",
+    filterResults: (count) => `${count} results`,
+    search: "Search",
+    resetSearch: "Reset search",
+    clearSearchTooltip: "Clear by clicking here or pressing Esc.",
+    clear: "Clear",
+    clearAll: "Clear all",
+    filtersSelected: (count) => `${count} selected`,
+    filter: "Filter",
+    back: "Back",
+    done: "Done",
+    close: "Close",
+  });
+
 export default {
   title: "Component Library/Filter Menu",
   decorators: [
@@ -379,27 +418,9 @@ export default {
         FilterMenuDisabledReasonDemoComponent,
         FilterMenuModule,
       ],
-      providers: [
-        {
-          provide: I18nService,
-          useFactory: () =>
-            new I18nMockService({
-              all: "All",
-              removeItem: (name) => `Remove ${name}`,
-              noMatchingItems: "No matching items",
-              noFiltersMatchTerm: (term) => `No filters match \u201c${term}\u201d`,
-              clearSearch: "Clear search",
-              oneFilterResult: "1 result",
-              filterResults: (count) => `${count} results`,
-              search: "Search",
-              resetSearch: "Reset search",
-              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
-              clear: "Clear",
-              filtersSelected: (count) => `${count} selected`,
-            }),
-        },
-      ],
     }),
+    // Dialogs resolve services from the app injector, not the story module.
+    applicationConfig({ providers: [{ provide: I18nService, useFactory: i18nMock }] }),
   ],
 } as Meta;
 
@@ -457,10 +478,11 @@ export const DataDrivenNestedOptions: Story = {
 };
 
 /**
- * A data-driven shared-folder tree ten levels deep under a long section header. Deep rows scroll
- * sideways instead of truncating their labels to nothing.
+ * A data-driven shared-folder tree fifteen levels deep. Deep rows scroll sideways instead of
+ * truncating their labels to nothing. The button opens the same tree in the filter dialog.
  */
 export const DeeplyNestedOptions: Story = {
+  decorators: [moduleMetadata({ imports: [DialogModule] })],
   render: () => ({
     template: `<filter-menu-deeply-nested-demo></filter-menu-deeply-nested-demo>`,
   }),
@@ -479,7 +501,7 @@ export const DeeplyNestedOptions: Story = {
       await userEvent.click(next);
       last = next;
     }
-    // The pointer and focus end on the last row, whose tooltip would otherwise land in the snapshot.
+    // Clears the last row's hover and focus styles from the snapshot.
     if (last) {
       await userEvent.unhover(last);
     }
