@@ -15,6 +15,7 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
+import { OnePasswordCodeOutcome } from "./onepassword-code-outcome";
 import {
   OnePasswordSsoEnrollmentPromptComponent,
   OnePasswordSsoEnrollmentPromptData,
@@ -22,7 +23,7 @@ import {
 
 describe("OnePasswordSsoEnrollmentPromptComponent", () => {
   let fixture: ComponentFixture<OnePasswordSsoEnrollmentPromptComponent>;
-  let submitCode: jest.Mock<Promise<void>, [string]>;
+  let submitCode: jest.Mock<Promise<OnePasswordCodeOutcome>, [string]>;
 
   const element = () => fixture.nativeElement as HTMLElement;
   const codeInput = () =>
@@ -45,7 +46,7 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
   }
 
   beforeEach(async () => {
-    submitCode = jest.fn().mockResolvedValue(undefined);
+    submitCode = jest.fn().mockResolvedValue(OnePasswordCodeOutcome.Ended);
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key) => key);
 
@@ -97,6 +98,28 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
 
     expect(submitCode).toHaveBeenCalledWith("ABCD-1234");
     expect(codeInput()!.disabled).toBe(false);
+  });
+
+  it("marks a code 1Password refused and takes the new one", async () => {
+    submitCode.mockResolvedValueOnce(OnePasswordCodeOutcome.Refused);
+
+    enterCode("ABCD-1234");
+    await submit();
+    fixture.detectChanges();
+
+    expect(element().querySelector("bit-error")?.textContent).toContain(
+      "onePasswordSsoCodeDidNotWork",
+    );
+
+    await submit();
+    expect(submitCode).toHaveBeenCalledTimes(1);
+
+    enterCode("WXYZ-9876");
+    fixture.detectChanges();
+    expect(element().querySelector("bit-error")).toBeNull();
+
+    await submit();
+    expect(submitCode).toHaveBeenLastCalledWith("WXYZ-9876");
   });
 
   it("refuses a code that is only spaces", async () => {

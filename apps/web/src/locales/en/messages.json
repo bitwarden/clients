@@ -17843,11 +17843,17 @@
   "onePasswordSsoVerifyInPendingSignIns": {
     "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
   },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
   "onePasswordSsoSignInClosed": {
     "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
   },
   "onePasswordSsoDeviceDenied": {
     "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper email"

@@ -19,6 +19,7 @@ import {
 import { ImportServiceAbstraction } from "../../services/import.service.abstraction";
 
 import {
+  OnePasswordCodeOutcome,
   OnePasswordCredentialsPromptComponent,
   OnePasswordCredentialsPromptData,
   OnePasswordSecretKeyAndPassword,
@@ -269,11 +270,11 @@ describe("OnePasswordDirectImportService", () => {
       expect(codePrompts).toHaveLength(1);
       expect(codePrompts[0].data.email).toBe(account.email);
 
-      const refused = codePrompts[0].data.submitCode("123456");
+      const submitted = codePrompts[0].data.submitCode("123456");
       await expect(sdk.codes[0]).resolves.toBe("123456");
 
       sdk.finish(summary);
-      await expect(refused).resolves.toBe(false);
+      await expect(submitted).resolves.toBe(OnePasswordCodeOutcome.Ended);
       await expect(signedIn).resolves.toBeUndefined();
       await expect(result).resolves.toBe(summary);
       expect(codePrompts[0].close).toHaveBeenCalled();
@@ -284,18 +285,18 @@ describe("OnePasswordDirectImportService", () => {
       const result = start();
       void credentialPrompts[0].data.signIn(entered);
 
-      const firstRefused = codePrompts[0].data.submitCode("111111");
+      const refused = codePrompts[0].data.submitCode("111111");
       sdk.askAgain();
 
-      await expect(firstRefused).resolves.toBe(true);
+      await expect(refused).resolves.toBe(OnePasswordCodeOutcome.Refused);
       expect(codePrompts).toHaveLength(1);
       expect(codePrompts[0].close).not.toHaveBeenCalled();
 
-      const secondRefused = codePrompts[0].data.submitCode("123456");
+      const submitted = codePrompts[0].data.submitCode("123456");
       await expect(sdk.codes[1]).resolves.toBe("123456");
       sdk.finish(summary);
 
-      await expect(secondRefused).resolves.toBe(false);
+      await expect(submitted).resolves.toBe(OnePasswordCodeOutcome.Ended);
       await expect(result).resolves.toBe(summary);
     });
 
@@ -498,7 +499,7 @@ describe("OnePasswordDirectImportService", () => {
         const enrollment = await ssoRequest().ui.beginSsoEnrollment();
 
         await expect(enrollment.cancelled()).resolves.toBeUndefined();
-        await expect(enrollment.provideVerificationCode()).resolves.toBeUndefined();
+        await expect(enrollment.provideVerificationCode(0)).resolves.toBeUndefined();
         expect(enrollmentPrompts).toHaveLength(0);
       });
 
@@ -508,7 +509,7 @@ describe("OnePasswordDirectImportService", () => {
         await flush();
         const canceled = jest.fn();
         void sdk.enrollment().cancelled().then(canceled);
-        const code = sdk.enrollment().provideVerificationCode();
+        const code = sdk.enrollment().provideVerificationCode(0);
 
         service.ngOnDestroy();
 
@@ -553,7 +554,7 @@ describe("OnePasswordDirectImportService", () => {
         const result = startSso();
         await flush();
 
-        const code = sdk.enrollment().provideVerificationCode();
+        const code = sdk.enrollment().provideVerificationCode(0);
         const submitted = enrollmentPrompts[0].data.submitCode("123456");
         await expect(code).resolves.toBe("123456");
 
@@ -565,7 +566,45 @@ describe("OnePasswordDirectImportService", () => {
 
         sdk.finish(summary);
         await expect(result).resolves.toBe(summary);
-        await expect(submitted).resolves.toBeUndefined();
+        await expect(submitted).resolves.toBe(OnePasswordCodeOutcome.Ended);
+        expect(enrollmentPrompts[0].close).toHaveBeenCalled();
+      });
+
+      it("reports a wrong code to the prompt and hands over the next one", async () => {
+        const sdk = enrollingImport();
+        const result = startSso();
+        await flush();
+
+        const firstCode = sdk.enrollment().provideVerificationCode(0);
+        const refused = enrollmentPrompts[0].data.submitCode("111111");
+        await expect(firstCode).resolves.toBe("111111");
+        expect(await settled(refused)).toBe(false);
+
+        const secondCode = sdk.enrollment().provideVerificationCode(1);
+        await expect(refused).resolves.toBe(OnePasswordCodeOutcome.Refused);
+        const submitted = enrollmentPrompts[0].data.submitCode("222222");
+        await expect(secondCode).resolves.toBe("222222");
+
+        await sdk.enrollment().endEnrollment("Success");
+        sdk.finish(summary);
+        await expect(result).resolves.toBe(summary);
+        await expect(submitted).resolves.toBe(OnePasswordCodeOutcome.Ended);
+        expect(enrollmentPrompts).toHaveLength(1);
+      });
+
+      it("closes the prompt and passes the failure on once the user runs out of codes", async () => {
+        const sdk = enrollingImport();
+        const result = startSso();
+        await flush();
+
+        void sdk.enrollment().provideVerificationCode(2);
+        const submitted = enrollmentPrompts[0].data.submitCode("333333");
+        await sdk.enrollment().endEnrollment("Failed");
+        sdk.finish(importError("OnePasswordVerificationCodeFailed"));
+        const failure: unknown = await result.catch((error: unknown) => error);
+
+        expect(service.describeError(failure)?.message).toBe("onePasswordSsoTooManyWrongCodes");
+        await expect(submitted).resolves.toBe(OnePasswordCodeOutcome.Ended);
         expect(enrollmentPrompts[0].close).toHaveBeenCalled();
       });
 
@@ -593,13 +632,14 @@ describe("OnePasswordDirectImportService", () => {
         await flush();
         const canceled = jest.fn();
         void sdk.enrollment().cancelled().then(canceled);
-        const code = sdk.enrollment().provideVerificationCode();
+        const code = sdk.enrollment().provideVerificationCode(0);
 
         enrollmentPrompts[0].closed.next(undefined);
 
         await expect(code).resolves.toBeUndefined();
         await flush();
         expect(canceled).toHaveBeenCalled();
+        await expect(sdk.enrollment().provideVerificationCode(1)).resolves.toBeUndefined();
 
         await sdk.enrollment().endEnrollment("Canceled");
         sdk.finish(importError("OnePasswordCanceled"));

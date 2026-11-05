@@ -17,6 +17,7 @@ import {
 import { ImportServiceAbstraction } from "../../services/import.service.abstraction";
 
 import {
+  OnePasswordCodeOutcome,
   OnePasswordCredentialsPromptComponent,
   OnePasswordCredentialsRejection,
   OnePasswordSecretKeyAndPassword,
@@ -273,22 +274,22 @@ const canceledEnrollment: OnePasswordSsoEnrollment = {
 /**
  * The enrollment prompt the SDK drives while a device is approved. It opens when the SDK begins the
  * enrollment and stays open until the import is over, so an enrolled device shows the import
- * finishing. The user can call the enrollment off until the verification code is handed over.
+ * finishing. The SDK asks again after a wrong code, once the other device shows a new one. The user
+ * can call the enrollment off except while a submitted code is checked.
  */
 class SsoEnrollmentPrompt implements OnePasswordSsoEnrollment {
   private codeRequested = false;
   private codeTooEarly = false;
+  /** Whether the user closed the prompt, after which every request for a code is declined. */
+  private dismissed = false;
   private dialog: DialogRef<undefined> | undefined;
+  /** Answers the SDK's pending request: with a code, or `undefined` to call the enrollment off. */
+  private answer: ((code: string | undefined) => void) | undefined;
+  /** Tells the prompt what became of the code it handed over. */
+  private reportOutcome: ((outcome: OnePasswordCodeOutcome) => void) | undefined;
 
-  private answerWithCode: (code: string | undefined) => void = () => undefined;
   private cancel: () => void = () => undefined;
-  private end: () => void = () => undefined;
-
-  private readonly code = new Promise<string | undefined>(
-    (resolve) => (this.answerWithCode = resolve),
-  );
   private readonly cancellation = new Promise<void>((resolve) => (this.cancel = resolve));
-  private readonly ended = new Promise<void>((resolve) => (this.end = resolve));
 
   constructor(
     private readonly dialogService: DialogService,
@@ -298,28 +299,30 @@ class SsoEnrollmentPrompt implements OnePasswordSsoEnrollment {
   open(): this {
     this.dialog = OnePasswordSsoEnrollmentPromptComponent.open(this.dialogService, {
       email: this.email,
-      submitCode: (code) => {
-        // The other device shows the code once it approves this one, so an earlier one is wrong.
-        if (this.codeRequested) {
-          this.answerWithCode(code);
-        } else {
-          this.codeTooEarly = true;
-          this.cancel();
-        }
-        return this.ended;
-      },
+      submitCode: (code) =>
+        new Promise<OnePasswordCodeOutcome>((resolve) => {
+          this.reportOutcome = resolve;
+          // The other device shows the code once it approves this one, so an earlier one is wrong.
+          if (this.codeRequested) {
+            this.respond(code);
+          } else {
+            this.codeTooEarly = true;
+            this.cancel();
+          }
+        }),
     });
     // Closing the prompt calls the enrollment off, unless it is over already, in which case
     // settling the cancellation is what releases it.
     this.dialog.closed.subscribe(() => {
-      this.answerWithCode(undefined);
+      this.dismissed = true;
+      this.respond(undefined);
       this.cancel();
     });
     return this;
   }
 
   close(): void {
-    this.end();
+    this.report(OnePasswordCodeOutcome.Ended);
     void this.dialog?.close(undefined);
   }
 
@@ -337,14 +340,32 @@ class SsoEnrollmentPrompt implements OnePasswordSsoEnrollment {
     return Promise.resolve();
   }
 
-  provideVerificationCode(): Promise<string | undefined> {
+  provideVerificationCode(attempt: number): Promise<string | undefined> {
+    if (attempt > 0) {
+      this.report(OnePasswordCodeOutcome.Refused);
+    }
+    if (this.dismissed) {
+      return Promise.resolve(undefined);
+    }
     this.codeRequested = true;
-    return this.code;
+    return new Promise((resolve) => (this.answer = resolve));
   }
 
   /** The import goes on after a successful enrollment. Any other result ends it with the prompt. */
   endEnrollment(): Promise<void> {
     return Promise.resolve();
+  }
+
+  private respond(code: string | undefined): void {
+    const answer = this.answer;
+    this.answer = undefined;
+    answer?.(code);
+  }
+
+  private report(outcome: OnePasswordCodeOutcome): void {
+    const reportOutcome = this.reportOutcome;
+    this.reportOutcome = undefined;
+    reportOutcome?.(outcome);
   }
 }
 
@@ -357,8 +378,8 @@ class TwoFactorPrompt {
   private dialog: DialogRef<undefined> | undefined;
   /** Answers the SDK's pending request: with a code, or `undefined` to cancel the import. */
   private answer: ((code: string | undefined) => void) | undefined;
-  /** Tells the prompt whether 1Password refused the code it is waiting on. */
-  private reportRefused: ((refused: boolean) => void) | undefined;
+  /** Tells the prompt what became of the code it is waiting on. */
+  private reportOutcome: ((outcome: OnePasswordCodeOutcome) => void) | undefined;
   private cancelledByUser = false;
 
   readonly ui: OnePasswordTwoFactorUi = {
@@ -368,7 +389,7 @@ class TwoFactorPrompt {
         if (this.dialog == null) {
           this.open();
         } else {
-          this.report(true);
+          this.report(OnePasswordCodeOutcome.Refused);
         }
       }),
   };
@@ -389,7 +410,7 @@ class TwoFactorPrompt {
   }
 
   close(): void {
-    this.report(false);
+    this.report(OnePasswordCodeOutcome.Ended);
     void this.dialog?.close();
   }
 
@@ -398,8 +419,8 @@ class TwoFactorPrompt {
     this.dialog = OnePasswordTwoFactorPromptComponent.open(this.dialogService, {
       email: this.email,
       submitCode: (code) =>
-        new Promise<boolean>((resolve) => {
-          this.reportRefused = resolve;
+        new Promise<OnePasswordCodeOutcome>((resolve) => {
+          this.reportOutcome = resolve;
           this.respond(code);
         }),
     });
@@ -417,9 +438,9 @@ class TwoFactorPrompt {
     answer?.(code);
   }
 
-  private report(refused: boolean): void {
-    const reportRefused = this.reportRefused;
-    this.reportRefused = undefined;
-    reportRefused?.(refused);
+  private report(outcome: OnePasswordCodeOutcome): void {
+    const reportOutcome = this.reportOutcome;
+    this.reportOutcome = undefined;
+    reportOutcome?.(outcome);
   }
 }

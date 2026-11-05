@@ -23,14 +23,16 @@ import {
 
 import { requiredWithMessage } from "../onepassword-validators";
 
+import { OnePasswordCodeOutcome } from "./onepassword-code-outcome";
+
 export interface OnePasswordTwoFactorPromptData {
   email: string;
   /**
-   * Hands the code to 1Password. It resolves with `true` when 1Password refuses it and asks for
-   * another, and with `false` once the import is over. The Continue button stays busy until then,
-   * and whoever opened the prompt closes it.
+   * Hands the code to 1Password. It resolves once 1Password refuses it and asks for another, or
+   * once the import is over. The Continue button stays busy until then, and whoever opened the
+   * prompt closes it.
    */
-  submitCode: (code: string) => Promise<boolean>;
+  submitCode: (code: string) => Promise<OnePasswordCodeOutcome>;
 }
 
 /**
@@ -86,7 +88,7 @@ export class OnePasswordTwoFactorPromptComponent {
     }
 
     const { code } = this.formGroup.getRawValue();
-    if (await this.data.submitCode(code)) {
+    if ((await this.data.submitCode(code)) === OnePasswordCodeOutcome.Refused) {
       this.refusedCode.set(code);
       this.formGroup.controls.code.updateValueAndValidity();
     }

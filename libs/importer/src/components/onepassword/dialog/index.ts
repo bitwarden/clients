@@ -1,3 +1,4 @@
+export { OnePasswordCodeOutcome } from "./onepassword-code-outcome";
 export {
   OnePasswordCredentialsPromptComponent,
   OnePasswordCredentialsPromptData,

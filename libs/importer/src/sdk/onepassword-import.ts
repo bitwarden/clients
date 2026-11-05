@@ -71,9 +71,9 @@ export interface OnePasswordErrorDisplay {
 /**
  * Where and how to show a failed 1Password import, or `undefined` when the user canceled it and
  * there is nothing to show. What the user entered is marked on its field, except an email
- * 1Password refuses, which gets a toast of its own, as does a new device the user denied on another
- * one. Everything else, from a lost connection to a vault that could not be saved, is out of their
- * hands and shown as the same toast.
+ * 1Password refuses, which gets a toast of its own, as do a new device the user denied on another
+ * one and one they ran out of verification codes for. Everything else, from a lost connection to a
+ * vault that could not be saved, is out of their hands and shown as the same toast.
  */
 export function onePasswordErrorDisplay(error: unknown): OnePasswordErrorDisplay | undefined {
   if (!isImportError(error)) {
@@ -96,6 +96,8 @@ export function onePasswordErrorDisplay(error: unknown): OnePasswordErrorDisplay
       return { field: "email", messageKey: "onePasswordUnsupportedSignIn" };
     case "OnePasswordDenied":
       return { messageKey: "onePasswordSsoDeviceDenied" };
+    case "OnePasswordVerificationCodeFailed":
+      return { messageKey: "onePasswordSsoTooManyWrongCodes" };
     case "OnePasswordCanceled":
       return undefined;
     default:
