@@ -242,18 +242,20 @@ describe("BrowserVaultRowAccessService", () => {
     beforeEach(() => {
       accessRequestSdk.getCipherAccessState.mockResolvedValue({
         activeLease: { id: "lease-1" },
+        maxExtensionDurationSeconds: 3600,
       } as any);
     });
 
     it("extends the lease with the dialog's request", async () => {
       const request = { durationSeconds: 900, reason: "audit" };
-      jest
+      const open = jest
         .spyOn(ExtendLeaseDialogComponent, "open")
         .mockReturnValue({ closed: of(request) } as any);
       accessLeaseSdk.extendLease.mockResolvedValue({ status: "approved" } as any);
 
       await service.extendAccess(gated);
 
+      expect(open.mock.lastCall?.[1]).toEqual({ maxDurationSeconds: 3600 });
       expect(accessLeaseSdk.extendLease).toHaveBeenCalledWith("lease-1", request);
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success", message: "pamExtendLeaseSuccess" }),
@@ -272,6 +274,18 @@ describe("BrowserVaultRowAccessService", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "warning", message: "pamExtendLeaseEnded" }),
       );
+    });
+
+    it("does nothing when the state carries no extension cap", async () => {
+      accessRequestSdk.getCipherAccessState.mockResolvedValue({
+        activeLease: { id: "lease-1" },
+      } as any);
+      const open = jest.spyOn(ExtendLeaseDialogComponent, "open");
+      open.mockClear();
+
+      await service.extendAccess(gated);
+
+      expect(open).not.toHaveBeenCalled();
     });
 
     it("does nothing when the dialog is dismissed", async () => {
