@@ -107,6 +107,8 @@
         </button>
       }
     </app-pam-pending-request-card>
+  } @else if (unavailable()) {
+    <app-pam-unavailable-card class="tw-mb-5 bit-compact:tw-mb-4" />
   } @else if (accessEnded()) {
     <app-pam-access-ended-card class="tw-mb-5 bit-compact:tw-mb-4">
       @if (!popupLayout && canRequestAccess()) {
