@@ -40,68 +40,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     TypographyModule,
     I18nPipe,
   ],
-  template: `
-    <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-active">
-      <div class="tw-flex tw-flex-col tw-gap-4">
-        <div class="tw-flex tw-items-start tw-gap-2">
-          <bit-icon-tile
-            [icon]="endingSoon() ? badgeLook.endingSoon.icon : badgeLook.active.icon"
-            [variant]="endingSoon() ? 'danger' : 'teal'"
-            size="base"
-          />
-          <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-text-fg-body">
-            @if (endingSoon()) {
-              <h3
-                bitTypography="body2"
-                class="tw-m-0 tw-font-medium tw-text-fg-heading"
-                data-testid="active-lease-ending-soon"
-              >
-                {{ "pamActiveLeaseBannerEndingSoonTitleV2" | i18n: remainingLabel() }}
-              </h3>
-            } @else {
-              <h3
-                bitTypography="body2"
-                class="tw-m-0 tw-font-medium tw-text-fg-heading"
-                data-testid="active-lease-countdown"
-              >
-                {{ "pamActiveLeaseBannerTitleV2" | i18n: remainingLabel() }}
-              </h3>
-            }
-            <span bitTypography="helper" class="tw-text-fg-body" data-testid="active-lease-ends-at">
-              {{ expiryLabel() }}
-            </span>
-          </div>
-        </div>
-
-        @if (!endingSoon()) {
-          <div class="tw-flex tw-items-center tw-gap-2" data-testid="active-lease-actions">
-            @if (canExtend()) {
-              <button
-                type="button"
-                bitButton
-                buttonType="secondary"
-                class="tw-flex-1"
-                [bitAction]="extendAction()"
-                id="pam-cipher-view-banner_button_extend"
-              >
-                {{ "pamExtendLeaseButtonV2" | i18n }}
-              </button>
-            }
-            <button
-              type="button"
-              bitButton
-              buttonType="danger"
-              class="tw-flex-1"
-              [bitAction]="endAction()"
-              id="pam-cipher-view-banner_button_end"
-            >
-              {{ "pamEndLeaseButton" | i18n }}
-            </button>
-          </div>
-        }
-      </div>
-    </bit-card>
-  `,
+  templateUrl: "./active-lease-card.component.html",
 })
 export class ActiveLeaseCardComponent {
   readonly lease = input.required<AccessLeaseView>();

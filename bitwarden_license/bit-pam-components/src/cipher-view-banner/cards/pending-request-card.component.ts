@@ -18,27 +18,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-block" },
   imports: [CardComponent, IconTileComponent, TypographyModule, I18nPipe],
-  template: `
-    <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-pending">
-      <div class="tw-flex tw-items-start tw-gap-2">
-        <bit-icon-tile [icon]="badgeLook.pending.icon" variant="warning" size="base" />
-        <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-text-fg-body">
-          <h3 bitTypography="body2" class="tw-m-0 tw-font-medium tw-text-fg-heading">
-            {{ "pamPendingRequestBannerHeading" | i18n }}
-          </h3>
-          @if (submittedLabel(); as submitted) {
-            <span
-              bitTypography="helper"
-              class="tw-text-fg-body"
-              data-testid="cipher-view-banner-pending-submitted"
-            >
-              {{ submitted }}
-            </span>
-          }
-        </div>
-      </div>
-    </bit-card>
-  `,
+  templateUrl: "./pending-request-card.component.html",
 })
 export class PendingRequestCardComponent {
   readonly request = input.required<AccessRequestView>();

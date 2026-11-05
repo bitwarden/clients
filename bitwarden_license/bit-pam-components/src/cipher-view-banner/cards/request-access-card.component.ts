@@ -25,34 +25,7 @@ import type { RequestTerms } from "../request-terms";
     DurationLongPipe,
     I18nPipe,
   ],
-  template: `
-    <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-request">
-      <div class="tw-flex tw-flex-col tw-gap-4">
-        <div class="tw-flex tw-items-start tw-gap-2">
-          <bit-icon-tile [icon]="badgeLook.privileged.icon" variant="primary" size="base" />
-          <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-text-fg-body">
-            <h3 bitTypography="body2" class="tw-m-0 tw-font-medium tw-text-fg-heading">
-              {{ "pamRequestAccessBannerHeading" | i18n }}
-            </h3>
-            <p bitTypography="helper" class="tw-m-0 tw-text-fg-body">
-              {{ "pamRequestAccessBannerBody" | i18n }}
-            </p>
-          </div>
-        </div>
-
-        @if (terms(); as rule) {
-          <p
-            bitTypography="helper"
-            class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-fg-heading"
-            data-testid="cipher-view-banner-max-duration"
-          >
-            <bit-icon name="bwi-clock" />
-            {{ rule.messageKey | i18n: (rule.maxSeconds | durationLong) }}
-          </p>
-        }
-      </div>
-    </bit-card>
-  `,
+  templateUrl: "./request-access-card.component.html",
 })
 export class RequestAccessCardComponent {
   readonly terms = input<RequestTerms | null>(null);
