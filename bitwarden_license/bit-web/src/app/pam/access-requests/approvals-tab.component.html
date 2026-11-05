@@ -179,7 +179,7 @@
         *bitCellDef="table.columns.actions; let row"
         [attr.data-testid]="'approvals-cell-actions-' + row.id"
       >
-        <div slot="end" [class]="revealClasses">
+        <div slot="end" class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2" bitHoverReveal>
           @if (row.kind === "pending") {
             <button
               type="button"

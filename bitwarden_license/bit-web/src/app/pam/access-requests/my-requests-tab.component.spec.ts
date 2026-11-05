@@ -666,23 +666,13 @@ describe("MyRequestsTabComponent", () => {
         expect(text(row)).toContain("1 hour");
       });
 
-      it("reveals the actions on row hover or keyboard focus only", () => {
+      it("reveals the actions on row hover or keyboard focus", () => {
         leases$.next([leaseRow()]);
         create();
 
         const actions = query('[data-testid="my-access-end-lease-1"]')!.parentElement!;
-        expect(actions.className).toContain("tw-opacity-0");
-        expect(actions.className).toContain("group-hover/row:tw-opacity-100");
-        expect(actions.className).toContain("group-has-[:focus-visible]/row:tw-opacity-100");
-      });
-
-      it("keeps a hidden action out of the way of the pointer until it is revealed", () => {
-        leases$.next([leaseRow()]);
-        create();
-
-        const actions = query('[data-testid="my-access-end-lease-1"]')!.parentElement!;
-        expect(actions.className).toContain("tw-pointer-events-none");
-        expect(actions.className).toContain("group-hover/row:tw-pointer-events-auto");
+        expect(actions.className).toContain("tw-opacity-[var(--bit-hover-reveal,1)]");
+        expect(actions.closest("bit-row")?.className).toContain("[--bit-hover-reveal:0]");
       });
     });
 
