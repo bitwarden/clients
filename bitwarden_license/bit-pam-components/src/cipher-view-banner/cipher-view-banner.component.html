@@ -47,18 +47,6 @@
       >
         {{ "pamRequestAccessButton" | i18n }}
       </button>
-    } @else if (pendingRequest() && !approvedRequest()) {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        class="tw-mb-4 tw-w-full"
-        [bitAction]="cancelRequest"
-        startIcon="bwi-close"
-        id="pam-cipher-view-banner_button_cancel"
-      >
-        {{ "pendingStateCancelRequest" | i18n }}
-      </button>
     }
 
     @if (showsPrivilegedCard()) {
@@ -95,19 +83,17 @@
       [request]="request"
       [nowMs]="nowMs()"
     >
-      @if (!popupLayout) {
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          size="small"
-          class="tw-self-start"
-          [bitAction]="cancelRequest"
-          id="pam-cipher-view-banner_button_cancel"
-        >
-          {{ "pendingStateCancelRequest" | i18n }}
-        </button>
-      }
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        class="tw-self-start"
+        [bitAction]="cancelRequest"
+        id="pam-cipher-view-banner_button_cancel"
+      >
+        {{ "pendingStateCancelRequest" | i18n }}
+      </button>
     </app-pam-pending-request-card>
   } @else if (unavailable()) {
     <app-pam-unavailable-card class="tw-mb-5 bit-compact:tw-mb-4" />
