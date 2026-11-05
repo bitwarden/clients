@@ -20848,6 +20848,9 @@
   "pamRotationConfigEmptyDescription": {
     "message": "Managed credentials help you change passwords on a schedule or when someone's access ends."
   },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Managed credentials on this target system show here."
+  },
   "pamRotationConfigEmptyStateGetStarted": {
     "message": "Managed credentials help you change passwords on a schedule or when someone's access ends. To get started, add an access connector and a target system."
   },
@@ -21124,8 +21127,14 @@
   "pamRotationConfigRotateNowStarted": {
     "message": "Rotation started."
   },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Rotation didn't start. Try again."
+  },
   "pamRotationConfigMarkedRotated": {
     "message": "Marked as rotated."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Couldn't mark as rotated. Try again."
   },
   "pamRotationConfigPauseWhileRotatingSuccess": {
     "message": "Rotation paused. The rotation in progress will finish."
@@ -21193,6 +21202,9 @@
   "pamRotationConfigPauseSuccess": {
     "message": "Rotation paused."
   },
+  "pamRotationConfigPauseFailed": {
+    "message": "Rotation wasn't paused. Try again."
+  },
   "pamRotationConfigResume": {
     "message": "Resume"
   },
@@ -21222,6 +21234,9 @@
   },
   "pamRotationConfigRemoveSuccess": {
     "message": "Removed from rotation."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Couldn't remove from rotation. Try again."
   },
   "pamRotationConfigNeverRotated": {
     "message": "Never"
@@ -21588,14 +21603,17 @@
   "pamRotationConfigVaultItem": {
     "message": "Vault item"
   },
-  "pamRotationConfigVaultItemPlaceholder": {
-    "message": "Select a vault item"
+  "pamRotationConfigCredentialName": {
+    "message": "Credential name"
   },
-  "pamRotationConfigVaultItemHint": {
-    "message": "Items that are already in rotation aren't listed."
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Select credential"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Credentials that are already in rotation aren't listed."
   },
   "pamRotationConfigTargetSystemHint": {
-    "message": "The system that holds this account."
+    "message": "The credential lives on the target system."
   },
   "pamRotationConfigTargetManual": {
     "message": "Manual"
@@ -21609,8 +21627,11 @@
   "pamRotationConfigCalloutTargetNotConnected": {
     "message": "This target system has no connected access connector, so this credential won't rotate yet. You can still save it."
   },
-  "pamRotationConfigUsernamePlaceholder": {
-    "message": "Enter a username"
+  "pamRotationConfigAccountId": {
+    "message": "Account ID"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "Enter an ID"
   },
   "pamRotationConfigUsernameHint": {
     "message": "The username on the target system, for example name@company.com."
@@ -21700,7 +21721,7 @@
     "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
   },
   "pamTargetSystemCalloutNoConnectorConnected": {
-    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save."
   },
   "pamTargetSystemCalloutNoConnectorConnectedEditing": {
     "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
@@ -21742,7 +21763,7 @@
     }
   },
   "pamTargetSystemCalloutNoConnectorsExist": {
-    "message": "No access connectors exist yet, so add one on the Access connectors tab after you save."
+    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
   },
   "pamTargetSystemPolicyCharacters": {
     "message": "Characters to include"
