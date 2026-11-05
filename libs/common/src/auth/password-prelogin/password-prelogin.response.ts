@@ -14,7 +14,7 @@ export class PasswordPreloginResponse extends BaseResponse {
     super(response);
     this.kdfSettings = new KdfConfigResponse(this.getResponseProperty("KdfSettings"));
     // getResponseProperty returns undefined, not null, when the key is absent. Anything that is
-    // not a string collapses to null, which routes the caller to the email fallback.
+    // not a string collapses to null so the declared type holds.
     const salt = this.getResponseProperty("Salt");
     this.salt = typeof salt === "string" ? (salt as MasterPasswordSalt) : null;
   }
