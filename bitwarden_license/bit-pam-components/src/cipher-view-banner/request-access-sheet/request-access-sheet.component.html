@@ -106,13 +106,7 @@
                     id="pam-cipher-view-banner_select_duration"
                   >
                     @for (option of durationOptions(); track option.seconds) {
-                      <option [value]="option.seconds">
-                        {{
-                          option.labelKey
-                            ? (option.labelKey | i18n)
-                            : (option.seconds | durationShort)
-                        }}
-                      </option>
+                      <option [value]="option.seconds">{{ option.seconds | durationLong }}</option>
                     }
                   </select>
                   <bit-hint>{{ "requestAccessModalDurationHint" | i18n }}</bit-hint>
