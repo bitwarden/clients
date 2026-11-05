@@ -12,7 +12,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { DurationLongPipe } from "../../date/duration-long.pipe";
 import type { RequestTerms } from "../request-terms";
 
-/** The resting state of an item the user can request, with the rule's cap when it is known. */
+/**
+ * The resting state of an item the user can request, with the rule's cap when it is known. Projected
+ * content, such as the host's action, follows the cap.
+ */
 @Component({
   selector: "app-pam-request-access-card",
   changeDetection: ChangeDetectionStrategy.OnPush,

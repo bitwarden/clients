@@ -12,7 +12,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CardComponent, IconTileComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-/** A request waiting on an approver, with how long ago it was sent. */
+/** A request waiting on an approver, with how long ago it was sent and any projected action. */
 @Component({
   selector: "app-pam-pending-request-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
