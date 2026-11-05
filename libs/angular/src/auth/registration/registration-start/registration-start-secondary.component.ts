@@ -5,10 +5,10 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import { LinkModule } from "@bitwarden/components";
+
+import { JslibModule } from "../../../jslib.module";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 
 /**
  * RegistrationStartSecondaryComponentData
