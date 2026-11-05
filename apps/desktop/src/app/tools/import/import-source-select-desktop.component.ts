@@ -2,7 +2,11 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { UpgradeImportType } from "@bitwarden/importer-core";
-import { ImportSourceSelectComponent, importSourceFromQuery } from "@bitwarden/importer-ui";
+import {
+  ImportSourceSelectComponent,
+  importSourceFromQuery,
+  navigateCarryingImportParams,
+} from "@bitwarden/importer-ui";
 
 @Component({
   templateUrl: "import-source-select-desktop.component.html",
@@ -16,6 +20,6 @@ export class ImportSourceSelectDesktopComponent {
   protected readonly initialSource = importSourceFromQuery(this.route);
 
   protected onContinue(importType: UpgradeImportType): void {
-    void this.router.navigate(["/import", importType]);
+    void navigateCarryingImportParams(this.router, this.route, ["/import", importType]);
   }
 }

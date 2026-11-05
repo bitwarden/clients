@@ -36,35 +36,39 @@
   }
 </bit-card>
 
-<h2 bitTypography="h6" class="tw-mb-2">{{ "pamAccessRequestDetailsTitle" | i18n }}</h2>
+@if (!hideDetails()) {
+  <h2 bitTypography="h6" class="tw-mb-2">{{ "pamAccessRequestDetailsTitle" | i18n }}</h2>
 
-<bit-card class="tw-mb-4" data-testid="request-summary-details">
-  <div class="tw-flex tw-flex-col tw-gap-4">
-    <pam-summary-field [label]="'pamInboxRequester' | i18n">
-      {{ requesterName() }}
-      @if (secondaryEmail(); as email) {
-        <span class="tw-text-fg-body-subtle">&lt;{{ email }}&gt;</span>
-      }
-    </pam-summary-field>
+  <bit-card class="tw-mb-4" data-testid="request-summary-details">
+    <div class="tw-flex tw-flex-col tw-gap-4">
+      <pam-summary-field [label]="'pamInboxRequester' | i18n">
+        {{ requesterName() }}
+        @if (secondaryEmail(); as email) {
+          <span class="tw-text-fg-body-subtle">&lt;{{ email }}&gt;</span>
+        }
+      </pam-summary-field>
 
-    <pam-summary-field [label]="'pamAccessRequestedLabel' | i18n">
-      <span id="pam-request-summary_value_access-requested" [title]="exactWindow()">{{
-        accessRequested()
-      }}</span>
-    </pam-summary-field>
-
-    <pam-summary-field [label]="'pamInboxRequestReasonLabel' | i18n">
-      @if (quotedReason()) {
-        <span id="pam-request-summary_value_reason" class="tw-whitespace-pre-wrap tw-break-words">{{
-          quotedReason()
+      <pam-summary-field [label]="'pamAccessRequestedLabel' | i18n">
+        <span id="pam-request-summary_value_access-requested" [title]="exactWindow()">{{
+          accessRequested()
         }}</span>
-      } @else {
-        <span id="pam-request-summary_value_reason" class="tw-text-muted">{{
-          "pamInboxReasonMissing" | i18n
-        }}</span>
-      }
-    </pam-summary-field>
+      </pam-summary-field>
 
-    <ng-content></ng-content>
-  </div>
-</bit-card>
+      <pam-summary-field [label]="'pamInboxRequestReasonLabel' | i18n">
+        @if (quotedReason()) {
+          <span
+            id="pam-request-summary_value_reason"
+            class="tw-whitespace-pre-wrap tw-break-words"
+            >{{ quotedReason() }}</span
+          >
+        } @else {
+          <span id="pam-request-summary_value_reason" class="tw-text-muted">{{
+            "pamInboxReasonMissing" | i18n
+          }}</span>
+        }
+      </pam-summary-field>
+
+      <ng-content></ng-content>
+    </div>
+  </bit-card>
+}
