@@ -1,8 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil } from "rxjs";
+import { CurrencyPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, OnInit, inject, input, output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -14,10 +16,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationSmSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-sm-subscription-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
-
-import { SharedModule } from "../../shared";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CheckboxModule,
+  FormFieldModule,
+  ToastService,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface SecretsManagerSubscriptionOptions {
   interval: "year" | "month";
@@ -66,27 +72,33 @@ export interface SecretsManagerSubscriptionOptions {
   additionalServiceAccountPrice: number;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-sm-adjust-subscription",
   templateUrl: "sm-adjust-subscription.component.html",
-  imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    AsyncActionsModule,
+    ButtonModule,
+    CheckboxModule,
+    FormFieldModule,
+    I18nPipe,
+    CurrencyPipe,
+  ],
 })
-export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() organizationId: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() options: SecretsManagerSubscriptionOptions;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onAdjusted = new EventEmitter();
+export class SecretsManagerAdjustSubscriptionComponent implements OnInit {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
+  private readonly i18nService = inject(I18nService);
+  private readonly toastService = inject(ToastService);
+  private readonly internalOrganizationService = inject(InternalOrganizationServiceAbstraction);
+  private readonly accountService = inject(AccountService);
 
-  private destroy$ = new Subject<void>();
+  readonly organizationId = input<string>(undefined);
+  readonly options = input<SecretsManagerSubscriptionOptions>();
+  readonly onAdjusted = output();
 
-  formGroup = this.formBuilder.group({
+  readonly formGroup = this.formBuilder.group({
     seatCount: [0, [Validators.required, Validators.min(1)]],
     limitSeats: [false],
     maxAutoscaleSeats: [null as number | null],
@@ -95,47 +107,8 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
     maxAutoscaleServiceAccounts: [null as number | null],
   });
 
-  get monthlyServiceAccountPrice(): number {
-    return this.options.interval == "month"
-      ? this.options.additionalServiceAccountPrice
-      : this.options.additionalServiceAccountPrice / 12;
-  }
-
-  get serviceAccountTotalCost(): number {
-    return Math.abs(
-      this.formGroup.value.additionalServiceAccounts * this.options.additionalServiceAccountPrice,
-    );
-  }
-
-  get seatTotalCost(): number {
-    return Math.abs(this.formGroup.value.seatCount * this.options.seatPrice);
-  }
-
-  get maxAdditionalServiceAccounts(): number {
-    const maxTotalServiceAccounts = this.formGroup.value.maxAutoscaleServiceAccounts ?? 0;
-    return Math.max(0, maxTotalServiceAccounts - this.options.baseServiceAccountCount);
-  }
-
-  get maxServiceAccountTotalCost(): number {
-    return this.maxAdditionalServiceAccounts * this.options.additionalServiceAccountPrice;
-  }
-
-  get maxSeatTotalCost(): number {
-    return Math.abs((this.formGroup.value.maxAutoscaleSeats ?? 0) * this.options.seatPrice);
-  }
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private toastService: ToastService,
-    private internalOrganizationService: InternalOrganizationServiceAbstraction,
-    private accountService: AccountService,
-  ) {}
-
-  ngOnInit() {
-    this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+  constructor() {
+    this.formGroup.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       const maxAutoscaleSeatsControl = this.formGroup.controls.maxAutoscaleSeats;
       const maxAutoscaleServiceAccountsControl =
         this.formGroup.controls.maxAutoscaleServiceAccounts;
@@ -149,25 +122,56 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
 
       if (value.limitServiceAccounts) {
         maxAutoscaleServiceAccountsControl.setValidators([
-          Validators.min(value.additionalServiceAccounts + this.options.baseServiceAccountCount),
+          Validators.min(value.additionalServiceAccounts + this.options().baseServiceAccountCount),
         ]);
         maxAutoscaleServiceAccountsControl.enable({ emitEvent: false });
       } else {
         maxAutoscaleServiceAccountsControl.disable({ emitEvent: false });
       }
     });
+  }
 
+  get monthlyServiceAccountPrice(): number {
+    return this.options().interval == "month"
+      ? this.options().additionalServiceAccountPrice
+      : this.options().additionalServiceAccountPrice / 12;
+  }
+
+  get serviceAccountTotalCost(): number {
+    return Math.abs(
+      this.formGroup.value.additionalServiceAccounts * this.options().additionalServiceAccountPrice,
+    );
+  }
+
+  get seatTotalCost(): number {
+    return Math.abs(this.formGroup.value.seatCount * this.options().seatPrice);
+  }
+
+  get maxAdditionalServiceAccounts(): number {
+    const maxTotalServiceAccounts = this.formGroup.value.maxAutoscaleServiceAccounts ?? 0;
+    return Math.max(0, maxTotalServiceAccounts - this.options().baseServiceAccountCount);
+  }
+
+  get maxServiceAccountTotalCost(): number {
+    return this.maxAdditionalServiceAccounts * this.options().additionalServiceAccountPrice;
+  }
+
+  get maxSeatTotalCost(): number {
+    return Math.abs((this.formGroup.value.maxAutoscaleSeats ?? 0) * this.options().seatPrice);
+  }
+
+  ngOnInit() {
     this.formGroup.patchValue({
-      seatCount: this.options.seatCount,
-      maxAutoscaleSeats: this.options.maxAutoscaleSeats,
-      additionalServiceAccounts: this.options.additionalServiceAccounts,
-      maxAutoscaleServiceAccounts: this.options.maxAutoscaleServiceAccounts,
-      limitSeats: this.options.maxAutoscaleSeats != null,
-      limitServiceAccounts: this.options.maxAutoscaleServiceAccounts != null,
+      seatCount: this.options().seatCount,
+      maxAutoscaleSeats: this.options().maxAutoscaleSeats,
+      additionalServiceAccounts: this.options().additionalServiceAccounts,
+      maxAutoscaleServiceAccounts: this.options().maxAutoscaleServiceAccounts,
+      limitSeats: this.options().maxAutoscaleSeats != null,
+      limitServiceAccounts: this.options().maxAutoscaleServiceAccounts != null,
     });
   }
 
-  submit = async () => {
+  readonly submit = async () => {
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
@@ -175,9 +179,9 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
     }
 
     const request = new OrganizationSmSubscriptionUpdateRequest();
-    request.seatAdjustment = this.formGroup.value.seatCount - this.options.seatCount;
+    request.seatAdjustment = this.formGroup.value.seatCount - this.options().seatCount;
     request.serviceAccountAdjustment =
-      this.formGroup.value.additionalServiceAccounts - this.options.additionalServiceAccounts;
+      this.formGroup.value.additionalServiceAccounts - this.options().additionalServiceAccounts;
     request.maxAutoscaleSeats = this.formGroup.value.limitSeats
       ? this.formGroup.value.maxAutoscaleSeats
       : null;
@@ -186,7 +190,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
       : null;
 
     const response = await this.organizationApiService.updateSecretsManagerSubscription(
-      this.organizationId,
+      this.organizationId(),
       request,
     );
 
@@ -194,7 +198,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
     const organization = await firstValueFrom(
       this.internalOrganizationService
         .organizations$(userId)
-        .pipe(getOrganizationById(this.organizationId)),
+        .pipe(getOrganizationById(this.organizationId())),
     );
 
     const organizationData = new OrganizationData(response, {
@@ -212,9 +216,4 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
 
     this.onAdjusted.emit();
   };
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

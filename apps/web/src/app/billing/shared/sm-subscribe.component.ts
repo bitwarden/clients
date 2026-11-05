@@ -1,9 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { Subject, startWith, takeUntil } from "rxjs";
+import { CurrencyPipe } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  input,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { startWith } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { SecretsManagerAlt } from "@bitwarden/assets/svg";
@@ -13,6 +21,15 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CheckboxModule,
+  FormFieldModule,
+  TypographyModule,
+  SvgModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface SecretsManagerSubscription {
   enabled: boolean;
@@ -32,37 +49,35 @@ export const secretsManagerSubscribeFormFactory = (
     ],
   });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-subscribe",
   templateUrl: "sm-subscribe.component.html",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    AsyncActionsModule,
+    ButtonModule,
+    CheckboxModule,
+    FormFieldModule,
+    TypographyModule,
+    SvgModule,
+    I18nPipe,
+    CurrencyPipe,
+  ],
 })
-export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
-  private i18nService = inject(I18nService);
-  private configService = inject(ConfigService);
+export class SecretsManagerSubscribeComponent implements OnInit {
+  private readonly i18nService = inject(I18nService);
+  private readonly configService = inject(ConfigService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() upgradeOrganization: boolean;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showSubmitButton = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() selectedPlan: PlanResponse;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() customerDiscount: BillingCustomerDiscount;
+  readonly formGroup = input.required<FormGroup<ControlsOf<SecretsManagerSubscription>>>();
+  readonly upgradeOrganization = input<boolean>(undefined);
+  readonly showSubmitButton = input(false);
+  readonly selectedPlan = input<PlanResponse>();
+  readonly customerDiscount = input<BillingCustomerDiscount>(undefined);
 
-  logo = SecretsManagerAlt;
-  productTypes = ProductTierType;
-
-  private destroy$ = new Subject<void>();
+  readonly logo = SecretsManagerAlt;
+  readonly productTypes = ProductTierType;
 
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
@@ -70,35 +85,34 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   );
 
   ngOnInit() {
-    this.formGroup.controls.enabled.valueChanges
-      .pipe(startWith(this.formGroup.value.enabled), takeUntil(this.destroy$))
+    this.formGroup()
+      .controls.enabled.valueChanges.pipe(
+        startWith(this.formGroup().value.enabled),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((enabled) => {
         if (enabled) {
-          this.formGroup.controls.userSeats.enable();
-          this.formGroup.controls.additionalServiceAccounts.enable();
+          this.formGroup().controls.userSeats.enable();
+          this.formGroup().controls.additionalServiceAccounts.enable();
         } else {
-          this.formGroup.controls.userSeats.disable();
-          this.formGroup.controls.additionalServiceAccounts.disable();
+          this.formGroup().controls.userSeats.disable();
+          this.formGroup().controls.additionalServiceAccounts.disable();
         }
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  discountPrice = (price: number) => {
+  readonly discountPrice = (price: number) => {
+    const customerDiscount = this.customerDiscount();
     const discount =
-      !!this.customerDiscount && this.customerDiscount.active
-        ? price * (this.customerDiscount.percentOff / 100)
+      !!customerDiscount && customerDiscount.active
+        ? price * (customerDiscount.percentOff / 100)
         : 0;
 
     return price - discount;
   };
 
   get product() {
-    return this.selectedPlan.productTier;
+    return this.selectedPlan().productTier;
   }
 
   get planName() {
@@ -116,26 +130,26 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   }
 
   get serviceAccountsIncluded() {
-    return this.selectedPlan.SecretsManager.baseServiceAccount;
+    return this.selectedPlan().SecretsManager.baseServiceAccount;
   }
 
   get monthlyCostPerServiceAccount() {
-    return this.selectedPlan.isAnnual
-      ? this.discountPrice(this.selectedPlan.SecretsManager.additionalPricePerServiceAccount) / 12
-      : this.discountPrice(this.selectedPlan.SecretsManager.additionalPricePerServiceAccount);
+    return this.selectedPlan().isAnnual
+      ? this.discountPrice(this.selectedPlan().SecretsManager.additionalPricePerServiceAccount) / 12
+      : this.discountPrice(this.selectedPlan().SecretsManager.additionalPricePerServiceAccount);
   }
 
   get maxUsers() {
-    return this.selectedPlan.SecretsManager.maxSeats;
+    return this.selectedPlan().SecretsManager.maxSeats;
   }
 
   get maxProjects() {
-    return this.selectedPlan.SecretsManager.maxProjects;
+    return this.selectedPlan().SecretsManager.maxProjects;
   }
 
   get monthlyCostPerUser() {
-    return this.selectedPlan.isAnnual
-      ? this.discountPrice(this.selectedPlan.SecretsManager.seatPrice) / 12
-      : this.discountPrice(this.selectedPlan.SecretsManager.seatPrice);
+    return this.selectedPlan().isAnnual
+      ? this.discountPrice(this.selectedPlan().SecretsManager.seatPrice) / 12
+      : this.discountPrice(this.selectedPlan().SecretsManager.seatPrice);
   }
 }

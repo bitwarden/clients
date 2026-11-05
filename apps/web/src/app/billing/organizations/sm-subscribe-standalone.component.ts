@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -15,61 +15,51 @@ import { SecretsManagerSubscribeRequest } from "@bitwarden/common/billing/models
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+import { AsyncActionsModule, ToastService } from "@bitwarden/components";
 
-import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
+import {
+  SecretsManagerSubscribeComponent,
+  secretsManagerSubscribeFormFactory,
+} from "../shared/sm-subscribe.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-subscribe-standalone",
   templateUrl: "sm-subscribe-standalone.component.html",
-  imports: [BillingSharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ReactiveFormsModule, AsyncActionsModule, SecretsManagerSubscribeComponent],
 })
 export class SecretsManagerSubscribeStandaloneComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() plan: PlanResponse;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() organization: Organization;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() customerDiscount: BillingCustomerDiscount;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onSubscribe = new EventEmitter<void>();
+  private readonly apiService = inject(ApiService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly i18nService = inject(I18nService);
+  private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
+  private readonly organizationService = inject(InternalOrganizationServiceAbstraction);
+  private readonly toastService = inject(ToastService);
+  private readonly accountService = inject(AccountService);
 
-  formGroup = secretsManagerSubscribeFormFactory(this.formBuilder);
+  readonly plan = input<PlanResponse>();
+  readonly organization = input<Organization>(undefined);
+  readonly customerDiscount = input<BillingCustomerDiscount>(undefined);
+  readonly onSubscribe = output<void>();
 
-  constructor(
-    private apiService: ApiService,
-    private formBuilder: FormBuilder,
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private organizationService: InternalOrganizationServiceAbstraction,
-    private toastService: ToastService,
-    private accountService: AccountService,
-  ) {}
+  readonly formGroup = secretsManagerSubscribeFormFactory(this.formBuilder);
 
-  submit = async () => {
+  readonly submit = async () => {
     const request = new SecretsManagerSubscribeRequest();
-    request.additionalSmSeats = this.plan.SecretsManager.hasAdditionalSeatsOption
+    request.additionalSmSeats = this.plan().SecretsManager.hasAdditionalSeatsOption
       ? this.formGroup.value.userSeats
       : 0;
-    request.additionalServiceAccounts = this.plan.SecretsManager.hasAdditionalServiceAccountOption
+    request.additionalServiceAccounts = this.plan().SecretsManager.hasAdditionalServiceAccountOption
       ? this.formGroup.value.additionalServiceAccounts
       : 0;
 
     const profileOrganization = await this.organizationApiService.subscribeToSecretsManager(
-      this.organization.id,
+      this.organization().id,
       request,
     );
     const organizationData = new OrganizationData(profileOrganization, {
-      isMember: this.organization.isMember,
-      isProviderUser: this.organization.isProviderUser,
+      isMember: this.organization().isMember,
+      isProviderUser: this.organization().isProviderUser,
     });
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await this.organizationService.upsert(organizationData, userId);

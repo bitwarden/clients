@@ -48,7 +48,7 @@ import {
   openOffboardingSurvey,
 } from "../shared/offboarding-survey.component";
 
-import { AdjustSubscription } from "./adjust-subscription.component";
+import { AdjustSubscriptionComponent } from "./adjust-subscription.component";
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-dialog.component";
 import {
@@ -113,7 +113,7 @@ const SubscriptionStatusLabels: Record<string, string> = {
     HeaderModule,
     SubscriptionCardComponent,
     OrganizationScheduledPriceIncreaseWarningComponent,
-    AdjustSubscription,
+    AdjustSubscriptionComponent,
     SecretsManagerSubscribeStandaloneComponent,
     SecretsManagerAdjustSubscriptionComponent,
     PrivilegedControlsAdjustSubscriptionComponent,
