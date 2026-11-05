@@ -84,6 +84,7 @@ export class CipherRequest {
             : null;
         this.login.totp = cipher.login.totp ? cipher.login.totp.encryptedString : null;
         this.login.autofillOnPageLoad = cipher.login.autofillOnPageLoad;
+        this.login.httpAuthenticationEnabled = cipher.login.httpAuthenticationEnabled;
 
         if (cipher.login.fido2Credentials != null) {
           this.login.fido2Credentials = cipher.login.fido2Credentials.map((key) => {

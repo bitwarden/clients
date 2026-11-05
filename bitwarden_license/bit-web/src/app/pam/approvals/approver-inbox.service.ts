@@ -11,11 +11,6 @@ import {
   merge,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   AccessDecisionVerdict,
   AccessEventService,
@@ -23,12 +18,16 @@ import {
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestId,
-  AccessRequestSdkService,
   AccessRequestView,
   ApprovalSdkService,
   canApprove,
   isRequestNoLongerPendingError,
-} from "..";
+} from "@bitwarden/bit-pam";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
 import {
   AccessNameResolverService,
   ResolvedNames,
@@ -53,7 +52,6 @@ import { ManagedLeaseRow, isLiveManagedLease, toManagedLeaseRow } from "./manage
 @Injectable()
 export class ApproverInboxService {
   private readonly approvalApi = inject(ApprovalSdkService);
-  private readonly requestsApi = inject(AccessRequestSdkService);
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly accountService = inject(AccountService);
@@ -232,11 +230,12 @@ export class ApproverInboxService {
   }
 
   /**
-   * Withdraws an approval the requester has not started; the server records the cancel as the
-   * approver's decision. Reloads instead of patching, so the row names whoever withdrew it.
+   * Withdraws an approval the requester has not started; the server records the revoke as the
+   * approver's decision, with `reason` as its comment. Reloads instead of patching, so the row
+   * names whoever withdrew it.
    */
-  async cancelApproval(requestId: AccessRequestId): Promise<void> {
-    await this.requestsApi.cancelAccessRequest(requestId);
+  async cancelApproval(requestId: AccessRequestId, reason: string): Promise<void> {
+    await this.approvalApi.revoke(requestId, { reason });
     this.accessRefresh.notifyAccessChanged();
     await this.load();
   }
