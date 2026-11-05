@@ -101,9 +101,6 @@ function accessState(overrides: Partial<CipherAccessStateView> = {}): CipherAcce
   return { ...state, badgeState: state.badgeState ?? badgeStateFor(state) };
 }
 
-/** SDK builds before 0.2.0-main.1224 leave `"unavailable"` out of `AccessBadgeState`. */
-const UNAVAILABLE = "unavailable" as unknown as CipherAccessStateView["badgeState"];
-
 function preCheck(overrides: Partial<AccessPreCheckView> = {}): AccessPreCheckView {
   return {
     cipherId: "cipher-1",
@@ -482,6 +479,48 @@ describe("CipherViewBannerComponent", () => {
       ).toBeTruthy();
     });
 
+    it("shows the item as unavailable, with no Request access, when the rule refuses a request", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ badgeState: "unavailable" }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-unavailable"]')).not.toBeNull();
+      expect(text()).toContain("pamUnavailableBannerHeading");
+      expect(text()).toContain("pamUnavailableBannerBody");
+      expect(query('[data-testid="cipher-view-banner-request"]')).toBeNull();
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
+    });
+
+    it("drops the full-width Request access button but keeps the section heading, in the popup", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ badgeState: "unavailable" }),
+      );
+      usePopupLayout();
+
+      await create(gatedCipher());
+
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-section-heading"]')?.textContent).toContain(
+        "pamPrivilegedCredentialsHeading",
+      );
+      expect(query('[data-testid="cipher-view-banner-unavailable"]')).not.toBeNull();
+    });
+
+    it("offers Request access again once the rule allows a request", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ badgeState: "unavailable" }),
+      );
+      await create(gatedCipher());
+
+      await refreshTo(accessState());
+
+      expect(query('[data-testid="cipher-view-banner-unavailable"]')).toBeNull();
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+    });
+
     it("puts Cancel request inside the pending card in the item dialog", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ pendingRequest: requestView({ submittedAt: new Date().toISOString() }) }),
@@ -792,6 +831,12 @@ describe("CipherViewBannerComponent", () => {
         state: { activeLease: leaseView() },
         testId: "active",
         glyph: ACCESS_BADGE_LOOK.active.icon,
+      },
+      {
+        name: "unavailable",
+        state: { badgeState: "unavailable" },
+        testId: "unavailable",
+        glyph: ACCESS_BADGE_LOOK.unavailable.icon,
       },
     ];
 

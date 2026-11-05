@@ -120,7 +120,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   option per `AccessBadgeState.kind`, labelled like the badge it admits, so its counts match
   the badges on screen; the table ORs the selected options itself. "Ending soon" splits the
   active leases at `ENDING_SOON_THRESHOLD_MS`, so "In use" is the badge's "X left" and a lapsed
-  lease is in neither. "Unavailable" matches nothing until the SDK produces that kind. Each
+  lease is in neither. "Unavailable" matches items whose rule refuses a request right now. Each
   row's state is read once per row list and shared across options (`accessKinds$`), so the
   chip's counts don't multiply the reads. Add an option by appending to the matching list, not
   by branching in `narrow$`. The service and the chip factory live in `bit-pam-components`
