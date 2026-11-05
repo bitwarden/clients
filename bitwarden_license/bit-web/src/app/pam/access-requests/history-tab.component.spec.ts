@@ -349,7 +349,7 @@ describe("HistoryTabComponent", () => {
 
       expect(icon).not.toBeNull();
       expect(icon?.previousElementSibling?.textContent?.trim()).toBe("Okta admin");
-      expect(text(item)).toContain("pamInboxInCollection Identity");
+      expect(text(item)).toContain("pamInboxInSharedFolder Identity");
       expect(item.querySelector('bit-icon[name="bwi-collection-shared"]')).toBeNull();
     });
 

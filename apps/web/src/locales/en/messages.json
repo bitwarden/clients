@@ -18349,13 +18349,6 @@
   "pamTabHistory": {
     "message": "History"
   },
-  "pamAccessRequestsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
-  },
-  "pamAccessRequestsSearchPlaceholderSharedFolder": {
-    "message": "Search credential, shared folder, requester",
-    "description": "VFO1 terminology feature flag variant of pamAccessRequestsSearchPlaceholder"
-  },
   "pamMyRequestsLoaded": {
     "message": "Requests loaded"
   },

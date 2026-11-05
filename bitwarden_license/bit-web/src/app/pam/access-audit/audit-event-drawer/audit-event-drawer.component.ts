@@ -14,7 +14,7 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 import { ResolvedMember } from "@bitwarden/web-vault/app/dirt/event-logs/components/send-access-member";
 
@@ -50,7 +50,6 @@ export type AuditEventDrawerParams = {
     LinkModule,
     I18nPipe,
     TimestampPipe,
-    Vfo1I18nPipe,
   ],
 })
 export class AuditEventDrawerComponent {
