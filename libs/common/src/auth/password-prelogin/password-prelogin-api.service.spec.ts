@@ -130,7 +130,6 @@ describe("PasswordPreloginApiService", () => {
 
     // The server declares Salt as `string?` and returns the nullable User.MasterPasswordSalt
     // column verbatim, so a null reaches the client for accounts that predate the column.
-    // The salt fallback that depends on this lives in DefaultPasswordPreloginService.
     it.each([
       { description: "Salt is explicitly null", payload: { Salt: null } },
       { description: "Salt is absent", payload: {} },
