@@ -357,6 +357,28 @@ describe("CompleteTrialInitiationComponent", () => {
 
       expect(passedInitiationPath()).toBe(InitiationPath.SalesAssistedTrialFromAdminPortal);
     });
+
+    it("advances to the next step with the created organization on success", async () => {
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(component.orgId).toBe("org-id");
+      expect(component.billingSubLabel).toBe("Test Org");
+      expect(component.loading).toBe(false);
+      expect(component.verticalStepper.next).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows the error, stops loading and stays on the step when the request is rejected", async () => {
+      const validationService = TestBed.inject(ValidationService) as MockProxy<ValidationService>;
+      const error = new Error("Rejected");
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockRejectedValue(error);
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(validationService.showError).toHaveBeenCalledWith(error);
+      expect(component.loading).toBe(false);
+      expect(component.orgId).toBe("");
+      expect(component.verticalStepper.next).not.toHaveBeenCalled();
+    });
   });
 
   describe("Privileged Controls", () => {

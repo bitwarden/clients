@@ -11,6 +11,7 @@ import {
   RegistrationFinishService,
 } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
+import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -226,9 +227,26 @@ export class CompleteTrialInitiationComponent {
     this.verticalStepper.next();
   }
 
-  /** create an organization on trial without payment method */
+  /**
+   * Create an organization on trial without a payment method. A rejected request shows the error and
+   * leaves the user on the organization step.
+   */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
+    try {
+      const response = await this.purchaseTrialWithoutPayment(activeUserId);
+
+      this.orgId = response.id;
+      this.billingSubLabel = response.name.toString();
+      this.verticalStepper.next();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async purchaseTrialWithoutPayment(activeUserId: UserId): Promise<OrganizationResponse> {
     const trialInitiationPath: InitiationPath = this.salesAssistedToken
       ? InitiationPath.SalesAssistedTrialFromAdminPortal
       : this.product === ProductType.SecretsManager
@@ -266,7 +284,7 @@ export class CompleteTrialInitiationComponent {
       salesAssistedToken: this.salesAssistedToken,
     };
 
-    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
+    return await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
       {
         organization,
         plan,
@@ -274,11 +292,6 @@ export class CompleteTrialInitiationComponent {
       activeUserId,
       this.trialLength,
     );
-
-    this.orgId = response?.id;
-    this.billingSubLabel = response.name.toString();
-    this.loading = false;
-    this.verticalStepper.next();
   }
 
   /** Move the user to the previous step */
