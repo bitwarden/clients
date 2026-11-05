@@ -63,6 +63,13 @@ export class PinService implements PinServiceAbstraction {
   }
 
   @assertParametersNonNull()
+  async getPinLength(userId: UserId): Promise<number | undefined> {
+    return await this.withPinSettingsClient(userId, async (client) => {
+      return await client.get_pin_length();
+    });
+  }
+
+  @assertParametersNonNull()
   async validatePin(pin: string, userId: UserId): Promise<boolean> {
     return await this.withPinSettingsClient(userId, async (client) => {
       return await client.validate_pin(pin);
