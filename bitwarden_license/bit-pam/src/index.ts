@@ -121,7 +121,6 @@ export { formatCompoundDuration, formatDuration } from "./date/format-duration";
 export { formatCalendarDate, formatTimeOfDay, formatTimestamp } from "./date/format-date";
 export { isGovernedCipher } from "./helpers/governed-cipher";
 export { isUnlicensedError } from "./helpers/pam-license-error";
-export { sharedFolderKey } from "./helpers/shared-folder-key";
 export { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 export { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
 export { AccessRulesSdkService } from "./services/access-rules-sdk.service";

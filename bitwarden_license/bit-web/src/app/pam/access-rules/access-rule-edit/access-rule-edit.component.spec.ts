@@ -550,7 +550,7 @@ describe("AccessRuleEditComponent: load, collections, and submit", () => {
 
     expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: { key: "pamAccessRuleDeleteConfirmDescription" },
+        content: { key: "pamAccessRuleDeleteConfirmDescriptionSharedFolder" },
       }),
     );
     expect(pamApi.deleteAccessRule).toHaveBeenCalledWith(
@@ -644,7 +644,7 @@ describe("AccessRuleEditComponent: load, collections, and submit", () => {
     expect(showToast).toHaveBeenCalledWith(
       expect.objectContaining({
         variant: "error",
-        message: "pamAccessRuleCollectionsLoadError",
+        message: "pamAccessRuleSharedFoldersLoadError",
       }),
     );
     expect(component["collectionsLoading"]()).toBe(false);
@@ -996,9 +996,9 @@ describe("AccessRuleEditComponent: form states", () => {
       expect(rendered).not.toContain("exceptionStackTrace");
       expect(rendered).not.toContain("status code 400");
       expect(rendered).not.toContain("AccessRuleWriteValidator.cs");
-      expect(rendered).toContain("pamAccessRuleErrorCollectionsGoverned");
+      expect(rendered).toContain("pamAccessRuleErrorSharedFoldersGoverned");
       expect(controls().collections.errors).toEqual({
-        serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+        serverError: { message: "pamAccessRuleErrorSharedFoldersGoverned" },
       });
     });
 
@@ -1032,7 +1032,7 @@ describe("AccessRuleEditComponent: form states", () => {
         await submitAndRender();
 
         expect(controls().collections.errors).toEqual({
-          serverError: { message: "pamAccessRuleErrorCollectionsGovernedNamed Engineering" },
+          serverError: { message: "pamAccessRuleErrorSharedFoldersGovernedNamed Engineering" },
         });
         expect(fixture.nativeElement.textContent).toContain("Engineering");
       });
@@ -1048,7 +1048,7 @@ describe("AccessRuleEditComponent: form states", () => {
 
         expect(controls().collections.errors).toEqual({
           serverError: {
-            message: "pamAccessRuleErrorCollectionsGovernedNamed Engineering, Finance",
+            message: "pamAccessRuleErrorSharedFoldersGovernedNamed Engineering, Finance",
           },
         });
       });
@@ -1063,7 +1063,7 @@ describe("AccessRuleEditComponent: form states", () => {
         await submitAndRender();
 
         expect(controls().collections.errors).toEqual({
-          serverError: { message: "pamAccessRuleErrorCollectionsGovernedNamed Finance" },
+          serverError: { message: "pamAccessRuleErrorSharedFoldersGovernedNamed Finance" },
         });
       });
 
@@ -1077,7 +1077,7 @@ describe("AccessRuleEditComponent: form states", () => {
         await submitAndRender();
 
         expect(controls().collections.errors).toEqual({
-          serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+          serverError: { message: "pamAccessRuleErrorSharedFoldersGoverned" },
         });
       });
 
@@ -1090,7 +1090,7 @@ describe("AccessRuleEditComponent: form states", () => {
         await submitAndRender();
 
         expect(controls().collections.errors).toEqual({
-          serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+          serverError: { message: "pamAccessRuleErrorSharedFoldersGoverned" },
         });
       });
     });
