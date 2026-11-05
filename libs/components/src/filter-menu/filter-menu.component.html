@@ -209,8 +209,8 @@
               />
             }
           }
-          <!-- Clamped, not `truncate`: a `nowrap` label's min-content is its full text, so the grid would
-               never truncate it. The tooltip sits here because the row runs past the tree's clipped edge. -->
+          <!-- Clamped, not `truncate`: a `nowrap` label's min-content is its full text, so the grid never shrinks it.
+               Tooltipped here, not on the row, which overflows the clipped tree; the row opens it on keyboard focus. -->
           @if (node.row.kind === "section") {
             <span
               data-filter-row-label
