@@ -86,6 +86,49 @@ describe("rotationRoutes", () => {
     });
   });
 
+  describe("the target system detail page", () => {
+    const tabRoute = () => routeAt(`${ROTATION_TABS.targetSystems}/:targetSystemId/:tab`);
+
+    it("sends the bare id to the Configuration tab", () => {
+      const bare = routeAt(`${ROTATION_TABS.targetSystems}/:targetSystemId`);
+
+      expect(bare.pathMatch).toBe("full");
+      expect(bare.redirectTo).toBe(`${ROTATION_TABS.targetSystems}/:targetSystemId/configuration`);
+    });
+
+    it("declares the create page first, so `new` is never read as an id", () => {
+      const paths = rotationRoutes.map((route) => route.path);
+
+      expect(paths.indexOf(`${ROTATION_TABS.targetSystems}/new`)).toBeLessThan(
+        paths.indexOf(`${ROTATION_TABS.targetSystems}/:targetSystemId`),
+      );
+    });
+
+    it("holds an exit for unsaved input", () => {
+      expect(tabRoute().canDeactivate).toEqual([unsavedChangesDialogGuard]);
+    });
+
+    it("leaves the guard alone for a move between the page's own tabs", () => {
+      const stayed = rerunsGuards(
+        tabRoute(),
+        { targetSystemId: "ts-1", tab: "configuration" },
+        { targetSystemId: "ts-1", tab: "managed-credentials" },
+      );
+
+      expect(stayed).toBe(false);
+    });
+
+    it("re-runs the guard when the URL names a different target system", () => {
+      const left = rerunsGuards(
+        tabRoute(),
+        { targetSystemId: "ts-1", tab: "configuration" },
+        { targetSystemId: "ts-2", tab: "configuration" },
+      );
+
+      expect(left).toBe(true);
+    });
+  });
+
   it("guards the create page, which has no tab of its own to move between", () => {
     const create = routeAt(`${ROTATION_TABS.managedCredentials}/new`);
 

@@ -1,3 +1,4 @@
+import { TemplatePortal } from "@angular/cdk/portal";
 import { ChangeDetectionStrategy, Component, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -21,10 +22,16 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, TabsModule, ToastService, TooltipDirective } from "@bitwarden/components";
+import {
+  DialogService,
+  LayoutFooterService,
+  TabsModule,
+  ToastService,
+} from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
+import { CONFIG_QUERY_PARAM, THEN_CREDENTIAL, THEN_QUERY_PARAM } from "../create-flow";
 import {
   ManagedCredentialDraft,
   ManagedCredentialDraftService,
@@ -44,7 +51,6 @@ import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { rotationRoutes } from "../rotation.routes";
-import { AssignConnectorDialogComponent } from "../target-systems/assign-connector-dialog.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
   CIPHER_ID,
@@ -712,9 +718,9 @@ describe("RotationConfigEditComponent: add form", () => {
         .map((l) => l.textContent ?? "")
         .join("|");
       const order = [
-        "pamRotationConfigVaultItem",
+        "pamRotationConfigCredentialName",
         "pamRotationConfigTargetSystem",
-        "username",
+        "pamRotationConfigAccountId",
         "pamRotationConfigScheduleLabel",
         "pamRotationConfigRotateOnAccessEnd",
         "pamRotationConfigEndSessions",
@@ -725,12 +731,13 @@ describe("RotationConfigEditComponent: add form", () => {
       expect(el.querySelector("select#rotation-config-edit_select_target-system")).toBeNull();
     });
 
-    it("renders Add target system as a button between the target and the username", async () => {
+    it("renders Add target system as a link between the target and the account ID", async () => {
       const { fixture } = await ready({ template: "real" });
       const el = fixture.nativeElement as HTMLElement;
 
       const button = el.querySelector("#rotation-config-edit_button_new-target-system")!;
       expect(button.tagName).toBe("BUTTON");
+      expect(button.hasAttribute("bitlink")).toBe(true);
       const username = el.querySelector("#rotation-config-edit_input_account-identity")!;
       expect(
         button.compareDocumentPosition(username) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -757,6 +764,98 @@ describe("RotationConfigEditComponent: add form", () => {
       expect(warning.textContent).toContain("pamRotationConfigCalloutTargetNotConnected");
       expect(warning.querySelector("a")).toBeNull();
       expect(el.querySelector("#rotation-config-edit_callout_target-manual")).toBeNull();
+    });
+
+    it("marks the account ID as required", async () => {
+      const { fixture } = await ready({ template: "real" });
+      const el = fixture.nativeElement as HTMLElement;
+
+      expect(
+        el.querySelector("#rotation-config-edit_input_account-identity")!.hasAttribute("required"),
+      ).toBe(true);
+    });
+
+    it("labels the schedule Due schedule for a manual target", async () => {
+      const { fixture, component } = await ready({
+        template: "real",
+        targetSystems: [targetSystem(), manual],
+      });
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain("pamRotationConfigScheduleLabel");
+
+      component.createForm.controls.targetSystemId.setValue(String(manual.id));
+      fixture.detectChanges();
+
+      expect(el.textContent).toContain("pamRotationDetailDueSchedule");
+      expect(el.textContent).not.toContain("pamRotationConfigScheduleLabel");
+    });
+  });
+
+  describe("the pinned Save bar", () => {
+    const footerPortal = () =>
+      TestBed.inject(LayoutFooterService).portal() as TemplatePortal | undefined;
+
+    /** Stamps the pinned template, which only the app layout would otherwise render. */
+    function renderFooter(): HTMLElement {
+      const portal = footerPortal()!;
+      const view = portal.templateRef.createEmbeddedView(portal.context);
+      view.detectChanges();
+      return view.rootNodes.find((node): node is HTMLElement => node instanceof HTMLElement)!;
+    }
+
+    it("is absent before the admin enters anything", async () => {
+      const { fixture } = await ready({ template: "real" });
+
+      expect(footerPortal()).toBeUndefined();
+      expect(fixture.nativeElement.querySelector("#rotation-config-edit_button_save")).toBeNull();
+    });
+
+    it("pins Save and Cancel once there is input, and saves from there", async () => {
+      const { fixture, component, rotationSdk } = await ready({ template: "real" });
+      jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+      component.createForm.patchValue({
+        cipherId: CIPHER_ID,
+        targetSystemId: TARGET_SYSTEM_ID,
+        accountIdentity: "admin@example.com",
+      });
+      fixture.detectChanges();
+      const footer = renderFooter();
+      expect(footer.querySelector("#rotation-config-edit_button_cancel")).toBeTruthy();
+
+      footer.querySelector<HTMLButtonElement>("#rotation-config-edit_button_save")!.click();
+      await fixture.whenStable();
+
+      expect(rotationSdk.createConfig).toHaveBeenCalled();
+    });
+
+    it("shows straight away for a restored draft", async () => {
+      const { fixture } = await ready({
+        template: "real",
+        draft: {
+          organizationId: ORG_ID,
+          cipherId: String(CIPHER_ID),
+          targetSystemId: "",
+          accountIdentity: "ado-svc@acme.onmicrosoft.com",
+          scheduleCron: null,
+          rotateOnAccessEnd: false,
+          terminateSessions: false,
+        },
+      });
+      fixture.detectChanges();
+
+      expect(footerPortal()).toBeDefined();
+    });
+
+    it("leaves the layout footer when the page goes away", async () => {
+      const { fixture, component } = await ready({ template: "real" });
+      component.createForm.patchValue({ accountIdentity: "admin@example.com" });
+      fixture.detectChanges();
+      expect(footerPortal()).toBeDefined();
+
+      fixture.destroy();
+
+      expect(footerPortal()).toBeUndefined();
     });
   });
 });
@@ -1172,9 +1271,10 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
 
       await component.removeRotation();
 
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error" }),
-      );
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamRotationConfigRemoveFailed",
+      });
       expect(nav).not.toHaveBeenCalled();
     });
   });
@@ -1481,31 +1581,13 @@ describe("RotationConfigEditComponent: tab routes", () => {
 });
 
 describe("RotationConfigEditComponent: action row", () => {
-  it("puts Save and Delete in one row, Save first", async () => {
+  it("leaves Remove from rotation out of the form, to the header menu", async () => {
     const fixture = await renderPage();
 
-    const save = actionButton(fixture, "save")!;
-    const remove = actionButton(fixture, "delete")!;
-
-    expect(save).not.toBeNull();
-    expect(remove).not.toBeNull();
-    expect(remove.parentElement).toBe(save.parentElement);
-    expect(save.parentElement!.firstElementChild).toBe(save);
-    expect(save.parentElement!.lastElementChild).toBe(remove);
-  });
-
-  it("pushes Delete to the far end of the row", async () => {
-    const fixture = await renderPage();
-
-    expect(actionButton(fixture, "delete")!.classList.contains("tw-ms-auto")).toBe(true);
-  });
-
-  it("leaves the removal in the form rather than a card of its own", async () => {
-    const fixture = await renderPage();
-    const remove = actionButton(fixture, "delete")!;
-
-    expect(remove.closest("form")).not.toBeNull();
-    expect(remove.closest("bit-card")).toBeNull();
+    expect(actionButton(fixture, "save")).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("form #rotation-config-edit_button_delete"),
+    ).toBeNull();
   });
 
   it("offers neither Save nor Delete on the History tab", async () => {
@@ -1514,20 +1596,6 @@ describe("RotationConfigEditComponent: action row", () => {
     expect(fixture.nativeElement.querySelector("form")).toBeNull();
     expect(actionButton(fixture, "save")).toBeNull();
     expect(actionButton(fixture, "delete")).toBeNull();
-  });
-
-  it("disables Delete and says why on the button while a job is in flight", async () => {
-    const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
-
-    const remove = fixture.debugElement.query(By.css("#rotation-config-edit_button_delete"));
-    const tooltip = remove.injector.get(TooltipDirective);
-
-    expect(remove.componentInstance.disabled()).toBe(true);
-    expect(tooltip.tooltipContent()).toBe("pamRotationConfigDeleteLockedTitle");
-    expect(tooltip.addTooltipToDescribedby()).toBe(true);
-    expect(fixture.nativeElement.textContent).not.toContain(
-      "pamRotationConfigRemoveLockedContentConnector",
-    );
   });
 
   it("disables Save while a rotation job is in flight, since the server refuses the update", async () => {
@@ -1542,17 +1610,6 @@ describe("RotationConfigEditComponent: action row", () => {
 
     const save = fixture.debugElement.query(By.css("#rotation-config-edit_button_save"));
     expect(save.componentInstance.disabled()).toBe(false);
-  });
-
-  it("keeps Delete live, and unexplained, while no job is running", async () => {
-    const fixture = await renderPage();
-
-    const remove = fixture.debugElement.query(By.css("#rotation-config-edit_button_delete"));
-    const tooltip = remove.injector.get(TooltipDirective);
-
-    expect(remove.componentInstance.disabled()).toBe(false);
-    expect(tooltip.tooltipContent()).toBe("");
-    expect(tooltip.addTooltipToDescribedby()).toBe(false);
   });
 });
 
@@ -1659,12 +1716,6 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
     return fixture.nativeElement.querySelector(selector)?.textContent?.trim();
   }
 
-  function isDisabled(fixture: ComponentFixture<RotationConfigEditComponent>, name: string) {
-    return fixture.debugElement
-      .query(By.css(`#rotation-config-edit_button_${name}`))
-      .componentInstance.disabled();
-  }
-
   function headerButtons(fixture: ComponentFixture<RotationConfigEditComponent>): string[] {
     const buttons: HTMLElement[] = Array.from(
       fixture.nativeElement.querySelectorAll("bit-header button[id]"),
@@ -1717,6 +1768,9 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       expect(items[0].textContent).toContain("East datacenter");
       expect(items[0].textContent).toContain("pamAccessConnectorConnected");
       expect(items[1].textContent).toContain("pamAccessConnectorDisconnected");
+      expect(items[0].querySelector("bit-icon-tile").getAttribute("icon")).toBe(
+        "bwi-access-connector",
+      );
       expect(text(fixture, "#rotation-config-edit_connectors")).toContain(
         "pamRotationDetailConnectorsHint",
       );
@@ -1738,12 +1792,28 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
   });
 
   describe("the header actions", () => {
-    it("offers Pause rotation and Rotate now for an active automatic credential", async () => {
+    function headerMenuItems(fixture: ComponentFixture<RotationConfigEditComponent>): string[] {
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#rotation-config-edit_button_options")!
+        .click();
+      fixture.detectChanges();
+      const panels = document.querySelectorAll<HTMLElement>(".bit-menu-panel");
+      return Array.from(
+        panels[panels.length - 1].querySelectorAll<HTMLElement>("[bitmenuitem]"),
+      ).map((item) => item.id.replace("rotation-config-edit_button_", ""));
+    }
+
+    function menuItem(id: string): HTMLElement | null {
+      return document.querySelector(`#rotation-config-edit_button_${id}`);
+    }
+
+    it("leads with Rotate now beside the menu for an active automatic credential", async () => {
       const fixture = await renderPage({ connectors: [connected()] });
-      expect(headerButtons(fixture)).toEqual(["pause", "rotate-now"]);
+      expect(headerButtons(fixture)).toEqual(["rotate-now", "options"]);
+      expect(headerMenuItems(fixture)).toEqual(["pause", "delete"]);
     });
 
-    it("offers Resume rotation, and a disabled Rotate now, while paused", async () => {
+    it("keeps only the menu while paused, with Rotate now locked and Resume rotation live", async () => {
       const fixture = await renderPage({
         connectors: [connected()],
         existingConfig: loadedConfig({ enabled: false }),
@@ -1751,32 +1821,63 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
           actions: rotationConfigActions({ canRotateNow: false, canPause: false, canResume: true }),
         }),
       });
-      expect(headerButtons(fixture)).toEqual(["resume", "rotate-now"]);
-      expect(isDisabled(fixture, "rotate-now")).toBe(true);
+      expect(headerButtons(fixture)).toEqual(["options"]);
+      expect(headerMenuItems(fixture)).toEqual(["rotate-now-locked", "resume", "delete"]);
+      const locked = menuItem("rotate-now-locked")!;
+      expect(locked.getAttribute("aria-disabled")).toBe("true");
+      expect(locked.getAttribute("aria-describedby")).toBe(
+        "rotation-config-edit_reason_rotate-now",
+      );
+      expect(locked.textContent).toContain("pamRotationConfigRotateNowPaused");
     });
 
-    it("offers only Mark as rotated for a manual credential", async () => {
+    it("offers Mark as rotated beside a menu holding only Remove for a manual credential", async () => {
       const fixture = await renderPage({
         existingConfig: loadedConfig({ targetSystemMethod: "manual" }),
         description: rotationConfigDescription({
           actions: rotationConfigActions({ canRotateNow: false, canRecordManual: true }),
         }),
       });
-      expect(headerButtons(fixture)).toEqual(["mark-rotated"]);
+      expect(headerButtons(fixture)).toEqual(["mark-rotated", "options"]);
+      expect(headerMenuItems(fixture)).toEqual(["delete"]);
+      expect(fixture.nativeElement.querySelector("bit-menu-divider")).toBeNull();
     });
 
-    it("disables Rotate now while a job runs but leaves Pause available", async () => {
+    it("locks Rotate now and Remove while a job runs, but leaves Pause available", async () => {
       const fixture = await renderPage({
         connectors: [connected()],
         existingConfig: loadedConfig({ hasActiveJob: true }),
       });
-      expect(isDisabled(fixture, "rotate-now")).toBe(true);
-      expect(isDisabled(fixture, "pause")).toBe(false);
+      expect(headerButtons(fixture)).toEqual(["options"]);
+      expect(headerMenuItems(fixture)).toEqual(["rotate-now-locked", "pause", "delete-locked"]);
+      expect(menuItem("rotate-now-locked")!.textContent).toContain(
+        "pamRotationConfigRotateNowInProgress",
+      );
+      const remove = menuItem("delete-locked")!;
+      expect(remove.getAttribute("aria-disabled")).toBe("true");
+      expect(remove.textContent).toContain("pamRotationConfigRemoveLockedReason");
     });
 
-    it("disables Rotate now when the target has no connected connector", async () => {
+    it("moves Rotate now into the menu, locked, when the target has no connected connector", async () => {
       const fixture = await renderPage({ connectors: [] });
-      expect(isDisabled(fixture, "rotate-now")).toBe(true);
+      expect(headerButtons(fixture)).toEqual(["options"]);
+      headerMenuItems(fixture);
+      expect(menuItem("rotate-now-locked")!.textContent).toContain(
+        "pamRotationConfigRotateNowNotConnected",
+      );
+    });
+
+    it("removes from rotation through the menu", async () => {
+      const fixture = await renderPage({ connectors: [connected()] });
+      const remove = jest.spyOn(fixture.componentInstance, "removeRotation" as never);
+      headerMenuItems(fixture);
+      menuItem("delete")!.click();
+      expect(remove).toHaveBeenCalled();
+    });
+
+    it("leaves the History tab's header without actions", async () => {
+      const fixture = await renderPage({ tab: "history", connectors: [connected()] });
+      expect(headerButtons(fixture)).toEqual([]);
     });
   });
 
@@ -1890,12 +1991,14 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       },
     );
 
-    it("offers to assign a connector when none is assigned, in a dialog", async () => {
+    it("offers to assign a connector when none is assigned, in the warning outline style", async () => {
       const fixture = await renderPage({ connectors: [] });
       expect(callout(fixture).textContent).toContain("pamRotationDetailCalloutNoConnector");
-      expect(
-        fixture.nativeElement.querySelector("#rotation-config-edit_button_assign-connector"),
-      ).not.toBeNull();
+      const button = fixture.nativeElement.querySelector(
+        "#rotation-config-edit_button_assign-connector",
+      );
+      expect(button).not.toBeNull();
+      expect(button.classList).toContain("tw-border-border-warning");
     });
 
     it("offers to view the connectors when none is connected", async () => {
@@ -1955,40 +2058,34 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       expect(callout(fixture).textContent).toContain("pamRotationDetailCalloutRetrying");
     });
 
-    it("assigns the chosen connector, then re-reads the connectors", async () => {
-      const { component, fixture, rotationSdk } = setup({
-        configId: configId("cfg-1"),
-        connectors: [accessConnector({ name: "East datacenter" })],
-      });
-      await fixture.whenStable();
-      const open = jest
-        .spyOn(AssignConnectorDialogComponent, "open")
-        .mockReturnValue({ closed: of(accessConnector().id) } as never);
-
-      await component.assignConnector();
-
-      expect(open).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          data: expect.objectContaining({ noneEligible: false }),
-        }),
-      );
-      expect(rotationSdk.assignTarget).toHaveBeenCalledWith(
-        ORG_ID,
-        accessConnector().id,
-        TARGET_SYSTEM_ID,
-      );
-      expect(rotationSdk.listConnectors).toHaveBeenCalledTimes(2);
-    });
-
-    it("assigns nothing when the dialog is dismissed", async () => {
+    it("opens the target system's page to assign a connector, set to return here", async () => {
       const { component, fixture, rotationSdk } = setup({ configId: configId("cfg-1") });
       await fixture.whenStable();
-      jest
-        .spyOn(AssignConnectorDialogComponent, "open")
-        .mockReturnValue({ closed: of(undefined) } as never);
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
       await component.assignConnector();
+
+      expect(nav).toHaveBeenCalledWith(
+        rotationLink(ORG_ID, ROTATION_TABS.targetSystems, uuidAsString(TARGET_SYSTEM_ID)),
+        {
+          queryParams: {
+            [THEN_QUERY_PARAM]: THEN_CREDENTIAL,
+            [CONFIG_QUERY_PARAM]: uuidAsString(configId("cfg-1")),
+          },
+        },
+      );
       expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+    });
+
+    it("leaves unsaved edits unsaved, so the route's guard asks before discarding them", async () => {
+      const { component, fixture } = setup({ configId: configId("cfg-1") });
+      await fixture.whenStable();
+      jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+
+      await component.assignConnector();
+
+      expect(component.unsavedChanges()).toBe(true);
     });
 
     it("goes to the connectors tab for the target", async () => {
@@ -2142,15 +2239,13 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
   });
 
   describe("the footer", () => {
-    it("holds Save, Cancel and Remove from rotation, in that order", async () => {
+    it("holds Save and Cancel, in that order", async () => {
       const fixture = await renderPage();
       const row = actionButton(fixture, "save")!.parentElement!;
       expect(Array.from(row.querySelectorAll("button")).map((b) => b.id)).toEqual([
         "rotation-config-edit_button_save",
         "rotation-config-edit_button_cancel",
-        "rotation-config-edit_button_delete",
       ]);
-      expect(row.textContent).not.toContain("delete");
     });
   });
 
@@ -2162,6 +2257,12 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       });
       expect(fixture.nativeElement.querySelector("app-rotation-history")).not.toBeNull();
       expect(fixture.nativeElement.querySelector("h2")).toBeNull();
+    });
+
+    it("leaves a credential with no rotations to the history table's empty state", async () => {
+      const fixture = await renderPage({ tab: "history" });
+      expect(fixture.nativeElement.querySelector("app-rotation-history")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-card")).toBeNull();
     });
   });
 });

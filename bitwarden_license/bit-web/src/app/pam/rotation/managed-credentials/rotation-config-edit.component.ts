@@ -1,11 +1,17 @@
+import { TemplatePortal } from "@angular/cdk/portal";
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   LOCALE_ID,
+  TemplateRef,
+  ViewContainerRef,
   computed,
+  effect,
   inject,
   signal,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -31,8 +37,12 @@ import {
   DialogService,
   FormFieldModule,
   HeaderComponent,
+  IconButtonModule,
+  IconModule,
   IconTileComponent,
-  ItemModule,
+  LayoutFooterService,
+  LinkModule,
+  MenuModule,
   SectionComponent,
   SectionHeaderComponent,
   SelectModule,
@@ -40,7 +50,6 @@ import {
   SkeletonTextComponent,
   TabsModule,
   ToastService,
-  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
@@ -48,7 +57,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import {
+  CONFIG_QUERY_PARAM,
   TARGET_SYSTEM_QUERY_PARAM,
+  THEN_CREDENTIAL,
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
 } from "../create-flow";
@@ -61,7 +72,6 @@ import {
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
   AccessConnector,
-  AccessConnectorId,
   AccessConnectorStatus,
   RotationConfigCreateRequest,
   RotationConfigDetailView,
@@ -80,14 +90,13 @@ import {
   isConnected,
   resolveDetailStatus,
 } from "../rotation-detail-status";
-import { classifyRotationError } from "../rotation-error";
+import { classifyRotationError, rotationActionErrorMessage } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RotationScheduleInputComponent } from "../rotation-schedule-input/rotation-schedule-input.component";
 import { RotationConfigDescription, RotationSdkService } from "../rotation-sdk.service";
 import { formatRotationAge } from "../rotation-timestamp";
-import { AssignConnectorDialogComponent } from "../target-systems/assign-connector-dialog.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { confirmPauseRotation, confirmRotateNow } from "./rotation-action-dialogs";
@@ -121,8 +130,11 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     CardComponent,
     CheckboxModule,
     HeaderComponent,
+    IconButtonModule,
+    IconModule,
     IconTileComponent,
-    ItemModule,
+    LinkModule,
+    MenuModule,
     RotationHistoryComponent,
     RotationHistorySkeletonComponent,
     RotationLoadErrorComponent,
@@ -134,7 +146,6 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     SkeletonComponent,
     SkeletonTextComponent,
     TabsModule,
-    TooltipDirective,
     TypographyModule,
     I18nPipe,
   ],
@@ -305,7 +316,8 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     cipherId: ["", [Validators.required]],
     targetSystemId: ["", [Validators.required]],
     accountIdentity: ["", [Validators.required, Validators.maxLength(ACCOUNT_IDENTITY_MAX_LENGTH)]],
-    terminateSessions: [false],
+    // Disabled until a target that supports session termination is selected.
+    terminateSessions: [{ value: false, disabled: true }],
     scheduleCron: [null as string | null],
     rotateOnAccessEnd: [false],
   });
@@ -321,6 +333,12 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   protected readonly selectedTargetIsManual = computed(
     () => this.selectedTarget()?.method === TargetSystemMethod.Manual,
+  );
+
+  protected readonly createScheduleLabelKey = computed(() =>
+    this.selectedTargetIsManual()
+      ? "pamRotationDetailDueSchedule"
+      : "pamRotationConfigScheduleLabel",
   );
 
   protected readonly selectedTargetNotConnected = computed(() => {
@@ -433,6 +451,45 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   protected readonly canPause = computed(() => this.description()?.actions.canPause ?? false);
 
+  /** Why the header menu's Rotate now is unavailable, or `null` when no reason applies. */
+  protected readonly rotateNowReasonKey = computed(() => {
+    const config = this.config();
+    if (config == null) {
+      return null;
+    }
+    if (config.hasActiveJob) {
+      return "pamRotationConfigRotateNowInProgress";
+    }
+    if (!config.enabled) {
+      return "pamRotationConfigRotateNowPaused";
+    }
+    if (this.detailStatus()?.status === RotationRowStatus.NotConnected) {
+      return "pamRotationConfigRotateNowNotConnected";
+    }
+    return null;
+  });
+
+  /** Whether the header menu lists anything above Remove from rotation, which a divider then separates. */
+  protected readonly menuHasLeadItems = computed(
+    () => !this.isManual() && (!this.canRotateNow() || !this.config()?.enabled || this.canPause()),
+  );
+
+  /** Set while a header menu action runs, so a second click cannot start it again. */
+  protected readonly menuActionRunning = signal(false);
+
+  /** Runs a header menu action; each action reports its own failure. */
+  protected async runMenuAction(action: () => Promise<void>): Promise<void> {
+    if (this.menuActionRunning()) {
+      return;
+    }
+    this.menuActionRunning.set(true);
+    try {
+      await action();
+    } finally {
+      this.menuActionRunning.set(false);
+    }
+  }
+
   protected readonly canRecordManual = computed(
     () => this.description()?.actions.canRecordManual ?? false,
   );
@@ -506,6 +563,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   constructor() {
     this.coupleTargetControls();
+    this.pinCreateFooter();
     void this.initialize();
   }
 
@@ -619,13 +677,12 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       rotateOnAccessEnd: detail.config.rotateOnAccessEnd,
     });
     const sealed = detail.config.sealed;
-    if (sealed == null) {
-      return;
+    if (sealed != null) {
+      this.accountForm.patchValue({
+        accountIdentity: sealed.accountIdentity,
+        terminateSessions: sealed.terminateSessions,
+      });
     }
-    this.accountForm.patchValue({
-      accountIdentity: sealed.accountIdentity,
-      terminateSessions: sealed.terminateSessions,
-    });
   }
 
   private async loadCollections(): Promise<void> {
@@ -800,13 +857,25 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   protected readonly openRotateNowDialog = (): Promise<boolean> =>
     confirmRotateNow(this.dialogService);
 
-  private async runAction(action: () => Promise<void>, successKey: string): Promise<void> {
+  /** `failureKey` is the action's own "Try again" copy, shown when the server gives no reason. */
+  private async runAction(
+    action: () => Promise<void>,
+    successKey: string,
+    failureKey?: string,
+  ): Promise<void> {
     try {
       await action();
       this.toastService.showToast({ variant: "success", message: this.i18nService.t(successKey) });
       await this.reloadConfig();
     } catch (e) {
-      this.showError(e);
+      if (failureKey == null) {
+        this.showError(e);
+        return;
+      }
+      this.toastService.showToast({
+        variant: "error",
+        message: rotationActionErrorMessage(e) ?? this.i18nService.t(failureKey),
+      });
     }
   }
 
@@ -818,6 +887,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     await this.runAction(
       () => this.rotationSdk.pauseConfig(this.organizationId, this.configId!),
       wasRotating ? "pamRotationConfigPauseWhileRotatingSuccess" : "pamRotationConfigPauseSuccess",
+      "pamRotationConfigPauseFailed",
     );
   };
 
@@ -835,6 +905,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     await this.runAction(
       () => this.rotationSdk.rotateNow(this.organizationId, this.configId!),
       "pamRotationConfigRotateNowStarted",
+      "pamRotationConfigRotateNowFailed",
     );
   };
 
@@ -852,42 +923,32 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     await this.runAction(
       () => this.rotationSdk.recordManualRotation(this.organizationId, this.configId!),
       "pamRotationConfigMarkedRotated",
+      "pamRotationConfigMarkRotatedFailed",
     );
   };
 
+  /**
+   * Opens the target system's page at its Access connectors, which returns here once saved. Leaves
+   * through the route's guard, which asks before discarding unsaved edits.
+   */
   protected readonly assignConnector = async (): Promise<void> => {
     const config = this.config();
-    const targetSystem = this.configTargetSystem();
-    const connectors = this.connectors();
-    if (config == null || targetSystem == null || connectors == null) {
+    if (config == null) {
       return;
     }
-    const enabled = connectors.filter((c) => c.status === AccessConnectorStatus.Enabled);
-    const dialog = AssignConnectorDialogComponent.open(this.dialogService, {
-      data: {
-        targetSystem,
-        options: enabled.filter((c) => !c.assignedTargetSystemIds.includes(config.targetSystemId)),
-        noneEligible: enabled.length === 0,
-      },
-    });
-    const connectorId = await firstValueFrom(dialog.closed);
-    if (connectorId == null) {
-      return;
-    }
-    try {
-      await this.rotationSdk.assignTarget(
+    await this.router.navigate(
+      rotationLink(
         this.organizationId,
-        asUuid<AccessConnectorId>(connectorId),
-        config.targetSystemId,
-      );
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamTargetSystemAssignConnectorSuccess"),
-      });
-      this.connectors.set(await this.loadConnectors());
-    } catch (e) {
-      this.showError(e);
-    }
+        ROTATION_TABS.targetSystems,
+        uuidAsString(config.targetSystemId),
+      ),
+      {
+        queryParams: {
+          [THEN_QUERY_PARAM]: THEN_CREDENTIAL,
+          [CONFIG_QUERY_PARAM]: uuidAsString(config.id),
+        },
+      },
+    );
   };
 
   protected readonly viewConnectors = (): Promise<boolean> =>
@@ -922,7 +983,11 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       });
       await this.navigateBack();
     } catch (e) {
-      this.showError(e);
+      this.toastService.showToast({
+        variant: "error",
+        message:
+          rotationActionErrorMessage(e) ?? this.i18nService.t("pamRotationConfigRemoveFailed"),
+      });
     }
   };
 
@@ -952,10 +1017,53 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       return;
     }
     this.savedValue.set(empty);
+    this.createDirty.set(this.unsavedChanges());
   }
 
   private markSaved(): void {
     this.savedValue.set(JSON.stringify(this.liveForm().getRawValue()));
+    this.createDirty.set(false);
+  }
+
+  /** Whether the add form holds input not yet saved, which is what shows its Save bar. */
+  private readonly createDirty = signal(false);
+
+  protected readonly showCreateFooter = computed(
+    () => !this.editing && this.loadError() == null && this.createDirty(),
+  );
+
+  private readonly createFooterTemplate = viewChild<TemplateRef<unknown>>("createFooter");
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly layoutFooter = inject(LayoutFooterService);
+
+  /**
+   * Pins the add form's Save bar to the layout's footer region, outside the scrolling content, so
+   * it stays in view while the page scrolls.
+   */
+  private pinCreateFooter(): void {
+    if (this.editing) {
+      return;
+    }
+    let portal: TemplatePortal | null = null;
+    const detach = () => {
+      if (portal != null) {
+        this.layoutFooter.detach(portal);
+        portal = null;
+      }
+    };
+    this.createForm.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.createDirty.set(this.unsavedChanges()));
+    effect(() => {
+      const template = this.createFooterTemplate();
+      if (template == null || !this.showCreateFooter()) {
+        detach();
+      } else if (portal == null) {
+        portal = new TemplatePortal(template, this.viewContainerRef);
+        this.layoutFooter.attach(portal);
+      }
+    });
+    inject(DestroyRef).onDestroy(detach);
   }
 
   /**

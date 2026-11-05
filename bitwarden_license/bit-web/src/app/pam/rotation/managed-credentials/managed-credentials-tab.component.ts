@@ -4,6 +4,8 @@ import {
   computed,
   effect,
   inject,
+  input,
+  output,
   signal,
   viewChild,
   viewChildren,
@@ -14,7 +16,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { NoResults } from "@bitwarden/assets/svg";
 import { CalendarDatePipe, TimestampPipe } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -44,7 +45,6 @@ import {
   MenuModule,
   SearchModule,
   StatusLockupComponent,
-  SvgComponent,
   ToastService,
   TooltipDirective,
   defineTable,
@@ -58,6 +58,7 @@ import {
   TARGET_SYSTEM_QUERY_PARAM,
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
+  THEN_TARGET_SYSTEM,
 } from "../create-flow";
 import { filterOptions } from "../filter-options";
 import { OrgCiphersService } from "../org-ciphers.service";
@@ -67,7 +68,8 @@ import {
   TargetSystemView,
   TargetSystemId,
 } from "../rotation";
-import { rotationErrorMessage } from "../rotation-error";
+import { rotationActionErrorMessage, rotationErrorMessage } from "../rotation-error";
+import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { lastRotatedText, nextRotationText, RelativeTimeText } from "../rotation-relative-time";
@@ -82,6 +84,11 @@ import {
 } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
 
+/**
+ * The managed credentials table. On the rotation shell it lists the org's credentials; given a
+ * {@link targetSystemId} it lists only that target's, with the Status chip alone, and loads them
+ * itself, since the shell isn't there to.
+ */
 @Component({
   selector: "app-managed-credentials-tab",
   templateUrl: "./managed-credentials-tab.component.html",
@@ -97,7 +104,6 @@ import { RotationConfigsService } from "./rotation-configs.service";
     MenuModule,
     SearchModule,
     StatusLockupComponent,
-    SvgComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
@@ -113,8 +119,6 @@ import { RotationConfigsService } from "./rotation-configs.service";
   ],
 })
 export class ManagedCredentialsTabComponent {
-  protected readonly noItemsIcon = NoResults;
-
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly configsService = inject(RotationConfigsService);
@@ -127,11 +131,31 @@ export class ManagedCredentialsTabComponent {
   private readonly i18nService = inject(I18nService);
   private readonly accessConnectorsService = inject(AccessConnectorsService);
 
+  /** Pins the table to one target system's credentials, for that target's own page. */
+  readonly targetSystemId = input<TargetSystemId>();
+
+  /** The pinned target's credential count, each time the loaded list changes. */
+  readonly credentialCount = output<number>();
+
+  protected readonly scoped = computed(() => this.targetSystemId() != null);
+
   protected readonly loading = toSignal(this.configsService.loading$, { initialValue: true });
   protected readonly loadError = toSignal(this.configsService.loadError$, { initialValue: null });
 
-  private readonly rows = toSignal(this.configsService.rows$, {
+  private readonly allRows = toSignal(this.configsService.rows$, {
     initialValue: [] as RotationConfigRow[],
+  });
+
+  /** Ids are compared lowercased, since the route's id is text and may differ in case. */
+  private readonly rows = computed(() => {
+    const targetSystemId = this.targetSystemId();
+    if (targetSystemId == null) {
+      return this.allRows();
+    }
+    const pinned = uuidAsString(targetSystemId).toLowerCase();
+    return this.allRows().filter(
+      (row) => uuidAsString(row.config.targetSystemId).toLowerCase() === pinned,
+    );
   });
 
   /** A config needs a target system, so with none the tab offers to set one up instead. */
@@ -188,7 +212,8 @@ export class ManagedCredentialsTabComponent {
    * `idSuffix` keeps each variant's button addressable.
    */
   protected readonly emptyStateCta = computed(() => {
-    switch (this.emptyStateAction()) {
+    // The pinned target already exists, so its page only ever offers to add a credential to it.
+    switch (this.scoped() ? "credential" : this.emptyStateAction()) {
       case "unknown":
         return null;
       case "access-connector":
@@ -210,6 +235,16 @@ export class ManagedCredentialsTabComponent {
           run: () => void this.openCreate(),
         };
     }
+  });
+
+  protected readonly emptyStateDescriptionKey = computed(() => {
+    if (this.scoped()) {
+      return "pamTargetSystemCredentialsEmptyDescription";
+    }
+    const action = this.emptyStateAction();
+    return action === "access-connector" || action === "target-system"
+      ? "pamRotationConfigEmptyStateGetStarted"
+      : "pamRotationConfigEmptyDescription";
   });
 
   protected readonly table = defineTable<RotationConfigRow, "actions">(this.rows);
@@ -370,10 +405,20 @@ export class ManagedCredentialsTabComponent {
 
   constructor() {
     // The rotation shell loads the configs on mount, so the tab only adds its collections and the
-    // access connectors the empty state asks about.
+    // access connectors the empty state asks about. A target system's page has no shell.
     effect(() => {
-      void this.loadCollections(this.organizationId());
-      void this.accessConnectorsService.load(this.organizationId());
+      const organizationId = this.organizationId();
+      void this.loadCollections(organizationId);
+      void this.accessConnectorsService.load(organizationId);
+      if (this.scoped()) {
+        void this.configsService.load(organizationId);
+      }
+    });
+
+    effect(() => {
+      if (this.scoped() && !this.loading() && this.loadError() == null) {
+        this.credentialCount.emit(this.rows().length);
+      }
     });
 
     // Seeds the target system chip from the drill-down link on the Target systems tab.
@@ -432,15 +477,35 @@ export class ManagedCredentialsTabComponent {
     const result = await ref.closed.toPromise();
     if (result) {
       await this.accessConnectorsService.registerCompleted(orgId);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamAccessConnectorRegistered"),
-      });
     }
   };
 
-  protected readonly openCreate = (): Promise<boolean> =>
-    this.router.navigate(["..", "managed-credentials", "new"], { relativeTo: this.route });
+  /** Sends a credential page back to the pinned target's tab, and names it in the breadcrumb. */
+  private readonly targetSystemReturnQuery = computed(() => {
+    const targetSystemId = this.targetSystemId();
+    return targetSystemId == null
+      ? null
+      : {
+          [THEN_QUERY_PARAM]: THEN_TARGET_SYSTEM,
+          [TARGET_SYSTEM_QUERY_PARAM]: uuidAsString(targetSystemId),
+        };
+  });
+
+  /** A credential page: relative to the shell's tab, or absolute with a way back to the target. */
+  private navigateToCredential(...segments: string[]): Promise<boolean> {
+    const queryParams = this.targetSystemReturnQuery();
+    if (queryParams == null) {
+      return this.router.navigate(["..", ROTATION_TABS.managedCredentials, ...segments], {
+        relativeTo: this.route,
+      });
+    }
+    return this.router.navigate(
+      rotationLink(this.organizationId(), ROTATION_TABS.managedCredentials, ...segments),
+      { queryParams },
+    );
+  }
+
+  protected readonly openCreate = (): Promise<boolean> => this.navigateToCredential("new");
 
   /**
    * Shown when no target system exists. After creating one, the operator lands on the managed
@@ -453,12 +518,10 @@ export class ManagedCredentialsTabComponent {
     });
 
   protected readonly openEdit = (row: RotationConfigRow): Promise<boolean> =>
-    this.router.navigate(["..", "managed-credentials", row.id], { relativeTo: this.route });
+    this.navigateToCredential(String(row.id));
 
   protected readonly openHistory = (row: RotationConfigRow): Promise<boolean> =>
-    this.router.navigate(["..", "managed-credentials", row.id, "history"], {
-      relativeTo: this.route,
-    });
+    this.navigateToCredential(String(row.id), "history");
 
   protected readonly sortByStatus = withNameTieBreak(
     (a, b) => a.statusSortOrder - b.statusSortOrder,
@@ -534,7 +597,7 @@ export class ManagedCredentialsTabComponent {
           message: this.i18nService.t("pamRotationConfigRotateNowStarted"),
         });
       } catch (e) {
-        this.showError(e);
+        this.showActionError(e, "pamRotationConfigRotateNowFailed");
       }
     });
 
@@ -557,7 +620,7 @@ export class ManagedCredentialsTabComponent {
           message: this.i18nService.t("pamRotationConfigMarkedRotated"),
         });
       } catch (e) {
-        this.showError(e);
+        this.showActionError(e, "pamRotationConfigMarkRotatedFailed");
       }
     });
 
@@ -579,7 +642,7 @@ export class ManagedCredentialsTabComponent {
           ),
         });
       } catch (e) {
-        this.showError(e);
+        this.showActionError(e, "pamRotationConfigPauseFailed");
       }
     });
 
@@ -615,7 +678,7 @@ export class ManagedCredentialsTabComponent {
           message: this.i18nService.t("pamRotationConfigRemoveSuccess"),
         });
       } catch (e) {
-        this.showError(e);
+        this.showActionError(e, "pamRotationConfigRemoveFailed");
       }
     });
 
@@ -624,6 +687,12 @@ export class ManagedCredentialsTabComponent {
       rotationErrorMessage(e) ??
       (e instanceof ErrorResponse ? e.message : undefined) ??
       this.i18nService.t("unexpectedError");
+    this.toastService.showToast({ variant: "error", message });
+  }
+
+  /** The server's refusal when it gave one, else the action's own "Try again" copy. */
+  private showActionError(e: unknown, failureKey: string): void {
+    const message = rotationActionErrorMessage(e) ?? this.i18nService.t(failureKey);
     this.toastService.showToast({ variant: "error", message });
   }
 }

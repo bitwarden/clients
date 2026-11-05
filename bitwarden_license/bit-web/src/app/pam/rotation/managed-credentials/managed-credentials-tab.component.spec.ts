@@ -369,12 +369,26 @@ describe("ManagedCredentialsTabComponent", () => {
       });
     });
 
-    it("falls back to the generic message for an error with no server reason", async () => {
+    it("falls back to Rotate now's own failure copy for an error with no server reason", async () => {
       configsService.rotateNow.mockRejectedValue(new Error("fail"));
       await component.rotateNow(makeRow());
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
-        message: "unexpectedError",
+        message: "pamRotationConfigRotateNowFailed",
+      });
+    });
+
+    it("shows its own failure copy, not the SDK's internal text, for a non-Api RotationError", async () => {
+      configsService.rotateNow.mockRejectedValue(
+        Object.assign(new Error("missing field: id"), {
+          name: "RotationError",
+          variant: "MissingField",
+        }),
+      );
+      await component.rotateNow(makeRow());
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamRotationConfigRotateNowFailed",
       });
     });
   });
@@ -1137,14 +1151,14 @@ describe("ManagedCredentialsTabComponent table", () => {
       expect(link.getAttribute("tabindex")).not.toBe("-1");
     });
 
-    it("puts the shared folders under the name, muted", async () => {
+    it("puts the shared folders under the name, in body text", async () => {
       const el = folderRender();
       await fixture.whenStable();
       fixture.detectChanges();
 
       const folders = el.querySelector('[id^="managed-credentials-tab_folders_"]')!;
       expect(text(folders)).toBe("Data, Finance");
-      expect(folders.classList).toContain("tw-text-fg-body-subtle");
+      expect(folders.classList).toContain("tw-text-fg-body");
     });
 
     it("draws no second line for a credential outside every shared folder", async () => {
@@ -1678,16 +1692,13 @@ describe("ManagedCredentialsTabComponent table", () => {
         );
       });
 
-      it("refreshes the connectors and shows the success toast once registered", async () => {
+      it("refreshes the connectors once registered, leaving the toast to the dialog", async () => {
         const el = render([], { connectors: [] });
 
         await clickAdd(el, true);
 
         expect(accessConnectorsService.registerCompleted).toHaveBeenCalledWith(ORGANIZATION_ID);
-        expect(toastService.showToast).toHaveBeenCalledWith({
-          variant: "success",
-          message: "pamAccessConnectorRegistered",
-        });
+        expect(toastService.showToast).not.toHaveBeenCalled();
       });
 
       it("does nothing more when the dialog is dismissed", async () => {

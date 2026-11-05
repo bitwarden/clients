@@ -8,6 +8,7 @@ import {
   StoryObj,
 } from "@storybook/angular";
 import { of } from "rxjs";
+import { userEvent, within } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -254,6 +255,22 @@ export const Paused: Story = editStory(
   rotationConfigActions({ canRotateNow: false, canPause: false, canResume: true }),
 );
 
+async function openHeaderMenu(canvasElement: HTMLElement): Promise<void> {
+  await userEvent.click(await within(canvasElement).findByRole("button", { name: "Options" }));
+}
+
+/** An active credential's header menu: Pause rotation and Remove from rotation. */
+export const HeaderMenuActive: Story = {
+  ...Edit,
+  play: async ({ canvasElement }) => openHeaderMenu(canvasElement),
+};
+
+/** A paused credential's header menu: Rotate now locked with its reason, then Resume rotation. */
+export const HeaderMenuPaused: Story = {
+  ...Paused,
+  play: async ({ canvasElement }) => openHeaderMenu(canvasElement),
+};
+
 export const RotatingAfterAFailedAttempt: Story = editStory(
   withConfig({ hasActiveJob: true }, [
     rotationJob({
@@ -278,6 +295,12 @@ export const ManualRotationDue: Story = editStory(
   rotationConfigActions({ canRotateNow: false, canRecordManual: true, canPause: false }),
 );
 
+/** While a job runs, Rotate now and Remove from rotation are locked with their reasons. */
+export const HeaderMenuRotating: Story = {
+  ...RotatingAfterAFailedAttempt,
+  play: async ({ canvasElement }) => openHeaderMenu(canvasElement),
+};
+
 export const FailedTimedOut: Story = editStory(
   withConfig({}, [rotationJob({ status: "timed_out", attempts: [] })]),
 );
@@ -291,3 +314,56 @@ export const NotConnectedDisconnected: Story = editStory(withConfig({}), [
     assignedTargetSystemIds: [TARGET_SYSTEM_ID],
   }),
 ]);
+
+const HISTORY_URL = `/organizations/${ORGANIZATION_ID}/pam/rotation/managed-credentials/${SAMPLE_DETAIL.config.id}/history`;
+
+/** No rotations yet: the job table keeps its header over the empty state. */
+export const EditHistoryEmpty: Story = editStory(
+  withConfig({}, []),
+  CONNECTORS,
+  rotationConfigActions(),
+  HISTORY_URL,
+);
+
+/** Retrying: the running job reads Retrying, and Details names the attempt that failed. */
+export const EditHistoryRetrying: Story = editStory(
+  withConfig({ hasActiveJob: true }, [
+    rotationJob({
+      status: "claimed",
+      attempts: [
+        rotationAttempt({ status: "errored", failureReason: "target_unreachable" }),
+        rotationAttempt({ id: attemptId("a-2"), status: "executing" }),
+      ],
+    }),
+  ]),
+  CONNECTORS,
+  rotationConfigActions({ canRotateNow: false }),
+  HISTORY_URL,
+);
+
+/** Not connected, with repeated timeouts no access connector picked up. */
+export const EditHistoryNoConnector: Story = editStory(
+  withConfig({}, [
+    rotationJob({
+      id: jobId("j-1"),
+      status: "timed_out",
+      attempts: [],
+      createdAt: "2026-10-04T19:00:00Z",
+    }),
+    rotationJob({
+      id: jobId("j-2"),
+      status: "timed_out",
+      attempts: [],
+      createdAt: "2026-10-03T19:00:00Z",
+    }),
+    rotationJob({
+      id: jobId("j-3"),
+      status: "timed_out",
+      attempts: [],
+      createdAt: "2026-10-02T19:00:00Z",
+    }),
+  ]),
+  [],
+  rotationConfigActions(),
+  HISTORY_URL,
+);

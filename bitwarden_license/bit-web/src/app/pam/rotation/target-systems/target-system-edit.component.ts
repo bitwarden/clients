@@ -4,7 +4,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  Injector,
   OnDestroy,
+  afterNextRender,
   TemplateRef,
   ViewContainerRef,
   computed,
@@ -25,7 +28,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { merge } from "rxjs";
+import { map, merge } from "rxjs";
 
 import { apiErrorBodyMessage } from "@bitwarden/bit-pam";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -50,6 +53,7 @@ import {
   IconTileComponent,
   IconTileVariant,
   LayoutFooterService,
+  MenuModule,
   MultiSelectModule,
   RadioButtonModule,
   SectionComponent,
@@ -65,12 +69,19 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
+import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import {
+  CONFIG_QUERY_PARAM,
   TARGET_SYSTEM_QUERY_PARAM,
+  THEN_CREDENTIAL,
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
 } from "../create-flow";
 import { DetailBreadcrumbComponent, DetailBreadcrumbStep } from "../detail-breadcrumb.component";
+import { tabFromSegment } from "../detail-tab";
+import { ManagedCredentialsTabComponent } from "../managed-credentials/managed-credentials-tab.component";
+import { RotationConfigsService } from "../managed-credentials/rotation-configs.service";
+import { OrgCiphersService } from "../org-ciphers.service";
 import {
   AccessConnector,
   AccessConnectorId,
@@ -89,8 +100,12 @@ import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RotationSdkService } from "../rotation-sdk.service";
 
+import { confirmDeactivateTargetSystem, confirmDeleteTargetSystem } from "./target-system-dialogs";
 import { targetSystemKindLabelKey } from "./target-system-label";
 import { resolveTargetSystemStatus, targetSystemStatusBadge } from "./target-system-status";
+import { TargetSystemsService } from "./target-systems.service";
+
+const TARGET_SYSTEM_DETAIL_TABS = ["configuration", "managed-credentials"] as const;
 
 const NAME_MAX_LENGTH = 200;
 const DEFAULT_MIN_LENGTH = 14;
@@ -266,10 +281,19 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
   );
 }
 
-/** Routed create and edit page for a target system. */
+/**
+ * Routed create and edit page for a target system. The Managed credentials tab's table needs the
+ * rotation shell's data services, which don't reach a sibling page, so this provides its own.
+ */
 @Component({
   templateUrl: "./target-system-edit.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    RotationConfigsService,
+    TargetSystemsService,
+    AccessConnectorsService,
+    OrgCiphersService,
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -286,6 +310,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     IconButtonModule,
     IconModule,
     IconTileComponent,
+    MenuModule,
     MultiSelectModule,
     RadioButtonModule,
     SectionComponent,
@@ -295,6 +320,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     SkeletonTextComponent,
     TabsModule,
     TypographyModule,
+    ManagedCredentialsTabComponent,
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
     I18nPipe,
@@ -309,14 +335,16 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly i18nService = inject(I18nService);
+  private readonly injector = inject(Injector);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
-  private readonly targetSystemId: TargetSystemId | undefined =
+  protected readonly targetSystemId: TargetSystemId | undefined =
     this.route.snapshot.params.targetSystemId == null
       ? undefined
       : asUuid<TargetSystemId>(this.route.snapshot.params.targetSystemId);
 
-  /** Set when the managed-credential create page sent the operator here, to go back there. */
+  /** Set when a managed-credential page sent the operator here, to go back there. */
   private readonly then: string | undefined = this.route.snapshot.queryParams?.[THEN_QUERY_PARAM];
 
   protected readonly editing = this.targetSystemId != null;
@@ -324,24 +352,40 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
   /** Whether the admin came from the add-managed-credential form and goes back to it. */
   protected readonly returnsToCredential = this.then === THEN_MANAGED_CREDENTIAL;
 
+  /** The managed credential whose callout sent the admin here to fix this target, if any. */
+  private readonly returnConfigId: string | undefined =
+    this.editing && this.then === THEN_CREDENTIAL
+      ? this.route.snapshot.queryParams?.[CONFIG_QUERY_PARAM]
+      : undefined;
+
+  /** Whether Save and Cancel go back to {@link returnConfigId}'s page. */
+  protected readonly returnsToCredentialDetail = this.returnConfigId != null;
+
   private readonly credentialsListRoute = rotationLink(
     this.organizationId,
     ROTATION_TABS.managedCredentials,
   );
 
-  protected readonly managedCredentialsTabRoute = this.credentialsListRoute;
+  private readonly targetSystemsListRoute = rotationLink(
+    this.organizationId,
+    ROTATION_TABS.targetSystems,
+  );
 
   private readonly addCredentialRoute = [...this.credentialsListRoute, "new"];
 
-  protected readonly breadcrumbParentKey = this.returnsToCredential
+  private readonly credentialDetailRoute = [...this.credentialsListRoute, this.returnConfigId];
+
+  private readonly breadcrumbsFromCredentials = this.returnsToCredential;
+
+  protected readonly breadcrumbParentKey = this.breadcrumbsFromCredentials
     ? "pamRotationTabManagedCredentials"
     : "pamRotationTabTargetSystems";
-  protected readonly breadcrumbParentRoute: unknown[] = this.returnsToCredential
+  protected readonly breadcrumbParentRoute: unknown[] = this.breadcrumbsFromCredentials
     ? this.credentialsListRoute
-    : [".."];
-  protected readonly breadcrumbParentIcon = this.returnsToCredential
+    : this.targetSystemsListRoute;
+  protected readonly breadcrumbParentIcon = this.breadcrumbsFromCredentials
     ? ("bwi-managed-credential" as const)
-    : undefined;
+    : ("bwi-target-system" as const);
   protected readonly breadcrumbStep: DetailBreadcrumbStep | undefined = this.returnsToCredential
     ? {
         labelKey: "pamRotationConfigCreateTitle",
@@ -376,21 +420,28 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     return this.existing()?.name ?? this.i18nService.t("pamTargetSystemEditTitle");
   });
 
-  /** The detail page's own tab, which stays active here. */
-  protected readonly configurationTabRoute =
+  protected readonly activeTab = toSignal(
+    this.route.paramMap.pipe(
+      map((params) => tabFromSegment(params.get("tab"), TARGET_SYSTEM_DETAIL_TABS)),
+    ),
+    {
+      initialValue: tabFromSegment(
+        this.route.snapshot.params.tab as string | undefined,
+        TARGET_SYSTEM_DETAIL_TABS,
+      ),
+    },
+  );
+
+  private readonly detailRoute =
     this.targetSystemId == null
       ? []
-      : rotationLink(
-          this.organizationId,
-          ROTATION_TABS.targetSystems,
-          uuidAsString(this.targetSystemId),
-        );
+      : [...this.targetSystemsListRoute, uuidAsString(this.targetSystemId)];
 
-  /** The Managed credentials tab opens that list scoped to this target system. */
-  protected readonly managedCredentialsTabQuery =
-    this.targetSystemId == null
-      ? {}
-      : { [TARGET_SYSTEM_QUERY_PARAM]: uuidAsString(this.targetSystemId) };
+  protected readonly configurationTabRoute = [...this.detailRoute, "configuration"];
+  protected readonly managedCredentialsTabRoute = [...this.detailRoute, "managed-credentials"];
+
+  /** Carried across a tab switch, so a page reached from a credential still returns to it. */
+  protected readonly tabQueryParams = this.route.snapshot.queryParams;
 
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
@@ -663,6 +714,17 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
   /** How many managed credentials name this target; `null` until read, or when the read failed. */
   private readonly managedCredentialCount = signal<number | null>(null);
 
+  /** The Managed credentials tab's berry; the library hides it at zero. */
+  protected readonly managedCredentialBerry = computed(
+    () => this.managedCredentialCount() ?? undefined,
+  );
+
+  /** The tab's own list supersedes the page's read, so a removal there updates the berry. */
+  protected readonly updateManagedCredentialCount = (count: number): void => {
+    this.managedCredentialCount.set(count);
+    this.managedCredentials.set(count > 0 ? "some" : "none");
+  };
+
   /** The setup steps this target still needs, in order; empty when set up or not yet known. */
   protected readonly outstandingSetupSteps = computed<readonly string[]>(() => {
     const credentials = this.managedCredentials();
@@ -680,6 +742,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
 
   constructor() {
     merge(
+      this.createForm.valueChanges,
       this.nameForm.valueChanges,
       this.policyForm.valueChanges,
       this.connectorsControl.valueChanges,
@@ -688,10 +751,19 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.dirty.set(this.unsavedChanges()));
 
+    // A reactive control ignores a `[disabled]` binding, so the picker is disabled through it.
+    effect(() => {
+      if (this.orgHasNoConnectors() || this.connectorsUnavailable()) {
+        this.connectorsControl.disable({ emitEvent: false });
+      } else {
+        this.connectorsControl.enable({ emitEvent: false });
+      }
+    });
+
     // The save bar lives in the layout's footer region, outside the scrolling content, so it
     // stays pinned while the page scrolls. It exists only while there is something to save.
     effect(() => {
-      const template = this.footerTemplate();
+      const template = this.editing ? this.footerTemplate() : this.createFooterTemplate();
       if (template == null) {
         return;
       }
@@ -730,6 +802,23 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     } finally {
       this.loading.set(false);
     }
+    if (this.returnsToCredentialDetail && this.loadError() == null) {
+      this.focusConnectorsField();
+    }
+  }
+
+  /** Brings the Access connectors field into view and focus, the fix the credential pointed to. */
+  private focusConnectorsField(): void {
+    afterNextRender(
+      () => {
+        const field = this.host.nativeElement.querySelector<HTMLElement>(
+          "#target-system-edit_multi-select_connectors",
+        );
+        field?.scrollIntoView?.({ block: "center" });
+        field?.querySelector<HTMLElement>("input")?.focus();
+      },
+      { injector: this.injector },
+    );
   }
 
   /** Seeds the create form from an empty-state template; unknown values keep the defaults. */
@@ -1049,6 +1138,9 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
         reread === "failed" ? "pamTargetSystemSavedNotReread" : "pamTargetSystemSaved",
       ),
     });
+    if (this.returnsToCredentialDetail) {
+      await this.router.navigate(this.credentialDetailRoute);
+    }
   };
 
   private async applyStagedAssignments(): Promise<{ error: unknown } | undefined> {
@@ -1129,17 +1221,9 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     () => this.existing()?.status === TargetSystemStatus.Disabled,
   );
 
-  /** A target still being set up has no confirmed capability to toggle, as on the table. */
-  protected readonly canToggleActivation = computed(() => this.isActive() || this.isDisabled());
-
+  /** Bound to a menu item, so it confirms and reports its own failure. */
   protected readonly deactivate = async (): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamTargetSystemDeactivateTitle" },
-      content: { key: "pamTargetSystemDeactivateContent" },
-      acceptButtonText: { key: "pamTargetSystemDeactivateConfirm" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
+    const confirmed = await confirmDeactivateTargetSystem(this.dialogService);
     if (!confirmed) {
       return;
     }
@@ -1176,25 +1260,15 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     });
   }
 
+  /** Bound to a menu item, so it confirms and reports its own failure. */
   protected readonly deleteSystem = async (): Promise<void> => {
     const system = this.existing();
     if (system == null) {
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamTargetSystemDeleteTitle" },
-      content: {
-        key:
-          this.assignedConnectors().length > 0
-            ? "pamTargetSystemDeleteAssignedConnectorsContent"
-            : this.isActive()
-              ? "pamTargetSystemDeleteContentDeactivateInstead"
-              : "pamTargetSystemDeleteContent",
-        placeholders: [system.name],
-      },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "danger",
+    const confirmed = await confirmDeleteTargetSystem(this.dialogService, {
+      active: this.isActive(),
+      dropsAssignments: this.assignedConnectors().length > 0,
     });
     if (!confirmed) {
       return;
@@ -1241,12 +1315,18 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
   };
 
   private readonly footerTemplate = viewChild<TemplateRef<unknown>>("footer");
+  private readonly createFooterTemplate = viewChild<TemplateRef<unknown>>("createFooter");
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly footerPortal = signal<TemplatePortal | null>(null);
 
-  /** Whether the pinned Save and Cancel bar shows, which is only once an edit is unsaved. */
-  protected readonly showFooter = computed(() => this.editing && this.dirty());
+  /**
+   * Whether the pinned Save and Cancel bar shows: once there is unsaved input, and only on the
+   * Configuration tab, which holds it.
+   */
+  protected readonly showFooter = computed(
+    () => this.dirty() && (!this.editing || this.activeTab() === "configuration"),
+  );
 
   ngOnDestroy(): void {
     this.detachFooter();
@@ -1271,12 +1351,16 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
       await this.router.navigate(this.addCredentialRoute);
       return;
     }
-    await this.router.navigate([".."], { relativeTo: this.route });
+    if (this.returnsToCredentialDetail) {
+      await this.router.navigate(this.credentialDetailRoute);
+      return;
+    }
+    await this.router.navigate(this.targetSystemsListRoute);
   };
 
   private navigateToList(): Promise<boolean> {
     this.markLiveFormsPristine();
-    return this.router.navigate([".."], { relativeTo: this.route });
+    return this.router.navigate(this.targetSystemsListRoute);
   }
 
   private showError(e: unknown): void {
