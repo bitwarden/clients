@@ -2954,17 +2954,8 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
 
   const el = () => fixture.nativeElement as HTMLElement;
 
-  afterEach(() => jest.useRealTimers());
-
-  function advance(ms: number): void {
-    fixture.detectChanges();
-    jest.advanceTimersByTime(ms);
-    fixture.detectChanges();
-  }
-
   async function renderLoading({ editing = true } = {}) {
     TestBed.resetTestingModule();
-    jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
     rotationSdk = mock<RotationSdkService>();
     rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: SYSTEM_ID })]);
     rotationSdk.listConnectors.mockResolvedValue([]);
@@ -2998,11 +2989,6 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
     fixture.detectChanges();
   }
 
-  async function renderSkeleton({ editing = true } = {}) {
-    await renderLoading({ editing });
-    advance(1000);
-  }
-
   async function settle() {
     await fixture.whenStable();
     fixture.detectChanges();
@@ -3011,7 +2997,7 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
   }
 
   it("stands skeleton fields in for the form, inside the real card furniture", async () => {
-    await renderSkeleton();
+    await renderLoading();
     const loading = el().querySelector('[data-testid="target-system-edit-loading"]');
 
     expect(el().querySelector("bit-spinner")).toBeNull();
@@ -3038,7 +3024,7 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
   });
 
   it("announces the load from a live region, then the arrival", async () => {
-    await renderSkeleton();
+    await renderLoading();
 
     const status = el().querySelector('[data-testid="rotation-loading-status"]');
     expect(status!.getAttribute("role")).toBe("status");
@@ -3046,7 +3032,6 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
     expect(status!.textContent).toContain("loading");
 
     await settle();
-    advance(1000);
 
     expect(el().querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
       "pamRotationPageLoaded",
@@ -3054,59 +3039,20 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
   });
 
   it("replaces the skeleton with the real form once the target system lands", async () => {
-    await renderSkeleton();
+    await renderLoading();
 
     await settle();
-    advance(1000);
 
     expect(el().querySelector('[data-testid="target-system-edit-loading"]')).toBeNull();
     expect(el().querySelector("bit-skeleton")).toBeNull();
     expect(el().querySelector("#target-system-edit_input_name")).not.toBeNull();
   });
 
-  it("renders the page's own chrome, not a blank area, before the delay is up", async () => {
+  it("renders the page's own chrome around the skeleton, not a blank area", async () => {
     await renderLoading();
-    advance(999);
 
     expect(el().querySelector('[data-testid="target-system-edit-loading"]')).not.toBeNull();
-    expect(el().querySelector("bit-skeleton")).toBeNull();
     expect(el().querySelector("pam-detail-breadcrumb")).not.toBeNull();
-  });
-
-  it("never draws the placeholder for a target system that arrives inside the delay", async () => {
-    await renderLoading();
-    advance(500);
-
-    await settle();
-    advance(1000);
-
-    expect(el().querySelector("bit-skeleton")).toBeNull();
-    expect(el().querySelector('[data-testid="target-system-edit-loading"]')).toBeNull();
-    expect(el().querySelector("#target-system-edit_input_name")).not.toBeNull();
-  });
-
-  it("holds the placeholder its minimum time once it is up, so it cannot blink", async () => {
-    await renderSkeleton();
-    expect(el().querySelector("bit-skeleton")).not.toBeNull();
-
-    await settle();
-    advance(300);
-
-    expect(el().querySelector("bit-skeleton")).not.toBeNull();
-
-    advance(700);
-
-    expect(el().querySelector("bit-skeleton")).toBeNull();
-    expect(el().querySelector("#target-system-edit_input_name")).not.toBeNull();
-  });
-
-  it("announces the load at once, not on the placeholder's clock", async () => {
-    await renderLoading();
-
-    expect(el().querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
-      "loading",
-    );
-    expect(el().querySelector("bit-skeleton")).toBeNull();
   });
 });
 
