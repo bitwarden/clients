@@ -25,6 +25,15 @@
           <bit-icon name="bwi-clock" />
           {{ rule.messageKey | i18n: (rule.maxSeconds | durationLong) }}
         </p>
+      } @else if (form.loadingRequestForm()) {
+        <p
+          bitTypography="helper"
+          class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-ps-10"
+          aria-hidden="true"
+        >
+          <bit-icon name="bwi-clock" class="tw-text-fg-heading" />
+          <bit-skeleton class="tw-my-0.5 tw-h-3.5 tw-w-1/2" />
+        </p>
       }
     </div>
 
