@@ -27,6 +27,8 @@ export class OrganizationNoPaymentMethodCreateRequest {
   usePrivilegedControls: boolean = false;
   pamSeats?: number;
   initiationPath!: InitiationPath;
+  /** The sales invitation token; the server verifies it before honoring a sales-assisted trial. */
+  salesAssistedToken?: string;
   trialLength?: number;
 
   constructor(key: string, keys: OrganizationKeysRequest, collectionName: string) {

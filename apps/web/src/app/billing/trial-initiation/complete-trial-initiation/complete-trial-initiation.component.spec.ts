@@ -498,9 +498,29 @@ describe("CompleteTrialInitiationComponent", () => {
         expect(request.organization.initiationPath).toBe(
           InitiationPath.SalesAssistedTrialFromAdminPortal,
         );
+        expect(request.organization.salesAssistedToken).toBe("sales-assisted-token-123");
         expect(request.plan).toEqual(
           expect.objectContaining({ subscribeToPrivilegedControls: true, pamSeats: 1 }),
         );
+      });
+
+      it("sends no sales-assisted token for a self-serve link", async () => {
+        mockActivatedRoute.queryParams.next({ ...selfServeParams, product: "0" });
+        component.orgInfoFormGroup.patchValue({
+          name: "Test Org",
+          billingEmail: "test@example.com",
+        });
+        component.verticalStepper = { next: jest.fn() } as any;
+        mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+          id: "org-id",
+          name: "Test Org",
+        } as any);
+
+        await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+        const request =
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mock.calls[0][0];
+        expect(request.organization.salesAssistedToken).toBeUndefined();
       });
 
       it("leaves Privileged Controls out of a self-serve link and shows the sales callout", () => {

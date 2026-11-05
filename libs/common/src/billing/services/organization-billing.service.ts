@@ -83,6 +83,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     const request = new OrganizationNoPaymentMethodCreateRequest(key, keysRequest, collectionName);
 
     this.setOrganizationInformation(request, subscription.organization);
+    request.salesAssistedToken = subscription.organization.salesAssistedToken;
 
     this.setPlanInformation(request, subscription.plan);
 

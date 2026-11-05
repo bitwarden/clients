@@ -261,6 +261,7 @@ export class CompleteTrialInitiationComponent {
           ? ""
           : this.orgInfoFormGroup.value.billingEmail,
       initiationPath: trialInitiationPath,
+      salesAssistedToken: this.salesAssistedToken,
     };
 
     const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
