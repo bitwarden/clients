@@ -133,10 +133,25 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     includeMemberItems?: boolean,
   ): Promise<CipherView[]>;
   /**
+   * Same as {@link getAllFromApiForOrganization}, but ciphers that fail to decrypt are returned
+   * separately in `failures`.
+   */
+  abstract getAllFromApiForOrganizationWithFailures(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<DecryptAllCiphersResult>;
+  /**
    * Gets ciphers belonging to the specified organization that the user has explicit collection level access to.
    * Ciphers that are not assigned to any collections are only included for users with admin access.
    */
   abstract getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
+  /**
+   * Same as {@link getManyFromApiForOrganization}, but ciphers that fail to decrypt are returned
+   * separately in `failures`.
+   */
+  abstract getManyFromApiForOrganizationWithFailures(
+    organizationId: string,
+  ): Promise<DecryptAllCiphersResult>;
   /**
    * Gets all Login ciphers belonging to the specified organization, including those in default
    * user collections. Ciphers that fail to decrypt are returned separately in `failures`.
