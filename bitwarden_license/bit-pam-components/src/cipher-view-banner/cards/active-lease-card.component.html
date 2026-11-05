@@ -23,7 +23,8 @@
             type="button"
             bitButton
             buttonType="secondary"
-            class="tw-flex-1"
+            [size]="popupLayout ? 'default' : 'small'"
+            [class.tw-flex-1]="popupLayout"
             [bitAction]="extendAction()"
             id="pam-cipher-view-banner_button_extend"
           >
@@ -34,7 +35,8 @@
           type="button"
           bitButton
           buttonType="danger"
-          class="tw-flex-1"
+          [size]="popupLayout ? 'default' : 'small'"
+          [class.tw-flex-1]="popupLayout"
           [bitAction]="endAction()"
           id="pam-cipher-view-banner_button_end"
         >
