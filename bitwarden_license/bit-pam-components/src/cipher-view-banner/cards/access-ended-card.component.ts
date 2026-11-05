@@ -6,7 +6,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
-/** Explains why the item went back to masked after a lease ran out on its own. */
+/**
+ * Explains why the item went back to masked after a lease ran out on its own, with any projected
+ * action.
+ */
 @Component({
   selector: "app-pam-access-ended-card",
   changeDetection: ChangeDetectionStrategy.OnPush,

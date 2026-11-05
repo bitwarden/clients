@@ -9105,6 +9105,27 @@
   "pamRequestToUse": {
     "message": "Request to use"
   },
+  "pamUnavailableToRequest": {
+    "message": "Unavailable to request",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Extend access",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1m left",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "In use"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Ending soon"
+  },
   "pamEndedBannerHeading": {
     "message": "Your access has ended"
   },
