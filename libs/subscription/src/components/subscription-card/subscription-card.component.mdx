@@ -46,11 +46,7 @@ The subscription card component is designed to display comprehensive subscriptio
 billing pages, account management interfaces, and subscription dashboards.
 
 ```ts
-import {
-  SubscriptionCardComponent,
-  BitwardenSubscription,
-  SubscriptionPreview,
-} from "@bitwarden/subscription";
+import { SubscriptionCardComponent, SubscriptionPreview } from "@bitwarden/subscription";
 ```
 
 ```html
@@ -67,11 +63,11 @@ import {
 
 ### Inputs
 
-| Input               | Type                                           | Description                                                                                  |
-| ------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `title`             | `string`                                       | **Required.** The title displayed at the top of the card                                     |
-| `subscription`      | `BitwardenSubscription \| SubscriptionPreview` | **Required.** The subscription data including status, cart, and storage (see Data Structure) |
-| `showUpgradeButton` | `boolean`                                      | **Optional.** Whether to show the upgrade callout (default: `false`)                         |
+| Input               | Type                  | Description                                                                                  |
+| ------------------- | --------------------- | -------------------------------------------------------------------------------------------- |
+| `title`             | `string`              | **Required.** The title displayed at the top of the card                                     |
+| `subscription`      | `SubscriptionPreview` | **Required.** The subscription data including status, cart, and storage (see Data Structure) |
+| `showUpgradeButton` | `boolean`             | **Optional.** Whether to show the upgrade callout (default: `false`)                         |
 
 ### Outputs
 
@@ -93,17 +89,17 @@ type SubscriptionCardAction =
 
 ## Data Structure
 
-The component uses the `BitwardenSubscription` type, which is a discriminated union based on status:
+The component uses the `SubscriptionPreview` type, which is a discriminated union based on status:
 
 ```typescript
-type BitwardenSubscription = HasCart & HasStorage & (Suspension | Billable | Canceled);
+type SubscriptionPreview = HasCart & HasStorage & (Suspension | Billable | Canceled);
 
 type HasCart = {
   cart: Cart; // From @bitwarden/pricing
 };
 
 type HasStorage = {
-  storage: {
+  storage?: {
     available: number;
     readableUsed: string;
     used: number;
@@ -112,8 +108,8 @@ type HasStorage = {
 
 type Suspension = {
   status: "incomplete" | "incomplete_expired" | "past_due" | "unpaid";
-  suspension: Date;
-  gracePeriod: number;
+  suspension?: Date;
+  gracePeriod?: number;
 };
 
 type Billable = {
@@ -128,13 +124,10 @@ type Canceled = {
 };
 ```
 
-The component also accepts `SubscriptionPreview` — the preview-driven counterpart projected from a
-Stripe invoice preview. It differs from `BitwardenSubscription` in two ways:
-
-- `storage` is optional (the server returns none for subscribers without a storage allowance).
-- `suspension` and `gracePeriod` are optional for `past_due`/`unpaid` — the server omits them when
-  no open overdue invoice qualifies, and the card renders the past-due/paused fallback header
-  instead of a suspension date.
+`storage` is optional (the server returns none for subscribers without a storage allowance).
+`suspension` and `gracePeriod` are optional for `past_due`/`unpaid` — the server omits them when no
+open overdue invoice qualifies, and the card renders the past-due/paused fallback header instead of
+a suspension date.
 
 ## Content Projection
 
@@ -478,7 +471,7 @@ the scheduled price-increase warning):
 ### ✅ Do
 
 - Handle all `callToActionClicked` events appropriately in parent components
-- Provide complete `BitwardenSubscription` / `SubscriptionPreview` objects with all required fields
+- Provide complete `SubscriptionPreview` objects with all required fields
 - Use the correct subscription status from the defined status types
 - Include accurate date information for nextCharge, suspension, and cancelAt fields
 - Set `showUpgradeButton` to `true` only when upgrade paths are available
@@ -487,7 +480,7 @@ the scheduled price-increase warning):
 
 ### ❌ Don't
 
-- Omit required fields from the BitwardenSubscription type
+- Omit required fields from the SubscriptionPreview type
 - Use custom status strings not defined in the type
 - Display upgrade buttons for users who cannot upgrade
 - Ignore the `callToActionClicked` events - they require handling

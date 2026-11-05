@@ -1,12 +1,22 @@
 /*
   The types and validation in this file mirror the Autotype Pairing Data Schema, which is the
   source of truth and must be kept in sync with this file:
-  apps/desktop/desktop_native/autotype/schemas/autotype-pairing-data-schema.0.1.0.json
+  libs/common/src/desktop-native/schemas/autotype-pairing-data-schema.1.0.0.json
+
+  Every 1.x.y version of the schema stays compatible with 1.0.0: a minor version may only add
+  optional properties or new `packagingType` values. Mirroring 1.0.0 while ignoring unknown
+  properties therefore accepts data of every 1.x.y version.
+
+  Handling this in an automated fashion is future work scoped in ticket:
+  https://bitwarden.atlassian.net/browse/PM-43969
 */
 
 /**
- * The type of packaging of the Bitwarden client a pairing was made on. Informs the operating
- * system and potential sandboxing requirements.
+ * The known types of packaging of the Bitwarden client a pairing was made on. Informs the
+ * operating system and potential sandboxing requirements.
+ *
+ * Later 1.x versions of the schema may add values, so pairing data can hold a `packagingType`
+ * that isn't listed here.
  */
 export const AutotypePairingPackagingType = Object.freeze({
   WindowsMsix: "windows-msix",
@@ -17,18 +27,26 @@ export type AutotypePairingPackagingType =
   (typeof AutotypePairingPackagingType)[keyof typeof AutotypePairingPackagingType];
 
 /**
- * The SemVer version of the Autotype Pairing Data Schema that this client reads and writes.
+ * The SemVer version of the Autotype Pairing Data Schema that new pairing data is written with.
  */
 export const AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION = Object.freeze({
-  major: 0,
-  minor: 1,
+  major: 1,
+  minor: 0,
   patch: 0,
 } as const);
 
-export type AutotypePairingDataSchemaVersion = typeof AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION;
+/** A SemVer version of the Autotype Pairing Data Schema that this client reads (any 1.x.y). */
+export type AutotypePairingDataSchemaVersion = {
+  major: 1;
+  minor: number;
+  patch: number;
+};
 
 /**
  * The app pairing data saved for Autotype, as defined by the Autotype Pairing Data Schema.
+ *
+ * Data written by a later 1.x version can hold properties that aren't declared here. They are
+ * kept as-is.
  *
  * This holds decrypted vault data (including the paired app's path), so it must never be logged.
  */
@@ -39,16 +57,24 @@ export type AutotypePairingData = {
     pairingTimestamp: number;
   };
   appData: {
-    /** The name of the application paired. */
+    /** The name of the application paired. Never empty. */
     name: string;
-    /** The normalized absolute path of the application paired, including the file name. */
+    /**
+     * The normalized absolute path of the application paired, including the file name. Never
+     * empty.
+     */
     normalizedPath: string;
   };
   clientData: {
-    packagingType: AutotypePairingPackagingType;
+    /**
+     * The type of packaging of the Bitwarden client this pairing was made on, usually one of
+     * {@link AutotypePairingPackagingType}. Later 1.x versions may add values. Never empty.
+     */
+    packagingType: string;
   };
 };
 
+/** Returns whether the value is one of the known {@link AutotypePairingPackagingType} values. */
 export function isAutotypePairingPackagingType(
   value: unknown,
 ): value is AutotypePairingPackagingType {
@@ -56,66 +82,77 @@ export function isAutotypePairingPackagingType(
 }
 
 /**
- * Returns whether the value adheres to the Autotype Pairing Data Schema: every object has exactly
- * its required properties, and every property has the type and value constraints of the schema.
+ * Returns whether the value adheres to a 1.x.y version of the Autotype Pairing Data Schema: every
+ * object has its required properties, and every property has the type and value constraints of
+ * the schema. Unknown properties are ignored.
  */
 export function isAutotypePairingData(value: unknown): value is AutotypePairingData {
   return (
     isPlainObject(value) &&
-    hasExactKeys(value, ["metadata", "appData", "clientData"]) &&
+    hasKeys(value, ["metadata", "appData", "clientData"]) &&
     isMetadata(value.metadata) &&
     isAppData(value.appData) &&
     isClientData(value.clientData)
   );
 }
 
+// Validates `metadata`: a supported schema version and a non-negative integer timestamp.
 function isMetadata(value: unknown): boolean {
-  if (!isPlainObject(value) || !hasExactKeys(value, ["schemaVersion", "pairingTimestamp"])) {
+  if (!isPlainObject(value) || !hasKeys(value, ["schemaVersion", "pairingTimestamp"])) {
     return false;
   }
 
   const { schemaVersion, pairingTimestamp } = value;
-  return (
-    isSchemaVersion(schemaVersion) &&
-    typeof pairingTimestamp === "number" &&
-    Number.isInteger(pairingTimestamp) &&
-    pairingTimestamp >= 0
-  );
+  return isSchemaVersion(schemaVersion) && isNonNegativeInteger(pairingTimestamp);
 }
 
+// Validates `schemaVersion`: major version 1, with any non-negative integer minor and patch.
 function isSchemaVersion(value: unknown): boolean {
   return (
     isPlainObject(value) &&
-    hasExactKeys(value, ["major", "minor", "patch"]) &&
+    hasKeys(value, ["major", "minor", "patch"]) &&
     value.major === AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION.major &&
-    value.minor === AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION.minor &&
-    value.patch === AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION.patch
+    isNonNegativeInteger(value.minor) &&
+    isNonNegativeInteger(value.patch)
   );
 }
 
+// Validates `appData`: a non-empty name and a non-empty path.
 function isAppData(value: unknown): boolean {
   return (
     isPlainObject(value) &&
-    hasExactKeys(value, ["name", "normalizedPath"]) &&
-    typeof value.name === "string" &&
-    typeof value.normalizedPath === "string"
+    hasKeys(value, ["name", "normalizedPath"]) &&
+    isNonEmptyString(value.name) &&
+    isNonEmptyString(value.normalizedPath)
   );
 }
 
+// Validates `clientData`: a non-empty packaging type, known or not.
 function isClientData(value: unknown): boolean {
   return (
     isPlainObject(value) &&
-    hasExactKeys(value, ["packagingType"]) &&
-    isAutotypePairingPackagingType(value.packagingType)
+    hasKeys(value, ["packagingType"]) &&
+    isNonEmptyString(value.packagingType)
   );
 }
 
+// Matches the schema's `"type": "string", "minLength": 1`.
+function isNonEmptyString(value: unknown): boolean {
+  return typeof value === "string" && value.length > 0;
+}
+
+// Matches the schema's `"type": "integer", "minimum": 0`.
+function isNonNegativeInteger(value: unknown): boolean {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
+// Matches the schema's `"type": "object"`, which excludes `null` and arrays.
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-// The schema requires every property and allows no additional properties, at every level.
-function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+// The schema requires these properties. Any other properties are allowed and ignored.
+function hasKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
   const actualKeys = Object.keys(value);
-  return actualKeys.length === keys.length && keys.every((key) => actualKeys.includes(key));
+  return keys.every((key) => actualKeys.includes(key));
 }

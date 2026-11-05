@@ -184,6 +184,7 @@ export const accountEncryptedV2: {
           ],
           totp: "otpauth://totp/test?secret=JBSWY3DPEHPK3PXP",
           autofillOnPageLoad: null,
+          httpAuthenticationEnabled: false,
           fido2Credentials: [
             {
               credentialId: "e8d88789-e916-e196-3cbd-81dafae71bbc",
