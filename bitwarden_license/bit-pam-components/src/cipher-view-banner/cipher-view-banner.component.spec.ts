@@ -536,7 +536,7 @@ describe("CipherViewBannerComponent", () => {
       expect(cancel?.classList.contains("tw-w-full")).toBe(false);
     });
 
-    it("shows a pending request as submitted just now, with Cancel as a full-width button, in the popup", async () => {
+    it("shows a pending request as submitted just now, with Cancel inside its card, in the popup", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ pendingRequest: requestView({ submittedAt: new Date().toISOString() }) }),
       );
@@ -548,9 +548,7 @@ describe("CipherViewBannerComponent", () => {
         "pamPendingSubmittedJustNow",
       );
       const cancel = query("#pam-cipher-view-banner_button_cancel");
-      expect(cancel?.classList.contains("tw-w-full")).toBe(true);
-      expect(cancel?.querySelector(".bwi-close")).not.toBeNull();
-      expect(cancel?.closest('[data-testid="cipher-view-banner-pending"]')).toBeNull();
+      expect(cancel?.closest('[data-testid="cipher-view-banner-pending"]')).not.toBeNull();
     });
 
     it("offers Cancel request while a request is pending", async () => {
