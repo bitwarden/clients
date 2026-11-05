@@ -34,6 +34,7 @@ import {
   FilterMenuComponent,
   FilterOptionComponent,
   FilterOptionIconTile,
+  HoverRevealDirective,
   IconButtonModule,
   IconModule,
   SearchModule,
@@ -116,6 +117,7 @@ const STATUS_OPTIONS: ReadonlyArray<{
     BitTableV2Component,
     FilterMenuComponent,
     FilterOptionComponent,
+    HoverRevealDirective,
     IconButtonModule,
     IconComponent,
     IconModule,
@@ -227,17 +229,6 @@ export class ApprovalsTabComponent {
       ? this.skeletonVisible()
       : (this.loading() || this.showSkeleton()) && !this.hasRows(),
   );
-
-  /**
-   * Hidden until the row is hovered or holds focus, except where there is no hover to give, or
-   * the actions would be invisible and untappable for the whole of a touch device.
-   */
-  protected readonly revealClasses =
-    "tw-flex tw-flex-nowrap tw-items-center tw-gap-2 tw-opacity-0 tw-transition-opacity" +
-    " tw-pointer-events-none group-hover/row:tw-opacity-100 group-hover/row:tw-pointer-events-auto" +
-    " group-has-[:focus-visible]/row:tw-opacity-100" +
-    " group-has-[:focus-visible]/row:tw-pointer-events-auto" +
-    " [@media(hover:none)]:tw-opacity-100 [@media(hover:none)]:tw-pointer-events-auto";
 
   /** Five rows fill the table's space without implying a real row count. */
   protected readonly skeletonRows = 5;
