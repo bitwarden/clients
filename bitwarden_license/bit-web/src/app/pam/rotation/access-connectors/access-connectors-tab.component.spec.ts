@@ -22,6 +22,7 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { deferred } from "../testing/deferred";
 import { ORGANIZATION_ID, accessConnector, connectorId, sysId } from "../testing/rotation-builders";
 
+import { accessConnectorDisplayStatus, accessConnectorStatusBadge } from "./access-connector-label";
 import { AccessConnectorsTabComponent } from "./access-connectors-tab.component";
 import { AccessConnectorsService, AccessConnectorRow } from "./access-connectors.service";
 
@@ -54,7 +55,11 @@ describe("AccessConnectorsTabComponent", () => {
       accessConnector: accessConnector({
         id,
         name,
-        isConnected: true,
+        status:
+          (overrides.enabled ?? true)
+            ? AccessConnectorStatus.Enabled
+            : AccessConnectorStatus.Disabled,
+        isConnected: overrides.isConnected ?? true,
         ...(overrides.accessConnector ?? {}),
       }),
     };
@@ -95,7 +100,6 @@ describe("AccessConnectorsTabComponent", () => {
       load: jest.fn().mockResolvedValue(undefined),
       registerCompleted: jest.fn().mockResolvedValue(undefined),
       assign: jest.fn().mockResolvedValue(undefined),
-      unassign: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<AccessConnectorsService>;
@@ -208,32 +212,57 @@ describe("AccessConnectorsTabComponent", () => {
     expect(accessConnectorsService.delete).not.toHaveBeenCalled();
   });
 
-  it("calls accessConnectorsService.unassign after confirmation", async () => {
-    (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
-    const row = makeAccessConnectorRow();
-
+  it("asks the warning deactivate question, without the connector's name", async () => {
+    (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
     const component = fixture.componentInstance as unknown as {
-      unassign: (row: AccessConnectorRow, targetId: TargetSystemId, name: string) => Promise<void>;
+      disable: (row: AccessConnectorRow) => Promise<void>;
     };
-    await component.unassign(row, sysId("ts-1"), "Prod");
 
-    expect(accessConnectorsService.unassign).toHaveBeenCalledWith(
-      row.accessConnector,
-      sysId("ts-1"),
-    );
+    await component.disable(makeAccessConnectorRow());
+
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+      title: { key: "pamAccessConnectorDeactivateDialogTitle" },
+      content: { key: "pamAccessConnectorDeactivateDialogContent" },
+      acceptButtonText: { key: "pamAccessConnectorDeactivate" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
   });
 
-  it("does not unassign when confirmation is canceled", async () => {
+  it("asks the danger delete question, accepted with Delete access connector", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
-    const row = makeAccessConnectorRow();
-
     const component = fixture.componentInstance as unknown as {
-      unassign: (row: AccessConnectorRow, targetId: TargetSystemId, name: string) => Promise<void>;
+      confirmDelete: (row: AccessConnectorRow) => Promise<void>;
     };
-    await component.unassign(row, sysId("ts-1"), "Prod");
 
-    expect(accessConnectorsService.unassign).not.toHaveBeenCalled();
-    expect(toastService.showToast).not.toHaveBeenCalled();
+    await component.confirmDelete(makeAccessConnectorRow());
+
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+      title: { key: "pamAccessConnectorDeleteDialogTitle" },
+      content: { key: "pamAccessConnectorDeleteDialogContent" },
+      acceptButtonText: { key: "pamAccessConnectorDeleteAccessConnector" },
+      cancelButtonText: { key: "cancel" },
+      type: "danger",
+    });
+  });
+
+  it("confirms each mutation with its success toast", async () => {
+    (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
+    const component = fixture.componentInstance as unknown as {
+      disable: (row: AccessConnectorRow) => Promise<void>;
+      enable: (row: AccessConnectorRow) => Promise<void>;
+      confirmDelete: (row: AccessConnectorRow) => Promise<void>;
+    };
+
+    await component.disable(makeAccessConnectorRow());
+    await component.enable(makeAccessConnectorRow({ enabled: false }));
+    await component.confirmDelete(makeAccessConnectorRow());
+
+    expect((toastService.showToast as jest.Mock).mock.calls.map(([toast]) => toast)).toEqual([
+      { variant: "success", message: "pamAccessConnectorDeactivated" },
+      { variant: "success", message: "pamAccessConnectorActivated" },
+      { variant: "success", message: "pamAccessConnectorDeleted" },
+    ]);
   });
 
   /** Every mutation answers a refusal with one error toast and claims nothing else. */
@@ -242,7 +271,6 @@ describe("AccessConnectorsTabComponent", () => {
       disable: (row: AccessConnectorRow) => Promise<void>;
       enable: (row: AccessConnectorRow) => Promise<void>;
       confirmDelete: (row: AccessConnectorRow) => Promise<void>;
-      unassign: (row: AccessConnectorRow, targetId: TargetSystemId, name: string) => Promise<void>;
     };
 
     beforeEach(() => {
@@ -284,14 +312,6 @@ describe("AccessConnectorsTabComponent", () => {
       expectedErrorToast();
     });
 
-    it("reports a refused unassign", async () => {
-      (accessConnectorsService.unassign as jest.Mock).mockRejectedValue(new Error("boom"));
-
-      await actions().unassign(makeAccessConnectorRow(), sysId("ts-1"), "Prod");
-
-      expectedErrorToast();
-    });
-
     it("shows the server's reason when the SDK refuses the delete", async () => {
       (accessConnectorsService.delete as jest.Mock).mockRejectedValue(
         Object.assign(
@@ -311,10 +331,32 @@ describe("AccessConnectorsTabComponent", () => {
       });
     });
 
-    it("falls back to the generic message for an error with no server reason", async () => {
+    it("falls back to delete's own failure copy for an error with no server reason", async () => {
       (accessConnectorsService.delete as jest.Mock).mockRejectedValue(new Error("boom"));
 
       await actions().confirmDelete(makeAccessConnectorRow());
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamAccessConnectorDeleteFailed",
+      });
+    });
+
+    it("falls back to deactivate's own failure copy for an error with no server reason", async () => {
+      (accessConnectorsService.setEnabled as jest.Mock).mockRejectedValue(new Error("boom"));
+
+      await actions().disable(makeAccessConnectorRow());
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamAccessConnectorDeactivateFailed",
+      });
+    });
+
+    it("falls back to the generic message for a refused activation with no server reason", async () => {
+      (accessConnectorsService.setEnabled as jest.Mock).mockRejectedValue(new Error("boom"));
+
+      await actions().enable(makeAccessConnectorRow({ enabled: false }));
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
@@ -327,7 +369,6 @@ describe("AccessConnectorsTabComponent", () => {
     type Guarded = {
       disable: (row: AccessConnectorRow) => Promise<void>;
       confirmDelete: (row: AccessConnectorRow) => Promise<void>;
-      unassign: (row: AccessConnectorRow, targetId: TargetSystemId, name: string) => Promise<void>;
       isRowBusy: (rowId: AccessConnectorId) => boolean;
     };
 
@@ -386,11 +427,11 @@ describe("AccessConnectorsTabComponent", () => {
 
     it("marks the row busy under the id the row menu binds, on every action", async () => {
       const pending = deferred();
-      (accessConnectorsService.unassign as jest.Mock).mockReturnValue(pending.promise);
+      (accessConnectorsService.delete as jest.Mock).mockReturnValue(pending.promise);
       const row = makeAccessConnectorRow({ id: connectorId("row-key") });
       const component = guarded();
 
-      const first = component.unassign(row, sysId("ts-1"), "Prod");
+      const first = component.confirmDelete(row);
       expect(component.isRowBusy(row.id)).toBe(true);
 
       pending.settle();
@@ -613,6 +654,12 @@ describe("AccessConnectorsTabComponent", () => {
       )!;
     }
 
+    /** The reason line the item's `aria-describedby` points at, under its label. */
+    function reasonLine(item: HTMLButtonElement): string | undefined {
+      const id = item.getAttribute("aria-describedby");
+      return id == null ? undefined : item.querySelector(`[id="${id}"]`)?.textContent?.trim();
+    }
+
     /** The reason key the row menu's assign item states, as the component resolved it. */
     function blockedKey(): string | null {
       return (
@@ -667,7 +714,7 @@ describe("AccessConnectorsTabComponent", () => {
 
       expect(item.getAttribute("aria-disabled")).toBe("true");
       expect(item.hasAttribute("disabled")).toBe(false);
-      expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+      expect(reasonLine(item)).toBe("pamAccessConnectorTargetSystemsLoadError");
       expect(blockedKey()).toBe("pamAccessConnectorTargetSystemsLoadError");
     });
 
@@ -727,10 +774,11 @@ describe("AccessConnectorsTabComponent", () => {
       expect(document.querySelector(".bit-menu-panel")).toBeNull();
     });
 
-    it("describes the disabled assign item with the tooltip explaining why", async () => {
+    it("states why under the disabled assign item's label, and describes the item with it", async () => {
       const item = await openRowMenu(assignRow(false));
 
-      expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+      expect(item.textContent).toContain("pamAccessConnectorAssignTargetSystems");
+      expect(reasonLine(item)).toBe("pamAccessConnectorAssignTargetSystemsDisabled");
     });
 
     it("leaves the live assign item undescribed", async () => {
@@ -758,11 +806,11 @@ describe("AccessConnectorsTabComponent", () => {
       )!;
     }
 
-    it("renders the name as a primary link", () => {
+    it("renders the name as a heading-coloured link to the detail page", () => {
       const button = nameCellButton();
 
       expect(button.textContent).toContain("dc01 connector");
-      expect(button.classList).toContain("tw-text-fg-brand");
+      expect(button.classList).toContain("tw-text-fg-heading");
     });
 
     it("keeps the name keyboard focusable", () => {
@@ -846,28 +894,63 @@ describe("AccessConnectorsTabComponent", () => {
       b: AccessConnectorRow,
       direction?: "asc" | "desc",
     ) => number;
-    type Sorters = Record<
-      "sortByStatus" | "sortByConnection" | "sortByLastSeen" | "sortByAssignments",
-      Comparator
-    >;
+    type Sorters = Record<"sortByStatus" | "sortByLastSeen" | "sortByAssignments", Comparator>;
 
     function sorters(): Sorters {
       return fixture.componentInstance as unknown as Sorters;
     }
 
-    it("sorts active connectors before inactive ones", () => {
-      const active = makeAccessConnectorRow({ name: "b", enabled: true });
-      const inactive = makeAccessConnectorRow({ name: "a", enabled: false });
+    /** A row as the table holds it, with the status badge the component derives. */
+    function tabRow(overrides: Partial<AccessConnectorRow>): AccessConnectorRow {
+      const row = makeAccessConnectorRow(overrides);
+      return {
+        ...row,
+        statusBadge: accessConnectorStatusBadge(accessConnectorDisplayStatus(row.accessConnector)),
+      } as AccessConnectorRow;
+    }
 
-      expect(sorters().sortByStatus(active, inactive)).toBeLessThan(0);
-      expect(sorters().sortByStatus(inactive, active)).toBeGreaterThan(0);
+    function sortedNames(rows: AccessConnectorRow[], direction: "asc" | "desc" = "asc") {
+      const dirMod = direction === "asc" ? 1 : -1;
+      return [...rows]
+        .sort((a, b) => sorters().sortByStatus(a, b, direction) * dirMod)
+        .map((r) => r.name);
+    }
+
+    it("sorts by urgency: Disconnected, then Inactive, then Connected", () => {
+      const rows = [
+        tabRow({ name: "connected" }),
+        tabRow({ name: "inactive", enabled: false, isConnected: true }),
+        tabRow({ name: "disconnected", isConnected: false }),
+      ];
+
+      expect(sortedNames(rows)).toEqual(["disconnected", "inactive", "connected"]);
     });
 
-    it("sorts connected connectors before disconnected ones", () => {
-      const connected = makeAccessConnectorRow({ name: "b", isConnected: true });
-      const disconnected = makeAccessConnectorRow({ name: "a", isConnected: false });
+    it("puts the connector with the most target systems first within a status, then names A to Z", () => {
+      const rows = [
+        tabRow({ name: "AWS production VPC", assignmentNames: [] }),
+        tabRow({ name: "Azure production", assignmentNames: ["a"] }),
+        tabRow({ name: "East datacenter", assignmentNames: ["a", "b", "c", "d", "e"] }),
+        tabRow({ name: "Alpha", assignmentNames: ["a"] }),
+      ];
 
-      expect(sorters().sortByConnection(connected, disconnected)).toBeLessThan(0);
+      expect(sortedNames(rows)).toEqual([
+        "East datacenter",
+        "Alpha",
+        "Azure production",
+        "AWS production VPC",
+      ]);
+    });
+
+    it("keeps the target-system and name tie-breaks when the status sort is reversed", () => {
+      const rows = [
+        tabRow({ name: "b", assignmentNames: [] }),
+        tabRow({ name: "a", assignmentNames: [] }),
+        tabRow({ name: "c", assignmentNames: ["x"] }),
+        tabRow({ name: "z", isConnected: false }),
+      ];
+
+      expect(sortedNames(rows, "desc")).toEqual(["c", "a", "b", "z"]);
     });
 
     it("sorts by last seen with never-seen connectors first", () => {
@@ -917,7 +1000,7 @@ describe("AccessConnectorsTabComponent", () => {
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
       expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
-      expect(el.textContent).not.toContain("pamAccessConnectorEmptyStateTitle");
+      expect(el.textContent).not.toContain("pamAccessConnectorsEmptyTitle");
     });
 
     it("renders the load-error state while the load is still in flight", () => {
@@ -951,28 +1034,37 @@ describe("AccessConnectorsTabComponent", () => {
 
 describe("AccessConnectorsTabComponent toolbar filters", () => {
   type FiltersComp = {
-    searchControl: { setValue: (value: string) => void };
-    statusOptions: () => { value: string; label: string }[];
-    connectionOptions: () => { value: boolean; label: string }[];
+    searchControl: { setValue: (value: string) => void; value: string };
+    statusBadges: {
+      status: string;
+      labelKey: string;
+      iconTile: { icon: string; variant: string };
+    }[];
+    targetSystemOptions: () => { value: string; label: string }[];
   };
 
   let fixture: ComponentFixture<AccessConnectorsTabComponent>;
   let component: FiltersComp;
+
+  const prodEntra = { id: sysId("ts-1"), name: "Prod Entra" } as unknown as TargetSystemView;
+  const reportingSql = { id: sysId("ts-2"), name: "Reporting SQL" } as unknown as TargetSystemView;
+  const unserved = { id: sysId("ts-3"), name: "Entra ID staging" } as unknown as TargetSystemView;
 
   function makeRow(overrides: {
     id: AccessConnectorId;
     name: string;
     enabled: boolean;
     isConnected: boolean;
+    assigned?: TargetSystemView[];
   }): AccessConnectorRow {
-    const { id, name, enabled, isConnected } = overrides;
+    const { id, name, enabled, isConnected, assigned = [] } = overrides;
     return {
       id,
       name,
       statusLabelKey: enabled ? "active" : "inactive",
       isConnected,
       lastSeenAtMs: null,
-      assignmentNames: [],
+      assignmentNames: assigned.map((s) => s.name),
       enabled,
       canAssign: enabled,
       accessConnector: accessConnector({
@@ -980,6 +1072,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
         name,
         status: enabled ? AccessConnectorStatus.Enabled : AccessConnectorStatus.Disabled,
         isConnected,
+        assignedTargetSystemIds: assigned.map((s) => s.id),
       }),
     };
   }
@@ -989,12 +1082,14 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
     name: "Prod on-prem",
     enabled: true,
     isConnected: true,
+    assigned: [prodEntra],
   });
   const enabledOffline = makeRow({
     id: connectorId("c-2"),
     name: "Prod backup",
     enabled: true,
     isConnected: false,
+    assigned: [prodEntra, reportingSql],
   });
   const disabledOffline = makeRow({
     id: connectorId("c-3"),
@@ -1004,7 +1099,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
   });
 
   /** Renders the real template. */
-  function setup(rows: AccessConnectorRow[]) {
+  function setup(rows: AccessConnectorRow[], systems: TargetSystemView[] = [prodEntra, unserved]) {
     TestBed.configureTestingModule({
       imports: [AccessConnectorsTabComponent],
       providers: [
@@ -1018,7 +1113,6 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
             load: jest.fn().mockResolvedValue(undefined),
             registerCompleted: jest.fn().mockResolvedValue(undefined),
             assign: jest.fn().mockResolvedValue(undefined),
-            unassign: jest.fn().mockResolvedValue(undefined),
             setEnabled: jest.fn().mockResolvedValue(undefined),
             delete: jest.fn().mockResolvedValue(undefined),
           },
@@ -1026,7 +1120,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
         {
           provide: TargetSystemsService,
           useValue: {
-            automaticSystems$: of([] as TargetSystemView[]),
+            automaticSystems$: of(systems),
             loading$: of(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
             load: jest.fn().mockResolvedValue(undefined),
@@ -1060,64 +1154,105 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
       .sort();
   }
 
-  it("derives the status options from the loaded rows, sorted by label", () => {
-    setup([enabledConnected, enabledOffline, disabledOffline]);
-    expect(component.statusOptions()).toEqual([
-      { value: "active", label: "active" },
-      { value: "inactive", label: "inactive" },
+  it("offers every status in urgency order, iconed like its badge", () => {
+    setup([enabledConnected]);
+    expect(
+      component.statusBadges.map(({ status, labelKey, iconTile }) => ({
+        status,
+        labelKey,
+        iconTile,
+      })),
+    ).toEqual([
+      {
+        status: "disconnected",
+        labelKey: "pamAccessConnectorDisconnected",
+        iconTile: { icon: "bwi-warning", variant: "warning" },
+      },
+      {
+        status: "inactive",
+        labelKey: "inactive",
+        iconTile: { icon: "bwi-minus-circle", variant: "gray" },
+      },
+      {
+        status: "connected",
+        labelKey: "pamAccessConnectorConnected",
+        iconTile: { icon: "bwi-check-circle", variant: "success" },
+      },
     ]);
   });
 
-  it("derives the connection options from the rows' liveness flag", () => {
+  it("offers every automatic target system and every assigned one, sorted by name", () => {
     setup([enabledConnected, enabledOffline, disabledOffline]);
-    expect(component.connectionOptions()).toEqual([
-      { value: true, label: "pamAccessConnectorConnected" },
-      { value: false, label: "pamAccessConnectorDisconnected" },
+    expect(component.targetSystemOptions()).toEqual([
+      { value: String(unserved.id), label: "Entra ID staging" },
+      { value: String(prodEntra.id), label: "Prod Entra" },
+      { value: String(reportingSql.id), label: "Reporting SQL" },
     ]);
   });
 
-  it("leaves the whole toolbar out when no connectors are registered", () => {
+  it("keeps the toolbar and shows the register empty state in the table when there are no connectors", () => {
     setup([]);
-    expect(fixture.debugElement.query(By.css("bit-search"))).toBeNull();
-    expect(fixture.debugElement.query(By.css("bit-filter-menu"))).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain("pamAccessConnectorEmptyStateTitle");
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("bit-table-v2 bit-table-toolbar bit-search")).not.toBeNull();
+    expect(el.querySelectorAll("bit-table-v2 bit-filter-menu")).toHaveLength(2);
+    expect(el.textContent).toContain("pamAccessConnectorsEmptyTitle");
+    expect(el.textContent).toContain("pamAccessConnectorsEmptyDescription");
+    const register = el.querySelector<HTMLButtonElement>(
+      "#access-connectors-tab_button_register-empty",
+    )!;
+    expect(register.textContent).toContain("pamAccessConnectorRegister");
+    expect(register.getAttribute("buttonType")).toBe("primary");
   });
 
-  it("narrows rows to the selected status", () => {
+  it("narrows rows to the selected status, Inactive winning over Disconnected", () => {
     setup([enabledConnected, enabledOffline, disabledOffline]);
-    chip("status").toggle("inactive");
+    chip("status").toggle("disconnected");
     fixture.detectChanges();
-    expect(visibleIds()).toEqual([uuidAsString(connectorId("c-3"))]);
-  });
+    expect(visibleIds()).toEqual([uuidAsString(connectorId("c-2"))]);
 
-  it("narrows rows to the offline side of the connection chip, where the value is false", () => {
-    setup([enabledConnected, enabledOffline, disabledOffline]);
-    chip("connection").toggle(false);
+    chip("status").toggle("inactive");
     fixture.detectChanges();
     expect(visibleIds()).toEqual(
       [uuidAsString(connectorId("c-2")), uuidAsString(connectorId("c-3"))].sort(),
     );
   });
 
-  it("ANDs the chips with each other and with the search text", () => {
+  it("narrows rows to connectors serving a selected target system", () => {
     setup([enabledConnected, enabledOffline, disabledOffline]);
-    component.searchControl.setValue("prod");
-    chip("connection").toggle(false);
+    chip("targetSystem").toggle(String(reportingSql.id));
     fixture.detectChanges();
     expect(visibleIds()).toEqual([uuidAsString(connectorId("c-2"))]);
   });
 
-  it("shows the no-results row when the chips alone empty the table", () => {
-    setup([enabledConnected]);
-    chip("connection").toggle(false);
+  it("ANDs the chips with each other and with the search text", () => {
+    setup([enabledConnected, enabledOffline, disabledOffline]);
+    component.searchControl.setValue("prod");
+    chip("targetSystem").toggle(String(prodEntra.id));
+    chip("status").toggle("connected");
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain("pamAccessConnectorNoResults");
+    expect(visibleIds()).toEqual([uuidAsString(connectorId("c-1"))]);
+  });
+
+  it("offers Clear all when the filters match nothing, and it resets them", () => {
+    setup([enabledConnected]);
+    component.searchControl.setValue("nothing matches");
+    chip("status").toggle("inactive");
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain("noItemsMatchSelectedFilters");
+    expect(el.textContent).not.toContain("pamAccessConnectorsEmptyTitle");
+
+    el.querySelector<HTMLButtonElement>("#access-connectors-tab_button_clear-all")!.click();
+    fixture.detectChanges();
+
+    expect(component.searchControl.value).toBe("");
+    expect(visibleIds()).toEqual([uuidAsString(connectorId("c-1"))]);
   });
 });
 
-describe("AccessConnectorsTabComponent assigned targets column", () => {
+describe("AccessConnectorsTabComponent target systems column", () => {
   let fixture: ComponentFixture<AccessConnectorsTabComponent>;
-  let overlayContainer: OverlayContainer;
 
   function makeRow(id: string, assignmentNames: string[]): AccessConnectorRow {
     return {
@@ -1148,7 +1283,6 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
             load: jest.fn().mockResolvedValue(undefined),
             registerCompleted: jest.fn().mockResolvedValue(undefined),
             assign: jest.fn().mockResolvedValue(undefined),
-            unassign: jest.fn().mockResolvedValue(undefined),
             setEnabled: jest.fn().mockResolvedValue(undefined),
             delete: jest.fn().mockResolvedValue(undefined),
           },
@@ -1179,75 +1313,32 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
     });
 
     fixture = TestBed.createComponent(AccessConnectorsTabComponent);
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture.detectChanges();
   }
 
-  function countButtons(): HTMLButtonElement[] {
-    return fixture.debugElement
-      .queryAll(By.css('button[id^="access-connectors-tab_button_assignments-"]'))
-      .map((de) => de.nativeElement as HTMLButtonElement);
+  function cellText(): string | undefined {
+    return (fixture.nativeElement as HTMLElement)
+      .querySelector('[data-testid="target-system-count"]')
+      ?.textContent?.trim();
   }
 
-  afterEach(() => {
-    overlayContainer?.ngOnDestroy();
-  });
-
-  it("collapses many assignments into a single count button", () => {
+  it("counts many assignments as plain text", () => {
     setup([makeRow("c-1", ["Prod Entra", "Reporting SQL", "Billing MSSQL", "Legacy LDAP"])]);
 
-    const buttons = countButtons();
-    expect(buttons).toHaveLength(1);
-    expect(buttons[0].textContent).toContain("pamAccessConnectorAssignmentCount:4");
-  });
-
-  it("renders the count as a badge carrying the target system icon", () => {
-    setup([makeRow("c-1", ["Prod Entra", "Reporting SQL"])]);
-
-    const button = countButtons()[0];
-    expect(button.hasAttribute("bit-chip-action")).toBe(true);
-    expect(button.querySelector("bit-icon.bwi-desktop")).not.toBeNull();
+    expect(cellText()).toBe("pamAccessConnectorTargetSystemCount:4");
+    expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).toBeNull();
   });
 
   it("uses the singular count message for a single assignment", () => {
     setup([makeRow("c-1", ["Prod Entra"])]);
 
-    expect(countButtons()[0].textContent).toContain("pamAccessConnectorAssignmentCountSingular:1");
+    expect(cellText()).toBe("pamAccessConnectorTargetSystemCountSingular:1");
   });
 
-  it("renders no count button when nothing is assigned", () => {
+  it("reads None when nothing is assigned", () => {
     setup([makeRow("c-1", [])]);
 
-    expect(countButtons()).toHaveLength(0);
-    expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain("pamAccessConnectorAssignmentsNone");
-  });
-
-  it("reveals every assigned target name when the count is activated", () => {
-    const names = ["Prod Entra", "Reporting SQL", "Billing MSSQL", "Legacy LDAP"];
-    setup([makeRow("c-1", names)]);
-
-    expect(overlayContainer.getContainerElement().textContent).not.toContain("Prod Entra");
-
-    countButtons()[0].click();
-    fixture.detectChanges();
-
-    const revealed = overlayContainer.getContainerElement().textContent ?? "";
-    for (const name of names) {
-      expect(revealed).toContain(name);
-    }
-  });
-
-  it("marks the count button as a collapsed disclosure for assistive technology", () => {
-    setup([makeRow("c-1", ["Prod Entra", "Reporting SQL"])]);
-
-    const button = countButtons()[0];
-    expect(button.getAttribute("aria-expanded")).toBe("false");
-
-    button.click();
-    fixture.detectChanges();
-
-    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(cellText()).toBe("pamAccessConnectorAssignmentsNone");
   });
 });
 
@@ -1300,6 +1391,9 @@ describe("AccessConnectorsTabComponent table", () => {
     makeRow("c-3", "Staging", { enabled: false, isConnected: false }),
   ];
 
+  /** The table opens sorted by status urgency: Disconnected, Inactive, Connected. */
+  const SORTED_NAMES = ["EU region", "Staging", "Prod on-prem"];
+
   function render(rows: AccessConnectorRow[] = ROWS, loading = false): HTMLElement {
     TestBed.resetTestingModule();
     rows$ = new BehaviorSubject<AccessConnectorRow[]>(rows);
@@ -1326,7 +1420,6 @@ describe("AccessConnectorsTabComponent table", () => {
             load: jest.fn().mockResolvedValue(undefined),
             registerCompleted: jest.fn().mockResolvedValue(undefined),
             assign: jest.fn().mockResolvedValue(undefined),
-            unassign: jest.fn().mockResolvedValue(undefined),
             ...accessConnectorsService,
           },
         },
@@ -1443,7 +1536,7 @@ describe("AccessConnectorsTabComponent table", () => {
     it("leaves the register action to the empty state when there are no connectors", () => {
       const el = render([]);
 
-      expect(el.querySelector("bit-table-toolbar")).toBeNull();
+      expect(endSlot(el).children).toHaveLength(0);
       expect(el.querySelector(BUTTON_ID)).toBeNull();
       expect(el.querySelector("#access-connectors-tab_button_register-empty")).not.toBeNull();
     });
@@ -1453,84 +1546,113 @@ describe("AccessConnectorsTabComponent table", () => {
     expect(headers(render()).map(text)).toEqual([
       "name",
       "status",
-      "pamAccessConnectorConnection",
+      "pamAccessConnectorTargetSystems",
       "pamAccessConnectorLastSeen",
-      "pamAccessConnectorAssignments",
       "options",
     ]);
   });
 
-  it("gives the actions column a screen-reader-only heading", () => {
-    const actionsHeader = headers(render())[5];
-    const label = actionsHeader.querySelector(".tw-sr-only");
+  it("gives the actions column a visible Options heading", () => {
+    const actionsHeader = headers(render())[4];
 
     expect(text(actionsHeader)).toBe("options");
-    expect(label).not.toBeNull();
-    expect(text(label as HTMLElement)).toBe("options");
+    expect(actionsHeader.querySelector(".tw-sr-only")).toBeNull();
   });
 
-  it("renders a row of cells per connector", () => {
+  it("renders a row of cells per connector, with one status badge each", () => {
     expect(cellTexts(render())).toEqual([
       [
-        "Prod on-prem",
-        "active",
-        "pamAccessConnectorConnected",
-        "never",
-        "pamAccessConnectorAssignmentCountSingular:1",
-        "",
-      ],
-      [
         "EU region",
-        "active",
         "pamAccessConnectorDisconnected",
+        "pamAccessConnectorTargetSystemCount:2",
         "never",
-        "pamAccessConnectorAssignmentCount:2",
         "",
       ],
+      ["Staging", "inactive", "pamAccessConnectorAssignmentsNone", "never", ""],
       [
-        "Staging",
-        "inactive",
-        "pamAccessConnectorDisconnected",
+        "Prod on-prem",
+        "pamAccessConnectorConnected",
+        "pamAccessConnectorTargetSystemCountSingular:1",
         "never",
-        "pamAccessConnectorAssignmentsNone",
         "",
       ],
     ]);
   });
 
-  it("offers the row actions in order", () => {
+  it("badges each status with its recipe and icon", () => {
+    const el = render();
+    const badges = bodyRows(el).map((row) =>
+      row.querySelector<HTMLElement>('[id^="access-connectors-tab_status_"]')!,
+    );
+
+    expect(badges.map((b) => b.className)).toEqual([
+      expect.stringContaining("tw-bg-bg-warning-soft"),
+      expect.stringContaining("tw-bg-bg-secondary"),
+      expect.stringContaining("tw-bg-bg-success-soft"),
+    ]);
+    expect(badges.map((b) => b.querySelector("bit-icon")?.className ?? "")).toEqual([
+      expect.stringContaining("bwi-warning"),
+      expect.stringContaining("bwi-minus-circle"),
+      expect.stringContaining("bwi-check-circle"),
+    ]);
+  });
+
+  it("offers the row actions in order, with no divider", () => {
     const el = render();
 
-    expect(menuItems(el, 1)).toEqual([
-      "pamAccessConnectorViewDetails",
-      "pamAccessConnectorAssignTargets",
-      "pamAccessConnectorUnassign:Prod DB",
-      "pamAccessConnectorUnassign:Reporting SQL",
+    expect(menuItems(el, 0)).toEqual([
+      "pamAccessConnectorEdit",
+      "pamAccessConnectorAssignTargetSystemspamAccessConnectorAssignNoOptions",
       "pamAccessConnectorDeactivate",
       "pamAccessConnectorDeleteAccessConnector",
     ]);
-    expect(menuItems(el, 2)).toEqual([
-      "pamAccessConnectorViewDetails",
-      "pamAccessConnectorAssignTargets",
+    expect(menuItems(el, 1)).toEqual([
+      "pamAccessConnectorEdit",
+      "pamAccessConnectorAssignTargetSystemspamAccessConnectorAssignTargetSystemsDisabled",
       "pamAccessConnectorActivate",
       "pamAccessConnectorDeleteAccessConnector",
     ]);
+    expect(openMenu(el, 2).querySelector("bit-menu-divider")).toBeNull();
+  });
+
+  it("marks Delete access connector as the destructive item", () => {
+    const item = openMenu(render(), 0).querySelector<HTMLElement>(
+      '[id^="access-connectors-tab_button_delete-"]',
+    )!;
+
+    expect(item.getAttribute("variant")).toBe("danger");
+  });
+
+  it("opens the detail page from Edit access connector", () => {
+    const el = render();
+    const navigateSpy = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+    openMenu(el, 0)
+      .querySelector<HTMLButtonElement>('[id^="access-connectors-tab_button_edit-"]')!
+      .click();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["..", "access-connectors", connectorId("c-2")],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
   });
 
   it("keeps the assign action aria-disabled for a disabled connector", () => {
     const el = render();
-    const item = openMenu(el, 2).querySelector<HTMLButtonElement>(
+    const item = openMenu(el, 1).querySelector<HTMLButtonElement>(
       '[id^="access-connectors-tab_button_assign-"]',
     )!;
 
     expect(item.id).toBe(`access-connectors-tab_button_assign-locked-${connectorId("c-3")}`);
     expect(item.getAttribute("aria-disabled")).toBe("true");
-    expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+    expect(item.getAttribute("aria-describedby")).toBe(
+      `access-connectors-tab_reason_assign-${connectorId("c-3")}`,
+    );
   });
 
   it("opens the assign dialog from the row menu", async () => {
     const el = render();
-    openMenu(el, 0)
+    openMenu(el, 2)
       .querySelector<HTMLButtonElement>('[id^="access-connectors-tab_button_assign-"]')!
       .click();
     await fixture.whenStable();
@@ -1547,22 +1669,22 @@ describe("AccessConnectorsTabComponent table", () => {
     )!.click();
 
     expect(navigateSpy).toHaveBeenCalledWith(
-      ["..", "access-connectors", connectorId("c-1")],
+      ["..", "access-connectors", connectorId("c-2")],
       expect.objectContaining({ relativeTo: expect.anything() }),
     );
   });
 
-  it("sorts by every data column, unsorted until asked", () => {
+  it("opens sorted by status urgency, and sorts by every data column", () => {
     const el = render([ROWS[2], ROWS[0], ROWS[1]]);
 
     expect(sortableHeadings(el)).toEqual([
       "name",
       "status",
-      "pamAccessConnectorConnection",
+      "pamAccessConnectorTargetSystems",
       "pamAccessConnectorLastSeen",
-      "pamAccessConnectorAssignments",
     ]);
-    expect(rowNames(el)).toEqual(["Staging", "Prod on-prem", "EU region"]);
+    expect(rowNames(el)).toEqual(SORTED_NAMES);
+    expect(ariaSort(el, "status")).toBe("ascending");
 
     clickSort(el, "name");
     expect(rowNames(el)).toEqual(["EU region", "Prod on-prem", "Staging"]);
@@ -1580,8 +1702,8 @@ describe("AccessConnectorsTabComponent table", () => {
         searchControl: { setValue: (value: string) => void };
       }
     ).searchControl.setValue("r");
-    chip("connection").toggle(false);
-    chip("status").toggle("active");
+    chip("targetSystem").toggle(String(sysId("ts-2")));
+    chip("status").toggle("disconnected");
     fixture.detectChanges();
 
     expect(rowNames(el)).toEqual(["EU region"]);
@@ -1589,44 +1711,45 @@ describe("AccessConnectorsTabComponent table", () => {
 
   it("shows the no-results message when the filters empty the table", () => {
     const el = render([ROWS[0]]);
-    chip("connection").toggle(false);
+    chip("status").toggle("inactive");
     fixture.detectChanges();
 
     expect(bodyRows(el)).toHaveLength(0);
     expect(text(el.querySelector("bit-table-v2 [slot=empty]")!)).toBe(
-      "pamAccessConnectorNoResults",
+      "noItemsMatchSelectedFilters clearAll",
     );
   });
 
-  it("keeps the no-connectors empty state outside the table", () => {
+  it("shows the no-connectors empty state inside the table", () => {
     const el = render([]);
 
-    expect(el.querySelector("bit-table-v2")).toBeNull();
-    expect(el.textContent).toContain("pamAccessConnectorEmptyStateTitle");
+    expect(el.querySelector("bit-table-v2")).not.toBeNull();
+    expect(text(el.querySelector("bit-table-v2 [slot=empty]")!)).toContain(
+      "pamAccessConnectorsEmptyTitle",
+    );
   });
 
   it("follows a live connection change from the rows signal", () => {
     const el = render([ROWS[0]]);
-    expect(cellTexts(el)[0][2]).toBe("pamAccessConnectorConnected");
+    expect(cellTexts(el)[0][1]).toBe("pamAccessConnectorConnected");
 
-    rows$.next([{ ...ROWS[0], isConnected: false }]);
+    rows$.next([
+      {
+        ...ROWS[0],
+        isConnected: false,
+        accessConnector: { ...ROWS[0].accessConnector, isConnected: false } as AccessConnector,
+      },
+    ]);
     fixture.detectChanges();
 
-    expect(cellTexts(el)[0][2]).toBe("pamAccessConnectorDisconnected");
+    expect(cellTexts(el)[0][1]).toBe("pamAccessConnectorDisconnected");
   });
 
-  it("names the row menu trigger and marks the count as a disclosure", () => {
+  it("names the row menu trigger", () => {
     const el = render();
     const trigger = el.querySelector('button[id^="access-connectors-tab_button_menu-"]')!;
-    const count = el.querySelector<HTMLButtonElement>(
-      'button[id^="access-connectors-tab_button_assignments-"]',
-    )!;
 
     expect(trigger.getAttribute("aria-label")).toBe("options");
-    expect(count.getAttribute("aria-expanded")).toBe("false");
-    count.click();
-    fixture.detectChanges();
-    expect(count.getAttribute("aria-expanded")).toBe("true");
   });
 
   describe("toolbar", () => {
@@ -1645,23 +1768,22 @@ describe("AccessConnectorsTabComponent table", () => {
 
       expect(toolbar(el)).not.toBeNull();
       expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
-      expect(chipKeys(toolbar(el))).toEqual(["status", "connection"]);
+      expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem"]);
       expect(el.querySelectorAll("bit-search")).toHaveLength(1);
       expect(el.querySelectorAll("bit-filter-menu")).toHaveLength(2);
     });
 
-    it("labels each chip and shows its unset state", () => {
+    it("labels each chip", () => {
       const labels = Array.from(toolbar(render()).querySelectorAll("bit-filter-menu")).map(text);
 
       expect(labels[0]).toContain("status");
-      expect(labels[1]).toContain("pamAccessConnectorConnection");
-      expect(labels.every((label) => label.includes("all"))).toBe(true);
+      expect(labels[1]).toContain("pamRotationConfigColumnTargetSystem");
     });
 
     it("gives the search its placeholder and leaves it enabled", () => {
       const input = toolbar(render()).querySelector("bit-search input")!;
 
-      expect(input.getAttribute("placeholder")).toBe("pamAccessConnectorSearch");
+      expect(input.getAttribute("placeholder")).toBe("search");
       expect(input.hasAttribute("disabled")).toBe(false);
     });
 
@@ -1683,12 +1805,12 @@ describe("AccessConnectorsTabComponent table", () => {
 
     it("keeps the toolbar in place when the filters empty the table", () => {
       const el = render([ROWS[0]]);
-      chip("connection").toggle(false);
+      chip("status").toggle("inactive");
       fixture.detectChanges();
 
       expect(bodyRows(el)).toHaveLength(0);
       expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
-      expect(chipKeys(toolbar(el))).toEqual(["status", "connection"]);
+      expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem"]);
     });
 
     it("keeps the row actions reachable from a row the toolbar narrowed to", () => {
@@ -1712,15 +1834,14 @@ describe("AccessConnectorsTabComponent table", () => {
       expect(headers(el).map(text)).toEqual([
         "name",
         "status",
-        "pamAccessConnectorConnection",
+        "pamAccessConnectorTargetSystems",
         "pamAccessConnectorLastSeen",
-        "pamAccessConnectorAssignments",
         "options",
       ]);
       expect(bodyRows(el)).toHaveLength(3);
       expect(skeletonRows(el)).toHaveLength(3);
       expect(el.querySelector("bit-status-lockup")).toBeNull();
-      expect(el.textContent).not.toContain("pamAccessConnectorEmptyStateTitle");
+      expect(el.textContent).not.toContain("pamAccessConnectorsEmptyTitle");
     });
 
     it("keeps the real toolbar in the table while rows load", () => {
@@ -1749,7 +1870,7 @@ describe("AccessConnectorsTabComponent table", () => {
 
     it("swaps loaded rows for skeleton rows on reload, keeping the toolbar's filters", () => {
       const el = render();
-      expect(rowNames(el)).toEqual(ROWS.map((r) => r.name));
+      expect(rowNames(el)).toEqual(SORTED_NAMES);
 
       loading$.next(true);
       fixture.detectChanges();
@@ -1760,13 +1881,13 @@ describe("AccessConnectorsTabComponent table", () => {
         Array.from(el.querySelectorAll("bit-table-v2 bit-table-toolbar bit-filter-menu")).map(
           (menu) => menu.getAttribute("key"),
         ),
-      ).toEqual(["status", "connection"]);
+      ).toEqual(["status", "targetSystem"]);
 
       loading$.next(false);
       fixture.detectChanges();
 
       expect(skeletonRows(el)).toHaveLength(0);
-      expect(rowNames(el)).toEqual(ROWS.map((r) => r.name));
+      expect(rowNames(el)).toEqual(SORTED_NAMES);
     });
 
     it("replaces the skeleton with the real rows once the load lands", () => {
@@ -1776,7 +1897,7 @@ describe("AccessConnectorsTabComponent table", () => {
       fixture.detectChanges();
 
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(rowNames(el)).toEqual(ROWS.map((r) => r.name));
+      expect(rowNames(el)).toEqual(SORTED_NAMES);
     });
 
     it("shows the empty state once a load lands with no connectors", () => {
@@ -1785,8 +1906,8 @@ describe("AccessConnectorsTabComponent table", () => {
       fixture.detectChanges();
 
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector("bit-table-v2")).toBeNull();
-      expect(el.textContent).toContain("pamAccessConnectorEmptyStateTitle");
+      expect(el.querySelector("bit-table-v2")).not.toBeNull();
+      expect(el.textContent).toContain("pamAccessConnectorsEmptyTitle");
     });
 
     it("shows no spinner while the skeleton stands in", () => {
