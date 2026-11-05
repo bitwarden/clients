@@ -13,10 +13,13 @@ import {
 import {
   CipherViewBannerComponent,
   ItemDetailsStateBadgeComponent,
+  AccessBadgeTickerService,
   AccessRequestCancelService,
   controlledAccessItemFilter,
   ControlledAccessVaultFilterService,
+  MyAccessRequestsService,
   MyLeasesService,
+  CIPHER_VIEW_BANNER_LAYOUT,
 } from "@bitwarden/bit-pam-components";
 import { FillCipherPolicy } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
 import { VAULT_ROW_ACCESS } from "@bitwarden/browser/vault/popup/components/vault/vault-row-access/vault-row-access.token";
@@ -113,7 +116,23 @@ export function providePam(): SafeProvider[] {
       provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
     }),
-    // One per-row state read per list, shared by every option's count and the selection.
+    // The popup's item view has no room to fold the request form out in place.
+    safeProvider({
+      provide: CIPHER_VIEW_BANNER_LAYOUT,
+      useValue: "popup",
+    }),
+    // One read of the caller's requests behind every chip option's count and the selection.
+    safeProvider({
+      provide: MyAccessRequestsService,
+      useClass: MyAccessRequestsService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccountService,
+        AccessBadgeTickerService,
+        LogService,
+      ],
+    }),
     safeProvider({
       provide: ControlledAccessVaultFilterService,
       useClass: ControlledAccessVaultFilterService,

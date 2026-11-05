@@ -39,14 +39,12 @@ import {
   FormFieldModule,
   IconButtonModule,
   IconModule,
-  SkeletonComponent,
-  SkeletonTextComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { DurationLongPipe } from "../../date/duration-long.pipe";
+import { DurationShortPipe } from "../../date/duration-short.pipe";
 import { TimestampPipe } from "../../date/timestamp.pipe";
 import { requestTerms } from "../request-terms";
 import { requestWindowProblemMessage } from "../request-window-fields/request-access-window.validators";
@@ -68,10 +66,8 @@ import { RequestWindowFieldsComponent } from "../request-window-fields/request-w
     IconButtonModule,
     IconModule,
     ReactiveFormsModule,
-    SkeletonComponent,
-    SkeletonTextComponent,
     TypographyModule,
-    DurationLongPipe,
+    DurationShortPipe,
     I18nPipe,
     RequestWindowFieldsComponent,
     TimestampPipe,
@@ -99,8 +95,7 @@ export class RequestAccessFormComponent implements OnInit {
 
   /** `null` until the pre-check resolves the approval path; the host offers Send request once set. */
   readonly requestMode = signal<AccessApprovalMode | null>(null);
-  /** `true` until the pre-check returns. */
-  readonly loadingRequestForm = signal(true);
+  protected readonly loadingRequestForm = signal(true);
   protected readonly requestError = signal<string | null>(null);
 
   /**

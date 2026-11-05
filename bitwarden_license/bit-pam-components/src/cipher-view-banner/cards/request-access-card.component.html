@@ -22,5 +22,6 @@
         {{ rule.messageKey | i18n: (rule.maxSeconds | durationLong) }}
       </p>
     }
+    <ng-content />
   </div>
 </bit-card>
