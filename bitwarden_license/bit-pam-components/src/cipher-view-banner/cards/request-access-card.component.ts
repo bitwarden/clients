@@ -9,7 +9,10 @@ import type { RequestTerms } from "../request-terms";
 
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
-/** The resting state of an item the user can request, with the rule's cap when it is known. */
+/**
+ * The resting state of an item the user can request, with the rule's cap when it is known. Projected
+ * content, such as the host's action, follows the cap.
+ */
 @Component({
   selector: "app-pam-request-access-card",
   changeDetection: ChangeDetectionStrategy.OnPush,

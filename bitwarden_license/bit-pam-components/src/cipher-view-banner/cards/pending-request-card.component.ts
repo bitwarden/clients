@@ -14,7 +14,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
-/** A request waiting on an approver, with how long ago it was sent. */
+/** A request waiting on an approver, with how long ago it was sent and any projected action. */
 @Component({
   selector: "app-pam-pending-request-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
