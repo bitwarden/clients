@@ -1108,6 +1108,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         expect(link.getAttribute("href")).toBe("https://bitwarden.com/contact/");
         expect(link.getAttribute("target")).toBe("_blank");
         expect(changeElement().textContent).toContain("privilegedControlsChangeThroughSales");
+        expect(changeElement().textContent).not.toContain(
+          "privilegedControlsSalesTrialThroughSales",
+        );
       });
 
       it("shows the Contact sales link without counts when the subscription carries none", async () => {
@@ -1150,6 +1153,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         expect(changeElement().querySelector("a")).not.toBeNull();
         expect(seatsElement()).toBeNull();
         expect(seatLimitElement()).toBeNull();
+        expect(changeElement().textContent).toContain("privilegedControlsSalesTrialThroughSales");
+        expect(changeElement().textContent).not.toContain("privilegedControlsChangeThroughSales");
       });
 
       it("keeps the Contact sales link when the subscription is pending cancellation", async () => {

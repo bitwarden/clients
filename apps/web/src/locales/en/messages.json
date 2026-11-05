@@ -5787,6 +5787,9 @@
   "privilegedControlsChangeThroughSales": {
     "message": "To change your Privileged Controls seats or seat limit, contact sales."
   },
+  "privilegedControlsSalesTrialThroughSales": {
+    "message": "Privileged Controls is managed through a sales-initiated trial. Work with your customer service representative to make changes."
+  },
   "privilegedControlsSeatLimit": {
     "message": "Seat limit"
   },

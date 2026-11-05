@@ -220,7 +220,13 @@
               </p>
             }
           }
-          <p bitTypography="body1">{{ "privilegedControlsChangeThroughSales" | i18n }}</p>
+          @if (orgSub?.isOnPamSalesInitiatedTrial === true) {
+            <p bitTypography="body1" id="privileged-controls-sales-trial-note">
+              {{ "privilegedControlsSalesTrialThroughSales" | i18n }}
+            </p>
+          } @else {
+            <p bitTypography="body1">{{ "privilegedControlsChangeThroughSales" | i18n }}</p>
+          }
           <a
             bitButton
             buttonType="secondary"
