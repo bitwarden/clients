@@ -353,6 +353,11 @@ export class OrganizationSubscriptionCloudVNextComponent {
     { initialValue: false },
   );
 
+  /** Privileged Controls itself; without it the product is reachable nowhere, so no Contact sales call to action. */
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
+
   /** Self-serve Privileged Controls: seat and limit adjustment, shown only while PAM billing support is on. */
   readonly showAdjustPrivilegedControls = computed(() => {
     const org = this.organization();
@@ -373,11 +378,11 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * sees a "Contact sales" call to action, with its seats when the organization has purchased them (hidden for
    * a sales-initiated trial). Unlike the self-serve sections, this block is read-only, so it stays visible on a
    * cancelled or pending-cancellation subscription and the organization can still reach sales.
-   * Provider-managed organizations are excluded.
+   * Provider-managed organizations are excluded, as is everyone while the Privileged Controls flag itself is off.
    */
   readonly showPrivilegedControlsContactSalesToChange = computed(() => {
     const org = this.organization();
-    if (this.pamBillingSupportEnabled() || org == null) {
+    if (!this.pamEnabled() || this.pamBillingSupportEnabled() || org == null) {
       return false;
     }
     return org.usePam && !org.hasProvider;
@@ -387,12 +392,13 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * With the PamBillingSupport flag off, Privileged Controls is sold only through sales: an Enterprise
    * organization without it sees a "Contact sales" call to action. The plan's Privileged Controls features are
    * not sent while the flag is off, so this keys off the Enterprise tier. Excluded: provider-managed
-   * organizations, a sales-initiated trial, and a cancelled or pending-cancellation subscription.
+   * organizations, a sales-initiated trial, a cancelled or pending-cancellation subscription, and everyone while
+   * the Privileged Controls flag itself is off.
    */
   readonly showPrivilegedControlsContactSalesToAdd = computed(() => {
     const org = this.organization();
     const sub = this.organizationSubscription();
-    if (this.pamBillingSupportEnabled() || org == null || sub == null) {
+    if (!this.pamEnabled() || this.pamBillingSupportEnabled() || org == null || sub == null) {
       return false;
     }
     return (

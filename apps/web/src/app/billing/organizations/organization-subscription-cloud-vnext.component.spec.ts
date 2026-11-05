@@ -1043,9 +1043,14 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   });
 
   describe("privileged controls contact sales", () => {
-    const setPamBillingSupport = (enabled: boolean) =>
+    // Privileged Controls itself is on unless a test turns it off; the billing flag is what each test varies.
+    const setPamBillingSupport = (enabled: boolean, pamEnabled = true) =>
       configService.getFeatureFlag$.mockImplementation(
-        (flag) => of(flag === FeatureFlag.PamBillingSupport && enabled) as any,
+        (flag) =>
+          of(
+            (flag === FeatureFlag.Pam && pamEnabled) ||
+              (flag === FeatureFlag.PamBillingSupport && enabled),
+          ) as any,
       );
 
     // With PAM billing support off the server leaves the plan's Privileged Controls features out.
@@ -1190,6 +1195,15 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         expect(addElement()).toBeNull();
       });
 
+      it("shows no Contact sales link while the Privileged Controls flag itself is off", async () => {
+        setPamBillingSupport(false, false);
+
+        await render();
+
+        expect(component.showPrivilegedControlsContactSalesToChange()).toBe(false);
+        expect(changeElement()).toBeNull();
+      });
+
       it("does not offer to add Privileged Controls", async () => {
         setPamBillingSupport(false);
 
@@ -1243,6 +1257,15 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         expect(link.getAttribute("target")).toBe("_blank");
         expect(addElement().textContent).toContain("privilegedControlsAddThroughSales");
         expect(changeElement()).toBeNull();
+      });
+
+      it("shows no call to action while the Privileged Controls flag itself is off", async () => {
+        setPamBillingSupport(false, false);
+
+        await render({ organization: withoutPrivilegedControls() });
+
+        expect(component.showPrivilegedControlsContactSalesToAdd()).toBe(false);
+        expect(addElement()).toBeNull();
       });
 
       it("shows no call to action when PAM billing support is on", async () => {
