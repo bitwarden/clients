@@ -3,7 +3,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule, ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -12,7 +11,6 @@ import {
   IconModule,
   MenuModule,
   TabsModule,
-  ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -43,8 +41,6 @@ export class RotationShellComponent {
   private readonly configsService = inject(RotationConfigsService);
   private readonly accessConnectorsService = inject(AccessConnectorsService);
   private readonly dialogService = inject(DialogService);
-  private readonly toastService = inject(ToastService);
-  private readonly i18nService = inject(I18nService);
 
   /** Inherited from the org route, since `paramsInheritanceStrategy` is `"always"`. */
   protected readonly organizationId = toSignal(
@@ -78,10 +74,6 @@ export class RotationShellComponent {
     const result = await ref.closed.toPromise();
     if (result) {
       await this.accessConnectorsService.registerCompleted(orgId);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamAccessConnectorRegistered"),
-      });
     }
   };
 }

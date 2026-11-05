@@ -38,7 +38,7 @@ const CONNECTOR_COLUMNS: AssignmentPickerColumn[] = [
 ];
 
 const TARGET_HINTS: AssignmentPickerHints = {
-  default: "pamAccessConnectorAssignSelectHint",
+  default: "pamAccessConnectorTargetSystemsHint",
   noneEligible: "pamAccessConnectorAssignNoTargetSystems",
   loadError: "pamAccessConnectorTargetSystemsLoadError",
 };
@@ -196,7 +196,7 @@ export const AllAssigned: Story = {
 export const Blocked: Story = {
   args: {
     disabled: true,
-    disabledTooltipKey: "pamAccessConnectorAssignTargetDisabled",
+    disabledTooltipKey: "pamAccessConnectorAssignTargetSystemsDisabled",
   },
 };
 
