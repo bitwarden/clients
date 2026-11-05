@@ -27,14 +27,10 @@ import { SmLandingApiService } from "./sm-landing-api.service";
   imports: [SharedModule, SearchModule, HeaderModule, OssModule],
 })
 export class RequestSMAccessComponent implements OnInit {
-  // Must match MaxEmailContentLength on the server's RequestSMAccessRequestModel. The note is
-  // emailed to every organization admin, so the server rejects anything longer.
-  protected readonly maxEmailContentLength = 1000;
-
   requestAccessForm = new FormGroup({
     requestAccessEmailContents: new FormControl(
       this.i18nService.t("requestAccessSMDefaultEmailContent"),
-      [Validators.required, Validators.maxLength(this.maxEmailContentLength)],
+      [Validators.required],
     ),
     selectedOrganization: new FormControl<Organization>(null, [Validators.required]),
   });
