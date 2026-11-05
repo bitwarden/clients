@@ -248,6 +248,7 @@ import BrowserMemoryStorageService from "../../platform/services/browser-memory-
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
+import { BrowserForegroundSdkClientFactory } from "../../platform/services/sdk/browser-foreground-sdk-client-factory";
 import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
@@ -816,7 +817,9 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SdkClientFactory,
     useFactory: () =>
-      flagEnabled("sdk") ? new DefaultSdkClientFactory() : new NoopSdkClientFactory(),
+      flagEnabled("sdk")
+        ? new BrowserForegroundSdkClientFactory(new DefaultSdkClientFactory())
+        : new NoopSdkClientFactory(),
     deps: [],
   }),
   safeProvider({
