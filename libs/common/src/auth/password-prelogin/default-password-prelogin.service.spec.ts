@@ -43,12 +43,6 @@ describe("DefaultPasswordPreloginService", () => {
     KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
     Salt: apiSalt,
   });
-  // User.MasterPasswordSalt is nullable and was never backfilled, so the server returns null for
-  // accounts that predate the column.
-  const nullSaltResponse = new PasswordPreloginResponse({
-    KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
-    Salt: null,
-  });
   const sdkResponse: SdkPasswordPreloginResponse = {
     kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
     salt: sdkSalt,
@@ -127,6 +121,8 @@ describe("DefaultPasswordPreloginService", () => {
         expect(result.salt).not.toBe(apiSalt);
       });
 
+      // The strategy hands the salt straight to makeMasterKey, which calls .trim() on it, so a
+      // null salt crashes login. Servers return none for accounts that predate the salt column.
       it.each([
         { description: "omits Salt", body: {} },
         { description: "sends an explicit null Salt", body: { Salt: null } },
@@ -158,17 +154,6 @@ describe("DefaultPasswordPreloginService", () => {
         const result = await firstValueFrom(sut.getPreloginData$(email));
 
         expect(result.salt).toBe(sdkSalt);
-      });
-
-      // The strategy hands this straight to makeMasterKey, which calls .trim() on it, so a null
-      // salt crashes login.
-      it("never emits a null salt", async () => {
-        apiService.getPreloginData.mockResolvedValue(nullSaltResponse);
-
-        const result = await firstValueFrom(sut.getPreloginData$(email));
-
-        expect(result.salt).not.toBeNull();
-        expect(typeof result.salt).toBe("string");
       });
     });
 
