@@ -2,6 +2,9 @@
   The types and validation in this file mirror the Autotype Pairing Data Schema, which is the
   source of truth and must be kept in sync with this file:
   libs/common/src/desktop-native/schemas/autotype-pairing-data-schema.0.1.0.json
+
+  Handling this in an automated fashion is future work scoped in ticket:
+  https://bitwarden.atlassian.net/browse/PM-43969
 */
 
 /**
@@ -49,6 +52,7 @@ export type AutotypePairingData = {
   };
 };
 
+/** Returns whether the value is one of the schema's allowed `packagingType` values. */
 export function isAutotypePairingPackagingType(
   value: unknown,
 ): value is AutotypePairingPackagingType {
@@ -69,6 +73,7 @@ export function isAutotypePairingData(value: unknown): value is AutotypePairingD
   );
 }
 
+// Validates `metadata`: a supported schema version and a non-negative integer timestamp.
 function isMetadata(value: unknown): boolean {
   if (!isPlainObject(value) || !hasExactKeys(value, ["schemaVersion", "pairingTimestamp"])) {
     return false;
@@ -83,6 +88,7 @@ function isMetadata(value: unknown): boolean {
   );
 }
 
+// Validates `schemaVersion`: must exactly match the version this client supports.
 function isSchemaVersion(value: unknown): boolean {
   return (
     isPlainObject(value) &&
@@ -93,6 +99,7 @@ function isSchemaVersion(value: unknown): boolean {
   );
 }
 
+// Validates `appData`: a string name and a string path.
 function isAppData(value: unknown): boolean {
   return (
     isPlainObject(value) &&
@@ -102,6 +109,7 @@ function isAppData(value: unknown): boolean {
   );
 }
 
+// Validates `clientData`: an allowed packaging type.
 function isClientData(value: unknown): boolean {
   return (
     isPlainObject(value) &&
@@ -110,6 +118,7 @@ function isClientData(value: unknown): boolean {
   );
 }
 
+// Matches the schema's `"type": "object"`, which excludes `null` and arrays.
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
