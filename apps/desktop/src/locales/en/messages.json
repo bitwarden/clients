@@ -5498,6 +5498,9 @@
   "enterValidSignInAddress": {
     "message": "Enter a valid sign-in address."
   },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
+  },
   "secretKeyIsRequired": {
     "message": "Secret key is required."
   },

@@ -84,6 +84,14 @@ describe("ImportOnePasswordComponent", () => {
     expect(emailField.querySelectorAll("bit-hint")).toHaveLength(1);
   });
 
+  it("starts the sign-in address empty and requires it", () => {
+    render(true);
+    const subdomain = options().get("subdomain")!;
+
+    expect(subdomain.value).toBe("");
+    expect(subdomain.hasError("required")).toBe(true);
+  });
+
   describe("on submit", () => {
     beforeEach(() => {
       render(true);

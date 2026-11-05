@@ -91,7 +91,7 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
         this.rejectionValidator("email"),
       ]),
       // An individual account signs in at `my`; a team or business account uses its own name.
-      subdomain: this.formBuilder.nonNullable.control("my", [
+      subdomain: this.formBuilder.nonNullable.control("", [
         requiredWithMessage(this.i18nService.t("signInAddressIsRequired")),
         Validators.required,
         subdomainWithMessage(this.i18nService.t("enterValidSignInAddress")),
