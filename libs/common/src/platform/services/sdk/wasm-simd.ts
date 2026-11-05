@@ -38,14 +38,20 @@ const wasmSupported = (() => {
  *
  * @param jsFallback Loads the JS build on engines without WebAssembly. Passed by the caller
  * so only apps shipping the JS build bundle it.
+ * @throws Rejects when WebAssembly is unsupported and no `jsFallback` is given. Async so
+ * callers loading at module evaluation (e.g. the MV3 service worker) get a rejection, not a throw.
  */
-export function importSdkWasm(jsFallback?: () => Promise<unknown>): Promise<unknown> {
+export async function importSdkWasm(jsFallback?: () => Promise<unknown>): Promise<unknown> {
   if (wasmSimdSupported) {
     return import("@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.wasm");
   }
 
-  if (wasmSupported || jsFallback == null) {
+  if (wasmSupported) {
     return import("@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.mvp.wasm");
+  }
+
+  if (jsFallback == null) {
+    throw new Error("WebAssembly is not supported in this environment");
   }
 
   return jsFallback();
