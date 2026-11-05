@@ -17,11 +17,12 @@ import { VAULT_ROW_ACCESS, VaultRowAccess, VaultRowAccessStatus } from "./vault-
   selector: "app-vault-row-access-icon",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent, I18nPipe],
+  // `tw-block`: inline, the icon would sit on a line of the row's font and outgrow the name.
   template: `
     @if (icon(); as icon) {
       <bit-icon
         [name]="icon"
-        class="bwi-sm tw-text-muted"
+        class="tw-block bwi-sm tw-text-muted"
         [title]="'pamAccessBadgePrivileged' | i18n"
         [attr.data-testid]="'vault-row-access-icon-' + status()?.kind"
         aria-hidden="true"
