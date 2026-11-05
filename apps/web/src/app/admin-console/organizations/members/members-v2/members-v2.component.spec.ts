@@ -1,6 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -15,6 +15,7 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
@@ -24,7 +25,11 @@ import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/membe
 import { MaxCheckedCount } from "../../../common/people-table-data-source";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
 import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
-import { MemberDialogManagerService, OrganizationMembersService } from "../services";
+import {
+  MemberDialogManagerService,
+  MemberExportService,
+  OrganizationMembersService,
+} from "../services";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 
 import { MembersV2Component } from "./members-v2.component";
@@ -54,9 +59,16 @@ describe("MembersV2Component", () => {
   let memberDialogManager: MockProxy<MemberDialogManagerService>;
   let billingConstraint: MockProxy<BillingConstraintService>;
   let toastService: MockProxy<ToastService>;
+  let router: MockProxy<Router>;
+  let memberExportService: MockProxy<MemberExportService>;
+  let validationService: MockProxy<ValidationService>;
   const billingMetadata = {} as OrganizationBillingMetadataResponse;
 
-  async function setup(organization: Partial<Organization>, members: OrganizationUserView[]) {
+  async function setup(
+    organization: Partial<Organization>,
+    members: OrganizationUserView[],
+    queryParams: Params = {},
+  ) {
     memberService = mock<OrganizationMembersService>();
     memberService.loadUsers.mockResolvedValue(members);
 
@@ -69,6 +81,10 @@ describe("MembersV2Component", () => {
     billingConstraint = mock<BillingConstraintService>();
     billingConstraint.seatLimitReached.mockResolvedValue(false);
     toastService = mock<ToastService>();
+    router = mock<Router>();
+    router.navigate.mockResolvedValue(true);
+    memberExportService = mock<MemberExportService>();
+    validationService = mock<ValidationService>();
 
     const organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
     organizationMetadataService.getOrganizationMetadata$.mockReturnValue(of(billingMetadata));
@@ -87,8 +103,14 @@ describe("MembersV2Component", () => {
       providers: [
         {
           provide: ActivatedRoute,
-          useValue: { params: new BehaviorSubject({ organizationId: ORG_ID }) },
+          useValue: {
+            params: new BehaviorSubject({ organizationId: ORG_ID }),
+            snapshot: { queryParams },
+          },
         },
+        { provide: Router, useValue: router },
+        { provide: MemberExportService, useValue: memberExportService },
+        { provide: ValidationService, useValue: validationService },
         { provide: AccountService, useValue: mockAccountServiceWith(USER_ID) },
         { provide: OrganizationService, useValue: organizationService },
         { provide: OrganizationMembersService, useValue: memberService },
@@ -121,6 +143,16 @@ describe("MembersV2Component", () => {
     expect(memberService.loadUsers).toHaveBeenCalledWith(expect.objectContaining({ id: ORG_ID }));
     expect(component.members()).toEqual(members);
     expect(component.firstLoaded()).toBe(true);
+  });
+
+  it("sorts the loaded members by name, so the default view needs no sort", async () => {
+    await setup({}, [
+      member({ id: "c" as Guid, name: "Carol" }),
+      member({ id: "a" as Guid, name: "Alice" }),
+      member({ id: "b" as Guid, name: undefined, email: "bob@example.com" }),
+    ]);
+
+    expect(component.members().map((m: OrganizationUserView) => m.id)).toEqual(["a", "b", "c"]);
   });
 
   describe("displayedColumns", () => {
@@ -261,6 +293,186 @@ describe("MembersV2Component", () => {
           .filter((m) => component.filter(m, { groupNames: ["Sales", "Admins"] }))
           .map((m) => m.id),
       ).toEqual(["a", "b"]);
+    });
+  });
+
+  describe("search", () => {
+    const members = [
+      member({ id: "id-alice" as Guid, name: "Alice", email: "alice@example.com" }),
+      member({ id: "id-bob" as Guid, name: undefined, email: "bob@example.com" }),
+    ];
+
+    beforeEach(async () => {
+      await setup({}, members);
+    });
+
+    it.each([
+      ["name", "ALI", ["id-alice"]],
+      ["email", "bob@", ["id-bob"]],
+      ["member ID", "id-b", ["id-bob"]],
+      ["nothing", "nobody", []],
+    ])("matches on %s", (_, search, ids) => {
+      expect(members.filter((m) => component.filter(m, { search })).map((m) => m.id)).toEqual(ids);
+    });
+
+    it("keeps every member when the search is empty", () => {
+      expect(members.filter((m) => component.filter(m, { search: "" }))).toEqual(members);
+    });
+  });
+
+  describe("status filter", () => {
+    const members = [
+      member({ id: "confirmed" as Guid }),
+      member({ id: "revoked" as Guid, status: OrganizationUserStatusType.Revoked }),
+    ];
+
+    beforeEach(async () => {
+      await setup({}, members);
+    });
+
+    it("hides revoked members by default", () => {
+      expect(members.filter((m) => component.filter(m, {})).map((m) => m.id)).toEqual([
+        "confirmed",
+      ]);
+    });
+
+    it("shows revoked members whose reason is checked", () => {
+      expect(
+        members.filter((m) => component.filter(m, { status: ["revoked-0"] })).map((m) => m.id),
+      ).toEqual(["revoked"]);
+    });
+
+    it("hides the Staged option without staged members", () => {
+      expect(component.hasStagedMembers()).toBe(false);
+    });
+  });
+
+  it("shows the Staged option with staged members", async () => {
+    await setup({}, [member({ status: OrganizationUserStatusType.Staged })]);
+
+    expect(component.hasStagedMembers()).toBe(true);
+  });
+
+  describe("Event Logs deep link", () => {
+    const confirmed = member({ id: "confirmed" as Guid });
+    const invited = member({ id: "invited" as Guid, status: OrganizationUserStatusType.Invited });
+
+    it("seeds the table's search from ?search=", async () => {
+      await setup({}, [], { search: "alice" });
+
+      expect(component.initialFilters).toEqual({ search: "alice" });
+    });
+
+    it("seeds no search without ?search=", async () => {
+      await setup({}, []);
+
+      expect(component.initialFilters).toEqual({});
+    });
+
+    it("opens the event log for a confirmed member, then drops the plain keys", async () => {
+      await setup({}, [confirmed], { search: "alice", viewEvents: "confirmed" });
+
+      expect(memberDialogManager.openEventsDialog).toHaveBeenCalledWith(
+        confirmed,
+        component.organization(),
+      );
+      expect(router.navigate).toHaveBeenCalledWith([], {
+        relativeTo: expect.anything(),
+        queryParams: { search: null, viewEvents: null },
+        queryParamsHandling: "merge",
+        replaceUrl: true,
+      });
+    });
+
+    it("doesn't open the event log for a member who isn't confirmed", async () => {
+      await setup({}, [invited], { viewEvents: "invited" });
+
+      expect(memberDialogManager.openEventsDialog).not.toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+    });
+
+    it("doesn't navigate without deep link keys", async () => {
+      await setup({}, [confirmed]);
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("doesn't reopen the event log when the members reload", async () => {
+      await setup({}, [confirmed], { viewEvents: "confirmed" });
+      memberDialogManager.openEventsDialog.mockClear();
+
+      await component.load(component.organization());
+
+      expect(memberDialogManager.openEventsDialog).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("toolbar actions", () => {
+    const members = [member()];
+    let organization: Organization;
+
+    beforeEach(async () => {
+      await setup({ canManageUsers: true }, members);
+      organization = component.organization();
+      memberService.loadUsers.mockClear();
+    });
+
+    it("exports every member and toasts the success", () => {
+      memberExportService.getMemberExport.mockReturnValue({ success: true });
+
+      component.exportMembers();
+
+      expect(memberExportService.getMemberExport).toHaveBeenCalledWith(members);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "dataExportSuccess",
+      });
+    });
+
+    it("shows the export error", () => {
+      memberExportService.getMemberExport.mockReturnValue({
+        success: false,
+        error: { message: "noMembersToExport" },
+      });
+
+      component.exportMembers();
+
+      expect(validationService.showError).toHaveBeenCalledWith("noMembersToExport");
+    });
+
+    it("opens the invite dialog with the members and reloads when saved", async () => {
+      memberDialogManager.openInviteDialog.mockResolvedValue(MemberDialogResult.Saved);
+
+      await component.invite(organization);
+
+      expect(memberDialogManager.openInviteDialog).toHaveBeenCalledWith(
+        organization,
+        billingMetadata,
+        members,
+      );
+      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+    });
+
+    it("doesn't invite when the seat limit blocks it", async () => {
+      billingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      await component.invite(organization);
+
+      expect(memberDialogManager.openInviteDialog).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("noMatches", () => {
+    it("is false when the organization has no members, so the empty state reads as none invited", async () => {
+      await setup({ canManageUsers: true }, []);
+
+      expect(component.noMatches()).toBe(false);
+    });
+
+    it("is true when the organization has members, so an empty table means filters hide them", async () => {
+      await setup({ canManageUsers: true }, [member()]);
+
+      expect(component.noMatches()).toBe(true);
     });
   });
 
