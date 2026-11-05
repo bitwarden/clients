@@ -97,67 +97,65 @@
 
 @if (loadError()) {
   <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
-} @else if (loadingVisible()) {
+} @else if (loading()) {
   <div
     aria-hidden="true"
     data-testid="rotation-config-edit-loading"
     [class.tw-max-w-4xl]="activeTab() !== 'history'"
   >
-    @if (showSkeleton()) {
-      @if (editing && activeTab() === "history") {
-        <app-rotation-history-skeleton />
-      } @else if (editing) {
-        <bit-section>
-          <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamRotationConfigCreateHeading" | i18n }}</h2>
-          </bit-section-header>
-          <bit-card>
-            @for (skeletonField of skeletonFields; track skeletonField) {
-              <div class="tw-mb-4 last:tw-mb-0">
-                <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
-                <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
-              </div>
-            }
-          </bit-card>
-        </bit-section>
+    @if (editing && activeTab() === "history") {
+      <app-rotation-history-skeleton />
+    } @else if (editing) {
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamRotationConfigCreateHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          @for (skeletonField of skeletonFields; track skeletonField) {
+            <div class="tw-mb-4 last:tw-mb-0">
+              <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
+              <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
+            </div>
+          }
+        </bit-card>
+      </bit-section>
 
-        <bit-section>
-          <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamRotationConfigTriggersHeading" | i18n }}</h2>
-          </bit-section-header>
-          <bit-card>
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamRotationConfigTriggersHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <div class="tw-mb-4">
+            <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
+            <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
+          </div>
+          <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
+        </bit-card>
+      </bit-section>
+
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamRotationConfigAfterRotationHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
+        </bit-card>
+      </bit-section>
+    } @else {
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamRotationConfigCreateHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          @for (skeletonField of skeletonFields; track skeletonField) {
             <div class="tw-mb-4">
               <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
               <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
             </div>
-            <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
-          </bit-card>
-        </bit-section>
-
-        <bit-section>
-          <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamRotationConfigAfterRotationHeading" | i18n }}</h2>
-          </bit-section-header>
-          <bit-card>
-            <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
-          </bit-card>
-        </bit-section>
-      } @else {
-        <bit-section>
-          <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamRotationConfigCreateHeading" | i18n }}</h2>
-          </bit-section-header>
-          <bit-card>
-            @for (skeletonField of skeletonFields; track skeletonField) {
-              <div class="tw-mb-4">
-                <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
-                <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
-              </div>
-            }
-            <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
-          </bit-card>
-        </bit-section>
-      }
+          }
+          <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
+        </bit-card>
+      </bit-section>
     }
   </div>
 } @else if (!editing) {

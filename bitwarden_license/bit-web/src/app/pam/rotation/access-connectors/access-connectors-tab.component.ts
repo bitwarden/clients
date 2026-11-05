@@ -27,7 +27,6 @@ import {
   BadgeModule,
   BitCellComponent,
   BitCellDefDirective,
-  BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableToolbarComponent,
@@ -42,8 +41,6 @@ import {
   MenuModule,
   PopoverModule,
   SearchModule,
-  SkeletonComponent,
-  SkeletonTextComponent,
   StatusLockupComponent,
   SvgComponent,
   ToastService,
@@ -60,7 +57,6 @@ import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { lastSeenText, relativeTimeLabel } from "../rotation-relative-time";
 import { RowBusyTracker } from "../row-busy-tracker";
-import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { accessConnectorConnectionLabelKey } from "./access-connector-label";
@@ -93,8 +89,6 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
     MenuModule,
     PopoverModule,
     SearchModule,
-    SkeletonComponent,
-    SkeletonTextComponent,
     StatusLockupComponent,
     SvgComponent,
     BitTableToolbarComponent,
@@ -103,7 +97,6 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
     BitHeaderCellComponent,
     BitCellComponent,
     BitCellDefDirective,
-    BitCellLoadingDirective,
     TooltipDirective,
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
@@ -128,13 +121,6 @@ export class AccessConnectorsTabComponent {
   protected readonly loadError = toSignal(this.accessConnectorsService.loadError$, {
     initialValue: null,
   });
-
-  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
-  protected readonly showSkeleton = showSkeletonWhile(this.loading);
-
-  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
-
-  protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   private readonly serviceRows = toSignal(this.accessConnectorsService.rows$, {
     initialValue: [] as AccessConnectorRow[],
@@ -176,13 +162,6 @@ export class AccessConnectorsTabComponent {
   });
 
   protected readonly table = defineTable<AccessConnectorTabRow, "actions">(this.rows);
-  /**
-   * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
-   * through before the skeleton's delay.
-   */
-  protected readonly loadingTable = defineTable<AccessConnectorTabRow, "actions">(
-    signal<AccessConnectorTabRow[]>([]),
-  );
   protected readonly sortByStatus = withNameTieBreak(
     (a, b) => Number(b.enabled) - Number(a.enabled),
   );

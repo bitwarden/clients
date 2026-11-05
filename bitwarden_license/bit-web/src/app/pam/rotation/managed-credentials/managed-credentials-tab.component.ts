@@ -31,8 +31,6 @@ import {
   BitCellDefDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
-  BitHeaderRowComponent,
-  BitRowComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
   ButtonModule,
@@ -45,8 +43,6 @@ import {
   LinkModule,
   MenuModule,
   SearchModule,
-  SkeletonComponent,
-  SkeletonTextComponent,
   StatusLockupComponent,
   SvgComponent,
   ToastService,
@@ -76,7 +72,6 @@ import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { lastRotatedText, nextRotationText, RelativeTimeText } from "../rotation-relative-time";
 import { RowBusyTracker } from "../row-busy-tracker";
-import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { confirmPauseRotation, confirmRotateNow } from "./rotation-action-dialogs";
@@ -101,16 +96,12 @@ import { RotationConfigsService } from "./rotation-configs.service";
     LinkModule,
     MenuModule,
     SearchModule,
-    SkeletonComponent,
-    SkeletonTextComponent,
     StatusLockupComponent,
     SvgComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
-    BitHeaderRowComponent,
-    BitRowComponent,
     BitCellComponent,
     BitCellDefDirective,
     TooltipDirective,
@@ -138,13 +129,6 @@ export class ManagedCredentialsTabComponent {
 
   protected readonly loading = toSignal(this.configsService.loading$, { initialValue: true });
   protected readonly loadError = toSignal(this.configsService.loadError$, { initialValue: null });
-
-  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
-  protected readonly showSkeleton = showSkeletonWhile(this.loading);
-
-  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
-
-  protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   private readonly rows = toSignal(this.configsService.rows$, {
     initialValue: [] as RotationConfigRow[],
@@ -396,7 +380,7 @@ export class ManagedCredentialsTabComponent {
     effect(() => {
       const filter = this.targetSystemFilter();
       const id = this.pendingTargetSystemId();
-      if (filter == null || id == null || this.loadingVisible() || !this.targetSystemsKnown()) {
+      if (filter == null || id == null || this.loading() || !this.targetSystemsKnown()) {
         return;
       }
       this.pendingTargetSystemId.set(null);

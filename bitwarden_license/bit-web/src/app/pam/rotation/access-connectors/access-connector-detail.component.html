@@ -36,61 +36,59 @@
 
 @if (loadError()) {
   <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
-} @else if (loadingVisible()) {
+} @else if (loading()) {
   <div
     aria-hidden="true"
     data-testid="access-connector-detail-loading"
     [class.tw-max-w-4xl]="activeTab() !== 'history'"
   >
-    @if (showSkeleton()) {
-      @switch (activeTab()) {
-        @case ("history") {
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorTabHistory" | i18n }}</h2>
-            </bit-section-header>
-            <app-rotation-history-skeleton [showCredential]="true" />
-          </bit-section>
-        }
-        @default {
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "status" | i18n }}</h2>
-            </bit-section-header>
-            <bit-card>
-              <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
-            </bit-card>
-          </bit-section>
+    @switch (activeTab()) {
+      @case ("history") {
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamAccessConnectorTabHistory" | i18n }}</h2>
+          </bit-section-header>
+          <app-rotation-history-skeleton [showCredential]="true" />
+        </bit-section>
+      }
+      @default {
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "status" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
+          </bit-card>
+        </bit-section>
 
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
-            </bit-section-header>
-            <bit-card>
-              <div class="tw-mb-4">
-                <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
-                <bit-skeleton class="tw-h-6 tw-w-24" edgeShape="circle"></bit-skeleton>
-              </div>
-              <div class="tw-mb-4">
-                <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
-                <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
-              </div>
-              <div>
-                <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
-                <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
-              </div>
-            </bit-card>
-          </bit-section>
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <div class="tw-mb-4">
+              <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
+              <bit-skeleton class="tw-h-6 tw-w-24" edgeShape="circle"></bit-skeleton>
+            </div>
+            <div class="tw-mb-4">
+              <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
+              <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
+            </div>
+            <div>
+              <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
+              <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
+            </div>
+          </bit-card>
+        </bit-section>
 
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorAssignments" | i18n }}</h2>
-            </bit-section-header>
-            <bit-card>
-              <bit-skeleton-text [lines]="3" class="tw-w-full"></bit-skeleton-text>
-            </bit-card>
-          </bit-section>
-        }
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamAccessConnectorAssignments" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <bit-skeleton-text [lines]="3" class="tw-w-full"></bit-skeleton-text>
+          </bit-card>
+        </bit-section>
       }
     }
   </div>

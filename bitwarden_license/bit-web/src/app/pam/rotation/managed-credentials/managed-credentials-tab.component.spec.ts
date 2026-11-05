@@ -269,7 +269,7 @@ describe("ManagedCredentialsTabComponent", () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
-      expect(el.querySelector('[data-testid="managed-credentials-loading"]')).toBeNull();
+      expect(el.querySelector("bit-table-v2")).toBeNull();
     });
 
     it("retries the load from the error state", async () => {
@@ -560,9 +560,11 @@ describe("ManagedCredentialsTabComponent", () => {
       collections: CollectionAdminView[] = [],
       queryParams: Record<string, string> = {},
       targetSystems: unknown[] = [{ id: "ts-1" }],
+      loading = false,
     ) {
       targetSystemsService = makeTargetSystemsServiceStub(targetSystems);
       configsService = makeConfigsServiceStub(targetSystemsService, rows);
+      configsService.loading$.next(loading);
       toastService = { showToast: jest.fn() };
       dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
 
@@ -637,6 +639,24 @@ describe("ManagedCredentialsTabComponent", () => {
         });
         expect(chip("targetSystem").value()).toEqual([String(emptySystem.id)]);
         expect(rowNames(fixture.nativeElement)).toEqual([]);
+      });
+
+      it("holds the drill-in until the list has loaded", () => {
+        const id = String(sysId("2"));
+        setupWithData(
+          [rowA, rowB, rowC],
+          [],
+          [],
+          { [TARGET_SYSTEM_QUERY_PARAM]: id },
+          systems,
+          true,
+        );
+        fixture.detectChanges();
+        expect(chip("targetSystem").value()).toBeUndefined();
+
+        configsService.loading$.next(false);
+        fixture.detectChanges();
+        expect(chip("targetSystem").value()).toEqual([id]);
       });
 
       it("ignores an unknown id and keeps the tab usable", () => {
@@ -789,12 +809,6 @@ describe("ManagedCredentialsTabComponent", () => {
   });
 
   describe("loading skeleton", () => {
-    beforeEach(() => {
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-    });
-
-    afterEach(() => jest.useRealTimers());
-
     function renderLoading() {
       setupTestBed(true, [{ id: "ts-1" }], true);
       configsService.loading$.next(true);
@@ -802,45 +816,25 @@ describe("ManagedCredentialsTabComponent", () => {
       return fixture.nativeElement as HTMLElement;
     }
 
-    function advance(ms: number): void {
-      fixture.detectChanges();
-      jest.advanceTimersByTime(ms);
-      fixture.detectChanges();
-    }
-
-    function renderSkeleton(): HTMLElement {
+    it("stands skeleton rows in for the list, under the real table's columns", () => {
       const el = renderLoading();
-      advance(1000);
-      return el;
-    }
-
-    it("stands a skeleton table in for the list, carrying the real columns", () => {
-      const el = renderSkeleton();
-      const loading = el.querySelector('[data-testid="managed-credentials-loading"]');
+      const table = el.querySelector("bit-table-v2");
 
       expect(el.querySelector("bit-spinner")).toBeNull();
-      expect(loading).not.toBeNull();
-      expect(loading!.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
-      expect(loading!.textContent).toContain("pamRotationConfigColumnItem");
-      expect(loading!.textContent).toContain("pamRotationConfigColumnNextRotation");
+      expect(table).not.toBeNull();
+      expect(table!.querySelectorAll("bit-row bit-skeleton-text").length).toBeGreaterThan(0);
+      expect(table!.textContent).toContain("pamRotationConfigColumnItem");
+      expect(table!.textContent).toContain("pamRotationConfigColumnNextRotation");
+      expect(table!.textContent).not.toContain("My Cipher");
     });
 
-    it("keeps the placeholder itself out of the accessibility tree", () => {
-      const loading = renderLoading().querySelector('[data-testid="managed-credentials-loading"]');
+    it("keeps the skeleton rows themselves out of the accessibility tree", () => {
+      const skeletons = Array.from(renderLoading().querySelectorAll("bit-table-v2 bit-skeleton"));
 
-      expect(loading!.getAttribute("aria-hidden")).toBe("true");
-    });
-
-    it("stands a placeholder in for the toolbar rather than offering row-derived filters", () => {
-      const el = renderSkeleton();
-
-      expect(el.querySelector("bit-search")).toBeNull();
-      expect(el.querySelector("bit-filter-menu")).toBeNull();
-      expect(
-        el.querySelectorAll(
-          '[data-testid="managed-credentials-loading"] > div:first-child bit-skeleton',
-        ).length,
-      ).toBeGreaterThan(0);
+      expect(skeletons.length).toBeGreaterThan(0);
+      for (const skeleton of skeletons) {
+        expect(skeleton.firstElementChild!.getAttribute("aria-hidden")).toBe("true");
+      }
     });
 
     it("announces the load from a live region while the skeleton stands in", () => {
@@ -851,61 +845,17 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(status!.textContent).toContain("loading");
     });
 
-    it("replaces the skeleton with the real rows, and announces the arrival", () => {
-      const el = renderSkeleton();
+    it("replaces the skeleton with the real rows as soon as the load ends, and announces it", () => {
+      const el = renderLoading();
 
       configsService.loading$.next(false);
-      advance(1000);
+      fixture.detectChanges();
 
-      expect(el.querySelector('[data-testid="managed-credentials-loading"]')).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
       expect(rowNames(el)).toEqual(["My Cipher"]);
       expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
         "pamManagedCredentialsLoaded",
       );
-    });
-
-    it("renders the tab's own furniture, not a blank area, before the delay is up", () => {
-      const el = renderLoading();
-      advance(999);
-
-      const loading = el.querySelector('[data-testid="managed-credentials-loading"]');
-      expect(loading).not.toBeNull();
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(loading!.textContent).toContain("pamRotationConfigColumnItem");
-    });
-
-    it("never draws the placeholder for a list that arrives inside the delay", () => {
-      const el = renderLoading();
-      advance(500);
-      configsService.loading$.next(false);
-      advance(1000);
-
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector('[data-testid="managed-credentials-loading"]')).toBeNull();
-    });
-
-    it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
-      const el = renderSkeleton();
-      expect(el.querySelector("bit-skeleton")).not.toBeNull();
-
-      configsService.loading$.next(false);
-      advance(300);
-
-      expect(el.querySelector("bit-skeleton")).not.toBeNull();
-
-      advance(700);
-
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-    });
-
-    it("announces the load at once, not on the placeholder's clock", () => {
-      const el = renderLoading();
-
-      expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
-        "loading",
-      );
-      expect(el.querySelector("bit-skeleton")).toBeNull();
     });
   });
 });
@@ -2091,30 +2041,23 @@ describe("ManagedCredentialsTabComponent table", () => {
   });
 
   describe("loading skeleton", () => {
-    beforeEach(() => {
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-    });
-
-    afterEach(() => jest.useRealTimers());
-
-    function renderSkeleton(): HTMLElement {
-      const el = render();
+    function renderLoading(rows: RotationConfigRow[] = ROWS): HTMLElement {
+      const el = render(rows);
       configsService.loading$.next(true);
-      fixture.detectChanges();
-      jest.advanceTimersByTime(1000);
       fixture.detectChanges();
       return el;
     }
 
-    it("stands a hidden v2 skeleton table in for the list, carrying the real columns", () => {
-      const loading = renderSkeleton().querySelector(
-        '[data-testid="managed-credentials-loading"]',
-      )!;
+    function chipValues(key: string): unknown[] {
+      return fixture.debugElement
+        .queryAll(By.css(`bit-filter-menu[key="${key}"] bit-filter-option`))
+        .map((option) => option.componentInstance.value());
+    }
 
-      expect(loading.getAttribute("aria-hidden")).toBe("true");
-      expect(loading.querySelector("bit-table-v2")).not.toBeNull();
-      expect(loading.querySelector("bit-table")).toBeNull();
-      expect(headings(loading as HTMLElement)).toEqual([
+    it("shows the table's default skeleton rows under the real columns", () => {
+      const el = renderLoading();
+
+      expect(headings(el)).toEqual([
         "pamRotationConfigColumnItem",
         "status",
         "pamRotationConfigColumnAccount",
@@ -2122,28 +2065,52 @@ describe("ManagedCredentialsTabComponent table", () => {
         "pamRotationConfigColumnNextRotation",
         "options",
       ]);
-      expect(loading.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(5);
+      expect(bodyRows(el)).toHaveLength(3);
+      for (const row of bodyRows(el)) {
+        expect(row.querySelectorAll("bit-skeleton-text")).toHaveLength(6);
+      }
+      expect(el.querySelector("bit-table")).toBeNull();
     });
 
     it("replaces the skeleton with the real rows", () => {
-      const el = renderSkeleton();
+      const el = renderLoading();
 
       configsService.loading$.next(false);
       fixture.detectChanges();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
 
-      expect(el.querySelector('[data-testid="managed-credentials-loading"]')).toBeNull();
+      expect(el.querySelector("bit-skeleton-text")).toBeNull();
       expect(rowNames(el)).toEqual(URGENCY_ORDER);
     });
 
-    // The placeholder strip holds the toolbar's height, so the table doesn't shift when rows land.
-    it("reserves the toolbar row while loading", () => {
-      const placeholders = renderSkeleton().querySelectorAll(
-        '[data-testid="managed-credentials-loading"] > div:first-child bit-skeleton',
-      ).length;
+    it("keeps the real search and chips in the toolbar while loading", () => {
+      const el = renderLoading();
+      const toolbar = el.querySelector("bit-table-v2 bit-table-toolbar")!;
 
-      expect(placeholders).toBeGreaterThan(0);
+      expect(toolbar.querySelector("bit-search")).not.toBeNull();
+      expect(
+        Array.from(toolbar.querySelectorAll("bit-filter-menu")).map((menu) =>
+          menu.getAttribute("key"),
+        ),
+      ).toEqual(["status", "targetSystem", "method", "trigger"]);
+    });
+
+    // A first load has no rows yet, so only the chips with fixed options have any.
+    it("offers only the fixed chip options until the first rows land", () => {
+      renderLoading([]);
+
+      expect(chipValues("status")).toHaveLength(6);
+      expect(chipValues("method")).toEqual([
+        TargetSystemMethod.Automatic,
+        TargetSystemMethod.Manual,
+      ]);
+      expect(chipValues("trigger").length).toBeGreaterThan(0);
+      expect(chipValues("targetSystem")).toEqual([]);
+
+      configsService.rows$.next(ROWS);
+      configsService.loading$.next(false);
+      fixture.detectChanges();
+
+      expect(chipValues("targetSystem")).toEqual([sysId("3"), sysId("1"), sysId("2")]);
     });
   });
 });

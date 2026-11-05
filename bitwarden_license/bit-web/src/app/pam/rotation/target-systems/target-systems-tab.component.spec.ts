@@ -616,7 +616,7 @@ describe("TargetSystemsTabComponent", () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
-      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
+      expect(el.querySelector("bit-table-v2")).toBeNull();
 
       targetSystemsService.loading$.next(false);
     });
@@ -1363,55 +1363,50 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("loading skeleton", () => {
-    function advance(ms: number): void {
-      fixture.detectChanges();
-      jest.advanceTimersByTime(ms);
-      fixture.detectChanges();
-    }
-
-    /** Runs out the skeleton's delay. */
-    function showSkeleton(): void {
-      advance(1000);
-    }
-
-    /** Runs the timers the loaded table schedules, which `whenStable` would wait on forever. */
-    function settle(): void {
-      jest.runOnlyPendingTimers();
-      fixture.detectChanges();
-    }
-
     beforeEach(async () => {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([]);
       targetSystemsService.loading$.next(true);
 
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
       await createComponent({ renderTemplate: true });
     });
 
     afterEach(() => {
-      jest.useRealTimers();
       targetSystemsService.loading$.next(false);
     });
 
-    it("keeps the placeholder itself out of the accessibility tree", () => {
-      const loading = (fixture.nativeElement as HTMLElement).querySelector(
-        '[data-testid="target-systems-loading"]',
-      );
+    /** Lands the list and lets the loaded table settle. */
+    async function land(systems: TargetSystemView[]): Promise<void> {
+      targetSystemsService.systems$.next(systems);
+      targetSystemsService.loading$.next(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
 
-      expect(loading!.getAttribute("aria-hidden")).toBe("true");
-    });
-
-    it("stands a placeholder in for the toolbar rather than offering row-derived filters", () => {
-      showSkeleton();
+    it("draws skeleton rows in the real table at once, rather than the empty state", () => {
       const el = fixture.nativeElement as HTMLElement;
 
-      expect(el.querySelector("bit-search")).toBeNull();
-      expect(el.querySelector("bit-filter-menu")).toBeNull();
-      expect(
-        el.querySelectorAll('[data-testid="target-systems-loading"] > div:first-child bit-skeleton')
-          .length,
-      ).toBeGreaterThan(0);
+      expect(el.querySelector("bit-table-v2 bit-row bit-skeleton-text")).not.toBeNull();
+      expect(el.querySelector("pam-target-systems-empty-state")).toBeNull();
+    });
+
+    it("keeps the skeleton rows out of the accessibility tree", () => {
+      const skeletons = (fixture.nativeElement as HTMLElement).querySelectorAll(
+        "bit-table-v2 bit-skeleton > div",
+      );
+
+      expect(skeletons.length).toBeGreaterThan(0);
+      skeletons.forEach((skeleton) => expect(skeleton.getAttribute("aria-hidden")).toBe("true"));
+    });
+
+    it("offers the real toolbar while the list loads", () => {
+      const toolbar = (fixture.nativeElement as HTMLElement).querySelector(
+        "bit-table-v2 bit-table-toolbar",
+      )!;
+
+      expect(toolbar.querySelector("bit-search")).not.toBeNull();
+      expect(toolbar.querySelectorAll("bit-filter-menu").length).toBeGreaterThan(0);
     });
 
     it("announces the load from a live region while the skeleton stands in", () => {
@@ -1424,15 +1419,10 @@ describe("TargetSystemsTabComponent", () => {
       expect(status!.textContent).toContain("loading");
     });
 
-    it("replaces the skeleton with the real rows, and announces the arrival", () => {
-      showSkeleton();
-      targetSystemsService.systems$.next([makeSystem()]);
-      targetSystemsService.loading$.next(false);
-      advance(1000);
-      settle();
+    it("replaces the skeleton with the real rows, and announces the arrival", async () => {
+      await land([makeSystem()]);
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
       expect(el.querySelector("bit-table-v2 bit-row button[bitLink]")!.textContent).toContain(
         "Prod Entra",
@@ -1442,44 +1432,13 @@ describe("TargetSystemsTabComponent", () => {
       );
     });
 
-    it("never draws the placeholder for a list that arrives inside the delay", () => {
-      advance(500);
-      targetSystemsService.systems$.next([makeSystem()]);
-      targetSystemsService.loading$.next(false);
-      advance(1000);
-      settle();
+    it("swaps the skeleton table for the empty state when the load finds no target systems", async () => {
+      await land([]);
 
       const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("bit-table-v2")).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
-      expect(el.querySelector("bit-table-v2 bit-row button[bitLink]")!.textContent).toContain(
-        "Prod Entra",
-      );
-    });
-
-    it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
-      showSkeleton();
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
-
-      targetSystemsService.systems$.next([makeSystem()]);
-      targetSystemsService.loading$.next(false);
-      advance(300);
-
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
-
-      advance(700);
-      settle();
-
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).toBeNull();
-    });
-
-    it("announces the load at once, not on the placeholder's clock", () => {
-      const status = (fixture.nativeElement as HTMLElement).querySelector(
-        '[data-testid="rotation-loading-status"]',
-      );
-
-      expect(status!.textContent).toContain("loading");
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).toBeNull();
+      expect(el.querySelector("pam-target-systems-empty-state")).not.toBeNull();
     });
   });
 });
@@ -1979,34 +1938,17 @@ describe("TargetSystemsTabComponent table", () => {
   });
 
   describe("loading skeleton", () => {
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    /**
-     * Fakes the clock only after `render` settles, since the toolbar's chip measurement schedules
-     * change detection on a timer that `whenStable` waits for and a fake clock never runs.
-     */
-    function startLoading(): void {
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-      loading$.next(true);
+    function setLoading(loading: boolean): void {
+      loading$.next(loading);
       fixture.detectChanges();
     }
 
-    async function renderLoading(): Promise<HTMLElement> {
+    it("stands skeleton rows in for the list, under the real column headings", async () => {
       const el = await render([]);
-      startLoading();
-      return el;
-    }
-
-    it("stands a skeleton table in for the list, carrying the real columns", async () => {
-      const el = await renderLoading();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-      const loading = el.querySelector('[data-testid="target-systems-loading"]')!;
+      setLoading(true);
+      const rows = el.querySelectorAll("bit-table-v2 bit-row");
 
       expect(el.querySelector("bit-spinner")).toBeNull();
-      expect(loading.querySelector("bit-table-v2")).not.toBeNull();
       expect(headings(el)).toEqual([
         "name",
         "status",
@@ -2015,44 +1957,32 @@ describe("TargetSystemsTabComponent table", () => {
         "pamTargetSystemSystemTypeLabel",
         "",
       ]);
-      expect(loading.querySelectorAll("bit-row")).toHaveLength(5);
-      expect(loading.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
+      expect(rows).toHaveLength(3);
+      rows.forEach((row) => expect(row.querySelectorAll("bit-skeleton-text")).toHaveLength(6));
     });
 
-    it("draws the headings but no skeleton rows before the delay is up", async () => {
-      const el = await renderLoading();
-      jest.advanceTimersByTime(999);
-      fixture.detectChanges();
-      const loading = el.querySelector('[data-testid="target-systems-loading"]')!;
-
-      expect(loading.textContent).toContain("pamTargetSystemMethodLabel");
-      expect(loading.querySelectorAll("bit-row")).toHaveLength(0);
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-    });
-
-    it("lays the skeleton out on the same column tracks as the loaded table", async () => {
+    it("holds the rows from an earlier load back while a reload is in flight", async () => {
       const el = await render();
-      startLoading();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-      const skeletonTracks = el.querySelector<HTMLElement>(
-        '[data-testid="target-systems-loading"] bit-header-row',
-      )!.style.gridTemplateColumns;
-      const skeletonRowTracks = el.querySelector<HTMLElement>(
-        '[data-testid="target-systems-loading"] bit-row',
-      )!.style.gridTemplateColumns;
+      setLoading(true);
 
-      loading$.next(false);
-      fixture.detectChanges();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-      const loadedTracks = el.querySelector<HTMLElement>("bit-table-v2 bit-header-row")!.style
-        .gridTemplateColumns;
+      expect(el.querySelectorAll("bit-table-v2 bit-row button[bitLink]")).toHaveLength(0);
+      expect(el.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(3);
 
-      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
-      expect(loadedTracks).toBe("minmax(12rem, 2fr) 1fr 1fr 1fr 1fr 80px");
-      expect(skeletonTracks).toBe(loadedTracks);
-      expect(skeletonRowTracks).toBe(loadedTracks);
+      setLoading(false);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(el.querySelector("bit-skeleton")).toBeNull();
+      expect(rowNames(el)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
+    });
+
+    it("lays the skeleton rows out on the loaded table's column tracks", async () => {
+      const el = await render();
+      setLoading(true);
+
+      expect(el.querySelector<HTMLElement>("bit-table-v2 bit-row")!.style.gridTemplateColumns).toBe(
+        "minmax(12rem, 2fr) 1fr 1fr 1fr 1fr 80px",
+      );
     });
   });
 });
