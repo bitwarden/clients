@@ -90,7 +90,8 @@ export class PasswordLoginStrategy extends LoginStrategy {
         preFetchedPreloginData,
       );
     } finally {
-      // Clear no matter what. Let the prelogin data exist only for the creation of the key
+      // Clear unconditionally so the cache's lifetime matches the login attempt rather than
+      // its outcome. The service holds its entry with refCount: false and no expiry.
       this.passwordPreloginService.clearCache();
     }
     data.masterPassword = masterPassword;
