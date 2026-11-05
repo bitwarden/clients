@@ -4,6 +4,7 @@ import { of, switchMap } from "rxjs";
 
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { BitwardenIcon, IconComponent } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VAULT_ROW_ACCESS, VaultRowAccess, VaultRowAccessStatus } from "./vault-row-access.token";
 
@@ -15,12 +16,13 @@ import { VAULT_ROW_ACCESS, VaultRowAccess, VaultRowAccessStatus } from "./vault-
 @Component({
   selector: "app-vault-row-access-icon",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IconComponent],
+  imports: [IconComponent, I18nPipe],
   template: `
     @if (icon(); as icon) {
       <bit-icon
         [name]="icon"
         class="bwi-sm tw-text-muted"
+        [title]="'pamAccessBadgePrivileged' | i18n"
         [attr.data-testid]="'vault-row-access-icon-' + status()?.kind"
         aria-hidden="true"
       ></bit-icon>
