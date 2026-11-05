@@ -72,7 +72,10 @@ export class CompleteTrialInitiationComponent {
   /** True, registering a password is in progress */
   submitting = false;
 
-  /** True when the PAM-billing flag is on, which turns on every self-serve Privileged Controls path. */
+  /**
+   * True when the PAM-billing flag is on. It suppresses the sales-only callout copy; self-serve Privileged
+   * Controls additionally needs the preview cart (see privilegedControlsSelfServe).
+   */
   private pamBillingSupportEnabled = false;
 
   /**
@@ -83,7 +86,7 @@ export class CompleteTrialInitiationComponent {
 
   /**
    * True when the trial includes Privileged Controls: the link asked for it and either came from a sales
-   * invitation or self-serve Privileged Controls is on.
+   * invitation that starts without payment, or self-serve Privileged Controls is on.
    */
   includesPrivilegedControls = false;
 
@@ -484,7 +487,10 @@ export class CompleteTrialInitiationComponent {
       });
   }
 
-  /** A trial skips the payment step, and is created without a payment method, when the link allows it. */
+  /**
+   * Whether the organization is created without a payment method: the link allows it and there is a trial
+   * period. Step visibility is decided separately by showBillingStep.
+   */
   private startsWithoutPayment(paymentOptional: boolean, trialLength: number): boolean {
     return paymentOptional && trialLength > 0;
   }
@@ -494,7 +500,8 @@ export class CompleteTrialInitiationComponent {
       this.product === ProductType.PasswordManager &&
       params.productTier === ProductTierType.Enterprise &&
       params.privilegedControlsRequested;
-    // Only the no-payment sales path sends the sales-assisted initiation path the server honors.
+    // Only the no-payment path (createOrganizationOnTrial) sends the sales-assisted initiation path the server
+    // honors; the paid billing step (TrialBillingStepService) always sends the marketing path.
     // Sales sells Privileged Controls at GA, so a sales invitation includes it whatever the flags.
     const fromSalesInvitation =
       !!params.salesAssistedToken &&

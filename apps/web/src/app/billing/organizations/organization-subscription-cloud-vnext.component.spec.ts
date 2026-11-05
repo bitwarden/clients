@@ -1165,6 +1165,31 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         expect(changeElement()).not.toBeNull();
       });
 
+      it("keeps the Contact sales link when the subscription is cancelled", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          subscription: enterpriseSubscription({
+            subscription: { cancelled: true, items: [] } as any,
+          }),
+        });
+
+        expect(component.showPrivilegedControlsContactSalesToChange()).toBe(true);
+        expect(changeElement()).not.toBeNull();
+      });
+
+      it("shows the Contact sales link for a non-Enterprise organization that has Privileged Controls", async () => {
+        // Pins current behaviour: the read-only block keys off the organization having Privileged Controls,
+        // not its plan tier.
+        setPamBillingSupport(false);
+
+        await render({ subscription: buildSubscriptionResponse() });
+
+        expect(component.showPrivilegedControlsContactSalesToChange()).toBe(true);
+        expect(changeElement()).not.toBeNull();
+        expect(addElement()).toBeNull();
+      });
+
       it("does not offer to add Privileged Controls", async () => {
         setPamBillingSupport(false);
 

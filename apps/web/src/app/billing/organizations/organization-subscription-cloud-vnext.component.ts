@@ -353,7 +353,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     { initialValue: false },
   );
 
-  /** Self-serve Privileged Controls: seat change and removal, shown only while PAM billing support is on. */
+  /** Self-serve Privileged Controls: seat and limit adjustment, shown only while PAM billing support is on. */
   readonly showAdjustPrivilegedControls = computed(() => {
     const org = this.organization();
     const sub = this.organizationSubscription();
@@ -370,9 +370,10 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
   /**
    * With PAM billing support off, Privileged Controls is sold only through sales: an organization that has it
-   * sees a "Contact sales" call to action, with its seats when the subscription carries them. Unlike the
-   * self-serve sections, this block is read-only, so it stays visible on a cancelled or pending-cancellation
-   * subscription and the organization can still reach sales.
+   * sees a "Contact sales" call to action, with its seats when the organization has purchased them (hidden for
+   * a sales-initiated trial). Unlike the self-serve sections, this block is read-only, so it stays visible on a
+   * cancelled or pending-cancellation subscription and the organization can still reach sales.
+   * Provider-managed organizations are excluded.
    */
   readonly showPrivilegedControlsContactSalesToChange = computed(() => {
     const org = this.organization();
@@ -383,9 +384,10 @@ export class OrganizationSubscriptionCloudVNextComponent {
   });
 
   /**
-   * With PAM billing support off, Privileged Controls is sold only through sales: an Enterprise organization
-   * without it sees a "Contact sales" call to action. The plan's Privileged Controls features are not sent
-   * while the flag is off, so this keys off the Enterprise tier.
+   * With the PamBillingSupport flag off, Privileged Controls is sold only through sales: an Enterprise
+   * organization without it sees a "Contact sales" call to action. The plan's Privileged Controls features are
+   * not sent while the flag is off, so this keys off the Enterprise tier. Excluded: provider-managed
+   * organizations, a sales-initiated trial, and a cancelled or pending-cancellation subscription.
    */
   readonly showPrivilegedControlsContactSalesToAdd = computed(() => {
     const org = this.organization();
