@@ -327,7 +327,7 @@ describe("AccessRulesComponent: make a copy", () => {
 
     expect(showToast).toHaveBeenCalledWith({
       variant: "success",
-      message: "pamAccessRuleCopyCreated",
+      message: "pamAccessRuleCopyCreatedSharedFolder",
     });
   });
 
@@ -373,7 +373,7 @@ describe("AccessRulesComponent: make a copy", () => {
     expect(navigate).not.toHaveBeenCalled();
     expect(showToast).toHaveBeenCalledWith({
       variant: "error",
-      message: "pamAccessRuleErrorCollectionsGoverned",
+      message: "pamAccessRuleErrorSharedFoldersGoverned",
     });
   });
 });
@@ -462,7 +462,7 @@ describe("AccessRulesComponent: failed mutations", () => {
     await fixture.componentInstance["remove"](target);
 
     const message = showToast.mock.calls.at(-1)![0].message as string;
-    expect(message).toBe("pamAccessRuleErrorCollectionsGoverned");
+    expect(message).toBe("pamAccessRuleErrorSharedFoldersGoverned");
     expect(message).not.toContain("exceptionStackTrace");
     expect(message).not.toContain("status code 400");
   });
