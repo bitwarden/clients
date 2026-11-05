@@ -21067,6 +21067,30 @@
   "pamRotationHistoryRetrySucceeded": {
     "message": "The first attempt failed; the retry succeeded."
   },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Rotation started"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Final result"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "Attempt $NUMBER$ failed.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "No access connector picked up this rotation."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Sessions ended"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Couldn't end sessions"
+  },
   "pamRotationDetailsDrawerTitle": {
     "message": "Rotation details"
   },
@@ -21280,9 +21304,6 @@
   "pamRotationJobStatusPending": {
     "message": "Pending"
   },
-  "pamRotationJobStatusClaimed": {
-    "message": "Claimed"
-  },
   "pamRotationJobStatusSucceeded": {
     "message": "Succeeded"
   },
@@ -21291,6 +21312,9 @@
   },
   "pamRotationJobStatusTimedOut": {
     "message": "Timed out"
+  },
+  "pamRotationJobStatusRetrying": {
+    "message": "Retrying"
   },
   "pamRotationJobStatusUnknown": {
     "message": "Unknown"
