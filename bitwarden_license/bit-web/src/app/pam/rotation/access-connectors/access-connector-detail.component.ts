@@ -65,7 +65,6 @@ import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { lastSeenText, relativeTimeLabel } from "../rotation-relative-time";
 import { RotationSdkService } from "../rotation-sdk.service";
-import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemLabel, targetSystemLabel } from "../target-systems/target-system-label";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -134,11 +133,6 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   );
 
   protected readonly loading = signal(true);
-
-  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
-  protected readonly showSkeleton = showSkeletonWhile(this.loading);
-
-  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
   protected readonly loadError = signal<unknown | null>(null);
   protected readonly accessConnector = signal<AccessConnectorDetail | null>(null);

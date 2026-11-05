@@ -88,7 +88,6 @@ import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RotationSdkService } from "../rotation-sdk.service";
-import { showSkeletonWhile } from "../skeleton-delay";
 
 import { targetSystemKindLabelKey } from "./target-system-label";
 import { resolveTargetSystemStatus, targetSystemStatusBadge } from "./target-system-status";
@@ -351,11 +350,6 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
       }
     : undefined;
   protected readonly loading = signal(true);
-
-  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
-  protected readonly showSkeleton = showSkeletonWhile(this.loading);
-
-  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
   protected readonly loadError = signal<unknown | null>(null);
 

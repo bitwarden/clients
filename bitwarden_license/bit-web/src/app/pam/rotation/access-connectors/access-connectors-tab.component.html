@@ -6,71 +6,7 @@
 
 @if (loadError()) {
   <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
-} @else if (loadingVisible()) {
-  <div aria-hidden="true" data-testid="access-connectors-loading">
-    <bit-table-v2
-      [tableDef]="loadingTable"
-      [loading]="showSkeleton()"
-      [loadingRows]="skeletonRows.length"
-    >
-      <!-- The real toolbar, disabled, so the header row sits where it will once rows land. -->
-      <bit-table-toolbar inert>
-        <bit-search
-          class="tw-flex-1"
-          [placeholder]="'pamAccessConnectorSearch' | i18n"
-          [disabled]="true"
-        ></bit-search>
-        <bit-filter-menu
-          key="status"
-          [placeholderText]="'status' | i18n"
-          [unsetLabel]="'all' | i18n"
-          [disabled]="true"
-        ></bit-filter-menu>
-        <bit-filter-menu
-          key="connection"
-          [placeholderText]="'pamAccessConnectorConnection' | i18n"
-          [unsetLabel]="'all' | i18n"
-          [disabled]="true"
-        ></bit-filter-menu>
-      </bit-table-toolbar>
-      <div slot="empty"></div>
-      <bit-column width="minmax(12rem, 2fr)">
-        <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.name"></bit-cell>
-        <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-40"></bit-skeleton-text></bit-cell>
-      </bit-column>
-      <bit-column>
-        <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.statusLabelKey"></bit-cell>
-        <bit-cell *bitCellLoading>
-          <bit-skeleton class="tw-h-6 tw-w-16" edgeShape="circle"></bit-skeleton>
-        </bit-cell>
-      </bit-column>
-      <bit-column>
-        <bit-header-cell>{{ "pamAccessConnectorConnection" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.isConnected"></bit-cell>
-        <bit-cell *bitCellLoading>
-          <bit-skeleton class="tw-h-6 tw-w-24" edgeShape="circle"></bit-skeleton>
-        </bit-cell>
-      </bit-column>
-      <bit-column>
-        <bit-header-cell>{{ "pamAccessConnectorLastSeen" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.lastSeenAtMs"></bit-cell>
-        <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
-      </bit-column>
-      <bit-column>
-        <bit-header-cell>{{ "pamAccessConnectorAssignments" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.assignmentNames"></bit-cell>
-        <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
-      </bit-column>
-      <bit-column width="72px">
-        <bit-header-cell></bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.actions"></bit-cell>
-        <bit-cell *bitCellLoading></bit-cell>
-      </bit-column>
-    </bit-table-v2>
-  </div>
-} @else if (totalRows() === 0) {
+} @else if (!loading() && totalRows() === 0) {
   <bit-status-lockup>
     <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>
     <span slot="title">{{ "pamAccessConnectorEmptyStateTitle" | i18n }}</span>
@@ -87,7 +23,7 @@
     </button>
   </bit-status-lockup>
 } @else {
-  <bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter">
+  <bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter" [loading]="loading()">
     <bit-table-toolbar>
       <bit-search
         class="tw-flex-1"

@@ -21,7 +21,6 @@ import {
   BadgeModule,
   BitCellComponent,
   BitCellDefDirective,
-  BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableToolbarComponent,
@@ -35,8 +34,6 @@ import {
   LinkModule,
   MenuModule,
   SearchModule,
-  SkeletonComponent,
-  SkeletonTextComponent,
   ToastService,
   TooltipDirective,
   defineTable,
@@ -62,7 +59,6 @@ import { rotationErrorMessage } from "../rotation-error";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RowBusyTracker } from "../row-busy-tracker";
-import { showSkeletonWhile } from "../skeleton-delay";
 
 import { AssignConnectorDialogComponent } from "./assign-connector-dialog.component";
 import { targetSystemKindLabelKey, targetSystemMethodLabelKey } from "./target-system-label";
@@ -146,15 +142,12 @@ const FILTERABLE_KINDS: readonly TargetSystemKind[] = [
     MenuModule,
     RouterLink,
     SearchModule,
-    SkeletonComponent,
-    SkeletonTextComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
     BitCellComponent,
     BitCellDefDirective,
-    BitCellLoadingDirective,
     TooltipDirective,
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
@@ -182,13 +175,6 @@ export class TargetSystemsTabComponent {
   protected readonly loadError = toSignal(this.targetSystemsService.loadError$, {
     initialValue: null,
   });
-
-  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
-  protected readonly showSkeleton = showSkeletonWhile(this.loading);
-
-  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
-
-  protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystemView[],
@@ -246,13 +232,6 @@ export class TargetSystemsTabComponent {
   protected readonly hasSystems = computed(() => this.rows().length > 0);
 
   protected readonly table = defineTable<TargetSystemRow, "actions">(this.rows);
-  /**
-   * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
-   * through before the skeleton's delay.
-   */
-  protected readonly loadingTable = defineTable<TargetSystemRow, "actions">(
-    signal<TargetSystemRow[]>([]),
-  );
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 
   protected readonly TargetSystemMethod = TargetSystemMethod;

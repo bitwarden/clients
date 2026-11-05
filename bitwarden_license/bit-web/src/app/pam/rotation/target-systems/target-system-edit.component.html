@@ -259,53 +259,51 @@
 
 <pam-rotation-loading-announcer
   [loading]="loading()"
-  [failed]="loadError() != null || (editing && existing() == null)"
+  [failed]="loadError() != null || (editing && !loading() && existing() == null)"
   loadedKey="pamRotationPageLoaded"
 />
 
 @if (loadError()) {
   <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
-} @else if (loadingVisible()) {
+} @else if (loading()) {
   <div aria-hidden="true" data-testid="target-system-edit-loading" class="tw-max-w-4xl">
-    @if (showSkeleton()) {
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <div class="tw-mb-4">
-            <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
-            <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
-          </div>
-          <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
-        </bit-card>
-      </bit-section>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <div class="tw-mb-4">
+          <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
+          <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
+        </div>
+        <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
+      </bit-card>
+    </bit-section>
 
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-            @for (skeletonField of skeletonFields; track skeletonField) {
-              <div>
-                <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
-                <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
-              </div>
-            }
-          </div>
-        </bit-card>
-      </bit-section>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+          @for (skeletonField of skeletonFields; track skeletonField) {
+            <div>
+              <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
+              <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
+            </div>
+          }
+        </div>
+      </bit-card>
+    </bit-section>
 
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemConnectorAssignments" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <bit-skeleton-text [lines]="3" class="tw-w-full"></bit-skeleton-text>
-        </bit-card>
-      </bit-section>
-    }
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h5">{{ "pamTargetSystemConnectorAssignments" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-skeleton-text [lines]="3" class="tw-w-full"></bit-skeleton-text>
+      </bit-card>
+    </bit-section>
   </div>
 } @else {
   @if (!editing) {
