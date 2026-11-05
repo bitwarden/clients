@@ -99,8 +99,12 @@ export class DesktopSettingsService {
   private readonly openAtLoginState = this.stateProvider.getGlobal(OPEN_AT_LOGIN_KEY);
   /**
    * The application setting for whether or not the application should open at system login.
+   * Unset state defaults to `false` on Mac App Store builds, and to `true` otherwise outside
+   * of development.
    */
-  openAtLogin$ = this.openAtLoginState.state$.pipe(map((v) => v ?? !isDev()));
+  openAtLogin$ = this.openAtLoginState.state$.pipe(
+    map((v) => v ?? (!this.isMacAppStore && !isDev())),
+  );
 
   private readonly alwaysOnTopState = this.stateProvider.getGlobal(ALWAYS_ON_TOP_KEY);
 
@@ -134,7 +138,10 @@ export class DesktopSettingsService {
 
   modalMode$ = this.modalModeState.state$;
 
-  constructor(private stateProvider: StateProvider) {
+  constructor(
+    private stateProvider: StateProvider,
+    private readonly isMacAppStore = false,
+  ) {
     this.window$ = this.windowState.state$.pipe(
       map((window) =>
         window != null && Object.keys(window).length > 0 ? window : new WindowState(),
