@@ -50,6 +50,15 @@ describe("DesktopAutotypePairingUri", () => {
       expect(pairingUri.toString()).toBe(NOTEPAD_PAIRING_URI);
     });
 
+    it("writes unknown query parameters after the version and data", () => {
+      const pairingUri = new DesktopAutotypePairingUri("1.0.0", createPairingData(), [
+        ["extra", "1"],
+        ["other", "2"],
+      ]);
+
+      expect(pairingUri.toString()).toBe(`${NOTEPAD_PAIRING_URI}&extra=1&other=2`);
+    });
+
     it("starts with the desktop app URI prefix", () => {
       const pairingUri = new DesktopAutotypePairingUri("1.0.0", createPairingData());
 
@@ -124,10 +133,53 @@ describe("DesktopAutotypePairingUri", () => {
       },
     );
 
-    it("ignores additional query parameters", () => {
+    it("keeps unknown query parameters and writes them back", () => {
       const uri = createUriString({ version: "1.0.0", data: ENCODED_PAIRING_DATA, extra: "1" });
 
-      expect(DesktopAutotypePairingUri.fromString(uri)?.data).toEqual(createPairingData());
+      const pairingUri = DesktopAutotypePairingUri.fromString(uri);
+
+      expect(pairingUri?.data).toEqual(createPairingData());
+      expect(pairingUri?.unknownParams).toEqual([["extra", "1"]]);
+      expect(pairingUri?.toString()).toBe(uri);
+    });
+
+    it("keeps repeated unknown query parameters in their original order", () => {
+      const uri = `desktopapp://autotype?b=1&version=1.0.0&a=2&data=${ENCODED_PAIRING_DATA}&b=3`;
+
+      const pairingUri = DesktopAutotypePairingUri.fromString(uri);
+
+      expect(pairingUri?.unknownParams).toEqual([
+        ["b", "1"],
+        ["a", "2"],
+        ["b", "3"],
+      ]);
+      // The version and data are written first
+      expect(pairingUri?.toString()).toBe(`${NOTEPAD_PAIRING_URI}&b=1&a=2&b=3`);
+    });
+
+    it.each(["a~b", "two words", "a&b=c", "Café 日本語 🚀", ""])(
+      "keeps the value '%s' of an unknown query parameter when it is written back",
+      (value) => {
+        const uri = createUriString({ version: "1.0.0", data: ENCODED_PAIRING_DATA, extra: value });
+
+        const writtenBack = DesktopAutotypePairingUri.fromString(uri)!.toString();
+
+        expect(DesktopAutotypePairingUri.fromString(writtenBack)?.unknownParams).toEqual([
+          ["extra", value],
+        ]);
+      },
+    );
+
+    it("uses the first version and data, and does not keep their repeats", () => {
+      const otherData = Utils.fromUtf8ToUrlB64(JSON.stringify(createPairingData("Other")));
+      const uri = `${NOTEPAD_PAIRING_URI}&version=2.0.0&data=${otherData}`;
+
+      const pairingUri = DesktopAutotypePairingUri.fromString(uri);
+
+      expect(pairingUri?.version).toBe("1.0.0");
+      expect(pairingUri?.data).toEqual(createPairingData());
+      expect(pairingUri?.unknownParams).toEqual([]);
+      expect(pairingUri?.toString()).toBe(NOTEPAD_PAIRING_URI);
     });
 
     it.each([
