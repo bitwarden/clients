@@ -223,6 +223,9 @@ export class AccessAuditComponent implements OnInit {
 
   protected readonly status = signal<AuditStatus>("loading");
 
+  /** Shows the skeleton and drives the `role="status"` announcement. */
+  protected readonly loading = computed(() => this.status() === "loading");
+
   /** Every page read so far for the filter in force, newest event first. */
   protected readonly rows = signal<AuditRow[]>([]);
 
