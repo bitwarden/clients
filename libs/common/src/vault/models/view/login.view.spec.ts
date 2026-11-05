@@ -1,6 +1,7 @@
 import { LoginView as SdkLoginView } from "@bitwarden/sdk-internal";
 
 import { mockFromJson, mockFromSdk } from "../../../../spec";
+import { Login } from "../domain/login";
 
 import { LoginUriView } from "./login-uri.view";
 import { LoginView } from "./login.view";
@@ -39,6 +40,7 @@ describe("LoginView", () => {
         uris: [{ uri: "bitwarden.com" } as any],
         totp: "totp",
         autofillOnPageLoad: true,
+        httpAuthenticationEnabled: true,
       } as SdkLoginView;
 
       const result = LoginView.fromSdkLoginView(sdkLoginView);
@@ -50,8 +52,22 @@ describe("LoginView", () => {
         uris: [expect.objectContaining({ uri: "bitwarden.com", __fromSdk: true })],
         totp: "totp",
         autofillOnPageLoad: true,
+        httpAuthenticationEnabled: true,
       });
     });
+
+    it("leaves the HTTP authentication setting unset when the SDK view has none", () => {
+      const result = LoginView.fromSdkLoginView({} as SdkLoginView);
+
+      expect(result.httpAuthenticationEnabled).toBeUndefined();
+    });
+  });
+
+  it("copies the HTTP authentication setting from a Login", () => {
+    const login = new Login();
+    login.httpAuthenticationEnabled = true;
+
+    expect(new LoginView(login).httpAuthenticationEnabled).toBe(true);
   });
 
   describe("toSdkLoginView", () => {
@@ -66,6 +82,19 @@ describe("LoginView", () => {
       expect(result.username).toBe("user");
       expect(result.password).toBe("pass");
       expect(result.totp).toBe("TOTP_SEED");
+    });
+
+    it.each([true, false])("should convert the HTTP authentication setting (%s)", (enabled) => {
+      const loginView = new LoginView();
+      loginView.httpAuthenticationEnabled = enabled;
+
+      expect(loginView.toSdkLoginView().httpAuthenticationEnabled).toBe(enabled);
+    });
+
+    it("should leave an unset HTTP authentication setting unset", () => {
+      const loginView = new LoginView();
+
+      expect(loginView.toSdkLoginView().httpAuthenticationEnabled).toBeUndefined();
     });
 
     it("should convert empty username and password to undefined", () => {

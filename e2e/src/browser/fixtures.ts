@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 
 import { BrowserContext, Page, chromium, expect, test as base } from "@playwright/test";
 
-import { pruneVideo, startTrace, stopTrace, videoDir } from "../artifacts";
+import { pruneVideo, videoDir } from "../artifacts";
 import { BROWSER_BUILD_DIR, E2E_STATE_DIR } from "../paths";
 import { IS_DEV_SERVER } from "../server";
 
@@ -160,12 +160,10 @@ export async function reachLoginPage(page: Page) {
 export const test = base.extend<{ context: BrowserContext; popup: Page }>({
   context: async ({ baseURL }, use, testInfo) => {
     const context = await launch(baseURL, videoDir(testInfo));
-    await startTrace(context);
     await enableDeveloperMode(context);
 
     await use(context);
 
-    await stopTrace(context, testInfo);
     await context.close();
     pruneVideo(testInfo);
   },

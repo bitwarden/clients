@@ -1,9 +1,9 @@
 import { PortalModule } from "@angular/cdk/portal";
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from "@angular/router";
 import { mockAccountServiceWith } from "@bitwarden/common/../spec/fake-account-service";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -40,11 +40,9 @@ import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   BulkEditCollectionAccessDialogRef,
 } from "../../tokens/bulk-edit-collection-access-dialog.token";
-import {
-  COLLECTION_DIALOG,
-  CollectionDialogRef,
-  CollectionDialogTab,
-} from "../../tokens/collection-dialog.token";
+import { COLLECTION_DIALOG, CollectionDialogRef } from "../../tokens/collection-dialog.token";
+import { SHARED_FOLDER_DECORATION } from "../../tokens/shared-folder-decoration.token";
+import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFolderRow } from "./shared-folder-rows";
@@ -66,6 +64,7 @@ type CollectionOverrides = {
   readOnly?: boolean;
   hidePasswords?: boolean;
   defaultCollection?: boolean;
+  gated?: boolean;
 };
 
 /** A collection with its branded ids relaxed, so a test can name a folder by a readable id. */
@@ -78,6 +77,7 @@ function collection(overrides: CollectionOverrides = {}): CollectionView {
     readOnly = false,
     hidePasswords = false,
     defaultCollection = false,
+    gated = false,
   } = overrides;
 
   const view = new CollectionView({
@@ -88,6 +88,7 @@ function collection(overrides: CollectionOverrides = {}): CollectionView {
   view.manage = manage;
   view.readOnly = readOnly;
   view.hidePasswords = hidePasswords;
+  view.hasEnabledAccessRule = gated;
   view.assigned = true;
   if (defaultCollection) {
     view.type = CollectionTypes.DefaultUserCollection;
@@ -147,7 +148,19 @@ type SetupOptions = {
     bulkDelete?: boolean;
     bulkEditAccess?: boolean;
   };
+  /** Whether the client provides a `SHARED_FOLDER_DECORATION`. */
+  decoration?: boolean;
 };
+
+/** Stands in for a host-provided folder decoration; renders the collection it received. */
+@Component({
+  selector: "test-shared-folder-decoration",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span>{{ collection().id }}</span>`,
+})
+class TestDecorationComponent {
+  readonly collection = input.required<CollectionView>();
+}
 
 /** Stands in for the layout's footer region, where the component renders its bulk actions bar. */
 @Component({
@@ -195,6 +208,7 @@ describe("SharedFoldersComponent", () => {
       organizations = [organization()],
       vaultId = ORGANIZATION_ID,
       dialogs = {},
+      decoration = false,
     } = options;
     const {
       collection: withCollectionDialog = true,
@@ -226,10 +240,6 @@ describe("SharedFoldersComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
         {
-          provide: StateProvider,
-          useValue: new FakeStateProvider(mockAccountServiceWith("user-1" as UserId)),
-        },
-        {
           provide: ActivatedRoute,
           useValue: { paramMap: of(convertToParamMap({ vaultId })) },
         },
@@ -241,8 +251,15 @@ describe("SharedFoldersComponent", () => {
           provide: CollectionService,
           useValue: { decryptedCollections$: () => collections$ },
         },
-        { provide: CipherService, useValue: { cipherListViews$: () => ciphers$ } },
+        {
+          provide: CipherService,
+          useValue: { cipherListViewsIncludingRestricted$: () => ciphers$ },
+        },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
+        {
+          provide: StateProvider,
+          useValue: new FakeStateProvider(mockAccountServiceWith("user-1" as UserId)),
+        },
         ...(withCollectionDialog
           ? [{ provide: COLLECTION_DIALOG, useValue: collectionDialog }]
           : []),
@@ -251,6 +268,9 @@ describe("SharedFoldersComponent", () => {
           : []),
         ...(withBulkEditAccessDialog
           ? [{ provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG, useValue: bulkEditAccessDialog }]
+          : []),
+        ...(decoration
+          ? [{ provide: SHARED_FOLDER_DECORATION, useValue: TestDecorationComponent }]
           : []),
       ],
     }).compileComponents();
@@ -394,6 +414,57 @@ describe("SharedFoldersComponent", () => {
       expect(component["loading"]()).toBe(false);
     });
 
+    // A gated folder must not read as empty: the count is what tells the member there is
+    // something in there worth requesting access to.
+    it("counts PAM-gated items, which reach it only through cipherListViewsIncludingRestricted$", async () => {
+      const withheld = Object.assign(cipher("gated", ["a"]), { partial: true });
+
+      await setup({
+        collections: [collection({ id: "a", name: "Engineering", gated: true })],
+        ciphers: [withheld, cipher("ungated", ["a"])],
+      });
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ items: 2 })]);
+    });
+
+    describe("the folder decoration (SHARED_FOLDER_DECORATION)", () => {
+      const decorations = () =>
+        fixture.debugElement.queryAll(By.directive(TestDecorationComponent));
+
+      it("renders no decoration when the client provides none", async () => {
+        await setup({ collections: [collection({ id: "a", name: "Engineering", gated: true })] });
+        fixture.detectChanges();
+
+        expect(decorations()).toHaveLength(0);
+        expect(fixture.debugElement.query(By.css("bit-icon.bwi-lock-encrypted"))).toBeNull();
+      });
+
+      it("renders the decoration once per row, with that row's collection", async () => {
+        const engineering = collection({ id: "a", name: "Engineering", gated: true });
+        const finance = collection({ id: "b", name: "Finance" });
+        await setup({ collections: [engineering, finance], decoration: true });
+        fixture.detectChanges();
+
+        const received = decorations().map(
+          (debug) => (debug.componentInstance as TestDecorationComponent).collection().id,
+        );
+        expect(received.sort()).toEqual(["a", "b"]);
+      });
+
+      it("sits next to the folder name, inside the link's own flex row", async () => {
+        await setup({
+          collections: [collection({ id: "a", name: "Engineering" })],
+          decoration: true,
+        });
+        fixture.detectChanges();
+
+        const decoration = decorations()[0];
+        const link = fixture.debugElement.query(By.css("[id^='shared-folders_link_name-']"));
+        expect(decoration.nativeElement.parentElement).toBe(link.nativeElement.parentElement);
+      });
+    });
+
     it("re-renders as the collections stream re-emits", async () => {
       await setup({ collections: [collection({ id: "a", name: "Engineering" })] });
       fixture.detectChanges();
@@ -417,7 +488,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       const links = fixture.debugElement
-        .queryAll(By.css("a[bitLink]"))
+        .queryAll(By.css("a[vaultTableRowName]"))
         .map((link) => (link.nativeElement as HTMLAnchorElement).getAttribute("href"));
 
       expect(links).toEqual([
@@ -918,6 +989,131 @@ describe("SharedFoldersComponent", () => {
     });
   });
 
+  describe("the controlled access toggle", () => {
+    async function setupMixed(): Promise<void> {
+      await setup({
+        collections: [
+          collection({ id: "a", name: "Engineering", gated: true }),
+          collection({ id: "b", name: "Finance" }),
+        ],
+      });
+      fixture.detectChanges();
+    }
+
+    function toggle(): HTMLElement | null {
+      return fixture.nativeElement.querySelector('bit-filter-toggle[key="controlledAccess"]');
+    }
+
+    it("is rendered when some folders are governed and some are not", async () => {
+      await setupMixed();
+
+      expect(toggle()).not.toBeNull();
+    });
+
+    it("is omitted when no folder is governed", async () => {
+      await setup({ collections: [collection({ id: "a" }), collection({ id: "b" })] });
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("is omitted when every folder is governed", async () => {
+      await setup({
+        collections: [collection({ id: "a", gated: true }), collection({ id: "b", gated: true })],
+      });
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("narrows to the governed folders when switched on", async () => {
+      await setupMixed();
+
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("is unfiltered when switched off", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      filterControl("controlledAccess").setValue(false);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toHaveLength(2);
+    });
+
+    it("flips on a click of the chip itself", async () => {
+      await setupMixed();
+
+      toggle()!.querySelector<HTMLButtonElement>("button")!.click();
+      fixture.detectChanges();
+
+      expect(filterControl("controlledAccess").active()).toBe(true);
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("intersects with the search term", async () => {
+      await setup({
+        collections: [
+          collection({ id: "a", name: "Engineering", gated: true }),
+          collection({ id: "b", name: "Engineering archive" }),
+          collection({ id: "c", name: "Finance", gated: true }),
+        ],
+      });
+      fixture.detectChanges();
+
+      searchControl().setValue("engineering");
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("is cleared by the empty state's Clear all", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#bit-table-toolbar_button_clear-all")!
+        .click();
+      fixture.detectChanges();
+
+      expect(filterControl("controlledAccess").active()).toBe(false);
+      expect(bitTable().filtered()).toHaveLength(2);
+    });
+
+    it("goes away once no folder is governed any more", async () => {
+      await setupMixed();
+      expect(toggle()).not.toBeNull();
+
+      collections$.next([collection({ id: "a", name: "Engineering" }), collection({ id: "b" })]);
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("leaves no narrowing behind when it goes away while switched on", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+      expect(bitTable().filtered()).toHaveLength(1);
+
+      collections$.next([
+        collection({ id: "a", name: "Engineering", gated: true }),
+        collection({ id: "b", name: "Finance", gated: true }),
+      ]);
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+      expect(bitTable().filtered()).toHaveLength(2);
+    });
+  });
+
   describe("row actions", () => {
     /**
      * Every row's Options menu trigger. Found by directive because `bitMenuTriggerFor` is bound,
@@ -940,8 +1136,11 @@ describe("SharedFoldersComponent", () => {
       return Array.from(document.querySelectorAll("[bitMenuItem]")).map((item) => item.id);
     }
 
-    it("keeps the options column for a client with no collection dialog", async () => {
-      await setup({ collections: [collection()], dialogs: { collection: false } });
+    it("keeps the options column for a client with neither dialog, since Pin needs none", async () => {
+      await setup({
+        collections: [collection()],
+        dialogs: { collection: false, bulkDelete: false },
+      });
       fixture.detectChanges();
 
       expect(
@@ -952,7 +1151,7 @@ describe("SharedFoldersComponent", () => {
       expect(menuTriggers()).toHaveLength(1);
     });
 
-    it("keeps the options column narrow and the options track flexible", async () => {
+    it("keeps the options column narrow and the items column fixed", async () => {
       await setup({ collections: [collection()] });
       fixture.detectChanges();
 
@@ -961,7 +1160,38 @@ describe("SharedFoldersComponent", () => {
       expect(menuTriggers()).toHaveLength(1);
     });
 
-    it("offers Pin to sidebar for a folder the member can neither edit nor delete", async () => {
+    it("keeps the options column for a client with only a bulk delete dialog, Delete-only", async () => {
+      await setup({ collections: [collection()], dialogs: { collection: false } });
+      fixture.detectChanges();
+
+      expect(menuTriggers()).toHaveLength(1);
+    });
+
+    it("binds each row's menu to that row's own collection, not another row's", async () => {
+      const folderA = collection({ id: "col-a", name: "Alpha" });
+      const folderB = collection({ id: "col-b", name: "Bravo" });
+      await setup({ collections: [folderA, folderB] });
+      fixture.detectChanges();
+
+      const menus = fixture.debugElement
+        .queryAll(By.directive(CollectionOptionsMenuComponent))
+        .map((debugEl) => debugEl.componentInstance as CollectionOptionsMenuComponent);
+      expect(menus).toHaveLength(2);
+
+      const menuForB = menus.find((menu) => menu.collection().id === "col-b");
+      if (!menuForB) {
+        throw new Error("No menu instance bound to col-b");
+      }
+
+      await menuForB["delete"]();
+
+      expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
+        organization: expect.objectContaining({ id: ORGANIZATION_ID }),
+        collections: [folderB],
+      });
+    });
+
+    it("offers only Pin to sidebar for a folder the member can neither edit nor delete", async () => {
       await setup({ collections: [collectionWith(SharedFolderPermission.View)] });
       fixture.detectChanges();
 
@@ -971,24 +1201,27 @@ describe("SharedFoldersComponent", () => {
       expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
     });
 
-    it("offers only Pin to sidebar to a client with no collection dialog", async () => {
+    it("offers only Pin to sidebar for a client with neither dialog", async () => {
       await setup({
         collections: [collectionWith(SharedFolderPermission.Manage)],
-        dialogs: { collection: false },
+        dialogs: { collection: false, bulkDelete: false },
       });
       fixture.detectChanges();
 
       expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
     });
 
-    it("offers only Pin to sidebar on desktop, which provides the bulk delete dialog but no collection dialog", async () => {
+    it("offers Pin to sidebar and Delete for a client with only a bulk delete dialog", async () => {
       await setup({
         collections: [collectionWith(SharedFolderPermission.Manage)],
         dialogs: { collection: false, bulkDelete: true },
       });
       fixture.detectChanges();
 
-      expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
+      expect(openMenuItemIds()).toEqual([
+        "shared-folders_menu-item_pin-col-1",
+        "shared-folders_menu-item_delete-col-1",
+      ]);
     });
 
     it("offers Edit and Access but not Delete when the organization limits collection deletion", async () => {
@@ -1017,6 +1250,15 @@ describe("SharedFoldersComponent", () => {
         "shared-folders_menu-item_access-col-1",
         "shared-folders_menu-item_delete-col-1",
       ]);
+    });
+
+    it("still projects into the cell's end slot for a folder the member can neither edit nor delete, for Pin", async () => {
+      // Scoped to `bit-row`, not the whole fixture — the toolbar's Add button also uses `slot="end"`.
+      await setup({ collections: [collectionWith(SharedFolderPermission.View)] });
+      fixture.detectChanges();
+
+      const rowElement = fixture.debugElement.query(By.css("bit-row")).nativeElement as HTMLElement;
+      expect(rowElement.querySelector("[slot=end]")).not.toBeNull();
     });
 
     /** Opens the first row's menu and clicks the item with `id`. */
@@ -1070,108 +1312,83 @@ describe("SharedFoldersComponent", () => {
       expect(pinItem?.textContent).toContain("pinToSidebar");
       expect(pinItem?.textContent).not.toContain("unpinFromSidebar");
     });
+  });
 
-    it("toasts after pinning, naming the folder", async () => {
+  describe("clicking a row cell", () => {
+    let navigate: jest.SpyInstance;
+
+    beforeEach(async () => {
       await setup({ collections: [collection({ id: "col-a", name: "Engineering" })] });
       fixture.detectChanges();
-
-      await clickMenuItem("shared-folders_menu-item_pin-col-a");
-
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "folderPinnedToSidebar:Engineering",
-      });
+      navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
     });
 
-    it("toasts after unpinning, naming the folder", async () => {
-      await setup({ collections: [collection({ id: "col-a", name: "Engineering" })] });
-      await pinnedSharedFolders.pin("user-1" as UserId, "col-a" as CollectionId);
-      fixture.detectChanges();
-
-      await clickMenuItem("shared-folders_menu-item_pin-col-a");
-
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "folderUnpinnedFromSidebar:Engineering",
-      });
-    });
-
-    it("does not toast before the pin has been written", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      fixture.detectChanges();
-      let finishPin!: () => void;
-      jest.spyOn(pinnedSharedFolders, "pin").mockReturnValue(
-        new Promise<void>((resolve) => {
-          finishPin = resolve;
-        }),
+    /** The `role="cell"` divs of the first body row, in column order. */
+    function firstRowCells(): HTMLElement[] {
+      return Array.from(
+        fixture.nativeElement.querySelector("bit-row").querySelectorAll("[role=cell]"),
       );
+    }
 
-      await clickMenuItem("shared-folders_menu-item_pin-col-a");
-      expect(toastService.showToast).not.toHaveBeenCalled();
+    /** Name, permissions and items — between the selection checkbox cell and the options cell. */
+    function firstRowDataCells(): HTMLElement[] {
+      return firstRowCells().slice(1, -1);
+    }
 
-      finishPin();
-      await fixture.whenStable();
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
+    function click(element: Element, init: MouseEventInit = {}) {
+      element.dispatchEvent(new MouseEvent("click", { bubbles: true, ...init }));
+    }
+
+    it("opens the shared folder from any data cell, not just the name link", () => {
+      const dataCells = firstRowDataCells();
+      expect(dataCells).toHaveLength(3);
+
+      for (const cell of dataCells) {
+        navigate.mockClear();
+        click(cell);
+        expect(navigate).toHaveBeenCalledTimes(1);
+        expect(navigate).toHaveBeenCalledWith([
+          "/vault",
+          ORGANIZATION_ID,
+          "shared-folders",
+          "col-a",
+        ]);
+      }
     });
 
-    it("does not toast before the unpin has been written", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      await pinnedSharedFolders.pin("user-1" as UserId, "col-a" as CollectionId);
-      fixture.detectChanges();
-      let finishUnpin!: () => void;
-      jest.spyOn(pinnedSharedFolders, "unpin").mockReturnValue(
-        new Promise<void>((resolve) => {
-          finishUnpin = resolve;
-        }),
-      );
+    it("leaves a click on the name link to the link itself", () => {
+      click(fixture.nativeElement.querySelector("#shared-folders_link_name-col-a"));
 
-      await clickMenuItem("shared-folders_menu-item_pin-col-a");
-      expect(toastService.showToast).not.toHaveBeenCalled();
-
-      finishUnpin();
-      await fixture.whenStable();
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
+      expect(navigate).not.toHaveBeenCalled();
     });
 
-    it("opens the collection dialog on the info tab to edit a folder", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      fixture.detectChanges();
+    it("leaves the selection checkbox to the selection", () => {
+      click(firstRowCells()[0].querySelector("input[type=checkbox]")!);
 
-      await clickMenuItem("shared-folders_menu-item_edit-col-a");
-
-      expect(collectionDialog.open).toHaveBeenCalledWith({
-        organizationId: ORGANIZATION_ID,
-        collectionId: "col-a",
-        initialTab: CollectionDialogTab.Info,
-      });
+      expect(navigate).not.toHaveBeenCalled();
     });
 
-    it("opens the collection dialog on the access tab to edit a folder's access", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      fixture.detectChanges();
+    it("opens the shared folder from blank space in the options cell", () => {
+      click(firstRowCells().at(-1)!);
 
-      await clickMenuItem("shared-folders_menu-item_access-col-a");
-
-      expect(collectionDialog.open).toHaveBeenCalledWith({
-        organizationId: ORGANIZATION_ID,
-        collectionId: "col-a",
-        initialTab: CollectionDialogTab.Access,
-      });
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(["/vault", ORGANIZATION_ID, "shared-folders", "col-a"]);
     });
 
-    it("deletes a folder through the bulk delete dialog, which owns the confirmation", async () => {
-      const folder = collection({ id: "col-a" });
-      await setup({ collections: [folder] });
-      fixture.detectChanges();
+    it("leaves the options menu trigger to the menu", () => {
+      click(fixture.debugElement.query(By.directive(MenuTriggerForDirective)).nativeElement);
 
-      await clickMenuItem("shared-folders_menu-item_delete-col-a");
+      expect(navigate).not.toHaveBeenCalled();
+    });
 
-      expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
-        organization: expect.objectContaining({ id: ORGANIZATION_ID }),
-        collections: [folder],
-      });
+    it("ignores modifier clicks so selection and browser gestures stay available", () => {
+      const cell = firstRowDataCells()[1];
+
+      for (const modifier of ["ctrlKey", "metaKey", "shiftKey", "altKey"]) {
+        click(cell, { [modifier]: true });
+      }
+
+      expect(navigate).not.toHaveBeenCalled();
     });
   });
 
