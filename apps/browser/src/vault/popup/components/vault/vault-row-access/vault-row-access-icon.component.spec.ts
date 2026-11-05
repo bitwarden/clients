@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { VaultRowAccessIconComponent } from "./vault-row-access-icon.component";
@@ -21,9 +22,10 @@ describe("VaultRowAccessIconComponent", () => {
     status$ = new BehaviorSubject<VaultRowAccessStatus | null>(null);
     await TestBed.configureTestingModule({
       imports: [VaultRowAccessIconComponent],
-      providers: provide
-        ? [{ provide: VAULT_ROW_ACCESS, useValue: { status$: () => status$ } }]
-        : [],
+      providers: [
+        { provide: I18nService, useValue: { t: (k: string) => k } },
+        ...(provide ? [{ provide: VAULT_ROW_ACCESS, useValue: { status$: () => status$ } }] : []),
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(VaultRowAccessIconComponent);
     fixture.componentRef.setInput("cipher", cipher);
@@ -43,6 +45,15 @@ describe("VaultRowAccessIconComponent", () => {
     fixture.detectChanges();
 
     expect(iconClasses()).toContain(icon);
+  });
+
+  it("titles the icon Privileged", async () => {
+    await setup();
+
+    status$.next({ kind: "request", label: "request", canExtend: false });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector("bit-icon").title).toBe("pamAccessBadgePrivileged");
   });
 
   it("renders nothing for an item privileged control does not govern", async () => {
