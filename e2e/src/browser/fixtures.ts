@@ -6,6 +6,7 @@ import { BrowserContext, CDPSession, Page, chromium, expect, test as base } from
 import { pruneVideo, videoDir } from "../artifacts";
 import { BROWSER_BUILD_DIR, E2E_STATE_DIR } from "../paths";
 import { IS_DEV_SERVER } from "../server";
+import { skipOnboardingDialogs } from "../web/onboarding";
 
 const PROFILE_DIR = resolve(E2E_STATE_DIR, "chrome-profile");
 const EXTENSION_SCHEME = "chrome-extension://";
@@ -175,8 +176,11 @@ export async function reopenPopup(
 /**
  * A fresh install walks through onboarding — the "make Bitwarden your default password
  * manager" prompt, then the intro carousel — before it offers the login page.
+ * Also arms the handlers for the modals that open over the vault after login.
  */
 export async function reachLoginPage(page: Page) {
+  await skipOnboardingDialogs(page);
+
   const email = page.getByTestId("login-email-input");
   const skipDefaultPrompt = page.locator(SKIP_DEFAULT_MANAGER_BUTTON);
   // Scoped to the carousel: the login page has a "Log in" button of its own.
