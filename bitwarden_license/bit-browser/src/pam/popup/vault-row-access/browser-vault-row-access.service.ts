@@ -239,12 +239,16 @@ export class BrowserVaultRowAccessService implements VaultRowAccess {
   /** A denied extension resolves rather than throws, so the returned status picks the toast. */
   async extendAccess(cipher: CipherViewLike): Promise<void> {
     const cipherId = cipher.id == null ? null : String(cipher.id);
-    const lease = cipherId == null ? undefined : await this.activeLease(cipherId);
-    if (cipherId == null || lease == null) {
+    const state =
+      cipherId == null ? null : await this.accessRequestSdkService.getCipherAccessState(cipherId);
+    const lease = state?.activeLease;
+    // The server sends a cap whenever extensions are allowed.
+    const maxDurationSeconds = state?.maxExtensionDurationSeconds;
+    if (cipherId == null || lease == null || maxDurationSeconds == null) {
       return;
     }
     const request = await firstValueFrom(
-      ExtendLeaseDialogComponent.open(this.dialogService).closed,
+      ExtendLeaseDialogComponent.open(this.dialogService, { maxDurationSeconds }).closed,
     );
     if (request == null) {
       return;
