@@ -22,7 +22,6 @@ import {
   copyRuleName,
   resolveCollectionNames,
   filterRulesToToggle,
-  sharedFolderKey,
 } from "@bitwarden/bit-pam";
 import {
   accessRuleDeactivateConfirmOptions,
@@ -62,7 +61,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AccessRulesService } from "../services/access-rules.service";
@@ -114,7 +112,6 @@ export class AccessRulesComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly terminology = inject(Vfo1TerminologyService);
 
   protected readonly loading = toSignal(this.accessRules.loading$, { initialValue: true });
   protected readonly collections = toSignal(this.accessRules.collections$, {
@@ -219,9 +216,7 @@ export class AccessRulesComponent {
     // Outside the try, so a failed navigation can't follow the success toast with an error.
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t(
-        sharedFolderKey("pamAccessRuleCopyCreated", this.terminology.enabled()),
-      ),
+      message: this.i18nService.t("pamAccessRuleCopyCreatedSharedFolder"),
     });
     // `renaming` opens the edit page with the name field focused.
     await this.router.navigate([created.id], {
@@ -280,9 +275,7 @@ export class AccessRulesComponent {
   };
 
   protected readonly remove = async (rule: AccessRuleView): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog(
-      accessRuleDeleteConfirmOptions(this.terminology.enabled()),
-    );
+    const confirmed = await this.dialogService.openSimpleDialog(accessRuleDeleteConfirmOptions());
     if (!confirmed) {
       return;
     }
@@ -389,9 +382,7 @@ export class AccessRulesComponent {
   private showError(e: unknown): void {
     this.toastService.showToast({
       variant: "error",
-      message: this.i18nService.t(
-        sharedFolderKey(accessRuleErrorMessageKey(e), this.terminology.enabled()),
-      ),
+      message: this.i18nService.t(accessRuleErrorMessageKey(e)),
     });
   }
 }
