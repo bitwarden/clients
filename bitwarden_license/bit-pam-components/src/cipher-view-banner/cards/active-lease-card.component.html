@@ -1,34 +1,20 @@
 <bit-card data-testid="cipher-view-banner-active">
   <div class="tw-flex tw-flex-col tw-gap-4">
-    <div class="tw-flex tw-items-start tw-gap-2">
-      <bit-icon-tile
-        [icon]="endingSoon() ? badgeLook.endingSoon.icon : badgeLook.active.icon"
-        [variant]="endingSoon() ? 'danger' : 'teal'"
-        size="base"
-      />
-      <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-text-fg-body">
-        @if (endingSoon()) {
-          <h3
-            bitTypography="body2"
-            class="tw-m-0 tw-font-medium tw-text-fg-heading"
-            data-testid="active-lease-ending-soon"
-          >
-            {{ "pamActiveLeaseBannerEndingSoonTitleV2" | i18n: remainingLabel() }}
-          </h3>
-        } @else {
-          <h3
-            bitTypography="body2"
-            class="tw-m-0 tw-font-medium tw-text-fg-heading"
-            data-testid="active-lease-countdown"
-          >
-            {{ "pamActiveLeaseBannerTitleV2" | i18n: remainingLabel() }}
-          </h3>
-        }
-        <span bitTypography="helper" class="tw-text-fg-body" data-testid="active-lease-ends-at">
-          {{ expiryLabel() }}
+    <app-pam-banner-card-header
+      [icon]="endingSoon() ? badgeLook.endingSoon.icon : badgeLook.active.icon"
+      [variant]="endingSoon() ? 'danger' : 'teal'"
+    >
+      @if (endingSoon()) {
+        <span slot="title" data-testid="active-lease-ending-soon">
+          {{ "pamActiveLeaseBannerEndingSoonTitleV2" | i18n: remainingLabel() }}
         </span>
-      </div>
-    </div>
+      } @else {
+        <span slot="title" data-testid="active-lease-countdown">
+          {{ "pamActiveLeaseBannerTitleV2" | i18n: remainingLabel() }}
+        </span>
+      }
+      <span slot="description" data-testid="active-lease-ends-at">{{ expiryLabel() }}</span>
+    </app-pam-banner-card-header>
 
     @if (!endingSoon()) {
       <div class="tw-flex tw-items-center tw-gap-2" data-testid="active-lease-actions">
