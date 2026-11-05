@@ -119,13 +119,13 @@ import {
   DefaultAccountSwitcherService,
 } from "@bitwarden/common/auth/account-switcher";
 import {
-  AuthRequestApiServiceAbstraction,
-  DefaultAuthRequestApiService,
-} from "@bitwarden/common/auth/auth-request-api";
-import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService, LogoutReason, LogoutService } from "@bitwarden/common/auth/logout";
 import {
   NoopOrganizationInviteService,

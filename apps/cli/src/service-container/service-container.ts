@@ -37,7 +37,7 @@ import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from 
 import {
   AuthRequestApiServiceAbstraction,
   DefaultAuthRequestApiService,
-} from "@bitwarden/common/auth/auth-request-api";
+} from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService } from "@bitwarden/common/auth/logout";
 import {
   DefaultPasswordPreloginService,

@@ -5,7 +5,7 @@ import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestApiServiceAbstraction } from "@bitwarden/common/auth/auth-request-api";
+import { AuthRequestApiServiceAbstraction } from "@bitwarden/common/auth/login-via-auth-request";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";

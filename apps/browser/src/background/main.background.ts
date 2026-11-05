@@ -61,12 +61,12 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   AuthRequestApiServiceAbstraction,
   DefaultAuthRequestApiService,
-} from "@bitwarden/common/auth/auth-request-api";
-import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+} from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService, LogoutReason } from "@bitwarden/common/auth/logout";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";

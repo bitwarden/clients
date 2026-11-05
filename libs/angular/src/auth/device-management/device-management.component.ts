@@ -10,7 +10,7 @@ import {
   DeviceResponse,
 } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
-import { AuthRequestApiServiceAbstraction } from "@bitwarden/common/auth/auth-request-api";
+import { AuthRequestApiServiceAbstraction } from "@bitwarden/common/auth/login-via-auth-request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
