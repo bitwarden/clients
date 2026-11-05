@@ -122,6 +122,22 @@ describe("VaultComponent openImport", () => {
       expect(router.navigate).not.toHaveBeenCalled();
     });
 
+    it("opens the legacy import dialog on the folder when viewing one", async () => {
+      await openImport({
+        importUpgrade: false,
+        vfo1: true,
+        scope: { type: VaultScopeType.Folder, folderId: sharedFolderId },
+      });
+
+      expect(dialogService.open).toHaveBeenCalledWith(ImportDesktopComponent, {
+        data: {
+          defaultOrganizationId: undefined,
+          defaultCollectionId: undefined,
+          defaultFolderId: sharedFolderId,
+        },
+      });
+    });
+
     it("opens the legacy import dialog with no scope without the new vault layout", async () => {
       await openImport({ importUpgrade: false, vfo1: false, scope: organizationScope() });
 

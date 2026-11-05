@@ -25,6 +25,8 @@ interface ImportDesktopDialogData {
   defaultOrganizationId?: string;
   /** Pre-selects a collection in the import form; only applied when defaultOrganizationId is also set */
   defaultCollectionId?: string;
+  /** Pre-selects a folder in the import form when the personal vault is the destination */
+  defaultFolderId?: string;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
