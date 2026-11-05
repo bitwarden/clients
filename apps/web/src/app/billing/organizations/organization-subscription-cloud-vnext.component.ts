@@ -370,7 +370,9 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
   /**
    * With PAM billing support off, Privileged Controls is sold only through sales: an organization that has it
-   * sees a "Contact sales" call to action, with its seats when the subscription carries them.
+   * sees a "Contact sales" call to action, with its seats when the subscription carries them. Unlike the
+   * self-serve sections, this block is read-only, so it stays visible on a cancelled or pending-cancellation
+   * subscription and the organization can still reach sales.
    */
   readonly showPrivilegedControlsContactSalesToChange = computed(() => {
     const org = this.organization();

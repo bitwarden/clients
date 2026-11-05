@@ -1097,7 +1097,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         ).toBeNull();
         expect(seatsElement().textContent).toContain("7");
         expect(seatLimitElement().textContent).toContain("9");
-        const link = changeElement().querySelector("a");
+        const link = fixture.nativeElement.querySelector(
+          "#organization-subscription-cloud-vnext_button_privileged-controls-contact-sales-change",
+        );
         expect(link.getAttribute("href")).toBe("https://bitwarden.com/contact/");
         expect(link.getAttribute("target")).toBe("_blank");
         expect(changeElement().textContent).toContain("privilegedControlsChangeThroughSales");
@@ -1143,6 +1145,24 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         expect(changeElement().querySelector("a")).not.toBeNull();
         expect(seatsElement()).toBeNull();
         expect(seatLimitElement()).toBeNull();
+      });
+
+      it("keeps the Contact sales link when the subscription is pending cancellation", async () => {
+        setPamBillingSupport(false);
+
+        await render({
+          subscription: enterpriseSubscription({
+            subscription: {
+              cancelled: false,
+              cancelAtEndDate: true,
+              status: "active",
+              items: [],
+            } as any,
+          }),
+        });
+
+        expect(component.showPrivilegedControlsContactSalesToChange()).toBe(true);
+        expect(changeElement()).not.toBeNull();
       });
 
       it("does not offer to add Privileged Controls", async () => {
@@ -1191,7 +1211,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         await render({ organization: withoutPrivilegedControls() });
 
         expect(component.showPrivilegedControlsContactSalesToAdd()).toBe(true);
-        const link = addElement().querySelector("a");
+        const link = fixture.nativeElement.querySelector(
+          "#organization-subscription-cloud-vnext_button_privileged-controls-contact-sales-add",
+        );
         expect(link.getAttribute("href")).toBe("https://bitwarden.com/contact/");
         expect(link.getAttribute("target")).toBe("_blank");
         expect(addElement().textContent).toContain("privilegedControlsAddThroughSales");

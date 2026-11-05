@@ -85,7 +85,10 @@ export class CompleteTrialInitiationComponent {
    */
   includesPrivilegedControls = false;
 
-  /** True when a self-serve link asked for Privileged Controls while the PAM-billing flag is off. */
+  /**
+   * True when the link asked for Privileged Controls but it cannot be included (no self-serve path and not a
+   * no-payment sales invitation) while the PAM-billing flag is off.
+   */
   showPrivilegedControlsSalesCallout = false;
 
   orgInfoSubLabel = "";
@@ -209,8 +212,7 @@ export class CompleteTrialInitiationComponent {
   async orgNameEntrySubmit(): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    /** Skip payment if paymentOptional from URL and trialLength > 0 */
-    if (this.paymentOptional && this.trialLength > 0) {
+    if (this.startsWithoutPayment(this.paymentOptional, this.trialLength)) {
       await this.createOrganizationOnTrial(activeUserId);
     } else {
       await this.conditionallyCreateOrganization(activeUserId);
@@ -436,6 +438,11 @@ export class CompleteTrialInitiationComponent {
       });
   }
 
+  /** A trial skips the payment step, and is created without a payment method, when the link allows it. */
+  private startsWithoutPayment(paymentOptional: boolean, trialLength: number): boolean {
+    return paymentOptional && trialLength > 0;
+  }
+
   private applyPrivilegedControls(params: TrialInitiationParams): void {
     const requested =
       this.product === ProductType.PasswordManager &&
@@ -444,7 +451,8 @@ export class CompleteTrialInitiationComponent {
     // Only the no-payment sales path sends the sales-assisted initiation path the server honors.
     // Sales sells Privileged Controls at GA, so a sales invitation includes it whatever the flags.
     const fromSalesInvitation =
-      !!params.salesAssistedToken && params.paymentOptional && params.trialLength > 0;
+      !!params.salesAssistedToken &&
+      this.startsWithoutPayment(params.paymentOptional, params.trialLength);
 
     this.includesPrivilegedControls =
       requested && (fromSalesInvitation || this.privilegedControlsSelfServe);
