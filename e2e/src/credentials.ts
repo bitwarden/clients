@@ -65,20 +65,23 @@ function parse(contents: string): Map<string, Record<string, string>> {
  * CI passes it in. Otherwise reads the account named by `E2E_ACCOUNT` from the credentials file.
  */
 export function account(): Account {
-  return fromEnv() ?? fromFile();
+  return fromEnv("E2E") ?? fromFile();
 }
 
-/** All three variables, or none: a partial set is a misconfigured job, not a fallback. */
-function fromEnv(): Account | undefined {
-  const { E2E_EMAIL: email, E2E_PASSWORD: password, E2E_SERVER: server } = process.env;
-  const values = [email, password, server];
+/**
+ * All three variables, or none: a partial set is a misconfigured job, not a fallback.
+ * `prefix` selects the set, e.g. `E2E` reads `E2E_EMAIL`, `E2E_PASSWORD` and `E2E_SERVER`.
+ */
+function fromEnv(prefix: string): Account | undefined {
+  const names = ["EMAIL", "PASSWORD", "SERVER"].map((key) => `${prefix}_${key}`);
+  const [email, password, server] = names.map((name) => process.env[name]);
 
-  if (values.every((value) => !value)) {
+  if (!email && !password && !server) {
     return undefined;
   }
 
   if (!email || !password || !server) {
-    throw new Error("Set all of E2E_EMAIL, E2E_PASSWORD and E2E_SERVER, or none.");
+    throw new Error(`Set all of ${names.join(", ")}, or none.`);
   }
 
   return { email, password, server: vaultUrl(server) };
@@ -89,9 +92,14 @@ function fromFile(): Account {
   return readAccount(process.env.E2E_ACCOUNT ?? DEFAULT_ACCOUNT);
 }
 
-/** Reads the account named by `E2E_SECOND_ACCOUNT`, for tests that need two accounts. */
+/**
+ * Reads the account from `E2E_SECOND_EMAIL`, `E2E_SECOND_PASSWORD` and `E2E_SECOND_SERVER` when
+ * set. Otherwise reads the account named by `E2E_SECOND_ACCOUNT`. For tests that need two accounts.
+ */
 export function secondAccount(): Account {
-  return readAccount(process.env.E2E_SECOND_ACCOUNT ?? DEFAULT_SECOND_ACCOUNT);
+  return (
+    fromEnv("E2E_SECOND") ?? readAccount(process.env.E2E_SECOND_ACCOUNT ?? DEFAULT_SECOND_ACCOUNT)
+  );
 }
 
 function readAccount(name: string): Account {
