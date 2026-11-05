@@ -1670,16 +1670,21 @@ describe("Cipher Service", () => {
       const mockCipherView2 = new CipherView();
       mockCipherView2.name = "Test Cipher 2";
 
-      const sdkServiceSpy = jest
-        .spyOn(cipherSdkService, "temporary_get_all_decrypted")
-        .mockResolvedValue({
-          successes: [mockCipherView1, mockCipherView2],
-          failures: [],
-        });
+      jest
+        .spyOn(cipherService, "ciphers$")
+        .mockReturnValue(
+          of({ a: { ...cipherData, id: "a" }, b: { ...cipherData, id: "b" } } as Record<
+            CipherId,
+            CipherData
+          >),
+        );
+      cipherEncryptionService.decrypt
+        .mockResolvedValueOnce(mockCipherView1)
+        .mockResolvedValueOnce(mockCipherView2);
 
       const result = await cipherService.getAllDecrypted(mockUserId);
 
-      expect(sdkServiceSpy).toHaveBeenCalledWith(expect.any(Array), mockUserId);
+      expect(cipherEncryptionService.decrypt).toHaveBeenCalledTimes(2);
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
       expect(result[1]).toBeInstanceOf(CipherView);
@@ -1694,7 +1699,7 @@ describe("Cipher Service", () => {
         .getFake(mockUserId, DECRYPTED_CIPHERS)
         .nextState({ [cachedView.id]: cachedView });
 
-      const sdkServiceSpy = jest.spyOn(cipherSdkService, "temporary_get_all_decrypted");
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted");
 
       const result = await cipherService.getAllDecrypted(mockUserId);
 
@@ -1891,10 +1896,10 @@ describe("Cipher Service", () => {
       const sdkView = new CipherView();
       sdkView.id = cipherId;
       sdkView.localData = undefined;
-      cipherSdkService.temporary_get_all_decrypted.mockResolvedValue({
-        successes: [sdkView],
-        failures: [],
-      });
+      jest
+        .spyOn(cipherService, "ciphers$")
+        .mockReturnValue(of({ [cipherId]: { ...cipherData, id: cipherId } }));
+      cipherEncryptionService.decrypt.mockResolvedValue(sdkView);
 
       const [result] = await cipherService.getAllDecrypted(userId);
 
@@ -1909,10 +1914,10 @@ describe("Cipher Service", () => {
 
       const sdkView = new CipherView();
       sdkView.id = cipherId;
-      cipherSdkService.temporary_get_all_decrypted.mockResolvedValue({
-        successes: [sdkView],
-        failures: [],
-      });
+      jest
+        .spyOn(cipherService, "ciphers$")
+        .mockReturnValue(of({ [cipherId]: { ...cipherData, id: cipherId } }));
+      cipherEncryptionService.decrypt.mockResolvedValue(sdkView);
 
       const result = await cipherService.getAllDecrypted(userId);
 

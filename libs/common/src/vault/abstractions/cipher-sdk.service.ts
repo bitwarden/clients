@@ -312,18 +312,6 @@ export abstract class CipherSdkService {
   abstract getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult>;
 
   /**
-   * Temporary: decrypts the given ciphers one SDK call at a time, to bound SDK memory.
-   *
-   * @param ciphers The encrypted ciphers to decrypt
-   * @param userId The user ID to use for SDK client
-   * @returns A promise that resolves to the decrypt result containing successes and failures
-   */
-  abstract temporary_get_all_decrypted(
-    ciphers: Cipher[],
-    userId: UserId,
-  ): Promise<DecryptAllCiphersResult>;
-
-  /**
    * Fetches all ciphers for an organization from the API using the SDK.
    * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
    *

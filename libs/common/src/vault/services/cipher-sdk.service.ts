@@ -540,38 +540,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     );
   }
 
-  async temporary_get_all_decrypted(
-    ciphers: Cipher[],
-    userId: UserId,
-  ): Promise<DecryptAllCiphersResult> {
-    return await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          using ref = sdk.take();
-          const sdkCiphersClient = ref.value.vault().ciphers();
-
-          // Serial: WebAssembly memory grows to the largest call and never shrinks.
-          const result: DecryptAllCiphersResult = { successes: [], failures: [] };
-          for (const cipher of ciphers) {
-            const decryptResult = await sdkCiphersClient.decrypt_list_full_with_failures([
-              cipher.toSdkCipher(),
-            ]);
-
-            const { successes, failures } = this.toDecryptAllCiphersResult(decryptResult);
-            result.successes.push(...successes);
-            result.failures.push(...failures);
-          }
-
-          return result;
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to decrypt ciphers: ${error}`);
-          throw error;
-        }),
-      ),
-    );
-  }
-
   async getAllFromApiForOrganization(
     organizationId: string,
     userId: UserId,
