@@ -1,4 +1,4 @@
-import { DOCUMENT } from "@angular/common";
+import { DOCUMENT, NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,6 +6,7 @@ import {
   ElementRef,
   Injector,
   Signal,
+  afterRenderEffect,
   computed,
   contentChildren,
   effect,
@@ -30,19 +31,26 @@ import {
   FilterDialogParams,
 } from "../../filter-menu/filter-dialog.component";
 import { FILTER_PRESENTER, selectionCount } from "../../filter-menu/filter-tokens";
+import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
 import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
+import { MenuModule } from "../../menu";
 import {
   OverflowItemDirective,
   OverflowListDirective,
   OverflowTriggerDirective,
+  measureWidth,
   observedWidth,
 } from "../../overflow-list";
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { BREAKPOINTS } from "../../utils/responsive-utils";
 
 import { TableRowRange } from "./bit-table-paginator.component";
+import { BitTableToolbarActionComponent } from "./bit-table-toolbar-action.component";
 import { BitTableV2Component } from "./table-v2.component";
+
+/** The narrowest the search gets before actions collapse into the overflow menu. */
+const SEARCH_MIN_REM = 12;
 
 /**
  * Toolbar for `bit-table-v2`. Project a `<bit-search>` (its own slot), filter chips,
@@ -54,10 +62,13 @@ import { BitTableV2Component } from "./table-v2.component";
   templateUrl: "./bit-table-toolbar.component.html",
   imports: [
     I18nPipe,
+    NgTemplateOutlet,
     IconButtonModule,
     BerryComponent,
     ChipGroupComponent,
     ButtonModule,
+    IconComponent,
+    MenuModule,
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
@@ -153,7 +164,7 @@ export class BitTableToolbarComponent {
   private readonly projectedItems = contentChildren(OverflowItemDirective, { descendants: true });
 
   /** Overflow items declared in this template (the "Clear all" button). */
-  private readonly localItems = viewChildren(OverflowItemDirective);
+  private readonly localItems = viewChildren("clearAllButton", { read: OverflowItemDirective });
 
   /**
    * Everything competing for the chip row, in DOM order. Passed to `bitOverflowList`
@@ -164,7 +175,7 @@ export class BitTableToolbarComponent {
     ...this.localItems(),
   ]);
 
-  private readonly overflowList = viewChild(OverflowListDirective);
+  private readonly overflowList = viewChild("filterRow", { read: OverflowListDirective });
   private readonly filterRowEl = viewChild<ElementRef<HTMLElement>>("filterRow");
   private readonly filterChipsEl = viewChild("filterChips", { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);
@@ -289,10 +300,66 @@ export class BitTableToolbarComponent {
     "tw-items-center",
     "tw-gap-3",
     "empty:tw-hidden",
-    ...(this.wide() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
+    ...(this.wide() ? (this.hasActions() ? [] : ["tw-ms-auto"]) : ["tw-w-full", "[&>*]:tw-flex-1"]),
   ]);
 
+  /** Actions declared with `bit-table-toolbar-action`. */
+  protected readonly actions = contentChildren(BitTableToolbarActionComponent);
+
+  /** Customize takes the first place in the action row when the table offers it. */
+  protected readonly actionOffset = computed(() => (this.canCustomizeColumns() ? 1 : 0));
+
+  protected readonly hasActions = computed(
+    () => this.actionOffset() > 0 || this.actions().length > 0,
+  );
+
+  private readonly actionList = viewChild("actionList", { read: OverflowListDirective });
+
+  protected readonly actionListReady = computed(() => this.actionList()?.ready() ?? false);
+
+  protected readonly overflowedActions = computed(() => this.actionList()?.overflow() ?? []);
+
+  private readonly searchRow = viewChild.required<ElementRef<HTMLElement>>("searchRow");
+  private readonly searchRowWidth = observedWidth(() => this.searchRow());
+  private readonly endSlot = viewChild.required<ElementRef<HTMLElement>>("endSlot");
+  private readonly endSlotWidth = observedWidth(() => this.endSlot());
+
+  /**
+   * The width, in px, the action row may use: what's left beside the search at its minimum
+   * width. Passed in because the row sizes to its content. 0 means unmeasured.
+   */
+  protected readonly actionBudget = signal(0);
+
   constructor() {
+    afterRenderEffect(() => {
+      const rowWidth = this.searchRowWidth();
+      // Narrow, the `slot=end` controls wrap to their own row.
+      const endWidth = this.wide() ? this.endSlotWidth() : 0;
+      const trigger = this.showFilterTrigger() ? this.filterButton()?.nativeElement : undefined;
+      if (rowWidth === 0) {
+        this.actionBudget.set(0);
+        return;
+      }
+      const gap = parseFloat(getComputedStyle(this.searchRow().nativeElement).columnGap) || 0;
+      const rem = parseFloat(getComputedStyle(this.document.documentElement).fontSize) || 16;
+      const used =
+        SEARCH_MIN_REM * rem +
+        gap +
+        (trigger ? measureWidth(trigger) + gap : 0) +
+        (endWidth ? endWidth + gap : 0);
+      // At least 1: the overflow list reads a non-positive width as unmeasured.
+      this.actionBudget.set(Math.max(1, rowWidth - used));
+    });
+
+    // Labels and icons change in place, which the overflow list doesn't remeasure on its own.
+    effect(() => {
+      for (const action of this.actions()) {
+        action.label();
+        action.icon();
+      }
+      this.actionList()?.remeasure();
+    });
+
     // Chips and the item count change width in place — a chip's label grows to
     // "Type: Login", the count gains a digit (and its width is what the row reserves
     // for the trigger). `bitOverflowList` only remeasures when the item set changes,

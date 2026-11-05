@@ -9,6 +9,7 @@ import {
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTablePaginatorComponent,
+  BitTableToolbarActionComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
   defineTable,
@@ -62,6 +63,7 @@ const PRODUCT_ROWS: ProductRow[] = [
     BitHeaderCellComponent,
     BitCellComponent,
     BitTableToolbarComponent,
+    BitTableToolbarActionComponent,
     BitTablePaginatorComponent,
     FilterMenuModule,
     IconTileComponent,
@@ -71,9 +73,23 @@ const PRODUCT_ROWS: ProductRow[] = [
     <bit-table-v2 [tableDef]="table" [filter]="filter">
       <bit-table-toolbar>
         <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
-        <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
-          Add
-        </button>
+        <bit-table-toolbar-action
+          label="Import from another app"
+          icon="bwi-download"
+          [action]="noop"
+        ></bit-table-toolbar-action>
+        <bit-table-toolbar-action
+          label="Export all items"
+          icon="bwi-upload"
+          [action]="noop"
+        ></bit-table-toolbar-action>
+        <bit-table-toolbar-action
+          label="Add new item"
+          icon="bwi-plus"
+          buttonType="primary"
+          pinned
+          [action]="noop"
+        ></bit-table-toolbar-action>
 
         <bit-filter-menu key="user" placeholderText="User" unsetLabel="All">
           @for (user of users; track user) {
@@ -132,6 +148,8 @@ export class KitchenSinkTableV2Component {
   protected readonly table = defineTable<ProductRow, "actions">(signal(PRODUCT_ROWS));
 
   protected readonly pageSizeOptions = [5, 10, 25];
+
+  protected readonly noop = () => {};
 
   protected readonly users = [...new Set(PRODUCT_ROWS.map((row) => row.user))];
 

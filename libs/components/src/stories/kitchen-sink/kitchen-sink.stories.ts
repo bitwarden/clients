@@ -76,6 +76,7 @@ export default {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
+              additionalActions: "Additional actions",
               close: "Close",
               search: "Search",
               selectPlaceholder: "-- Select --",

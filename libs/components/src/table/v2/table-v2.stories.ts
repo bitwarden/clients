@@ -50,6 +50,7 @@ import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent, type TableRowRange } from "./bit-table-paginator.component";
+import { BitTableToolbarActionComponent } from "./bit-table-toolbar-action.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 import { TableDef, defineTable } from "./table-def";
 import { BitTableV2Component } from "./table-v2.component";
@@ -1157,6 +1158,7 @@ export default {
         BitRowComponent,
         BitRowGroupComponent,
         BitTableToolbarComponent,
+        BitTableToolbarActionComponent,
         BitTablePaginatorComponent,
         BitCellLoadingDirective,
         SkeletonTextComponent,
@@ -1564,6 +1566,52 @@ export const CustomizeColumns: Story = {
   render: () => ({
     props: { table: basicTable },
     template: customizeColumnsTemplate,
+  }),
+};
+
+const toolbarActionsTemplate = (width: string) => `
+  <div style="width: ${width}">
+    <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
+      <bit-table-toolbar>
+        <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+        <bit-table-toolbar-action label="Import from another app" icon="bwi-download" [action]="noop"></bit-table-toolbar-action>
+        <bit-table-toolbar-action label="Export all items" icon="bwi-upload" [action]="noop"></bit-table-toolbar-action>
+        <bit-table-toolbar-action label="Add new item" icon="bwi-plus" buttonType="primary" [action]="noop"></bit-table-toolbar-action>
+      </bit-table-toolbar>
+      <bit-column sortable>
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+      <bit-column removable label="Other" sortable>
+        <bit-header-cell>Other</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  </div>
+`;
+
+/**
+ * Actions declared with `bit-table-toolbar-action` sit beside the search. Customize joins them, and
+ * whatever doesn't fit beside the search collapses into the "Additional actions" menu.
+ */
+export const ToolbarActions: Story = {
+  render: () => ({
+    props: { table: basicTable, noop: () => {} },
+    template: toolbarActionsTemplate("100%"),
+  }),
+};
+
+export const ToolbarActionsNarrow: Story = {
+  render: () => ({
+    props: { table: basicTable, noop: () => {} },
+    template: toolbarActionsTemplate("40rem"),
+  }),
+};
+
+export const ToolbarActionsMobile: Story = {
+  render: () => ({
+    props: { table: basicTable, noop: () => {} },
+    template: toolbarActionsTemplate("24rem"),
   }),
 };
 
