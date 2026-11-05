@@ -1,13 +1,7 @@
 import { Observable, catchError, firstValueFrom, from, shareReplay } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { fromSdkKdfConfig } from "@bitwarden/legacy-crypto";
-import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
-
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
-import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 
@@ -92,9 +86,6 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
   private async fetchPreloginDataFromSdk(email: string): Promise<PasswordPreloginData> {
     const client = await firstValueFrom(this.sdkService.client$);
     const loginClient = client.auth().login();
-    const sdkResponse: SdkPasswordPreloginResponse = await loginClient.get_password_prelogin(email);
-    const kdfConfig = fromSdkKdfConfig(sdkResponse.kdf);
-    kdfConfig.validateKdfConfigForPrelogin();
-    return new PasswordPreloginData(kdfConfig, sdkResponse.salt as MasterPasswordSalt);
+    return PasswordPreloginData.fromSdk(await loginClient.get_password_prelogin(email));
   }
 }

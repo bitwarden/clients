@@ -1,6 +1,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/legacy-crypto";
+import { KdfConfig, fromSdkKdfConfig } from "@bitwarden/legacy-crypto";
+import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 
@@ -32,5 +33,16 @@ export class PasswordPreloginData {
     const kdfConfig = response.kdfSettings.toKdfConfig();
     kdfConfig.validateKdfConfigForPrelogin();
     return new PasswordPreloginData(kdfConfig, salt);
+  }
+
+  /**
+   * Creates a PasswordPreloginData instance from the SDK's prelogin response, rejecting KDF
+   * settings below the pre-login minimums.
+   * @param response The SDK prelogin response. Its salt is used as-is.
+   */
+  static fromSdk(response: SdkPasswordPreloginResponse): PasswordPreloginData {
+    const kdfConfig = fromSdkKdfConfig(response.kdf);
+    kdfConfig.validateKdfConfigForPrelogin();
+    return new PasswordPreloginData(kdfConfig, response.salt as MasterPasswordSalt);
   }
 }

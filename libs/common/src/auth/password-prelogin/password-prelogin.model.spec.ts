@@ -1,6 +1,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 
@@ -160,6 +161,106 @@ describe("PasswordPreloginData", () => {
       expect(() => new PasswordPreloginResponse({})).toThrow(
         "KDF config response does not contain a valid KDF type",
       );
+    });
+  });
+
+  describe("fromSdk", () => {
+    const sdkResponse = (kdf: SdkPasswordPreloginResponse["kdf"]): SdkPasswordPreloginResponse => ({
+      kdf,
+      salt,
+    });
+
+    it.each([
+      {
+        description: "PBKDF2",
+        kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
+        expected: new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+      },
+      {
+        description: "Argon2",
+        kdf: {
+          argon2id: {
+            iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            memory: Argon2KdfConfig.MEMORY.defaultValue,
+            parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+        },
+        expected: new Argon2KdfConfig(
+          Argon2KdfConfig.ITERATIONS.defaultValue,
+          Argon2KdfConfig.MEMORY.defaultValue,
+          Argon2KdfConfig.PARALLELISM.defaultValue,
+        ),
+      },
+    ])("maps a $description response to a PasswordPreloginData", ({ kdf, expected }) => {
+      const result = PasswordPreloginData.fromSdk(sdkResponse(kdf));
+
+      expect(result).toEqual(new PasswordPreloginData(expected, salt));
+    });
+
+    it("does not normalize the salt", () => {
+      // LegacyCompatKeyService.makeMasterKey trims and lower-cases the salt before deriving, so
+      // the model hands over exactly what the SDK returned.
+      const unnormalized = "  MiXeD.Case@Example.Com  ";
+
+      const result = PasswordPreloginData.fromSdk({
+        kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
+        salt: unnormalized,
+      });
+
+      expect(result.salt).toBe(unnormalized);
+    });
+
+    // Pre-login downgrade guard. A server offering sub-minimum KDF settings would make the
+    // master password cheap to brute force, so mapping must reject before any derivation.
+    it.each([
+      {
+        description: "PBKDF2 iterations below minimum",
+        kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 } },
+        expectedError: new RegExp(
+          `PBKDF2 iterations must be at least ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
+        ),
+      },
+      {
+        description: "Argon2 iterations below minimum",
+        kdf: {
+          argon2id: {
+            iterations: Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
+            memory: Argon2KdfConfig.MEMORY.defaultValue,
+            parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+        },
+        expectedError: new RegExp(
+          `Argon2 iterations must be at least ${Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
+        ),
+      },
+      {
+        description: "Argon2 memory below minimum",
+        kdf: {
+          argon2id: {
+            iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            memory: Argon2KdfConfig.PRELOGIN_MEMORY_MIN - 1,
+            parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+        },
+        expectedError: new RegExp(
+          `Argon2 memory must be at least ${Argon2KdfConfig.PRELOGIN_MEMORY_MIN} MiB`,
+        ),
+      },
+      {
+        description: "Argon2 parallelism below minimum",
+        kdf: {
+          argon2id: {
+            iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            memory: Argon2KdfConfig.MEMORY.defaultValue,
+            parallelism: Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN - 1,
+          },
+        },
+        expectedError: new RegExp(
+          `Argon2 parallelism must be at least ${Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN}`,
+        ),
+      },
+    ])("throws for $description", ({ kdf, expectedError }) => {
+      expect(() => PasswordPreloginData.fromSdk(sdkResponse(kdf))).toThrow(expectedError);
     });
   });
 });
