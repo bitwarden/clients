@@ -33,7 +33,6 @@ describe("CompleteTrialInitiationComponent", () => {
   let mockOrganizationBillingService: MockProxy<OrganizationBillingServiceAbstraction>;
   let mockAccountService: MockProxy<AccountService>;
   let pamBillingSupport$: BehaviorSubject<boolean>;
-  let previewDrivenCart$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     mockRouter = mock<Router>();
@@ -48,12 +47,10 @@ describe("CompleteTrialInitiationComponent", () => {
     // Mock activeAccount$ to return a valid user ID
     mockAccountService.activeAccount$ = of({ id: "user-id-123" } as any);
 
-    // Feature flags, controllable per test. PAM billing-support defaults off; the preview-cart
-    // flag defaults on, so tests that only toggle PAM see Privileged Controls follow PAM.
+    // PAM billing-support flag, controllable per test; defaults off.
     pamBillingSupport$ = new BehaviorSubject<boolean>(false);
-    previewDrivenCart$ = new BehaviorSubject<boolean>(true);
     mockConfigService.getFeatureFlag$.mockImplementation((key) =>
-      key === FeatureFlag.PamBillingSupport ? pamBillingSupport$ : previewDrivenCart$,
+      key === FeatureFlag.PamBillingSupport ? pamBillingSupport$ : of(false),
     );
 
     await TestBed.configureTestingModule({
@@ -402,20 +399,6 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(component.includesPrivilegedControls).toBe(false);
     });
 
-    it("excludes Privileged Controls when the preview-cart flag is off even if PAM is on", () => {
-      // Without the preview cart, pricing would come from the legacy endpoint that ignores PC,
-      // so PC must not be offered or charged.
-      previewDrivenCart$.next(false);
-      pamBillingSupport$.next(true);
-      mockActivatedRoute.queryParams.next({
-        product: "0,2",
-        productTier: ProductTierType.Enterprise,
-      });
-
-      expect(component.product).toBe(ProductType.PasswordManager);
-      expect(component.includesPrivilegedControls).toBe(false);
-    });
-
     it("does not add Privileged Controls to a Secrets Manager trial", async () => {
       pamBillingSupport$.next(true);
       mockActivatedRoute.queryParams.next({
@@ -492,13 +475,6 @@ describe("CompleteTrialInitiationComponent", () => {
         expect(component.includesPrivilegedControls).toBe(true);
         expect(component.trial.privilegedControls).toEqual({ seats: 1 });
         expect(component.showPrivilegedControlsSalesCallout).toBe(false);
-      });
-
-      it("includes Privileged Controls from a sales invitation when the preview cart is off too", () => {
-        previewDrivenCart$.next(false);
-        mockActivatedRoute.queryParams.next(salesInvitationParams);
-
-        expect(component.includesPrivilegedControls).toBe(true);
       });
 
       it("carries Privileged Controls into the sales-assisted no-payment org creation", async () => {
@@ -596,7 +572,6 @@ describe("CompleteTrialInitiationComponent", () => {
         expect(component.includesPrivilegedControls).toBe(false);
         expect(component.trial.privilegedControls).toBeUndefined();
         expect(component.showPrivilegedControlsSalesCallout).toBe(true);
-        expect(component.privilegedControlsCalloutKey).toBe("trialPrivilegedControlsThroughSales");
       });
 
       it("shows the sales callout on a direct-purchase self-serve link with no trial period", () => {
@@ -604,7 +579,6 @@ describe("CompleteTrialInitiationComponent", () => {
 
         expect(component.includesPrivilegedControls).toBe(false);
         expect(component.showPrivilegedControlsSalesCallout).toBe(true);
-        expect(component.privilegedControlsCalloutKey).toBe("trialPrivilegedControlsThroughSales");
       });
 
       it("shows the sales callout when a sales invitation goes through the paid billing step", () => {
@@ -620,7 +594,6 @@ describe("CompleteTrialInitiationComponent", () => {
 
         expect(component.includesPrivilegedControls).toBe(false);
         expect(component.showPrivilegedControlsSalesCallout).toBe(true);
-        expect(component.privilegedControlsCalloutKey).toBe("trialPrivilegedControlsThroughSales");
       });
 
       it("leaves Privileged Controls out of a Secrets Manager sales invitation", () => {
@@ -662,15 +635,6 @@ describe("CompleteTrialInitiationComponent", () => {
 
         expect(component.includesPrivilegedControls).toBe(true);
         expect(component.showPrivilegedControlsSalesCallout).toBe(false);
-      });
-
-      it("shows the neutral unavailable callout when the preview cart is off", () => {
-        previewDrivenCart$.next(false);
-        mockActivatedRoute.queryParams.next(selfServeParams);
-
-        expect(component.includesPrivilegedControls).toBe(false);
-        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
-        expect(component.privilegedControlsCalloutKey).toBe("trialPrivilegedControlsUnavailable");
       });
     });
 

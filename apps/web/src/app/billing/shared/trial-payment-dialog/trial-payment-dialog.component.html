@@ -97,15 +97,30 @@
         </app-enter-billing-address>
       </ng-container>
       <!-- Pricing Breakdown -->
-      <app-pricing-summary
-        *ngIf="pricingSummaryData"
-        [summaryData]="pricingSummaryData"
-      ></app-pricing-summary>
+      @if (planChangeCart.isLoading()) {
+        <div class="tw-mt-4 tw-text-center">
+          <bit-spinner></bit-spinner>
+        </div>
+      } @else if (planChangeCart.error() != null) {
+        <bit-callout type="danger" class="tw-mt-4 tw-block">
+          {{ previewErrorMessageKey | i18n }}
+        </bit-callout>
+      } @else if (planChangeCart.hasValue()) {
+        <div class="tw-mt-4">
+          <billing-cart-summary [cart]="planChangeCart.value()" />
+        </div>
+      }
     </ng-container>
   </div>
   <!-- Dialog Footer -->
   <ng-container bitDialogFooter>
-    <button bitButton buttonType="primary" type="button" [bitAction]="onSubscribe.bind(this)">
+    <button
+      bitButton
+      buttonType="primary"
+      type="button"
+      [bitAction]="onSubscribe.bind(this)"
+      [disabled]="planChangeCart.isLoading()"
+    >
       {{ "subscribe" | i18n }}
     </button>
     <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.CLOSED">

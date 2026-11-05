@@ -3,7 +3,7 @@ import { Component, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -73,14 +73,8 @@ export class CompleteTrialInitiationComponent {
   submitting = false;
 
   /**
-   * True when the PAM-billing flag is on. It suppresses the sales-only callout copy; self-serve Privileged
-   * Controls additionally needs the preview cart (see privilegedControlsSelfServe).
-   */
-  private pamBillingSupportEnabled = false;
-
-  /**
    * True when customers can add Privileged Controls to a trial themselves, without a sales invitation:
-   * the PAM-billing flag is on, and the preview cart that prices it in the billing step is on.
+   * the PAM-billing support flag is on.
    */
   private privilegedControlsSelfServe = false;
 
@@ -92,17 +86,9 @@ export class CompleteTrialInitiationComponent {
 
   /**
    * True when the link asked for Privileged Controls but it is not included, or the server created the
-   * organization without it. The callout always points to sales; privilegedControlsCalloutKey picks its copy.
+   * organization without it. The callout points to sales.
    */
   showPrivilegedControlsSalesCallout = false;
-
-  /**
-   * Copy for the Privileged Controls callout: the sales-only message while the PAM-billing flag is off, or a
-   * neutral unavailable message when the flag is on but the preview cart that prices it is off.
-   */
-  privilegedControlsCalloutKey:
-    "trialPrivilegedControlsThroughSales" | "trialPrivilegedControlsUnavailable" =
-    "trialPrivilegedControlsThroughSales";
 
   /**
    * True when the trial asked the server for Privileged Controls but the created organization does not have
@@ -156,14 +142,11 @@ export class CompleteTrialInitiationComponent {
       this.applyParams(this.params);
     });
 
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
-      this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
-    ])
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PamBillingSupport)
       .pipe(takeUntilDestroyed())
-      .subscribe(([pamBillingSupport, previewDrivenCart]) => {
-        this.pamBillingSupportEnabled = pamBillingSupport;
-        this.privilegedControlsSelfServe = pamBillingSupport && previewDrivenCart;
+      .subscribe((pamBillingSupport) => {
+        this.privilegedControlsSelfServe = pamBillingSupport;
         if (this.params) {
           this.applyPrivilegedControls(this.params);
         }
@@ -324,7 +307,6 @@ export class CompleteTrialInitiationComponent {
     this.privilegedControlsNotProvisioned = true;
     this.includesPrivilegedControls = false;
     this.showPrivilegedControlsSalesCallout = true;
-    this.privilegedControlsCalloutKey = "trialPrivilegedControlsThroughSales";
     this.logService.warning(
       `Privileged Controls was requested on a no-payment trial but not provisioned for organization ${organization.id}.`,
     );
@@ -515,12 +497,6 @@ export class CompleteTrialInitiationComponent {
       (fromSalesInvitation || this.privilegedControlsSelfServe);
     this.showPrivilegedControlsSalesCallout =
       this.privilegedControlsNotProvisioned || (requested && !this.includesPrivilegedControls);
-    // With the PAM-billing flag on, the only reason to drop a requested Privileged Controls is that the
-    // preview cart is off, so the copy must not say it is sold only through sales.
-    this.privilegedControlsCalloutKey =
-      this.pamBillingSupportEnabled && !this.privilegedControlsNotProvisioned
-        ? "trialPrivilegedControlsUnavailable"
-        : "trialPrivilegedControlsThroughSales";
   }
 
   /**
