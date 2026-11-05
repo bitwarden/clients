@@ -1330,29 +1330,15 @@ describe("AccessConnectorDetailComponent", () => {
   describe("loading skeleton", () => {
     const query = (selector: string) => fixture.nativeElement.querySelector(selector);
 
-    afterEach(() => jest.useRealTimers());
-
-    function advance(ms: number): void {
-      fixture.detectChanges();
-      jest.advanceTimersByTime(ms);
-      fixture.detectChanges();
-    }
-
     async function renderLoading(tab = "configuration") {
       rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
       await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
         tab,
       });
       fixture = TestBed.createComponent(AccessConnectorDetailComponent);
       fixture.detectChanges();
-    }
-
-    async function renderSkeleton(tab = "configuration") {
-      await renderLoading(tab);
-      advance(1000);
     }
 
     async function settle() {
@@ -1363,7 +1349,7 @@ describe("AccessConnectorDetailComponent", () => {
     }
 
     it("stands skeleton cards in for the configuration form, in real furniture", async () => {
-      await renderSkeleton();
+      await renderLoading();
 
       const loading = query('[data-testid="access-connector-detail-loading"]');
       expect(query("bit-spinner")).toBeNull();
@@ -1371,6 +1357,13 @@ describe("AccessConnectorDetailComponent", () => {
       expect(loading.querySelector("bit-skeleton")).not.toBeNull();
       expect(loading.textContent).toContain("pamAccessConnectorDetailsHeading");
       expect(query("form")).toBeNull();
+    });
+
+    it("keeps the page's own chrome around the skeleton while loading", async () => {
+      await renderLoading();
+
+      expect(query('[data-testid="access-connector-detail-loading"] bit-skeleton')).not.toBeNull();
+      expect(query("pam-detail-breadcrumb")).not.toBeNull();
     });
 
     it("keeps the placeholder itself out of the accessibility tree", async () => {
@@ -1382,7 +1375,7 @@ describe("AccessConnectorDetailComponent", () => {
     });
 
     it("mirrors the history table instead when the history tab is the one loading", async () => {
-      await renderSkeleton("history");
+      await renderLoading("history");
 
       const loading = query('[data-testid="access-connector-detail-loading"]');
       expect(loading.querySelector("app-rotation-history-skeleton")).not.toBeNull();
@@ -1391,7 +1384,7 @@ describe("AccessConnectorDetailComponent", () => {
     });
 
     it("announces the load from a live region, then the arrival", async () => {
-      await renderSkeleton();
+      await renderLoading();
 
       const status = query('[data-testid="rotation-loading-status"]');
       expect(status.getAttribute("role")).toBe("status");
@@ -1399,7 +1392,6 @@ describe("AccessConnectorDetailComponent", () => {
       expect(status.textContent).toContain("loading");
 
       await settle();
-      advance(1000);
 
       expect(query('[data-testid="rotation-loading-status"]').textContent).toContain(
         "pamRotationPageLoaded",
@@ -1407,56 +1399,13 @@ describe("AccessConnectorDetailComponent", () => {
     });
 
     it("replaces the skeleton with the real form once the connector lands", async () => {
-      await renderSkeleton();
+      await renderLoading();
       await settle();
-      advance(1000);
 
       expect(query('[data-testid="access-connector-detail-loading"]')).toBeNull();
       expect(query("bit-skeleton")).toBeNull();
       expect(query("form")).not.toBeNull();
       expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
-    });
-
-    it("renders the page's own chrome, not a blank area, before the delay is up", async () => {
-      await renderLoading();
-      advance(999);
-
-      expect(query('[data-testid="access-connector-detail-loading"]')).not.toBeNull();
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query("pam-detail-breadcrumb")).not.toBeNull();
-    });
-
-    it("never draws the placeholder for a connector that arrives inside the delay", async () => {
-      await renderLoading();
-      advance(500);
-      await settle();
-      advance(1000);
-
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query('[data-testid="access-connector-detail-loading"]')).toBeNull();
-      expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
-    });
-
-    it("holds the placeholder its minimum time once it is up, so it cannot blink", async () => {
-      await renderSkeleton();
-      expect(query("bit-skeleton")).not.toBeNull();
-
-      await settle();
-      advance(300);
-
-      expect(query("bit-skeleton")).not.toBeNull();
-
-      advance(700);
-
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
-    });
-
-    it("announces the load at once, not on the placeholder's clock", async () => {
-      await renderLoading();
-
-      expect(query('[data-testid="rotation-loading-status"]').textContent).toContain("loading");
-      expect(query("bit-skeleton")).toBeNull();
     });
   });
 });

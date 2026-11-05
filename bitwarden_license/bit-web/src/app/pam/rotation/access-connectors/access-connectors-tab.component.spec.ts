@@ -1702,104 +1702,95 @@ describe("AccessConnectorsTabComponent table", () => {
   });
 
   describe("loading", () => {
-    beforeEach(() => {
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    function advance(ms: number): void {
-      fixture.detectChanges();
-      jest.advanceTimersByTime(ms);
-      fixture.detectChanges();
+    function skeletonRows(el: HTMLElement): Element[] {
+      return bodyRows(el).filter((row) => row.querySelector("bit-skeleton-text") != null);
     }
 
-    function placeholder(): HTMLElement {
-      return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
-        '[data-testid="access-connectors-loading"]',
-      )!;
-    }
+    it("draws skeleton rows under the real table's columns while the list loads", () => {
+      const el = render([], true);
 
-    it("stands a hidden skeleton table in for the list, carrying the real columns", () => {
-      render([], true);
-      advance(1000);
-
-      expect(placeholder().getAttribute("aria-hidden")).toBe("true");
-      expect(placeholder().querySelector("bit-table-v2")).not.toBeNull();
-      expect(headers(placeholder()).map(text)).toEqual([
+      expect(headers(el).map(text)).toEqual([
         "name",
         "status",
         "pamAccessConnectorConnection",
         "pamAccessConnectorLastSeen",
         "pamAccessConnectorAssignments",
-        "",
+        "options",
       ]);
-      expect(placeholder().querySelectorAll("bit-row")).toHaveLength(5);
-      expect(placeholder().querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
+      expect(bodyRows(el)).toHaveLength(3);
+      expect(skeletonRows(el)).toHaveLength(3);
+      expect(el.querySelector("bit-status-lockup")).toBeNull();
+      expect(el.textContent).not.toContain("pamAccessConnectorEmptyStateTitle");
     });
 
-    it("holds the toolbar inside the table while rows load, and hands off to the real one", () => {
+    it("keeps the real toolbar in the table while rows load", () => {
       const el = render([], true);
-      advance(1000);
 
-      const loadingToolbar = placeholder().querySelector<HTMLElement>(
-        "bit-table-v2 bit-table-toolbar",
-      );
-      expect(placeholder().firstElementChild!.tagName).toBe("BIT-TABLE-V2");
+      const loadingToolbar = el.querySelector<HTMLElement>("bit-table-v2 bit-table-toolbar");
       expect(loadingToolbar).not.toBeNull();
-      expect(loadingToolbar!.hasAttribute("inert")).toBe(true);
       expect(loadingToolbar!.querySelector("bit-search")).not.toBeNull();
+      expect(el.querySelectorAll("bit-table-v2")).toHaveLength(1);
+    });
+
+    it("keeps the skeleton out of the accessibility tree", () => {
+      const el = render([], true);
+
+      const skeletons = Array.from(el.querySelectorAll("bit-table-v2 bit-skeleton > div"));
+      expect(skeletons.length).toBeGreaterThan(0);
+      expect(skeletons.every((s) => s.getAttribute("aria-hidden") === "true")).toBe(true);
+    });
+
+    it("draws no held rows while a reload is in flight", () => {
+      const el = render([ROWS[0]], true);
+
+      expect(rowNames(el)).toEqual([]);
+      expect(skeletonRows(el)).toHaveLength(3);
+    });
+
+    it("swaps loaded rows for skeleton rows on reload, keeping the toolbar's filters", () => {
+      const el = render();
+      expect(rowNames(el)).toEqual(ROWS.map((r) => r.name));
+
+      loading$.next(true);
+      fixture.detectChanges();
+
+      expect(rowNames(el)).toEqual([]);
+      expect(skeletonRows(el)).toHaveLength(3);
       expect(
-        Array.from(loadingToolbar!.querySelectorAll("bit-filter-menu")).map((menu) =>
-          menu.getAttribute("key"),
+        Array.from(el.querySelectorAll("bit-table-v2 bit-table-toolbar bit-filter-menu")).map(
+          (menu) => menu.getAttribute("key"),
         ),
       ).toEqual(["status", "connection"]);
-      expect(loadingToolbar!.querySelectorAll("bit-filter-option")).toHaveLength(0);
-      expect(placeholder().querySelectorAll("bit-row").length).toBeGreaterThan(0);
 
-      rows$.next(ROWS);
       loading$.next(false);
-      advance(1000);
+      fixture.detectChanges();
 
-      expect(placeholder()).toBeNull();
-      expect(el.querySelector("bit-table-v2 bit-table-toolbar")).not.toBeNull();
-    });
-
-    it("draws the headers alone, with no skeleton or empty state, before the delay is up", () => {
-      render([], true);
-      advance(999);
-
-      expect(headers(placeholder()).map(text)).toContain("pamAccessConnectorConnection");
-      expect(placeholder().querySelector("bit-skeleton")).toBeNull();
-      expect(placeholder().querySelector("bit-skeleton-text")).toBeNull();
-      expect(placeholder().querySelector("bit-status-lockup")).toBeNull();
-    });
-
-    it("draws no held rows in the placeholder while a reload is in flight", () => {
-      render([ROWS[0]], true);
-      advance(1000);
-
-      expect(
-        placeholder().querySelector('[id^="access-connectors-tab_button_detail-"]'),
-      ).toBeNull();
+      expect(skeletonRows(el)).toHaveLength(0);
+      expect(rowNames(el)).toEqual(ROWS.map((r) => r.name));
     });
 
     it("replaces the skeleton with the real rows once the load lands", () => {
-      render([], true);
-      advance(1000);
+      const el = render([], true);
       rows$.next(ROWS);
       loading$.next(false);
-      advance(1000);
+      fixture.detectChanges();
 
-      expect(placeholder()).toBeNull();
-      expect(rowNames(fixture.nativeElement as HTMLElement)).toEqual(ROWS.map((r) => r.name));
+      expect(el.querySelector("bit-skeleton")).toBeNull();
+      expect(rowNames(el)).toEqual(ROWS.map((r) => r.name));
+    });
+
+    it("shows the empty state once a load lands with no connectors", () => {
+      const el = render([], true);
+      loading$.next(false);
+      fixture.detectChanges();
+
+      expect(el.querySelector("bit-skeleton")).toBeNull();
+      expect(el.querySelector("bit-table-v2")).toBeNull();
+      expect(el.textContent).toContain("pamAccessConnectorEmptyStateTitle");
     });
 
     it("shows no spinner while the skeleton stands in", () => {
       render([], true);
-      advance(1000);
 
       expect((fixture.nativeElement as HTMLElement).querySelector("bit-spinner")).toBeNull();
     });
@@ -1815,53 +1806,16 @@ describe("AccessConnectorsTabComponent table", () => {
       expect(status!.textContent).toContain("loading");
     });
 
-    it("announces the load at once, not on the placeholder's clock", () => {
-      const el = render([], true);
-
-      expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
-        "loading",
-      );
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-    });
-
     it("announces the arrival once the rows land", () => {
       const el = render([], true);
-      advance(1000);
       rows$.next(ROWS);
       loading$.next(false);
-      advance(1000);
+      fixture.detectChanges();
 
       expect(el.querySelector("bit-skeleton")).toBeNull();
       expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
         "pamAccessConnectorsLoaded",
       );
-    });
-
-    it("never draws the placeholder for a list that arrives inside the delay", () => {
-      const el = render([], true);
-      advance(500);
-      rows$.next(ROWS);
-      loading$.next(false);
-      advance(1000);
-
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(placeholder()).toBeNull();
-    });
-
-    it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
-      const el = render([], true);
-      advance(1000);
-      expect(el.querySelector("bit-skeleton")).not.toBeNull();
-
-      rows$.next(ROWS);
-      loading$.next(false);
-      advance(300);
-
-      expect(el.querySelector("bit-skeleton")).not.toBeNull();
-
-      advance(700);
-
-      expect(el.querySelector("bit-skeleton")).toBeNull();
     });
   });
 });
