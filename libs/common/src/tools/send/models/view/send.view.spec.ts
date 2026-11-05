@@ -5,10 +5,13 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { Utils } from "../../../../platform/misc/utils";
+import { CipherType } from "../../../../vault/enums";
+import { CipherView } from "../../../../vault/models/view/cipher.view";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 
 import { SendFileView } from "./send-file.view";
+import { SendItemView } from "./send-item.view";
 import { SendTextView } from "./send-text.view";
 import { SendView } from "./send.view";
 
@@ -17,6 +20,24 @@ import { SendView } from "./send.view";
  * (`SendClient.encrypt_send_for_rotation`). The `key` is a 16-byte send-key seed the SDK expects
  * URL-safe-base64-encoded.
  */
+function itemSendView(cipherId: string | null): SendView {
+  const cipher = new CipherView();
+  cipher.id = cipherId;
+  cipher.name = "item name";
+  cipher.type = CipherType.Login;
+
+  const view = new SendView();
+  view.id = "00000000-0000-0000-0000-000000000003";
+  view.type = SendType.Item;
+  view.name = "item send";
+  view.key = new Uint8Array(16);
+  view.data = Object.assign(new SendItemView(), { data: cipher });
+  view.deletionDate = new Date("2026-02-01T00:00:00.000Z");
+  view.emails = [];
+  view.authType = AuthType.None;
+  return view;
+}
+
 describe("SendView.toSdkSendView", () => {
   it("maps a text send view, url-b64-encoding the key seed", () => {
     const key = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
@@ -106,6 +127,30 @@ describe("SendView.toSdkSendView", () => {
     view.authType = AuthType.None;
 
     expect(view.toSdkSendView().key).toBeUndefined();
+  });
+
+  it("maps an item send view, taking the item id from the cipher view", () => {
+    const view = itemSendView("00000000-0000-0000-0000-00000000000a");
+
+    const sdk = view.toSdkSendView();
+
+    expect(sdk.type).toBe(SdkSendType.Item);
+    expect(sdk.data?.data?.id).toBe("00000000-0000-0000-0000-00000000000a");
+    // The client has no plumbing for the remaining metadata fields yet.
+    expect(sdk.data?.metadata).toStrictEqual({
+      itemId: "00000000-0000-0000-0000-00000000000a",
+      folderName: undefined,
+      collectionNames: undefined,
+      organizationName: undefined,
+      creationDate: undefined,
+      revisionDate: undefined,
+    });
+  });
+
+  it("throws when an item send view has no cipher id to seal with", () => {
+    const view = itemSendView(null);
+
+    expect(() => view.toSdkSendView()).toThrow("Item Send is missing its item id");
   });
 });
 
