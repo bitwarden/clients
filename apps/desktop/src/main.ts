@@ -13,7 +13,7 @@ import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/service
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
-import { SsoUrlService } from "@bitwarden/common/auth/sso-url";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {

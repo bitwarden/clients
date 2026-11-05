@@ -64,7 +64,7 @@ import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/ab
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
-import { SsoUrlService } from "@bitwarden/common/auth/sso-url";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,

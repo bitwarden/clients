@@ -5,7 +5,7 @@ import { firstValueFrom } from "rxjs";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "@bitwarden/common/auth/sso-url";
+import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
