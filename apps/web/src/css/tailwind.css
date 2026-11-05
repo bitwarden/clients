@@ -22,7 +22,6 @@
   body {
     @apply tw-bg-background;
     @apply tw-text-main;
-    position: relative;
   }
 
   /**
