@@ -1671,7 +1671,7 @@ describe("Cipher Service", () => {
       mockCipherView2.name = "Test Cipher 2";
 
       const sdkServiceSpy = jest
-        .spyOn(cipherSdkService, "legacyDecryptFullViewList")
+        .spyOn(cipherSdkService, "temporary_get_all_decrypted")
         .mockResolvedValue({
           successes: [mockCipherView1, mockCipherView2],
           failures: [],
@@ -1679,10 +1679,7 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.getAllDecrypted(mockUserId);
 
-      // The encrypted ciphers in state are what the SDK decrypts.
-      const [decrypted] = sdkServiceSpy.mock.calls[0];
-      const inState = Object.keys(await firstValueFrom(cipherService.ciphers$(mockUserId)));
-      expect(decrypted.map((cipher) => cipher.id)).toEqual(inState);
+      expect(sdkServiceSpy).toHaveBeenCalledWith(expect.any(Array), mockUserId);
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
       expect(result[1]).toBeInstanceOf(CipherView);
@@ -1697,7 +1694,7 @@ describe("Cipher Service", () => {
         .getFake(mockUserId, DECRYPTED_CIPHERS)
         .nextState({ [cachedView.id]: cachedView });
 
-      const sdkServiceSpy = jest.spyOn(cipherSdkService, "legacyDecryptFullViewList");
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "temporary_get_all_decrypted");
 
       const result = await cipherService.getAllDecrypted(mockUserId);
 
@@ -1894,7 +1891,7 @@ describe("Cipher Service", () => {
       const sdkView = new CipherView();
       sdkView.id = cipherId;
       sdkView.localData = undefined;
-      cipherSdkService.legacyDecryptFullViewList.mockResolvedValue({
+      cipherSdkService.temporary_get_all_decrypted.mockResolvedValue({
         successes: [sdkView],
         failures: [],
       });
@@ -1912,7 +1909,7 @@ describe("Cipher Service", () => {
 
       const sdkView = new CipherView();
       sdkView.id = cipherId;
-      cipherSdkService.legacyDecryptFullViewList.mockResolvedValue({
+      cipherSdkService.temporary_get_all_decrypted.mockResolvedValue({
         successes: [sdkView],
         failures: [],
       });

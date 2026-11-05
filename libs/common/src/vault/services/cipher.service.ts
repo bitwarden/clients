@@ -391,9 +391,9 @@ export class CipherService implements CipherServiceAbstraction {
         PERF_TRACK,
         "getAllDecrypted",
       );
-      // Without localData, which is re-attached below: a failure to read it must not fail this.
+      // const result = await this.cipherSdkService.getAllDecrypted(userId);
       const encrypted = Object.values(await firstValueFrom(this.ciphers$(userId)));
-      const result = await this.cipherSdkService.legacyDecryptFullViewList(
+      const result = await this.cipherSdkService.temporary_get_all_decrypted(
         encrypted.map((data) => new Cipher(data)),
         userId,
       );

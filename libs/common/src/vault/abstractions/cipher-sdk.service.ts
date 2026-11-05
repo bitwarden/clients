@@ -304,17 +304,21 @@ export abstract class CipherSdkService {
   ): Promise<CipherView | undefined>;
 
   /**
-   * Decrypts every given cipher into a full view, typically the whole vault, using the SDK.
+   * Lists and decrypts all ciphers from state using the SDK.
    *
-   * Legacy: it keeps every full view, so every password, decrypted at once. Prefer list views,
-   * and fully decrypt only the ciphers needed. A caller that really has to go over the whole vault
-   * should do it through an iterator in the SDK, which decrypts one cipher at a time.
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the decrypt result containing successes and failures
+   */
+  abstract getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult>;
+
+  /**
+   * Temporary: decrypts the given ciphers one SDK call at a time, to bound SDK memory.
    *
    * @param ciphers The encrypted ciphers to decrypt
    * @param userId The user ID to use for SDK client
    * @returns A promise that resolves to the decrypt result containing successes and failures
    */
-  abstract legacyDecryptFullViewList(
+  abstract temporary_get_all_decrypted(
     ciphers: Cipher[],
     userId: UserId,
   ): Promise<DecryptAllCiphersResult>;

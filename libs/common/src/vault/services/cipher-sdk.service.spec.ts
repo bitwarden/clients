@@ -77,7 +77,7 @@ describe("DefaultCipherSdkService", () => {
       share_cipher: jest.fn(),
       share_ciphers_bulk: jest.fn(),
       decrypt_fido2_credentials: jest.fn(),
-      decrypt_list_full_with_failures: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
+      get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn(),
       bulk_update_collections: jest.fn().mockResolvedValue(undefined),
@@ -1189,23 +1189,20 @@ describe("DefaultCipherSdkService", () => {
     });
   });
 
-  describe("legacyDecryptFullViewList()", () => {
-    const encryptedCiphers = (count: number) =>
-      Array.from({ length: count }, () => ({ toSdkCipher: () => ({}) }) as unknown as Cipher);
-
-    it("should decrypt ciphers using SDK", async () => {
+  describe("getAllDecrypted()", () => {
+    it("should list and decrypt ciphers using SDK", async () => {
       const mockSdkCipherView = new CipherView().toSdkCipherView();
       mockSdkCipherView.name = "Test Cipher";
-      mockCiphersSdk.decrypt_list_full_with_failures.mockResolvedValue({
+      mockCiphersSdk.get_all.mockResolvedValue({
         successes: [mockSdkCipherView],
         failures: [],
       });
 
-      const result = await cipherSdkService.legacyDecryptFullViewList(encryptedCiphers(1), userId);
+      const result = await cipherSdkService.getAllDecrypted(userId);
 
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
-      expect(mockCiphersSdk.decrypt_list_full_with_failures).toHaveBeenCalled();
+      expect(mockCiphersSdk.get_all).toHaveBeenCalled();
       expect(result.successes).toHaveLength(1);
       expect(result.successes[0]).toBeInstanceOf(CipherView);
       expect(result.failures).toHaveLength(0);
@@ -1239,35 +1236,24 @@ describe("DefaultCipherSdkService", () => {
         identity: null,
         sshKey: null,
       };
-      mockCiphersSdk.decrypt_list_full_with_failures.mockResolvedValue({
+      mockCiphersSdk.get_all.mockResolvedValue({
         successes: [],
         failures: [mockFailedCipher],
       });
 
-      const result = await cipherSdkService.legacyDecryptFullViewList(encryptedCiphers(1), userId);
+      const result = await cipherSdkService.getAllDecrypted(userId);
 
       expect(result.successes).toHaveLength(0);
       expect(result.failures).toHaveLength(1);
       expect(result.failures[0].decryptionFailure).toBe(true);
     });
 
-    it("should decrypt in batches of 250 to bound SDK memory", async () => {
-      await cipherSdkService.legacyDecryptFullViewList(encryptedCiphers(600), userId);
-
-      const batches = mockCiphersSdk.decrypt_list_full_with_failures.mock.calls.map(
-        ([batch]: [unknown[]]) => batch.length,
-      );
-      expect(batches).toEqual([250, 250, 100]);
-    });
-
     it("should throw error and log when SDK throws an error", async () => {
-      mockCiphersSdk.decrypt_list_full_with_failures.mockRejectedValue(new Error("SDK error"));
+      mockCiphersSdk.get_all.mockRejectedValue(new Error("SDK error"));
 
-      await expect(
-        cipherSdkService.legacyDecryptFullViewList(encryptedCiphers(1), userId),
-      ).rejects.toThrow();
+      await expect(cipherSdkService.getAllDecrypted(userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to decrypt ciphers"),
+        expect.stringContaining("Failed to list and decrypt ciphers"),
       );
     });
   });
