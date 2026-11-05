@@ -11,7 +11,9 @@
       type="button"
       bitButton
       buttonType="primary"
-      class="tw-w-full"
+      [size]="popupLayout ? 'default' : 'small'"
+      [class.tw-w-full]="popupLayout"
+      [class.tw-self-start]="!popupLayout"
       [bitAction]="startAction()"
       id="pam-cipher-view-banner_button_start"
     >

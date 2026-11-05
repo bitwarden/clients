@@ -25,6 +25,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { injectPopupLayout } from "../cipher-view-banner-layout";
+
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
 /** The live lease's countdown, with Extend and End until its last minutes. */
@@ -47,6 +49,7 @@ export class ActiveLeaseCardComponent {
   private readonly locale = inject(LOCALE_ID);
 
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
+  protected readonly popupLayout = injectPopupLayout();
 
   // Parsed once per lease change, not per tick.
   private readonly expiryMs = computed(() => Date.parse(this.lease().notAfter));

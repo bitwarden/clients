@@ -29,7 +29,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { ButtonComponent, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
@@ -159,6 +159,10 @@ describe("CipherViewBannerComponent", () => {
 
   function text(): string {
     return fixture.nativeElement.textContent as string;
+  }
+
+  function buttonSize(selector: string): string | undefined {
+    return fixture.debugElement.query(By.css(selector))?.injector.get(ButtonComponent).size();
   }
 
   /** Lays the banner out as the extension does; call before {@link create}. */
@@ -581,6 +585,33 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_button_start")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_cancel-approved")).toBeNull();
     });
+
+    it("keeps Start access small in the item dialog", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(buttonSize("#pam-cipher-view-banner_button_start")).toBe("small");
+      expect(query("#pam-cipher-view-banner_button_start")?.classList.contains("tw-w-full")).toBe(
+        false,
+      );
+    });
+
+    it("makes Start access full-width in the popup", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
+      );
+      usePopupLayout();
+
+      await create(gatedCipher());
+
+      expect(buttonSize("#pam-cipher-view-banner_button_start")).toBe("default");
+      expect(query("#pam-cipher-view-banner_button_start")?.classList.contains("tw-w-full")).toBe(
+        true,
+      );
+    });
   });
 
   describe("the absolute expiry beside the countdown", () => {
@@ -726,7 +757,20 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_button_end")).toBeNull();
     });
 
-    it("lists Extend access before End access, each filling half the row", async () => {
+    it("keeps Extend access and End access small in the item dialog", async () => {
+      await activeLeaseEndingIn(60 * 60 * 1000);
+
+      for (const id of [
+        "#pam-cipher-view-banner_button_extend",
+        "#pam-cipher-view-banner_button_end",
+      ]) {
+        expect(buttonSize(id)).toBe("small");
+        expect(query(id)?.classList.contains("tw-flex-1")).toBe(false);
+      }
+    });
+
+    it("lists Extend access before End access, each filling half the row, in the popup", async () => {
+      usePopupLayout();
       await activeLeaseEndingIn(60 * 60 * 1000);
 
       const end = query("#pam-cipher-view-banner_button_end");
@@ -736,6 +780,7 @@ describe("CipherViewBannerComponent", () => {
       expect(extend!.compareDocumentPosition(end!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       expect(end!.classList.contains("tw-flex-1")).toBe(true);
       expect(extend!.classList.contains("tw-flex-1")).toBe(true);
+      expect(buttonSize("#pam-cipher-view-banner_button_end")).toBe("default");
     });
 
     it("warns at exactly five minutes remaining", async () => {

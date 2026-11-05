@@ -77,7 +77,7 @@ import { PendingRequestCardComponent } from "./cards/pending-request-card.compon
 import { RequestAccessCardComponent } from "./cards/request-access-card.component";
 import { UnavailableCardComponent } from "./cards/unavailable-card.component";
 import { UnlicensedCardComponent } from "./cards/unlicensed-card.component";
-import { CIPHER_VIEW_BANNER_LAYOUT } from "./cipher-view-banner-layout";
+import { injectPopupLayout } from "./cipher-view-banner-layout";
 import { RequestAccessFormComponent } from "./request-access-form/request-access-form.component";
 import { RequestAccessSheetComponent } from "./request-access-sheet/request-access-sheet.component";
 import { type RequestTerms, requestTerms } from "./request-terms";
@@ -130,8 +130,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
   private readonly injector = inject(Injector);
-  protected readonly popupLayout =
-    (inject(CIPHER_VIEW_BANNER_LAYOUT, { optional: true }) ?? "dialog") === "popup";
+  protected readonly popupLayout = injectPopupLayout();
 
   /** Advanced every second while {@link clockAdvances}. */
   protected readonly nowMs = signal(Date.now());
