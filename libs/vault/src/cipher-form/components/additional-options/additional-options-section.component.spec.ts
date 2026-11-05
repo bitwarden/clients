@@ -12,6 +12,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { DialogService } from "@bitwarden/components";
 
 import { PasswordRepromptService } from "../../../services/password-reprompt.service";
@@ -133,6 +134,7 @@ describe("AdditionalOptionsSectionComponent", () => {
     const expectedCipher = new CipherView();
     expectedCipher.notes = "new notes";
     expectedCipher.reprompt = CipherRepromptType.Password;
+    expectedCipher.login.httpAuthenticationEnabled = false;
 
     expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
     const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
@@ -222,7 +224,7 @@ describe("AdditionalOptionsSectionComponent", () => {
       ).toBeNull();
     });
 
-    it("hides the HTTP authentication setting in the Safari extension", () => {
+    it("shows the HTTP authentication setting in the Safari extension", () => {
       platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
       platformUtilsService.isSafari.mockReturnValue(true);
       const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
@@ -230,7 +232,7 @@ describe("AdditionalOptionsSectionComponent", () => {
 
       expect(
         localFixture.nativeElement.querySelector("input[formControlName='httpAuthentication']"),
-      ).toBeNull();
+      ).not.toBeNull();
     });
 
     it("shows the HTTP authentication setting in the web vault opened in Safari", () => {
@@ -257,14 +259,90 @@ describe("AdditionalOptionsSectionComponent", () => {
       );
     });
 
-    it("does not patch the HTTP authentication setting onto the cipher", () => {
-      component.additionalOptionsForm.controls.httpAuthentication.setValue(true);
+    describe("saving", () => {
+      const createCipher = (type: CipherType) => {
+        const cipher = new CipherView();
+        cipher.type = type;
+        cipher.login = new LoginView();
+        return cipher;
+      };
 
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
-      const updated = patchFn(new CipherView());
+      it.each([true, false])("patches the setting (%s) onto the login", (enabled) => {
+        component.additionalOptionsForm.controls.httpAuthentication.setValue(enabled);
 
-      expect(updated.reprompt).toBe(CipherRepromptType.None);
-      expect(Object.keys(updated)).not.toContain("httpAuthentication");
+        const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+        const updated = patchFn(createCipher(CipherType.Login));
+
+        expect(updated.login.httpAuthenticationEnabled).toBe(enabled);
+      });
+
+      it("patches the setting while the control is disabled", () => {
+        const { httpAuthentication, notes } = component.additionalOptionsForm.controls;
+        httpAuthentication.setValue(true);
+        httpAuthentication.disable({ emitEvent: false });
+        notes.setValue("new notes");
+
+        const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+        const updated = patchFn(createCipher(CipherType.Login));
+
+        expect(updated.login.httpAuthenticationEnabled).toBe(true);
+      });
+
+      it("does not patch the setting onto items other than logins", () => {
+        component.additionalOptionsForm.controls.httpAuthentication.setValue(true);
+
+        const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+        const updated = patchFn(createCipher(CipherType.Card));
+
+        expect(updated.login.httpAuthenticationEnabled).toBeUndefined();
+      });
+    });
+
+    describe("loading", () => {
+      const loadCipher = (httpAuthenticationEnabled: boolean | undefined, reprompt: boolean) => {
+        const cipher = new CipherView();
+        cipher.type = CipherType.Login;
+        cipher.reprompt = reprompt ? CipherRepromptType.Password : CipherRepromptType.None;
+        cipher.login = new LoginView();
+        cipher.login.httpAuthenticationEnabled = httpAuthenticationEnabled;
+        getInitialCipherView.mockReturnValueOnce(cipher);
+
+        component.ngOnInit();
+      };
+
+      it.each([
+        { stored: true, expected: true },
+        { stored: false, expected: false },
+        { stored: undefined, expected: false },
+      ])("loads a stored setting of $stored as $expected", ({ stored, expected }) => {
+        loadCipher(stored, false);
+
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(expected);
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      });
+
+      it("loads HTTP authentication off and tells the user when reprompt is also on", async () => {
+        loadCipher(true, true);
+        await flushPromises();
+
+        const { httpAuthentication, reprompt } = component.additionalOptionsForm.controls;
+        expect(reprompt.value).toBe(true);
+        expect(httpAuthentication.value).toBe(false);
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+          expect.objectContaining({ title: { key: "httpAuthenticationTurnedOffTitle" } }),
+        );
+      });
+
+      it("turns HTTP authentication off without telling the user when the setting is hidden", async () => {
+        httpAuthenticationFeatureFlag$.next(false);
+
+        loadCipher(true, true);
+        await flushPromises();
+
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(false);
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      });
     });
 
     describe("reprompt exclusivity", () => {
