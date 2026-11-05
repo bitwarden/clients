@@ -3,224 +3,62 @@
     No cancel here; the vault-row menu and the My requests tab still withdraw a request, and
     neither is licensing-gated.
   -->
-  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-unlicensed">
-    <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile icon="bwi-info-circle" variant="primary" size="sm" />
-      <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
-        <div class="tw-flex tw-flex-col">
-          <h3 bitTypography="h5" noMargin>{{ "pamUnlicensedBannerHeading" | i18n }}</h3>
-
-          <p bitTypography="helper" class="tw-m-0 tw-text-fg-body-subtle">
-            {{ "pamUnlicensedBannerBody" | i18n }}
-          </p>
-        </div>
-
-        <p bitTypography="helper" class="tw-m-0 tw-text-fg-body-subtle">
-          {{ "pamUnlicensedBannerRequestUnavailable" | i18n }}
-        </p>
-      </div>
-    </div>
-  </bit-card>
-} @else if (activeLease(); as lease) {
-  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-active">
-    <div class="tw-flex tw-items-start tw-gap-4">
-      <!--
-        The escalated glyph comes off ACCESS_BADGE_LOOK: this card escalates on the same
-        ENDING_SOON_THRESHOLD_MS the badge does, so it has to wear the same warning.
-      -->
-      <bit-icon-tile
-        [icon]="leaseEndingSoon() ? badgeLook.endingSoon.icon : 'bwi-clock'"
-        [variant]="leaseEndingSoon() ? 'danger' : 'teal'"
-        size="sm"
-      />
-      <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
-        <div class="tw-flex tw-flex-col">
-          @if (leaseEndingSoon()) {
-            <h3 bitTypography="h5" noMargin data-testid="active-lease-ending-soon">
-              {{ "pamActiveLeaseBannerEndingSoonRemainingTitle" | i18n: leaseRemainingLabel() }}
-            </h3>
-          } @else {
-            <h3 bitTypography="h5" noMargin data-testid="active-lease-countdown">
-              {{ "pamActiveLeaseBannerRemainingTitle" | i18n: leaseRemainingLabel() }}
-            </h3>
-          }
-          <span
-            bitTypography="helper"
-            class="tw-text-fg-body-subtle"
-            data-testid="active-lease-ends-at"
-          >
-            {{ "pamWindowUntil" | i18n: (lease.notAfter | timestamp) }}
-          </span>
-        </div>
-
-        <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-          @if (canExtendLease()) {
-            <button
-              type="button"
-              bitButton
-              buttonType="secondary"
-              size="small"
-              [bitAction]="extendLease"
-              id="pam-cipher-view-banner_button_extend"
-            >
-              {{ "pamExtendLeaseButton" | i18n }}
-            </button>
-          }
-          <button
-            type="button"
-            bitButton
-            buttonType="danger"
-            size="small"
-            [bitAction]="endLease"
-            id="pam-cipher-view-banner_button_end"
-          >
-            {{ "pamEndLeaseButton" | i18n }}
-          </button>
-        </span>
-      </div>
-    </div>
-  </bit-card>
-} @else if (approvedRequest(); as request) {
-  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-approved">
-    <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile [icon]="badgeLook.ready.icon" variant="success" size="sm" />
-      <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
-        <div class="tw-flex tw-flex-col">
-          <h3 bitTypography="h5" noMargin>{{ "pamApprovedRequestBannerHeading" | i18n }}</h3>
-
-          @if (approvedDurationSeconds(); as grantedSeconds) {
-            <p
-              bitTypography="helper"
-              class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-fg-body-subtle"
-              data-testid="cipher-view-banner-approved-duration"
-            >
-              <bit-icon name="bwi-clock" />
-              {{ "pamApprovedRequestBannerDuration" | i18n: (grantedSeconds | durationLong) }}
-            </p>
-          }
-        </div>
-
-        <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
-          <span bitTypography="body2" data-testid="approved-access-window">
-            @if (approvedRequestStartsNow()) {
-              {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | timestamp) }}
-            } @else {
-              {{ approvedWindow() }}
-            }
-          </span>
-          <span class="tw-flex tw-items-center tw-gap-2">
-            <button
-              type="button"
-              bitButton
-              buttonType="primary"
-              size="small"
-              [bitAction]="activateRequest"
-              id="pam-cipher-view-banner_button_start"
-            >
-              {{ "pamStartLeaseButton" | i18n }}
-            </button>
-            <button
-              type="button"
-              bitButton
-              buttonType="secondary"
-              size="small"
-              [bitAction]="cancelRequest"
-              id="pam-cipher-view-banner_button_cancel-approved"
-            >
-              {{ "pendingStateCancelRequest" | i18n }}
-            </button>
-          </span>
-        </div>
-      </div>
-    </div>
-  </bit-card>
-} @else if (pendingRequest()) {
-  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-pending">
-    <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile [icon]="badgeLook.pending.icon" variant="warning" size="sm" />
-      <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
-        <h3 bitTypography="h5" noMargin>{{ "pamPendingRequestBannerHeading" | i18n }}</h3>
-
-        <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
-          <button
-            type="button"
-            bitButton
-            buttonType="secondary"
-            size="small"
-            [bitAction]="cancelRequest"
-            id="pam-cipher-view-banner_button_cancel"
-          >
-            {{ "pendingStateCancelRequest" | i18n }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </bit-card>
-} @else if (canRequestAccess()) {
-  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-request">
-    <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile [icon]="badgeLook.privileged.icon" variant="primary" size="sm" />
-      <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
-        <div class="tw-flex tw-flex-col">
-          <h3 bitTypography="h5" noMargin>{{ "pamRequestAccessBannerHeading" | i18n }}</h3>
-
-          <p bitTypography="helper" class="tw-m-0 tw-text-fg-body-subtle">
-            {{ "pamRequestAccessBannerBody" | i18n }}
-          </p>
-        </div>
-
-        @if (restingRequestTerms(); as terms) {
-          <p
-            bitTypography="body2"
-            class="tw-m-0 tw-flex tw-items-center tw-gap-2"
-            data-testid="cipher-view-banner-max-duration"
-          >
-            <bit-icon name="bwi-clock" />
-            {{ terms.messageKey | i18n: (terms.maxSeconds | durationLong) }}
-          </p>
-        }
-
-        @if (!requestFormExpanded()) {
-          <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
-            <button
-              #requestToggleButton
-              type="button"
-              bitButton
-              buttonType="primary"
-              size="small"
-              (click)="toggleRequestForm()"
-              id="pam-cipher-view-banner_button_request-toggle"
-            >
-              {{ "pamRequestAccessButton" | i18n }}
-            </button>
-          </div>
-        }
-      </div>
-    </div>
-
-    @if (requestFormExpanded()) {
-      <div
-        class="tw-text-fg-body"
-        #requestFoldOut
-        tabindex="-1"
-        role="group"
-        [attr.aria-label]="'pamRequestAccessButton' | i18n"
-      >
-        {{ "pamRequestAccessButton" | i18n }}
-      </button>
-    </span>
-    <h2
-      bitTypography="body2"
-      noMargin
-      class="tw-mb-2 tw-font-semibold tw-text-fg-body"
-      data-testid="cipher-view-banner-section-heading"
+  <span
+    class="tw-mb-4 tw-block"
+    tabindex="0"
+    [bitTooltip]="'pamLicenseNeededTooltip' | i18n"
+    data-testid="cipher-view-banner-license-tooltip"
+  >
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      class="tw-w-full"
+      [disabled]="true"
+      startIcon="bwi-lock"
+      id="pam-cipher-view-banner_button_request-disabled"
     >
-      {{ "pamPrivilegedCredentialsHeading" | i18n }}
-    </h2>
-  }
-  <app-pam-unlicensed-card class="tw-mb-5 bit-compact:tw-mb-4" />
+      {{ "pamRequestAccessButton" | i18n }}
+    </button>
+  </span>
+  <h2
+    bitTypography="body2"
+    noMargin
+    class="tw-mb-2 tw-font-semibold tw-text-fg-body"
+    data-testid="cipher-view-banner-section-heading"
+  >
+    {{ "pamPrivilegedCredentialsHeading" | i18n }}
+  </h2>
+  <app-pam-unlicensed-card />
 } @else {
-  @if (popupLayout && showsPrivilegedCard()) {
+  @if (canRequestAccess()) {
+    <button
+      #requestToggleButton
+      type="button"
+      bitButton
+      buttonType="primary"
+      class="tw-mb-4 tw-w-full"
+      (click)="openRequestSheet()"
+      startIcon="bwi-lock"
+      id="pam-cipher-view-banner_button_request-toggle"
+    >
+      {{ "pamRequestAccessButton" | i18n }}
+    </button>
+  } @else if (pendingRequest() && !approvedRequest()) {
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      class="tw-mb-4 tw-w-full"
+      [bitAction]="cancelRequest"
+      startIcon="bwi-close"
+      id="pam-cipher-view-banner_button_cancel"
+    >
+      {{ "pendingStateCancelRequest" | i18n }}
+    </button>
+  }
+
+  @if (showsPrivilegedCard()) {
     <h2
       bitTypography="body2"
       noMargin
@@ -231,90 +69,31 @@
     </h2>
   }
 
-        @if (loadingRequestForm()) {
-          <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
-        } @else if (requestMode() !== null) {
-          @if (slotContention(); as contention) {
-            <!--
-              Replaces the description, whose immediate-access copy is false while the slot is
-              taken. The form stays enabled, since the request is still worth making.
-            -->
-            <p bitTypography="body2" class="tw-mb-4 tw-mt-0 tw-flex tw-items-start tw-gap-2">
-              <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />
-              <span>
-                @if (contention.freesAt) {
-                  {{ "pamRequestSlotTakenUntil" | i18n: (contention.freesAt | timestamp) }}
-                } @else {
-                  {{ "pamRequestSlotTaken" | i18n }}
-                }
-              </span>
-            </p>
-          } @else {
-            <p bitTypography="body2" class="tw-mb-4 tw-mt-0">
-              @if (requestMode() === "automatic") {
-                {{ "requestAccessModalAutomaticDescription" | i18n }}
-              } @else {
-                {{ "requestAccessModalHumanDescription" | i18n }}
-              }
-            </p>
-          }
+  @if (activeLease(); as lease) {
+    <app-pam-active-lease-card
+      [lease]="lease"
+      [nowMs]="nowMs()"
+      [canExtend]="canExtendLease()"
+      [extendAction]="extendLease"
+      [endAction]="endLease"
+    />
+  } @else if (approvedRequest()) {
+    <app-pam-approved-request-card [startAction]="activateRequest" />
+  } @else if (pendingRequest(); as request) {
+    <app-pam-pending-request-card [request]="request" [nowMs]="nowMs()" />
+  } @else if (accessEnded()) {
+    <app-pam-access-ended-card />
+  } @else if (canRequestAccess()) {
+    <app-pam-request-access-card [terms]="restingRequestTerms()" />
+  }
 
-  <!-- Request access, inside whichever card offers a new request. -->
-  <ng-template #requestAccessAction>
-    @if (!requestFormOpen()) {
-      <button
-        #requestToggleButton
-        type="button"
-        bitButton
-        buttonType="primary"
-        [size]="popupLayout ? 'default' : 'small'"
-        [class.tw-w-full]="popupLayout"
-        [class.tw-self-start]="!popupLayout"
-        [startIcon]="popupLayout ? 'bwi-lock' : undefined"
-        (click)="openRequest()"
-        id="pam-cipher-view-banner_button_request-toggle"
-      >
-        {{ "pamRequestAccessButton" | i18n }}
-      </button>
-    }
-  </ng-template>
-
-  @if (requestFormOpen()) {
-    <div
-      #requestFoldOut
-      tabindex="-1"
-      role="group"
-      [attr.aria-label]="'pamRequestAccessButton' | i18n"
-      class="tw-mb-5 tw-flex tw-flex-col tw-gap-4 focus-visible:tw-outline-none bit-compact:tw-mb-4"
-      data-testid="request-fold-out"
-    >
-      <app-pam-request-access-form
-        #requestForm
-        [cipherId]="cipher().id"
-        (accessChanged)="closeRequestFormAndRefresh()"
-      />
-      <div class="tw-flex tw-items-center tw-gap-2">
-        @if (requestForm.requestMode() !== null) {
-          <button
-            type="button"
-            bitButton
-            buttonType="primary"
-            [bitAction]="requestForm.submitRequest"
-            id="pam-cipher-view-banner_button_request-submit"
-          >
-            {{ "requestAccessModalSubmitV2" | i18n }}
-          </button>
-        }
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          (click)="closeRequestForm()"
-          id="pam-cipher-view-banner_button_request-cancel"
-        >
-          {{ "cancel" | i18n }}
-        </button>
-      </div>
-    </div>
+  @if (requestSheetOpen()) {
+    <app-pam-request-access-sheet
+      [cipherId]="cipher().id"
+      [itemName]="cipher().name"
+      [terms]="restingRequestTerms()"
+      (dismissed)="closeRequestSheet()"
+      (accessChanged)="closeSheetAndRefreshAccess()"
+    />
   }
 }

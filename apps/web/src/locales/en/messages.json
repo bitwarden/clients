@@ -18527,6 +18527,28 @@
       }
     }
   },
+  "pamLeaseExpires": {
+    "message": "Expires $DATE$ at $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Expires today at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
   "pamExtendedBadge": {
     "message": "Extended +$DURATION$ · until $DATE$",
     "placeholders": {
@@ -18952,8 +18974,8 @@
   "pamAccessRequestLoadError": {
     "message": "Couldn't load this access request."
   },
-  "pamActiveLeaseBannerRemainingTitle": {
-    "message": "You have active access to this item: $DURATION$ remaining",
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Access active • $DURATION$ left",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18961,8 +18983,8 @@
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonRemainingTitle": {
-    "message": "Access to this item is ending soon: $DURATION$ remaining",
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Ending soon • $DURATION$ left",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19001,36 +19023,11 @@
   "pamEndedBannerBody": {
     "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
   },
-  "pamUnavailableBannerHeading": {
-    "message": "You can't request access right now"
-  },
-  "pamUnavailableBannerBody": {
-    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
-  },
   "pamApprovedRequestBannerHeadingV2": {
     "message": "Ready to use"
   },
-  "pamApprovedAccessUntilToday": {
-    "message": "You can access this credential until $TIME$ today.",
-    "placeholders": {
-      "time": {
-        "content": "$1",
-        "example": "4:45 PM"
-      }
-    }
-  },
-  "pamApprovedAccessUntil": {
-    "message": "You can access this credential until $TIME$ on $DATE$.",
-    "placeholders": {
-      "time": {
-        "content": "$1",
-        "example": "4:45 PM"
-      },
-      "date": {
-        "content": "$2",
-        "example": "Nov 6, 2026"
-      }
-    }
+  "pamApprovedRequestBannerHint": {
+    "message": "Copy credentials to get started"
   },
   "pamRequestAccessBannerBody": {
     "message": "Credentials are masked until access is granted."
@@ -19150,8 +19147,8 @@
   "requestAccessModalTitle": {
     "message": "Request access"
   },
-  "requestAccessModalSubmit": {
-    "message": "Request access"
+  "requestAccessModalSubmitV2": {
+    "message": "Send request"
   },
   "requestAccessModalDismiss": {
     "message": "Cancel"
@@ -19274,7 +19271,7 @@
     "message": "Access approved. Select Start access to begin."
   },
   "requestAccessModalRequestCreatedSuccessV2": {
-    "message": "Request submitted. Awaiting approval."
+    "message": "Access requested"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
