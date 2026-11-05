@@ -55,6 +55,11 @@ import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
 } from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
+import {
+  VAULT_ROW_ACCESS,
+  VaultRowAccess,
+  VaultRowAccessStatus,
+} from "../vault-row-access/vault-row-access.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -110,6 +115,18 @@ export class ItemMoreOptionsComponent {
 
   protected readonly RestrictedCipherAction = RestrictedCipherAction;
   private readonly revealedCipherService = inject(RevealedCipherService);
+
+  private readonly rowAccess: VaultRowAccess | null = inject(VAULT_ROW_ACCESS, { optional: true });
+
+  /** The privileged-control status of this row's cipher, `null` when it is not governed. */
+  protected readonly accessStatus = toSignal(
+    this._cipher$.pipe(
+      switchMap((cipher) =>
+        cipher?.id == null || this.rowAccess == null ? of(null) : this.rowAccess.status$(cipher),
+      ),
+    ),
+    { initialValue: null as VaultRowAccessStatus | null },
+  );
 
   /** The live revealed view of this row's restricted cipher, if any. */
   private readonly revealedView = toSignal(
@@ -188,8 +205,48 @@ export class ItemMoreOptionsComponent {
     private domainSettingsService: DomainSettingsService,
   ) {}
 
+  /**
+   * A PAM-gated item arrives as a reduced partial envelope: there is nothing to edit or fill until
+   * access is active, and the form and autofill paths do not exclude partials themselves.
+   */
+  get isPartial() {
+    return RestrictedCipherPolicy.isRestricted(this.cipher);
+  }
+
+  /**
+   * True for a restricted item with no live revealed view: only the view option remains. While a
+   * reveal is live, the restricted-cipher policy decides each action instead.
+   */
+  protected get isLocked() {
+    return this.isPartial && this.revealedView() == null;
+  }
+
+  /**
+   * True while the member holds the item through privileged control: a live lease, or a restricted
+   * item with a live reveal. Edit, clone and delete stay out of the menu until access ends.
+   */
+  protected get accessActive() {
+    return this.accessStatus()?.kind === "active" || (this.isPartial && !this.isLocked);
+  }
+
   get canEdit() {
-    return this.cipher.edit && this.allows(RestrictedCipherAction.Edit);
+    return this.cipher.edit && this.allows(RestrictedCipherAction.Edit) && !this.accessActive;
+  }
+
+  protected requestAccess() {
+    return this.rowAccess?.requestAccess(this.cipher);
+  }
+
+  protected startAccess() {
+    return this.rowAccess?.startAccess(this.cipher);
+  }
+
+  protected extendAccess() {
+    return this.rowAccess?.extendAccess(this.cipher);
+  }
+
+  protected endAccess() {
+    return this.rowAccess?.endAccess(this.cipher);
   }
 
   /** False when the restricted-cipher rule blocks the action. */
@@ -211,7 +268,7 @@ export class ItemMoreOptionsComponent {
   get canAutofill() {
     // A restricted cipher without a revealed view has nothing to fill.
     return (
-      !RestrictedCipherPolicy.isRestricted(this.cipher) &&
+      !this.isLocked &&
       (
         [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
       ).includes(CipherViewLikeUtils.getType(this.cipher))

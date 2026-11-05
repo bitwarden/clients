@@ -13,10 +13,16 @@ import {
 import {
   CipherViewBannerComponent,
   ItemDetailsStateBadgeComponent,
+  AccessBadgeTickerService,
   AccessRequestCancelService,
+  controlledAccessItemFilter,
+  ControlledAccessVaultFilterService,
+  MyAccessRequestsService,
   MyLeasesService,
+  CIPHER_VIEW_BANNER_LAYOUT,
 } from "@bitwarden/bit-pam-components";
 import { FillCipherPolicy } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
+import { VAULT_ROW_ACCESS } from "@bitwarden/browser/vault/popup/components/vault/vault-row-access/vault-row-access.token";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,7 +34,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeInjectionToken, SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import { CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
+import { CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE, VAULT_ITEM_FILTER } from "@bitwarden/vault";
 
 import { requestLeaseRefresh } from "../lease-messages";
 import { PamFillCipherPolicy } from "../pam-fill-cipher-policy";
@@ -36,6 +42,7 @@ import { PamFillCipherPolicy } from "../pam-fill-cipher-policy";
 import { BrowserAccessEventService } from "./browser-access-event.service";
 import { BrowserAccessRefreshService } from "./browser-access-refresh.service";
 import { PopupRevealedCipherService } from "./popup-revealed-cipher.service";
+import { BrowserVaultRowAccessService } from "./vault-row-access/browser-vault-row-access.service";
 
 /** PAM providers for the commercial popup. */
 export function providePam(): SafeProvider[] {
@@ -108,6 +115,38 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
+    }),
+    // The popup's item view has no room to fold the request form out in place.
+    safeProvider({
+      provide: CIPHER_VIEW_BANNER_LAYOUT,
+      useValue: "popup",
+    }),
+    // One read of the caller's requests behind every chip option's count and the selection.
+    safeProvider({
+      provide: MyAccessRequestsService,
+      useClass: MyAccessRequestsService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccountService,
+        AccessBadgeTickerService,
+        LogService,
+      ],
+    }),
+    safeProvider({
+      provide: ControlledAccessVaultFilterService,
+      useClass: ControlledAccessVaultFilterService,
+      deps: [],
+    }),
+    safeProvider({
+      provide: VAULT_ITEM_FILTER,
+      useFactory: controlledAccessItemFilter,
+      deps: [I18nService, ControlledAccessVaultFilterService],
+    }),
+    safeProvider({
+      provide: VAULT_ROW_ACCESS,
+      useClass: BrowserVaultRowAccessService,
+      deps: [],
     }),
   ];
 }
