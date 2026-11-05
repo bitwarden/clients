@@ -12,7 +12,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
   FormControl,
@@ -20,7 +20,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -36,6 +36,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -115,6 +116,16 @@ export class CipherAttachmentsComponent {
   protected readonly cipher = signal<CipherView | null>(null);
   protected readonly uploadProgress = signal<number | null>(null);
 
+  /** Attachment deletion follows the same rules as cipher deletion (e.g. the restrict-deletion policy) */
+  protected readonly canDeleteAttachments = toSignal(
+    toObservable(this.cipher).pipe(
+      switchMap((cipher) =>
+        cipher ? this.cipherAuthorizationService.canDeleteCipher$(cipher, this.admin()) : of(false),
+      ),
+    ),
+    { initialValue: false },
+  );
+
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
     file: new FormControl<File | null>(null, {
       nonNullable: true,
@@ -125,6 +136,7 @@ export class CipherAttachmentsComponent {
   private cipherDomain: Cipher | null = null;
   private activeUserId: UserId | null = null;
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cipherAuthorizationService = inject(CipherAuthorizationService);
 
   constructor(
     private cipherService: CipherService,

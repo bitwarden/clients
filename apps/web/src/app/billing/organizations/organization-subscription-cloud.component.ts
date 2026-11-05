@@ -1,32 +1,43 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
+import { DatePipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { BehaviorSubject, filter, firstValueFrom, lastValueFrom, map, switchMap, take } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { GearIcon } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  OrganizationApiKeyType,
-  OrganizationUserStatusType,
-} from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
-import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  ContainerComponent,
+  DialogService,
+  FormControlModule,
+  ProgressBarComponent,
+  SpinnerComponent,
+  TableModule,
+  ToastService,
+  TypographyModule,
+  CalloutComponent,
+  SvgComponent,
+} from "@bitwarden/components";
 import { DiscountTypes, getAmount } from "@bitwarden/pricing";
+import {
+  ErrorCardComponent,
+  SubscriptionCardAction,
+  SubscriptionCardActions,
+  SubscriptionCardComponent,
+} from "@bitwarden/subscription";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { OrganizationBillingClient } from "../clients";
 import {
   AdjustStorageDialogComponent,
@@ -37,6 +48,7 @@ import {
   openOffboardingSurvey,
 } from "../shared/offboarding-survey.component";
 
+import { AdjustSubscription } from "./adjust-subscription.component";
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-dialog.component";
 import {
@@ -44,604 +56,763 @@ import {
   ChurnMitigationOfferDialogResultType,
 } from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
-import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
+import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import {
+  PrivilegedControlsAdjustSubscriptionComponent,
+  PrivilegedControlsSubscriptionOptions,
+} from "./privileged-controls-adjust-subscription.component";
+import { resolveOrgSubscriptionAccess } from "./resolve-org-subscription-access";
+import {
+  openRestartSubscriptionDialog,
+  RestartSubscriptionDialogResultType,
+} from "./restart-subscription-dialog.component";
+import {
+  SecretsManagerAdjustSubscriptionComponent,
+  SecretsManagerSubscriptionOptions,
+} from "./sm-adjust-subscription.component";
+import { SecretsManagerSubscribeStandaloneComponent } from "./sm-subscribe-standalone.component";
+import { OrganizationScheduledPriceIncreaseWarningComponent } from "./warnings/components";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+const FAMILIES_OR_STARTER_PLANS: PlanType[] = [
+  PlanType.FamiliesAnnually,
+  PlanType.FamiliesAnnually2025,
+  PlanType.FamiliesAnnually2019,
+  PlanType.TeamsStarter2023,
+  PlanType.TeamsStarter,
+];
+
+const ENDED_STATUSES: (string | undefined)[] = ["canceled", "incomplete_expired"];
+
+const QUERY_PARAM_UPGRADE = "upgrade";
+const QUERY_PARAM_PRODUCT_TIER = "productTierType";
+
+/** Maps a subscription status to its i18n key for the resold-org status table. */
+const SubscriptionStatusLabels: Record<string, string> = {
+  trialing: "trial",
+  active: "active",
+  past_due: "pastDue",
+  unpaid: "unpaid",
+  canceled: "canceled",
+};
+
 @Component({
-  templateUrl: "organization-subscription-cloud.component.html",
-  standalone: false,
+  selector: "app-organization-subscription-cloud",
+  templateUrl: "./organization-subscription-cloud.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    RouterModule,
+    AsyncActionsModule,
+    ButtonModule,
+    ContainerComponent,
+    FormControlModule,
+    ProgressBarComponent,
+    SpinnerComponent,
+    TableModule,
+    TypographyModule,
+    I18nPipe,
+    HeaderModule,
+    SubscriptionCardComponent,
+    OrganizationScheduledPriceIncreaseWarningComponent,
+    AdjustSubscription,
+    SecretsManagerSubscribeStandaloneComponent,
+    SecretsManagerAdjustSubscriptionComponent,
+    PrivilegedControlsAdjustSubscriptionComponent,
+    ErrorCardComponent,
+    CalloutComponent,
+    DatePipe,
+    SvgComponent,
+  ],
 })
-export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy {
-  static readonly QUERY_PARAM_UPGRADE: string = "upgrade";
-  static readonly ROUTE_PARAM_ORGANIZATION_ID: string = "organizationId";
+export class OrganizationSubscriptionCloudComponent {
+  private readonly data = inject(OrganizationSubscriptionDataService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly i18nService = inject(I18nService);
+  private readonly dialogService = inject(DialogService);
+  private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
+  private readonly apiService = inject(ApiService);
+  private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
+  private readonly organizationBillingClient = inject(OrganizationBillingClient);
+  private readonly configService = inject(ConfigService);
 
-  sub: OrganizationSubscriptionResponse;
-  lineItems: BillingSubscriptionItemResponse[] = [];
-  organizationId: string;
-  userOrg: Organization;
-  showChangePlan = false;
-  hasBillingSyncToken: boolean;
-  showAdjustSecretsManager = false;
-  showSecretsManagerSubscribe = false;
-  loading = true;
-  locale: string;
-  preSelectedProductTier: ProductTierType = ProductTierType.Free;
-  showSubscription = true;
-  showSelfHost = false;
-  organizationIsManagedByConsolidatedBillingMSP = false;
-  resellerSeatsRemainingMessage: string;
-  isResellerOrganizationOwnerExempt: boolean;
+  // Re-fires the subscription data streams after a mutation (reinstate, cancel, storage, etc.).
+  // Seeded so the streams load once on init, then reload each time refreshAll() emits.
+  private readonly refresh$ = new BehaviorSubject<void>(undefined);
+  readonly organizationId: string = this.route.snapshot.params.organizationId;
+  protected readonly typedOrganizationId = this.organizationId as OrganizationId;
+  readonly gearIcon = GearIcon;
 
-  protected readonly gearIcon = GearIcon;
-  protected readonly teamsStarter = ProductTierType.TeamsStarter;
+  constructor() {
+    this.openChangePlanIfUpgradeRequested();
+  }
 
-  private destroy$ = new Subject<void>();
+  readonly organization = toSignal(
+    this.refresh$.pipe(switchMap(() => this.data.organization$(this.organizationId))),
+  );
 
-  constructor(
-    private apiService: ApiService,
-    private i18nService: I18nService,
-    private logService: LogService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private route: ActivatedRoute,
-    private dialogService: DialogService,
-    private toastService: ToastService,
-    private organizationUserApiService: OrganizationUserApiService,
-    private organizationBillingClient: OrganizationBillingClient,
-  ) {}
+  /**
+   * Loads the organization subscription
+   */
+  readonly organizationSubscriptionResource = resource({
+    params: () => this.organizationId,
+    loader: ({ params: organizationId }) =>
+      firstValueFrom(this.data.organizationSubscription$(organizationId)),
+  });
 
-  async ngOnInit() {
-    this.organizationId =
-      this.route.snapshot.params[
-        OrganizationSubscriptionCloudComponent.ROUTE_PARAM_ORGANIZATION_ID
-      ];
-    await this.load();
+  /**
+   * The organization subscription if it has been loaded, or null otherwise.
+   */
+  readonly organizationSubscription = computed(() =>
+    this.organizationSubscriptionResource.hasValue()
+      ? this.organizationSubscriptionResource.value()
+      : null,
+  );
 
-    if (
-      this.route.snapshot.queryParams[OrganizationSubscriptionCloudComponent.QUERY_PARAM_UPGRADE]
-    ) {
-      await this.changePlan();
-      const productTierTypeStr = this.route.snapshot.queryParamMap.get("productTierType");
-      if (productTierTypeStr != null) {
-        const productTier = Number(productTierTypeStr);
-        if (Object.values(ProductTierType).includes(productTier as ProductTierType)) {
-          this.preSelectedProductTier = productTier;
-        }
-      }
+  // Stream form for the upgrade deep-link flow, which must await the load before opening the dialog.
+  private readonly organizationSubscription$ = toObservable(this.organizationSubscription);
+
+  /**
+   * Observable for the presence of a billing sync token for the organization.
+   * @summary Provides a reactive stream indicating whether the organization has a billing sync token.
+   * @returns A reactive stream that emits a boolean value indicating the presence of a billing sync token.
+   */
+  readonly hasBillingSyncToken = toSignal(
+    this.refresh$.pipe(switchMap(() => this.data.hasBillingSyncToken$(this.organizationId))),
+  );
+
+  /**
+   * Observable for the number of reseller seats remaining for the organization.
+   * @summary Provides a reactive stream indicating the remaining reseller seats for the organization.
+   * @returns A reactive stream that emits the number of reseller seats remaining.
+   */
+  readonly resellerSeatsRemaining = toSignal(
+    this.refresh$.pipe(switchMap(() => this.data.resellerSeatsRemaining$(this.organizationId))),
+  );
+
+  /**
+   * Returns a subscription preview for the given organization.
+   * @returns A resource that resolves to the subscription preview for the given organization.
+   * @summary Provides a reactive resource for the subscription preview of the organization.
+   */
+  readonly subscriptionPreview = resource({
+    // Keyed on the id, not the object: organizations$ emits a new instance on every sync.
+    params: () =>
+      this.showSubscription() && !this.isFreeOrg() ? this.organization()?.id : undefined,
+    loader: async ({ params: organizationId }) => {
+      return organizationId ? await this.data.getSubscriptionPreview(organizationId) : null;
+    },
+  });
+
+  private readonly billingSubscription = computed(
+    () => this.organizationSubscription()?.subscription ?? null,
+  );
+
+  // Only read for the sm-standalone discount check.
+  protected readonly customerDiscount = computed(
+    () => this.organizationSubscription()?.customerDiscount ?? null,
+  );
+
+  /**
+   * Computes the pending annual upgrade for the organization, if any.
+   * @summary if a pending annual upgrade exists, it will be returned; otherwise, null is returned.
+   * @returns The pending annual upgrade object, or null if none exists.
+   */
+  readonly pendingAnnualUpgrade = computed(() => {
+    const sub = this.organizationSubscription();
+    return sub?.pendingAnnualUpgrade;
+  });
+
+  /**
+   * Computes the access rights for the organization subscription.
+   * @summary Provides a reactive computation for the access rights of the organization subscription.
+   * @returns The access rights object, or null if the organization is not available.
+   */
+  readonly access = computed(() => {
+    const org = this.organization();
+    return org ? resolveOrgSubscriptionAccess(org) : null;
+  });
+
+  readonly canEditSubscription = computed(() => this.access()?.canEditSubscription ?? false);
+  readonly showSubscription = computed(() => this.access()?.showSubscription ?? false);
+  readonly showSubscriptionStatus = computed(() => this.access()?.showSubscriptionStatus ?? false);
+  readonly isFreeOrg = computed(() => this.access()?.isFreeOrg ?? false);
+
+  readonly cardTitle = computed(() => {
+    const plan = this.organizationSubscription()?.plan;
+    if (plan == null) {
+      return null;
     }
+    const cadence = this.i18nService.t(plan.isAnnual ? "annualLower" : "monthlyLower");
+    return this.i18nService.t(
+      "organizationSubscriptionCardTitle",
+      this.i18nService.t(plan.nameLocalizationKey),
+      cadence,
+    );
+  });
 
-    if (this.userOrg.hasReseller) {
-      const allUsers = await this.organizationUserApiService.getAllUsers(this.userOrg.id);
+  /**
+   * Determines if the current subscription is a sponsored subscription.
+   * @summary Provides a reactive computation for the sponsored subscription status.
+   * @returns True if any subscription items contained in the current subscription are sponsored, false otherwise.
+   */
+  readonly isSponsoredSubscription = computed(
+    () => this.billingSubscription()?.items.some((item) => item.sponsoredSubscriptionItem) ?? false,
+  );
 
-      const userCount = allUsers.data.filter((user) =>
-        [
-          OrganizationUserStatusType.Invited,
-          OrganizationUserStatusType.Accepted,
-          OrganizationUserStatusType.Confirmed,
-        ].includes(user.status),
-      ).length;
+  /** Plan name for the resold-org status table. */
+  readonly statusPlanName = computed(() => this.organizationSubscription()?.plan?.name ?? null);
 
-      const remainingSeats = this.userOrg.seats - userCount;
-
-      const seatsRemaining = this.i18nService.t(
-        "seatsRemaining",
-        remainingSeats.toString(),
-        this.userOrg.seats.toString(),
-      );
-
-      this.resellerSeatsRemainingMessage = seatsRemaining;
+  /** Localized status for the resold-org status table; hidden when unmapped or absent. */
+  readonly statusLabel = computed(() => {
+    const subscription = this.organizationSubscription()?.subscription;
+    if (subscription == null) {
+      return null;
     }
-  }
+    // A pending cancellation is canceled-at-period-end or a cancelled-but-active subscription.
+    const pendingCancellation =
+      subscription.cancelAtEndDate ||
+      (subscription.status === "active" && subscription.cancelledDate != null);
+    const key = pendingCancellation
+      ? "pendingCancellation"
+      : SubscriptionStatusLabels[subscription.status];
+    return key ? this.i18nService.t(key) : null;
+  });
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  /** Next charge date for the resold-org status table. */
+  readonly nextChargeDate = computed(
+    () => this.organizationSubscription()?.subscription?.periodEndDate ?? null,
+  );
 
-  async load() {
-    this.loading = true;
-    this.locale = await firstValueFrom(this.i18nService.locale$);
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.userOrg = await firstValueFrom(
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.organizationId)),
-    );
+  readonly canAdjustSeats = computed(
+    () => this.organizationSubscription()?.plan?.PasswordManager.hasAdditionalSeatsOption ?? false,
+  );
 
-    const isIndependentOrganizationOwner = !this.userOrg.hasProvider && this.userOrg.isOwner;
-    const isResoldOrganizationOwner = this.userOrg.hasReseller && this.userOrg.isOwner;
-    const isMSPUser = this.userOrg.hasProvider && this.userOrg.isProviderUser;
-
-    this.organizationIsManagedByConsolidatedBillingMSP =
-      this.userOrg.hasProvider && this.userOrg.hasBillableProvider;
-
-    this.showSubscription =
-      isIndependentOrganizationOwner ||
-      isResoldOrganizationOwner ||
-      (isMSPUser && !this.organizationIsManagedByConsolidatedBillingMSP);
-
-    this.showSelfHost =
-      this.userOrg.productTierType === ProductTierType.Families ||
-      this.userOrg.productTierType === ProductTierType.Enterprise;
-
-    if (this.showSubscription) {
-      this.sub = await this.organizationApiService.getSubscription(this.organizationId);
-
-      // When an annual upgrade is scheduled but not yet active, show the scheduled (annual) line
-      // items instead of the still-active monthly ones. Classify Password Manager vs. Secrets
-      // Manager against the scheduled plan's seat price so the label matches the shown items.
-      const effectivePlan = this.sub?.pendingAnnualUpgrade?.plan ?? this.sub?.plan;
-      this.lineItems =
-        this.sub?.pendingAnnualUpgrade?.lineItems ?? this.sub?.subscription?.items ?? [];
-
-      if (this.lineItems && this.lineItems.length) {
-        this.lineItems = this.lineItems
-          .map((item) => {
-            const itemTotalAmount = item.amount * item.quantity;
-            const seatPriceTotal = effectivePlan?.SecretsManager?.seatPrice * item.quantity;
-            item.productName =
-              itemTotalAmount === seatPriceTotal || item.name.includes("Service Accounts")
-                ? "secretsManager"
-                : "passwordManager";
-            return item;
-          })
-          .sort(sortSubscriptionItems);
-      }
-
-      if (this.sub?.customerDiscount?.percentOff == 100) {
-        this.lineItems.reverse();
-      }
+  /**
+   * Determines if the "Change Plan" button should be shown.
+   * @returns True if the change plan button should be displayed, false otherwise.
+   */
+  readonly showChangePlanButton = computed(() => {
+    const orgSubscription = this.organizationSubscription();
+    if (orgSubscription == null || orgSubscription.plan == null) {
+      return false;
     }
+    const isCanceled = orgSubscription.subscription?.cancelled;
+    const canChangePlan =
+      orgSubscription.plan.productTier !== ProductTierType.Enterprise && !isCanceled;
 
-    const apiKeyResponse = await this.organizationApiService.getApiKeyInformation(
-      this.organizationId,
+    const isFreePlanCancelled =
+      isCanceled && orgSubscription.plan.productTier === ProductTierType.Free;
+
+    return canChangePlan || isFreePlanCancelled;
+  });
+
+  /**
+   * Determines if the "Secrets Manager Subscribe" section should be shown.
+   * @returns True if the section should be displayed, false otherwise.
+   */
+  readonly showSecretsManagerSubscribe = computed(() => {
+    const org = this.organization();
+    const sub = this.organizationSubscription();
+    if (org == null || sub == null || sub.plan == null) {
+      return false;
+    }
+    const hasAProvider = org.hasProvider;
+    const isSubscribedToSecretsManager = org.useSecretsManager;
+    const secretManagerSubscriptionInformation = sub.plan.SecretsManager;
+    return (
+      !hasAProvider &&
+      secretManagerSubscriptionInformation != null &&
+      !isSubscribedToSecretsManager &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
     );
-    this.hasBillingSyncToken = apiKeyResponse.data.some(
-      (i) => i.keyType === OrganizationApiKeyType.BillingSync,
+  });
+
+  /**
+   * Determines if the "Adjust Secrets Manager" section should be shown.
+   * @returns True if the section should be displayed, false otherwise.
+   */
+  readonly showAdjustSecretsManager = computed(() => {
+    const org = this.organization();
+    const sub = this.organizationSubscription();
+    if (org == null || sub == null) {
+      return false;
+    }
+    const isSubscribedToSecretsManager = org.useSecretsManager;
+    const hasAdditionalSeatsOption = sub.plan?.SecretsManager?.hasAdditionalSeatsOption;
+    return (
+      isSubscribedToSecretsManager &&
+      hasAdditionalSeatsOption &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
     );
+  });
 
-    this.showSecretsManagerSubscribe =
-      this.userOrg.canEditSubscription &&
-      !this.userOrg.hasProvider &&
-      this.sub?.plan?.SecretsManager &&
-      !this.userOrg.useSecretsManager &&
-      !this.subscription?.cancelled &&
-      !this.subscriptionMarkedForCancel;
+  private readonly pamBillingSupportEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
+    { initialValue: false },
+  );
 
-    this.showAdjustSecretsManager =
-      this.userOrg.canEditSubscription &&
-      this.userOrg.useSecretsManager &&
-      this.subscription != null &&
-      this.sub.plan?.SecretsManager?.hasAdditionalSeatsOption &&
-      !this.subscription.cancelled &&
-      !this.subscriptionMarkedForCancel;
+  readonly showAdjustPrivilegedControls = computed(() => {
+    const org = this.organization();
+    const sub = this.organizationSubscription();
+    if (!this.pamBillingSupportEnabled() || org == null || sub == null) {
+      return false;
+    }
+    return (
+      org.usePam &&
+      this.privilegedControlsOptions() != null &&
+      sub.isOnPamSalesInitiatedTrial !== true &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
+    );
+  });
 
-    this.isResellerOrganizationOwnerExempt =
-      this.userOrg.hasReseller && !!this.sub?.exemptFromBillingAutomation;
+  /**
+   * Determines if the password manager seats can be adjusted.
+   * @returns True if the password manager seats can be adjusted, false otherwise.
+   */
+  readonly canAdjustPasswordManagerSeats = computed(() => {
+    const discount = this.customerDiscount();
+    return (
+      this.canAdjustSeats() &&
+      !this.isSubscriptionCanceledOrPendingCancellation() &&
+      // sm-standalone is the only discount we look for from legacy component
+      (discount == null || discount.id !== "sm-standalone")
+    );
+  });
 
-    this.loading = false;
-  }
+  /**
+   * Determines if the "Storage" section should be shown.
+   * @returns True if the section should be displayed, false otherwise.
+   */
+  readonly showStorage = computed(() => {
+    const discount = this.customerDiscount();
+    // sm-standalone is the only discount we look for from legacy component
+    return discount == null || discount.id !== "sm-standalone";
+  });
 
-  get subscription() {
-    return this.sub != null ? this.sub.subscription : null;
-  }
+  /**
+   * Determines if the subscription is cancelled or pending cancellation.
+   * @returns True if the subscription is cancelled or pending cancellation, false otherwise.
+   */
+  readonly isSubscriptionCanceledOrPendingCancellation = computed(() => {
+    const billing = this.billingSubscription();
+    // Free organizations have no billing subscription, so nothing is cancelled.
+    if (billing == null) {
+      return false;
+    }
+    const isPendingCancellation =
+      billing.cancelAtEndDate || (billing.status === "active" && billing.cancelledDate != null);
+    return billing.cancelled || isPendingCancellation;
+  });
 
-  get subscriptionLineItems() {
-    // A fixed `amountOff` applies once to the subscription total, so it is consumed across the
-    // ordered line items rather than subtracted from each line independently. Compute the discounted
-    // line totals up front to track that running balance.
-    const discountedTotals = this.discountedLineTotals();
-    return this.lineItems.map((lineItem: BillingSubscriptionItemResponse, index: number) => ({
-      name: lineItem.name,
-      originalAmount: lineItem.amount,
-      amount: this.discountPrice(lineItem.amount, lineItem.productId),
-      discountedTotal: discountedTotals[index],
-      // True only when this line's total was actually reduced. A fixed amount-off consumed in full by
-      // earlier lines leaves later lines undiscounted, so they must not render a strikethrough/qualifier.
-      discounted: discountedTotals[index] < lineItem.quantity * lineItem.amount,
-      quantity: lineItem.quantity,
-      interval: lineItem.interval,
-      sponsoredSubscriptionItem: lineItem.sponsoredSubscriptionItem,
-      addonSubscriptionItem: lineItem.addonSubscriptionItem,
-      productName: lineItem.productName,
-      productId: lineItem.productId,
-    }));
+  /**
+   * Determines the billing interval for the subscription.
+   * @returns The billing interval, either "month" or "year".
+   */
+  readonly billingInterval = computed(() => {
+    const plan = this.organizationSubscription()?.plan;
+    return plan?.isAnnual ? "year" : "month";
+  });
+
+  /**
+   * Determines the price per GB of additional storage for the subscription.
+   * @returns The price per GB of additional storage, or 0 if not applicable.
+   */
+  readonly storageGbPrice = computed(
+    () => this.organizationSubscription()?.plan?.PasswordManager.additionalStoragePricePerGb ?? 0,
+  );
+
+  /**
+   * Determines the price per seat for the subscription.
+   * @returns The price per seat, or 0 if not applicable.
+   */
+  readonly seatPrice = computed(() => {
+    const price = this.organizationSubscription()?.plan?.PasswordManager.seatPrice;
+    return price == null ? 0 : this.discountPrice(price);
+  });
+
+  /**
+   * Retrieves the number of seats for the subscription.
+   * @returns The number of seats, or undefined if not applicable.
+   */
+  readonly seats = computed(() => this.organizationSubscription()?.seats);
+
+  /**
+   * Retrieves the maximum number of autoscale seats for the subscription.
+   * @returns The maximum number of autoscale seats, or undefined if not applicable.
+   */
+  readonly maxAutoscaleSeats = computed(() => this.organizationSubscription()?.maxAutoscaleSeats);
+
+  /**
+   * Retrieves the maximum storage in GB for the subscription.
+   * @returns The maximum storage in GB, or undefined if not applicable.
+   */
+  readonly maxStorageGb = computed(() => this.organizationSubscription()?.maxStorageGb ?? 0);
+
+  /**
+   * Retrieves the name of the storage for the subscription.
+   * @returns The storage name, or "0 MB" if not applicable.
+   */
+  readonly storageName = computed(() => this.organizationSubscription()?.storageName ?? "0 MB");
+
+  /**
+   * Calculates the storage usage percentage for the subscription.
+   * @returns The storage usage percentage, or 0 if not applicable.
+   */
+  readonly storagePercentage = computed(() => {
+    const sub = this.organizationSubscription();
+    return sub?.maxStorageGb ? +(100 * (sub.storageGb / sub.maxStorageGb)).toFixed(2) : 0;
+  });
+
+  /**
+   * Retrieves the Secrets Manager subscription options for the organization.
+   * @returns The Secrets Manager subscription options, or null if not applicable.
+   */
+  readonly smOptions = computed<SecretsManagerSubscriptionOptions | null>(() => {
+    const sub = this.organizationSubscription();
+    if (sub == null || sub.plan == null) {
+      return null;
+    }
+    return {
+      seatCount: sub.smSeats ?? 0,
+      maxAutoscaleSeats: sub.maxAutoscaleSmSeats,
+      seatPrice: sub.plan.SecretsManager.seatPrice,
+      maxAutoscaleServiceAccounts: sub.maxAutoscaleSmServiceAccounts,
+      additionalServiceAccounts: Math.max(
+        0,
+        (sub.smServiceAccounts ?? 0) -
+          sub.plan.SecretsManager.baseServiceAccount -
+          (sub.smServiceAccountsGrace ?? 0),
+      ),
+      interval: sub.plan.isAnnual ? "year" : "month",
+      additionalServiceAccountPrice: sub.plan.SecretsManager.additionalPricePerServiceAccount,
+      baseServiceAccountCount: sub.plan.SecretsManager.baseServiceAccount,
+      graceServiceAccounts: sub.smServiceAccountsGrace ?? 0,
+    };
+  });
+
+  readonly privilegedControlsOptions = computed<PrivilegedControlsSubscriptionOptions | null>(
+    () => {
+      const sub = this.organizationSubscription();
+      const plan = sub?.plan;
+      const privilegedControls = plan?.PrivilegedControls;
+      if (sub == null || plan == null || privilegedControls == null || sub.pamSeats == null) {
+        return null;
+      }
+      return {
+        seatCount: sub.pamSeats,
+        maxAutoscaleSeats: sub.maxAutoscalePamSeats,
+        passwordManagerSeats: sub.seats,
+        passwordManagerMaxAutoscaleSeats: sub.maxAutoscaleSeats ?? undefined,
+        seatPrice: privilegedControls.seatPrice,
+        interval: plan.isAnnual ? "year" : "month",
+      };
+    },
+  );
+
+  /**
+   * Retrieves the description of the subscription for display purposes.
+   * @returns The subscription description, or an empty string if not applicable.
+   */
+  readonly subscriptionDesc = computed(() => {
+    const sub = this.organizationSubscription();
+    const org = this.organization();
+    if (sub == null) {
+      return "";
+    }
+    if (sub.planType === PlanType.Free) {
+      return this.i18nService.t("subscriptionFreePlan", sub.seats.toString());
+    }
+    if (FAMILIES_OR_STARTER_PLANS.includes(sub.planType)) {
+      return this.isSponsoredSubscription()
+        ? this.i18nService.t("subscriptionSponsoredFamiliesPlan", sub.seats.toString())
+        : this.i18nService.t("subscriptionUpgrade", sub.seats.toString());
+    }
+    if (sub.maxAutoscaleSeats === sub.seats && sub.seats != null) {
+      return this.i18nService.t("subscriptionSeatMaxReached", sub.seats.toString());
+    }
+    if (org?.productTierType === ProductTierType.TeamsStarter) {
+      return this.i18nService.t("subscriptionUserSeatsWithoutAdditionalSeatsOption", 10);
+    }
+    const key = sub.plan?.isAnnual
+      ? "annualSubscriptionUserSeatsMessage"
+      : "monthlySubscriptionUserSeatsMessage";
+    if (sub.maxAutoscaleSeats == null) {
+      return this.i18nService.t(key);
+    }
+    return this.i18nService.t(key, sub.maxAutoscaleSeats.toString());
+  });
+
+  /**
+   * Handles actions triggered from the subscription card.
+   * @param action The action to handle.
+   */
+  handleCardAction(action: SubscriptionCardAction) {
+    switch (action) {
+      case SubscriptionCardActions.ReinstateSubscription:
+        void this.reinstate();
+        return;
+      case SubscriptionCardActions.UpgradePlan:
+        void this.changePlan();
+        return;
+      case SubscriptionCardActions.Resubscribe:
+        void this.resubscribe();
+        return;
+      case SubscriptionCardActions.ManageInvoices:
+        void this.router.navigate(["../history"], { relativeTo: this.route });
+        return;
+      case SubscriptionCardActions.UpdatePayment:
+        void this.router.navigate(["../payment-details"], { relativeTo: this.route });
+        return;
+      case SubscriptionCardActions.ContactSupport:
+        this.platformUtilsService.launchUri("https://bitwarden.com/contact/");
+        return;
+    }
   }
 
   /**
-   * Discounted total for each line item, aligned by index with `lineItems`.
-   *
-   * The percentage discount scales per unit, so each line total is `quantity × discounted unit`.
-   * A fixed `amountOff` applies once to the whole subscription, so it is subtracted from the running
-   * total across the applicable lines (clamped at 0) — never multiplied across lines.
+   * Initiates the dialog to change the subscription plan for the organization.
+   * @param preSelectedProductTier Optional pre-selected product tier for the change plan dialog.
    */
-  private discountedLineTotals(): number[] {
-    const customerDiscount = this.customerDiscount;
-    let remainingAmountOff = customerDiscount?.amountOff ?? 0;
-
-    return this.lineItems.map((lineItem) => {
-      const lineTotal = lineItem.quantity * lineItem.amount;
-
-      if (remainingAmountOff > 0 && this.discountAppliesToProduct(lineItem.productId)) {
-        const applied = Math.min(remainingAmountOff, lineTotal);
-        remainingAmountOff -= applied;
-        return lineTotal - applied;
-      }
-
-      return lineItem.quantity * this.discountPrice(lineItem.amount, lineItem.productId);
+  readonly changePlan = async (preSelectedProductTier?: ProductTierType) => {
+    const sub = this.organizationSubscription();
+    const org = this.organization();
+    if (sub == null || org == null) {
+      return;
+    }
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        subscription: sub,
+        productTierType: preSelectedProductTier ?? org.productTierType,
+      },
     });
-  }
-
-  get nextInvoice() {
-    return this.sub != null ? this.sub.upcomingInvoice : null;
-  }
-
-  get customerDiscount() {
-    return this.sub != null ? this.sub.customerDiscount : null;
-  }
-
-  get isExpired() {
-    const nextInvoice = this.nextInvoice;
-
-    if (nextInvoice == null) {
-      return false;
+    const result = await lastValueFrom(reference.closed);
+    if (result === ChangePlanDialogResultType.Closed) {
+      return;
     }
+    this.refreshAll();
+  };
 
-    return new Date(nextInvoice.date).getTime() < Date.now();
-  }
-
-  get storagePercentage() {
-    return this.sub != null && this.sub.maxStorageGb
-      ? +(100 * (this.sub.storageGb / this.sub.maxStorageGb)).toFixed(2)
-      : 0;
-  }
-
-  get billingInterval() {
-    const monthly = !this.sub.plan.isAnnual;
-    return monthly ? "month" : "year";
-  }
-
-  get storageGbPrice() {
-    return this.sub.plan.PasswordManager.additionalStoragePricePerGb;
-  }
-
-  get seatPrice() {
-    return this.discountPrice(this.sub.plan.PasswordManager.seatPrice);
-  }
-
-  get seats() {
-    return this.sub.seats;
-  }
-
-  get smOptions(): SecretsManagerSubscriptionOptions {
-    return {
-      seatCount: this.sub.smSeats,
-      maxAutoscaleSeats: this.sub.maxAutoscaleSmSeats,
-      seatPrice: this.sub.plan.SecretsManager.seatPrice,
-      maxAutoscaleServiceAccounts: this.sub.maxAutoscaleSmServiceAccounts,
-      additionalServiceAccounts: Math.max(
-        0,
-        this.sub.smServiceAccounts -
-          this.sub.plan.SecretsManager.baseServiceAccount -
-          (this.sub.smServiceAccountsGrace ?? 0),
-      ),
-      interval: this.sub.plan.isAnnual ? "year" : "month",
-      additionalServiceAccountPrice: this.sub.plan.SecretsManager.additionalPricePerServiceAccount,
-      baseServiceAccountCount: this.sub.plan.SecretsManager.baseServiceAccount,
-      graceServiceAccounts: this.sub.smServiceAccountsGrace ?? 0,
-    };
-  }
-
-  get maxAutoscaleSeats() {
-    return this.sub.maxAutoscaleSeats;
-  }
-
-  get canAdjustSeats() {
-    return this.sub.plan.PasswordManager.hasAdditionalSeatsOption;
-  }
-
-  get isSponsoredSubscription(): boolean {
-    return this.sub.subscription?.items.some((i) => i.sponsoredSubscriptionItem);
-  }
-
-  get subscriptionDesc() {
-    if (this.sub.planType === PlanType.Free) {
-      return this.i18nService.t("subscriptionFreePlan", this.sub.seats.toString());
-    } else if (
-      this.sub.planType === PlanType.FamiliesAnnually ||
-      this.sub.planType === PlanType.FamiliesAnnually2025 ||
-      this.sub.planType === PlanType.FamiliesAnnually2019 ||
-      this.sub.planType === PlanType.TeamsStarter2023 ||
-      this.sub.planType === PlanType.TeamsStarter
-    ) {
-      if (this.isSponsoredSubscription) {
-        return this.i18nService.t("subscriptionSponsoredFamiliesPlan", this.sub.seats.toString());
-      } else {
-        return this.i18nService.t("subscriptionUpgrade", this.sub.seats.toString());
+  /**
+   * Restarts an ended subscription through the restart dialog, and otherwise opens the change
+   * plan dialog.
+   * @param preSelectedProductTier Optional pre-selected product tier for the change plan dialog.
+   * Ignored for an ended subscription, which always restarts on its own plan.
+   */
+  readonly resubscribe = async (preSelectedProductTier?: ProductTierType): Promise<void> => {
+    const subscription = this.organizationSubscription();
+    const status = subscription?.subscription?.status;
+    if (subscription != null && ENDED_STATUSES.includes(status)) {
+      const reference = openRestartSubscriptionDialog(this.dialogService, {
+        data: { organizationId: this.organizationId, subscription },
+      });
+      const result = await lastValueFrom(reference.closed);
+      if (result === RestartSubscriptionDialogResultType.Submitted) {
+        this.refreshAll();
       }
-    } else if (this.sub.maxAutoscaleSeats === this.sub.seats && this.sub.seats != null) {
-      const seatAdjustmentMessage = this.sub.plan.isAnnual
-        ? "annualSubscriptionUserSeatsMessage"
-        : "monthlySubscriptionUserSeatsMessage";
-      return this.i18nService.t(
-        seatAdjustmentMessage + "subscriptionSeatMaxReached",
-        this.sub.seats.toString(),
-      );
-    } else if (this.userOrg.productTierType === ProductTierType.TeamsStarter) {
-      return this.i18nService.t("subscriptionUserSeatsWithoutAdditionalSeatsOption", 10);
-    } else if (this.sub.maxAutoscaleSeats == null) {
-      const seatAdjustmentMessage = this.sub.plan.isAnnual
-        ? "annualSubscriptionUserSeatsMessage"
-        : "monthlySubscriptionUserSeatsMessage";
-      return this.i18nService.t(seatAdjustmentMessage);
-    } else {
-      const seatAdjustmentMessage = this.sub.plan.isAnnual
-        ? "annualSubscriptionUserSeatsMessage"
-        : "monthlySubscriptionUserSeatsMessage";
-      return this.i18nService.t(seatAdjustmentMessage, this.sub.maxAutoscaleSeats.toString());
+      return;
     }
-  }
+    await this.changePlan(preSelectedProductTier);
+  };
 
-  get subscriptionMarkedForCancel() {
-    if (!this.subscription || this.subscription.cancelled) {
-      return false;
+  readonly reinstate = async () => {
+    if (this.subscriptionPreview.isLoading()) {
+      return;
     }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "keepSubscription" },
+      content: { key: "undoCancellationRequestConfirmation" },
+      type: "info",
+      acceptButtonText: { key: "keepAndReactivate" },
+      cancelButtonText: { key: "cancel" },
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.organizationApiService.reinstate(this.organizationId);
+      this.toastService.showToast({
+        variant: "success",
+        title: undefined,
+        message: this.i18nService.t("subscriptionIsNowActive"),
+      });
+      this.refreshAll();
+    } catch (e) {
+      this.logService.error(e);
+    }
+  };
 
-    const { status, cancelAtEndDate, cancelledDate } = this.subscription;
-    return cancelAtEndDate || (status === "active" && !!cancelledDate);
-  }
-
-  cancelSubscription = async () => {
-    const offer = await this.organizationBillingClient.getChurnOffer(this.organizationId as any);
+  /**
+   * Initiates the dialog to cancel the subscription for the organization.
+   */
+  readonly cancelSubscription = async () => {
+    const sub = this.organizationSubscription();
+    if (sub == null || sub.plan == null) {
+      return;
+    }
+    const billing = this.billingSubscription();
+    const offer = await this.organizationBillingClient.getChurnOffer(
+      this.organizationId as OrganizationId,
+    );
 
     if (offer != null) {
       const churnDialogRef = ChurnMitigationOfferDialogComponent.open(this.dialogService, {
         data: {
-          organizationId: this.organizationId as any,
+          organizationId: this.organizationId as OrganizationId,
           offer,
-          accessEndDate: this.subscription?.periodEndDate ?? null,
-          planName: this.sub.plan.name,
-          nextChargeDate: this.subscription?.periodEndDate ?? null,
-          isAnnual: this.sub.plan.isAnnual,
+          accessEndDate: billing?.periodEndDate ?? null,
+          planName: sub.plan.name,
+          nextChargeDate: billing?.periodEndDate ?? null,
+          isAnnual: sub.plan.isAnnual,
         },
       });
 
       const churnResult = await lastValueFrom(churnDialogRef.closed);
 
       if (churnResult === ChurnMitigationOfferDialogResultType.Accepted) {
-        await this.load();
+        this.refreshAll();
         return;
       }
 
       if (churnResult !== ChurnMitigationOfferDialogResultType.Declined) {
         return;
       }
-      // Declined — fall through to offboarding survey
     }
 
     const reference = openOffboardingSurvey(this.dialogService, {
       data: {
         type: "Organization",
         id: this.organizationId,
-        plan: this.sub.plan.type,
-        productTier: this.sub.plan.productTier,
+        plan: sub.plan.type,
+        productTier: sub.plan.productTier,
       },
     });
 
     const result = await lastValueFrom(reference.closed);
-
     if (result === OffboardingSurveyDialogResultType.Closed) {
       return;
     }
-
-    await this.load();
+    this.refreshAll();
   };
 
-  reinstate = async () => {
-    if (this.loading) {
-      return;
-    }
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "reinstateSubscription" },
-      content: { key: "reinstateConfirmation" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await this.organizationApiService.reinstate(this.organizationId);
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("reinstated"),
-      });
-      await this.load();
-    } catch (e) {
-      this.logService.error(e);
-    }
-  };
-
-  async changePlan() {
-    const reference = openChangePlanDialog(this.dialogService, {
-      data: {
-        organizationId: this.organizationId,
-        subscription: this.sub,
-        productTierType: this.userOrg.productTierType,
-      },
-    });
-
-    const result = await lastValueFrom(reference.closed);
-
-    if (result === ChangePlanDialogResultType.Closed) {
-      return;
-    }
-    await this.load();
-  }
-
-  isSecretsManagerTrial(): boolean {
-    const isSmStandalone = this.sub?.customerDiscount?.id === "sm-standalone";
-    const appliesToProduct =
-      this.sub?.subscription?.items?.some((item) =>
-        this.discountAppliesToProduct(item.productId),
-      ) ?? false;
-
-    return isSmStandalone && appliesToProduct;
-  }
-
-  discountAppliesToProduct(productId: string): boolean {
-    const appliesTo = this.sub?.customerDiscount?.appliesTo;
-    // An empty `appliesTo` means the discount applies to the whole subscription (all products) —
-    // the configuration used by churn coupons. Treat it as "applies to all", consistent with
-    // `discountPrice` and with how Stripe applies an unrestricted coupon.
-    return !appliesTo?.length || appliesTo.includes(productId);
-  }
-
-  closeChangePlan() {
-    this.showChangePlan = false;
-  }
-
-  async downloadLicense() {
-    DownloadLicenceDialogComponent.open(this.dialogService, {
-      data: {
-        organizationId: this.organizationId,
-      },
-    });
-  }
-
-  async manageBillingSync() {
-    const dialogRef = BillingSyncApiKeyComponent.open(this.dialogService, {
-      organizationId: this.organizationId,
-      hasBillingToken: this.hasBillingSyncToken,
-    });
-
-    await firstValueFrom(dialogRef.closed);
-    await this.load();
-  }
-
-  async subscriptionAdjusted() {
-    await this.load();
-  }
-
-  adjustStorage = (add: boolean) => {
+  /**
+   * Initiates the dialog to adjust the storage for the organization.
+   * @param add Indicates whether to add or remove storage.
+   */
+  readonly adjustStorage = (add: boolean) => {
     return async () => {
       const dialogRef = AdjustStorageDialogComponent.open(this.dialogService, {
         data: {
-          price: this.storageGbPrice,
-          cadence: this.billingInterval,
+          price: this.storageGbPrice(),
+          cadence: this.billingInterval(),
           type: add ? "Add" : "Remove",
           organizationId: this.organizationId,
         },
       });
 
       const result = await lastValueFrom(dialogRef.closed);
-
       if (result === AdjustStorageDialogResultType.Submitted) {
-        await this.load();
+        this.refreshAll();
       }
     };
   };
 
-  removeSponsorship = async () => {
+  /**
+   * Initiates the dialog to remove the sponsorship for the organization.
+   */
+  readonly removeSponsorship = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "removeSponsorship" },
       content: { key: "removeSponsorshipConfirmation" },
       acceptButtonText: { key: "remove" },
       type: "warning",
     });
-
     if (!confirmed) {
       return;
     }
-
     try {
       await this.apiService.deleteRemoveSponsorship(this.organizationId);
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("removeSponsorshipSuccess"),
       });
-      await this.load();
+      this.refreshAll();
     } catch (e) {
       this.logService.error(e);
     }
   };
 
-  // Per-unit discounted price. ONLY the percentage discount reduces the per-unit price (a percentage
-  // scales linearly, so per-unit × quantity equals the discounted line total). A fixed `amountOff`
-  // applies once to the line/subscription total, NOT per seat — it is applied in `subscriptionLineItems`
-  // (see `discountedLineTotals`), so the per-unit price returned here stays at full value for amount-off.
-  // Gates on discount PRESENCE + product-applicability, NOT the perpetual `active` flag, so
-  // time-bounded (repeating) discounts also reduce the displayed price. `active` is intentionally
-  // not consulted here anymore (it still means "perpetual" for other consumers, e.g. sm-subscribe).
-  discountPrice = (price: number, productId: string = null) => {
-    const customerDiscount = this.customerDiscount;
+  /**
+   * Initiates the dialog to download the license for the organization.
+   */
+  async downloadLicense() {
+    DownloadLicenceDialogComponent.open(this.dialogService, {
+      data: { organizationId: this.organizationId },
+    });
+  }
 
-    const applies =
-      customerDiscount?.percentOff != null &&
-      (!productId ||
-        !customerDiscount.appliesTo.length ||
-        customerDiscount.appliesTo.includes(productId));
+  /**
+   * Initiates the dialog to manage the billing sync for the organization.
+   */
+  async manageBillingSync() {
+    const dialogRef = BillingSyncApiKeyComponent.open(this.dialogService, {
+      organizationId: this.organizationId,
+      hasBillingToken: this.hasBillingSyncToken() ?? false,
+    });
+    await firstValueFrom(dialogRef.closed);
+    this.refreshAll();
+  }
 
-    if (!applies) {
+  subscriptionAdjusted() {
+    this.refreshAll();
+  }
+
+  /**
+   * Opens the change plan dialog, or the restart dialog for an ended subscription, if the upgrade
+   * query parameter is present.
+   */
+  private openChangePlanIfUpgradeRequested() {
+    this.route.queryParamMap
+      .pipe(
+        filter((params) => params.get(QUERY_PARAM_UPGRADE) != null),
+        switchMap((params) =>
+          this.organizationSubscription$.pipe(
+            filter((subscription) => subscription != null),
+            take(1),
+            map(() => this.toProductTier(params.get(QUERY_PARAM_PRODUCT_TIER))),
+          ),
+        ),
+        take(1),
+        takeUntilDestroyed(),
+      )
+      .subscribe((preSelectedProductTier) => void this.resubscribe(preSelectedProductTier));
+  }
+
+  private toProductTier(value: string | null): ProductTierType | undefined {
+    // Guard "" too: Number("") === 0 === ProductTierType.Free, which would pre-seed Free
+    if (value == null || value === "") {
+      return undefined;
+    }
+    const productTier = Number(value);
+    return Object.values(ProductTierType).includes(productTier as ProductTierType)
+      ? (productTier as ProductTierType)
+      : undefined;
+  }
+
+  private discountPrice(price: number): number {
+    const discount = this.customerDiscount();
+    if (discount?.percentOff == null) {
       return price;
     }
-
-    return (
-      price -
-      getAmount({ type: DiscountTypes.PercentOff, value: customerDiscount.percentOff }, price)
-    );
-  };
-
-  // View-only label for the time bound on a repeating discount. Copy lives in i18n keys (pending
-  // design sign-off); public to match the sibling template-called methods (discountPrice /
-  // discountAppliesToProduct). The `end`-date branch is rendered directly in the template via the
-  // `date` pipe, so this helper only covers the `durationInMonths` path.
-  discountDurationLabel(): string | null {
-    const months = this.customerDiscount?.durationInMonths;
-    if (months == null) {
-      return null;
-    }
-    return months === 12
-      ? this.i18nService.t("discountForOneYear")
-      : this.i18nService.t("discountForMonths", months.toString());
+    return price - getAmount({ type: DiscountTypes.PercentOff, value: discount.percentOff }, price);
   }
 
-  get showChangePlanButton() {
-    return (
-      (!this.showChangePlan &&
-        this.sub.plan.productTier !== ProductTierType.Enterprise &&
-        !this.sub.subscription?.cancelled) ||
-      (this.sub.subscription?.cancelled && this.sub.plan.productTier === ProductTierType.Free)
-    );
+  protected refreshAll() {
+    this.refresh$.next();
+    this.subscriptionPreview.reload();
+    this.organizationSubscriptionResource.reload();
   }
-
-  get canUseBillingSync() {
-    return this.userOrg.productTierType === ProductTierType.Enterprise;
-  }
-}
-
-/**
- * Helper to sort subscription items by productTier type and then by addon status
- */
-function sortSubscriptionItems(
-  a: BillingSubscriptionItemResponse,
-  b: BillingSubscriptionItemResponse,
-) {
-  if (a.productName == b.productName) {
-    if (a.addonSubscriptionItem == b.addonSubscriptionItem) {
-      return 0;
-    }
-    // sort addon items to the bottom
-    if (a.addonSubscriptionItem) {
-      return 1;
-    }
-    return -1;
-  }
-  return a.productName.localeCompare(b.productName);
 }
