@@ -66,12 +66,12 @@ export function requestDurationOptions(
 }
 
 /** Extension lengths, in seconds: the choices for a rule's cap, and a requester's up to the cap. */
-export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
-  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
-  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
-  { seconds: 2 * 60 * 60, labelKey: "pamAccessRuleDuration2h" },
-  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
-  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
+export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number }> = [
+  { seconds: 30 * 60 },
+  { seconds: 60 * 60 },
+  { seconds: 2 * 60 * 60 },
+  { seconds: 4 * 60 * 60 },
+  { seconds: 8 * 60 * 60 },
 ];
 
 /** Default maximum extension length offered when a rule first enables extensions (1h). */
