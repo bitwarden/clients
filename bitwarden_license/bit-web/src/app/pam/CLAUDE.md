@@ -65,10 +65,12 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   managed credentials), lazy-loaded from `rotation.routes.ts` behind
   `FeatureFlag.PamAccessConnector`.
 - `cipher-view-banner/`, the requester's entry point on an open gated cipher (it lives in
-  `bit-pam-components`, with each state's card under `cards/`, the form in
-  `request-access-sheet/`, and the human path's window picker in `request-window-fields/`):
+  `bit-pam-components`, with each state's card under `cards/`, the form in `request-access-form/`,
+  the popup's sheet around it in `request-access-sheet/`, and the human path's window picker in
+  `request-window-fields/`):
   six states, five off `cipher_access_state()` (including Access ended) plus a request form that
-  opens as a bottom sheet over a dimmed overlay, and the licensing block (PM-39423). The block comes FIRST and replaces every other state, active lease
+  folds out in the item view, or opens in a bottom sheet where `CIPHER_VIEW_BANNER_LAYOUT` says
+  `popup` (the extension, which also puts the actions above the cards), and the licensing block (PM-39423). The block comes FIRST and replaces every other state, active lease
   included, because the server stops releasing a gated cipher's secrets to an unlicensed
   holder whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`), withdrawing a seat
   withdraws what the outstanding leases were carrying, so a countdown here would narrate
@@ -111,15 +113,19 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `rulesGoverningCollection` pair the collection dialog uses, and narrows to the
   collection's own PAM-enabled organization before reading at all. A new surface that is
   likewise handed no collection belongs on that helper, not on a re-derived check.
-- `vault-filter-controlled-access/`, the "Controlled access" filter, in two option sets over
+- `bit-pam-components/src/vault-filter-controlled-access/`, the "Controlled access" filter, in two option sets over
   one narrowing. The legacy sidebar's children (`options$`, `CONTROLLED_ACCESS_FILTERS`) are
   state groups: "Privileged" and "My requests" (`pending`/`ready`/`active`). The VFO1 vault
   table's multi-select chip (`stateOptions$`, `CONTROLLED_ACCESS_STATE_FILTERS`) offers one
   option per `AccessBadgeState.kind`, labelled like the badge it admits, so its counts match
-  the badges on screen; the table ORs the selected options itself. "Unavailable" matches
-  nothing until the SDK produces that kind. Each row's state is read once per row list and
-  shared across options (`accessKinds$`), so the chip's counts don't multiply the reads. Add an
-  option by appending to the matching list, not by branching in `narrow$`.
+  the badges on screen; the table ORs the selected options itself. "Ending soon" splits the
+  active leases at `ENDING_SOON_THRESHOLD_MS`, so "In use" is the badge's "X left" and a lapsed
+  lease is in neither. "Unavailable" matches nothing until the SDK produces that kind. Each
+  row's state is read once per row list and shared across options (`accessKinds$`), so the
+  chip's counts don't multiply the reads. Add an option by appending to the matching list, not
+  by branching in `narrow$`. The service and the chip factory live in `bit-pam-components`
+  because the extension popup binds the same `VAULT_ITEM_FILTER` in `bit-browser`'s
+  `provide-pam.ts`, and `bit-browser` cannot import `bit-web`.
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/`, the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
   name row. Both re-read on `AccessRefreshService` so neither can contradict a mutation
@@ -185,7 +191,7 @@ they offer Start off a request row with no cipher in hand.
 
 A rejected access-request submit is interpreted by
 `helpers/request-access-error.ts`. Three of the server's messages mean the caller already
-has what they asked for; those are reconciled (collapse the form, re-read the state) rather
+has what they asked for; those are reconciled (close the form, re-read the state) rather
 than surfaced as errors. The licensing refusal, and the condition denials the automatic path
 throws, show activation's localized strings (`refused`) rather than the server's English.
 

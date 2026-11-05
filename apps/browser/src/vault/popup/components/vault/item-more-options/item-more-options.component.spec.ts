@@ -1,3 +1,4 @@
+import { OverlayContainer } from "@angular/cdk/overlay";
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -34,6 +35,7 @@ import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
 } from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
+import { VAULT_ROW_ACCESS, VaultRowAccessStatus } from "../vault-row-access/vault-row-access.token";
 
 import { ItemMoreOptionsComponent } from "./item-more-options.component";
 
@@ -71,6 +73,14 @@ describe("ItemMoreOptionsComponent", () => {
 
   const revealedCipherService = mock<RevealedCipherService>();
   let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+  let rowStatus$: BehaviorSubject<VaultRowAccessStatus | null>;
+  const rowAccess = {
+    status$: jest.fn(),
+    requestAccess: jest.fn(),
+    startAccess: jest.fn(),
+    extendAccess: jest.fn(),
+    endAccess: jest.fn(),
+  };
 
   const baseCipher = {
     id: "cipher-1",
@@ -94,6 +104,8 @@ describe("ItemMoreOptionsComponent", () => {
     jest.clearAllMocks();
     revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
     revealedCipherService.revealed$.mockReturnValue(revealed$);
+    rowStatus$ = new BehaviorSubject<VaultRowAccessStatus | null>(null);
+    rowAccess.status$.mockReturnValue(rowStatus$);
 
     cipherService.getFullCipherView.mockImplementation(async (c) => ({ ...baseCipher, ...c }));
 
@@ -101,6 +113,7 @@ describe("ItemMoreOptionsComponent", () => {
       imports: [ItemMoreOptionsComponent, NoopAnimationsModule],
       providers: [
         { provide: RevealedCipherService, useValue: revealedCipherService },
+        { provide: VAULT_ROW_ACCESS, useValue: rowAccess },
         { provide: CipherService, useValue: cipherService },
         { provide: VaultPopupAutofillService, useValue: autofillSvc },
 
@@ -419,6 +432,22 @@ describe("ItemMoreOptionsComponent", () => {
       expect(component["allows"](RestrictedCipherAction.UserFields)).toBe(true);
     });
 
+    it("withholds edit, clone and delete while a reveal of its restricted cipher is live", () => {
+      const restricted = { ...baseCipher, partial: true } as CipherView;
+      component.cipher = restricted;
+      expect(component["isLocked"]).toBe(true);
+
+      revealed$.next(
+        new Map([["cipher-1" as CipherId, { ...baseCipher, partial: false } as CipherView]]),
+      );
+
+      expect(component["isLocked"]).toBe(false);
+      expect(component["accessActive"]).toBe(true);
+      expect(component.canEdit).toBe(false);
+      expect(component["allows"](RestrictedCipherAction.Delete)).toBe(false);
+      expect(component["allows"](RestrictedCipherAction.Clone)).toBe(false);
+    });
+
     it("allows edit of a revealed view, but not share or assign collections", () => {
       const revealed = { ...baseCipher, partial: false } as CipherView;
       revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
@@ -466,6 +495,176 @@ describe("ItemMoreOptionsComponent", () => {
         expect(result).toBe(false);
         done();
       });
+    });
+  });
+
+  describe("PAM-gated (partial) ciphers", () => {
+    it("offers Autofill and Edit on a full login", () => {
+      component.cipher = { ...baseCipher };
+
+      expect(component.canAutofill).toBe(true);
+      expect(component.canEdit).toBe(true);
+    });
+
+    it("offers neither Autofill nor Edit on a partial cipher", () => {
+      component.cipher = { ...baseCipher, partial: true };
+
+      expect(component.canAutofill).toBe(false);
+      expect(component.canEdit).toBe(false);
+    });
+  });
+
+  describe("gated (partial) cipher menu", () => {
+    let overlayContainer: OverlayContainer;
+
+    const partialCipher = { ...baseCipher, partial: true, favorite: false };
+
+    function menuTrigger(): HTMLButtonElement | null {
+      return fixture.nativeElement.querySelector('button[biticonbutton="bwi-ellipsis-v"]');
+    }
+
+    function openMenuAndGetContent(): string {
+      fixture.detectChanges();
+      const trigger = menuTrigger();
+      expect(trigger).toBeTruthy();
+
+      trigger!.click();
+      fixture.detectChanges();
+
+      return overlayContainer.getContainerElement().innerHTML;
+    }
+
+    beforeEach(() => {
+      overlayContainer = TestBed.inject(OverlayContainer);
+      component.cipher = partialCipher;
+      fixture.componentRef.setInput("showAutofill", true);
+    });
+
+    afterEach(() => {
+      overlayContainer.ngOnDestroy();
+    });
+
+    it("isPartial reflects the cipher's partial flag", () => {
+      component.cipher = partialCipher;
+      expect(component["isPartial"]).toBe(true);
+
+      component.cipher = baseCipher;
+      expect(component["isPartial"]).toBe(false);
+    });
+
+    it("offers Request access, Favorite and Archive on a requestable gated row", () => {
+      rowStatus$.next({ kind: "request", label: "Request to use", canExtend: false });
+
+      const content = openMenuAndGetContent();
+
+      expect(content).toContain("pamRequestAccessButton");
+      expect(content).toContain("favorite");
+      expect(content).toContain("archiveVerb");
+      expect(content).not.toContain("autofillVerb");
+      expect(content).not.toContain("pamExtendAccessMenuItem");
+      expect(content).not.toContain("pamEndLeaseButton");
+      expect(content).not.toContain(">edit<");
+      expect(content).not.toContain("clone");
+      expect(content).not.toContain(">delete<");
+    });
+
+    it.each(["pending", "unavailable"] as const)(
+      "disables Request access on a %s gated row",
+      (kind) => {
+        rowStatus$.next({ kind, label: kind, canExtend: false });
+
+        openMenuAndGetContent();
+        const item = overlayContainer
+          .getContainerElement()
+          .querySelector<HTMLButtonElement>("button[bitmenuitem]");
+
+        expect(item?.textContent).toContain("pamRequestAccessButton");
+        expect(item?.disabled).toBe(true);
+      },
+    );
+
+    it("offers Start access instead of Request access once the request is ready", () => {
+      rowStatus$.next({ kind: "ready", label: "Ready to use", canExtend: false });
+
+      const content = openMenuAndGetContent();
+
+      expect(content).toContain("pamStartLeaseButton");
+      expect(content).not.toContain("pamRequestAccessButton");
+    });
+
+    it("requests access from the menu item", () => {
+      rowStatus$.next({ kind: "request", label: "Request to use", canExtend: false });
+      openMenuAndGetContent();
+
+      overlayContainer
+        .getContainerElement()
+        .querySelector<HTMLButtonElement>("button[bitmenuitem]")!
+        .click();
+
+      expect(rowAccess.requestAccess).toHaveBeenCalledWith(partialCipher);
+    });
+
+    it("offers Autofill, Extend access, End access, Favorite and Archive while access is active", () => {
+      revealed$.next(
+        new Map([["cipher-1" as CipherId, { ...baseCipher, partial: false } as CipherView]]),
+      );
+      rowStatus$.next({ kind: "active", label: "8h left", canExtend: true });
+
+      const content = openMenuAndGetContent();
+
+      const order = [
+        "autofillVerb",
+        "pamExtendAccessMenuItem",
+        "pamEndLeaseButton",
+        "favorite",
+        "archiveVerb",
+      ].map((text) => content.indexOf(text));
+      expect(order.every((i) => i >= 0)).toBe(true);
+      expect([...order].sort((a, b) => a - b)).toEqual(order);
+      expect(content).not.toContain(">edit<");
+      expect(content).not.toContain("clone");
+      expect(content).not.toContain(">delete<");
+      expect(content).not.toContain("pamRequestAccessButton");
+    });
+
+    it("omits Extend access when the lease cannot be extended", () => {
+      revealed$.next(
+        new Map([["cipher-1" as CipherId, { ...baseCipher, partial: false } as CipherView]]),
+      );
+      rowStatus$.next({ kind: "active", label: "8h left", canExtend: false });
+
+      const content = openMenuAndGetContent();
+
+      expect(content).not.toContain("pamExtendAccessMenuItem");
+      expect(content).toContain("pamEndLeaseButton");
+    });
+
+    it("withholds edit and delete from an ungated item held through an active lease", () => {
+      component.cipher = baseCipher;
+      rowStatus$.next({ kind: "active", label: "8h left", canExtend: true });
+
+      expect(component.canEdit).toBe(false);
+      expect(component["accessActive"]).toBe(true);
+    });
+
+    it("returns edit once the item is not privileged", () => {
+      component.cipher = baseCipher;
+
+      expect(component.canEdit).toBe(true);
+      expect(component["accessActive"]).toBe(false);
+    });
+
+    it("keeps the overflow trigger for a gated row", () => {
+      fixture.detectChanges();
+
+      expect(menuTrigger()).not.toBeNull();
+    });
+
+    it("keeps the overflow trigger for a normal row", () => {
+      component.cipher = baseCipher;
+      fixture.detectChanges();
+
+      expect(menuTrigger()).not.toBeNull();
     });
   });
 });
