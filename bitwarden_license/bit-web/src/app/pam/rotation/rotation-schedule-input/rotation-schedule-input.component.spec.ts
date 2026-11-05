@@ -245,7 +245,16 @@ describe("RotationScheduleInputComponent", () => {
   });
 
   it("renders the timezone hint under the preset select", () => {
-    expect(hintTexts()).toContain("pamRotationScheduleTimezoneHint");
+    expect(hintTexts()[0]).toContain("pamRotationScheduleTimezoneHint");
+  });
+
+  it("leads the preset select's hint with the schedule echo", async () => {
+    presetCtrl().setValue(QuartzSchedulePreset.Daily);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(hintTexts()[0]).toMatch(
+      /^pamRotationScheduleEchoDaily\s+pamRotationScheduleTimezoneHint$/,
+    );
   });
 
   it("keeps the timezone hint when the Custom preset is selected", async () => {
@@ -253,7 +262,7 @@ describe("RotationScheduleInputComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const hints = hintTexts();
-    expect(hints).toContain("pamRotationScheduleTimezoneHint");
+    expect(hints[0]).toContain("pamRotationScheduleTimezoneHint");
     expect(hints).toContain("pamRotationScheduleCustomHint");
   });
 
