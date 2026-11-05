@@ -18,3 +18,12 @@ export const wasmSimdSupported = (() => {
     return false;
   }
 })();
+
+/**
+ * Imports the SIMD build of the SDK .wasm, or the MVP build on engines without SIMD.
+ */
+export function importSdkWasm() {
+  return wasmSimdSupported
+    ? import("@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.wasm")
+    : import("@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.mvp.wasm");
+}
