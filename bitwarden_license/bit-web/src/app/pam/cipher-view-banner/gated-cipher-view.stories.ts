@@ -110,7 +110,7 @@ function provideStoryCipherView() {
     { provide: CollectionService, useValue: { decryptedCollections$: () => of([]) } },
     { provide: FolderService, useValue: { getDecrypted$: () => of(undefined) } },
     { provide: TaskService, useValue: { pendingTasks$: () => of([]) } },
-    { provide: PlatformUtilsService, useValue: { launchUri: () => {} } },
+    { provide: PlatformUtilsService, useValue: { launchUri: () => {}, copyToClipboard: () => {} } },
     {
       provide: DialogService,
       useValue: {

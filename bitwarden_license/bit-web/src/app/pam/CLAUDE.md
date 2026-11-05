@@ -65,10 +65,12 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   managed credentials), lazy-loaded from `rotation.routes.ts` behind
   `FeatureFlag.PamAccessConnector`.
 - `cipher-view-banner/`, the requester's entry point on an open gated cipher (it lives in
-  `bit-pam-components`, with each state's card under `cards/`, the form in
-  `request-access-sheet/`, and the human path's window picker in `request-window-fields/`):
+  `bit-pam-components`, with each state's card under `cards/`, the form in `request-access-form/`,
+  the popup's sheet around it in `request-access-sheet/`, and the human path's window picker in
+  `request-window-fields/`):
   six states, five off `cipher_access_state()` (including Access ended) plus a request form that
-  opens as a bottom sheet over a dimmed overlay, and the licensing block (PM-39423). The block comes FIRST and replaces every other state, active lease
+  folds out in the item view, or opens in a bottom sheet where `CIPHER_VIEW_BANNER_LAYOUT` says
+  `popup` (the extension, which also puts the actions above the cards), and the licensing block (PM-39423). The block comes FIRST and replaces every other state, active lease
   included, because the server stops releasing a gated cipher's secrets to an unlicensed
   holder whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`), withdrawing a seat
   withdraws what the outstanding leases were carrying, so a countdown here would narrate
@@ -189,7 +191,7 @@ they offer Start off a request row with no cipher in hand.
 
 A rejected access-request submit is interpreted by
 `helpers/request-access-error.ts`. Three of the server's messages mean the caller already
-has what they asked for; those are reconciled (collapse the form, re-read the state) rather
+has what they asked for; those are reconciled (close the form, re-read the state) rather
 than surfaced as errors. The licensing refusal, and the condition denials the automatic path
 throws, show activation's localized strings (`refused`) rather than the server's English.
 

@@ -3,62 +3,25 @@
     No cancel here; the vault-row menu and the My requests tab still withdraw a request, and
     neither is licensing-gated.
   -->
-  <span
-    class="tw-mb-4 tw-block"
-    tabindex="0"
-    [bitTooltip]="'pamLicenseNeededTooltip' | i18n"
-    data-testid="cipher-view-banner-license-tooltip"
-  >
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      class="tw-w-full"
-      [disabled]="true"
-      startIcon="bwi-lock"
-      id="pam-cipher-view-banner_button_request-disabled"
+  @if (popupLayout) {
+    <span
+      class="tw-mb-4 tw-block"
+      tabindex="0"
+      [bitTooltip]="'pamLicenseNeededTooltip' | i18n"
+      data-testid="cipher-view-banner-license-tooltip"
     >
-      {{ "pamRequestAccessButton" | i18n }}
-    </button>
-  </span>
-  <h2
-    bitTypography="body2"
-    noMargin
-    class="tw-mb-2 tw-font-semibold tw-text-fg-body"
-    data-testid="cipher-view-banner-section-heading"
-  >
-    {{ "pamPrivilegedCredentialsHeading" | i18n }}
-  </h2>
-  <app-pam-unlicensed-card />
-} @else {
-  @if (canRequestAccess()) {
-    <button
-      #requestToggleButton
-      type="button"
-      bitButton
-      buttonType="primary"
-      class="tw-mb-4 tw-w-full"
-      (click)="openRequestSheet()"
-      startIcon="bwi-lock"
-      id="pam-cipher-view-banner_button_request-toggle"
-    >
-      {{ "pamRequestAccessButton" | i18n }}
-    </button>
-  } @else if (pendingRequest() && !approvedRequest()) {
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      class="tw-mb-4 tw-w-full"
-      [bitAction]="cancelRequest"
-      startIcon="bwi-close"
-      id="pam-cipher-view-banner_button_cancel"
-    >
-      {{ "pendingStateCancelRequest" | i18n }}
-    </button>
-  }
-
-  @if (showsPrivilegedCard()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        class="tw-w-full"
+        [disabled]="true"
+        startIcon="bwi-lock"
+        id="pam-cipher-view-banner_button_request-disabled"
+      >
+        {{ "pamRequestAccessButton" | i18n }}
+      </button>
+    </span>
     <h2
       bitTypography="body2"
       noMargin
@@ -67,6 +30,47 @@
     >
       {{ "pamPrivilegedCredentialsHeading" | i18n }}
     </h2>
+  }
+  <app-pam-unlicensed-card />
+} @else {
+  @if (popupLayout) {
+    @if (canRequestAccess()) {
+      <button
+        #requestToggleButton
+        type="button"
+        bitButton
+        buttonType="primary"
+        class="tw-mb-4 tw-w-full"
+        (click)="openRequest()"
+        startIcon="bwi-lock"
+        id="pam-cipher-view-banner_button_request-toggle"
+      >
+        {{ "pamRequestAccessButton" | i18n }}
+      </button>
+    } @else if (pendingRequest() && !approvedRequest()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        class="tw-mb-4 tw-w-full"
+        [bitAction]="cancelRequest"
+        startIcon="bwi-close"
+        id="pam-cipher-view-banner_button_cancel"
+      >
+        {{ "pendingStateCancelRequest" | i18n }}
+      </button>
+    }
+
+    @if (showsPrivilegedCard()) {
+      <h2
+        bitTypography="body2"
+        noMargin
+        class="tw-mb-2 tw-font-semibold tw-text-fg-body"
+        data-testid="cipher-view-banner-section-heading"
+      >
+        {{ "pamPrivilegedCredentialsHeading" | i18n }}
+      </h2>
+    }
   }
 
   @if (activeLease(); as lease) {
@@ -80,20 +84,89 @@
   } @else if (approvedRequest()) {
     <app-pam-approved-request-card [startAction]="activateRequest" />
   } @else if (pendingRequest(); as request) {
-    <app-pam-pending-request-card [request]="request" [nowMs]="nowMs()" />
+    <app-pam-pending-request-card [request]="request" [nowMs]="nowMs()">
+      @if (!popupLayout) {
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          size="small"
+          class="tw-self-start"
+          [bitAction]="cancelRequest"
+          id="pam-cipher-view-banner_button_cancel"
+        >
+          {{ "pendingStateCancelRequest" | i18n }}
+        </button>
+      }
+    </app-pam-pending-request-card>
   } @else if (accessEnded()) {
-    <app-pam-access-ended-card />
+    <app-pam-access-ended-card>
+      @if (!popupLayout && canRequestAccess()) {
+        <ng-container [ngTemplateOutlet]="requestAccessAction" />
+      }
+    </app-pam-access-ended-card>
   } @else if (canRequestAccess()) {
-    <app-pam-request-access-card [terms]="restingRequestTerms()" />
+    <app-pam-request-access-card [terms]="restingRequestTerms()">
+      @if (!popupLayout) {
+        <ng-container [ngTemplateOutlet]="requestAccessAction" />
+      }
+    </app-pam-request-access-card>
   }
 
-  @if (requestSheetOpen()) {
-    <app-pam-request-access-sheet
-      [cipherId]="cipher().id"
-      [itemName]="cipher().name"
-      [terms]="restingRequestTerms()"
-      (dismissed)="closeRequestSheet()"
-      (accessChanged)="closeSheetAndRefreshAccess()"
-    />
+  <!-- The item dialog's Request access, inside whichever card offers a new request. -->
+  <ng-template #requestAccessAction>
+    @if (!requestFormOpen()) {
+      <button
+        #requestToggleButton
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        class="tw-self-start"
+        (click)="openRequest()"
+        id="pam-cipher-view-banner_button_request-toggle"
+      >
+        {{ "pamRequestAccessButton" | i18n }}
+      </button>
+    }
+  </ng-template>
+
+  @if (requestFormOpen()) {
+    <div
+      #requestFoldOut
+      tabindex="-1"
+      role="group"
+      [attr.aria-label]="'pamRequestAccessButton' | i18n"
+      class="tw-mb-5 tw-flex tw-flex-col tw-gap-4 focus-visible:tw-outline-none bit-compact:tw-mb-4"
+      data-testid="request-fold-out"
+    >
+      <app-pam-request-access-form
+        #requestForm
+        [cipherId]="cipher().id"
+        (accessChanged)="closeRequestFormAndRefresh()"
+      />
+      <div class="tw-flex tw-items-center tw-gap-2">
+        @if (requestForm.requestMode() !== null) {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            [bitAction]="requestForm.submitRequest"
+            id="pam-cipher-view-banner_button_request-submit"
+          >
+            {{ "requestAccessModalSubmitV2" | i18n }}
+          </button>
+        }
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          (click)="closeRequestForm()"
+          id="pam-cipher-view-banner_button_request-cancel"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </div>
+    </div>
   }
 }
