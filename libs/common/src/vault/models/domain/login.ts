@@ -18,6 +18,7 @@ export class Login extends Domain {
   passwordRevisionDate?: Date;
   totp?: EncString;
   autofillOnPageLoad?: boolean;
+  httpAuthenticationEnabled?: boolean;
   fido2Credentials?: Fido2Credential[];
 
   constructor(obj?: LoginData) {
@@ -29,6 +30,7 @@ export class Login extends Domain {
     this.passwordRevisionDate =
       obj.passwordRevisionDate != null ? new Date(obj.passwordRevisionDate) : undefined;
     this.autofillOnPageLoad = obj.autofillOnPageLoad;
+    this.httpAuthenticationEnabled = obj.httpAuthenticationEnabled;
     this.username = conditionalEncString(obj.username);
     this.password = conditionalEncString(obj.password);
     this.totp = conditionalEncString(obj.totp);
@@ -49,6 +51,9 @@ export class Login extends Domain {
     }
     if (this.autofillOnPageLoad != null) {
       l.autofillOnPageLoad = this.autofillOnPageLoad;
+    }
+    if (this.httpAuthenticationEnabled != null) {
+      l.httpAuthenticationEnabled = this.httpAuthenticationEnabled;
     }
     this.buildDataModel(this, l, {
       username: null,
@@ -76,6 +81,7 @@ export class Login extends Domain {
     login.passwordRevisionDate =
       obj.passwordRevisionDate != null ? new Date(obj.passwordRevisionDate) : undefined;
     login.autofillOnPageLoad = obj.autofillOnPageLoad;
+    login.httpAuthenticationEnabled = obj.httpAuthenticationEnabled;
     login.username = encStringFrom(obj.username);
     login.password = encStringFrom(obj.password);
     login.totp = encStringFrom(obj.totp);
@@ -103,6 +109,7 @@ export class Login extends Domain {
       passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
       totp: this.totp?.toSdk(),
       autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
+      httpAuthenticationEnabled: this.httpAuthenticationEnabled ?? undefined,
       fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
     };
   }
@@ -120,6 +127,7 @@ export class Login extends Domain {
     login.passwordRevisionDate =
       obj.passwordRevisionDate != null ? new Date(obj.passwordRevisionDate) : undefined;
     login.autofillOnPageLoad = obj.autofillOnPageLoad;
+    login.httpAuthenticationEnabled = obj.httpAuthenticationEnabled;
     login.username = encStringFrom(obj.username);
     login.password = encStringFrom(obj.password);
     login.totp = encStringFrom(obj.totp);

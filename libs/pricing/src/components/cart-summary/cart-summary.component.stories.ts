@@ -520,39 +520,6 @@ export const SinglePerLineDiscount: Story = {
   },
 };
 
-export const FlagOffRegression: Story = {
-  name: "Flag-Off Regression (Legacy One-Element Shim)",
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "The shape the legacy `CartItemResponse` shim emits when the feature flag is off: a " +
-          "one-element `discounts` array with no `amount` and no `label`. Proves the renderer " +
-          "still derives both via `getAmount` / `getLabel`, so flag-off carts render unchanged.",
-      },
-    },
-  },
-  args: {
-    cart: {
-      passwordManager: {
-        seats: {
-          quantity: 5,
-          translationKey: "members",
-          cost: 50.0,
-          discounts: [
-            {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
-          ],
-        },
-      },
-      cadence: "monthly",
-      estimatedTax: 9.6,
-    } satisfies Cart,
-  },
-};
-
 export const MultiplePerLineDiscounts: Story = {
   name: "With Multiple Per-Line Discounts",
   parameters: {

@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "Žádné položky v mém trezoru"
   },
+  "noItemsInFolder": {
+    "message": "Žádné položky v $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Přidá položky do této složky. Budete mít k nim rychlý přístup pomocí filtrů trezoru.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Žádné položky v mých položkách"
   },
@@ -1236,6 +1250,12 @@
   },
   "deletedItem": {
     "message": "Položka byla přesunuta do koše"
+  },
+  "deleteItemError": {
+    "message": "Nelze smazat položku."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Tato položka je omezena. Vaše změna nebyla uložena."
   },
   "overwritePassword": {
     "message": "Přepsat heslo"
@@ -5396,16 +5416,16 @@
     "message": "Přihlašovací údaje, karty, identity, bezpečné poznámky a TOTP s jejich strukturou složek."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Rychlý a bezpečný"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Tento proces je šifrován end-to-end. Není zapotřebí žádný exportní soubor."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Vše, co potřebujete, je Vaše přihlášení"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "V dalším kroku zadáte Vaše přihlašovací údaje pro $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Co se přenese"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Budou přeneseny Vaše přihlašovací údaje, další položky a složky. Mohou být vyloučeny přístupové klíče a přílohy."
   },
   "importAcceptedFormats": {
     "message": "Přijato: $FORMATS$",
@@ -5700,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 poškozená příloha byla při exportu přeskočena. Všechna ostatní data trezoru a přílohy byly úspěšně exportovány."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 položka nebyla do tohoto exportu zahrnuta. Je chráněna pravidlem privilegovaného přístupu, takže její přihlašovací údaje nejsou na tomto zařízení dostupné."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ položek nebylo do tohoto exportu zahrnuto. Jsou chráněny pravidlem privilegovaného přístupu, takže jejich přihlašovací údaje nejsou na tomto zařízení dostupné.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ poškozených příloh bylo při exportu přeskočeno. Všechna ostatní data trezoru a přílohy byly úspěšně exportovány.",
     "placeholders": {
@@ -5803,31 +5835,31 @@
     "message": "E-mail LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-mail je povinný."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Zadejte platnou e-mailovou adresu."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Je vyžadováno heslo."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Zadejte platné heslo"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Zadejte platný ověřovací kód."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Zadejte hlavní heslo LastPass."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Zadejte ověřovací kód níže."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Čeká se na ověření SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "Po přihlášení budeme pokračovat v importu automaticky."
   },
   "importingYourAccount": {
     "message": "Importování Vašeho účtu…"
@@ -5836,58 +5868,58 @@
     "message": "Server"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-mail je povinný."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Zadejte platnou e-mailovou adresu."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Nepodporovaná dvoufaktorová metoda. Přepněte metody nebo importujte ručně."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Vyžaduje se schválení metody"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Zadejte platný ověřovací kód."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Ověřovací kód znovu odeslán"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Push oznámení Keeper bylo odesláno do schváleného zařízení."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Schvalte toto zařízení výběrem jedné z níže uvedených metod."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Zkontrolujte svůj e-mail a zadejte ověřovací kód do pole níže."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Zadejte kód z Vaší ověřovací aplikace."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Zadejte kód zaslaný v SMS zprávě."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Zadejte hlavní heslo Keeper."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Keeper DNA odesláno"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Schvalte oznámení Keeper DNA na svém zařízení."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Vaše žádost o schválení bude zrušena. Opravdu chcete pokračovat?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Odeslali jsme žádost o schválení Vašemu správci."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Je vyžadováno heslo."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Zadejte platné heslo."
   },
   "lastPassMFARequired": {
     "message": "Je vyžadováno vícefaktorové ověření LastPass"
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Toto heslo má další rizika:"
   },
+  "excludeFromList": {
+    "message": "Vyloučit ze seznamu"
+  },
+  "excludeFromListDesc": {
+    "message": "Vyloučení neopravuje ohrožení Vašeho hesla. Pro ochranu účtu nejprve změňte své heslo."
+  },
+  "excludeAnyway": {
+    "message": "Přesto vyloučit"
+  },
   "reused": {
     "message": "Znovu použito",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Neznámá položka, možná budete muset požádat o oprávnění pro přístup k této položce."
   },
+  "viewSharedItem": {
+    "message": "Zobrazit sdílenou položku"
+  },
+  "copyShareLink": {
+    "message": "Kopírovat odkaz pro sdílení"
+  },
+  "unableToDetermineItemId": {
+    "message": "Nelze určit ID položky"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden má nový vzhled",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8640,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Přepnout mezi trezory"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "S novým přepínačem můžete rychle vidět Váš soukromý trezor nebo trezor, který sdílíte s ostatními."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "S novým přepínačem můžete rychle vidět soukromé položky nebo položky v trezoru, který sdílíte s ostatními."
   },
   "coachmarkFiltersTitle": {
     "message": "Kombinovat filtry"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Obnovit výchozí"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Automaticky vyplňovat výzvy k přihlášení do prohlížeče",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Reagovat na základní HTTP ověřovací výzvy z webů, které odpovídají této přihlašovací položce."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Otevřít článek nápovědy o automatickém vyplňování přihlašovacích údajů v prohlížeči"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Webové stránky mohou spustit tyto výzvy bez Vašich znalostí, které mohou odhalit Vaše přihlašovací údaje.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Chcete-li použít toto nastavení, vyberte jinou volbu detekce shody než \"Výchozí\" pro každou stránku této přihlašovací položky."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Zapnout automatické vyplňování pro výzvy k přihlášení do prohlížeče?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "U této položky bude vypnuto opakované zadávání hlavního hesla. Obě nastavení nelze mít zapnutá současně."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Zapnout výzvu k obnovení hlavního hesla?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "U této položky bude vypnuto automatické vyplňování při zadávání přihlašovacích údajů v prohlížeči. Obě nastavení nelze mít zapnutá současně."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Použít výchozí zjišťování shody?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Weby, které používají výchozí detekci shody, nemohou být použity s výzvami k přihlášení do prohlížeče. Automatické vyplňování žádostí o přihlášení do prohlížeče bude pro tuto položku vypnuto."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Automatické vyplňování žádostí o přihlášení do prohlížeče vypnuto"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Tato položka má zapnutý požadavek na hlavní heslo, takže automatické vyplňování dotazů na přihlášení v prohlížeči bylo vypnuto. Uložte položku pro zachování této změny."
   }
 }

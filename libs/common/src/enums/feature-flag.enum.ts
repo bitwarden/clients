@@ -53,16 +53,11 @@ export enum FeatureFlag {
   PM34515_BrowserDesktopCheckout = "pm-34515-browser-desktop-checkout",
   DebugDisableSelfHostPremiumCheck = "debug-disable-self-host-premium-check",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
-  PM36631_PreviewDrivenCart = "pm-36631-preview-driven-cart",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
   PamBillingSupport = "pm-39883-pam-billing-support",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
-  // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
-  // get to use the feature.
-  SharedUnlockPart1 = "innovation-sprint-shared-unlock-part-1",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
@@ -72,7 +67,6 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
-  SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
   ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
@@ -98,7 +92,6 @@ export enum FeatureFlag {
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-  PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
@@ -153,7 +146,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
-  [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
   [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
@@ -179,7 +171,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
@@ -200,12 +191,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34515_BrowserDesktopCheckout]: FALSE,
   [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
-  [FeatureFlag.PM36631_PreviewDrivenCart]: FALSE,
   [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,

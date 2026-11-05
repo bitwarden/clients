@@ -4,7 +4,6 @@ import { FormControl } from "@angular/forms";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { ImportResult } from "../../../models";
 import { LastPassDirectImportService } from "../../lastpass/lastpass-direct-import.service";
 import { lastPassValidationErrorI18nKey } from "../../lastpass/lastpass-validation-error";
 import { ImportOutcome } from "../import-outcome";
@@ -21,7 +20,7 @@ export class LastPassDirectImportRunner {
   async run(
     email: FormControl<string | null>,
     includeSharedFolders: FormControl<boolean | null>,
-    importCsv: (csv: string) => Promise<ImportResult>,
+    importCsv: (csv: string) => Promise<ImportOutcome>,
   ): Promise<ImportOutcome> {
     // Captured now: a later login replaces the current session, and this one must not read it.
     const session = this.lastPassUi.session;
@@ -55,6 +54,6 @@ export class LastPassDirectImportRunner {
     }
     session.beginImport();
 
-    return { kind: "imported", result: await importCsv(csv) };
+    return importCsv(csv);
   }
 }

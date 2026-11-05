@@ -122,6 +122,7 @@ export default class RuntimeBackground {
         "collectPageDetailsForPopup",
         "fillCipherForPopup",
         "getBitwardenAutofillAttributeSettings",
+        VaultMessages.checkBwInstalled,
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -360,6 +361,11 @@ export default class RuntimeBackground {
           ),
         );
         return;
+      }
+      case VaultMessages.checkBwInstalled: {
+        const referrer =
+          Utils.getHostname(sender.origin) || Utils.getHostname(sender.url) || msg.referrer;
+        return await isValidVaultReferrer(this.environmentService, referrer);
       }
       case "authResult": {
         if (!(await isValidVaultReferrer(this.environmentService, msg.referrer))) {

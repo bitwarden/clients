@@ -1399,6 +1399,66 @@ describe("Cipher Service", () => {
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false);
     });
+
+    it("should return only the successes when some ciphers fail to decrypt", async () => {
+      const success = new CipherView();
+      const failure = new CipherView();
+      failure.decryptionFailure = true;
+
+      jest.spyOn(cipherSdkService, "getAllFromApiForOrganization").mockResolvedValue([[], []]);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[success], [failure]]);
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(result).toEqual([success]);
+    });
+  });
+
+  describe("getAllFromApiForOrganizationWithFailures()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return sorted successes and the failures", async () => {
+      const mockCipher = new Cipher(cipherData);
+
+      const successB = new CipherView();
+      successB.name = "B";
+      const successA = new CipherView();
+      successA.name = "A";
+      const failure1 = new CipherView();
+      failure1.decryptionFailure = true;
+      const failure2 = new CipherView();
+      failure2.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getAllFromApiForOrganization")
+        .mockResolvedValue([[mockCipher], []]);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [successB, successA],
+        [failure1, failure2],
+      ]);
+
+      const result = await cipherService.getAllFromApiForOrganizationWithFailures(testOrgId, true);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true);
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [mockCipher],
+        mockUserId,
+      );
+      expect(result).toEqual({
+        successes: [successA, successB],
+        failures: [failure1, failure2],
+      });
+    });
+
+    it("should return empty results when SDK throws", async () => {
+      jest
+        .spyOn(cipherSdkService, "getAllFromApiForOrganization")
+        .mockRejectedValue(new Error("SDK error"));
+
+      const result = await cipherService.getAllFromApiForOrganizationWithFailures(testOrgId);
+
+      expect(result).toEqual({ successes: [], failures: [] });
+    });
   });
 
   describe("getManyFromApiForOrganization()", () => {
@@ -1445,6 +1505,66 @@ describe("Cipher Service", () => {
       const result = await cipherService.getManyFromApiForOrganization(testOrgId);
 
       expect(result).toEqual([]);
+    });
+
+    it("should return only the successes when some ciphers fail to decrypt", async () => {
+      const success = new CipherView();
+      const failure = new CipherView();
+      failure.decryptionFailure = true;
+
+      jest.spyOn(cipherSdkService, "getManyFromApiForOrganization").mockResolvedValue([[], []]);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[success], [failure]]);
+
+      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+
+      expect(result).toEqual([success]);
+    });
+  });
+
+  describe("getManyFromApiForOrganizationWithFailures()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return sorted successes and the failures", async () => {
+      const mockCipher = new Cipher(cipherData);
+
+      const successB = new CipherView();
+      successB.name = "B";
+      const successA = new CipherView();
+      successA.name = "A";
+      const failure1 = new CipherView();
+      failure1.decryptionFailure = true;
+      const failure2 = new CipherView();
+      failure2.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getManyFromApiForOrganization")
+        .mockResolvedValue([[mockCipher], []]);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [successB, successA],
+        [failure1, failure2],
+      ]);
+
+      const result = await cipherService.getManyFromApiForOrganizationWithFailures(testOrgId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [mockCipher],
+        mockUserId,
+      );
+      expect(result).toEqual({
+        successes: [successA, successB],
+        failures: [failure1, failure2],
+      });
+    });
+
+    it("should return empty results when SDK throws", async () => {
+      jest
+        .spyOn(cipherSdkService, "getManyFromApiForOrganization")
+        .mockRejectedValue(new Error("SDK error"));
+
+      const result = await cipherService.getManyFromApiForOrganizationWithFailures(testOrgId);
+
+      expect(result).toEqual({ successes: [], failures: [] });
     });
   });
 
