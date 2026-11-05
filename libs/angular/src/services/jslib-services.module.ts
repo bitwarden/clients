@@ -35,10 +35,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
@@ -120,6 +118,10 @@ import {
   AccountSwitcherService,
   DefaultAccountSwitcherService,
 } from "@bitwarden/common/auth/account-switcher";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/auth-request-api";
 import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,

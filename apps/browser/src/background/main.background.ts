@@ -29,10 +29,8 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
-  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   DefaultLoginStrategyCacheService,
@@ -63,6 +61,10 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/auth-request-api";
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DefaultLogoutService, LogoutReason } from "@bitwarden/common/auth/logout";
