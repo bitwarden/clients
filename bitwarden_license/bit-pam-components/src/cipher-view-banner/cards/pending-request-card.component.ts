@@ -9,15 +9,17 @@ import {
 
 import { type AccessRequestView, ACCESS_BADGE_LOOK, formatRelativeTime } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CardComponent, IconTileComponent, TypographyModule } from "@bitwarden/components";
+import { CardComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
 /** A request waiting on an approver, with how long ago it was sent. */
 @Component({
   selector: "app-pam-pending-request-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-block" },
-  imports: [CardComponent, IconTileComponent, TypographyModule, I18nPipe],
+  imports: [CardComponent, BannerCardHeaderComponent, I18nPipe],
   templateUrl: "./pending-request-card.component.html",
 })
 export class PendingRequestCardComponent {
