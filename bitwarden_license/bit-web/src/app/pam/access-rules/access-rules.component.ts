@@ -62,7 +62,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AccessRulesService } from "../services/access-rules.service";
@@ -102,7 +102,6 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     TooltipDirective,
     TypographyModule,
     I18nPipe,
-    Vfo1I18nPipe,
     RelativeTimePipe,
     DurationLongPipe,
     ApprovalMethodPipe,

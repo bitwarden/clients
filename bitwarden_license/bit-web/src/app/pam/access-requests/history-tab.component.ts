@@ -51,7 +51,6 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
@@ -120,7 +119,6 @@ const minuteMs = 60_000;
     TypographyModule,
     I18nPipe,
     TimestampPipe,
-    Vfo1I18nPipe,
   ],
 })
 export class HistoryTabComponent {

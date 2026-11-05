@@ -91,7 +91,7 @@ describe("AuditEventDrawerComponent", () => {
           // I18nMockService throws on an unknown key, so this is every key the pane can render.
           useValue: new I18nMockService({
             timestamp: "Timestamp",
-            collection: "Collection",
+            sharedFolder: "Shared folder",
             pamAuditColumnActor: "Actor",
             pamAuditColumnRequester: "Requester",
             pamAuditColumnItem: "Item",

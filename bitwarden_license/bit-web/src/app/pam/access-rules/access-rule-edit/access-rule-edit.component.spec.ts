@@ -274,7 +274,7 @@ describe("AccessRuleEditComponent: page furniture", () => {
     const hint = control.querySelector("bit-hint");
     expect(hint).not.toBeNull();
     expect(hint!.textContent!.replace(/\s+/g, " ").trim()).toBe(
-      "pamAccessRuleApprovers: pamAccessRuleApproversCollectionManagers",
+      "pamAccessRuleApprovers: pamAccessRuleApproversSharedFolderManagers",
     );
   });
 
