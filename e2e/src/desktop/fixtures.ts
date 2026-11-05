@@ -13,6 +13,7 @@ import {
 import { pruneVideo, startTrace, stopTrace, videoDir } from "../artifacts";
 import { DESKTOP_BUILD_DIR, E2E_STATE_DIR } from "../paths";
 import { IS_DEV_SERVER } from "../server";
+import { skipOnboardingDialogs } from "../web/onboarding";
 
 // The main process also talks to the local dev server, and its certificate is self-signed.
 const TLS_ARGS = IS_DEV_SERVER ? ["--ignore-certificate-errors"] : [];
@@ -101,6 +102,8 @@ export const test = base.extend<{
   window: async ({ app }, use) => {
     const window = await app.firstWindow({ timeout: WINDOW_TIMEOUT_MS });
     await window.waitForLoadState("domcontentloaded");
+    // E.g. "Bitwarden has a new look" opens over the vault after login.
+    await skipOnboardingDialogs(window);
 
     await use(window);
   },
