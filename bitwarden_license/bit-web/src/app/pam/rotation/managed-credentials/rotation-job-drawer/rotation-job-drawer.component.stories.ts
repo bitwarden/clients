@@ -47,6 +47,7 @@ const SUCCEEDED: JobView = {
   attemptsUniform: false,
   causeLabelKey: null,
   reportedReason: null,
+  details: { key: "pamRotationDetailNone" },
   syncStateLabelKey: null,
   syncStateIndeterminate: false,
   sessionTerminationLabelKey: null,
@@ -125,7 +126,7 @@ const SYNC_INDETERMINATE: JobView = {
 const IN_PROGRESS: JobView = {
   ...SUCCEEDED,
   id: jobId("j5"),
-  statusLabelKey: "pamRotationJobStatusClaimed",
+  statusLabelKey: "pamRotationAttemptInProgress",
   statusVariant: "secondary",
   running: true,
   duration: null,

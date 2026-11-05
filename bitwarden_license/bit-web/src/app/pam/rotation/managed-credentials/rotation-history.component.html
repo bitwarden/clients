@@ -1,15 +1,20 @@
-@if (jobViews().length === 0) {
-  <p class="tw-m-0 tw-text-sm tw-text-muted">{{ "pamRotationHistoryEmpty" | i18n }}</p>
-} @else if (!showCredential()) {
+@if (!showCredential()) {
   <bit-table-v2 [tableDef]="table" data-testid="rotation-history-table">
-    <bit-column width="minmax(12rem, 1.2fr)">
-      <bit-header-cell>{{ "pamRotationAttemptStarted" | i18n }}</bit-header-cell>
+    <div slot="empty" class="tw-py-4" data-testid="rotation-history-empty">
+      <bit-status-lockup>
+        <span slot="title">{{ "pamRotationConfigHistoryEmptyTitle" | i18n }}</span>
+        <span slot="description">{{ "pamRotationConfigHistoryEmptyState" | i18n }}</span>
+      </bit-status-lockup>
+    </div>
+
+    <bit-column sortable defaultSort="desc" [sortFn]="sortByStarted" width="minmax(12rem, 1.2fr)">
+      <bit-header-cell>{{ "pamRotationHistoryColumnRotationStarted" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.startedAt; let job" [truncate]="false">
         <button
           type="button"
           bitLink
           linkType="secondary"
-          class="tw-font-medium"
+          class="!tw-font-medium"
           [id]="'rotation-history_button_details-' + job.id"
           data-testid="rotation-history-job-result"
           (click)="openJob(job, $any($event.currentTarget))"
@@ -20,7 +25,7 @@
     </bit-column>
 
     <bit-column width="minmax(8rem, 1fr)">
-      <bit-header-cell>{{ "pamRotationHistoryColumnResult" | i18n }}</bit-header-cell>
+      <bit-header-cell>{{ "pamRotationHistoryColumnFinalResult" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.statusLabelKey; let job" [truncate]="false">
         <span class="tw-text-sm">{{ job.statusLabelKey | i18n }}</span>
       </bit-cell>
@@ -37,15 +42,22 @@
       <bit-header-cell>{{ "details" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.retrySucceeded; let job" [truncate]="false">
         <span class="tw-text-sm" data-testid="rotation-history-job-details">
-          @if (job.retrySucceeded) {
-            {{ "pamRotationHistoryRetrySucceeded" | i18n }}
-          } @else if (!job.failed) {
-            {{ "pamRotationDetailNone" | i18n }}
+          @if (job.details; as details) {
+            @if (details.attemptOrdinal != null) {
+              {{ details.key | i18n: details.attemptOrdinal }}
+              @if (details.causeLabelKey; as causeKey) {
+                {{ causeKey | i18n }}
+              }
+            } @else {
+              {{ details.key | i18n }}
+            }
           }
         </span>
       </bit-cell>
     </bit-column>
   </bit-table-v2>
+} @else if (jobViews().length === 0) {
+  <p class="tw-m-0 tw-text-sm tw-text-muted">{{ "pamRotationHistoryEmpty" | i18n }}</p>
 } @else {
   <!-- remove this @else branch when the VFO1 flag is removed -->
   <div class="tw-overflow-x-auto">

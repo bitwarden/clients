@@ -57,6 +57,7 @@ function retriedFailure(overrides: Partial<JobView> = {}): JobView {
     attemptsUniform: true,
     causeLabelKey: "pamRotationFailureCauseTargetUnreachable",
     reportedReason: CONNECTION_REFUSED,
+    details: { key: "pamRotationAttemptCauseTargetUnreachable" },
     syncStateLabelKey: "pamRotationSyncStateTargetUnchanged",
     syncStateIndeterminate: false,
     sessionTerminationLabelKey: null,
@@ -199,7 +200,7 @@ describe("RotationJobDrawerComponent", () => {
   });
 
   describe("the attempt table", () => {
-    it("heads the columns Attempt, Access connector and Result", async () => {
+    it("heads the columns Attempt, Result and Access connector", async () => {
       await render(retriedFailure());
 
       const headers = fixture.debugElement
@@ -207,8 +208,8 @@ describe("RotationJobDrawerComponent", () => {
         .map((th: any) => th.nativeElement.textContent.trim());
       expect(headers).toEqual([
         "pamRotationHistoryColumnAttempt",
-        "pamTargetSystemAssignConnectorLabel",
         "pamRotationHistoryColumnResult",
+        "pamTargetSystemAssignConnectorLabel",
       ]);
       expect(
         fixture.debugElement.query(By.css("[data-testid='drawer-attempts'] caption")).nativeElement

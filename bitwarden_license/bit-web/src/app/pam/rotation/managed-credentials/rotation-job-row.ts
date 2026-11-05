@@ -35,6 +35,13 @@ export interface EndingSessionsInfo {
   supported: boolean;
 }
 
+/** The history's Details sentence, plus the failed attempt and its cause while a job retries. */
+export interface JobDetails {
+  key: string;
+  attemptOrdinal?: number;
+  causeLabelKey?: string | null;
+}
+
 /** One job, as the history presents it: an outcome, a cause, and its attempts. */
 export interface JobView {
   id: RotationJobId;
@@ -74,6 +81,8 @@ export interface JobView {
   causeLabelKey: string | null;
   /** The reason string the connector reported, shown verbatim once per job. */
   reportedReason: string | null;
+  /** What the Details column says, or `null` to leave it blank. */
+  details: JobDetails | null;
   syncStateLabelKey: string | null;
   syncStateIndeterminate: boolean;
   sessionTerminationLabelKey: string | null;

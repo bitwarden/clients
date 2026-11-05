@@ -10,7 +10,7 @@
     <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-4">
       @if (job.startedAt) {
         <div>
-          <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          <dt class="tw-text-sm tw-font-medium tw-text-fg-body">
             {{ "pamRotationAttemptStarted" | i18n }}
           </dt>
           <dd class="tw-m-0" data-testid="drawer-started">{{ job.startedAt | timestamp }}</dd>
@@ -19,7 +19,7 @@
 
       @if (params.showCredential) {
         <div>
-          <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          <dt class="tw-text-sm tw-font-medium tw-text-fg-body">
             {{ "pamRotationConfigColumnCredential" | i18n }}
           </dt>
           <dd
@@ -35,7 +35,7 @@
 
       @if (endingSessions; as sessions) {
         <div data-testid="drawer-ending-sessions">
-          <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          <dt class="tw-text-sm tw-font-medium tw-text-fg-body">
             {{ "pamTargetSystemEndingSessions" | i18n }}
           </dt>
           <dd class="tw-m-0">
@@ -60,14 +60,14 @@
       }
 
       <div>
-        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+        <dt class="tw-text-sm tw-font-medium tw-text-fg-body">
           {{ "pamRotationHistoryColumnResult" | i18n }}
         </dt>
         <dd class="tw-m-0" data-testid="drawer-result-text">{{ job.statusLabelKey | i18n }}</dd>
       </div>
 
       <div>
-        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+        <dt class="tw-text-sm tw-font-medium tw-text-fg-body">
           {{ "pamRotationHistoryColumnRotationTrigger" | i18n }}
         </dt>
         <dd class="tw-m-0" data-testid="drawer-source">{{ job.sourceLabelKey | i18n }}</dd>
@@ -96,11 +96,11 @@
 
     @if (job.attempts.length > 0) {
       <section class="tw-mt-4" data-testid="drawer-attempts">
-        <h3 class="tw-m-0 tw-mb-2 tw-text-sm tw-font-bold tw-text-muted">
+        <h3 class="tw-m-0 tw-mb-2 tw-text-sm tw-font-medium tw-text-fg-body">
           {{ "pamRotationHistoryColumnAttempts" | i18n }}
         </h3>
         <div
-          class="tw-overflow-x-auto tw-rounded-lg tw-border tw-border-solid tw-border-border-base"
+          class="tw-overflow-x-auto tw-rounded-xl tw-border tw-border-solid tw-border-border-base"
         >
           <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-start tw-text-sm">
             <caption class="tw-sr-only">
@@ -109,17 +109,17 @@
               }}
             </caption>
             <thead
-              class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-text-xs tw-font-medium tw-text-muted"
+              class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-text-sm tw-font-medium tw-text-fg-body"
             >
               <tr>
                 <th scope="col" class="tw-px-3 tw-py-2 tw-text-start">
                   {{ "pamRotationHistoryColumnAttempt" | i18n }}
                 </th>
                 <th scope="col" class="tw-px-3 tw-py-2 tw-text-start">
-                  {{ "pamTargetSystemAssignConnectorLabel" | i18n }}
+                  {{ "pamRotationHistoryColumnResult" | i18n }}
                 </th>
                 <th scope="col" class="tw-px-3 tw-py-2 tw-text-start">
-                  {{ "pamRotationHistoryColumnResult" | i18n }}
+                  {{ "pamTargetSystemAssignConnectorLabel" | i18n }}
                 </th>
               </tr>
             </thead>
@@ -130,20 +130,19 @@
                   data-testid="drawer-attempt-row"
                 >
                   <th scope="row" class="tw-px-3 tw-py-2 tw-text-start tw-font-normal">
-                    <span class="tw-block tw-text-main">{{ attempt.ordinal }}</span>
+                    <span class="tw-block tw-text-base tw-font-medium tw-text-main">{{
+                      attempt.ordinal
+                    }}</span>
                     <span class="tw-block tw-text-xs tw-text-muted">{{
                       formatTime(attempt.startedAt)
                     }}</span>
                   </th>
-                  <td class="tw-px-3 tw-py-2 tw-text-main" data-testid="drawer-attempt-connector">
-                    {{ attempt.connectorName }}
-                  </td>
                   <td class="tw-px-3 tw-py-2">
-                    <span class="tw-block tw-font-bold tw-text-main">{{
+                    <span class="tw-block tw-text-base tw-font-medium tw-text-main">{{
                       attempt.resultLabelKey | i18n
                     }}</span>
                     @if (attempt.causeLabelKey) {
-                      <span class="tw-block tw-text-xs tw-text-muted">{{
+                      <span class="tw-block tw-text-fg-body">{{
                         attempt.causeLabelKey | i18n
                       }}</span>
                     }
@@ -154,6 +153,9 @@
                         >{{ reason }}</span
                       >
                     }
+                  </td>
+                  <td class="tw-px-3 tw-py-2 tw-text-main" data-testid="drawer-attempt-connector">
+                    {{ attempt.connectorName }}
                   </td>
                 </tr>
               }
