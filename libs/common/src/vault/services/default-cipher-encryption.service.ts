@@ -12,6 +12,9 @@ import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
+/** Ciphers per SDK decrypt call, which bounds the SDK's peak memory. */
+const DECRYPT_BATCH_SIZE = 250;
+
 export class DefaultCipherEncryptionService implements CipherEncryptionService {
   constructor(
     private sdkService: SdkService,
@@ -196,10 +199,20 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
         concatMap(async (sdk) => {
           using ref = sdk.take();
 
-          const result: DecryptCipherListResult = await ref.value
-            .vault()
-            .ciphers()
-            .decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()));
+          // In batches: WebAssembly memory grows to the largest call and never shrinks. For
+          // example, decrypting a 12.000 item vault in one call permanently raises the SDK memory
+          // by 70MB.
+          const result: DecryptCipherListResult = { successes: [], failures: [] };
+          for (let start = 0; start < ciphers.length; start += DECRYPT_BATCH_SIZE) {
+            const batch = ciphers.slice(start, start + DECRYPT_BATCH_SIZE);
+            const batchResult = await ref.value
+              .vault()
+              .ciphers()
+              .decrypt_list_with_failures(batch.map((cipher) => cipher.toSdkCipher()));
+
+            result.successes.push(...batchResult.successes);
+            result.failures.push(...batchResult.failures);
+          }
 
           const decryptedCiphers = result.successes;
           const failedCiphers: Cipher[] = result.failures
