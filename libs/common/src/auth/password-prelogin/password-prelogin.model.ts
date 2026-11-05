@@ -39,8 +39,13 @@ export class PasswordPreloginData {
    * Creates a PasswordPreloginData instance from the SDK's prelogin response, rejecting KDF
    * settings below the pre-login minimums.
    * @param response The SDK prelogin response. Its salt is used as-is.
+   * @throws If the response has no salt. The SDK types the salt as non-null, so a missing one
+   * means that contract broke; deriving from it would crash or produce the wrong master key.
    */
   static fromSdk(response: SdkPasswordPreloginResponse): PasswordPreloginData {
+    if (response.salt == null) {
+      throw new Error("A salt is required to derive the master key.");
+    }
     const kdfConfig = fromSdkKdfConfig(response.kdf);
     kdfConfig.validateKdfConfigForPrelogin();
     return new PasswordPreloginData(kdfConfig, response.salt as MasterPasswordSalt);

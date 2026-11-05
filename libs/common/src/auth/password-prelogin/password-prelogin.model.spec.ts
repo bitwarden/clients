@@ -210,6 +210,22 @@ describe("PasswordPreloginData", () => {
       expect(result.salt).toBe(unnormalized);
     });
 
+    // The SDK types the salt as non-null. A missing one would otherwise reach makeMasterKey,
+    // which calls .trim() on it and crashes login.
+    it.each([
+      { description: "null", missingSalt: null },
+      { description: "undefined", missingSalt: undefined },
+    ])("throws when the SDK salt is $description", ({ missingSalt }) => {
+      const response = {
+        kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
+        salt: missingSalt,
+      } as unknown as SdkPasswordPreloginResponse;
+
+      expect(() => PasswordPreloginData.fromSdk(response)).toThrow(
+        "A salt is required to derive the master key.",
+      );
+    });
+
     // Pre-login downgrade guard. A server offering sub-minimum KDF settings would make the
     // master password cheap to brute force, so mapping must reject before any derivation.
     it.each([
