@@ -103,6 +103,28 @@
         }
       </bit-filter-menu>
     }
+
+    <!-- Options in a section combine with OR, and the two sections combine with AND. -->
+    <bit-filter-menu key="policies" [placeholderText]="'policies' | i18n" multiple>
+      @if (showAccountRecoverySection()) {
+        <bit-filter-section [label]="'accountRecovery' | i18n">
+          <bit-filter-option [value]="accountRecoveryFilter.Enrolled">{{
+            "enrolled" | i18n
+          }}</bit-filter-option>
+          <bit-filter-option [value]="accountRecoveryFilter.NotEnrolled">{{
+            "notEnrolled" | i18n
+          }}</bit-filter-option>
+        </bit-filter-section>
+      }
+      <bit-filter-section [label]="'twoStepLogin' | i18n">
+        <bit-filter-option [value]="twoFactorFilter.Active">{{
+          "active" | i18n
+        }}</bit-filter-option>
+        <bit-filter-option [value]="twoFactorFilter.Inactive">{{
+          "inactive" | i18n
+        }}</bit-filter-option>
+      </bit-filter-section>
+    </bit-filter-menu>
   </bit-table-toolbar>
 
   <!-- No matches: filters hide every member, with Clear all. Otherwise: the org has no members. -->
@@ -136,18 +158,38 @@
         [id]="row | avatarId"
         [color]="row.avatarColor"
       ></bit-avatar>
-      @if (canManage && organization) {
-        <button
-          type="button"
-          bitLink
-          [attr.id]="'members-v2_button_edit-member-' + row.id"
-          (click)="edit(row, organization)"
-        >
-          {{ row.name ?? row.email }}
-        </button>
-      } @else {
-        {{ row.name ?? row.email }}
-      }
+      <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
+        @if (canManage && organization) {
+          <button
+            type="button"
+            bitLink
+            class="tw-truncate"
+            [attr.id]="'members-v2_button_edit-member-' + row.id"
+            (click)="edit(row, organization)"
+          >
+            {{ row.name ?? row.email }}
+          </button>
+        } @else {
+          <span class="tw-truncate">{{ row.name ?? row.email }}</span>
+        }
+        <!-- The v1 page's Policies column, moved next to the name. -->
+        @if (row.twoFactorEnabled) {
+          <bit-icon
+            name="bwi-lock"
+            class="tw-shrink-0 tw-text-muted"
+            [ariaLabel]="'userUsingTwoStep' | i18n"
+            [bitTooltip]="'userUsingTwoStep' | i18n"
+          />
+        }
+        @if (showEnrolledStatus(row)) {
+          <bit-icon
+            name="bwi-key"
+            class="tw-shrink-0 tw-text-muted"
+            [ariaLabel]="'enrolledAccountRecovery' | i18n"
+            [bitTooltip]="'enrolledAccountRecovery' | i18n"
+          />
+        }
+      </span>
       @if (row.name) {
         <span slot="secondary">{{ row.email }}</span>
       }

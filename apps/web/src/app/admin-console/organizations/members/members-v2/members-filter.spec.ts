@@ -4,13 +4,17 @@ import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
 
 import {
+  AccountRecoveryFilter,
   matchesAccess,
+  matchesPolicies,
   matchesProduct,
   matchesRole,
   matchesStatus,
   MemberProductFilter,
+  PolicyOption,
   REVOCATION_REASON_OPTIONS,
   StatusOption,
+  TwoFactorFilter,
 } from "./members-filter";
 
 function member(
@@ -146,5 +150,54 @@ describe("matchesProduct", () => {
     expect(matchesProduct(sm, both)).toBe(true);
     expect(matchesProduct(pam, both)).toBe(true);
     expect(matchesProduct(none, both)).toBe(false);
+  });
+});
+
+describe("matchesPolicies", () => {
+  const user = (resetPasswordEnrolled: boolean, twoFactorEnabled: boolean) =>
+    ({ resetPasswordEnrolled, twoFactorEnabled }) as OrganizationUserView;
+  const enrolledActive = user(true, true);
+  const enrolledInactive = user(true, false);
+  const notEnrolledActive = user(false, true);
+  const notEnrolledInactive = user(false, false);
+  const all = [enrolledActive, enrolledInactive, notEnrolledActive, notEnrolledInactive];
+  const matching = (policies?: PolicyOption[]) => all.filter((m) => matchesPolicies(m, policies));
+
+  it("matches everyone with nothing checked", () => {
+    expect(matching()).toEqual(all);
+    expect(matching([])).toEqual(all);
+  });
+
+  it("matches on account recovery enrollment", () => {
+    expect(matching([AccountRecoveryFilter.Enrolled])).toEqual([enrolledActive, enrolledInactive]);
+    expect(matching([AccountRecoveryFilter.NotEnrolled])).toEqual([
+      notEnrolledActive,
+      notEnrolledInactive,
+    ]);
+  });
+
+  it("matches on two-step login", () => {
+    expect(matching([TwoFactorFilter.Active])).toEqual([enrolledActive, notEnrolledActive]);
+    expect(matching([TwoFactorFilter.Inactive])).toEqual([enrolledInactive, notEnrolledInactive]);
+  });
+
+  it("doesn't narrow on a section with both options checked", () => {
+    expect(matching([AccountRecoveryFilter.Enrolled, AccountRecoveryFilter.NotEnrolled])).toEqual(
+      all,
+    );
+    expect(matching([TwoFactorFilter.Active, TwoFactorFilter.Inactive])).toEqual(all);
+    expect(
+      matching([
+        AccountRecoveryFilter.Enrolled,
+        AccountRecoveryFilter.NotEnrolled,
+        TwoFactorFilter.Inactive,
+      ]),
+    ).toEqual([enrolledInactive, notEnrolledInactive]);
+  });
+
+  it("requires a match in both sections", () => {
+    expect(matching([AccountRecoveryFilter.Enrolled, TwoFactorFilter.Inactive])).toEqual([
+      enrolledInactive,
+    ]);
   });
 });

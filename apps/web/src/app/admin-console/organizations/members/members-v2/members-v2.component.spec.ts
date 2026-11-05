@@ -8,8 +8,9 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
@@ -34,7 +35,7 @@ import {
 } from "../services";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 
-import { MemberProductFilter } from "./members-filter";
+import { AccountRecoveryFilter, MemberProductFilter, TwoFactorFilter } from "./members-filter";
 import { MembersV2Component } from "./members-v2.component";
 
 const ORG_ID = "org-1" as OrganizationId;
@@ -75,7 +76,11 @@ describe("MembersV2Component", () => {
     organization: Partial<Organization>,
     members: OrganizationUserView[],
     queryParams: Params = {},
-    { accessNames = new Map<string, string>(), pamFlag = false } = {},
+    {
+      accessNames = new Map<string, string>(),
+      pamFlag = false,
+      resetPasswordPolicyEnabled = false,
+    } = {},
   ) {
     memberService = mock<OrganizationMembersService>();
     memberService.loadMembers.mockResolvedValue({ users: members, accessNames });
@@ -102,7 +107,15 @@ describe("MembersV2Component", () => {
     const organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
     organizationMetadataService.getOrganizationMetadata$.mockReturnValue(of(billingMetadata));
     const policyService = mock<PolicyService>();
-    policyService.policies$.mockReturnValue(of([]));
+    policyService.policies$.mockReturnValue(
+      of([
+        {
+          type: PolicyType.ResetPassword,
+          organizationId: ORG_ID,
+          enabled: resetPasswordPolicyEnabled,
+        } as Policy,
+      ]),
+    );
     const userNamePipe = mock<UserNamePipe>();
     userNamePipe.transform.mockReturnValue("Alice");
 
@@ -408,6 +421,65 @@ describe("MembersV2Component", () => {
         expect(component.canUsePrivilegedControls()).toBe(expected);
       },
     );
+  });
+
+  describe("policies filter", () => {
+    const members = [
+      member({ id: "both" as Guid, resetPasswordEnrolled: true, twoFactorEnabled: true }),
+      member({ id: "enrolled" as Guid, resetPasswordEnrolled: true }),
+      member({ id: "two-step" as Guid, twoFactorEnabled: true }),
+      member({ id: "neither" as Guid }),
+    ];
+    const ids = (policies: (AccountRecoveryFilter | TwoFactorFilter)[]) =>
+      members.filter((m) => component.filter(m, { policies })).map((m) => m.id);
+
+    it("narrows within a section and across sections", async () => {
+      await setup({}, members);
+
+      expect(ids([])).toEqual(["both", "enrolled", "two-step", "neither"]);
+      expect(ids([AccountRecoveryFilter.Enrolled])).toEqual(["both", "enrolled"]);
+      expect(ids([TwoFactorFilter.Inactive])).toEqual(["enrolled", "neither"]);
+      expect(ids([AccountRecoveryFilter.Enrolled, TwoFactorFilter.Inactive])).toEqual(["enrolled"]);
+    });
+
+    it.each([
+      [true, true, true],
+      [true, false, false],
+      [false, true, false],
+    ])(
+      "offers Account recovery when useResetPassword is %s and the policy is %s: %s",
+      async (useResetPassword, resetPasswordPolicyEnabled, expected) => {
+        await setup({ useResetPassword }, [], {}, { resetPasswordPolicyEnabled });
+
+        expect(component.showAccountRecoverySection()).toBe(expected);
+      },
+    );
+
+    it("offers Account recovery to admins who can't manage users", async () => {
+      await setup(
+        { useResetPassword: true, canManageUsers: false },
+        [],
+        {},
+        { resetPasswordPolicyEnabled: true },
+      );
+
+      expect(component.showAccountRecoverySection()).toBe(true);
+    });
+
+    it("shows the key icon only for enrolled members when account recovery is on", async () => {
+      await setup({ useResetPassword: true }, members, {}, { resetPasswordPolicyEnabled: true });
+
+      expect(members.filter((m) => component.showEnrolledStatus(m)).map((m) => m.id)).toEqual([
+        "both",
+        "enrolled",
+      ]);
+    });
+
+    it("hides the key icon when the account recovery policy is off", async () => {
+      await setup({ useResetPassword: true }, members);
+
+      expect(members.some((m) => component.showEnrolledStatus(m))).toBe(false);
+    });
   });
 
   it("requires a member to match every filter and the search", async () => {

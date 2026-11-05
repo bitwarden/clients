@@ -60,6 +60,7 @@ import {
   SvgComponent,
   type TableRowRange,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -85,7 +86,9 @@ import { MemberActionsService } from "../services/member-actions/member-actions.
 import { MemberActionResult } from "../services/member-actions/member-actions.types";
 
 import {
+  AccountRecoveryFilter,
   matchesAccess,
+  matchesPolicies,
   matchesProduct,
   matchesRole,
   matchesStatus,
@@ -93,6 +96,7 @@ import {
   MemberProductFilter,
   REVOCATION_REASON_OPTIONS,
   ROLE_OPTIONS,
+  TwoFactorFilter,
 } from "./members-filter";
 
 /** Badge text and variant per status, listed in the order the Status column sorts. */
@@ -128,6 +132,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
     SharedOrganizationModule,
     StatusLockupComponent,
     SvgComponent,
+    TooltipDirective,
     Vfo1I18nPipe,
     Vfo1IconPipe,
   ],
@@ -160,6 +165,8 @@ export class MembersV2Component {
   protected readonly revocationReasons = REVOCATION_REASON_OPTIONS;
   protected readonly roleOptions = ROLE_OPTIONS;
   protected readonly productFilter = MemberProductFilter;
+  protected readonly accountRecoveryFilter = AccountRecoveryFilter;
+  protected readonly twoFactorFilter = TwoFactorFilter;
   protected readonly memberTab = MemberDialogTab;
   protected readonly userStatusType = OrganizationUserStatusType;
 
@@ -239,6 +246,15 @@ export class MembersV2Component {
     { initialValue: false },
   );
 
+  /**
+   * The Account recovery section of the Policies filter shows when the organization uses account
+   * recovery and its policy is on: the same check as the v1 page's `showEnrolledStatus`. Admins
+   * without manage users permission still get it, though the server only returns enrolled members.
+   */
+  protected readonly showAccountRecoverySection = computed(
+    () => !!this.organization()?.useResetPassword && this.resetPasswordPolicyEnabled(),
+  );
+
   private readonly billingMetadata$: Observable<OrganizationBillingMetadataResponse> =
     this.organization$.pipe(
       switchMap((organization) =>
@@ -312,14 +328,15 @@ export class MembersV2Component {
 
   /**
    * Members matching the search on name, email or id and every filter: Status, Role, in any of
-   * the checked groups or collections, and with any of the checked products.
+   * the checked groups or collections, with any of the checked products, and matching Policies.
    */
   protected readonly filter = (row: OrganizationUserView, filters: MemberFilters) =>
     this.matchesSearch(row, filters.search) &&
     matchesStatus(row, filters.status) &&
     matchesRole(row, filters.role) &&
     matchesAccess(row, filters.access, this.organization()?.useGroups ?? false) &&
-    matchesProduct(row, filters.product);
+    matchesProduct(row, filters.product) &&
+    matchesPolicies(row, filters.policies);
 
   constructor() {
     this.organization$
@@ -460,6 +477,11 @@ export class MembersV2Component {
 
   openEventsDialog(user: OrganizationUserView, organization: Organization) {
     this.memberDialogManager.openEventsDialog(user, organization);
+  }
+
+  /** Whether the key icon follows a member's name, as in the v1 page's Policies column. */
+  protected showEnrolledStatus(user: OrganizationUserView): boolean {
+    return this.showAccountRecoverySection() && user.resetPasswordEnrolled;
   }
 
   allowResetPassword(user: OrganizationUserView, organization: Organization): boolean {
