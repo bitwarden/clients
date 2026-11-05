@@ -120,6 +120,8 @@
 }
 
 .bit-tooltip {
+  color: var(--color-fg-contrast);
+  background-color: var(--color-bg-contrast);
   width: max-content;
   max-width: 13rem;
   padding: 0.5rem 0.75rem;
