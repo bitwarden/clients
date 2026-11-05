@@ -39,7 +39,7 @@ export class DesktopAutotypePairingUri {
    * Recreates a pairing URI from a saved login URI string.
    *
    * @returns the pairing URI, or `null` if the string is not a valid pairing URI of a supported
-   * version with data that adheres to the Autotype Pairing Data Schema
+   * version with data that adheres to a 1.x.y version of the Autotype Pairing Data Schema
    */
   static fromString(uri: string): DesktopAutotypePairingUri | null {
     try {

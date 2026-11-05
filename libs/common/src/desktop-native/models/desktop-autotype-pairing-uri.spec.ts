@@ -25,7 +25,7 @@ function createPairingData(name = "Notepad"): AutotypePairingData {
 
 // The pairing URI for `createPairingData()`, encoded independently of `DesktopAutotypePairingUri`
 const NOTEPAD_PAIRING_URI =
-  "desktopapp://autotype?version=1.0.0&data=eyJtZXRhZGF0YSI6eyJzY2hlbWFWZXJzaW9uIjp7Im1ham9yIjowLCJtaW5vciI6MSwicGF0Y2giOjB9LCJwYWlyaW5nVGltZXN0YW1wIjoxNzkzNTc3NjAwfSwiYXBwRGF0YSI6eyJuYW1lIjoiTm90ZXBhZCIsIm5vcm1hbGl6ZWRQYXRoIjoiQzpcXFdpbmRvd3NcXFN5c3RlbTMyXFxub3RlcGFkLmV4ZSJ9LCJjbGllbnREYXRhIjp7InBhY2thZ2luZ1R5cGUiOiJ3aW5kb3dzLWV4ZSJ9fQ";
+  "desktopapp://autotype?version=1.0.0&data=eyJtZXRhZGF0YSI6eyJzY2hlbWFWZXJzaW9uIjp7Im1ham9yIjoxLCJtaW5vciI6MCwicGF0Y2giOjB9LCJwYWlyaW5nVGltZXN0YW1wIjoxNzkzNTc3NjAwfSwiYXBwRGF0YSI6eyJuYW1lIjoiTm90ZXBhZCIsIm5vcm1hbGl6ZWRQYXRoIjoiQzpcXFdpbmRvd3NcXFN5c3RlbTMyXFxub3RlcGFkLmV4ZSJ9LCJjbGllbnREYXRhIjp7InBhY2thZ2luZ1R5cGUiOiJ3aW5kb3dzLWV4ZSJ9fQ";
 
 const ENCODED_PAIRING_DATA = Utils.fromUtf8ToUrlB64(JSON.stringify(createPairingData()));
 
@@ -174,13 +174,50 @@ describe("DesktopAutotypePairingUri", () => {
     });
 
     it("returns null when the data does not adhere to the schema", () => {
-      const data = { ...createPairingData(), clientData: { packagingType: "macos-dmg" } };
+      const data = createPairingData();
+      data.metadata.schemaVersion = { ...data.metadata.schemaVersion, minor: -1 };
       const uri = createUriString({
         version: "1.0.0",
         data: Utils.fromUtf8ToUrlB64(JSON.stringify(data)),
       });
 
       expect(DesktopAutotypePairingUri.fromString(uri)).toBeNull();
+    });
+
+    it("returns null when the data is of the unsupported schema version 0.1.0", () => {
+      const data = {
+        ...createPairingData(),
+        metadata: { schemaVersion: { major: 0, minor: 1, patch: 0 }, pairingTimestamp: 1793577600 },
+      };
+      const uri = createUriString({
+        version: "1.0.0",
+        data: Utils.fromUtf8ToUrlB64(JSON.stringify(data)),
+      });
+
+      expect(DesktopAutotypePairingUri.fromString(uri)).toBeNull();
+    });
+
+    it("accepts data of a later 1.x schema version and keeps its unknown properties", () => {
+      // Later 1.x versions may add properties and packaging types
+      const data = {
+        metadata: {
+          schemaVersion: { major: 1, minor: 2, patch: 0, extra: "schemaVersion" },
+          pairingTimestamp: 1793577600,
+          extra: "metadata",
+        },
+        appData: { name: "Notepad", normalizedPath: "C:\\notepad.exe", extra: "appData" },
+        clientData: { packagingType: "macos-dmg", extra: "clientData" },
+        extra: "root",
+      };
+      const uri = createUriString({
+        version: "1.0.0",
+        data: Utils.fromUtf8ToUrlB64(JSON.stringify(data)),
+      });
+
+      const pairingUri = DesktopAutotypePairingUri.fromString(uri);
+
+      expect(pairingUri?.data).toEqual(data);
+      expect(pairingUri?.toString()).toBe(uri);
     });
 
     it.each(["", "   ", "not a uri", DESKTOP_APP_URI_PREFIX, "https://bitwarden.com"])(

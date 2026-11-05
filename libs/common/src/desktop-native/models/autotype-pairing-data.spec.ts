@@ -33,6 +33,12 @@ function createModifiedPairingData(modify: PairingDataModification): unknown {
   return data;
 }
 
+describe("AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION", () => {
+  it("is the schema version new pairing data is written with", () => {
+    expect(AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION).toEqual({ major: 1, minor: 0, patch: 0 });
+  });
+});
+
 describe("isAutotypePairingPackagingType", () => {
   it.each(["windows-msix", "windows-exe"])("returns true for '%s'", (value) => {
     expect(isAutotypePairingPackagingType(value)).toBe(true);
@@ -101,15 +107,45 @@ describe("isAutotypePairingData", () => {
     ["metadata.schemaVersion", (d) => (d.metadata.schemaVersion.extra = true)],
     ["appData", (d) => (d.appData.extra = true)],
     ["clientData", (d) => (d.clientData.extra = true)],
-  ])("returns false when %s has an additional property", (_, modify) => {
-    expect(isAutotypePairingData(createModifiedPairingData(modify))).toBe(false);
+  ])("returns true when %s has an unknown property", (_, modify) => {
+    expect(isAutotypePairingData(createModifiedPairingData(modify))).toBe(true);
   });
 
   it.each([
-    ["major", 1],
-    ["minor", 2],
-    ["patch", 1],
-    ["major", "0"],
+    [1, 0, 0],
+    [1, 2, 3],
+    [1, 10, 20],
+  ])("returns true for schema version %p.%p.%p", (major, minor, patch) => {
+    const data = createModifiedPairingData(
+      (d) => (d.metadata.schemaVersion = { major, minor, patch }),
+    );
+
+    expect(isAutotypePairingData(data)).toBe(true);
+  });
+
+  it.each([
+    [0, 1, 0],
+    [0, 0, 0],
+    [2, 0, 0],
+  ])("returns false for the unsupported schema version %p.%p.%p", (major, minor, patch) => {
+    const data = createModifiedPairingData(
+      (d) => (d.metadata.schemaVersion = { major, minor, patch }),
+    );
+
+    expect(isAutotypePairingData(data)).toBe(false);
+  });
+
+  it.each([
+    ["major", "1"],
+    ["major", 1.5],
+    ["minor", -1],
+    ["minor", 1.5],
+    ["minor", "0"],
+    ["minor", null],
+    ["patch", -1],
+    ["patch", 1.5],
+    ["patch", "0"],
+    ["patch", null],
   ])("returns false when schemaVersion.%s is %p", (part, value) => {
     const data = createModifiedPairingData((d) => (d.metadata.schemaVersion[part] = value));
 
@@ -136,11 +172,23 @@ describe("isAutotypePairingData", () => {
     expect(isAutotypePairingData(createModifiedPairingData(modify))).toBe(false);
   });
 
-  it("returns false for an unknown packaging type", () => {
-    const data = createModifiedPairingData((d) => (d.clientData.packagingType = "macos-dmg"));
+  it.each(["macos-dmg", ""])(
+    "returns true for the unknown packaging type '%s'",
+    (packagingType) => {
+      const data = createModifiedPairingData((d) => (d.clientData.packagingType = packagingType));
 
-    expect(isAutotypePairingData(data)).toBe(false);
-  });
+      expect(isAutotypePairingData(data)).toBe(true);
+    },
+  );
+
+  it.each([[1], [null], [["windows-exe"]]])(
+    "returns false when the packaging type is the non-string value %p",
+    (packagingType) => {
+      const data = createModifiedPairingData((d) => (d.clientData.packagingType = packagingType));
+
+      expect(isAutotypePairingData(data)).toBe(false);
+    },
+  );
 
   it.each<[string, PairingDataModification]>([
     ["metadata", (d) => (d.metadata = [])],
