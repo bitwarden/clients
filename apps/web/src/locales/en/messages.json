@@ -5069,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Show pricing summary"
-  },
-  "hidePricingSummary": {
-    "message": "Hide pricing summary"
-  },
   "summary": {
     "message": "Summary"
   },
@@ -5153,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "Subscription expiration"
-  },
-  "subscriptionCanceled": {
-    "message": "The subscription has been canceled."
   },
   "pendingCancellation": {
     "message": "Pending cancellation"
@@ -5376,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "through $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -7762,10 +7744,6 @@
   },
   "changeBillingPlan": {
     "message": "Upgrade plan",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
-  "changeBillingPlanUpgrade": {
-    "message": "Upgrade your account to another plan by providing the information below. Please ensure that you have an active payment method added to the account.",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
   "invoiceNumber": {
@@ -12122,10 +12100,6 @@
     "message": "Service account",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "Service accounts",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "Secrets",
     "description": "The title for the section of the application that deals with secrets."
@@ -14351,9 +14325,6 @@
     "message": "Describe your reason for canceling",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Free for 1 year"
-  },
   "newWebApp": {
     "message": "Welcome to the new and improved web app. Learn more about what’s changed."
   },
@@ -15156,15 +15127,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ Discount",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Get Secrets Manager"
   },
@@ -15384,9 +15346,6 @@
     "message": "contact Bitwarden support.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "Sponsored"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   },
@@ -15597,9 +15556,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Access to Premium features"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB additional storage"
   },
   "sshKeyAlgorithm": {
     "message": "Key algorithm"
@@ -16995,9 +16951,6 @@
   },
   "familiesUpdated": {
     "message": "You've upgraded to Families!"
-  },
-  "taxCalculationError": {
-    "message": "There was an error calculating tax for your location. Please try again."
   },
   "individualUpgradeWelcomeMessage": {
     "message": "Welcome to Bitwarden"
@@ -19750,22 +19703,6 @@
   "oneTimeShare": {
     "message": "One time share",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
-  },
-  "viewSharedItem": {
-    "message": "View shared item",
-    "description": "Header for the drawer showing an item that was shared with a link"
-  },
-  "editSharedItem": {
-    "message": "Edit shared item",
-    "description": "Header for the drawer editing the link options of an item that was shared with a link"
-  },
-  "copyShareLink": {
-    "message": "Copy share link",
-    "description": "Button that copies the link for a shared item to the clipboard"
-  },
-  "linkExpiryAfterDeletionDate": {
-    "message": "The link can't expire after the deletion date.",
-    "description": "Error shown when a share link's expiry is set later than its deletion date"
   },
   "activeLinks": {
     "message": "Active links",

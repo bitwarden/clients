@@ -1,813 +1,1484 @@
 import { DatePipe } from "@angular/common";
-import { TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
-import { mock, mockReset } from "jest-mock-extended";
-import { of } from "rxjs";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
+import { mock } from "jest-mock-extended";
+import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { SubscriptionCardActions, SubscriptionPreview } from "@bitwarden/subscription";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { OrganizationBillingClient } from "../clients";
+import {
+  OffboardingSurveyComponent,
+  OffboardingSurveyDialogResultType,
+} from "../shared/offboarding-survey.component";
 
-import { ChurnMitigationOfferDialogResultType } from "./churn-mitigation-offer-dialog.component";
+import { AdjustSubscription } from "./adjust-subscription.component";
+import {
+  ChurnMitigationOfferDialogComponent,
+  ChurnMitigationOfferDialogResultType,
+} from "./churn-mitigation-offer-dialog.component";
 import { OrganizationSubscriptionCloudComponent } from "./organization-subscription-cloud.component";
+import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import { PrivilegedControlsAdjustSubscriptionComponent } from "./privileged-controls-adjust-subscription.component";
+import * as restartSubscriptionDialog from "./restart-subscription-dialog.component";
+import { RestartSubscriptionDialogResultType } from "./restart-subscription-dialog.component";
+import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscription.component";
+import { SecretsManagerSubscribeStandaloneComponent } from "./sm-subscribe-standalone.component";
+import { OrganizationScheduledPriceIncreaseWarningComponent } from "./warnings/components";
 
-function makeDialogRef<R>(result: R): Pick<DialogRef<R>, "closed"> {
-  return { closed: of(result) };
+// Stub for <app-header> (WebHeaderComponent) so tests don't pull in its route/DI tree.
+@Component({
+  selector: "app-header",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockWebHeaderComponent {
+  readonly title = input<string>();
+  readonly icon = input<string>();
 }
 
-describe("OrganizationSubscriptionCloudComponent.cancelSubscription", () => {
-  const mockDialogService = mock<DialogService>();
-  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
-  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const mockI18nService = mock<I18nService>();
-  const mockLogService = mock<LogService>();
-  const mockOrganizationService = mock<OrganizationService>();
-  const mockAccountService = mock<AccountService>();
-  const mockApiService = mock<ApiService>();
-  const mockToastService = mock<ToastService>();
-  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
-  const mockDatePipe = mock<DatePipe>();
+// Stubs for the management-section child components, which otherwise pull heavy DI (e.g.
+// PlatformUtilsService) into detectChanges. They let the management block render harmlessly.
+@Component({
+  selector: "app-adjust-subscription",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockAdjustSubscriptionComponent {
+  readonly seatPrice = input<unknown>();
+  readonly organizationId = input<unknown>();
+  readonly interval = input<unknown>();
+  readonly currentSeatCount = input<unknown>();
+  readonly maxAutoscaleSeats = input<unknown>();
+  readonly onAdjusted = output<void>();
+}
 
+@Component({
+  selector: "sm-subscribe-standalone",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockSmSubscribeStandaloneComponent {
+  readonly plan = input<unknown>();
+  readonly organization = input<unknown>();
+  readonly customerDiscount = input<unknown>();
+  readonly onSubscribe = output<void>();
+}
+
+@Component({
+  selector: "app-sm-adjust-subscription",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockSmAdjustSubscriptionComponent {
+  readonly organizationId = input<unknown>();
+  readonly options = input<unknown>();
+  readonly onAdjusted = output<void>();
+}
+
+@Component({
+  selector: "app-privileged-controls-adjust-subscription",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockPrivilegedControlsAdjustSubscriptionComponent {
+  readonly organizationId = input<unknown>();
+  readonly options = input<unknown>();
+  readonly adjusted = output<void>();
+}
+
+@Component({
+  selector: "app-organization-scheduled-price-increase-warning",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockScheduledPriceIncreaseWarningComponent {
+  readonly organization = input<unknown>();
+}
+
+describe("OrganizationSubscriptionCloudComponent", () => {
   let component: OrganizationSubscriptionCloudComponent;
-
-  const orgId = "org-abc";
-
-  const mockOffer = {
-    couponId: "CHURN25",
-    percentOff: 25,
-    duration: "repeating",
-    durationInMonths: 12,
-    name: "Loyalty Discount",
-  } as any;
-
-  const mockSub = {
-    plan: { type: 9, productTier: 3, isAnnual: true },
-    subscription: { periodEndDate: "2026-12-31" },
-  } as any;
-
-  beforeEach(() => {
-    mockReset(mockDialogService);
-    mockReset(mockOrganizationBillingClient);
-
-    TestBed.configureTestingModule({
-      providers: [
-        OrganizationSubscriptionCloudComponent,
-        { provide: ApiService, useValue: mockApiService },
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: LogService, useValue: mockLogService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
-        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {},
-              queryParams: {},
-              queryParamMap: { get: (_key: string): string | null => null },
-            },
-          },
-        },
-        { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
-        { provide: DatePipe, useValue: mockDatePipe },
-        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
-      ],
-    });
-
-    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
-    component.organizationId = orgId;
-    component.sub = mockSub;
-  });
-
-  describe("eligible org (offer returned)", () => {
-    beforeEach(() => {
-      mockOrganizationBillingClient.getChurnOffer.mockResolvedValue(mockOffer);
-    });
-
-    it("opens the churn-offer dialog instead of the offboarding survey directly", async () => {
-      mockDialogService.open.mockReturnValue(
-        makeDialogRef(ChurnMitigationOfferDialogResultType.Closed) as any,
-      );
-
-      await component.cancelSubscription();
-
-      expect(mockOrganizationBillingClient.getChurnOffer).toHaveBeenCalledWith(orgId);
-      // First dialog open call should be for the churn dialog (not the offboarding survey)
-      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
-    });
-
-    it("calls load() and returns when user accepts the offer", async () => {
-      mockDialogService.open.mockReturnValue(
-        makeDialogRef(ChurnMitigationOfferDialogResultType.Accepted) as any,
-      );
-      const loadSpy = jest.spyOn(component, "load" as any).mockResolvedValue(undefined);
-
-      await component.cancelSubscription();
-
-      expect(loadSpy).toHaveBeenCalled();
-      // Only one dialog opened — the churn dialog; offboarding survey never opened
-      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
-    });
-
-    it("opens the offboarding survey when user declines the offer", async () => {
-      mockDialogService.open
-        .mockReturnValueOnce(makeDialogRef(ChurnMitigationOfferDialogResultType.Declined) as any)
-        .mockReturnValueOnce(makeDialogRef("closed") as any);
-
-      await component.cancelSubscription();
-
-      expect(mockDialogService.open).toHaveBeenCalledTimes(2);
-    });
-
-    it("does not open offboarding survey when user closes the churn dialog without choosing", async () => {
-      mockDialogService.open.mockReturnValue(
-        makeDialogRef(ChurnMitigationOfferDialogResultType.Closed) as any,
-      );
-
-      await component.cancelSubscription();
-
-      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
-    });
-
-    it("calls load() after the offboarding survey is submitted", async () => {
-      mockDialogService.open
-        .mockReturnValueOnce(makeDialogRef(ChurnMitigationOfferDialogResultType.Declined) as any)
-        .mockReturnValueOnce(makeDialogRef("submitted") as any);
-      const loadSpy = jest.spyOn(component, "load" as any).mockResolvedValue(undefined);
-
-      await component.cancelSubscription();
-
-      expect(loadSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe("ineligible org (no offer returned)", () => {
-    beforeEach(() => {
-      mockOrganizationBillingClient.getChurnOffer.mockResolvedValue(null);
-    });
-
-    it("opens the offboarding survey directly without opening the churn-offer dialog", async () => {
-      mockDialogService.open.mockReturnValue(makeDialogRef("closed") as any);
-
-      await component.cancelSubscription();
-
-      expect(mockOrganizationBillingClient.getChurnOffer).toHaveBeenCalledWith(orgId);
-      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
-    });
-
-    it("calls load() when the offboarding survey is submitted", async () => {
-      mockDialogService.open.mockReturnValue(makeDialogRef("submitted") as any);
-      const loadSpy = jest.spyOn(component, "load" as any).mockResolvedValue(undefined);
-
-      await component.cancelSubscription();
-
-      expect(loadSpy).toHaveBeenCalled();
-    });
-
-    it("does not call load() when the offboarding survey is closed without submitting", async () => {
-      mockDialogService.open.mockReturnValue(makeDialogRef("closed") as any);
-      const loadSpy = jest.spyOn(component, "load" as any).mockResolvedValue(undefined);
-
-      await component.cancelSubscription();
-
-      expect(loadSpy).not.toHaveBeenCalled();
-    });
-  });
-});
-
-describe("OrganizationSubscriptionCloudComponent.load (pendingAnnualUpgrade line items)", () => {
-  const mockApiService = mock<ApiService>();
-  const mockI18nService = mock<I18nService>();
-  const mockLogService = mock<LogService>();
-  const mockOrganizationService = mock<OrganizationService>();
-  const mockAccountService = mock<AccountService>();
-  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const mockDialogService = mock<DialogService>();
-  const mockToastService = mock<ToastService>();
-  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
-  const mockDatePipe = mock<DatePipe>();
-  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
-
-  let component: OrganizationSubscriptionCloudComponent;
-
-  const mockUserOrg = {
-    hasProvider: false,
-    isOwner: true,
-    hasReseller: false,
-    isProviderUser: false,
-    hasBillableProvider: false,
-    productTierType: 1,
-  } as any;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        OrganizationSubscriptionCloudComponent,
-        { provide: ApiService, useValue: mockApiService },
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: LogService, useValue: mockLogService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
-        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {},
-              queryParams: {},
-              queryParamMap: { get: (_key: string): string | null => null },
-            },
-          },
-        },
-        { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
-        { provide: DatePipe, useValue: mockDatePipe },
-        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
-      ],
-    });
-
-    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
-
-    mockAccountService.activeAccount$ = of({ id: "user-1" } as any);
-    mockOrganizationService.organizations$ = jest.fn().mockReturnValue(of([mockUserOrg])) as any;
-    mockI18nService.locale$ = of("en");
-    mockOrganizationApiService.getApiKeyInformation.mockResolvedValue({ data: [] } as any);
-  });
-
-  it("sources line items from pendingAnnualUpgrade when present", async () => {
-    const pendingItems = [
-      {
-        name: "Teams (Annually) Seat",
-        amount: 48,
-        quantity: 5,
-        interval: "year",
-        productName: null,
-      } as any,
-    ];
-    mockOrganizationApiService.getSubscription.mockResolvedValue({
-      subscription: {
-        items: [{ name: "Teams (Monthly) Seat", amount: 4, quantity: 5, interval: "month" }],
-      },
-      plan: { name: "Teams (Monthly)", SecretsManager: { seatPrice: 0 } },
-      pendingAnnualUpgrade: {
-        plan: { name: "Teams (Annually)" },
-        lineItems: pendingItems,
-        effectiveDate: new Date(),
-      },
-    } as any);
-
-    await component.load();
-
-    expect(component.lineItems[0].interval).toBe("year");
-    expect(component.lineItems[0].name).toBe("Teams (Annually) Seat");
-  });
-
-  it("classifies pending line items against the pending plan's SecretsManager seat price", () => {
-    const pendingItems = [
-      { name: "Secrets Manager Seat", amount: 6, quantity: 3, interval: "year" } as any,
-      { name: "Members", amount: 48, quantity: 3, interval: "year" } as any,
-    ];
-    mockOrganizationApiService.getSubscription.mockResolvedValue({
-      subscription: {
-        items: [{ name: "Teams (Monthly) Seat", amount: 4, quantity: 5, interval: "month" }],
-      },
-      plan: { name: "Teams (Monthly)", SecretsManager: { seatPrice: 0 } },
-      pendingAnnualUpgrade: {
-        plan: { name: "Teams (Annually)", SecretsManager: { seatPrice: 6 } },
-        lineItems: pendingItems,
-        effectiveDate: new Date(),
-      },
-    } as any);
-
-    return component.load().then(() => {
-      const smItem = component.lineItems.find((i: any) => i.name === "Secrets Manager Seat");
-      const pmItem = component.lineItems.find((i: any) => i.name === "Members");
-
-      expect(smItem.productName).toBe("secretsManager");
-      expect(pmItem.productName).toBe("passwordManager");
-    });
-  });
-
-  it("falls back to the current subscription items when there is no pendingAnnualUpgrade", async () => {
-    mockOrganizationApiService.getSubscription.mockResolvedValue({
-      subscription: {
-        items: [{ name: "Teams (Monthly) Seat", amount: 4, quantity: 5, interval: "month" }],
-      },
-      plan: { name: "Teams (Monthly)", SecretsManager: { seatPrice: 0 } },
-    } as any);
-
-    await component.load();
-
-    expect(component.lineItems[0].interval).toBe("month");
-    expect(component.lineItems[0].name).toBe("Teams (Monthly) Seat");
-  });
-});
-
-describe("OrganizationSubscriptionCloudComponent.discountPrice", () => {
-  const mockApiService = mock<ApiService>();
-  const mockI18nService = mock<I18nService>();
-  const mockLogService = mock<LogService>();
-  const mockOrganizationService = mock<OrganizationService>();
-  const mockAccountService = mock<AccountService>();
-  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const mockDialogService = mock<DialogService>();
-  const mockToastService = mock<ToastService>();
-  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
-  const mockDatePipe = mock<DatePipe>();
-  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
-
-  let component: OrganizationSubscriptionCloudComponent;
-
-  const setCustomerDiscount = (customerDiscount: any) => {
-    component.sub = { customerDiscount } as any;
+  let fixture: ComponentFixture<OrganizationSubscriptionCloudComponent>;
+  let dataService: jest.Mocked<OrganizationSubscriptionDataService>;
+  let i18nService: jest.Mocked<I18nService>;
+  let activatedRoute: {
+    snapshot: { params: Record<string, string> };
+    queryParamMap: Observable<ParamMap>;
   };
+  let router: jest.Mocked<Router>;
+  let platformUtilsService: jest.Mocked<PlatformUtilsService>;
+  let configService: jest.Mocked<ConfigService>;
+  let openRestartDialog: jest.SpyInstance;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        OrganizationSubscriptionCloudComponent,
-        { provide: ApiService, useValue: mockApiService },
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: LogService, useValue: mockLogService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
-        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {},
-              queryParams: {},
-              queryParamMap: { get: (_key: string): string | null => null },
-            },
-          },
-        },
-        { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
-        { provide: DatePipe, useValue: mockDatePipe },
-        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
-      ],
-    });
-
-    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
-  });
-
-  it("reduces by percentage for a perpetual percent discount that applies", () => {
-    setCustomerDiscount({ active: true, percentOff: 20, appliesTo: [] });
-
-    expect(component.discountPrice(100)).toBe(80);
-  });
-
-  it("reduces a repeating percent discount despite active === false", () => {
-    setCustomerDiscount({ active: false, percentOff: 10, durationInMonths: 12, appliesTo: [] });
-
-    expect(component.discountPrice(100)).toBe(90);
-  });
-
-  it("leaves the per-unit price unchanged for an amount-off discount (applied at the line total)", () => {
-    // A fixed amount applies once to the line total, not per seat, so the per-unit price is full.
-    setCustomerDiscount({ active: true, amountOff: 15, appliesTo: [] });
-
-    const result = component.discountPrice(7);
-
-    expect(result).toBe(7);
-    expect(Number.isNaN(result)).toBe(false);
-  });
-
-  it("returns the full price (not NaN) when neither percent nor amount is set", () => {
-    setCustomerDiscount({ active: true, appliesTo: [] });
-
-    const result = component.discountPrice(100);
-
-    expect(result).toBe(100);
-    expect(Number.isNaN(result)).toBe(false);
-  });
-
-  it("does not reduce when the percent discount is scoped to a different product", () => {
-    setCustomerDiscount({ active: true, percentOff: 20, appliesTo: ["prod_x"] });
-
-    expect(component.discountPrice(100, "prod_y")).toBe(100);
-  });
-
-  it("returns the full price when there is no customer discount", () => {
-    setCustomerDiscount(null);
-
-    expect(component.discountPrice(100)).toBe(100);
-  });
-});
-
-describe("OrganizationSubscriptionCloudComponent.subscriptionLineItems (discounted line totals)", () => {
-  const mockApiService = mock<ApiService>();
-  const mockI18nService = mock<I18nService>();
-  const mockLogService = mock<LogService>();
-  const mockOrganizationService = mock<OrganizationService>();
-  const mockAccountService = mock<AccountService>();
-  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const mockDialogService = mock<DialogService>();
-  const mockToastService = mock<ToastService>();
-  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
-  const mockDatePipe = mock<DatePipe>();
-  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
-
-  let component: OrganizationSubscriptionCloudComponent;
-
-  const lineItem = (overrides: Record<string, unknown> = {}) =>
+  const buildOrganization = (overrides: Partial<Organization> = {}): Organization =>
     ({
-      productId: "prod_seats",
-      name: "Members",
-      amount: 7,
-      quantity: 10,
-      interval: "month",
-      sponsoredSubscriptionItem: false,
-      addonSubscriptionItem: false,
-      productName: "passwordManager",
+      id: "org-123",
+      name: "Test Org",
+      // The default fixture is an independent owner; the resolver reads the isOwner getter in
+      // production, so the fixture must carry it for showSubscription to resolve.
+      isOwner: true,
+      canViewSubscription: true,
+      canEditSubscription: false,
+      selfHost: false,
+      hasProvider: false,
+      useSecretsManager: false,
+      productTierType: ProductTierType.Teams,
       ...overrides,
-    }) as any;
+    }) as Organization;
 
-  const setup = (customerDiscount: any, lineItems: any[]) => {
-    component.sub = { customerDiscount } as any;
-    component.lineItems = lineItems;
-  };
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        OrganizationSubscriptionCloudComponent,
-        { provide: ApiService, useValue: mockApiService },
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: LogService, useValue: mockLogService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
-        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {},
-              queryParams: {},
-              queryParamMap: { get: (_key: string): string | null => null },
-            },
-          },
+  const buildSubscriptionResponse = (
+    overrides: Partial<OrganizationSubscriptionResponse> = {},
+  ): OrganizationSubscriptionResponse =>
+    ({
+      id: "org-123",
+      planType: PlanType.TeamsAnnually,
+      seats: 10,
+      maxAutoscaleSeats: 20,
+      maxStorageGb: 10,
+      storageGb: 5,
+      storageName: "5 GB",
+      smSeats: 3,
+      maxAutoscaleSmSeats: 5,
+      maxAutoscaleSmServiceAccounts: 10,
+      smServiceAccounts: 60,
+      smServiceAccountsGrace: 0,
+      pamSeats: 15,
+      maxAutoscalePamSeats: undefined,
+      isOnPamSalesInitiatedTrial: false,
+      customerDiscount: null,
+      plan: {
+        type: PlanType.TeamsAnnually,
+        nameLocalizationKey: "teams",
+        name: "Teams",
+        isAnnual: true,
+        productTier: ProductTierType.Teams,
+        PasswordManager: {
+          hasAdditionalSeatsOption: true,
+          seatPrice: 4,
+          additionalStoragePricePerGb: 0.5,
         },
-        { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
-        { provide: DatePipe, useValue: mockDatePipe },
-        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
-      ],
-    });
-
-    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
-  });
-
-  it("subtracts a fixed amount-off once from the multi-seat line total (10 x $7 - $15 = $55)", () => {
-    setup({ active: true, amountOff: 15, appliesTo: [] }, [lineItem({ amount: 7, quantity: 10 })]);
-
-    const [item] = component.subscriptionLineItems;
-
-    expect(item.amount).toBe(7); // per-unit price stays at full value
-    expect(item.discountedTotal).toBe(55);
-    expect(item.discounted).toBe(true);
-  });
-
-  it("subtracts a fixed amount-off from a single-seat annual line total (1 x $72 - $15 = $57)", () => {
-    setup({ active: true, amountOff: 15, appliesTo: [] }, [
-      lineItem({ amount: 72, quantity: 1, interval: "year" }),
-    ]);
-
-    const [item] = component.subscriptionLineItems;
-
-    expect(item.discountedTotal).toBe(57);
-  });
-
-  it("applies a percentage discount across the whole multi-seat line total (10 x $7 @ 10% = $63)", () => {
-    setup({ active: true, percentOff: 10, appliesTo: [] }, [lineItem({ amount: 7, quantity: 10 })]);
-
-    const [item] = component.subscriptionLineItems;
-
-    expect(item.discountedTotal).toBe(63);
-  });
-
-  it("clamps the line total to zero when the fixed amount-off exceeds it ($500 off $70 = $0)", () => {
-    setup({ active: true, amountOff: 500, appliesTo: [] }, [lineItem({ amount: 7, quantity: 10 })]);
-
-    const [item] = component.subscriptionLineItems;
-
-    expect(item.discountedTotal).toBe(0);
-  });
-
-  it("reduces a repeating amount-off line total despite active === false", () => {
-    setup({ active: false, amountOff: 15, durationInMonths: 12, appliesTo: [] }, [
-      lineItem({ amount: 7, quantity: 10 }),
-    ]);
-
-    const [item] = component.subscriptionLineItems;
-
-    expect(item.discountedTotal).toBe(55);
-  });
-
-  it("applies a fixed amount-off once across multiple lines, not per line", () => {
-    setup({ active: true, amountOff: 15, appliesTo: [] }, [
-      lineItem({ productId: "prod_seats", amount: 7, quantity: 10 }),
-      lineItem({ productId: "prod_storage", amount: 4, quantity: 5 }),
-    ]);
-
-    const [first, second] = component.subscriptionLineItems;
-
-    // $15 consumed entirely by the first line (10 x $7 - $15 = $55); the second line is untouched.
-    expect(first.discountedTotal).toBe(55);
-    expect(second.discountedTotal).toBe(20);
-    // The fully-consumed second line was not reduced, so it must not render a strikethrough/qualifier.
-    expect(first.discounted).toBe(true);
-    expect(second.discounted).toBe(false);
-  });
-
-  it("marks a line the discount does not apply to as not discounted", () => {
-    setup({ active: true, amountOff: 15, appliesTo: ["prod_seats"] }, [
-      lineItem({ productId: "prod_seats", amount: 7, quantity: 10 }),
-      lineItem({ productId: "prod_storage", amount: 4, quantity: 5 }),
-    ]);
-
-    const [first, second] = component.subscriptionLineItems;
-
-    expect(first.discounted).toBe(true); // reduced to $55
-    expect(second.discounted).toBe(false); // product-scoped out, stays at full $20
-  });
-
-  it("leaves the line total at full value when there is no discount", () => {
-    setup(null, [lineItem({ amount: 7, quantity: 10 })]);
-
-    const [item] = component.subscriptionLineItems;
-
-    expect(item.discountedTotal).toBe(70);
-    expect(item.discounted).toBe(false);
-  });
-});
-
-describe("OrganizationSubscriptionCloudComponent.discountAppliesToProduct", () => {
-  const mockApiService = mock<ApiService>();
-  const mockI18nService = mock<I18nService>();
-  const mockLogService = mock<LogService>();
-  const mockOrganizationService = mock<OrganizationService>();
-  const mockAccountService = mock<AccountService>();
-  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const mockDialogService = mock<DialogService>();
-  const mockToastService = mock<ToastService>();
-  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
-  const mockDatePipe = mock<DatePipe>();
-  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
-
-  let component: OrganizationSubscriptionCloudComponent;
-
-  const setCustomerDiscount = (customerDiscount: any) => {
-    component.sub = { customerDiscount } as any;
-  };
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        OrganizationSubscriptionCloudComponent,
-        { provide: ApiService, useValue: mockApiService },
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: LogService, useValue: mockLogService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
-        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {},
-              queryParams: {},
-              queryParamMap: { get: (_key: string): string | null => null },
-            },
-          },
+        SecretsManager: {
+          hasAdditionalSeatsOption: true,
+          seatPrice: 6,
+          baseServiceAccount: 50,
+          additionalPricePerServiceAccount: 0.5,
         },
-        { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
-        { provide: DatePipe, useValue: mockDatePipe },
-        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
-      ],
-    });
+        PrivilegedControls: {
+          seatPrice: 5,
+        },
+      },
+      subscription: {
+        cancelled: false,
+        cancelAtEndDate: false,
+        status: "active",
+        cancelledDate: null,
+        periodEndDate: "2026-01-01",
+        items: [],
+      },
+      ...overrides,
+    }) as OrganizationSubscriptionResponse;
 
-    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
-  });
+  const mockSubscriptionPreview: SubscriptionPreview = {
+    status: "active",
+    cart: {
+      passwordManager: { seats: { translationKey: "pm-seat", quantity: 5, cost: 1000 } },
+      cadence: "annually",
+      estimatedTax: 0,
+    },
+  } as SubscriptionPreview;
 
-  it("returns true for an empty appliesTo (whole-subscription discount)", () => {
-    setCustomerDiscount({ active: true, amountOff: 15, appliesTo: [] });
-
-    expect(component.discountAppliesToProduct("prod_anything")).toBe(true);
-  });
-
-  it("returns true for a product included in a scoped appliesTo", () => {
-    setCustomerDiscount({ active: true, amountOff: 15, appliesTo: ["prod_x"] });
-
-    expect(component.discountAppliesToProduct("prod_x")).toBe(true);
-  });
-
-  it("returns false for a product not included in a scoped appliesTo", () => {
-    setCustomerDiscount({ active: true, amountOff: 15, appliesTo: ["prod_x"] });
-
-    expect(component.discountAppliesToProduct("prod_y")).toBe(false);
-  });
-
-  it("returns true for an empty appliesTo even when there is no discount value set", () => {
-    setCustomerDiscount({ active: true, appliesTo: [] });
-
-    expect(component.discountAppliesToProduct("prod_anything")).toBe(true);
-  });
-});
-
-describe("OrganizationSubscriptionCloudComponent.discountDurationLabel", () => {
-  const mockApiService = mock<ApiService>();
-  const mockI18nService = mock<I18nService>();
-  const mockLogService = mock<LogService>();
-  const mockOrganizationService = mock<OrganizationService>();
-  const mockAccountService = mock<AccountService>();
-  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const mockDialogService = mock<DialogService>();
-  const mockToastService = mock<ToastService>();
-  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
-  const mockDatePipe = mock<DatePipe>();
-  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
-
-  let component: OrganizationSubscriptionCloudComponent;
-
-  const setCustomerDiscount = (customerDiscount: any) => {
-    component.sub = { customerDiscount } as any;
-  };
-
-  beforeEach(() => {
-    // Echo the i18n key + args so assertions check the key/args, not the (design-pending) copy.
-    mockI18nService.t.mockImplementation(
-      (key: string, p1?: string | number) => (p1 != null ? `${key}:${p1}` : key) as string,
+  /** Sets the data-service returns then constructs the component. Skips change detection by default
+   * so the retained-section child components are not instantiated (they have their own DI). */
+  const createComponent = (options?: {
+    organization?: Organization;
+    subscription?: OrganizationSubscriptionResponse | null;
+    hasBillingSyncToken?: boolean;
+    resellerSeatsRemaining?: number | null;
+    detectChanges?: boolean;
+  }) => {
+    dataService.organization$.mockReturnValue(of(options?.organization ?? buildOrganization()));
+    dataService.organizationSubscription$.mockReturnValue(
+      of(options?.subscription === undefined ? buildSubscriptionResponse() : options.subscription),
+    );
+    dataService.hasBillingSyncToken$.mockReturnValue(of(options?.hasBillingSyncToken ?? false));
+    dataService.resellerSeatsRemaining$.mockReturnValue(
+      of(options?.resellerSeatsRemaining ?? null),
     );
 
-    TestBed.configureTestingModule({
-      providers: [
-        OrganizationSubscriptionCloudComponent,
-        { provide: ApiService, useValue: mockApiService },
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: LogService, useValue: mockLogService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
-        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {},
-              queryParams: {},
-              queryParamMap: { get: (_key: string): string | null => null },
-            },
-          },
-        },
-        { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
-        { provide: DatePipe, useValue: mockDatePipe },
-        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
-      ],
-    });
-
-    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
-  });
-
-  it("returns the one-year key for a 12-month repeating discount", () => {
-    setCustomerDiscount({ active: false, percentOff: 10, durationInMonths: 12, appliesTo: [] });
-
-    expect(component.discountDurationLabel()).toBe("discountForOneYear");
-  });
-
-  it("returns the months key with the count for a non-12-month repeating discount", () => {
-    setCustomerDiscount({ active: false, percentOff: 10, durationInMonths: 6, appliesTo: [] });
-
-    expect(component.discountDurationLabel()).toBe("discountForMonths:6");
-  });
-
-  it("returns null when durationInMonths is absent (e.g. only an end date)", () => {
-    setCustomerDiscount({ active: false, percentOff: 10, end: "2027-06-01", appliesTo: [] });
-
-    expect(component.discountDurationLabel()).toBeNull();
-  });
-
-  it("returns null when there is no customer discount", () => {
-    setCustomerDiscount(null);
-
-    expect(component.discountDurationLabel()).toBeNull();
-  });
-});
-
-describe("OrganizationSubscriptionCloudComponent.smOptions", () => {
-  const mockApiService = mock<ApiService>();
-  const mockI18nService = mock<I18nService>();
-  const mockLogService = mock<LogService>();
-  const mockOrganizationService = mock<OrganizationService>();
-  const mockAccountService = mock<AccountService>();
-  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const mockDialogService = mock<DialogService>();
-  const mockToastService = mock<ToastService>();
-  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
-  const mockDatePipe = mock<DatePipe>();
-  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
-
-  let component: OrganizationSubscriptionCloudComponent;
-
-  // Reported PM-39805 org: 75 total entitlement, 20 static baseline. Grace varies per case.
-  const setSub = (overrides: Record<string, unknown>) => {
-    component.sub = {
-      smSeats: 5,
-      maxAutoscaleSmSeats: 10,
-      maxAutoscaleSmServiceAccounts: 100,
-      smServiceAccounts: 75,
-      plan: {
-        isAnnual: false,
-        SecretsManager: {
-          seatPrice: 6,
-          additionalPricePerServiceAccount: 1,
-          baseServiceAccount: 20,
-        },
-      },
-      ...overrides,
-    } as any;
+    fixture = TestBed.createComponent(OrganizationSubscriptionCloudComponent);
+    component = fixture.componentInstance;
+    if (options?.detectChanges) {
+      fixture.detectChanges();
+    }
+    return component;
   };
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  afterEach(() => {
+    openRestartDialog.mockRestore();
+  });
+
+  beforeEach(async () => {
+    dataService = mock<OrganizationSubscriptionDataService>();
+    dataService.getSubscriptionPreview.mockResolvedValue(mockSubscriptionPreview);
+
+    i18nService = mock<I18nService>();
+    i18nService.t = jest.fn((key: string) => key);
+
+    activatedRoute = {
+      snapshot: { params: { organizationId: "org-123" } },
+      queryParamMap: of(convertToParamMap({})),
+    };
+    router = mock<Router>();
+    // RouterLink's reactive router state subscribes to router events; the bare mock leaves it
+    // undefined, which crashes any template that renders an <a [routerLink]>.
+    router.events = new Subject();
+    platformUtilsService = mock<PlatformUtilsService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+    openRestartDialog = jest
+      .spyOn(restartSubscriptionDialog, "openRestartSubscriptionDialog")
+      .mockReturnValue({
+        closed: of(RestartSubscriptionDialogResultType.Submitted),
+      } as ReturnType<typeof restartSubscriptionDialog.openRestartSubscriptionDialog>);
+
+    await TestBed.configureTestingModule({
+      imports: [OrganizationSubscriptionCloudComponent],
       providers: [
-        OrganizationSubscriptionCloudComponent,
-        { provide: ApiService, useValue: mockApiService },
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: LogService, useValue: mockLogService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
-        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
+        { provide: OrganizationSubscriptionDataService, useValue: dataService },
+        { provide: I18nService, useValue: i18nService },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: ApiService, useValue: mock<ApiService>() },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              params: {},
-              queryParams: {},
-              queryParamMap: { get: (_key: string): string | null => null },
-            },
-          },
+          provide: OrganizationApiServiceAbstraction,
+          useValue: mock<OrganizationApiServiceAbstraction>(),
         },
-        { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
-        { provide: DatePipe, useValue: mockDatePipe },
-        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
+        { provide: OrganizationBillingClient, useValue: mock<OrganizationBillingClient>() },
+        { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: Router, useValue: router },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: ConfigService, useValue: configService },
+        DatePipe,
+        { provide: AccountService, useValue: mock<AccountService>() },
       ],
     });
 
-    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
+    TestBed.overrideComponent(OrganizationSubscriptionCloudComponent, {
+      remove: {
+        imports: [
+          HeaderModule,
+          AdjustSubscription,
+          SecretsManagerSubscribeStandaloneComponent,
+          SecretsManagerAdjustSubscriptionComponent,
+          PrivilegedControlsAdjustSubscriptionComponent,
+          OrganizationScheduledPriceIncreaseWarningComponent,
+        ],
+      },
+      add: {
+        imports: [
+          MockWebHeaderComponent,
+          MockAdjustSubscriptionComponent,
+          MockSmSubscribeStandaloneComponent,
+          MockSmAdjustSubscriptionComponent,
+          MockPrivilegedControlsAdjustSubscriptionComponent,
+          MockScheduledPriceIncreaseWarningComponent,
+        ],
+      },
+    });
+
+    await TestBed.compileComponents();
   });
 
-  it("subtracts permanent migration-grace accounts from the billable count (75 - 20 - 30 = 25)", () => {
-    setSub({ smServiceAccountsGrace: 30 });
-
-    expect(component.smOptions.additionalServiceAccounts).toBe(25);
+  it("should create", () => {
+    createComponent({ detectChanges: true });
+    expect(component).toBeTruthy();
   });
 
-  it("treats an absent grace value as zero (pre-server behavior: 75 - 20 = 55)", () => {
-    setSub({ smServiceAccountsGrace: undefined });
-
-    expect(component.smOptions.additionalServiceAccounts).toBe(55);
+  it("should initialize data services with the organization id", async () => {
+    createComponent({ detectChanges: true });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(dataService.organization$).toHaveBeenCalledWith("org-123");
+    expect(dataService.organizationSubscription$).toHaveBeenCalledWith("org-123");
+    expect(dataService.hasBillingSyncToken$).toHaveBeenCalledWith("org-123");
+    expect(dataService.resellerSeatsRemaining$).toHaveBeenCalledWith("org-123");
   });
 
-  it("treats grace = 0 the same as no grace (75 - 20 = 55)", () => {
-    setSub({ smServiceAccountsGrace: 0 });
-
-    expect(component.smOptions.additionalServiceAccounts).toBe(55);
+  it("should populate the organization and subscription signals", async () => {
+    createComponent({ detectChanges: true });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.organization()?.id).toBe("org-123");
+    expect(component.organizationSubscription()?.id).toBe("org-123");
   });
 
-  it("clamps to zero when grace exceeds the billable count (bad server data: 75 - 20 - 80 -> 0)", () => {
-    setSub({ smServiceAccountsGrace: 80 });
-
-    expect(component.smOptions.additionalServiceAccounts).toBe(0);
+  it("should load the subscription preview via resource", async () => {
+    createComponent({ detectChanges: true });
+    await fixture.whenStable();
+    expect(dataService.getSubscriptionPreview).toHaveBeenCalledWith("org-123");
+    expect(component.subscriptionPreview.status()).toBe("resolved");
   });
 
-  it("passes the migration-grace count through to the adjust component options", () => {
-    setSub({ smServiceAccountsGrace: 30 });
-
-    expect(component.smOptions.graceServiceAccounts).toBe(30);
+  it("should compose the card title from plan name and cadence", async () => {
+    createComponent({ detectChanges: true });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.cardTitle()).toBe("organizationSubscriptionCardTitle");
+    expect(i18nService.t).toHaveBeenCalledWith(
+      "organizationSubscriptionCardTitle",
+      "teams",
+      "annualLower",
+    );
   });
 
-  it("defaults the grace passthrough to 0 when absent", () => {
-    setSub({ smServiceAccountsGrace: undefined });
+  it("should return a null card title when the subscription is absent", () => {
+    createComponent({ subscription: null });
+    expect(component.cardTitle()).toBeNull();
+  });
 
-    expect(component.smOptions.graceServiceAccounts).toBe(0);
+  describe("pending annual upgrade", () => {
+    it("exposes the pending annual upgrade for the notice callout", async () => {
+      const effectiveDate = new Date("2026-09-17T00:00:00.000Z");
+      createComponent({
+        subscription: buildSubscriptionResponse({
+          pendingAnnualUpgrade: {
+            plan: { isAnnual: true },
+            lineItems: [],
+            effectiveDate,
+          },
+        } as any),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.pendingAnnualUpgrade()?.effectiveDate).toEqual(effectiveDate);
+    });
+
+    it("has no pending annual upgrade when none is scheduled", () => {
+      createComponent();
+
+      expect(component.pendingAnnualUpgrade()).toBeUndefined();
+    });
+  });
+
+  describe("access visibility", () => {
+    it("shows the subscription section when the org can view it", () => {
+      createComponent({ organization: buildOrganization({ canViewSubscription: true }) });
+      expect(component.access()?.showSubscription).toBe(true);
+    });
+
+    it("shows self-host when the plan allows self-hosting", () => {
+      createComponent({
+        organization: buildOrganization({ selfHost: true }),
+      });
+      expect(component.access()?.showSelfHost).toBe(true);
+    });
+
+    it("shows the provider-managed section for billable-provider-managed orgs", () => {
+      createComponent({
+        organization: buildOrganization({ hasProvider: true, hasBillableProvider: true }),
+      });
+      expect(component.access()?.showProviderManagedBilling).toBe(true);
+    });
+
+    it("shows the plan and status details for a resold organization owner", async () => {
+      createComponent({
+        organization: buildOrganization({
+          canViewSubscription: false,
+          hasProvider: true,
+          hasReseller: true,
+          isOwner: true,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
+      expect(text).toContain("Teams");
+      expect(text).toContain("active");
+      expect(text).toContain("Jan 1, 2026");
+    });
+
+    it("shows the plan and status details for a resold organization provider user", async () => {
+      createComponent({
+        organization: buildOrganization({
+          canViewSubscription: false,
+          hasProvider: true,
+          hasReseller: true,
+          isProviderUser: true,
+          isOwner: true,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
+      expect(text).toContain("Teams");
+      expect(text).toContain("active");
+      expect(text).toContain("Jan 1, 2026");
+    });
+
+    it("enables billing sync only for enterprise", () => {
+      createComponent({
+        organization: buildOrganization({ productTierType: ProductTierType.Enterprise }),
+      });
+      expect(component.access()?.canUseBillingSync).toBe(true);
+    });
+  });
+
+  describe("cancellation state", () => {
+    it("treats a subscription that cancels at period end as cancelled or pending cancellation", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({
+          subscription: { cancelAtEndDate: true, cancelled: false, status: "active" } as any,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.isSubscriptionCanceledOrPendingCancellation()).toBe(true);
+    });
+
+    it("treats an already cancelled subscription as cancelled or pending cancellation", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({
+          subscription: { cancelled: true, cancelAtEndDate: true } as any,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.isSubscriptionCanceledOrPendingCancellation()).toBe(true);
+    });
+
+    it("does not treat an active subscription as cancelled", () => {
+      createComponent();
+      expect(component.isSubscriptionCanceledOrPendingCancellation()).toBe(false);
+    });
+
+    it("hides the storage and cancellation buttons for a cancelled subscription", async () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        subscription: buildSubscriptionResponse({
+          subscription: {
+            cancelled: true,
+            status: "active",
+            cancelAtEndDate: false,
+            cancelledDate: null,
+            periodEndDate: "2026-01-01",
+            items: [],
+          } as any,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent ?? "";
+      // The storage section remains (usage is informational), but its action buttons are gated.
+      expect(text).toContain("storage");
+      expect(text).not.toContain("addStorage");
+      expect(text).not.toContain("removeStorage");
+      expect(text).not.toContain("cancelSubscription");
+      expect(text).toContain("additionalOptions");
+    });
+  });
+
+  describe("cancelSubscription", () => {
+    const churnOffer = {
+      couponId: "CHURN25",
+      percentOff: 25,
+      duration: "repeating",
+      durationInMonths: 12,
+      name: "Loyalty Discount",
+    } as any;
+
+    let dialogService: jest.Mocked<DialogService>;
+    let billingClient: jest.Mocked<OrganizationBillingClient>;
+    let reload: jest.SpyInstance;
+
+    const dialogRef = (result: unknown) => ({ closed: of(result) }) as any;
+    const openedDialogs = () => dialogService.open.mock.calls.map(([dialog]) => dialog);
+
+    const createLoaded = async (subscription?: OrganizationSubscriptionResponse | null) => {
+      createComponent({ subscription, detectChanges: true });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      reload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+    };
+
+    beforeEach(() => {
+      dialogService = TestBed.inject(DialogService) as jest.Mocked<DialogService>;
+      billingClient = TestBed.inject(
+        OrganizationBillingClient,
+      ) as jest.Mocked<OrganizationBillingClient>;
+    });
+
+    describe("when the organization is offered a churn mitigation offer", () => {
+      beforeEach(async () => {
+        billingClient.getChurnOffer.mockResolvedValue(churnOffer);
+        await createLoaded();
+      });
+
+      it("opens only the churn offer dialog, with the plan details, and nothing else when it is closed", async () => {
+        dialogService.open.mockReturnValue(dialogRef(ChurnMitigationOfferDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(billingClient.getChurnOffer).toHaveBeenCalledWith("org-123");
+        expect(openedDialogs()).toEqual([ChurnMitigationOfferDialogComponent]);
+        expect(dialogService.open.mock.calls[0][1]).toEqual({
+          data: expect.objectContaining({
+            organizationId: "org-123",
+            offer: churnOffer,
+            planName: "Teams",
+            isAnnual: true,
+          }),
+        });
+        expect(reload).not.toHaveBeenCalled();
+      });
+
+      it("refreshes without opening the survey when the offer is accepted", async () => {
+        dialogService.open.mockReturnValue(
+          dialogRef(ChurnMitigationOfferDialogResultType.Accepted),
+        );
+
+        await component.cancelSubscription();
+
+        expect(openedDialogs()).toEqual([ChurnMitigationOfferDialogComponent]);
+        expect(reload).toHaveBeenCalled();
+      });
+
+      it("opens the offboarding survey after the offer is declined", async () => {
+        dialogService.open
+          .mockReturnValueOnce(dialogRef(ChurnMitigationOfferDialogResultType.Declined))
+          .mockReturnValueOnce(dialogRef(OffboardingSurveyDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(openedDialogs()).toEqual([
+          ChurnMitigationOfferDialogComponent,
+          OffboardingSurveyComponent,
+        ]);
+      });
+
+      it("refreshes when the survey is submitted after declining the offer", async () => {
+        dialogService.open
+          .mockReturnValueOnce(dialogRef(ChurnMitigationOfferDialogResultType.Declined))
+          .mockReturnValueOnce(dialogRef(OffboardingSurveyDialogResultType.Submitted));
+
+        await component.cancelSubscription();
+
+        expect(reload).toHaveBeenCalled();
+      });
+
+      it("does not refresh when the survey is closed after declining the offer", async () => {
+        dialogService.open
+          .mockReturnValueOnce(dialogRef(ChurnMitigationOfferDialogResultType.Declined))
+          .mockReturnValueOnce(dialogRef(OffboardingSurveyDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(reload).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when the organization is not offered a churn mitigation offer", () => {
+      beforeEach(async () => {
+        billingClient.getChurnOffer.mockResolvedValue(null);
+        await createLoaded();
+      });
+
+      it("opens the offboarding survey directly with the plan details", async () => {
+        dialogService.open.mockReturnValue(dialogRef(OffboardingSurveyDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(billingClient.getChurnOffer).toHaveBeenCalledWith("org-123");
+        expect(openedDialogs()).toEqual([OffboardingSurveyComponent]);
+        expect(dialogService.open.mock.calls[0][1]).toEqual({
+          data: {
+            type: "Organization",
+            id: "org-123",
+            plan: PlanType.TeamsAnnually,
+            productTier: ProductTierType.Teams,
+          },
+        });
+      });
+
+      it("refreshes when the survey is submitted", async () => {
+        dialogService.open.mockReturnValue(dialogRef(OffboardingSurveyDialogResultType.Submitted));
+
+        await component.cancelSubscription();
+
+        expect(reload).toHaveBeenCalled();
+      });
+
+      it("does not refresh when the survey is closed", async () => {
+        dialogService.open.mockReturnValue(dialogRef(OffboardingSurveyDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(reload).not.toHaveBeenCalled();
+      });
+    });
+
+    it("does nothing when the subscription has not loaded", async () => {
+      await createLoaded(null);
+
+      await component.cancelSubscription();
+
+      expect(billingClient.getChurnOffer).not.toHaveBeenCalled();
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("sponsored subscription", () => {
+    it("detects a sponsored subscription from its items", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({
+          subscription: { items: [{ sponsoredSubscriptionItem: true }], cancelled: false } as any,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.isSponsoredSubscription()).toBe(true);
+    });
+  });
+
+  describe("change plan gating", () => {
+    it("hides the change-plan button for enterprise plans", () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({
+          plan: { productTier: ProductTierType.Enterprise } as any,
+        }),
+      });
+      expect(component.showChangePlanButton()).toBe(false);
+    });
+
+    it("shows the change-plan button for non-enterprise active plans", async () => {
+      createComponent({ detectChanges: true });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.showChangePlanButton()).toBe(true);
+    });
+
+    it("hides the change-plan button when the subscription is cancelled", () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ subscription: { cancelled: true } as any }),
+      });
+      expect(component.showChangePlanButton()).toBe(false);
+    });
+
+    it("still shows the change-plan button for a cancelled free plan", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({
+          plan: { productTier: ProductTierType.Free } as any,
+          subscription: { cancelled: true } as any,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.showChangePlanButton()).toBe(true);
+    });
+  });
+
+  describe("secrets manager sections", () => {
+    it("shows Secrets Manager subscribe when editable and SM is not yet in use", async () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true, useSecretsManager: false }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.showSecretsManagerSubscribe()).toBe(true);
+    });
+
+    it("shows Secrets Manager adjust when SM is in use and editable", async () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true, useSecretsManager: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.showAdjustSecretsManager()).toBe(true);
+    });
+
+    it("hides Secrets Manager subscribe when the subscription is cancelled", () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true, useSecretsManager: false }),
+        subscription: buildSubscriptionResponse({ subscription: { cancelled: true } as any }),
+      });
+      expect(component.showSecretsManagerSubscribe()).toBe(false);
+    });
+
+    it("hides Secrets Manager adjust when the subscription is cancelled", () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true, useSecretsManager: true }),
+        subscription: buildSubscriptionResponse({ subscription: { cancelled: true } as any }),
+      });
+      expect(component.showAdjustSecretsManager()).toBe(false);
+    });
+  });
+
+  describe("seat adjustment gating", () => {
+    it("blocks seat adjustment for an sm-standalone discount", () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        subscription: buildSubscriptionResponse({
+          customerDiscount: { id: "sm-standalone" } as any,
+        }),
+      });
+      expect(component.canAdjustPasswordManagerSeats()).toBe(false);
+    });
+
+    it("allows seat adjustment for an editable active subscription", async () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.canAdjustPasswordManagerSeats()).toBe(true);
+    });
+
+    it("blocks seat adjustment when the subscription is cancelled", () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        subscription: buildSubscriptionResponse({ subscription: { cancelled: true } as any }),
+      });
+      expect(component.canAdjustPasswordManagerSeats()).toBe(false);
+    });
+  });
+
+  describe("derived view state", () => {
+    it("applies a percentage discount to the seat price", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ customerDiscount: { percentOff: 25 } as any }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.seatPrice()).toBe(3); // 4 - 25%
+    });
+
+    it("computes storage usage percentage", async () => {
+      createComponent({ detectChanges: true }); // 5 of 10 GB
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component.storagePercentage()).toBe(50);
+    });
+
+    it("builds Secrets Manager options from the subscription", async () => {
+      createComponent({ detectChanges: true });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const options = component.smOptions();
+      expect(options?.seatCount).toBe(3);
+      expect(options?.additionalServiceAccounts).toBe(10); // 60 - 50 base - 0 grace
+      expect(options?.interval).toBe("year");
+    });
+
+    it("subtracts grace service accounts from the billable additional count", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ smServiceAccountsGrace: 7 }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const options = component.smOptions();
+      expect(options?.additionalServiceAccounts).toBe(3); // 60 - 50 base - 7 grace
+      expect(options?.graceServiceAccounts).toBe(7);
+    });
+
+    it("titles the card from the current plan when no annual upgrade is pending", async () => {
+      createComponent({ detectChanges: true });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      component.cardTitle();
+
+      expect(i18nService.t).toHaveBeenCalledWith(
+        "organizationSubscriptionCardTitle",
+        "teams",
+        "annualLower",
+      );
+    });
+
+    it("titles the card from the current plan even when an annual upgrade is pending", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({
+          pendingAnnualUpgrade: {
+            plan: { nameLocalizationKey: "enterprise", isAnnual: true },
+            lineItems: [],
+            effectiveDate: "2026-10-01",
+          },
+        } as any),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      component.cardTitle();
+
+      expect(i18nService.t).toHaveBeenCalledWith(
+        "organizationSubscriptionCardTitle",
+        "teams",
+        "annualLower",
+      );
+    });
+  });
+
+  describe("card action handling", () => {
+    it("reinstates on the reinstate action", () => {
+      createComponent();
+      const reinstate = jest.spyOn(component, "reinstate").mockResolvedValue();
+      component.handleCardAction(SubscriptionCardActions.ReinstateSubscription);
+      expect(reinstate).toHaveBeenCalled();
+    });
+
+    it("opens change plan on the upgrade action", () => {
+      createComponent();
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      component.handleCardAction(SubscriptionCardActions.UpgradePlan);
+      expect(changePlan).toHaveBeenCalledTimes(1);
+    });
+
+    it("routes the resubscribe action through resubscribe", () => {
+      createComponent();
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
+      component.handleCardAction(SubscriptionCardActions.Resubscribe);
+      expect(resubscribe).toHaveBeenCalledTimes(1);
+    });
+
+    it("navigates to billing history on the manage-invoices action", () => {
+      createComponent();
+      component.handleCardAction(SubscriptionCardActions.ManageInvoices);
+      expect(router.navigate).toHaveBeenCalledWith(["../history"], { relativeTo: activatedRoute });
+    });
+
+    it("navigates to payment details on the update-payment action", () => {
+      createComponent();
+      component.handleCardAction(SubscriptionCardActions.UpdatePayment);
+      expect(router.navigate).toHaveBeenCalledWith(["../payment-details"], {
+        relativeTo: activatedRoute,
+      });
+    });
+
+    it("opens the contact page on the contact-support action", () => {
+      createComponent();
+      component.handleCardAction(SubscriptionCardActions.ContactSupport);
+      expect(platformUtilsService.launchUri).toHaveBeenCalledWith("https://bitwarden.com/contact/");
+    });
+  });
+
+  describe("preview failure", () => {
+    it("shows the error card when the preview cannot be loaded", async () => {
+      dataService.getSubscriptionPreview.mockRejectedValue(new Error("billing unavailable"));
+
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.subscriptionPreview.status()).toBe("error");
+      expect(fixture.nativeElement.textContent).toContain("subscriptionDetailsNotLoading");
+      expect(fixture.nativeElement.querySelector("billing-subscription-card")).toBeNull();
+    });
+
+    it("reloads the preview when Refresh is clicked", async () => {
+      dataService.getSubscriptionPreview.mockRejectedValue(new Error("billing unavailable"));
+
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const reload = jest.spyOn(component.subscriptionPreview, "reload");
+      fixture.nativeElement.querySelector("button").click();
+
+      expect(reload).toHaveBeenCalled();
+    });
+
+    it("keeps rendering the management section when the preview fails", async () => {
+      dataService.getSubscriptionPreview.mockRejectedValue(new Error("billing unavailable"));
+
+      createComponent({
+        organization: buildOrganization({ canViewSubscription: true, canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // The preview drives only the card; the management block is an independent `@if` fed by the
+      // organization subscription API, so a failed preview shows the error card AND the block.
+      expect(component.subscriptionPreview.status()).toBe("error");
+      expect(fixture.nativeElement.textContent).toContain("subscriptionDetailsNotLoading");
+      expect(fixture.nativeElement.textContent).toContain("manageSubscription");
+    });
+
+    it("shows the error card when the subscription cannot be loaded", async () => {
+      createComponent({ organization: buildOrganization({ canEditSubscription: true }) });
+      dataService.organizationSubscription$.mockReturnValue(
+        throwError(() => new Error("billing unavailable")),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.organizationSubscriptionResource.status()).toBe("error");
+      expect(fixture.nativeElement.textContent).toContain("subscriptionDetailsNotLoading");
+    });
+
+    it("recovers the subscription when Refresh is clicked", async () => {
+      createComponent({ organization: buildOrganization({ canEditSubscription: true }) });
+      dataService.organizationSubscription$.mockReturnValue(
+        throwError(() => new Error("billing unavailable")),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const reload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+      fixture.nativeElement.querySelector("button").click();
+
+      expect(reload).toHaveBeenCalled();
+    });
+  });
+
+  describe("subscription preview gating", () => {
+    it("fetches the preview when the user can view the subscription", async () => {
+      createComponent({ detectChanges: true });
+      await fixture.whenStable();
+
+      expect(dataService.getSubscriptionPreview).toHaveBeenCalledWith("org-123");
+    });
+
+    it("does not fetch the preview for a resold organization owner", async () => {
+      createComponent({
+        organization: buildOrganization({
+          canViewSubscription: false,
+          hasProvider: true,
+          hasReseller: true,
+          isOwner: true,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(dataService.getSubscriptionPreview).not.toHaveBeenCalled();
+    });
+
+    it("does not fetch the preview for a provider user", async () => {
+      createComponent({
+        organization: buildOrganization({
+          canViewSubscription: false,
+          hasProvider: true,
+          hasBillableProvider: true,
+          isProviderUser: true,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(dataService.getSubscriptionPreview).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("privileged controls section", () => {
+    it("renders the section when the preview cart carries one", async () => {
+      dataService.getSubscriptionPreview.mockResolvedValue({
+        ...mockSubscriptionPreview,
+        cart: {
+          ...mockSubscriptionPreview.cart,
+          privilegedControls: {
+            seats: { translationKey: "membersLower", quantity: 4, cost: 20 },
+          },
+        },
+      } as SubscriptionPreview);
+
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const section = fixture.nativeElement.querySelector("#privileged-controls");
+      expect(section).not.toBeNull();
+      expect(section.textContent).toContain("privilegedControls");
+      expect(
+        fixture.nativeElement.querySelector("#privileged-controls-members").textContent,
+      ).toContain("4");
+    });
+
+    it("renders no section when the preview cart carries none", async () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("billing-subscription-card")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("#privileged-controls")).toBeNull();
+    });
+  });
+
+  describe("privileged controls adjust gating", () => {
+    const enablePamBillingSupport = () =>
+      configService.getFeatureFlag$.mockImplementation(
+        (flag) => of(flag === FeatureFlag.PamBillingSupport) as any,
+      );
+
+    const renderAdjust = async (options?: {
+      organization?: Organization;
+      subscription?: OrganizationSubscriptionResponse;
+    }) => {
+      createComponent({
+        organization:
+          options?.organization ?? buildOrganization({ canEditSubscription: true, usePam: true }),
+        subscription: options?.subscription,
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const adjustElement = () =>
+      fixture.nativeElement.querySelector("app-privileged-controls-adjust-subscription");
+
+    beforeEach(() => enablePamBillingSupport());
+
+    it("shows the adjust block for an active Privileged Controls subscription", async () => {
+      await renderAdjust();
+
+      expect(component.showAdjustPrivilegedControls()).toBe(true);
+      expect(adjustElement()).not.toBeNull();
+    });
+
+    it("hides the adjust block when the feature flag is off", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+
+      await renderAdjust();
+
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.PamBillingSupport);
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the organization does not use Privileged Controls", async () => {
+      await renderAdjust({
+        organization: buildOrganization({ canEditSubscription: true, usePam: false }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the plan has no Privileged Controls pricing", async () => {
+      const subscription = buildSubscriptionResponse();
+      subscription.plan = { ...subscription.plan, PrivilegedControls: undefined } as any;
+
+      await renderAdjust({ subscription });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the organization has no Privileged Controls seats", async () => {
+      await renderAdjust({ subscription: buildSubscriptionResponse({ pamSeats: undefined }) });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block during a sales-initiated Privileged Controls trial", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({ isOnPamSalesInitiatedTrial: true }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("shows the adjust block when the server omits the sales-initiated trial flag", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({ isOnPamSalesInitiatedTrial: undefined }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(true);
+      expect(adjustElement()).not.toBeNull();
+    });
+
+    it("hides the adjust block when the subscription is cancelled", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({
+          subscription: { cancelled: true, items: [] } as any,
+        }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the subscription is pending cancellation", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({
+          subscription: {
+            cancelled: false,
+            cancelAtEndDate: true,
+            status: "active",
+            items: [],
+          } as any,
+        }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("does not render the adjust block for a user who cannot edit the subscription", async () => {
+      await renderAdjust({
+        organization: buildOrganization({ canEditSubscription: false, usePam: true }),
+      });
+
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("passes the organization id and options to the adjust block", async () => {
+      await renderAdjust();
+
+      const child = fixture.debugElement.query(
+        (el) => el.componentInstance instanceof MockPrivilegedControlsAdjustSubscriptionComponent,
+      ).componentInstance as MockPrivilegedControlsAdjustSubscriptionComponent;
+
+      expect(child.organizationId()).toBe("org-123");
+      expect(child.options()).toEqual(component.privilegedControlsOptions());
+    });
+
+    it("refreshes the subscription and preview when the adjust block reports a change", async () => {
+      await renderAdjust();
+
+      const subscriptionReload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+      const previewReload = jest.spyOn(component.subscriptionPreview, "reload");
+      const child = fixture.debugElement.query(
+        (el) => el.componentInstance instanceof MockPrivilegedControlsAdjustSubscriptionComponent,
+      ).componentInstance as MockPrivilegedControlsAdjustSubscriptionComponent;
+
+      child.adjusted.emit();
+
+      expect(subscriptionReload).toHaveBeenCalled();
+      expect(previewReload).toHaveBeenCalled();
+    });
+  });
+
+  describe("privileged controls options", () => {
+    it("maps the Privileged Controls seat options from the subscription", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ maxAutoscalePamSeats: 25 }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()).toEqual({
+        seatCount: 15,
+        maxAutoscaleSeats: 25,
+        passwordManagerSeats: 10,
+        passwordManagerMaxAutoscaleSeats: 20,
+        seatPrice: 5,
+        interval: "year",
+      });
+    });
+
+    it("passes no Password Manager limit when the organization has none", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ maxAutoscaleSeats: null as unknown as number }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(
+        component.privilegedControlsOptions()?.passwordManagerMaxAutoscaleSeats,
+      ).toBeUndefined();
+    });
+
+    it("uses a monthly interval for a monthly plan", async () => {
+      const subscription = buildSubscriptionResponse();
+      subscription.plan = { ...subscription.plan, isAnnual: false } as any;
+      createComponent({ subscription, detectChanges: true });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()?.interval).toBe("month");
+    });
+
+    it("returns null when the organization has no Privileged Controls seats", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ pamSeats: undefined }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()).toBeNull();
+    });
+  });
+
+  describe("free organization", () => {
+    it("shows the free-plan details table instead of the preview card", async () => {
+      // A free org has no Stripe subscription, so the preview is never the source of truth.
+      dataService.getSubscriptionPreview.mockRejectedValue(new Error("no subscription"));
+
+      createComponent({
+        organization: buildOrganization({
+          isFreeOrg: true,
+          canEditSubscription: true,
+          usePasswordManager: true,
+          useSecretsManager: true,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const rows = fixture.nativeElement.querySelectorAll("tr");
+      expect(rows).toHaveLength(2);
+      expect(fixture.nativeElement.textContent).toContain("passwordManager");
+      expect(fixture.nativeElement.textContent).toContain("secretsManager");
+      expect(fixture.nativeElement.textContent).toContain("freeOrganization");
+      expect(fixture.nativeElement.querySelector("billing-subscription-card")).toBeNull();
+      expect(fixture.nativeElement.textContent).not.toContain("subscriptionDetailsNotLoading");
+    });
+
+    it("shows storage usage but no add/remove buttons for a free organization", async () => {
+      // Matches the legacy page: free orgs see the usage bar, but have no subscription to modify.
+      createComponent({
+        organization: buildOrganization({ isFreeOrg: true, canEditSubscription: true }),
+        subscription: buildSubscriptionResponse({ subscription: null, planType: PlanType.Free }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent ?? "";
+      expect(text).toContain("storage");
+      expect(text).not.toContain("addStorage");
+      expect(text).not.toContain("removeStorage");
+      // No subscription to cancel, so the cancellation button is hidden.
+      expect(text).not.toContain("cancelSubscription");
+      // Free orgs still get the upgrade path and the management sections.
+      expect(text).toContain("changeBillingPlan");
+      expect(text).toContain("manageSubscription");
+      expect(text).toContain("subscriptionFreePlan");
+      expect(text).toContain("additionalOptions");
+      expect(text).toContain("additionalOptionsDesc");
+    });
+  });
+
+  describe("resubscribe", () => {
+    const createLoaded = async (status: string) => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ subscription: { status } as any }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    it.each(["canceled", "incomplete_expired"])(
+      "opens the restart dialog for a %s subscription",
+      async (status) => {
+        await createLoaded(status);
+        const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+        const reload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+
+        await component.resubscribe();
+
+        expect(openRestartDialog).toHaveBeenCalledWith(TestBed.inject(DialogService), {
+          data: {
+            organizationId: "org-123",
+            subscription: component.organizationSubscription(),
+          },
+        });
+        expect(changePlan).not.toHaveBeenCalled();
+        expect(reload).toHaveBeenCalled();
+      },
+    );
+
+    it("does not refresh when the restart dialog is closed without submitting", async () => {
+      openRestartDialog.mockReturnValue({
+        closed: of(RestartSubscriptionDialogResultType.Closed),
+      } as ReturnType<typeof restartSubscriptionDialog.openRestartSubscriptionDialog>);
+      await createLoaded("canceled");
+      const reload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+
+      await component.resubscribe();
+
+      expect(openRestartDialog).toHaveBeenCalled();
+      expect(reload).not.toHaveBeenCalled();
+    });
+
+    it("opens change plan for an active subscription", async () => {
+      await createLoaded("active");
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+
+      await component.resubscribe(ProductTierType.Enterprise);
+
+      expect(openRestartDialog).not.toHaveBeenCalled();
+      expect(changePlan).toHaveBeenCalledWith(ProductTierType.Enterprise);
+    });
+  });
+
+  describe("upgrade deep link", () => {
+    it("does not auto-open the upgrade flow without the upgrade query param", async () => {
+      createComponent();
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(resubscribe).not.toHaveBeenCalled();
+    });
+
+    it("auto-opens the upgrade flow once the subscription loads when ?upgrade is present", async () => {
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent({ detectChanges: true });
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
+      queryParamMap.next(convertToParamMap({ upgrade: "true" }));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(resubscribe).toHaveBeenCalledWith(undefined);
+    });
+
+    it("passes the deep-link productTierType to resubscribe", async () => {
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent({ detectChanges: true });
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
+      queryParamMap.next(
+        convertToParamMap({
+          upgrade: "true",
+          productTierType: ProductTierType.Enterprise.toString(),
+        }),
+      );
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(resubscribe).toHaveBeenCalledWith(ProductTierType.Enterprise);
+    });
+
+    it("ignores an invalid productTierType and falls back to the current tier", async () => {
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent({ detectChanges: true });
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
+      queryParamMap.next(
+        convertToParamMap({
+          upgrade: "true",
+          productTierType: "not-a-tier",
+        }),
+      );
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(resubscribe).toHaveBeenCalledWith(undefined);
+    });
+
+    it("treats an empty productTierType as absent and falls back to the current tier", async () => {
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent({ detectChanges: true });
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
+      queryParamMap.next(
+        convertToParamMap({
+          upgrade: "true",
+          productTierType: "",
+        }),
+      );
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(resubscribe).toHaveBeenCalledWith(undefined);
+    });
+
+    it("opens the restart dialog for ?upgrade when the subscription has ended", async () => {
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent({
+        subscription: buildSubscriptionResponse({ subscription: { status: "canceled" } as any }),
+        detectChanges: true,
+      });
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      queryParamMap.next(convertToParamMap({ upgrade: "true" }));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(openRestartDialog).toHaveBeenCalled();
+      expect(changePlan).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("provider-managed messaging", () => {
+    it("shows the provider-managed billing message for a non-provider user", async () => {
+      createComponent({
+        organization: buildOrganization({
+          canViewSubscription: false,
+          hasProvider: true,
+          hasBillableProvider: true,
+          isProviderUser: false,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("billingManagedByProvider");
+      expect(fixture.nativeElement.textContent).toContain("billingContactProviderForAssistance");
+    });
+
+    it("shows the provider portal link for a provider user", async () => {
+      createComponent({
+        organization: buildOrganization({
+          canViewSubscription: false,
+          hasProvider: true,
+          hasBillableProvider: true,
+          isProviderUser: true,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("manageSubscriptionFromThe");
+      expect(fixture.nativeElement.textContent).toContain("providerPortal");
+    });
   });
 });
