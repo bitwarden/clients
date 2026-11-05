@@ -8,7 +8,6 @@ import { firstValueFrom } from "rxjs";
 import { LinkModule } from "@bitwarden/components";
 
 import { JslibModule } from "../../../jslib.module";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 
 /**
  * RegistrationStartSecondaryComponentData
