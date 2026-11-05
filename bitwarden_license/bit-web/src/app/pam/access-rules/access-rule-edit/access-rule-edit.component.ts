@@ -40,7 +40,7 @@ import {
   snapToNearestAccessRuleDuration,
   sharedFolderKey,
 } from "@bitwarden/bit-pam";
-import { accessRuleDeleteConfirmOptions } from "@bitwarden/bit-pam-components";
+import { accessRuleDeleteConfirmOptions, DurationLongPipe } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -116,6 +116,7 @@ import {
     SpinnerComponent,
     TypographyModule,
     I18nPipe,
+    DurationLongPipe,
     ContainerComponent,
   ],
 })

@@ -48,7 +48,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DurationLongPipe } from "../../date/duration-long.pipe";
-import { DurationShortPipe } from "../../date/duration-short.pipe";
 import { TimestampPipe } from "../../date/timestamp.pipe";
 import type { RequestTerms } from "../request-terms";
 import { requestWindowProblemMessage } from "../request-window-fields/request-access-window.validators";
@@ -73,7 +72,6 @@ import { RequestWindowFieldsComponent } from "../request-window-fields/request-w
     ReactiveFormsModule,
     TypographyModule,
     DurationLongPipe,
-    DurationShortPipe,
     I18nPipe,
     RequestWindowFieldsComponent,
     TimestampPipe,
