@@ -65,7 +65,7 @@ jobs:
       # rustup on the runner installs the toolchain pinned in desktop_native/rust-toolchain.toml.
       - name: Cache Rust dependencies
         if: ${{ matrix.suite.native }}
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -85,7 +85,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
