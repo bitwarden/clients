@@ -219,7 +219,8 @@ describe("DesktopAutotypePairingUri", () => {
 
     it.each([
       ["an invalid base64url length", "a"],
-      ["characters outside the base64url alphabet", "!!!!"],
+      // The decoder skips characters outside the base64url alphabet, so this decodes to nothing
+      ["only characters outside the base64url alphabet", "!!!!"],
       ["empty", ""],
     ])("returns null when the data is %s", (_, data) => {
       const uri = createUriString({ version: "1.0.0", data });
@@ -250,18 +251,24 @@ describe("DesktopAutotypePairingUri", () => {
       expect(DesktopAutotypePairingUri.fromString(pairingUri.toString())).toBeNull();
     });
 
-    it("returns null when the data is of the unsupported schema version 0.1.0", () => {
-      const data = {
-        ...createPairingData(),
-        metadata: { schemaVersion: { major: 0, minor: 1, patch: 0 }, pairingTimestamp: 1793577600 },
-      };
-      const uri = createUriString({
-        version: "1.0.0",
-        data: Utils.fromUtf8ToUrlB64(JSON.stringify(data)),
-      });
+    it.each([
+      [0, 1, 0],
+      [2, 0, 0],
+    ])(
+      "returns null when the data is of the unsupported schema version %p.%p.%p",
+      (major, minor, patch) => {
+        const data = {
+          ...createPairingData(),
+          metadata: { schemaVersion: { major, minor, patch }, pairingTimestamp: 1793577600 },
+        };
+        const uri = createUriString({
+          version: "1.0.0",
+          data: Utils.fromUtf8ToUrlB64(JSON.stringify(data)),
+        });
 
-      expect(DesktopAutotypePairingUri.fromString(uri)).toBeNull();
-    });
+        expect(DesktopAutotypePairingUri.fromString(uri)).toBeNull();
+      },
+    );
 
     it("accepts data of a later 1.x schema version and keeps its unknown properties", () => {
       // Later 1.x versions may add properties and packaging types
