@@ -1,16 +1,13 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { ACCESS_BADGE_LOOK } from "@bitwarden/bit-pam";
-import {
-  CardComponent,
-  IconModule,
-  IconTileComponent,
-  TypographyModule,
-} from "@bitwarden/components";
+import { CardComponent, IconModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DurationLongPipe } from "../../date/duration-long.pipe";
 import type { RequestTerms } from "../request-terms";
+
+import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
 /** The resting state of an item the user can request, with the rule's cap when it is known. */
 @Component({
@@ -19,8 +16,8 @@ import type { RequestTerms } from "../request-terms";
   host: { class: "tw-block" },
   imports: [
     CardComponent,
+    BannerCardHeaderComponent,
     IconModule,
-    IconTileComponent,
     TypographyModule,
     DurationLongPipe,
     I18nPipe,
