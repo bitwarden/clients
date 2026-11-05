@@ -73,7 +73,7 @@ import {
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
@@ -116,7 +116,6 @@ import {
     SpinnerComponent,
     TypographyModule,
     I18nPipe,
-    Vfo1I18nPipe,
     ContainerComponent,
   ],
 })

@@ -13,7 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { CardComponent, IconModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
+import { Vfo1IconPipe } from "@bitwarden/vault";
 
 import { SummaryFieldComponent } from "./summary-field.component";
 
@@ -33,7 +33,6 @@ import { SummaryFieldComponent } from "./summary-field.component";
     SummaryFieldComponent,
     VaultIconComponent,
     I18nPipe,
-    Vfo1I18nPipe,
     Vfo1IconPipe,
   ],
 })

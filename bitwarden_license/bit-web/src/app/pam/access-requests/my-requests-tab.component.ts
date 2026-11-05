@@ -60,7 +60,6 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { announcementHoldMs } from "./announcement-hold";
 import {
@@ -128,7 +127,6 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
     I18nPipe,
     TimestampPipe,
     DurationCompoundPipe,
-    Vfo1I18nPipe,
     DurationShortPipe,
     RequestedWindowPipe,
   ],
