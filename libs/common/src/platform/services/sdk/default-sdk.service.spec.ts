@@ -19,6 +19,7 @@ import {
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
+import { DeviceTrustServiceAbstraction } from "../../../key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -97,6 +98,7 @@ describe("DefaultSdkService", () => {
       mockManagedSettingsService(),
       appIdService,
       mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
+      () => mock<DeviceTrustServiceAbstraction>(),
     );
   });
 

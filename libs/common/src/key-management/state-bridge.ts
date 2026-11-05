@@ -21,8 +21,9 @@ import { UserId } from "@bitwarden/user-core";
 
 import { compareValues } from "../platform/misc/compare-values";
 import { StateProvider, UserKeyDefinition } from "../state-migrations";
-import { UserKey } from "../types/key";
+import { DeviceKey, UserKey } from "../types/key";
 
+import { DeviceTrustServiceAbstraction } from "./device-trust/abstractions/device-trust.service.abstraction";
 import { MasterPasswordUnlockData } from "./master-password/types/master-password.types";
 import {
   ACCOUNT_CRYPTOGRAPHIC_STATE,
@@ -85,10 +86,17 @@ async function deleteAtomic<T>(
   await waitForStateValue(stateProvider, userId, keyDefinition, undefined);
 }
 
+/** Device trust storage. Owned by DeviceTrustService, which picks secure storage per platform. */
+export type DeviceTrustStore = Pick<
+  DeviceTrustServiceAbstraction,
+  "getDeviceKey" | "setDeviceKey" | "getShouldTrustDevice" | "setShouldTrustDevice"
+>;
+
 export class JsWasmStateBridge implements WasmStateBridge {
   constructor(
     private stateProvider: StateProvider,
     private userId: UserId,
+    private deviceTrustStore?: DeviceTrustStore,
   ) {}
 
   async set_v2_upgrade_token(value: V2UpgradeToken): Promise<void> {
@@ -274,5 +282,42 @@ export class JsWasmStateBridge implements WasmStateBridge {
 
   async clear_v2_encrypted_migrations_grace_period_start(): Promise<void> {
     await deleteAtomic(this.stateProvider, this.userId, V2_ENCRYPTED_MIGRATIONS_GRACE_PERIOD_START);
+  }
+
+  async set_device_key(value: SymmetricKey): Promise<void> {
+    await this.requireDeviceTrustStore().setDeviceKey(
+      this.userId,
+      SymmetricCryptoKey.fromSdk(value) as DeviceKey,
+    );
+  }
+
+  async get_device_key(): Promise<SymmetricKey | null> {
+    const key = await this.requireDeviceTrustStore().getDeviceKey(this.userId);
+    return key == null ? null : key.toSdk();
+  }
+
+  async clear_device_key(): Promise<void> {
+    await this.requireDeviceTrustStore().setDeviceKey(this.userId, null);
+  }
+
+  async set_should_trust_device(value: boolean): Promise<void> {
+    await this.requireDeviceTrustStore().setShouldTrustDevice(this.userId, value);
+  }
+
+  async get_should_trust_device(): Promise<boolean | null> {
+    return (await this.requireDeviceTrustStore().getShouldTrustDevice(this.userId)) ?? null;
+  }
+
+  async clear_should_trust_device(): Promise<void> {
+    await this.requireDeviceTrustStore().setShouldTrustDevice(this.userId, null);
+  }
+
+  // Bridges built without device trust storage (registration) must fail loudly, not diverge.
+  private requireDeviceTrustStore(): DeviceTrustStore {
+    if (this.deviceTrustStore == null) {
+      throw new Error("Device trust storage is not available on this state bridge.");
+    }
+
+    return this.deviceTrustStore;
   }
 }

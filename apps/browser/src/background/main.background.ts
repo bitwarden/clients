@@ -814,6 +814,7 @@ export default class MainBackground {
       this.managedSettingsService,
       this.appIdService,
       this.logService,
+      () => this.deviceTrustService,
     );
 
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
@@ -1116,6 +1117,7 @@ export default class MainBackground {
       this.logService,
       this.configService,
       this.accountService,
+      this.sdkService,
     );
 
     this.devicesService = new DevicesServiceImplementation(

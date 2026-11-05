@@ -1615,6 +1615,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       ConfigService,
       AccountServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -2006,6 +2007,7 @@ const safeProviders: SafeProvider[] = [
         managedSettingsService,
         appIdService,
         logService,
+        () => injector.get(DeviceTrustServiceAbstraction),
       ),
     deps: [
       SdkClientFactory,
