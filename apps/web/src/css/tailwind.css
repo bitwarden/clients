@@ -22,11 +22,6 @@
   body {
     @apply tw-bg-background;
     @apply tw-text-main;
-
-    /*
-     * Make <body> the containing block for ng-select's body-appended dropdown, so its flipped-up
-     * panel doesn't detach on document-scrolling pages (e.g. trial-initiation). (PM-41685)
-     */
     position: relative;
   }
 
