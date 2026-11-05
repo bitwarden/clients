@@ -2,27 +2,23 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject, firstValueFrom, of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
-
 import {
   AccessEventService,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
   ApprovalSdkService,
-} from "..";
-import type {
-  AccessLeaseId,
-  AccessRequestId,
-  AccessRequestView,
-} from "../abstractions/access-lease";
+  DECIDE_ACCESS_SERVER_ERRORS,
+} from "@bitwarden/bit-pam";
+import type { AccessLeaseId, AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
+
 import {
   AccessNameResolverService,
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
-import { DECIDE_ACCESS_SERVER_ERRORS } from "../helpers/decide-access-error";
 import { humanDecision } from "../testing/decision-builders";
 
 import { ApproverInboxService } from "./approver-inbox.service";
@@ -562,5 +558,17 @@ describe("ApproverInboxService", () => {
 
     const history = await firstValueFrom(service.historyRows$);
     expect(history.map((r) => r.id)).toEqual(["newer", "older"]);
+  });
+
+  it("folds an applied extension into its original history row", async () => {
+    const requestEnd = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    const extendedEnd = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    approvalApi.listHistory.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
+
+    await service.load();
+
+    const history = await firstValueFrom(service.historyRows$);
+    expect(history.map((r) => r.id)).toEqual(["original"]);
+    expect(history[0].extendedUntil).toBe(extendedEnd);
   });
 });

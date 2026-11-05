@@ -51,6 +51,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
+import { ItemSendDrawerComponent } from "./item-send/item-send-drawer.component";
 import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component";
 import { SendSuccessDrawerDialogComponent } from "./shared";
 
@@ -255,6 +256,11 @@ export class SendComponent implements OnDestroy {
   }
 
   async editSend(send: SendView) {
+    if (send?.type === SendType.Item) {
+      await ItemSendDrawerComponent.openDrawer(this.dialogService, { send });
+      return;
+    }
+
     const config = await this.sendFormConfigService.buildConfig(
       send == null ? "add" : "edit",
       send == null ? null : (send.id as SendId),

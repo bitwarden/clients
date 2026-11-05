@@ -1,9 +1,14 @@
 import { DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Observable, combineLatest, concatMap, from, map } from "rxjs";
-
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  concatMap,
+  firstValueFrom,
+  from,
+  map,
+} from "rxjs";
 
 import {
   AccessEventService,
@@ -14,7 +19,10 @@ import {
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
-} from "..";
+} from "@bitwarden/bit-pam";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
   AccessNameResolverService,
@@ -46,6 +54,7 @@ export class MyAccessService {
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly accessEvents = inject(AccessEventService);
   private readonly accessRefresh = inject(AccessRefreshService);
+  private readonly accountService = inject(AccountService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
@@ -157,12 +166,13 @@ export class MyAccessService {
     this._loading$.next(true);
     this._loadError$.next(null);
     try {
-      const [requests, leases] = await Promise.all([
+      const [requests, leases, account] = await Promise.all([
         this.requestsApi.listMyAccessRequests(),
         this.leasesApi.listMyLeases(),
+        firstValueFrom(this.accountService.activeAccount$),
       ]);
       const names = await this.nameResolver.resolveNames(refsFor(requests, leases));
-      this._requests$.next(requests);
+      this._requests$.next(requests.map((request) => withRequester(request, account)));
       this._leases$.next(leases);
       this._names$.next(names);
     } catch (e) {
@@ -239,6 +249,17 @@ export class MyAccessService {
     this.accessRefresh.notifyAccessChanged();
     await this.load();
   }
+}
+
+/**
+ * The server leaves the requester's name and email off this read, since every request on it is the
+ * caller's own, so they are filled in from the active account.
+ */
+function withRequester(request: AccessRequestView, account: Account | null): AccessRequestView {
+  if (account == null || request.requesterName || request.requesterEmail) {
+    return request;
+  }
+  return { ...request, requesterName: account.name, requesterEmail: account.email };
 }
 
 function refsFor(

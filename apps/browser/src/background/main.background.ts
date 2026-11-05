@@ -49,12 +49,10 @@ import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-
 import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -204,6 +202,8 @@ import { SystemNotificationsService } from "@bitwarden/common/platform/system-no
 import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/provider";
+import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
@@ -338,7 +338,6 @@ import {
 
 import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
-import { ExtensionLockService } from "../auth/services/extension-lock.service";
 import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import {
@@ -348,6 +347,10 @@ import {
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
 import { DefaultAutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
+import {
+  FillAssistEventReceiver,
+  NoopFillAssistEventReceiver,
+} from "../autofill/background/fill-assist-event-receiver";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
 import { OverlayBackground } from "../autofill/background/overlay.background";
@@ -381,6 +384,7 @@ import { PhishingDataService } from "../dirt/phishing-detection/services/phishin
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import { BrowserProcessReloadService } from "../key-management/browser-process-reload.service";
+import { ExtensionLockService } from "../key-management/lock/services/extension-lock.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import { BackgroundUnlockService } from "../key-management/unlock/background-unlock.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
@@ -603,6 +607,7 @@ export default class MainBackground {
   private overlayBackground: OverlayBackgroundInterface;
   private overlayNotificationsBackground: OverlayNotificationsBackgroundInterface;
   private runtimeBackground: RuntimeBackground;
+  private fillAssistEventReceiver: FillAssistEventReceiver;
   private tabsBackground: TabsBackground;
   private webRequestBackground: WebRequestBackground;
 
@@ -1574,7 +1579,11 @@ export default class MainBackground {
       permissionsPolicyBackground,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
+    const logoutService = new DefaultLogoutService(
+      this.messagingService,
+      this.logService,
+      this.sdkService,
+    );
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
@@ -1589,6 +1598,7 @@ export default class MainBackground {
       this.processReloadService,
       this.logService,
       this.keyService,
+      this.sdkService,
       this,
     );
 
@@ -1602,6 +1612,11 @@ export default class MainBackground {
       this.lockService,
       logoutService,
     );
+
+    // TODO: Update or remove this temporary note during fill assist M6. This receiver
+    // is an M3.5 placeholder. M6 will replace this with the real consumer. The emitter,
+    // message shape, and receiver interface stay stable across the swap.
+    this.fillAssistEventReceiver = new NoopFillAssistEventReceiver(this.logService);
 
     this.runtimeBackground = new RuntimeBackground(
       this,
@@ -1621,6 +1636,7 @@ export default class MainBackground {
       this.defaultPasswordManagerPromptStateAccessor,
       this.autofillOrchestrator,
       this.#intraprocessMessageSender,
+      this.fillAssistEventReceiver,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.encryptService,
