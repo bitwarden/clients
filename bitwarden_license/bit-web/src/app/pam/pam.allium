@@ -1803,8 +1803,9 @@ surface CipherViewBanner {
     -- The requester's entry point on an open gated cipher: renders exactly one of
     -- six states. Unlicensed comes first and replaces every other state, an active
     -- lease included (CipherOpenBlockedUnlicensed): it explains the block and offers
-    -- nothing. Otherwise: active lease (countdown, extend, end), approved request
-    -- (start only), pending request (withdraw), access ended, or none of those
+    -- nothing. Otherwise: active lease (countdown, extend, end; in its last five
+    -- minutes, ENDING_SOON_THRESHOLD_MS, the design shows the countdown alone with no
+    -- actions), approved request (start only), pending request (withdraw), access ended, or none of those
     -- (request access, which opens RequestAccessModal as a bottom sheet). Also the surface that reveals the
     -- credential in place the moment a lease becomes active, without reopening the
     -- item. See cipher-view-banner.component, bound to the CIPHER_VIEW_BANNER seam;
@@ -2023,7 +2024,8 @@ surface ActiveLeasesPage {
     -- No page of its own. Both actions it provides ARE reachable: the
     -- "Active access" section of my-requests-tab.component ends a lease, and
     -- cipher-view-banner.component ends or extends the lease on the item itself
-    -- (through extend-lease-dialog.component). This surface is kept as the domain
+    -- (through extend-lease-dialog.component) until its last five minutes, when the
+    -- banner drops both actions. This surface is kept as the domain
     -- statement of what a lease holder may do to their own lease, independently of
     -- which screen offers it.
     facing viewer: Member

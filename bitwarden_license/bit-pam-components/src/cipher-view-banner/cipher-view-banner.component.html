@@ -93,7 +93,7 @@
       [itemName]="cipher().name"
       [terms]="restingRequestTerms()"
       (dismissed)="closeRequestSheet()"
-      (accessChanged)="onRequestSettled()"
+      (accessChanged)="closeSheetAndRefreshAccess()"
     />
   }
 }

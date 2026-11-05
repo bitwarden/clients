@@ -355,7 +355,7 @@ export class CipherViewBannerComponent implements OnInit {
     });
   }
 
-  protected onRequestSettled(): void {
+  protected closeSheetAndRefreshAccess(): void {
     this.requestSheetOpen.set(false);
     this.notifyAccessChanged();
   }
