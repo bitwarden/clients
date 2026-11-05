@@ -29,7 +29,7 @@
   >
     {{ "pamPrivilegedCredentialsHeading" | i18n }}
   </h2>
-  <app-pam-unlicensed-card />
+  <app-pam-unlicensed-card class="tw-mb-5 bit-compact:tw-mb-4" />
 } @else {
   @if (canRequestAccess()) {
     <button
@@ -71,6 +71,7 @@
 
   @if (activeLease(); as lease) {
     <app-pam-active-lease-card
+      class="tw-mb-5 bit-compact:tw-mb-4"
       [lease]="lease"
       [nowMs]="nowMs()"
       [canExtend]="canExtendLease()"
@@ -78,13 +79,23 @@
       [endAction]="endLease"
     />
   } @else if (approvedRequest()) {
-    <app-pam-approved-request-card [startAction]="activateRequest" />
+    <app-pam-approved-request-card
+      class="tw-mb-5 bit-compact:tw-mb-4"
+      [startAction]="activateRequest"
+    />
   } @else if (pendingRequest(); as request) {
-    <app-pam-pending-request-card [request]="request" [nowMs]="nowMs()" />
+    <app-pam-pending-request-card
+      class="tw-mb-5 bit-compact:tw-mb-4"
+      [request]="request"
+      [nowMs]="nowMs()"
+    />
   } @else if (accessEnded()) {
-    <app-pam-access-ended-card />
+    <app-pam-access-ended-card class="tw-mb-5 bit-compact:tw-mb-4" />
   } @else if (canRequestAccess()) {
-    <app-pam-request-access-card [terms]="restingRequestTerms()" />
+    <app-pam-request-access-card
+      class="tw-mb-5 bit-compact:tw-mb-4"
+      [terms]="restingRequestTerms()"
+    />
   }
 
   @if (requestSheetOpen()) {
