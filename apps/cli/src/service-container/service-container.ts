@@ -20,7 +20,6 @@ import {
   LoginStrategyServiceAbstraction,
   DefaultLoginStrategySessionTimeoutService,
   UserDecryptionOptionsService,
-  SsoUrlService,
   AuthRequestApiServiceAbstraction,
   DefaultAuthRequestApiService,
 } from "@bitwarden/auth/common";
@@ -55,6 +54,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-url";
 import {
   DefaultTwoFactorService,
   TwoFactorService,
