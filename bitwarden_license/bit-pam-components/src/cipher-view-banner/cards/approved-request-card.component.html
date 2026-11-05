@@ -1,20 +1,11 @@
 <bit-card data-testid="cipher-view-banner-approved">
   <div class="tw-flex tw-flex-col tw-gap-4">
-    <div class="tw-flex tw-items-start tw-gap-2">
-      <bit-icon-tile [icon]="badgeLook.ready.icon" variant="success" size="base" />
-      <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-text-fg-body">
-        <h3 bitTypography="body2" class="tw-m-0 tw-font-medium tw-text-fg-heading">
-          {{ "pamApprovedRequestBannerHeadingV2" | i18n }}
-        </h3>
-        <span
-          bitTypography="helper"
-          class="tw-text-fg-body"
-          data-testid="cipher-view-banner-approved-hint"
-        >
-          {{ "pamApprovedRequestBannerHint" | i18n }}
-        </span>
-      </div>
-    </div>
+    <app-pam-banner-card-header [icon]="badgeLook.ready.icon" variant="success">
+      <span slot="title">{{ "pamApprovedRequestBannerHeadingV2" | i18n }}</span>
+      <span slot="description" data-testid="cipher-view-banner-approved-hint">
+        {{ "pamApprovedRequestBannerHint" | i18n }}
+      </span>
+    </app-pam-banner-card-header>
 
     <button
       type="button"

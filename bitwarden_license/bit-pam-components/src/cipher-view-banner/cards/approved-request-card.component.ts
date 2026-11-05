@@ -6,24 +6,17 @@ import {
   ButtonModule,
   CardComponent,
   FunctionReturningAwaitable,
-  IconTileComponent,
-  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
 /** An approved request the requester has not started yet. */
 @Component({
   selector: "app-pam-approved-request-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-block" },
-  imports: [
-    AsyncActionsModule,
-    ButtonModule,
-    CardComponent,
-    IconTileComponent,
-    TypographyModule,
-    I18nPipe,
-  ],
+  imports: [AsyncActionsModule, ButtonModule, CardComponent, BannerCardHeaderComponent, I18nPipe],
   templateUrl: "./approved-request-card.component.html",
 })
 export class ApprovedRequestCardComponent {

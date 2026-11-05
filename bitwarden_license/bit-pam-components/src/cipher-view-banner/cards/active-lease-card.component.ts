@@ -22,24 +22,17 @@ import {
   ButtonModule,
   CardComponent,
   FunctionReturningAwaitable,
-  IconTileComponent,
-  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
 /** The live lease's countdown, with Extend and End until its last minutes. */
 @Component({
   selector: "app-pam-active-lease-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-block" },
-  imports: [
-    AsyncActionsModule,
-    ButtonModule,
-    CardComponent,
-    IconTileComponent,
-    TypographyModule,
-    I18nPipe,
-  ],
+  imports: [AsyncActionsModule, ButtonModule, CardComponent, BannerCardHeaderComponent, I18nPipe],
   templateUrl: "./active-lease-card.component.html",
 })
 export class ActiveLeaseCardComponent {
