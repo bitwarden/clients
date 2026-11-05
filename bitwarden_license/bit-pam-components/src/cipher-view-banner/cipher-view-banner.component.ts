@@ -36,6 +36,7 @@ import {
   AccessRefreshService,
   AccessRequestSdkService,
   activateAccessErrorMessageKey,
+  cipherAccessBadgeState,
   isGovernedCipher,
   liveActiveLease,
   rereadOnLapse,
@@ -74,6 +75,7 @@ import { ActiveLeaseCardComponent } from "./cards/active-lease-card.component";
 import { ApprovedRequestCardComponent } from "./cards/approved-request-card.component";
 import { PendingRequestCardComponent } from "./cards/pending-request-card.component";
 import { RequestAccessCardComponent } from "./cards/request-access-card.component";
+import { UnavailableCardComponent } from "./cards/unavailable-card.component";
 import { UnlicensedCardComponent } from "./cards/unlicensed-card.component";
 import { CIPHER_VIEW_BANNER_LAYOUT } from "./cipher-view-banner-layout";
 import { RequestAccessFormComponent } from "./request-access-form/request-access-form.component";
@@ -101,6 +103,7 @@ import { type RequestTerms, requestTerms } from "./request-terms";
     PendingRequestCardComponent,
     RequestAccessCardComponent,
     RequestAccessFormComponent,
+    UnavailableCardComponent,
     UnlicensedCardComponent,
   ],
 })
@@ -230,6 +233,11 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
 
+  /** The rule refuses a new request right now, for example outside its IP allowlist. */
+  protected readonly unavailable = computed(
+    () => cipherAccessBadgeState(this.state())?.kind === "unavailable",
+  );
+
   /** Whether a card sits under the "Privileged credentials" heading, so the heading never stands alone. */
   protected readonly showsPrivilegedCard = computed(
     () =>
@@ -237,6 +245,7 @@ export class CipherViewBannerComponent implements OnInit {
       this.approvedRequest() != null ||
       this.pendingRequest() != null ||
       this.accessEnded() ||
+      this.unavailable() ||
       this.canRequestAccess(),
   );
 
@@ -253,7 +262,8 @@ export class CipherViewBannerComponent implements OnInit {
       this.unlicensed() === false &&
       this.activeLease() == null &&
       this.approvedRequest() == null &&
-      this.pendingRequest() == null,
+      this.pendingRequest() == null &&
+      !this.unavailable(),
   );
 
   /** The governing rule's terms for the resting banner, from `preCheck`, since {@link state} carries none. */

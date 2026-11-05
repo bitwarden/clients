@@ -9102,6 +9102,12 @@
   "pamEndedBannerBody": {
     "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
   },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
   "pamApprovedRequestBannerHeadingV2": {
     "message": "Ready to use"
   },
