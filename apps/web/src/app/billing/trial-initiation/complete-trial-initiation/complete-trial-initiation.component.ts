@@ -70,11 +70,23 @@ export class CompleteTrialInitiationComponent {
   /** True, registering a password is in progress */
   submitting = false;
 
-  /** True when both the PAM-billing and preview-cart flags are on. */
-  private privilegedControlsAvailable = false;
+  /** True when the PAM-billing flag is on, which turns on every self-serve Privileged Controls path. */
+  private pamBillingSupportEnabled = false;
 
-  /** True when the trial includes Privileged Controls — requested by the link and enabled by flag */
+  /**
+   * True when customers can add Privileged Controls to a trial themselves, without a sales invitation:
+   * the PAM-billing flag is on, and the preview cart that prices it in the billing step is on.
+   */
+  private privilegedControlsSelfServe = false;
+
+  /**
+   * True when the trial includes Privileged Controls: the link asked for it and either came from a sales
+   * invitation or self-serve Privileged Controls is on.
+   */
   includesPrivilegedControls = false;
+
+  /** True when a self-serve link asked for Privileged Controls while the PAM-billing flag is off. */
+  showPrivilegedControlsSalesCallout = false;
 
   orgInfoSubLabel = "";
   orgId = "";
@@ -127,10 +139,11 @@ export class CompleteTrialInitiationComponent {
     ])
       .pipe(takeUntilDestroyed())
       .subscribe(([pamBillingSupport, previewDrivenCart]) => {
-        this.privilegedControlsAvailable = pamBillingSupport && previewDrivenCart;
-        this.includesPrivilegedControls = this.params
-          ? this.shouldIncludePrivilegedControls(this.params)
-          : false;
+        this.pamBillingSupportEnabled = pamBillingSupport;
+        this.privilegedControlsSelfServe = pamBillingSupport && previewDrivenCart;
+        if (this.params) {
+          this.applyPrivilegedControls(this.params);
+        }
       });
 
     this.orgInfoFormGroup.controls.name.valueChanges
@@ -156,9 +169,9 @@ export class CompleteTrialInitiationComponent {
     this.salesAssistedToken = params.salesAssistedToken;
     this.product = params.product;
 
-    this.includesPrivilegedControls = this.shouldIncludePrivilegedControls(params);
     this.trialLength = params.trialLength;
     this.paymentOptional = params.paymentOptional;
+    this.applyPrivilegedControls(params);
 
     this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
     if (this.useTrialStepper && params.productTier !== undefined) {
@@ -422,13 +435,20 @@ export class CompleteTrialInitiationComponent {
       });
   }
 
-  private shouldIncludePrivilegedControls(params: TrialInitiationParams): boolean {
-    return (
-      this.privilegedControlsAvailable &&
+  private applyPrivilegedControls(params: TrialInitiationParams): void {
+    const requested =
       this.product === ProductType.PasswordManager &&
       params.productTier === ProductTierType.Enterprise &&
-      params.privilegedControlsRequested
-    );
+      params.privilegedControlsRequested;
+    // Only the no-payment sales path sends the sales-assisted initiation path the server honors.
+    // Sales sells Privileged Controls at GA, so a sales invitation includes it whatever the flags.
+    const fromSalesInvitation =
+      !!params.salesAssistedToken && params.paymentOptional && params.trialLength > 0;
+
+    this.includesPrivilegedControls =
+      requested && (fromSalesInvitation || this.privilegedControlsSelfServe);
+    this.showPrivilegedControlsSalesCallout =
+      requested && !this.includesPrivilegedControls && !this.pamBillingSupportEnabled;
   }
 
   get trial(): Trial {

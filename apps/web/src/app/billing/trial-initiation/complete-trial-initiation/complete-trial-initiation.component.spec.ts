@@ -452,6 +452,141 @@ describe("CompleteTrialInitiationComponent", () => {
     });
   });
 
+  describe("Privileged Controls sold through sales", () => {
+    const selfServeParams = { product: "0,2", productTier: ProductTierType.Enterprise };
+    const salesInvitationParams = {
+      ...selfServeParams,
+      salesAssistedToken: "sales-assisted-token-123",
+      paymentOptional: "true",
+      trialLength: "14",
+    };
+
+    describe("with the PAM-billing flag off", () => {
+      beforeEach(() => pamBillingSupport$.next(false));
+
+      it("includes Privileged Controls from a sales invitation and shows no sales callout", () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+
+        expect(component.includesPrivilegedControls).toBe(true);
+        expect(component.trial.privilegedControls).toEqual({ seats: 1 });
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("includes Privileged Controls from a sales invitation when the preview cart is off too", () => {
+        previewDrivenCart$.next(false);
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+
+        expect(component.includesPrivilegedControls).toBe(true);
+      });
+
+      it("carries Privileged Controls into the sales-assisted no-payment org creation", async () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+        component.orgInfoFormGroup.patchValue({
+          name: "Test Org",
+          billingEmail: "test@example.com",
+        });
+        component.verticalStepper = { next: jest.fn() } as any;
+        mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+          id: "org-id",
+          name: "Test Org",
+        } as any);
+
+        await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+        const request =
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mock.calls[0][0];
+        expect(request.organization.initiationPath).toBe(
+          InitiationPath.SalesAssistedTrialFromAdminPortal,
+        );
+        expect(request.plan).toEqual(
+          expect.objectContaining({ subscribeToPrivilegedControls: true, pamSeats: 1 }),
+        );
+      });
+
+      it("leaves Privileged Controls out of a self-serve link and shows the sales callout", () => {
+        mockActivatedRoute.queryParams.next(selfServeParams);
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.trial.privilegedControls).toBeUndefined();
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("shows the sales callout when a sales invitation goes through the paid billing step", () => {
+        // The paid billing step sends the marketing initiation path, which the server won't honor.
+        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, paymentOptional: "false" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("leaves Privileged Controls out of a sales invitation with no trial period", () => {
+        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, trialLength: "0" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+      });
+
+      it("leaves Privileged Controls out of a Secrets Manager sales invitation", () => {
+        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, product: "1,2" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("leaves Privileged Controls out of a non-Enterprise sales invitation", () => {
+        mockActivatedRoute.queryParams.next({
+          ...salesInvitationParams,
+          productTier: ProductTierType.Teams,
+        });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("shows no sales callout when the link did not ask for Privileged Controls", () => {
+        mockActivatedRoute.queryParams.next({ ...selfServeParams, product: "0" });
+
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+    });
+
+    describe("with the PAM-billing flag on", () => {
+      beforeEach(() => pamBillingSupport$.next(true));
+
+      it("includes Privileged Controls from a self-serve link and shows no sales callout", () => {
+        mockActivatedRoute.queryParams.next(selfServeParams);
+
+        expect(component.includesPrivilegedControls).toBe(true);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("includes Privileged Controls from a sales invitation", () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+
+        expect(component.includesPrivilegedControls).toBe(true);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("shows no sales callout when the preview cart is off", () => {
+        previewDrivenCart$.next(false);
+        mockActivatedRoute.queryParams.next(selfServeParams);
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+    });
+
+    it("hides the sales callout once the PAM-billing flag turns on after the params arrive", () => {
+      pamBillingSupport$.next(false);
+      mockActivatedRoute.queryParams.next(selfServeParams);
+      expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+
+      pamBillingSupport$.next(true);
+
+      expect(component.includesPrivilegedControls).toBe(true);
+      expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+    });
+  });
+
   describe("one-time param side effects", () => {
     it("shows the email-verified toast once when the PAM flag resolves after the params arrive", () => {
       const toastService = TestBed.inject(ToastService) as MockProxy<ToastService>;
