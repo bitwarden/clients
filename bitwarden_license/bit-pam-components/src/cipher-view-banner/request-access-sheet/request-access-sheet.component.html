@@ -1,69 +1,215 @@
-<bit-dialog
-  [title]="'pamRequestAccessButton' | i18n"
-  [subtitle]="params.itemName"
-  background="alt"
-  data-testid="request-sheet"
+<div
+  class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-end tw-justify-center tw-bg-bg-overlay"
+  data-testid="request-sheet-overlay"
+  (click)="dismiss()"
 >
-  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
-    <div class="tw-flex tw-flex-col tw-gap-2" data-testid="request-sheet-summary">
-      <div class="tw-flex tw-items-start tw-gap-2">
-        <bit-icon-tile [icon]="badgeLook.privileged.icon" variant="primary" size="base" />
-        <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col">
-          <span bitTypography="body2" class="tw-font-medium tw-text-fg-heading">
-            {{ "pamRequestToUse" | i18n }}
-          </span>
-          <span bitTypography="helper" class="tw-text-fg-body">
-            {{ "pamRequestAccessBannerBody" | i18n }}
-          </span>
+  <section
+    #sheet
+    cdkTrapFocus
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="pam-cipher-view-banner_sheet_title"
+    class="tw-flex tw-max-h-full tw-w-full tw-max-w-[30rem] tw-flex-col tw-overflow-hidden tw-rounded-t-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-text-fg-body tw-shadow-lg focus-visible:tw-outline-none"
+    data-testid="request-sheet"
+    (click)="$event.stopPropagation()"
+    (keydown.escape)="$event.stopPropagation(); dismiss()"
+  >
+    <header
+      class="tw-flex tw-items-start tw-justify-between tw-gap-2 tw-border-0 tw-border-b tw-border-solid tw-border-border-light tw-py-3 tw-pe-3 tw-ps-6"
+    >
+      <h2
+        id="pam-cipher-view-banner_sheet_title"
+        bitTypography="h3"
+        noMargin
+        class="tw-min-w-0 tw-text-fg-heading"
+        data-testid="request-sheet-title"
+      >
+        {{ "pamRequestAccessButton" | i18n }}
+        <span
+          bitTypography="body2"
+          class="tw-ms-1 tw-break-words tw-font-normal tw-text-fg-body-subtle"
+          data-testid="request-sheet-item-name"
+          >{{ itemName() }}</span
+        >
+      </h2>
+      <button
+        type="button"
+        bitIconButton="bwi-close"
+        buttonType="primaryGhost"
+        [label]="'close' | i18n"
+        (click)="dismiss()"
+        id="pam-cipher-view-banner_button_request-close"
+      ></button>
+    </header>
+
+    <div class="tw-flex tw-flex-col tw-gap-4 tw-overflow-y-auto tw-bg-bg-tertiary tw-px-6 tw-py-4">
+      <div class="tw-flex tw-flex-col tw-gap-2" data-testid="request-sheet-summary">
+        <div class="tw-flex tw-items-start tw-gap-2">
+          <bit-icon-tile [icon]="badgeLook.privileged.icon" variant="primary" size="base" />
+          <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col">
+            <span bitTypography="body2" class="tw-font-medium tw-text-fg-heading">
+              {{ "pamRequestToUse" | i18n }}
+            </span>
+            <span bitTypography="helper" class="tw-text-fg-body">
+              {{ "pamRequestAccessBannerBody" | i18n }}
+            </span>
+          </div>
         </div>
+        @if (terms(); as rule) {
+          <p
+            bitTypography="helper"
+            class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-ps-10 tw-text-fg-heading"
+          >
+            <bit-icon name="bwi-clock" />
+            {{ rule.messageKey | i18n: (rule.maxSeconds | durationLong) }}
+          </p>
+        }
       </div>
-      @if (form.terms(); as rule) {
+
+      @if (loadingRequestForm()) {
+        <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
+      } @else if (requestMode() !== null) {
+        @if (slotContention(); as contention) {
+          <p bitTypography="body2" class="tw-m-0 tw-flex tw-items-start tw-gap-2">
+            <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />
+            <span>
+              @if (contention.freesAt) {
+                {{ "pamRequestSlotTakenUntil" | i18n: (contention.freesAt | timestamp) }}
+              } @else {
+                {{ "pamRequestSlotTaken" | i18n }}
+              }
+            </span>
+          </p>
+        }
+
+        <section class="tw-flex tw-flex-col tw-gap-2">
+          <h3
+            bitTypography="body2"
+            noMargin
+            class="tw-font-medium tw-text-fg-heading"
+            data-testid="request-sheet-details-heading"
+          >
+            {{ "requestAccessModalDetailsHeading" | i18n }}
+          </h3>
+          <div
+            class="tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6"
+          >
+            @if (requestMode() === "automatic") {
+              <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
+                <bit-form-field>
+                  <bit-label>{{ "requestAccessModalDurationV2" | i18n }}</bit-label>
+                  <select
+                    bitInput
+                    formControlName="durationSeconds"
+                    required
+                    id="pam-cipher-view-banner_select_duration"
+                  >
+                    @for (option of durationOptions(); track option.seconds) {
+                      <option [value]="option.seconds">
+                        {{
+                          option.labelKey
+                            ? (option.labelKey | i18n)
+                            : (option.seconds | durationShort)
+                        }}
+                      </option>
+                    }
+                  </select>
+                  <bit-hint>{{ "requestAccessModalDurationHint" | i18n }}</bit-hint>
+                </bit-form-field>
+
+                <bit-form-field>
+                  <bit-label>{{ "requestAccessModalReasonOptionalV2" | i18n }}</bit-label>
+                  <textarea
+                    bitInput
+                    rows="3"
+                    formControlName="reason"
+                    [placeholder]="'requestAccessModalReasonPlaceholderV2' | i18n"
+                    id="pam-cipher-view-banner_textarea_automatic-reason"
+                  ></textarea>
+                  <button
+                    type="button"
+                    bitSuffix
+                    bitIconButton="bwi-clone"
+                    [label]="'copy' | i18n"
+                    [bitAction]="copyReasonFromAutomatic"
+                    id="pam-cipher-view-banner_button_automatic-reason-copy"
+                  ></button>
+                  <bit-hint>{{ "requestAccessModalAutomaticReasonHintV2" | i18n }}</bit-hint>
+                </bit-form-field>
+              </form>
+            } @else {
+              <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
+                <app-pam-request-window-fields
+                  formControlName="window"
+                  [durationOptions]="durationOptions()"
+                  [defaultSeconds]="defaultSeconds()"
+                  [maxWindowSeconds]="maxWindowSeconds()"
+                  [openedAt]="requestOpenedAt()"
+                />
+
+                <bit-form-field>
+                  <bit-label>{{ "requestAccessModalReasonRequiredV2" | i18n }}</bit-label>
+                  <textarea
+                    bitInput
+                    rows="3"
+                    formControlName="reason"
+                    required
+                    [placeholder]="'requestAccessModalReasonPlaceholderV2' | i18n"
+                    id="pam-cipher-view-banner_textarea_human-reason"
+                  ></textarea>
+                  <button
+                    type="button"
+                    bitSuffix
+                    bitIconButton="bwi-clone"
+                    [label]="'copy' | i18n"
+                    [bitAction]="copyReasonFromHuman"
+                    id="pam-cipher-view-banner_button_human-reason-copy"
+                  ></button>
+                  <bit-hint>{{ "requestAccessModalHumanReasonHintV2" | i18n }}</bit-hint>
+                </bit-form-field>
+              </form>
+            }
+          </div>
+        </section>
+      }
+
+      @if (requestError(); as error) {
         <p
           bitTypography="helper"
-          class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-ps-10 tw-text-fg-heading"
+          role="alert"
+          class="tw-m-0 tw-flex tw-items-start tw-gap-2 tw-text-danger"
+          data-testid="request-error"
         >
-          <bit-icon name="bwi-clock" />
-          {{ rule.messageKey | i18n: (rule.maxSeconds | durationLong) }}
-        </p>
-      } @else if (form.loadingRequestForm()) {
-        <p
-          bitTypography="helper"
-          class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-ps-10"
-          aria-hidden="true"
-        >
-          <bit-icon name="bwi-clock" class="tw-text-fg-heading" />
-          <bit-skeleton class="tw-my-0.5 tw-h-3.5 tw-w-1/2" />
+          <bit-icon name="bwi-error" class="tw-mt-0.5" />
+          <span>{{ error }}</span>
         </p>
       }
     </div>
 
-    <app-pam-request-access-form
-      #form
-      [cipherId]="params.cipherId"
-      (accessChanged)="dialogRef.close(true)"
-    />
-  </div>
-
-  <ng-container bitDialogFooter>
-    @if (form.requestMode() !== null) {
+    <footer
+      class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-bg-bg-primary tw-py-5 tw-pe-4 tw-ps-6"
+    >
+      @if (requestMode() !== null) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="submitRequest"
+          id="pam-cipher-view-banner_button_request-submit"
+        >
+          {{ "requestAccessModalSubmitV2" | i18n }}
+        </button>
+      }
       <button
         type="button"
         bitButton
-        buttonType="primary"
-        [bitAction]="form.submitRequest"
-        id="pam-cipher-view-banner_button_request-submit"
+        buttonType="secondary"
+        (click)="dismiss()"
+        id="pam-cipher-view-banner_button_request-cancel"
       >
-        {{ "requestAccessModalSubmitV2" | i18n }}
+        {{ "cancel" | i18n }}
       </button>
-    }
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      [bitDialogClose]="false"
-      id="pam-cipher-view-banner_button_request-cancel"
-    >
-      {{ "cancel" | i18n }}
-    </button>
-  </ng-container>
-</bit-dialog>
+    </footer>
+  </section>
+</div>

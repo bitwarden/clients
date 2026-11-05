@@ -147,7 +147,9 @@ export class RequestWindowFieldsComponent implements ControlValueAccessor, Valid
     const { startDate, startTime } = this.formValue();
     const start = windowEndAt(startDate, startTime, 0);
     return this.durationOptions().map((option) => {
-      const duration = formatDuration(this.locale, option.seconds, "long");
+      const duration = option.labelKey
+        ? this.i18nService.t(option.labelKey)
+        : formatDuration(this.locale, option.seconds, "long");
       const end = windowEndAt(startDate, startTime, option.seconds);
       return {
         seconds: option.seconds,
