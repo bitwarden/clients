@@ -4,12 +4,15 @@ import { Component, DestroyRef, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, lastValueFrom, map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -26,6 +29,7 @@ import {
   SendFormService,
   SendFormModule,
   SendFormConfig,
+  SendTableV2Component,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../billing/services/desktop-premium-upgrade-prompt.service";
@@ -41,6 +45,7 @@ import { DesktopHeaderComponent } from "../../layout/header";
     NewSendDropdownV2Component,
     DesktopHeaderComponent,
     SendFormModule,
+    SendTableV2Component,
   ],
   providers: [
     DefaultSendFormConfigService,
@@ -64,10 +69,15 @@ export class SendComponent {
   private logService = inject(LogService);
   private sendFormService = inject(SendFormService);
   private destroyRef = inject(DestroyRef);
+  private configService = inject(ConfigService);
+  private sendService = inject(SendService);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
+    initialValue: [],
+  });
+  protected readonly allSends = toSignal(this.sendService.sendViews$, {
     initialValue: [],
   });
 
@@ -97,6 +107,11 @@ export class SendComponent {
       }),
     ),
     { initialValue: null },
+  );
+
+  protected readonly vfo1Foundation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
   );
 
   constructor() {

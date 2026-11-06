@@ -1,4 +1,4 @@
-@if (allowedSendTypes().length > 1) {
+@if (allowedSendTypes().length > 1 && !vfo1Foundation()) {
   <bit-nav-group
     icon="bwi-send"
     [text]="'send' | i18n"
