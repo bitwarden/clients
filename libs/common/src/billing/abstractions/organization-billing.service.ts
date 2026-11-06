@@ -8,8 +8,6 @@ export type OrganizationInformation = {
   billingEmail: string;
   businessName?: string;
   initiationPath?: InitiationPath;
-  /** The sales invitation token from a sales-assisted trial link. Sent only when creating without payment. */
-  salesAssistedToken?: string;
 };
 
 export type PlanInformation = {

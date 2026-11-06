@@ -28,7 +28,6 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -73,28 +72,16 @@ export class CompleteTrialInitiationComponent {
   submitting = false;
 
   /**
-   * True when customers can add Privileged Controls to a trial themselves, without a sales invitation:
-   * the PAM-billing support flag is on.
+   * True when customers can add Privileged Controls to a trial themselves: the PAM-billing support flag is on.
+   * With it off, no trial sign-up includes Privileged Controls.
    */
   private privilegedControlsSelfServe = false;
 
-  /**
-   * True when the trial includes Privileged Controls: the link asked for it and either came from a sales
-   * invitation that starts without payment, or self-serve Privileged Controls is on.
-   */
+  /** True when the trial includes Privileged Controls: the link asked for it and self-serve is on. */
   includesPrivilegedControls = false;
 
-  /**
-   * True when the link asked for Privileged Controls but it is not included, or the server created the
-   * organization without it. The callout points to sales.
-   */
+  /** True when the link asked for Privileged Controls but it is not included. The callout points to sales. */
   showPrivilegedControlsSalesCallout = false;
-
-  /**
-   * True when the trial asked the server for Privileged Controls but the created organization does not have
-   * it. The confirmation then shows the sales callout instead of saying the trial includes it.
-   */
-  privilegedControlsNotProvisioned = false;
 
   orgInfoSubLabel = "";
   orgId = "";
@@ -135,7 +122,6 @@ export class CompleteTrialInitiationComponent {
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private configService: ConfigService,
     private accountService: AccountService,
-    private logService: LogService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((queryParams) => {
       this.params = parseTrialInitiationParams(queryParams);
@@ -177,7 +163,6 @@ export class CompleteTrialInitiationComponent {
 
     this.trialLength = params.trialLength;
     this.paymentOptional = params.paymentOptional;
-    this.warnOnSalesInvitationWithPayment(params);
     this.applyPrivilegedControls(params);
 
     this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
@@ -241,7 +226,6 @@ export class CompleteTrialInitiationComponent {
 
       this.orgId = response.id;
       this.billingSubLabel = response.name.toString();
-      this.reconcilePrivilegedControls(response);
       this.verticalStepper.next();
     } catch (e: unknown) {
       this.validationService.showError(e);
@@ -285,7 +269,6 @@ export class CompleteTrialInitiationComponent {
           ? ""
           : this.orgInfoFormGroup.value.billingEmail,
       initiationPath: trialInitiationPath,
-      salesAssistedToken: this.salesAssistedToken,
     };
 
     return await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
@@ -295,20 +278,6 @@ export class CompleteTrialInitiationComponent {
       },
       activeUserId,
       this.trialLength,
-    );
-  }
-
-  /** Stop claiming Privileged Controls when the server created the organization without it. */
-  private reconcilePrivilegedControls(organization: OrganizationResponse): void {
-    if (!this.includesPrivilegedControls || organization.usePam) {
-      return;
-    }
-
-    this.privilegedControlsNotProvisioned = true;
-    this.includesPrivilegedControls = false;
-    this.showPrivilegedControlsSalesCallout = true;
-    this.logService.warning(
-      `Privileged Controls was requested on a no-payment trial but not provisioned for organization ${organization.id}.`,
     );
   }
 
@@ -482,38 +451,9 @@ export class CompleteTrialInitiationComponent {
       this.product === ProductType.PasswordManager &&
       params.productTier === ProductTierType.Enterprise &&
       params.privilegedControlsRequested;
-    // Only the no-payment path (createOrganizationOnTrial) sends the sales-assisted initiation path the server
-    // honors; the paid billing step (TrialBillingStepService) always sends the marketing path.
-    // Sales sells Privileged Controls at GA, so a sales invitation includes it whatever the flags.
-    const fromSalesInvitation =
-      !!params.salesAssistedToken &&
-      this.startsWithoutPayment(params.paymentOptional, params.trialLength);
 
-    // Once the server has created the organization without Privileged Controls, later flag changes
-    // must not bring the claim back.
-    this.includesPrivilegedControls =
-      requested &&
-      !this.privilegedControlsNotProvisioned &&
-      (fromSalesInvitation || this.privilegedControlsSelfServe);
-    this.showPrivilegedControlsSalesCallout =
-      this.privilegedControlsNotProvisioned || (requested && !this.includesPrivilegedControls);
-  }
-
-  /**
-   * A sales invitation is meant to start a trial without payment. Log one that doesn't, so a malformed
-   * sales link can be traced. Never logs the token.
-   */
-  private warnOnSalesInvitationWithPayment(params: TrialInitiationParams): void {
-    if (
-      !params.salesAssistedToken ||
-      this.startsWithoutPayment(params.paymentOptional, params.trialLength)
-    ) {
-      return;
-    }
-
-    this.logService.warning(
-      `Sales-assisted trial link does not start without payment (paymentOptional: ${params.paymentOptional}, trialLength: ${params.trialLength}).`,
-    );
+    this.includesPrivilegedControls = requested && this.privilegedControlsSelfServe;
+    this.showPrivilegedControlsSalesCallout = requested && !this.includesPrivilegedControls;
   }
 
   get trial(): Trial {

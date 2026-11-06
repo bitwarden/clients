@@ -14,7 +14,6 @@ import { InitiationPath, ProductTierType, ProductType } from "@bitwarden/common/
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -60,7 +59,6 @@ describe("CompleteTrialInitiationComponent", () => {
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: LogService, useValue: mock<LogService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: RouterService, useValue: mock<RouterService>() },
         {
@@ -466,28 +464,32 @@ describe("CompleteTrialInitiationComponent", () => {
       trialLength: "14",
     };
 
+    function arrangeOrganizationCreation(): void {
+      component.orgInfoFormGroup.patchValue({
+        name: "Test Org",
+        billingEmail: "test@example.com",
+      });
+      component.verticalStepper = { next: jest.fn() } as any;
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+        id: "org-id",
+        name: "Test Org",
+      } as any);
+    }
+
     describe("with the PAM-billing flag off", () => {
       beforeEach(() => pamBillingSupport$.next(false));
 
-      it("includes Privileged Controls from a sales invitation and shows no sales callout", () => {
+      it("leaves Privileged Controls out of a sales invitation and shows the sales callout", () => {
         mockActivatedRoute.queryParams.next(salesInvitationParams);
 
-        expect(component.includesPrivilegedControls).toBe(true);
-        expect(component.trial.privilegedControls).toEqual({ seats: 1 });
-        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.trial.privilegedControls).toBeUndefined();
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
       });
 
-      it("carries Privileged Controls into the sales-assisted no-payment org creation", async () => {
+      it("creates the organization from a sales invitation without Privileged Controls or the token", async () => {
         mockActivatedRoute.queryParams.next(salesInvitationParams);
-        component.orgInfoFormGroup.patchValue({
-          name: "Test Org",
-          billingEmail: "test@example.com",
-        });
-        component.verticalStepper = { next: jest.fn() } as any;
-        mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
-          id: "org-id",
-          name: "Test Org",
-        } as any);
+        arrangeOrganizationCreation();
 
         await component.createOrganizationOnTrial("user-id-123" as UserId);
 
@@ -496,74 +498,10 @@ describe("CompleteTrialInitiationComponent", () => {
         expect(request.organization.initiationPath).toBe(
           InitiationPath.SalesAssistedTrialFromAdminPortal,
         );
-        expect(request.organization.salesAssistedToken).toBe("sales-assisted-token-123");
-        expect(request.plan).toEqual(
-          expect.objectContaining({ subscribeToPrivilegedControls: true, pamSeats: 1 }),
-        );
-      });
-
-      describe("reconciling with the created organization", () => {
-        let logService: MockProxy<LogService>;
-
-        beforeEach(() => {
-          logService = TestBed.inject(LogService) as MockProxy<LogService>;
-          mockActivatedRoute.queryParams.next(salesInvitationParams);
-          component.orgInfoFormGroup.patchValue({
-            name: "Test Org",
-            billingEmail: "test@example.com",
-          });
-          component.verticalStepper = { next: jest.fn() } as any;
-        });
-
-        it("stops claiming Privileged Controls when the organization was created without it", async () => {
-          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
-            id: "org-id",
-            name: "Test Org",
-            usePam: false,
-          } as any);
-
-          await component.createOrganizationOnTrial("user-id-123" as UserId);
-
-          expect(component.includesPrivilegedControls).toBe(false);
-          expect(component.privilegedControlsNotProvisioned).toBe(true);
-          expect(component.showPrivilegedControlsSalesCallout).toBe(true);
-          expect(component.trial.privilegedControls).toBeUndefined();
-          expect(component.verticalStepper.next).toHaveBeenCalledTimes(1);
-          expect(logService.warning).toHaveBeenCalledTimes(1);
-          const message = logService.warning.mock.calls[0][0] as string;
-          expect(message).toContain("org-id");
-          expect(message).not.toContain("sales-assisted-token-123");
-          expect(message).not.toContain("test@example.com");
-        });
-
-        it("keeps the claim off when a flag changes after the organization was created without it", async () => {
-          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
-            id: "org-id",
-            name: "Test Org",
-            usePam: false,
-          } as any);
-          await component.createOrganizationOnTrial("user-id-123" as UserId);
-
-          pamBillingSupport$.next(true);
-
-          expect(component.includesPrivilegedControls).toBe(false);
-          expect(component.showPrivilegedControlsSalesCallout).toBe(true);
-        });
-
-        it("keeps Privileged Controls when the organization was created with it", async () => {
-          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
-            id: "org-id",
-            name: "Test Org",
-            usePam: true,
-          } as any);
-
-          await component.createOrganizationOnTrial("user-id-123" as UserId);
-
-          expect(component.includesPrivilegedControls).toBe(true);
-          expect(component.privilegedControlsNotProvisioned).toBe(false);
-          expect(component.showPrivilegedControlsSalesCallout).toBe(false);
-          expect(logService.warning).not.toHaveBeenCalled();
-        });
+        expect(request.organization).not.toHaveProperty("salesAssistedToken");
+        expect(request.plan).not.toHaveProperty("subscribeToPrivilegedControls");
+        expect(request.plan).not.toHaveProperty("pamSeats");
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
       });
 
       it("leaves Privileged Controls out of a self-serve link and shows the sales callout", () => {
@@ -582,15 +520,7 @@ describe("CompleteTrialInitiationComponent", () => {
       });
 
       it("shows the sales callout when a sales invitation goes through the paid billing step", () => {
-        // The paid billing step sends the marketing initiation path, which the server won't honor.
         mockActivatedRoute.queryParams.next({ ...salesInvitationParams, paymentOptional: "false" });
-
-        expect(component.includesPrivilegedControls).toBe(false);
-        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
-      });
-
-      it("leaves Privileged Controls out of a sales invitation with no trial period", () => {
-        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, trialLength: "0" });
 
         expect(component.includesPrivilegedControls).toBe(false);
         expect(component.showPrivilegedControlsSalesCallout).toBe(true);
@@ -634,37 +564,28 @@ describe("CompleteTrialInitiationComponent", () => {
         mockActivatedRoute.queryParams.next(salesInvitationParams);
 
         expect(component.includesPrivilegedControls).toBe(true);
+        expect(component.trial.privilegedControls).toEqual({ seats: 1 });
         expect(component.showPrivilegedControlsSalesCallout).toBe(false);
       });
-    });
 
-    describe("malformed sales invitation links", () => {
-      let logService: MockProxy<LogService>;
-
-      beforeEach(() => {
-        logService = TestBed.inject(LogService) as MockProxy<LogService>;
-      });
-
-      it("logs a warning without the token when a sales invitation does not start without payment", () => {
-        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, paymentOptional: "false" });
-
-        expect(logService.warning).toHaveBeenCalledTimes(1);
-        const message = logService.warning.mock.calls[0][0] as string;
-        expect(message).toContain("paymentOptional: false");
-        expect(message).toContain("trialLength: 14");
-        expect(message).not.toContain("sales-assisted-token-123");
-      });
-
-      it("logs no warning for a sales invitation that starts without payment", () => {
+      it("asks for Privileged Controls on the sales invitation's no-payment creation, without the token", async () => {
         mockActivatedRoute.queryParams.next(salesInvitationParams);
+        arrangeOrganizationCreation();
 
-        expect(logService.warning).not.toHaveBeenCalled();
+        await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+        const request =
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mock.calls[0][0];
+        expect(request.organization).not.toHaveProperty("salesAssistedToken");
+        expect(request.plan).toEqual(
+          expect.objectContaining({ subscribeToPrivilegedControls: true, pamSeats: 1 }),
+        );
       });
     });
 
     it("hides the sales callout once the PAM-billing flag turns on after the params arrive", () => {
       pamBillingSupport$.next(false);
-      mockActivatedRoute.queryParams.next(selfServeParams);
+      mockActivatedRoute.queryParams.next(salesInvitationParams);
       expect(component.showPrivilegedControlsSalesCallout).toBe(true);
 
       pamBillingSupport$.next(true);

@@ -27,11 +27,6 @@ export class OrganizationNoPaymentMethodCreateRequest {
   usePrivilegedControls: boolean = false;
   pamSeats?: number;
   initiationPath!: InitiationPath;
-  /**
-   * The sales invitation token. The server honors it only together with the sales-assisted initiationPath,
-   * and only on the no-payment create endpoint.
-   */
-  salesAssistedToken?: string;
   trialLength?: number;
 
   constructor(key: string, keys: OrganizationKeysRequest, collectionName: string) {

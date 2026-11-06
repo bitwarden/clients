@@ -102,35 +102,6 @@ describe("OrganizationBillingService", () => {
       expect(response).toEqual(organizationResponse);
     });
 
-    it("never sends the sales-assisted token on the paid request", async () => {
-      const subscriptionInformation = {
-        organization: {
-          name: "test-business",
-          billingEmail: "test@test.com",
-          salesAssistedToken: "sales-assisted-token-123",
-        },
-        plan: { type: PlanType.EnterpriseAnnually2023 },
-        payment: {
-          paymentMethod: ["card-token", PaymentMethodType.Card],
-          billing: { postalCode: "12345" },
-        },
-      } as SubscriptionInformation;
-
-      organizationApiService.create.mockResolvedValue({} as OrganizationResponse);
-      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
-        new EncString("encrypted-key"),
-        {} as OrgKey,
-      ]);
-      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
-      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
-
-      await sut.purchaseSubscription(subscriptionInformation, mockUserId);
-
-      expect(organizationApiService.create.mock.calls[0][0]).not.toHaveProperty(
-        "salesAssistedToken",
-      );
-    });
-
     it("given organization creation fails, then it throws an error", async () => {
       // Arrange
       const subscriptionInformation = {
@@ -222,32 +193,6 @@ describe("OrganizationBillingService", () => {
       //Assert
       expect(organizationApiService.createWithoutPayment).toHaveBeenCalledTimes(1);
       expect(response).toEqual(organizationResponse);
-    });
-
-    it("sends the sales-assisted token on the no-payment request", async () => {
-      const subscriptionInformation = {
-        organization: {
-          name: "test-business",
-          billingEmail: "test@test.com",
-          initiationPath: InitiationPath.SalesAssistedTrialFromAdminPortal,
-          salesAssistedToken: "sales-assisted-token-123",
-        },
-        plan: { type: PlanType.EnterpriseAnnually2023 },
-      } as SubscriptionInformation;
-
-      organizationApiService.createWithoutPayment.mockResolvedValue({} as OrganizationResponse);
-      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
-        new EncString("encrypted-key"),
-        {} as OrgKey,
-      ]);
-      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
-      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
-
-      await sut.purchaseSubscriptionNoPaymentMethod(subscriptionInformation, mockUserId);
-
-      const request = organizationApiService.createWithoutPayment.mock.calls[0][0];
-      expect(request.salesAssistedToken).toBe("sales-assisted-token-123");
-      expect(request.initiationPath).toBe(InitiationPath.SalesAssistedTrialFromAdminPortal);
     });
 
     it("given organization creation fails without payment method, then it throws an error", async () => {
