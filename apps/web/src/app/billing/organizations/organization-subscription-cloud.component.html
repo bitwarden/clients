@@ -207,26 +207,12 @@
       @if (showPrivilegedControlsContactSalesToChange()) {
         <div id="privileged-controls-contact-sales-to-change">
           <h3 bitTypography="h3" class="tw-mt-9">{{ "privilegedControls" | i18n }}</h3>
-          <!-- pamSeats mirrors the organization record, not the subscription; hide it for a sales-initiated trial where no seats have been purchased. -->
-          @if (orgSub?.isOnPamSalesInitiatedTrial !== true) {
-            @if (orgSub?.pamSeats != null) {
-              <p bitTypography="body1" id="privileged-controls-read-only-seats">
-                {{ "subscriptionSeats" | i18n }}: {{ orgSub.pamSeats }}
-              </p>
-            }
-            @if (orgSub?.maxAutoscalePamSeats != null) {
-              <p bitTypography="body1" id="privileged-controls-read-only-seat-limit">
-                {{ "privilegedControlsSeatLimit" | i18n }}: {{ orgSub.maxAutoscalePamSeats }}
-              </p>
-            }
-          }
-          @if (orgSub?.isOnPamSalesInitiatedTrial === true) {
-            <p bitTypography="body1" id="privileged-controls-sales-trial-note">
-              {{ "privilegedControlsSalesTrialThroughSales" | i18n }}
+          @if (orgSub?.occupiedPamSeats != null && orgSub?.pamSeats != null) {
+            <p bitTypography="body1" id="privileged-controls-read-only-seats">
+              {{ "privilegedControlsSeatsInUse" | i18n: orgSub.occupiedPamSeats : orgSub.pamSeats }}
             </p>
-          } @else {
-            <p bitTypography="body1">{{ "privilegedControlsChangeThroughSales" | i18n }}</p>
           }
+          <p bitTypography="body1">{{ "privilegedControlsChangeThroughSales" | i18n }}</p>
           <a
             bitButton
             buttonType="secondary"

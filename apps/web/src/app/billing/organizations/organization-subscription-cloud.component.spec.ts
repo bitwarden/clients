@@ -1237,15 +1237,23 @@ describe("OrganizationSubscriptionCloudComponent", () => {
       fixture.nativeElement.querySelector("#privileged-controls-contact-sales-to-add");
     const seatsElement = () =>
       fixture.nativeElement.querySelector("#privileged-controls-read-only-seats");
-    const seatLimitElement = () =>
-      fixture.nativeElement.querySelector("#privileged-controls-read-only-seat-limit");
+
+    beforeEach(() => {
+      i18nService.t.mockImplementation((key: string, p1?: string | number, p2?: string | number) =>
+        key === "privilegedControlsSeatsInUse" ? `${p1} of ${p2} seats in use` : key,
+      );
+    });
 
     describe("organization with Privileged Controls", () => {
-      it("shows its seats and a Contact sales link when PAM billing support is off", async () => {
+      it("shows seats in use out of total seats and a Contact sales link when PAM billing support is off", async () => {
         setPamBillingSupport(false);
 
         await render({
-          subscription: enterpriseSubscription({ pamSeats: 7, maxAutoscalePamSeats: 9 }),
+          subscription: enterpriseSubscription({
+            pamSeats: 10,
+            occupiedPamSeats: 7,
+            maxAutoscalePamSeats: 9,
+          }),
         });
 
         expect(component.showPrivilegedControlsContactSalesToChange()).toBe(true);
@@ -1253,17 +1261,14 @@ describe("OrganizationSubscriptionCloudComponent", () => {
         expect(
           fixture.nativeElement.querySelector("app-privileged-controls-adjust-subscription"),
         ).toBeNull();
-        expect(seatsElement().textContent).toContain("7");
-        expect(seatLimitElement().textContent).toContain("9");
+        expect(seatsElement().textContent.trim()).toBe("7 of 10 seats in use");
+        expect(changeElement().textContent).not.toContain("9");
         const link = fixture.nativeElement.querySelector(
           "#organization-subscription-cloud_button_privileged-controls-contact-sales-change",
         );
         expect(link.getAttribute("href")).toBe("https://bitwarden.com/contact/");
         expect(link.getAttribute("target")).toBe("_blank");
         expect(changeElement().textContent).toContain("privilegedControlsChangeThroughSales");
-        expect(changeElement().textContent).not.toContain(
-          "privilegedControlsSalesTrialThroughSales",
-        );
       });
 
       it("shows the Contact sales link without counts when the subscription carries none", async () => {
@@ -1272,31 +1277,33 @@ describe("OrganizationSubscriptionCloudComponent", () => {
         await render({
           subscription: enterpriseSubscription({
             pamSeats: undefined,
-            maxAutoscalePamSeats: undefined,
+            occupiedPamSeats: undefined,
           }),
         });
 
         expect(changeElement()).not.toBeNull();
         expect(changeElement().querySelector("a")).not.toBeNull();
         expect(seatsElement()).toBeNull();
-        expect(seatLimitElement()).toBeNull();
       });
 
-      it("omits the seat limit when none is set", async () => {
+      it("omits the seats line when the server sends no occupied seat count", async () => {
         setPamBillingSupport(false);
 
-        await render({ subscription: enterpriseSubscription({ maxAutoscalePamSeats: undefined }) });
+        await render({
+          subscription: enterpriseSubscription({ pamSeats: 10, occupiedPamSeats: undefined }),
+        });
 
-        expect(seatsElement()).not.toBeNull();
-        expect(seatLimitElement()).toBeNull();
+        expect(changeElement()).not.toBeNull();
+        expect(seatsElement()).toBeNull();
       });
 
-      it("hides the seat count and limit for a sales-initiated trial but keeps the Contact sales link", async () => {
+      it("shows seats in use and the same Contact sales copy for a sales-initiated trial", async () => {
         setPamBillingSupport(false);
 
         await render({
           subscription: enterpriseSubscription({
             pamSeats: 12,
+            occupiedPamSeats: 3,
             maxAutoscalePamSeats: 20,
             isOnPamSalesInitiatedTrial: true,
           }),
@@ -1304,10 +1311,9 @@ describe("OrganizationSubscriptionCloudComponent", () => {
 
         expect(changeElement()).not.toBeNull();
         expect(changeElement().querySelector("a")).not.toBeNull();
-        expect(seatsElement()).toBeNull();
-        expect(seatLimitElement()).toBeNull();
-        expect(changeElement().textContent).toContain("privilegedControlsSalesTrialThroughSales");
-        expect(changeElement().textContent).not.toContain("privilegedControlsChangeThroughSales");
+        expect(seatsElement().textContent.trim()).toBe("3 of 12 seats in use");
+        expect(changeElement().textContent).toContain("privilegedControlsChangeThroughSales");
+        expect(changeElement().textContent).not.toContain("20");
       });
 
       it("keeps the Contact sales link when the subscription is pending cancellation", async () => {
