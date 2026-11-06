@@ -11,6 +11,8 @@
   https://bitwarden.atlassian.net/browse/PM-43969
 */
 
+import { LiteralUnion } from "type-fest";
+
 /**
  * The known types of packaging of the Bitwarden client a pairing was made on. Informs the
  * operating system and potential sandboxing requirements.
@@ -67,10 +69,13 @@ export type AutotypePairingData = {
   };
   clientData: {
     /**
-     * The type of packaging of the Bitwarden client this pairing was made on, usually one of
-     * {@link AutotypePairingPackagingType}. Later 1.x versions may add values. Never empty.
+     * The type of packaging of the Bitwarden client this pairing was made on: one of
+     * {@link AutotypePairingPackagingType}, or a value added by a later 1.x version. Never empty.
+     *
+     * A `===` check doesn't narrow this type. Use {@link isAutotypePairingPackagingType} to narrow
+     * it to a known value.
      */
-    packagingType: string;
+    packagingType: LiteralUnion<AutotypePairingPackagingType, string>;
   };
 };
 
