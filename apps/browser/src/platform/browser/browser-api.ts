@@ -453,6 +453,30 @@ export class BrowserApi {
     }
   }
 
+  /** Whether the extension is told when a request is redirected. Safari does not tell it. */
+  static canObserveRedirects(): boolean {
+    return !BrowserApi.isSafariApi && chrome.webRequest?.onBeforeRedirect != null;
+  }
+
+  /**
+   * Calls `callback` before a request matching `filter` is redirected, until
+   * {@link removeRedirectListener} removes it. Not available where {@link canObserveRedirects} is
+   * false.
+   */
+  static addRedirectListener(
+    callback: (details: chrome.webRequest.OnBeforeRedirectDetails) => void,
+    filter: chrome.webRequest.RequestFilter,
+  ): void {
+    // eslint-disable-next-line no-restricted-syntax -- addListener cannot pass the filter, and Safari, whose leak it prevents, reports no redirects
+    chrome.webRequest.onBeforeRedirect.addListener(callback, filter);
+  }
+
+  static removeRedirectListener(
+    callback: (details: chrome.webRequest.OnBeforeRedirectDetails) => void,
+  ): void {
+    chrome.webRequest.onBeforeRedirect.removeListener(callback);
+  }
+
   static async onWindowCreated(callback: (win: chrome.windows.Window) => any) {
     // FIXME: Make sure that is does not cause a memory leak in Safari or use BrowserApi.AddListener
     // and test that it doesn't break.
