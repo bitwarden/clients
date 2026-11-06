@@ -3,11 +3,11 @@ import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
-import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";

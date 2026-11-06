@@ -111,6 +111,7 @@ export type Cart = {
   };
   cadence: "annually" | "monthly"; // Billing period for entire cart
   hidePricingTerm?: boolean; // Optional set if term should be removed
+  showProrationNote?: boolean; // Optional: renders a note that the final prorated charge may differ slightly from the preview
   discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
   credit?: Credit; // Optional pre-tax credit (e.g. prorated subscription credit)
   estimatedTax: number; // Tax amount

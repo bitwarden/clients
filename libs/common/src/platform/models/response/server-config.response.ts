@@ -38,6 +38,7 @@ export class ServerSettingsResponse extends BaseResponse {
   disableUserRegistration: boolean = false;
   suppressOnboardingInterstitials: boolean = false;
   disableEmailVerification: boolean = false;
+  disableOpenInviteLinkEmailVerification: boolean = false;
 
   constructor(response: any) {
     super(response);
@@ -50,6 +51,9 @@ export class ServerSettingsResponse extends BaseResponse {
     this.suppressOnboardingInterstitials =
       this.getResponseProperty("SuppressOnboardingInterstitials") ?? false;
     this.disableEmailVerification = !(this.getResponseProperty("EnableEmailVerification") ?? false);
+    this.disableOpenInviteLinkEmailVerification = !(
+      this.getResponseProperty("EnableOpenInviteLinkEmailVerification") ?? true
+    );
   }
 }
 

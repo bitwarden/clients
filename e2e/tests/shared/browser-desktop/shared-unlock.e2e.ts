@@ -4,15 +4,14 @@ import { account } from "../../../src/credentials";
 import { clickMenuItem, MenuItem } from "../../../src/desktop/app-menu";
 import { BiometricRequestType } from "../../../src/desktop/biometrics";
 import { DesktopSettings } from "../../../src/desktop/settings";
-import { enableFlags, FeatureFlag } from "../../../src/feature-flags";
+import { FeatureFlag } from "../../../src/feature-flags";
 import { LockScreen } from "../../../src/lock-screen";
-import { LoginPage } from "../../../src/login";
 import {
-  DESKTOP_VAULT_URL,
   desktopConnected,
   Extension,
   LOCK_URL,
   lockExtension,
+  logInToDesktop,
   logInToExtension,
   openExtensionVault,
   SYNC_TIMEOUT_MS,
@@ -35,10 +34,7 @@ test.describe("shared unlock between extension and desktop app", () => {
   let extension: Extension;
 
   test.beforeEach(async ({ context, popup, window }) => {
-    await enableFlags(window, FLAGS);
-    const desktopLogin = new LoginPage(window);
-    await desktopLogin.logIn();
-    await desktopLogin.waitForVault(DESKTOP_VAULT_URL);
+    await logInToDesktop(window, FLAGS);
 
     extension = await logInToExtension(context, popup, FLAGS);
     const settings = new AccountSecurityPage(extension.popup);
