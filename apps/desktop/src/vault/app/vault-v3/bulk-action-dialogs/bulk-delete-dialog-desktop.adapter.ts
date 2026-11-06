@@ -1,6 +1,8 @@
 import { Injectable, inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogService, ToastService, Translation } from "@bitwarden/components";
 import {
   BulkDeleteDialogParams,
@@ -17,8 +19,21 @@ export class BulkDeleteDialogDesktopAdapter implements BulkDeleteDialogRef {
   private readonly i18nService = inject(I18nService);
   private readonly bulkDelete = inject(BulkDeleteService);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly logService = inject(LogService);
+  private readonly validationService = inject(ValidationService);
 
   async open(params: BulkDeleteDialogParams): Promise<BulkDeleteDialogResult> {
+    try {
+      return await this.confirmAndDelete(params);
+    } catch (e) {
+      // Surface server rejections (e.g. too many items) instead of failing silently
+      this.logService.error("Error deleting vault items", e);
+      this.validationService.showError(e);
+      return BulkDeleteDialogResult.Canceled;
+    }
+  }
+
+  private async confirmAndDelete(params: BulkDeleteDialogParams): Promise<BulkDeleteDialogResult> {
     if (this.hasItems(params) && this.hasCollections(params)) {
       return this.confirmAndDeleteMixed(params);
     }

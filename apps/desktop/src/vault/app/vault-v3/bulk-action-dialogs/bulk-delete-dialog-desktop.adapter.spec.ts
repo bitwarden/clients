@@ -5,9 +5,11 @@ import { of } from "rxjs";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { BulkDeleteService } from "@bitwarden/vault";
+import { BulkDeleteDialogResult, BulkDeleteService } from "@bitwarden/vault";
 
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-delete-dialog-desktop.adapter";
 
@@ -15,6 +17,8 @@ describe("BulkDeleteDialogDesktopAdapter", () => {
   let adapter: BulkDeleteDialogDesktopAdapter;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let bulkDeleteService: MockProxy<BulkDeleteService>;
+  let validationService: MockProxy<ValidationService>;
 
   const collection = (id: string) =>
     new CollectionView({
@@ -27,6 +31,8 @@ describe("BulkDeleteDialogDesktopAdapter", () => {
     TestBed.resetTestingModule();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
+    bulkDeleteService = mock<BulkDeleteService>();
+    validationService = mock<ValidationService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
 
     TestBed.configureTestingModule({
@@ -35,7 +41,9 @@ describe("BulkDeleteDialogDesktopAdapter", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: BulkDeleteService, useValue: mock<BulkDeleteService>() },
+        { provide: BulkDeleteService, useValue: bulkDeleteService },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: ValidationService, useValue: validationService },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(vfo1Enabled) } },
       ],
     });
@@ -126,6 +134,18 @@ describe("BulkDeleteDialogDesktopAdapter", () => {
 
       expect(dialogOptions().title).toMatchObject({ key: "deleteItem" });
       expect(toastMessages()).toEqual(["deletedItem"]);
+    });
+
+    it("shows the error and reports canceled when the server rejects the delete", async () => {
+      setup(false);
+      const error = new Error("You can only delete up to 500 items at once.");
+      bulkDeleteService.deleteCiphers.mockRejectedValue(error);
+
+      const result = await adapter.open({ cipherIds: ["cipher-1" as CipherId] });
+
+      expect(result).toBe(BulkDeleteDialogResult.Canceled);
+      expect(validationService.showError).toHaveBeenCalledWith(error);
+      expect(toastMessages()).toEqual([]);
     });
   });
 });
