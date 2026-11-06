@@ -45,13 +45,15 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { canActivateImportType } from "@bitwarden/importer-ui";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
 import {
+  FOLDER_ID_PARAM,
+  FOLDERS_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
   organizationVaultGuard,
@@ -548,6 +550,17 @@ export const routes: Routes = [
         canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
         data: { pageTitle: { key: "myFolders" } } satisfies RouteDataProperties,
       },
+      // One of the user's folders.
+      {
+        path: `${FOLDERS_ROUTE}/:${FOLDER_ID_PARAM}`,
+        component: VaultComponent,
+        canActivate: [
+          canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
+          vaultScopeGuard,
+          vaultFilterRestoreGuard,
+        ],
+        data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
+      },
       {
         path: "send",
         component: SendComponent,
@@ -581,6 +594,15 @@ export const routes: Routes = [
             loadComponent: () =>
               import("./tools/import/import-controls-desktop.component").then(
                 (mod) => mod.ImportControlsDesktopComponent,
+              ),
+            data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
+          },
+          {
+            path: IMPORT_DESTINATION_ROUTE_PATH,
+            canActivate: [canActivateImportType("/import")],
+            loadComponent: () =>
+              import("./tools/import/import-destination-desktop.component").then(
+                (mod) => mod.ImportDestinationDesktopComponent,
               ),
             data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
           },

@@ -41,7 +41,6 @@ import {
 import {
   LoginEmailService,
   SsoUrlService,
-  LogoutService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
@@ -66,6 +65,7 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import {
@@ -248,6 +248,7 @@ import BrowserMemoryStorageService from "../../platform/services/browser-memory-
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
+import { BrowserForegroundSdkClientFactory } from "../../platform/services/sdk/browser-foreground-sdk-client-factory";
 import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
@@ -346,6 +347,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       AccountCryptographicStateService,
       BiometricsService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -744,6 +746,8 @@ const safeProviders: SafeProvider[] = [
       BiometricsService,
       BiometricStateService,
       V2UpgradeTokenStateService,
+      KeyService,
+      SdkService,
       AutoUnlockService,
       MessageSender,
       MessageListener,
@@ -813,7 +817,9 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SdkClientFactory,
     useFactory: () =>
-      flagEnabled("sdk") ? new DefaultSdkClientFactory() : new NoopSdkClientFactory(),
+      flagEnabled("sdk")
+        ? new BrowserForegroundSdkClientFactory(new DefaultSdkClientFactory())
+        : new NoopSdkClientFactory(),
     deps: [],
   }),
   safeProvider({
@@ -829,7 +835,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: ExtensionLogoutService,
-    deps: [MessagingServiceAbstraction, LogService, AccountSwitcherService],
+    deps: [MessagingServiceAbstraction, LogService, AccountSwitcherService, SdkService],
   }),
   safeProvider({
     provide: CompactModeService,

@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   Injector,
@@ -49,6 +50,7 @@ import { KeeperRegion } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
 import {
   CredentialKind,
+  ImportDestinationsState,
   ImportOption,
   ImportResult,
   ImportResultError,
@@ -58,18 +60,18 @@ import {
   UpgradeImportType,
 } from "../../models";
 import {
+  countCipherTypes,
+  ImportDestinationServiceAbstraction,
   ImporterProfile,
+  ImportStagingServiceAbstraction,
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
   readImportFileContents,
+  StagedImport,
 } from "../../services";
 import { chromiumLoginsToCsv } from "../chrome/chromium-login-csv";
-import {
-  FilePasswordPromptComponent,
-  ImportErrorDialogComponent,
-  ImportSkippedItemsDialogComponent,
-  ImportSuccessDialogComponent,
-} from "../dialog";
+import { FilePasswordPromptComponent, ImportErrorDialogComponent } from "../dialog";
+import { errorName } from "../error-name";
 import { pickerIconFor } from "../import-source-select/import-source-picker-metadata";
 import {
   pickerAlwaysPromptsFormat,
@@ -77,7 +79,17 @@ import {
   pickerFormatsFor,
 } from "../import-source-select/picker-vendor-data";
 
+import {
+  keeperEmailFormatValidator,
+  keeperEmailRequiredValidator,
+} from "./direct/keeper/keeper-email-validators";
+import { KeeperInlineAuthUi } from "./direct/keeper/keeper-inline-auth-ui";
 import { KeeperDirectImportRunner } from "./direct/keeper-direct-import-runner";
+import {
+  lastPassEmailFormatValidator,
+  lastPassEmailRequiredValidator,
+} from "./direct/lastpass/lastpass-email-validators";
+import { LastPassInlineAuthUi } from "./direct/lastpass/lastpass-inline-auth-ui";
 import { LastPassDirectImportRunner } from "./direct/lastpass-direct-import-runner";
 import { ImportControlsChromiumComponent } from "./import-controls-chromium.component";
 import { DirectStep, ImportControlsDirectComponent } from "./import-controls-direct.component";
@@ -88,6 +100,7 @@ import {
   expectedPasteShapeFor,
   vendorSupportsPasteShapeNarrowing,
 } from "./paste-content-shape";
+import { presentImportOutcome } from "./present-import-outcome";
 
 /** How import data is provided: vendor direct importer, Chromium importer, or file/paste. */
 type ImportStrategy = "direct" | "chromium" | "manual";
@@ -125,8 +138,14 @@ const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>)
     SegmentedCardComponent,
     SpinnerComponent,
   ],
-  // Scoped to the component: they inject ImportUpgradeServiceAbstraction, which the host components provide.
-  providers: [KeeperDirectImportRunner, LastPassDirectImportRunner],
+  // Scoped to the component: the runners inject ImportUpgradeServiceAbstraction, which the host
+  // components provide, and the login UIs hold per-import state.
+  providers: [
+    KeeperDirectImportRunner,
+    LastPassDirectImportRunner,
+    KeeperInlineAuthUi,
+    LastPassInlineAuthUi,
+  ],
 })
 export class ImportControlsComponent {
   private readonly formBuilder = inject(FormBuilder);
@@ -143,12 +162,18 @@ export class ImportControlsComponent {
   private readonly document = inject(DOCUMENT);
   private readonly importService = inject(ImportUpgradeServiceAbstraction);
   private readonly importMetadataService = inject(ImportUpgradeMetadataServiceAbstraction);
+  private readonly destinationService = inject(ImportDestinationServiceAbstraction);
+  private readonly stagingService = inject(ImportStagingServiceAbstraction);
   private readonly themingService = inject(AbstractThemingService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly keeperUi = inject(KeeperInlineAuthUi);
+  private readonly lastPassUi = inject(LastPassInlineAuthUi);
 
   /** The vendor chosen in step 1. */
   readonly importType = input.required<UpgradeImportType>();
 
-  /** Fires once the import succeeds, not on button click. */
+  /** Fires when the import succeeds or its items are staged for location selection, not on button
+   *  click. The host tells them apart by whether anything is staged. */
   readonly continue = output<void>();
 
   /** Fires when the user clicks Back. */
@@ -322,6 +347,20 @@ export class ImportControlsComponent {
 
   protected readonly directStep = signal<DirectStep>("intro");
 
+  /** The running Keeper login and import, started by submit() without awaiting it. */
+  private readonly keeperLogin = signal<Promise<void>>(Promise.resolve());
+
+  /** The running LastPass login and import, started by submit() without awaiting it. */
+  private readonly lastPassLogin = signal<Promise<void>>(Promise.resolve());
+
+  /** A direct importer is writing the vault, so there is nothing left to cancel. */
+  protected readonly directImporting = computed(
+    () => this.keeperUi.importing() || this.lastPassUi.importing(),
+  );
+
+  /** Continue shows its spinner while a direct-import request is in flight. */
+  protected readonly directBusy = computed(() => this.keeperUi.busy() || this.lastPassUi.busy());
+
   // No initialValue: Continue stays blocked until this resolves. "error" (null account or failed
   // lookup) fails closed without blaming the org policy.
   private readonly personalOwnershipPolicyApplies = toSignal(
@@ -346,13 +385,37 @@ export class ImportControlsComponent {
     () => this.personalOwnershipPolicyApplies() === undefined,
   );
 
+  // Continue stays blocked until this resolves; "error" fails closed (see
+  // blockedByPersonalOwnershipPolicy).
+  private readonly destinations = toSignal(
+    this.destinationService.destinations$.pipe(
+      map((value): ImportDestinationsState => ({ status: "ready", value })),
+      catchError((error: unknown) => {
+        this.logService.error("Error loading import destinations:", errorName(error));
+        return of<ImportDestinationsState>({ status: "error" });
+      }),
+    ),
+    { initialValue: { status: "pending" } as ImportDestinationsState },
+  );
+
+  protected readonly destinationsPending = computed(() => this.destinations().status === "pending");
+
+  /** True when the user has a location to choose, so the import runs after that choice. */
+  private readonly hasDestinationStep = computed(() => {
+    const destinations = this.destinations();
+    return destinations.status === "ready" && destinations.value.hasStep;
+  });
+
   // Single source for submit()'s gate and the button's [disabled].
   protected readonly continueBlocked = computed(
     () =>
       this.capabilitiesPending() ||
       this.profilesPending() ||
       this.personalOwnershipPolicyPending() ||
-      this.filePasswordCheckPending(),
+      this.destinationsPending() ||
+      this.filePasswordCheckPending() ||
+      this.keeperUi.waiting() ||
+      this.lastPassUi.waiting(),
   );
 
   protected readonly isKeeper = computed(() => this.importType() === "keeper");
@@ -411,9 +474,25 @@ export class ImportControlsComponent {
   };
 
   protected readonly formGroup = this.formBuilder.group({
-    keeperEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
+    // Custom validators first so their messages win; Validators.required kept so the asterisk renders.
+    keeperEmail: [
+      { value: "", disabled: true },
+      [
+        keeperEmailRequiredValidator(this.i18nService),
+        Validators.required,
+        keeperEmailFormatValidator(this.i18nService),
+      ],
+    ],
     keeperRegion: this.formBuilder.nonNullable.control<KeeperRegion>(KeeperRegion.Us),
-    lastPassEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
+    // Custom validators first so their messages win; Validators.required kept so the asterisk renders.
+    lastPassEmail: [
+      { value: "", disabled: true },
+      [
+        lastPassEmailRequiredValidator(this.i18nService),
+        Validators.required,
+        lastPassEmailFormatValidator(this.i18nService),
+      ],
+    ],
     includeSharedFolders: [false],
     // Custom validator first so its message wins.
     kdbxPassword: [
@@ -625,11 +704,31 @@ export class ImportControlsComponent {
     () => this.isFilePasswordProtected() && this.filePasswordRequested(),
   );
 
+  /** False on any page reached from step 2's first one, where Back starts step 2 over instead of
+   *  leaving it. */
+  private readonly atStepStart = computed(
+    () =>
+      this.primaryModeOverride() === undefined &&
+      this.directStep() === "intro" &&
+      !this.keeperUi.loginActive() &&
+      !this.lastPassUi.loginActive() &&
+      !this.needsFilePassword(),
+  );
+
   /** An always-prompt vendor's selection per method, so file, paste, file restores it even though
    *  paste can't offer every format (kdbx). */
   private readonly formatChoiceByMethod = new Map<"file" | "paste", ImportType | null>();
 
   constructor() {
+    this.keeperUi.registerStartOver(() => this.startOver());
+    this.lastPassUi.registerStartOver(() => this.startOver());
+    this.destroyRef.onDestroy(() => {
+      this.keeperUi.registerStartOver(undefined);
+      this.keeperUi.leave();
+      this.lastPassUi.registerStartOver(undefined);
+      this.lastPassUi.leave();
+    });
+
     let previousMethod = this.formGroup.controls.method.value;
     this.formGroup.controls.method.valueChanges.pipe(takeUntilDestroyed()).subscribe((method) => {
       this.formatChoiceByMethod.set(previousMethod, this.formGroup.controls.formatChoice.value);
@@ -772,24 +871,7 @@ export class ImportControlsComponent {
         return;
       }
 
-      this.primaryModeOverride.set(undefined);
-      this.directStep.set("intro");
-      this.showKeyFile.set(false);
-      this.formGroup.reset({
-        keeperEmail: "",
-        keeperRegion: KeeperRegion.Us,
-        lastPassEmail: "",
-        includeSharedFolders: false,
-        profile: "",
-        method: "file",
-        file: null,
-        fileContents: "",
-        kdbxPassword: "",
-        keyFile: null,
-        filePassword: "",
-        formatChoice: null,
-      });
-      this.formatChoiceByMethod.clear();
+      this.startOver();
     });
 
     // Declared last so it seeds after the importType() reset effect.
@@ -814,20 +896,67 @@ export class ImportControlsComponent {
     });
   }
   protected onBack(): void {
-    if (this.needsFilePassword()) {
-      // Back from the password card returns to upload; clearing the file also drops the card.
-      this.formGroup.controls.file.reset(null);
+    if (this.directImporting()) {
       return;
     }
-    this.back.emit();
+    if (this.atStepStart()) {
+      this.back.emit();
+      return;
+    }
+    this.afterLeaveConfirmed(() => this.startOver());
   }
 
   protected toggleToManual(): void {
-    this.primaryModeOverride.set("manual");
+    if (this.directImporting()) {
+      return;
+    }
+    this.afterLeaveConfirmed(() => {
+      this.keeperUi.leave();
+      this.lastPassUi.leave();
+      this.primaryModeOverride.set("manual");
+      this.directStep.set("intro");
+      // touched survives disable/enable; clear it to avoid a stale error.
+      this.formGroup.controls.file.markAsUntouched();
+      this.formGroup.controls.fileContents.markAsUntouched();
+    });
+  }
+
+  /** Runs `action` at once, or once the user confirms cancelling a request sent to their device. */
+  private afterLeaveConfirmed(action: () => void): void {
+    if (!this.keeperUi.leaveNeedsConfirm()) {
+      action();
+      return;
+    }
+    void this.keeperUi.confirmLeave().then((confirmed) => {
+      // The approval can land while the dialog is open; once importing there is nothing to cancel.
+      if (confirmed && !this.directImporting()) {
+        action();
+      }
+    });
+  }
+
+  /** Step 2 as first shown: the default mode's first page, with nothing filled in or chosen. */
+  private startOver(): void {
+    this.keeperUi.leave();
+    this.lastPassUi.leave();
+    this.primaryModeOverride.set(undefined);
     this.directStep.set("intro");
-    // touched survives disable/enable; clear it to avoid a stale error.
-    this.formGroup.controls.file.markAsUntouched();
-    this.formGroup.controls.fileContents.markAsUntouched();
+    this.showKeyFile.set(false);
+    this.formGroup.reset({
+      keeperEmail: "",
+      keeperRegion: KeeperRegion.Us,
+      lastPassEmail: "",
+      includeSharedFolders: false,
+      profile: "",
+      method: "file",
+      file: null,
+      fileContents: "",
+      kdbxPassword: "",
+      keyFile: null,
+      filePassword: "",
+      formatChoice: null,
+    });
+    this.formatChoiceByMethod.clear();
   }
 
   protected toggleToAlternate(): void {
@@ -847,7 +976,12 @@ export class ImportControlsComponent {
     this.showKeyFile.set(true);
   }
 
+  // Read once per Continue: the gate and the staging-or-importing choice below must agree, and
+  // `destinations` can re-emit during the awaits in between.
+  private readonly stagesImport = signal(false);
+
   protected async onContinue(): Promise<void> {
+    this.stagesImport.set(this.hasDestinationStep());
     if (this.blockedByPersonalOwnershipPolicy()) {
       return;
     }
@@ -868,37 +1002,28 @@ export class ImportControlsComponent {
       return;
     }
 
-    // Before the dialog so Continue's spinner covers the wait. Failures are only logged.
-    try {
-      const synced = await this.syncService.fullSync(true);
-      if (!synced) {
-        // An ordinary failure resolves false rather than throwing.
-        this.logService.warning("Post-import sync did not complete");
-      }
-    } catch (error) {
-      this.logService.error("Post-import sync failed:", error);
-    }
-
-    if (outcome.kind === "imported" && outcome.result.errors.length > 0) {
-      this.dialogService.open(ImportSkippedItemsDialogComponent, {
-        data: { errors: outcome.result.errors },
-      });
-    } else {
-      this.dialogService.open(ImportSuccessDialogComponent, {
-        data:
-          outcome.kind === "imported"
-            ? { importResult: outcome.result }
-            : { sdkSummary: outcome.sdkSummary },
+    // A staged outcome has nothing to report yet: the location screen imports and reports then.
+    if (outcome.kind !== "staged") {
+      await presentImportOutcome(outcome, {
+        syncService: this.syncService,
+        logService: this.logService,
+        dialogService: this.dialogService,
       });
     }
 
     this.continue.emit();
   }
 
-  // Pending and "error" both block, without blaming the org policy.
+  // Pending and "error" both block, without blaming the org policy. A failed destination lookup
+  // blocks too, since it is also how the policy's effect on the available locations is known.
   private blockedByPersonalOwnershipPolicy(): boolean {
     const policyApplies = this.personalOwnershipPolicyApplies();
-    if (policyApplies === false) {
+    const destinations = this.destinations();
+    if (policyApplies === false && destinations.status !== "error") {
+      return false;
+    }
+    // The policy only forbids the personal vault: block only when there is no other location.
+    if (policyApplies === true && this.stagesImport()) {
       return false;
     }
 
@@ -906,10 +1031,30 @@ export class ImportControlsComponent {
       variant: "error",
       title: undefined,
       message: this.i18nService.t(
-        policyApplies === true ? "personalOwnershipPolicyInEffectImports" : "errorOccurred",
+        policyApplies === true && destinations.status === "ready"
+          ? "personalOwnershipPolicyInEffectImports"
+          : "errorOccurred",
       ),
     });
     return true;
+  }
+
+  private stage(staged: StagedImport): ImportOutcome {
+    this.stagingService.stage(staged);
+    return { kind: "staged" };
+  }
+
+  /** For a result parsed elsewhere (Keeper): stages it for the user to choose a location, or
+   *  imports it straight away when there is no location to choose. */
+  private async finishParsed(result: ImportResult): Promise<ImportOutcome> {
+    if (this.stagesImport()) {
+      this.importService.validateParsed(result);
+      return this.stage({ kind: "parsed", importType: this.importType(), result });
+    }
+    return {
+      kind: "imported",
+      result: await this.importService.importImportResult(result, undefined, undefined, false),
+    };
   }
 
   private async runImport(): Promise<ImportOutcome> {
@@ -917,7 +1062,11 @@ export class ImportControlsComponent {
       if (this.isKeeper()) {
         return this.injector
           .get(KeeperDirectImportRunner)
-          .run(this.formGroup.controls.keeperEmail, this.formGroup.controls.keeperRegion);
+          .run(
+            this.formGroup.controls.keeperEmail,
+            this.formGroup.controls.keeperRegion,
+            (result) => this.finishParsed(result),
+          );
       }
       if (this.isLastPass()) {
         return this.injector
@@ -951,10 +1100,7 @@ export class ImportControlsComponent {
       throw new Error(this.i18nService.t(csvResult.errorKey));
     }
 
-    return {
-      kind: "imported",
-      result: await this.runGenericImport(this.importType(), csvResult.csv),
-    };
+    return this.runGenericImport(this.importType(), csvResult.csv);
   }
 
   private unresolvedImportMessageKey(): string {
@@ -999,7 +1145,7 @@ export class ImportControlsComponent {
     }
 
     try {
-      return { kind: "imported", result: await this.runGenericImport(format, contents) };
+      return await this.runGenericImport(format, contents);
     } catch (error) {
       // Set only by UpgradeBitwardenEncryptedJsonImporter; shown as a toast, not the error dialog.
       if (
@@ -1024,8 +1170,7 @@ export class ImportControlsComponent {
     password: string,
   ): Promise<ImportOutcome> {
     try {
-      const result = await this.runGenericImport(format, contents, () => Promise.resolve(password));
-      return { kind: "imported", result };
+      return await this.runGenericImport(format, contents, () => Promise.resolve(password));
     } catch (error) {
       if (
         error instanceof ImportResultError &&
@@ -1081,6 +1226,12 @@ export class ImportControlsComponent {
     if (credentials == null) {
       // Credentials dialog dismissed.
       return { kind: "cancelled" };
+    }
+
+    // The SDK parses and writes in one call, so it runs on the location screen with what was
+    // collected here.
+    if (this.stagesImport()) {
+      return this.stage({ kind: "sdk", format, file: fileBytes, credentials });
     }
 
     try {
@@ -1145,13 +1296,46 @@ export class ImportControlsComponent {
     format: UpgradeImportType,
     contents: string,
     promptForPassword_callback: () => Promise<string> = () => this.promptForPassword(),
-  ): Promise<ImportResult> {
-    const importer = this.importService.getImporter(format, promptForPassword_callback, undefined);
+  ): Promise<ImportOutcome> {
+    // Kept for the location screen, which parses again and must not ask for it twice.
+    let filePassword: string | null = null;
+    const importer = this.importService.getImporter(
+      format,
+      async () => (filePassword = await promptForPassword_callback()),
+      undefined,
+    );
     if (importer == null) {
       throw new Error(this.i18nService.t("selectFormat"));
     }
 
-    return this.importService.import(importer, contents, undefined, undefined, false);
+    if (this.stagesImport()) {
+      let result: ImportResult | undefined;
+      try {
+        result = await this.importService.parse(importer, contents);
+      } catch (error) {
+        // An organization's encrypted export needs that organization's key, which the location
+        // screen has once one is chosen.
+        if (!(
+          error instanceof ImportResultError &&
+          error.errorKey === ImportResultErrorKey.AccountMismatch
+        )) {
+          throw error;
+        }
+      }
+      return this.stage({
+        kind: "file",
+        importType: this.importType(),
+        format,
+        contents,
+        filePassword,
+        itemTypeCounts: result == null ? undefined : countCipherTypes(result.ciphers),
+      });
+    }
+
+    return {
+      kind: "imported",
+      result: await this.importService.import(importer, contents, undefined, undefined, false),
+    };
   }
 
   protected readonly submit = async (): Promise<void> => {
@@ -1160,6 +1344,14 @@ export class ImportControlsComponent {
     }
     if (this.primaryMode() === "direct" && this.directStep() === "intro") {
       this.continueFromIntro();
+      return;
+    }
+    if (this.keeperUi.loginActive()) {
+      this.keeperUi.answer();
+      return;
+    }
+    if (this.lastPassUi.loginActive()) {
+      this.lastPassUi.answer();
       return;
     }
 
@@ -1175,6 +1367,41 @@ export class ImportControlsComponent {
       this.filePasswordRequested.set(true);
       return;
     }
+    if (this.primaryMode() === "direct" && this.isKeeper()) {
+      // Not awaited: the login is interactive, so holding bitSubmit's pending state would keep
+      // Continue spinning and disable Back for its whole duration.
+      this.keeperLogin.set(this.runKeeperLogin());
+      return;
+    }
+    if (this.primaryMode() === "direct" && this.isLastPass()) {
+      // Not awaited, for the same reason as Keeper's.
+      this.lastPassLogin.set(this.runLastPassLogin());
+      return;
+    }
     await this.onContinue();
   };
+
+  /** Keeps the card busy from Continue until the import ends, however it ends. */
+  private async runKeeperLogin(): Promise<void> {
+    const session = this.keeperUi.begin();
+    try {
+      await this.onContinue();
+    } catch (error) {
+      this.logService.error(error);
+    } finally {
+      this.keeperUi.end(session);
+    }
+  }
+
+  /** Keeps the card busy from Continue until the import ends, however it ends. */
+  private async runLastPassLogin(): Promise<void> {
+    const session = this.lastPassUi.begin();
+    try {
+      await this.onContinue();
+    } catch (error) {
+      this.logService.error(error);
+    } finally {
+      this.lastPassUi.end(session);
+    }
+  }
 }

@@ -141,6 +141,8 @@ to more than the table can show, it scrolls horizontally (see
 the columns drift out of alignment, and they don't work with [virtual scrolling](#virtual-scrolling)
 at all. Stick to `px` / `fr` / `minmax`.
 
+For columns of buttons, see [Sizing action columns](#sizing-action-columns).
+
 The selection checkbox column is a fixed `56px` and isn't configurable.
 
 If no visible column can grow, the first visible column's max becomes `1fr` so rows still fill their
@@ -166,6 +168,41 @@ const table = defineTable<User, "actions">(users);
 ```
 
 `let row` is still typed as `User`.
+
+### Sizing action columns
+
+Buttons don't shrink or truncate, so size the column for them plus the cell's padding: `16px` each
+side, and `8px` before the `end` slot. Narrower, and focus rings get cut off at the cell's edge.
+
+| Column content                          | `slot="end"` | Default slot |
+| --------------------------------------- | ------------ | ------------ |
+| One icon button (`40px`)                | `80px`       | `72px`       |
+| One `size="small"` icon button (`32px`) | `72px`       | `64px`       |
+
+For more buttons in the `end` slot, add each one's width plus `8px`.
+
+Size text buttons for their longest translation, not the English label.
+
+### Revealing row actions on hover
+
+Each `<bit-row>` is a `bitHoverRevealContainer`, so add `bitHoverReveal` to a cell's action to show
+it only while the row is hovered or focused. See
+[Hover Reveal](?path=/docs/component-library-hover-reveal--docs).
+
+```html
+<bit-cell *bitCellDef="table.columns.actions; let row">
+  <button
+    slot="end"
+    type="button"
+    bitHoverReveal
+    bitIconButton="bwi-pencil-square"
+    size="small"
+    [label]="'Edit ' + row.name"
+  ></button>
+</bit-cell>
+```
+
+<Canvas of={stories.HoverReveal} />
 
 ### Reordering and hiding columns
 
@@ -490,6 +527,43 @@ controls, and a page input:
 
 <Canvas of={stories.Pagination} />
 
+### Range label
+
+To show which rows are on screen, pass a `[rangeLabel]` function to the `<bit-table-toolbar>`. It
+gets the `start`, `end`, and `total` row numbers of the current page and returns the text shown at
+the end of the toolbar's filter row, in place of the default "N items" count. You write the whole
+label, so you choose the noun and its plural forms and handle the empty case (`total` is 0). Build
+it from a message so it localizes:
+
+```ts
+import { TableRowRange } from "@bitwarden/components";
+
+protected readonly rangeLabel = ({ start, end, total }: TableRowRange) => {
+  if (total === 0) {
+    return this.i18nService.t("memberCount", "0");
+  }
+  if (total === 1) {
+    return this.i18nService.t("memberCountSingular");
+  }
+  return this.i18nService.t("memberRangeOfTotal", `${start}`, `${end}`, `${total}`);
+};
+```
+
+```html
+<bit-table-v2 [tableDef]="table">
+  <bit-table-toolbar [rangeLabel]="rangeLabel" />
+  …columns…
+  <bit-table-paginator [pageSize]="10" />
+</bit-table-v2>
+```
+
+The `start–end` run (e.g. "1–10") renders emphasized and the rest stays subtle. The toolbar finds
+the run by its numbers, so translations can reword the label or change the separator. A label
+without a run, such as "0 members", renders plain. Without a paginator, the range covers every
+filtered row.
+
+<Canvas of={stories.RangeLabel} />
+
 Pagination is **client-side** by default: the table pages its filtered and sorted rows, and the
 total ("of N") is the filtered row count. Bind `[(pageIndex)]` / `[(pageSize)]` to persist or
 restore the page.
@@ -701,5 +775,7 @@ two in one table — if you need sort, selection, or any other built-in feature,
   "Edit".
 - Sort buttons expose `aria-sort` on the header and `aria-pressed` on the button.
 - A row carries the hover fill and a focus ring whenever anything inside it is focused.
+- Rows are hover reveal containers. A `bitHoverReveal` row action stays focusable while hidden, so
+  give it a specific label too.
 - The select-all and row checkboxes are labelled for screen readers; override the label via the cell
   template if a row needs richer context.

@@ -46,7 +46,6 @@ import { OverflowItemDirective } from "../overflow-list";
 import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
-import { StatusLockupComponent } from "../status-lockup";
 import { TooltipDirective } from "../tooltip";
 import { TypographyModule } from "../typography";
 import { focusAfterRender } from "../utils/focus-after-render";
@@ -168,7 +167,6 @@ const CLEAR_FILTER = Symbol("clear-filter");
     CheckboxModule,
     FilterTreeRowDirective,
     IconTileComponent,
-    StatusLockupComponent,
     TooltipDirective,
     TypographyModule,
   ],
@@ -224,6 +222,12 @@ export class FilterMenuComponent
 
   /** Leading icon, shown on the chip and beside the filter's row in the responsive dialog. */
   readonly icon = input<BitwardenIcon>();
+
+  /**
+   * Shows the in-menu search however few options there are. Without it, the search shows once
+   * the menu has more than ten options.
+   */
+  readonly searchable = input(false, { transform: booleanAttribute });
 
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
@@ -302,7 +306,7 @@ export class FilterMenuComponent
     "has-[:focus-visible]:tw-bg-bg-brand-softer",
     "has-[:focus-visible]:tw-text-fg-heading",
     "has-[:disabled]:tw-cursor-default",
-    "has-[:disabled]:hover:tw-bg-background",
+    "has-[:disabled]:hover:tw-bg-bg-primary",
     "has-[:disabled]:!tw-text-fg-inactive",
   ];
 
@@ -392,8 +396,10 @@ export class FilterMenuComponent
   /** Whether any option has children — nesting requires `multiple`. */
   protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.expandable()));
 
-  /** Whether the menu has enough options to warrant the in-menu search box. */
-  protected readonly showSearch = computed(() => this.allOptions().length > SEARCH_THRESHOLD);
+  /** Whether to show the in-menu search box: opted in, or enough options to warrant it. */
+  protected readonly showSearch = computed(
+    () => this.searchable() || this.allOptions().length > SEARCH_THRESHOLD,
+  );
 
   /**
    * How many options the running search matched, or `undefined` when no search is running. Shown

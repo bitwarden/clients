@@ -1,6 +1,3 @@
-// NOTE: `InvoicePreviewClient` (this file) is the preview-driven cart client and is NOT the legacy
-// `PreviewInvoiceClient` in `preview-invoice.client.ts`, which returns only (Tax, Total). The two
-// coexist until the PM-40422 cleanup — check which one you mean before importing.
 import { inject, Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -33,13 +30,13 @@ export type OrganizationPlanChangePreviewRequest = {
   billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
 };
 
+export type OrganizationRestartPreviewRequest = {
+  billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
+};
+
 /**
  * Raw HTTP access to the cart preview endpoints. No adaptation and no flow context — callers go
  * through `InvoicePreviewService`, which owns both.
- *
- * Every route below is gated server-side by the `PM36631_PreviewDrivenCart` flag and returns 404
- * while the flag is off. 404s deliberately propagate so "route gated" stays distinguishable from
- * "no subscription".
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewClient {
@@ -115,6 +112,27 @@ export class InvoicePreviewClient {
     const json = await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/billing/subscription/plan-change/preview`,
+      request,
+      true,
+      true,
+    );
+
+    return new InvoicePreviewResponse(json);
+  };
+
+  /**
+   * Previews the invoice for restarting an organization's ended subscription.
+   * @param organizationId The ID of the organization whose subscription would be restarted.
+   * @param request The billing address the restart would be taxed against.
+   * @returns A promise that resolves to the invoice preview response.
+   */
+  previewOrganizationRestart = async (
+    organizationId: string,
+    request: OrganizationRestartPreviewRequest,
+  ): Promise<InvoicePreviewResponse> => {
+    const json = await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/billing/subscription/restart/preview`,
       request,
       true,
       true,

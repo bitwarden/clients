@@ -43,7 +43,6 @@ describe("IpcBackgroundService", () => {
       () =>
         ({
           init: jest.fn(),
-          start: jest.fn(),
           connectedEndpoints: () => connectedEndpoints,
         }) as unknown as BrowserForegroundIpcTransport,
     );

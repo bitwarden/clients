@@ -7,6 +7,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-block",
+    role: "list",
   },
 })
 export class ItemGroupComponent {}

@@ -13,6 +13,8 @@ on:
     paths:
       - 'apps/web/**'
       - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-pam/**'
+      - 'bitwarden_license/bit-pam-components/**'
       - 'bitwarden_license/bit-web/**'
       - 'libs/**'
       - '*'
@@ -27,6 +29,8 @@ on:
     paths:
       - 'apps/web/**'
       - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-pam/**'
+      - 'bitwarden_license/bit-pam-components/**'
       - 'bitwarden_license/bit-web/**'
       - 'libs/**'
       - '*'
@@ -664,3 +668,19 @@ jobs:
                 override_tag: process.env.OVERRIDE_TAG
               }
             });
+
+  trigger-downstream-build:
+    name: Trigger downstream build
+    if: github.event_name == 'push' && contains(fromJSON('["refs/heads/rc", "refs/heads/hotfix-rc-web"]'), github.ref)
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+    steps:
+      - name: Trigger downstream build
+        uses: bitwarden/gh-actions/trigger-actions@main
+        with:
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          task: build-downstream-artifacts
+          monitor-deployment: false

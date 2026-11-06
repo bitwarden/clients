@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Validators } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { map, of, Subject, throwError } from "rxjs";
+import { BehaviorSubject, map, of, Subject, throwError } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -14,12 +14,15 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { KeeperAuthError, KeeperAuthErrorCode } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
 import {
   CredentialKind,
+  ImportDestinations,
   ImportOption,
   ImportResult,
   ImportResultError,
@@ -27,7 +30,10 @@ import {
   UpgradeImportType,
 } from "../../models";
 import {
+  DefaultImportStagingService,
+  ImportDestinationServiceAbstraction,
   ImporterUpgradeCapabilities,
+  ImportStagingServiceAbstraction,
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
@@ -36,9 +42,10 @@ import {
   ImportSkippedItemsDialogComponent,
   ImportSuccessDialogComponent,
 } from "../dialog";
-import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
+import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
+import { LastPassAuthSession } from "./direct/lastpass/lastpass-auth-session";
 import { ImportControlsComponent } from "./import-controls.component";
 
 describe("ImportControlsComponent", () => {
@@ -53,8 +60,17 @@ describe("ImportControlsComponent", () => {
   let policyService: MockProxy<PolicyService>;
   let accountService: MockProxy<AccountService>;
   let syncService: MockProxy<SyncService>;
-  let keeperDirectImportService: MockProxy<KeeperDirectImportService>;
+  let keeperDirectImportService: MockProxy<KeeperDirectImportUpgradeService>;
   let lastPassDirectImportService: MockProxy<LastPassDirectImportService>;
+  let destinationService: MockProxy<ImportDestinationServiceAbstraction>;
+  let stagingService: DefaultImportStagingService;
+
+  const noStep: ImportDestinations = { options: [], hasStep: false };
+  // Assigned after mock(): a property passed to mock() is wrapped and its subscribe goes silent.
+  const destinationsEmitting = (destinations: ImportDestinations) =>
+    Object.assign(mock<ImportDestinationServiceAbstraction>(), {
+      destinations$: of(destinations),
+    });
 
   const component = () => fixture.componentInstance as any;
   const byId = (id: string) => fixture.debugElement.query(By.css(`#${id}`));
@@ -75,6 +91,8 @@ describe("ImportControlsComponent", () => {
   const baseProviders = () => [
     { provide: ImportUpgradeServiceAbstraction, useValue: importService },
     { provide: ImportUpgradeMetadataServiceAbstraction, useValue: importMetadataService },
+    { provide: ImportDestinationServiceAbstraction, useValue: destinationService },
+    { provide: ImportStagingServiceAbstraction, useValue: stagingService },
     { provide: PlatformUtilsService, useValue: platformUtilsService },
     { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
     { provide: LogService, useValue: logService },
@@ -84,7 +102,7 @@ describe("ImportControlsComponent", () => {
     { provide: PolicyService, useValue: policyService },
     { provide: AccountService, useValue: accountService },
     { provide: SyncService, useValue: syncService },
-    { provide: KeeperDirectImportService, useValue: keeperDirectImportService },
+    { provide: KeeperDirectImportUpgradeService, useValue: keeperDirectImportService },
     { provide: LastPassDirectImportService, useValue: lastPassDirectImportService },
     {
       provide: AbstractThemingService,
@@ -131,8 +149,10 @@ describe("ImportControlsComponent", () => {
     accountService.activeAccount$ = of({ id: "test-user-id" } as unknown as Account);
     syncService = mock<SyncService>();
     syncService.fullSync.mockResolvedValue(true);
-    keeperDirectImportService = mock<KeeperDirectImportService>();
+    keeperDirectImportService = mock<KeeperDirectImportUpgradeService>();
     lastPassDirectImportService = mock<LastPassDirectImportService>();
+    destinationService = destinationsEmitting(noStep);
+    stagingService = new DefaultImportStagingService();
 
     const options: Record<string, ImportOption> = {
       keeper: buildOption({
@@ -2418,7 +2438,7 @@ describe("ImportControlsComponent", () => {
       expect(byId("importer-controls_radio_paste")).toBeFalsy();
     });
 
-    it("returns to the upload screen, not step 1, when Back is pressed on the password card", async () => {
+    it("shows a fresh step 2, not step 1 or the upload page as left, when Back is pressed on the password card", async () => {
       await setup("bitwarden", ClientType.Web);
       const backSpy = jest.fn();
       component().back.subscribe(backSpy);
@@ -2432,6 +2452,7 @@ describe("ImportControlsComponent", () => {
       expect(component().needsFilePassword()).toBe(false);
       expect(component().formGroup.controls.file.value).toBeNull();
       expect(component().formGroup.controls.filePassword.value).toBe("");
+      expect(component().formGroup.controls.method.value).toBe("file");
       expect(byId("importer-controls_input_file")).toBeTruthy();
       expect(byId("importer-controls_input_file-password")).toBeFalsy();
 
@@ -2639,13 +2660,47 @@ describe("ImportControlsComponent", () => {
   });
 
   describe("outputs", () => {
-    it("emits back regardless of mode or sub-step", async () => {
+    it("emits back from step 2's first page", async () => {
       await setup("keeper", ClientType.Desktop);
       const backSpy = jest.fn();
       component().back.subscribe(backSpy);
 
       component().onBack();
 
+      expect(backSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows a fresh step 2 instead of leaving when Back is pressed on the credentials page", async () => {
+      await setup("keeper", ClientType.Desktop);
+      const backSpy = jest.fn();
+      component().back.subscribe(backSpy);
+      component().continueFromIntro();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+
+      component().onBack();
+
+      expect(backSpy).not.toHaveBeenCalled();
+      expect(component().directStep()).toBe("intro");
+      expect(component().formGroup.controls.keeperEmail.value).toBe("");
+
+      component().onBack();
+      expect(backSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows a fresh step 2 when Back is pressed after Import manually instead", async () => {
+      await setup("keeper", ClientType.Desktop);
+      const backSpy = jest.fn();
+      component().back.subscribe(backSpy);
+      component().toggleToManual();
+      expect(component().primaryMode()).toBe("manual");
+
+      component().onBack();
+
+      expect(backSpy).not.toHaveBeenCalled();
+      expect(component().primaryMode()).toBe("direct");
+      expect(component().directStep()).toBe("intro");
+
+      component().onBack();
       expect(backSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -3220,7 +3275,7 @@ describe("ImportControlsComponent", () => {
       expect(keeperDirectImportService.handleImport).toHaveBeenCalledWith(
         "user@example.com",
         expect.anything(),
-        undefined,
+        expect.anything(),
       );
       expect(importService.importImportResult).toHaveBeenCalledWith(
         result,
@@ -3320,6 +3375,7 @@ describe("ImportControlsComponent", () => {
       component().continue.subscribe(continueSpy);
 
       await component().submit();
+      await component().keeperLogin();
       expect(continueSpy).not.toHaveBeenCalled();
 
       const result = new ImportResult();
@@ -3327,6 +3383,7 @@ describe("ImportControlsComponent", () => {
       importService.importImportResult.mockResolvedValue(result);
 
       await component().submit();
+      await component().keeperLogin();
 
       expect(keeperDirectImportService.handleImport).toHaveBeenCalledTimes(2);
       expect(continueSpy).toHaveBeenCalledTimes(1);
@@ -3398,6 +3455,7 @@ describe("ImportControlsComponent", () => {
       expect(lastPassDirectImportService.handleImport).toHaveBeenCalledWith(
         "user@example.com",
         true,
+        expect.any(LastPassAuthSession),
       );
       expect(importService.getImporter).toHaveBeenCalledWith(
         "lastpasscsv",
@@ -3441,6 +3499,7 @@ describe("ImportControlsComponent", () => {
       component().continue.subscribe(continueSpy);
 
       await component().submit();
+      await component().lastPassLogin();
       expect(continueSpy).not.toHaveBeenCalled();
 
       lastPassDirectImportService.handleImport.mockResolvedValueOnce("url,username,password\n");
@@ -3448,6 +3507,7 @@ describe("ImportControlsComponent", () => {
       importService.import.mockResolvedValue(new ImportResult());
 
       await component().submit();
+      await component().lastPassLogin();
 
       expect(lastPassDirectImportService.handleImport).toHaveBeenCalledTimes(2);
       expect(continueSpy).toHaveBeenCalledTimes(1);
@@ -3532,6 +3592,255 @@ describe("ImportControlsComponent", () => {
         expect.objectContaining({ data: expect.any(Error) }),
       );
       expect(continueSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("with location selection", () => {
+    const withStep: ImportDestinations = {
+      options: [
+        { id: "myVault", kind: "myVault", sharedFolders: [], restrictions: [], removedTypes: [] },
+      ],
+      hasStep: true,
+    };
+
+    beforeEach(() => {
+      destinationService = destinationsEmitting(withStep);
+    });
+
+    it("parses without an organization, stages the raw file with that result, and emits continue with no sync or dialog", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      const importer = {} as any;
+      importService.getImporter.mockReturnValue(importer);
+      const result = new ImportResult();
+      result.ciphers = [CipherType.Login, CipherType.Login, CipherType.Card].map((type) =>
+        Object.assign(new CipherView(), { type }),
+      );
+      importService.parse.mockResolvedValue(result);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importService.getImporter).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Function),
+        undefined,
+      );
+      expect(importService.parse).toHaveBeenCalledWith(importer, "a,b");
+      expect(importService.import).not.toHaveBeenCalled();
+      // The parse itself is not kept: location selection parses again.
+      expect(stagingService.current()).toEqual({
+        kind: "file",
+        importType: "dashlane",
+        format: expect.any(String),
+        contents: "a,b",
+        filePassword: null,
+        itemTypeCounts: { [CipherType.Login]: 2, [CipherType.Card]: 1 },
+      });
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps the password the importer asked for, so location selection doesn't ask again", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      dialogService.open.mockReturnValue({ closed: of("file-secret") } as any);
+      let askForPassword!: () => Promise<string>;
+      importService.getImporter.mockImplementation((_format, callback) => {
+        askForPassword = callback;
+        return {} as any;
+      });
+      importService.parse.mockImplementation(async () => {
+        await askForPassword();
+        return new ImportResult();
+      });
+
+      await component().onContinue();
+
+      expect(stagingService.current()).toEqual(
+        expect.objectContaining({ kind: "file", filePassword: "file-secret" }),
+      );
+    });
+
+    it("stages an organization's encrypted export unparsed, for location selection to read with that organization's key", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.parse.mockRejectedValue(
+        new ImportResultError("importEncKeyError", ImportResultErrorKey.AccountMismatch),
+      );
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(stagingService.current()).toEqual(
+        expect.objectContaining({ kind: "file", contents: "a,b", itemTypeCounts: undefined }),
+      );
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("still fails an encrypted-export error that isn't an account mismatch", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.parse.mockRejectedValue(new ImportResultError("importEncKeyError"));
+
+      await component().onContinue();
+
+      expect(stagingService.current()).toBeUndefined();
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({ data: expect.any(Error) }),
+      );
+    });
+
+    it("decides once, at Continue, whether to stage: a destination lookup that re-emits mid-parse can't send the policy-gated items to the personal vault", async () => {
+      const destinations$ = new BehaviorSubject<ImportDestinations>(withStep);
+      destinationService = Object.assign(mock<ImportDestinationServiceAbstraction>(), {
+        destinations$,
+      });
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.parse.mockImplementation(async () => {
+        destinations$.next(noStep);
+        return new ImportResult();
+      });
+
+      await component().onContinue();
+
+      expect(importService.import).not.toHaveBeenCalled();
+      expect(importService.importImportResult).not.toHaveBeenCalled();
+      expect(stagingService.current()).toEqual(expect.objectContaining({ kind: "file" }));
+    });
+
+    it("stages the kdbx file and credentials instead of calling the SDK", async () => {
+      await setup("keepass", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new Uint8Array([1, 2, 3]).buffer),
+      } as unknown as File);
+      component().formGroup.controls.kdbxPassword.setValue("hunter2");
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+
+      expect(importService.importWithSdk).not.toHaveBeenCalled();
+      expect(stagingService.current()).toEqual({
+        kind: "sdk",
+        format: "keepasskdbx",
+        file: new Uint8Array([1, 2, 3]),
+        credentials: { kind: "passwordWithKeyFile", password: "hunter2", keyFile: null },
+      });
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("validates and stages a fetched Keeper vault instead of importing it", async () => {
+      await setup("keeper", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+      const result = new ImportResult();
+      keeperDirectImportService.handleImport.mockResolvedValue({ result, errors: [] });
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importService.validateParsed).toHaveBeenCalledWith(result);
+      expect(importService.importImportResult).not.toHaveBeenCalled();
+      expect(stagingService.current()).toEqual({ kind: "parsed", importType: "keeper", result });
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("stages nothing and shows the error dialog when the file can't be parsed", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.parse.mockRejectedValue(new Error("importFormatError"));
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(stagingService.current()).toBeUndefined();
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({ data: expect.any(Error) }),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not block on the ownership policy when there is an importable org", async () => {
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.parse.mockResolvedValue(new ImportResult());
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(stagingService.current()).toBeDefined();
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("still blocks on the ownership policy when there is no importable org", async () => {
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
+      destinationService = destinationsEmitting({ options: [], hasStep: false });
+      await setup("dashlane", ClientType.Web);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "personalOwnershipPolicyInEffectImports" }),
+      );
+      expect(stagingService.current()).toBeUndefined();
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("fails closed with the generic error, and logs only the error name, when the destination lookup fails", async () => {
+      destinationService = Object.assign(mock<ImportDestinationServiceAbstraction>(), {
+        destinations$: throwError(() => new TypeError("lookup failed for Acme Co")),
+      });
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "errorOccurred" }),
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        "Error loading import destinations:",
+        "TypeError",
+      );
+      expect(importService.parse).not.toHaveBeenCalled();
+      expect(importService.import).not.toHaveBeenCalled();
+      expect(stagingService.current()).toBeUndefined();
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("keeps Continue blocked until the destination lookup resolves", async () => {
+      destinationService = Object.assign(mock<ImportDestinationServiceAbstraction>(), {
+        destinations$: new Subject<ImportDestinations>().asObservable(),
+      });
+      await setup("dashlane", ClientType.Web);
+
+      expect(component().continueBlocked()).toBe(true);
     });
   });
 });

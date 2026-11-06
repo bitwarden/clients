@@ -41,8 +41,10 @@ export class DeleteCommand {
       case "attachment":
         return await this.deleteAttachment(id, normalizedOptions);
       case "folder":
+      case "my-folder":
         return await this.deleteFolder(id);
       case "org-collection":
+      case "org-shared-folder":
         return await this.deleteOrganizationCollection(id, normalizedOptions);
       default:
         return Response.badRequest("Unknown object.");

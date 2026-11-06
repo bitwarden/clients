@@ -1,21 +1,11 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  IpcMessage,
-  isIpcMessage,
-  reconstructIpcMessage,
-  SerializedOutgoingMessage,
-} from "@bitwarden/common/platform/ipc";
-import { Endpoint, IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
+import { IpcMessage, isIpcMessage, reconstructIpcMessage } from "@bitwarden/common/platform/ipc";
+import { Endpoint, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
 
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
 import { IPC_FOREGROUND_PORT_NAME, IPC_FOREGROUND_WAKE_COMMAND } from "./ipc-foreground-port-name";
-
-// Matches the SDK's incoming channel capacity, so draining the held messages cannot overflow it.
-const MAX_PENDING_MESSAGES = 20;
-
-type ReceivedMessage = { message: SerializedOutgoingMessage; source: Source };
 
 /**
  * Background side of the transport between the background and extension pages (popup, popout,
@@ -25,8 +15,6 @@ type ReceivedMessage = { message: SerializedOutgoingMessage; source: Source };
 export class BrowserForegroundIpcTransport {
   private ports = new Map<number, chrome.runtime.Port>();
   private nextId = 1;
-  private started = false;
-  private pending: ReceivedMessage[] = [];
 
   constructor(
     private logService: LogService,
@@ -34,10 +22,7 @@ export class BrowserForegroundIpcTransport {
   ) {}
 
   /**
-   * Starts accepting ports and asks already open extension pages to connect. Must run
-   * synchronously during service worker startup so a port that wakes the worker is not missed.
-   * Up to {@link MAX_PENDING_MESSAGES} messages are held until {@link start} is called, dropping
-   * the oldest.
+   * Starts accepting ports and asks already open extension pages to connect.
    */
   init() {
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
@@ -60,7 +45,8 @@ export class BrowserForegroundIpcTransport {
         ) {
           return;
         }
-        this.deliver({ message: reconstructIpcMessage(message).message, source });
+        const { destination, payload, topic } = reconstructIpcMessage(message).message;
+        this.receive(new IncomingMessage(new Uint8Array(payload), destination, source, topic));
       };
 
       port.onMessage.addListener(onMessage);
@@ -74,16 +60,6 @@ export class BrowserForegroundIpcTransport {
     });
 
     this.wakeForegrounds();
-  }
-
-  /**
-   * Delivers held and future messages to the IPC client. Requires the SDK to be loaded.
-   */
-  start() {
-    this.started = true;
-    const pending = this.pending;
-    this.pending = [];
-    pending.forEach((message) => this.deliver(message));
   }
 
   /**
@@ -130,23 +106,5 @@ export class BrowserForegroundIpcTransport {
     } catch (e) {
       this.logService.warning("[IPC] Failed to wake extension pages", e);
     }
-  }
-
-  private deliver({ message, source }: ReceivedMessage) {
-    if (!this.started) {
-      if (this.pending.length >= MAX_PENDING_MESSAGES) {
-        this.pending.shift();
-      }
-      this.pending.push({ message, source });
-      return;
-    }
-    this.receive(
-      new IncomingMessage(
-        new Uint8Array(message.payload),
-        message.destination,
-        source,
-        message.topic,
-      ),
-    );
   }
 }

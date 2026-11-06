@@ -88,10 +88,11 @@ const getPasswordManagerSeatTranslationKey = (
         return membershipKeysByTier[planTier];
       }
       break;
-    // Org purchase surfaces (checkout and plan-change) show per-seat plan-price copy; premium is
+    // Org purchase surfaces (checkout, plan-change and restart) show per-seat plan-price copy; premium is
     // not an org tier, so the tier guard leaves it unmapped. The subscription page diverges below.
     case InvoicePreviewFlowContext.OrganizationPlanChange:
     case InvoicePreviewFlowContext.OrganizationCheckout:
+    case InvoicePreviewFlowContext.RestartSubscription:
       if (planTier === "families" || planTier === "teams" || planTier === "enterprise") {
         return "passwordManagerPlanPrice";
       }

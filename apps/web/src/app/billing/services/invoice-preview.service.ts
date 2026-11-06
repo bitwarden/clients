@@ -6,6 +6,7 @@ import { adaptInvoicePreviewToCart, Cart, InvoicePreviewFlowContext } from "@bit
 import {
   InvoicePreviewClient,
   OrganizationPlanChangePreviewRequest,
+  OrganizationRestartPreviewRequest,
   OrganizationPurchasePreviewRequest,
   PremiumOrgUpgradePreviewRequest,
   PremiumPurchasePreviewRequest,
@@ -15,10 +16,9 @@ import {
  * Fetches server-calculated invoice previews and adapts them into render-ready {@link Cart}s
  * that bind directly to `<billing-cart-summary>`.
  *
- * When the preview-driven cart feature flag (PM-36631) is on, checkout screens call this service
- * instead of deriving cart contents locally. Each method serves exactly one checkout flow and
- * supplies that flow's `InvoicePreviewFlowContext` internally, so components never pass a flow
- * context and cannot pick the wrong translation copy for their screen.
+ * Checkout screens call this service instead of deriving cart contents locally. Each method serves
+ * exactly one checkout flow and supplies that flow's `InvoicePreviewFlowContext` internally, so
+ * components never pass a flow context and cannot pick the wrong translation copy for their screen.
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewService {
@@ -89,6 +89,22 @@ export class InvoicePreviewService {
     return adaptInvoicePreviewToCart(
       preview,
       InvoicePreviewFlowContext.OrganizationPlanChange,
+      this.logService,
+    );
+  };
+
+  previewRestartCart = async (
+    organizationId: string,
+    request: OrganizationRestartPreviewRequest,
+  ): Promise<Cart> => {
+    const preview = await this.invoicePreviewClient.previewOrganizationRestart(
+      organizationId,
+      request,
+    );
+
+    return adaptInvoicePreviewToCart(
+      preview,
+      InvoicePreviewFlowContext.RestartSubscription,
       this.logService,
     );
   };
