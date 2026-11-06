@@ -12,6 +12,7 @@ import { ITrustedDeviceUserDecryptionOptionServerResponse } from "@bitwarden/com
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
@@ -290,6 +291,57 @@ describe("SsoLoginStrategy", () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
+    });
+
+    describe("with the SdkDeviceTrust flag on", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag.mockImplementation(
+          async (flag) => flag === FeatureFlag.SdkDeviceTrust,
+        );
+      });
+
+      it("unlocks through the SDK with the server's trusted device keys", async () => {
+        apiService.postIdentityToken.mockResolvedValue(
+          identityTokenResponseFactory(undefined, userDecryptionOptsServerResponseWithTdeOption),
+        );
+
+        await ssoLoginStrategy.logIn(credentials);
+
+        expect(unlockService.unlockWithTrustedDevice).toHaveBeenCalledWith(userId, {
+          encryptedPrivateKey: mockEncDevicePrivateKey,
+          encryptedUserKey: mockEncUserKey,
+        });
+        expect(deviceTrustService.getDeviceKey).not.toHaveBeenCalled();
+        expect(deviceTrustService.decryptUserKeyWithDeviceKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+      });
+
+      it("leaves the user locked when the device cannot unlock", async () => {
+        apiService.postIdentityToken.mockResolvedValue(
+          identityTokenResponseFactory(undefined, userDecryptionOptsServerResponseWithTdeOption),
+        );
+        unlockService.unlockWithTrustedDevice.mockRejectedValue(
+          Object.assign(new Error("Device trust was lost"), {
+            name: "EncryptionSettingsError",
+            variant: "DeviceTrustLost",
+          }),
+        );
+
+        await expect(ssoLoginStrategy.logIn(credentials)).resolves.toBeDefined();
+
+        expect(logService.warning).toHaveBeenCalledWith(
+          "Unable to unlock user with trusted device: DeviceTrustLost",
+        );
+      });
+
+      it("rethrows unexpected failures", async () => {
+        apiService.postIdentityToken.mockResolvedValue(
+          identityTokenResponseFactory(undefined, userDecryptionOptsServerResponseWithTdeOption),
+        );
+        unlockService.unlockWithTrustedDevice.mockRejectedValue(new Error("boom"));
+
+        await expect(ssoLoginStrategy.logIn(credentials)).rejects.toThrow("boom");
+      });
     });
 
     it("decrypts and sets user key when trusted device decryption option exists with valid device key and enc key data", async () => {

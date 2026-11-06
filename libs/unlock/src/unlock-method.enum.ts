@@ -13,5 +13,6 @@ export const UnlockMethod = Object.freeze({
   DecryptedUserKey: "decryptedUserKey",
   SharedUnlock: "sharedUnlock",
   AutoKey: "autoKey",
+  TrustedDevice: "trustedDevice",
 } as const);
 export type UnlockMethod = (typeof UnlockMethod)[keyof typeof UnlockMethod];

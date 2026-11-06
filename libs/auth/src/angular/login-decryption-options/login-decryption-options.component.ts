@@ -39,7 +39,6 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -50,7 +49,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -152,7 +151,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private validationService: ValidationService,
     private logoutService: LogoutService,
     private registerSdkService: RegisterSdkService,
-    private appIdService: AppIdService,
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private authService: AuthService,
@@ -369,12 +367,13 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         FeatureFlag.PM27279_V2RegistrationTdeJit,
       );
       if (useSdkV2Creation) {
-        const deviceIdentifier = await this.appIdService.getAppId();
         const userId = this.activeAccountId;
         const organizationId = this.newUserOrgId;
 
         const orgKeyResponse = await this.organizationApiService.getKeys(organizationId);
-        const register_result = await firstValueFrom(
+        // The SDK posts the keys, enrolls in account recovery, persists the account state,
+        // unlocks the registration client and trusts this device if the user chose to.
+        await firstValueFrom(
           this.registerSdkService.registerClient$(userId).pipe(
             concatMap(async (sdk) => {
               if (!sdk) {
@@ -382,44 +381,21 @@ export class LoginDecryptionOptionsComponent implements OnInit {
               }
 
               using ref = sdk.take();
-              return await ref.value
+              await ref.value
                 .auth()
                 .registration()
                 .post_keys_for_tde_registration({
                   org_id: asUuid<SdkOrganizationId>(organizationId),
                   org_public_key: orgKeyResponse.publicKey,
                   user_id: asUuid<SdkUserId>(userId),
-                  device_identifier: deviceIdentifier,
-                  trust_device: this.formGroup.value.rememberDevice,
+                  email: this.email,
+                  trust: this.formGroup.value.rememberDevice ? "Trust" : "DontTrust",
                 });
             }),
           ),
         );
-        // The keys returned here can only be v2 keys, since the SDK only implements returning V2 keys.
-        if ("V1" in register_result.account_cryptographic_state) {
-          throw new Error("Unexpected V1 account cryptographic state");
-        }
 
-        // Note: When SDK state management matures, the state writes and the unlock below should all
-        // be moved into post_keys_for_tde_registration
-        // Set account cryptography state
-        await this.accountCryptographicStateService.setAccountCryptographicState(
-          register_result.account_cryptographic_state,
-          userId,
-        );
-
-        // TDE unlock
-        await this.deviceTrustService.setDeviceKey(
-          userId,
-          SymmetricCryptoKey.fromString(register_result.device_key) as DeviceKey,
-        );
-
-        // User is now unlocked. Unlocking initializes the SDK from state, so it has to run after
-        // the account cryptographic state above has been persisted.
-        await this.unlockService.unlockWithDecryptedUserKey(
-          userId,
-          SymmetricCryptoKey.fromString(register_result.user_key),
-        );
+        await this.unlockService.completeUnlockAfterRegistration(userId);
       } else {
         const { publicKey, privateKey } = await this.initAccount(this.activeAccountId);
         const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);

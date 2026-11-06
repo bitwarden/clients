@@ -12,6 +12,7 @@ import {
   mockManagedSettingsService,
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
+import { DeviceTrustServiceAbstraction } from "../../../key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { UserId } from "../../../types/guid";
 import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
@@ -75,6 +76,7 @@ describe("DefaultRegisterSdkService", () => {
         configService,
         mockManagedSettingsService(),
         appIdService,
+        () => mock<DeviceTrustServiceAbstraction>(),
       );
     });
 

@@ -794,6 +794,7 @@ export class ServiceContainer {
       this.configService,
       managedSettingsService,
       this.appIdService,
+      () => this.deviceTrustService,
       customUserAgent,
     );
 

@@ -1030,6 +1030,7 @@ export default class MainBackground {
       this.configService,
       this.managedSettingsService,
       this.appIdService,
+      () => this.deviceTrustService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(

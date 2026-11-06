@@ -30,6 +30,7 @@ import {
   Kdf,
   MasterPasswordUnlockData,
   PasswordManagerClient,
+  TrustedDeviceOption,
   V2UpgradeToken,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
@@ -164,6 +165,26 @@ export class DefaultUnlockService implements UnlockService {
         },
       },
       method,
+    );
+  }
+
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
+  async unlockWithTrustedDevice(userId: UserId, option: TrustedDeviceOption): Promise<void> {
+    await this.unlockWithMethod(userId, { trustedDevice: { option } }, UnlockMethod.TrustedDevice);
+  }
+
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
+  async completeUnlockAfterRegistration(userId: UserId): Promise<void> {
+    await firstValueFrom(
+      this.registerSdkService.registerClient$(userId).pipe(
+        map(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          await this.runOnUnlockSideEffects(userId, ref, UnlockMethod.DecryptedUserKey);
+        }),
+      ),
     );
   }
 
