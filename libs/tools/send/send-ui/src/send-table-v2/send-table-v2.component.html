@@ -4,7 +4,7 @@
     @if (!disableSend()) {
       <tools-new-send-dropdown-v2 buttonType="primary" (addSend)="onAddSend($event)" slot="end" />
     }
-    <bit-filter-menu key="type" placeholderText="Type" [unsetLabel]="'all' | i18n">
+    <bit-filter-menu key="type" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
       <bit-filter-option [value]="SendType.Text">{{ "sendTypeText" | i18n }}</bit-filter-option>
       <bit-filter-option [value]="SendType.File">{{ "sendTypeFile" | i18n }}</bit-filter-option>
       <bit-filter-option [value]="SendType.Item">{{ "item" | i18n }}</bit-filter-option>
