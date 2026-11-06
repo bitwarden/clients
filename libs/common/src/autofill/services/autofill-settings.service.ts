@@ -189,6 +189,15 @@ export abstract class AutofillSettingsServiceAbstraction {
    * active user.
    */
   resolvedEnableBasicAuthResponse$: Observable<boolean>;
+  /**
+   * Whether HTTP authentication challenges may be answered from the active user's vault, gated on
+   * the {@link FeatureFlag.EnableBasicAuthResponse} flag. This reports availability only; it does
+   * not make any login eligible. A login is answered when the user setting
+   * ({@link resolvedEnableBasicAuthResponse$}) is on, or when the login itself has opted in.
+   *
+   * Emits `false` while there is no active user, and follows changes of active user.
+   */
+  httpAuthenticationAvailable$: Observable<boolean>;
   enableContextMenu$: Observable<boolean>;
   setEnableContextMenu: (newValue: boolean) => Promise<void>;
   clearClipboardDelay$: Observable<ClearClipboardDelaySetting>;
@@ -238,6 +247,7 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
   private enableBasicAuthResponseState: ActiveUserState<boolean>;
   readonly enableBasicAuthResponse$: Observable<boolean>;
   readonly resolvedEnableBasicAuthResponse$: Observable<boolean>;
+  readonly httpAuthenticationAvailable$: Observable<boolean>;
 
   private enableContextMenuState: GlobalState<boolean>;
   readonly enableContextMenu$: Observable<boolean>;
@@ -361,6 +371,18 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
             ]).pipe(
               map(([userSetting, featureFlag]) => featureFlag === true && userSetting === true),
             ),
+      ),
+      distinctUntilChanged(),
+    );
+
+    this.httpAuthenticationAvailable$ = this.accountService.activeAccount$.pipe(
+      getOptionalUserId,
+      switchMap((userId) =>
+        userId == null
+          ? of(false)
+          : this.configService
+              .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
+              .pipe(map((featureFlag) => featureFlag === true)),
       ),
       distinctUntilChanged(),
     );
