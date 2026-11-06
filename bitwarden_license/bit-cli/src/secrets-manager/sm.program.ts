@@ -555,11 +555,6 @@ export class SmProgram extends BaseProgram {
             writeLn("    --expires accepts an ISO 8601 date, or never (also none) for a token");
             writeLn("    that does not expire. Omitting --expires is the same as never.");
             writeLn("");
-            writeLn("    With `bw serve`, `expires` is required in the JSON body of");
-            writeLn(
-              "    POST /sm/<organizationid>/machine-accounts/<machineaccountid>/access-tokens.",
-            );
-            writeLn("");
             writeLn("  Examples:");
             writeLn("");
             writeLn(
