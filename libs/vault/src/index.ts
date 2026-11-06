@@ -173,6 +173,7 @@ export {
 } from "./tokens/collection-dialog.token";
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
+export { CIPHER_SHARE_ACCESS, CipherShareAccess } from "./tokens/cipher-share-access.token";
 export {
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavOrganizationOptions,
