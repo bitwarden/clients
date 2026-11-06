@@ -1,4 +1,11 @@
-import { Component, Directive, importProvidersFrom, Input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Directive,
+  importProvidersFrom,
+  Input,
+  signal,
+} from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
@@ -156,9 +163,8 @@ const mockCoachmarkService: Partial<CoachmarkService> = {
   completeTour: () => Promise.resolve(),
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "story-content",
   template: ``,
   standalone: false,

@@ -1,4 +1,10 @@
-import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Directive,
+  importProvidersFrom,
+  Input,
+} from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, Observable, of } from "rxjs";
@@ -97,18 +103,16 @@ class MockBillingAccountProfileStateService implements Partial<BillingAccountPro
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "story-layout",
   template: `<ng-content></ng-content>`,
   standalone: false,
 })
 class StoryLayoutComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "story-content",
   template: ``,
   standalone: false,
@@ -219,7 +223,7 @@ const Template: Story = {
         <product-switcher-content #content></product-switcher-content>
         <div class="tw-h-40">
           <div class="cdk-overlay-pane bit-menu-panel">
-            <ng-container *ngTemplateOutlet="content?.menu?.templateRef()"></ng-container>
+            <ng-container *ngTemplateOutlet="content.menu()?.templateRef()"></ng-container>
           </div>
         </div>
       </div>
