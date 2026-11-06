@@ -75,6 +75,8 @@ export default {
                   return "Applied proration credits";
                 case "passwordManagerProratedCharge":
                   return "Password Manager prorated charge";
+                case "prorationChargeMayDiffer":
+                  return "Your final charge may differ slightly, since proration is calculated up to the moment you submit.";
                 case "discount":
                   return "discount";
                 case "appliedBalance":
@@ -433,6 +435,28 @@ export const WithCredit: Story = {
         translationKey: "premiumSubscriptionCredit",
         value: 25.0,
       },
+      estimatedTax: 10.0,
+    } satisfies Cart,
+  },
+};
+
+export const WithProrationNote: Story = {
+  name: "With Proration Note (Plan Change)",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+      },
+      cadence: "monthly",
+      credit: {
+        translationKey: "appliedProrationCredits",
+        value: 25.0,
+      },
+      showProrationNote: true,
       estimatedTax: 10.0,
     } satisfies Cart,
   },

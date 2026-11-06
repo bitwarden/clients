@@ -54,9 +54,6 @@ export class DesktopAutotypePairingUri {
    */
   static fromString(uri: string): DesktopAutotypePairingUri | null {
     try {
-      // Throws if the pairing URI is not a valid URL
-      new URL(uri);
-
       if (!uri.startsWith(PAIRING_URI_BASE) || uri.includes("#")) {
         return null;
       }
@@ -79,7 +76,7 @@ export class DesktopAutotypePairingUri {
       );
       return new DesktopAutotypePairingUri(version, data, unknownParams);
     } catch {
-      // Invalid URLs, base64url, and JSON are all treated as "not a pairing URI"
+      // Invalid base64url and JSON, and non-strings at runtime, are treated as "not a pairing URI"
       return null;
     }
   }
