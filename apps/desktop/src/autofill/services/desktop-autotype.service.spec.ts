@@ -15,6 +15,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
+import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
+
 import { DesktopAutotypeGaPolicyService } from "./desktop-autotype-ga-policy.service";
 import { DesktopAutotypeService } from "./desktop-autotype.service";
 
@@ -38,8 +40,9 @@ describe("DesktopAutotypeService", () => {
   let mockAutotypeKeyboardShortcutState: FakeGlobalState<string[]>;
 
   let autotypeEnabledSubject: BehaviorSubject<boolean | null>;
-  let autotypeKeyboardShortcutSubject: BehaviorSubject<string[]>;
+  let autotypeKeyboardShortcutSubject: BehaviorSubject<string[] | null>;
   let autotypeGaPolicySubject: BehaviorSubject<boolean | null>;
+  let autotypeGaPolicyShortcutSubject: BehaviorSubject<string[] | null>;
   let activeAccountSubject: BehaviorSubject<Account | null>;
   let activeAccountStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let hasPremiumSubject: BehaviorSubject<boolean>;
@@ -62,8 +65,9 @@ describe("DesktopAutotypeService", () => {
 
   beforeEach(() => {
     autotypeEnabledSubject = new BehaviorSubject<boolean | null>(null);
-    autotypeKeyboardShortcutSubject = new BehaviorSubject<string[]>(["Control", "Alt", "B"]);
+    autotypeKeyboardShortcutSubject = new BehaviorSubject<string[] | null>(["Control", "Alt", "B"]);
     autotypeGaPolicySubject = new BehaviorSubject<boolean | null>(null);
+    autotypeGaPolicyShortcutSubject = new BehaviorSubject<string[] | null>(null);
     activeAccountSubject = new BehaviorSubject<Account | null>({
       id: "user-123" as UserId,
       email: "user@bitwarden.com",
@@ -143,7 +147,10 @@ describe("DesktopAutotypeService", () => {
         },
         {
           provide: DesktopAutotypeGaPolicyService,
-          useValue: { autotypeGaDefaultSetting$: autotypeGaPolicySubject.asObservable() },
+          useValue: {
+            autotypeGaDefaultSetting$: autotypeGaPolicySubject.asObservable(),
+            autotypeGaDefaultKeyboardShortcut$: autotypeGaPolicyShortcutSubject.asObservable(),
+          },
         },
         { provide: LogService, useValue: mock<LogService>() },
       ],
@@ -235,6 +242,54 @@ describe("DesktopAutotypeService", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(autotypeEnabledSubject.value).toBe(false);
+    });
+
+    it("follows a later policy shortcut without storing it", async () => {
+      autotypeKeyboardShortcutSubject.next(null);
+      autotypeGaPolicyShortcutSubject.next(["Super", "K"]);
+
+      await service.init();
+      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual(["Super", "K"]);
+
+      autotypeGaPolicyShortcutSubject.next(["Alt", "Q"]);
+
+      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual(["Alt", "Q"]);
+      expect(mockAutotypeKeyboardShortcutState.update).not.toHaveBeenCalled();
+      expect(autotypeKeyboardShortcutSubject.value).toBeNull();
+    });
+
+    it("keeps a local keyboard shortcut ahead of the policy", async () => {
+      autotypeKeyboardShortcutSubject.next(["Control", "Alt", "A"]);
+      autotypeGaPolicyShortcutSubject.next(["Super", "K"]);
+
+      await service.init();
+
+      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual([
+        "Control",
+        "Alt",
+        "A",
+      ]);
+      expect(mockAutotypeKeyboardShortcutState.update).not.toHaveBeenCalled();
+
+      autotypeGaPolicyShortcutSubject.next(["Alt", "Q"]);
+
+      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual([
+        "Control",
+        "Alt",
+        "A",
+      ]);
+    });
+
+    it("uses the built-in shortcut when there is no local shortcut and no policy shortcut", async () => {
+      autotypeKeyboardShortcutSubject.next(null);
+
+      await service.init();
+
+      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual(
+        DEFAULT_KEYBOARD_SHORTCUT,
+      );
+      expect(mockAutotypeKeyboardShortcutState.update).not.toHaveBeenCalled();
+      expect(autotypeKeyboardShortcutSubject.value).toBeNull();
     });
   });
 

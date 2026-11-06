@@ -9460,6 +9460,33 @@
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
   },
+  "keyboardShortcut": {
+    "message": "Keyboard shortcut"
+  },
+  "appAutofillShortcut": {
+    "message": "App autofill shortcut"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Members can change this keyboard shortcut at any time."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Use the Bitwarden default shortcut: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Enter your own custom shortcut."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Include Ctrl, Alt, or Win and at least 1 letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
+  },
   "disableSend": {
     "message": "Remove Send"
   },
