@@ -28,6 +28,7 @@ export type Cart = {
   };
   cadence: "annually" | "monthly";
   hidePricingTerm?: boolean;
+  showProrationNote?: boolean;
   discounts?: CartDiscount[];
   credit?: Credit;
   estimatedTax: number;
