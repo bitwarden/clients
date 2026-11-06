@@ -58,7 +58,13 @@ export function parseSmIds(
 }
 
 function isMissing(value: unknown): boolean {
-  return value == null || (typeof value === "string" && Utils.isNullOrWhitespace(value));
+  if (value == null) {
+    return true;
+  }
+  if (typeof value !== "string") {
+    return false;
+  }
+  return Utils.isNullOrWhitespace(value);
 }
 
 /**
@@ -68,19 +74,18 @@ export async function parseSmRequest<T extends object>(
   requestJson: unknown,
 ): Promise<{ request: Partial<T>; error?: undefined } | { request?: undefined; error: Response }> {
   const isServe = process.env.BW_SERVE === "true";
-  if (!isServe && isMissing(requestJson)) {
-    requestJson = await CliUtils.readStdin();
-  }
-  if (isMissing(requestJson)) {
+  const shouldReadStdin = !isServe && isMissing(requestJson);
+  const input = shouldReadStdin ? await CliUtils.readStdin() : requestJson;
+  if (isMissing(input)) {
     return { error: Response.badRequest("`requestJson` was not provided.") };
   }
 
   let request: unknown;
-  if (typeof requestJson !== "string") {
-    request = requestJson;
+  if (typeof input !== "string") {
+    request = input;
   } else {
     try {
-      request = JSON.parse(Buffer.from(requestJson, "base64").toString());
+      request = JSON.parse(Buffer.from(input, "base64").toString());
     } catch {
       return { error: Response.badRequest("Error parsing the encoded request data.") };
     }
