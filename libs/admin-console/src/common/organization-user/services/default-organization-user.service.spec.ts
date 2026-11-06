@@ -36,8 +36,9 @@ describe("DefaultOrganizationUserService", () => {
   let accountService: jest.Mocked<AccountService>;
   let i18nService: jest.Mocked<I18nService>;
 
-  const mockOrganization = new Organization();
-  mockOrganization.id = "org-123" as OrganizationId;
+  const mockOrganization = Object.assign(new Organization(), {
+    id: "org-123" as OrganizationId,
+  });
 
   const mockUserId = "user-123";
   const mockPublicKey = new Uint8Array(64) as CsprngArray;
@@ -291,10 +292,11 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = new Organization();
-        org.id = mockOrganization.id;
-        org.useMyItems = true;
-        org.usePolicies = true;
+        const org = Object.assign(new Organization(), {
+          id: mockOrganization.id,
+          useMyItems: true,
+          usePolicies: true,
+        });
 
         service.updateUser(org, mockUserId, request).subscribe({
           next: () => {
@@ -321,10 +323,11 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = new Organization();
-        org.id = mockOrganization.id;
-        org.useMyItems = true;
-        org.usePolicies = true;
+        const org = Object.assign(new Organization(), {
+          id: mockOrganization.id,
+          useMyItems: true,
+          usePolicies: true,
+        });
 
         service.updateUser(org, mockUserId, request).subscribe({
           next: () => {
@@ -356,10 +359,11 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = new Organization();
-        org.id = mockOrganization.id;
-        org.useMyItems = false;
-        org.usePolicies = true;
+        const org = Object.assign(new Organization(), {
+          id: mockOrganization.id,
+          useMyItems: false,
+          usePolicies: true,
+        });
 
         service.updateUser(org, mockUserId, request).subscribe({
           next: () => {

@@ -729,11 +729,11 @@ describe("OrganizationUserResetPasswordService", () => {
 });
 
 function createOrganization(id: string, name: string, resetPasswordEnrolled = true): Organization {
-  const org = new Organization();
-  org.id = id as OrganizationId;
-  org.name = name;
-  org.identifier = name;
-  org.isMember = true;
-  org.resetPasswordEnrolled = resetPasswordEnrolled;
-  return org;
+  return Object.assign(new Organization(), {
+    id: id as OrganizationId,
+    name,
+    identifier: name,
+    isMember: true,
+    resetPasswordEnrolled,
+  });
 }

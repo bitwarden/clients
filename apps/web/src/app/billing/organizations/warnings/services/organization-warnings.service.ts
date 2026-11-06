@@ -202,7 +202,7 @@ export class OrganizationWarningsService {
               title: this.i18nService.t("suspendedOrganizationTitle", organization.name),
               content: {
                 key: "suspendedManagedOrgMessage",
-                placeholders: [organization.providerName],
+                placeholders: [organization.providerName ?? ""],
               },
               type: "danger",
               acceptButtonText: this.i18nService.t("close"),

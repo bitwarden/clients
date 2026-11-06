@@ -29,11 +29,11 @@ describe("OrganizationMembersService", () => {
   const mockOrganizationId = "org-123" as OrganizationId;
 
   const createMockOrganization = (overrides: Partial<Organization> = {}): Organization => {
-    const org = new Organization();
-    org.id = mockOrganizationId;
-    org.useGroups = false;
-
-    return Object.assign(org, overrides);
+    return Object.assign(new Organization(), {
+      id: mockOrganizationId,
+      useGroups: false,
+      ...overrides,
+    });
   };
 
   const createMockUserResponse = (

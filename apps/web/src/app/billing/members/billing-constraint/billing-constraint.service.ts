@@ -44,7 +44,7 @@ export class BillingConstraintService {
     }
     const totalSeats = organization.seats;
 
-    if (occupiedSeats < totalSeats) {
+    if (totalSeats == null || occupiedSeats < totalSeats) {
       return { canAddUsers: true };
     }
 
@@ -80,7 +80,10 @@ export class BillingConstraintService {
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("seatLimitReachedContactProvider", organization.seats),
+          message: this.i18nService.t(
+            "seatLimitReachedContactProvider",
+            organization.seats ?? undefined,
+          ),
         });
         return true;
 
@@ -97,7 +100,10 @@ export class BillingConstraintService {
           this.toastService.showToast({
             variant: "error",
             title: this.i18nService.t("errorOccurred"),
-            message: this.i18nService.t("seatLimitReachedContactOwner", organization.seats),
+            message: this.i18nService.t(
+              "seatLimitReachedContactOwner",
+              organization.seats ?? undefined,
+            ),
           });
           return true;
         }
@@ -162,7 +168,7 @@ export class BillingConstraintService {
 
   private getSeatLimitReachedDialogContent(organization: Organization): string {
     const productKey = this.getProductKey(organization);
-    return this.i18nService.t(productKey, organization.seats);
+    return this.i18nService.t(productKey, organization.seats ?? undefined);
   }
 
   private getSeatLimitReachedDialogAcceptButtonText(organization: Organization): string {

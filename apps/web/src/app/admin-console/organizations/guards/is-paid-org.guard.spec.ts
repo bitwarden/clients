@@ -41,15 +41,12 @@ export class PaidOrganizationOnlyComponent {}
 export class OrganizationUpgradeScreenComponent {}
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      id: "myOrgId",
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  Object.assign(new Organization(), {
+    id: "myOrgId",
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  });
 
 describe("Is Paid Org Guard", () => {
   let organizationService: MockProxy<OrganizationService>;

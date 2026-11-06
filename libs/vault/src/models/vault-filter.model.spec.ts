@@ -319,9 +319,10 @@ function createFilterFunction(options: Partial<VaultFilter> = {}) {
 function createOrganizationFilterNode(
   options: Partial<OrganizationFilter>,
 ): TreeNode<OrganizationFilter> {
-  const org = new Organization() as OrganizationFilter;
-  org.id = options.id;
-  org.icon = options.icon;
+  const org = Object.assign(new Organization(), {
+    id: options.id,
+    icon: options.icon,
+  }) as OrganizationFilter;
   return new TreeNode<OrganizationFilter>(org, null);
 }
 

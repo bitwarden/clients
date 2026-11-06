@@ -436,10 +436,10 @@ function createGroupView(i: number): GroupView {
 }
 
 function createOrganization(i: number): Organization {
-  const organization = new Organization();
-  organization.id = `organization-${i}` as OrganizationId;
-  organization.name = `Organization ${i}`;
-  organization.type = OrganizationUserType.Owner;
-  organization.permissions = new PermissionsApi();
-  return organization;
+  return Object.assign(new Organization(), {
+    id: `organization-${i}` as OrganizationId,
+    name: `Organization ${i}`,
+    type: OrganizationUserType.Owner,
+    permissions: new PermissionsApi(),
+  });
 }

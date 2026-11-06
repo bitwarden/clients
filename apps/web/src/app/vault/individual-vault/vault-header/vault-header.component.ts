@@ -332,7 +332,7 @@ export class VaultHeaderComponent {
           : organization.canEditSubscription
             ? "freeOrgMaxCollectionReachedManageBilling"
             : "freeOrgMaxCollectionReachedNoManageBilling",
-        organization.maxCollections,
+        organization.maxCollections ?? undefined,
       ),
       type: "primary",
     };

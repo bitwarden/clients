@@ -42,15 +42,12 @@ export class IsEnterpriseOrganizationComponent {}
 export class OrganizationUpgradeScreenComponent {}
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      id: "myOrgId",
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  Object.assign(new Organization(), {
+    id: "myOrgId",
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  });
 
 describe("Is Enterprise Org Guard", () => {
   let organizationService: MockProxy<OrganizationService>;

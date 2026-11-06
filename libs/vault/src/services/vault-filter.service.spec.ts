@@ -491,12 +491,12 @@ describe("vault filter service", () => {
   });
 
   function createOrganization(id: OrganizationId, name: string) {
-    const org = new Organization();
-    org.id = id;
-    org.name = name;
-    org.identifier = name;
-    org.isMember = true;
-    return org;
+    return Object.assign(new Organization(), {
+      id,
+      name,
+      identifier: name,
+      isMember: true,
+    });
   }
 
   function createCipherView(id: string, orgId: string, folderId: string) {

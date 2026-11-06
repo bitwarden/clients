@@ -174,7 +174,7 @@ export class VaultHeaderComponent {
         : "freeOrgMaxCollectionReachedNoManageBilling";
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
-      content: this.i18nService.t(contentKey, org.maxCollections),
+      content: this.i18nService.t(contentKey, org.maxCollections ?? undefined),
       type: "primary",
     };
 

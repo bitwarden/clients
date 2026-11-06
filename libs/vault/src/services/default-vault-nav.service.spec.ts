@@ -26,12 +26,12 @@ function makeOrg(
   productTierType: ProductTierType,
   enabled: boolean = true,
 ): Organization {
-  const org = new Organization();
-  org.id = newGuid() as OrganizationId;
-  org.name = name;
-  org.productTierType = productTierType;
-  org.enabled = enabled;
-  return org;
+  return Object.assign(new Organization(), {
+    id: newGuid() as OrganizationId,
+    name,
+    productTierType,
+    enabled,
+  });
 }
 
 describe("DefaultVaultNavService", () => {
