@@ -7,7 +7,6 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -30,11 +29,11 @@ describe("OrganizationMembersService", () => {
   const mockOrganizationId = "org-123" as OrganizationId;
 
   const createMockOrganization = (overrides: Partial<Organization> = {}): Organization => {
-    return new Organization({
+    return Object.assign(new Organization(), {
       id: mockOrganizationId,
       useGroups: false,
       ...overrides,
-    } as unknown as OrganizationData);
+    });
   };
 
   const createMockUserResponse = (

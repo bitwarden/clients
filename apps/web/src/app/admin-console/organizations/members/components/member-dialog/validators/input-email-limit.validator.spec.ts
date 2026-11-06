@@ -1,7 +1,6 @@
 import { AbstractControl, FormControl } from "@angular/forms";
 
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 
@@ -14,12 +13,12 @@ import {
 } from "./input-email-limit.validator";
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  new Organization({
+  Object.assign(new Organization(), {
     id: "myOrgId",
     enabled: true,
     type: OrganizationUserType.Admin,
     ...props,
-  } as unknown as OrganizationData);
+  });
 
 describe("inputEmailLimitValidator", () => {
   const getErrorMessage = (max: number) => `You can only add up to ${max} unique emails.`;

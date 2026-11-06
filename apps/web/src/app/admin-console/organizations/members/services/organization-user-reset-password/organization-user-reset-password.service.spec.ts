@@ -6,7 +6,6 @@ import {
   OrganizationUserResetPasswordDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
@@ -730,11 +729,11 @@ describe("OrganizationUserResetPasswordService", () => {
 });
 
 function createOrganization(id: string, name: string, resetPasswordEnrolled = true): Organization {
-  return new Organization({
+  return Object.assign(new Organization(), {
     id: id as OrganizationId,
     name,
     identifier: name,
     isMember: true,
     resetPasswordEnrolled,
-  } as unknown as OrganizationData);
+  });
 }

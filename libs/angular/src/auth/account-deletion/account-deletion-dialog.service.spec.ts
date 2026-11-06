@@ -6,7 +6,6 @@ import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -18,14 +17,14 @@ import { DeleteAccountDialogComponent } from "./delete-account-dialog/delete-acc
 
 // isOwner is a computed getter (reads from type), so set type directly
 function makeOrg(overrides: Partial<Organization> = {}): Organization {
-  return new Organization({
+  return Object.assign(new Organization(), {
     type: OrganizationUserType.Owner,
     isMember: true,
     status: OrganizationUserStatusType.Confirmed,
     productTierType: ProductTierType.Free,
     userIsClaimedByOrganization: false,
     ...overrides,
-  } as unknown as OrganizationData);
+  });
 }
 
 describe("AccountDeletionDialogService", () => {

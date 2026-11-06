@@ -3,7 +3,6 @@ import { of } from "rxjs";
 
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -37,9 +36,9 @@ describe("DefaultOrganizationUserService", () => {
   let accountService: jest.Mocked<AccountService>;
   let i18nService: jest.Mocked<I18nService>;
 
-  const mockOrganization = new Organization({
+  const mockOrganization = Object.assign(new Organization(), {
     id: "org-123" as OrganizationId,
-  } as unknown as OrganizationData);
+  });
 
   const mockUserId = "user-123";
   const mockPublicKey = new Uint8Array(64) as CsprngArray;
@@ -293,11 +292,11 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = new Organization({
+        const org = Object.assign(new Organization(), {
           id: mockOrganization.id,
           useMyItems: true,
           usePolicies: true,
-        } as unknown as OrganizationData);
+        });
 
         service.updateUser(org, mockUserId, request).subscribe({
           next: () => {
@@ -324,11 +323,11 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = new Organization({
+        const org = Object.assign(new Organization(), {
           id: mockOrganization.id,
           useMyItems: true,
           usePolicies: true,
-        } as unknown as OrganizationData);
+        });
 
         service.updateUser(org, mockUserId, request).subscribe({
           next: () => {
@@ -360,11 +359,11 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = new Organization({
+        const org = Object.assign(new Organization(), {
           id: mockOrganization.id,
           useMyItems: false,
           usePolicies: true,
-        } as unknown as OrganizationData);
+        });
 
         service.updateUser(org, mockUserId, request).subscribe({
           next: () => {

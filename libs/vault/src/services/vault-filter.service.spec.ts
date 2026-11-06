@@ -18,7 +18,6 @@ import {
   CollectionType,
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -492,12 +491,12 @@ describe("vault filter service", () => {
   });
 
   function createOrganization(id: OrganizationId, name: string) {
-    return new Organization({
+    return Object.assign(new Organization(), {
       id,
       name,
       identifier: name,
       isMember: true,
-    } as unknown as OrganizationData);
+    });
   }
 
   function createCipherView(id: string, orgId: string, folderId: string) {

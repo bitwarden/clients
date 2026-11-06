@@ -10,7 +10,6 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,11 +23,11 @@ import { organizationPermissionsGuard } from "./org-permissions.guard";
 
 // Returns a test organization with the specified props.
 const orgFactory = (props: Partial<Organization> = {}) =>
-  new Organization({
+  Object.assign(new Organization(), {
     enabled: true,
     type: OrganizationUserType.Admin,
     ...props,
-  } as unknown as OrganizationData);
+  });
 
 const targetOrgId = "myOrgId";
 

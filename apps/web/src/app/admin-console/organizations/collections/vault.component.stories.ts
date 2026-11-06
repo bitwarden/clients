@@ -69,7 +69,7 @@ import { GroupApiService, GroupView } from "../core";
 import { VaultComponent } from "./vault.component";
 
 function mockOrganization(overrides: Partial<OrganizationData> = {}): Organization {
-  return new Organization({
+  return Object.assign(new Organization(), {
     id: "org-1" as OrganizationId,
     name: "Acme Corp",
     enabled: true,
@@ -81,7 +81,7 @@ function mockOrganization(overrides: Partial<OrganizationData> = {}): Organizati
     type: OrganizationUserType.Owner,
     permissions: new PermissionsApi(),
     ...overrides,
-  } as unknown as OrganizationData);
+  });
 }
 
 function mockCollection(

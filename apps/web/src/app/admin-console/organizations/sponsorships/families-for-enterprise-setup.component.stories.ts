@@ -10,7 +10,6 @@ import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PreValidateSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/pre-validate-sponsorship.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,7 +28,7 @@ import { FamiliesForEnterpriseSetupComponent } from "./families-for-enterprise-s
 const USER_ID = "user-story-1" as UserId;
 
 function familyOrg(overrides: Partial<Organization> = {}): Organization {
-  return new Organization({
+  return Object.assign(new Organization(), {
     id: "org-1" as OrganizationId,
     name: "My Family",
     status: OrganizationUserStatusType.Confirmed,
@@ -37,7 +36,7 @@ function familyOrg(overrides: Partial<Organization> = {}): Organization {
     enabled: true,
     productTierType: ProductTierType.Families,
     ...overrides,
-  } as unknown as OrganizationData);
+  });
 }
 
 function storyProviders(

@@ -18,7 +18,6 @@ import {
   CollectionAdminView,
   Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -437,10 +436,10 @@ function createGroupView(i: number): GroupView {
 }
 
 function createOrganization(i: number): Organization {
-  return new Organization({
+  return Object.assign(new Organization(), {
     id: `organization-${i}` as OrganizationId,
     name: `Organization ${i}`,
     type: OrganizationUserType.Owner,
     permissions: new PermissionsApi(),
-  } as unknown as OrganizationData);
+  });
 }

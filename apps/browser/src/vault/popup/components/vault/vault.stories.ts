@@ -17,7 +17,6 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -208,10 +207,10 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => nextId());
 
-  const organization = new Organization({
+  const organization = Object.assign(new Organization(), {
     id: organizationId,
     productTierType,
-  } as unknown as OrganizationData);
+  });
 
   const collections = collectionNames.map(
     (name, i) =>

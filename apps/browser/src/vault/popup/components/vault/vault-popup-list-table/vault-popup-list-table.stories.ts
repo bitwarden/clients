@@ -212,10 +212,10 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => crypto.randomUUID());
 
-  const organization = new Organization({
+  const organization = Object.assign(new Organization(), {
     id: organizationId,
     productTierType,
-  } as unknown as OrganizationData);
+  });
 
   const collections = collectionNames.map(
     (name, i) =>

@@ -31,7 +31,7 @@ export class Policy extends Domain {
     this.type = obj.type;
     this.data = obj.data;
     this.enabled = obj.enabled;
-    this.revisionDate = obj.revisionDate == null ? new Date(0) : new Date(obj.revisionDate);
+    this.revisionDate = new Date(obj.revisionDate);
   }
 
   static fromResponse(response: PolicyResponse): Policy {

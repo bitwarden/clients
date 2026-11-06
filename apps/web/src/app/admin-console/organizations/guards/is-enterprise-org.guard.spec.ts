@@ -7,7 +7,6 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -43,12 +42,12 @@ export class IsEnterpriseOrganizationComponent {}
 export class OrganizationUpgradeScreenComponent {}
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  new Organization({
+  Object.assign(new Organization(), {
     id: "myOrgId",
     enabled: true,
     type: OrganizationUserType.Admin,
     ...props,
-  } as unknown as OrganizationData);
+  });
 
 describe("Is Enterprise Org Guard", () => {
   let organizationService: MockProxy<OrganizationService>;

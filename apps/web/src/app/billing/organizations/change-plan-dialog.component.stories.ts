@@ -7,7 +7,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
@@ -142,14 +141,14 @@ const createMockPlans = (): PlanResponse[] =>
 const mockPlans = createMockPlans();
 const mockFreePlan = mockPlans[0];
 
-const mockOrganization = new Organization({
+const mockOrganization = Object.assign(new Organization(), {
   id: ORG_ID,
   name: "Acme Corp",
   productTierType: ProductTierType.Free,
   useSecretsManager: false,
   hasPublicAndPrivateKeys: true,
   seats: 2,
-} as unknown as OrganizationData);
+});
 
 const mockSubscription = {
   plan: mockFreePlan,

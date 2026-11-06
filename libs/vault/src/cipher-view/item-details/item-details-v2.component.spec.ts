@@ -12,7 +12,6 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -121,7 +120,7 @@ describe("ItemDetailsV2Component", () => {
 
   describe("getAriaLabel", () => {
     it("separates the label and name with a space for organizations", () => {
-      const org = new Organization({ name: "Organization 1" } as unknown as OrganizationData);
+      const org = Object.assign(new Organization(), { name: "Organization 1" });
       expect(component.getAriaLabel(org)).toBe("ownerAriaLabel Organization 1");
     });
 
@@ -154,10 +153,10 @@ describe("ItemDetailsV2Component", () => {
     });
 
     it("uses 'vault' i18n key for the org item aria-label", () => {
-      const orgInstance = new Organization({
+      const orgInstance = Object.assign(new Organization(), {
         id: "org1",
         name: "Organization 1",
-      } as unknown as OrganizationData);
+      });
       componentRef.setInput("organization", orgInstance);
       fixture.detectChanges();
 

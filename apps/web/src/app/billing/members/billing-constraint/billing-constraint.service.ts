@@ -43,11 +43,8 @@ export class BillingConstraintService {
       throw new Error("Cannot check seat limit: billingMetadata is null or undefined.");
     }
     const totalSeats = organization.seats;
-    if (totalSeats == null) {
-      throw new Error("Cannot check seat limit: organization.seats is null.");
-    }
 
-    if (occupiedSeats < totalSeats) {
+    if (totalSeats == null || occupiedSeats < totalSeats) {
       return { canAddUsers: true };
     }
 
