@@ -13,7 +13,7 @@ import {
   parseSmIds,
   parseSmRequest,
   readSmName,
-  resolveSmOrganization,
+  validateSmOrganizationAccess,
   smBulkResponse,
   smErrorResponse,
 } from "./sm-command.utils";
@@ -40,7 +40,7 @@ describe("sm-command.utils", () => {
     });
 
     it("rejects a missing id", () => {
-      expect(parseSmId(undefined, "projectid").error?.message).toBe("`projectid` is required.");
+      expect(parseSmId("", "projectid").error?.message).toBe("`projectid` is required.");
     });
 
     it("rejects a non-GUID", () => {
@@ -161,9 +161,9 @@ describe("sm-command.utils", () => {
     });
   });
 
-  describe("resolveSmOrganization", () => {
+  describe("validateSmOrganizationAccess", () => {
     it("returns the normalized organization id and the organization", async () => {
-      const result = await resolveSmOrganization(
+      const result = await validateSmOrganizationAccess(
         organizationService,
         accountService,
         smOrgId.toUpperCase(),
@@ -175,24 +175,36 @@ describe("sm-command.utils", () => {
     });
 
     it("rejects an invalid organization id", async () => {
-      const result = await resolveSmOrganization(organizationService, accountService, "bad");
+      const result = await validateSmOrganizationAccess(organizationService, accountService, "bad");
       expect(result.error?.message).toBe("`bad` is not a GUID.");
     });
 
     it("rejects when there is no active user", async () => {
       accountService.activeAccount$ = of(null);
-      const result = await resolveSmOrganization(organizationService, accountService, smOrgId);
+      const result = await validateSmOrganizationAccess(
+        organizationService,
+        accountService,
+        smOrgId,
+      );
       expect(result.error?.message).toBe("No user found.");
     });
 
     it("rejects an organization the user is not a member of", async () => {
-      const result = await resolveSmOrganization(organizationService, accountService, smOtherOrgId);
+      const result = await validateSmOrganizationAccess(
+        organizationService,
+        accountService,
+        smOtherOrgId,
+      );
       expect(result.error?.message).toBe("Organization not found.");
     });
 
     it("rejects an organization without Secrets Manager access", async () => {
       mockSmOrganization(accountService, organizationService, false);
-      const result = await resolveSmOrganization(organizationService, accountService, smOrgId);
+      const result = await validateSmOrganizationAccess(
+        organizationService,
+        accountService,
+        smOrgId,
+      );
       expect(result.error?.message).toBe(
         "You do not have access to Secrets Manager for this organization.",
       );

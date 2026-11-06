@@ -21,10 +21,10 @@ export type SmOrganizationResult =
  * @returns the lowercased id, or an error response naming the offending argument.
  */
 export function parseSmId(
-  id: string | undefined,
+  id: string,
   label: string,
 ): { id: string; error?: undefined } | { id?: undefined; error: Response } {
-  if (id == null || id === "") {
+  if (Utils.isNullOrWhitespace(id)) {
     return { error: Response.badRequest("`" + label + "` is required.") };
   }
   const normalized = id.toLowerCase();
@@ -38,10 +38,10 @@ export function parseSmId(
  * Normalizes a list of id arguments, rejecting an empty list, non-GUIDs, and duplicates.
  */
 export function parseSmIds(
-  ids: string[] | undefined,
+  ids: string[],
   label: string,
 ): { ids: string[]; error?: undefined } | { ids?: undefined; error: Response } {
-  if (ids == null || ids.length === 0) {
+  if (ids.length === 0) {
     return { error: Response.badRequest("At least one `" + label + "` is required.") };
   }
   const normalized: string[] = [];
@@ -57,18 +57,21 @@ export function parseSmIds(
   return { ids: normalized };
 }
 
+function isMissing(value: unknown): boolean {
+  return value == null || (typeof value === "string" && Utils.isNullOrWhitespace(value));
+}
+
 /**
  * Reads a JSON request from a base64 encoded argument, stdin, or an object passed by `bw serve`.
  */
 export async function parseSmRequest<T extends object>(
   requestJson: unknown,
 ): Promise<{ request: Partial<T>; error?: undefined } | { request?: undefined; error: Response }> {
-  if (process.env.BW_SERVE !== "true") {
-    if (requestJson == null || requestJson === "") {
-      requestJson = await CliUtils.readStdin();
-    }
+  const isServe = process.env.BW_SERVE === "true";
+  if (!isServe && isMissing(requestJson)) {
+    requestJson = await CliUtils.readStdin();
   }
-  if (requestJson == null || requestJson === "") {
+  if (isMissing(requestJson)) {
     return { error: Response.badRequest("`requestJson` was not provided.") };
   }
 
@@ -159,7 +162,7 @@ export function smBulkResponse(results: BulkOperationStatus[], action: string): 
  * Validates that the active user is a member of the organization and has access to Secrets Manager.
  * The server answers permission failures with a 404, so this check runs first to give a clear error.
  */
-export async function resolveSmOrganization(
+export async function validateSmOrganizationAccess(
   organizationService: OrganizationService,
   accountService: AccountService,
   organizationId: string | undefined,

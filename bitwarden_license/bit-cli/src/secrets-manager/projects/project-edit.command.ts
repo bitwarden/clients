@@ -11,7 +11,7 @@ import {
   parseSmId,
   parseSmRequest,
   readSmName,
-  resolveSmOrganization,
+  validateSmOrganizationAccess,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
@@ -24,7 +24,7 @@ export class ProjectEditCommand {
   ) {}
 
   async run(organizationId: string, projectId: string, requestJson: unknown): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

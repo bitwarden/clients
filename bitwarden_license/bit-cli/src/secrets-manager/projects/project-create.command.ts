@@ -10,7 +10,7 @@ import {
   checkSmRequestOrganization,
   parseSmRequest,
   readSmName,
-  resolveSmOrganization,
+  validateSmOrganizationAccess,
   smErrorResponse,
 } from "../sm-command.utils";
 
@@ -22,7 +22,7 @@ export class ProjectCreateCommand {
   ) {}
 
   async run(organizationId: string, requestJson: unknown): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

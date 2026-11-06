@@ -6,7 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 
 import { ServiceContainer } from "../../service-container";
 import { SmProjectResponse } from "../models/sm-project.response";
-import { resolveSmOrganization, smErrorResponse } from "../sm-command.utils";
+import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 export class ProjectListCommand {
   constructor(
@@ -16,7 +16,7 @@ export class ProjectListCommand {
   ) {}
 
   async run(organizationId: string): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

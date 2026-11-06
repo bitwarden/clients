@@ -10,7 +10,7 @@ requests and responses. It is consumed by the web vault (`bit-web`) and by the `
   decorators. Services are plain classes whose dependencies are constructor parameters; wiring is
   done by `provideSecretsManager()` in `bit-web` and by the `bit-cli` `ServiceContainer`.
 - **No new encryption logic.** Services use `KeyService` / `EncryptService` from the shared libs.
-- Do not import from `@bitwarden/bit-web/*` (lint-enforced) or from `@bitwarden/bit-common/*`.
+- Do not import from `@bitwarden/bit-web/*`, `@bitwarden/bit-cli/*` (both lint-enforced), or `@bitwarden/bit-common/*`.
 - OSS code (`apps/**`) may not import from this library.
 - Import inside the library with relative paths, not the `@bitwarden/bit-sm` alias.
 
