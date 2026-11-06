@@ -30,6 +30,7 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
         name: value.name,
         enabled: value.enabled,
         hasPublicAndPrivateKeys: value.hasPublicAndPrivateKeys,
+        keyId: value.organizationKeyId,
       },
       plan: {
         productTierType: value.productTierType,
@@ -136,6 +137,7 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
       name: details.name,
       enabled: details.enabled,
       hasPublicAndPrivateKeys: details.hasPublicAndPrivateKeys,
+      organizationKeyId: details.keyId,
 
       productTierType: plan.productTierType,
       seats: plan.seats ?? null,

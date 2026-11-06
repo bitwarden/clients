@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import {
+  KeyId,
   MemberDecryptionType,
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -48,6 +49,7 @@ export class OrganizationData {
   userId: string;
   organizationUserId: string | null;
   hasPublicAndPrivateKeys: boolean;
+  organizationKeyId?: KeyId;
   providerId: string | null;
   providerName: string | null;
   providerType?: ProviderType;
@@ -120,6 +122,7 @@ export class OrganizationData {
     this.userId = response.userId;
     this.organizationUserId = response.organizationUserId;
     this.hasPublicAndPrivateKeys = response.hasPublicAndPrivateKeys;
+    this.organizationKeyId = response.organizationKeyId;
     this.providerId = response.providerId;
     this.providerName = response.providerName;
     this.providerType = response.providerType;
