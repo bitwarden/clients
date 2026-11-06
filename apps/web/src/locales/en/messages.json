@@ -12943,6 +12943,9 @@
   "userAccessSecretsManagerGA": {
     "message": "This user can access Secrets Manager"
   },
+  "products": {
+    "message": "Products"
+  },
   "privilegedControls": {
     "message": "Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
