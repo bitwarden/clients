@@ -47,7 +47,8 @@ import { LoginUriView } from "../models/view/login-uri.view";
 import { LoginView } from "../models/view/login.view";
 
 import { CipherService } from "./cipher.service";
-import { ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
+import { LocalData } from "../models/data/local.data";
+import { ENCRYPTED_CIPHERS, LOCAL_DATA_KEY } from "./key-state/ciphers.state";
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 function encryptText(clearText: string | Uint8Array) {
@@ -653,6 +654,27 @@ describe("Cipher Service", () => {
         );
 
         expect(result).toEqual([normalListView, partialListView]);
+      });
+
+      it("attaches localData to list views without decrypting again when it changes", async () => {
+        const emitted: CipherListView[][] = [];
+        const subscription = cipherService
+          .cipherListViewsIncludingRestricted$(mockUserId)
+          .subscribe((views) => emitted.push(views));
+        await new Promise((resolve) => setTimeout(resolve));
+
+        const lastUsedDate = Date.now();
+        stateProvider.singleUser
+          .getFake(mockUserId, LOCAL_DATA_KEY)
+          .nextState({ normal: { lastUsedDate } } as unknown as Record<CipherId, LocalData>);
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(cipherService["decryptCiphersWithSdk"]).toHaveBeenCalledTimes(1);
+        expect(emitted.at(-1)?.[0].localData?.lastUsedDate).toBe(
+          new Date(lastUsedDate).toISOString(),
+        );
+        stateProvider.singleUser.getFake(mockUserId, LOCAL_DATA_KEY).nextState({});
+        subscription.unsubscribe();
       });
 
       it("keeps list views decrypted after a cache clear that finishes late", async () => {

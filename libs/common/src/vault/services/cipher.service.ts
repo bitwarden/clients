@@ -47,7 +47,7 @@ import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherUpdateRoute } from "../enums/cipher-update-route";
 import { CipherData } from "../models/data/cipher.data";
-import { LocalData } from "../models/data/local.data";
+import { LocalData, toSdkLocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
@@ -156,16 +156,15 @@ export class CipherService implements CipherServiceAbstraction {
   cipherListViewsIncludingRestricted$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
 
-    return combineLatest([
+    // `localData` stays out of this stream. It changes on every autofill and would decrypt the
+    // whole vault again, so it is attached to the decrypted views below instead.
+    const decrypted$ = combineLatest([
       this.encryptedCiphersState(userId).state$,
-      this.localData$(userId),
       this.keyService.cipherDecryptionKeys$(userId, true),
     ]).pipe(
-      filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
-      map(([cipherDataState, localData]) =>
-        Object.values(cipherDataState).map(
-          (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
-        ),
+      filter(([cipherDataState, keys]) => cipherDataState != null && keys != null),
+      map(([cipherDataState]) =>
+        Object.values(cipherDataState).map((cipherData) => new Cipher(cipherData)),
       ),
       tap(() => {
         decryptMeasurement = this.logService.startMeasurement(
@@ -186,6 +185,10 @@ export class CipherService implements CipherServiceAbstraction {
       // The extension's URL matching reads list views, so its inline menu refreshes from here.
       tap(() => this.messageSender.send("updateOverlayCiphers")),
     );
+
+    return combineLatest([decrypted$, this.localData$(userId)]).pipe(
+      map(([views, localData]) => this.attachLocalData(views, localData)),
+    );
   }, this.clearCipherViewsForUser$);
 
   /**
@@ -203,6 +206,17 @@ export class CipherService implements CipherServiceAbstraction {
       map((views) => this.excludeRestricted(views)),
     );
   }, this.clearCipherViewsForUser$);
+
+  /** Re-attaches the client-only `localData` the SDK can't know about, without decrypting again. */
+  private attachLocalData(
+    views: CipherListView[],
+    localData: Record<CipherId, LocalData>,
+  ): CipherListView[] {
+    return views.map((view) => {
+      const data = view.id == null ? null : localData[uuidAsString(view.id) as CipherId];
+      return data == null ? view : { ...view, localData: toSdkLocalData(data) };
+    });
+  }
 
   /** Overloaded so a caller's array type is kept rather than widened to an array of the union. */
   private excludeRestricted(views: CipherView[] | null): CipherView[] | null;
