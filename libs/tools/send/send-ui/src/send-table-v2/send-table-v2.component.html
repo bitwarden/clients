@@ -1,0 +1,142 @@
+<bit-table-v2 [tableDef]="table" [trackBy]="trackById" [filter]="filter" queryParam="sends">
+  <bit-table-toolbar>
+    <bit-search class="tw-flex-1" [placeholder]="'search' | i18n" />
+    @if (!disableSend()) {
+      <tools-new-send-dropdown-v2 buttonType="primary" (addSend)="onAddSend($event)" slot="end" />
+    }
+    <bit-filter-menu key="type" placeholderText="Type" [unsetLabel]="'all' | i18n">
+      <bit-filter-option [value]="SendType.Text">{{ "sendTypeText" | i18n }}</bit-filter-option>
+      <bit-filter-option [value]="SendType.File">{{ "sendTypeFile" | i18n }}</bit-filter-option>
+      <bit-filter-option [value]="SendType.Item">{{ "item" | i18n }}</bit-filter-option>
+    </bit-filter-menu>
+  </bit-table-toolbar>
+  <bit-column sortable defaultSort="asc" width="minmax(240px, 2fr)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+
+    <bit-cell
+      *bitCellDef="table.columns.name; let s"
+      class="tw-cursor-pointer"
+      (click)="onEditSend(s)"
+    >
+      <div class="tw-flex tw-gap-2 tw-items-center tw-min-w-0">
+        <span aria-hidden="true">
+          @if (s.type == SendType.File) {
+            <bit-icon name="bwi-file" class="bwi-lg tw-text-muted" />
+          }
+          @if (s.type == SendType.Text) {
+            <bit-icon name="bwi-file-text" class="bwi-lg tw-text-muted" />
+          }
+          @if (s.type == SendType.Item && itemIcon(s); as icon) {
+            <bit-icon [name]="icon" class="bwi-lg tw-text-muted" />
+          }
+        </span>
+        <button type="button" bitLink truncate>
+          {{ s.name }}
+          <!-- Since the icons are not focusable, we append their screen reader messages to the Send name -->
+          @if (s.authType !== authType.None) {
+            <span class="tw-sr-only"
+              >,
+              {{
+                (s.authType === authType.Email ? "emailProtected" : "passwordProtected") | i18n
+              }}</span
+            >
+          }
+          @if (s.disabled) {
+            <span class="tw-sr-only">, {{ "sendNotCompliantWithYourOrgsPolicy" | i18n }}</span>
+          }
+          @if (s.expired) {
+            <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
+          }
+          @if (s.maxAccessCountReached) {
+            <span class="tw-sr-only">, {{ "maxAccessCountReached" | i18n }}</span>
+          }
+          @if (s.pendingDelete) {
+            <span class="tw-sr-only">, {{ "pendingDeletion" | i18n }}</span>
+          }
+        </button>
+        @if (s.authType !== authType.None) {
+          <bit-icon
+            name="bwi-lock"
+            appStopProp
+            [bitTooltip]="
+              (s.authType === authType.Email ? 'emailProtected' : 'passwordProtected') | i18n
+            "
+          />
+        }
+        @if (s.disabled) {
+          <bit-icon
+            name="bwi-exclamation-triangle"
+            appStopProp
+            [bitTooltip]="'sendNotCompliantWithYourOrgsPolicy' | i18n"
+          />
+        }
+        @if (s.expired) {
+          <bit-icon name="bwi-clock" appStopProp [bitTooltip]="'expired' | i18n" />
+        }
+        @if (s.maxAccessCountReached) {
+          <bit-icon
+            name="bwi-exclamation-triangle"
+            appStopProp
+            [bitTooltip]="'maxAccessCountReached' | i18n"
+          />
+        }
+        @if (s.pendingDelete) {
+          <bit-icon name="bwi-trash" appStopProp [bitTooltip]="'pendingDeletion' | i18n" />
+        }
+      </div>
+    </bit-cell>
+  </bit-column>
+
+  <bit-column sortable width="minmax(160px, 1fr)">
+    <bit-header-cell>{{ "deletionDate" | i18n }}</bit-header-cell>
+
+    <bit-cell
+      *bitCellDef="table.columns.deletionDate; let s"
+      class="tw-text-muted tw-cursor-pointer"
+      (click)="onEditSend(s)"
+    >
+      <small bitTypography="body2" appStopProp>
+        {{ s.deletionDate | date: "medium" }}
+      </small>
+    </bit-cell>
+  </bit-column>
+
+  <bit-column width="80px">
+    <bit-header-cell>{{ "options" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.actions; let s">
+      <div slot="end">
+        <button
+          type="button"
+          size="small"
+          [bitMenuTriggerFor]="sendOptions"
+          bitIconButton="bwi-ellipsis-v"
+          label="{{ 'options' | i18n }}"
+        ></button>
+        <bit-menu #sendOptions>
+          <button type="button" bitMenuItem (click)="onCopy(s)">
+            <bit-icon name="bwi-clone" fixedWidth />
+            {{ "copySendLink" | i18n }}
+          </button>
+          @if (s.password && !disableSend()) {
+            <button type="button" bitMenuItem (click)="onRemovePassword(s)">
+              <bit-icon name="bwi-close" fixedWidth />
+              {{ "removePassword" | i18n }}
+            </button>
+          }
+          <button type="button" bitMenuItem variant="danger" (click)="onDelete(s)">
+            <bit-icon fixedWidth name="bwi-trash" slot="start"></bit-icon>
+            {{ "delete" | i18n }}
+          </button>
+        </bit-menu>
+      </div>
+    </bit-cell>
+  </bit-column>
+
+  <!-- We override the table's default empty state with a Send-specific message and graphic -->
+  <bit-status-lockup slot="empty">
+    <bit-svg slot="graphic" [content]="noItemIcon"></bit-svg>
+    <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+    <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
+  </bit-status-lockup>
+</bit-table-v2>

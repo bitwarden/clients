@@ -1,5 +1,5 @@
 <app-header>
-  @if (!disableSend()) {
+  @if (!disableSend() && !vfo1Foundation()) {
     <tools-new-send-dropdown></tools-new-send-dropdown>
   }
 </app-header>
@@ -11,34 +11,48 @@
 }
 
 <div>
-  <tools-send-list
-    [sends]="filteredSends()"
-    [loading]="loading()"
-    [disableSend]="disableSend()"
-    [listState]="listState()"
-    [searchText]="currentSearchText()"
-    (editSend)="editSend($event)"
-    (copySend)="onCopySend($event)"
-    (deleteSend)="deleteSend($event)"
-    (removePassword)="onRemovePassword($event)"
-  >
-    <!-- Hide the filters if a single type of Send is allowed -->
-    @if (allowedSendTypes().length !== 1) {
-      <div class="tw-mt-4" slot="filters">
-        <bit-toggle-group
-          [selected]="selectedToggleValue"
-          (selectedChange)="onToggleChange($event)"
-          [label]="'filterSends' | i18n"
-        >
-          <bit-toggle [value]="SendFilterType.All">{{ "allSends" | i18n }}</bit-toggle>
-          @for (filter of sendTypeFilters(); track filter.filter) {
-            <bit-toggle [value]="filter.filter">{{ filter.translationKey | i18n }}</bit-toggle>
-          }
-        </bit-toggle-group>
-      </div>
-    }
-    @if (!disableSend()) {
-      <tools-new-send-dropdown [hideIcon]="true" slot="empty-button"></tools-new-send-dropdown>
-    }
-  </tools-send-list>
+  <!-- The V2 table component handles filtering, sorting, and the empty state itself
+   so the intermediate send-list component is no longer required -->
+  @if (vfo1Foundation()) {
+    <tools-send-table-v2
+      [sends]="allSends()"
+      [disableSend]="disableSend()"
+      (editSend)="editSend($event)"
+      (copySend)="onCopySend($event)"
+      (removePassword)="onRemovePassword($event)"
+      (deleteSend)="deleteSend($event)"
+      (addSend)="addSend($event)"
+    />
+  } @else {
+    <tools-send-list
+      [sends]="filteredSends()"
+      [loading]="loading()"
+      [disableSend]="disableSend()"
+      [listState]="listState()"
+      [searchText]="currentSearchText()"
+      (editSend)="editSend($event)"
+      (copySend)="onCopySend($event)"
+      (deleteSend)="deleteSend($event)"
+      (removePassword)="onRemovePassword($event)"
+    >
+      <!-- Hide the filters if a single type of Send is allowed -->
+      @if (allowedSendTypes().length !== 1 && !vfo1Foundation()) {
+        <div class="tw-mt-4" slot="filters">
+          <bit-toggle-group
+            [selected]="selectedToggleValue"
+            (selectedChange)="onToggleChange($event)"
+            [label]="'filterSends' | i18n"
+          >
+            <bit-toggle [value]="SendFilterType.All">{{ "allSends" | i18n }}</bit-toggle>
+            @for (filter of sendTypeFilters(); track filter.filter) {
+              <bit-toggle [value]="filter.filter">{{ filter.translationKey | i18n }}</bit-toggle>
+            }
+          </bit-toggle-group>
+        </div>
+      }
+      @if (!disableSend()) {
+        <tools-new-send-dropdown [hideIcon]="true" slot="empty-button"></tools-new-send-dropdown>
+      }
+    </tools-send-list>
+  }
 </div>
