@@ -134,11 +134,6 @@ export class WindowMain {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
-      if (isDev()) {
-        this.logService.info("Process reload requested, but skipping in development mode");
-        return;
-      }
-
       // LockService can fire reload-process concurrently for each user account.
       // Skip duplicates so we don't race the crash + reload sequence with itself.
       if (this.isReloading) {
@@ -277,7 +272,7 @@ export class WindowMain {
         // Some APIs can only be used after this event occurs.
         // `whenReady()` also covers callers that run after the `ready` event has already fired.
         this.startup = app.whenReady().then(async () => {
-          this.session = session.fromPartition("persist:bitwarden", { cache: false });
+          this.session = session.fromPartition("persist:bitwarden");
           this.setupAppProtocol();
 
           if (!isDev()) {

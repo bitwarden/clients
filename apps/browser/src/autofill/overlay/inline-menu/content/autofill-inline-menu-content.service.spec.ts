@@ -1055,46 +1055,12 @@ describe("AutofillInlineMenuContentService", () => {
     });
   });
 
-  describe("getOwnedTagNames", () => {
-    it("returns an empty array when no elements are created", () => {
-      expect(autofillInlineMenuContentService.getOwnedTagNames()).toEqual([]);
-    });
-
-    it("returns the button element tag name", () => {
-      const buttonElement = document.createElement("div");
-      autofillInlineMenuContentService["buttonElement"] = buttonElement;
-
-      const tagNames = autofillInlineMenuContentService.getOwnedTagNames();
-
-      expect(tagNames).toContain("DIV");
-    });
-
-    it("returns both button and list element tag names", () => {
-      const buttonElement = document.createElement("div");
-      const listElement = document.createElement("span");
-      autofillInlineMenuContentService["buttonElement"] = buttonElement;
-      autofillInlineMenuContentService["listElement"] = listElement;
-
-      const tagNames = autofillInlineMenuContentService.getOwnedTagNames();
-
-      expect(tagNames).toEqual(["DIV", "SPAN"]);
-    });
-  });
-
   describe("getUnownedTopLayerItems", () => {
     beforeEach(() => {
       document.body.innerHTML = "";
     });
 
-    it("returns the tag names from button and list elements", () => {
-      const buttonElement = document.createElement("div");
-      buttonElement.setAttribute("popover", "manual");
-      autofillInlineMenuContentService["buttonElement"] = buttonElement;
-
-      const listElement = document.createElement("span");
-      listElement.setAttribute("popover", "manual");
-      autofillInlineMenuContentService["listElement"] = listElement;
-
+    it("returns an empty list when no top layer items exist", () => {
       /** Mock querySelectorAll to avoid :modal selector issues in jsdom */
       const querySelectorAllSpy = jest
         .spyOn(globalThis.document, "querySelectorAll")
@@ -1103,7 +1069,42 @@ describe("AutofillInlineMenuContentService", () => {
       const items = autofillInlineMenuContentService.getUnownedTopLayerItems();
 
       expect(querySelectorAllSpy).toHaveBeenCalled();
-      expect(items.length).toBe(0);
+      expect(items).toEqual([]);
+    });
+
+    it("excludes the inline menu elements while keeping page elements with the same tag name", () => {
+      // Firefox renders the inline menu as plain `div` elements, matching common page popovers
+      const buttonElement = document.createElement("div");
+      buttonElement.setAttribute("popover", "manual");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+      const listElement = document.createElement("div");
+      listElement.setAttribute("popover", "manual");
+      autofillInlineMenuContentService["listElement"] = listElement;
+      const pagePopoverElement = document.createElement("div");
+      pagePopoverElement.setAttribute("popover", "manual");
+
+      /** Mock querySelectorAll to avoid :modal selector issues in jsdom */
+      jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([buttonElement, pagePopoverElement, listElement] as any);
+
+      const items = autofillInlineMenuContentService.getUnownedTopLayerItems();
+
+      expect(items).toEqual([pagePopoverElement]);
+    });
+
+    it("does not exclude elements by tag name in the selector", () => {
+      const buttonElement = document.createElement("div");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+
+      /** Mock querySelectorAll to avoid :modal selector issues in jsdom */
+      const querySelectorAllSpy = jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([] as any);
+
+      autofillInlineMenuContentService.getUnownedTopLayerItems();
+
+      expect(querySelectorAllSpy.mock.calls[0][0]).not.toContain(":not(");
     });
 
     it("calls querySelectorAll with correct selector when includeCandidates is false", () => {

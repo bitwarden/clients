@@ -4,10 +4,9 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, inject, Input, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, concatMap, filter, map, shareReplay } from "rxjs";
+import { combineLatest, concatMap, filter, firstValueFrom, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -67,26 +66,25 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
-  private readonly isSafariExtension =
-    this.platformUtilsService.getClientType() === ClientType.Browser &&
-    this.platformUtilsService.isSafari();
-
   /**
-   * True when the HTTP authentication setting is shown. The cipher-level controls are also gated
-   * behind a dev flag while their storage work is completed.
+   * Emits true when the HTTP authentication setting is shown. It is shown on every client that edits logins,
+   * including the Safari extension, which can't answer HTTP authentication challenges itself. The
+   * cipher-level controls are also gated behind a dev flag until the challenge handler reads the setting.
    */
-  protected readonly showHTTPAuthenticationCipherSetting = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse).pipe(
+  private readonly showHTTPAuthenticationCipherSetting$ = this.configService
+    .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
+    .pipe(
       map(
         (httpAuthenticationEnabled) =>
           httpAuthenticationEnabled &&
           devFlagEnabled("httpAuthenticationCipherControls") &&
-          // The Safari extension does not respond to HTTP authentication
-          // prompts, so the setting is not offered there.
-          !this.isSafariExtension &&
           this.cipherFormContainer.config.cipherType === CipherType.Login,
       ),
-    ),
+    );
+
+  /** True when the HTTP authentication setting is shown */
+  protected readonly showHTTPAuthenticationCipherSetting = toSignal(
+    this.showHTTPAuthenticationCipherSetting$,
     { initialValue: false },
   );
 
@@ -121,12 +119,17 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   ) {
     this.cipherFormContainer.registerChildForm("additionalOptions", this.additionalOptionsForm);
 
-    // TODO(PM-45263): Patch the HTTP authentication value once it is stored on the cipher, and hide
-    // the setting for organization-owned and legacy-format ciphers, which can't hold it.
     this.additionalOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.cipherFormContainer.patchCipher((cipher) => {
         cipher.notes = value.notes;
         cipher.reprompt = value.reprompt ? CipherRepromptType.Password : CipherRepromptType.None;
+
+        // Read from the control because a disabled control is left out of the form's `value`
+        if (cipher.type === CipherType.Login && cipher.login != null) {
+          cipher.login.httpAuthenticationEnabled =
+            this.additionalOptionsForm.controls.httpAuthentication.value;
+        }
+
         return cipher;
       });
     });
@@ -147,15 +150,33 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
     if (prefillCipher) {
+      const reprompt = prefillCipher.reprompt === CipherRepromptType.Password;
+      const storedHTTPAuthentication = prefillCipher.login?.httpAuthenticationEnabled === true;
+
+      // Reprompt takes priority, so a login stored with both on loads with HTTP authentication off, and the
+      // change is saved with the next save. The value is set here rather than through the exclusivity
+      // handlers, which would ask the user to confirm turning HTTP authentication on.
       this.additionalOptionsForm.patchValue({
         notes: prefillCipher.notes,
-        reprompt: prefillCipher.reprompt === CipherRepromptType.Password,
+        reprompt,
+        httpAuthentication: storedHTTPAuthentication && !reprompt,
       });
+
+      if (storedHTTPAuthentication && reprompt) {
+        void this.notifyHTTPAuthenticationTurnedOff();
+      }
     }
 
     if (this.cipherFormContainer.config.mode === "partial-edit") {
       this.additionalOptionsForm.disable();
       this.isPartialEdit = true;
+    }
+  }
+
+  /** Tells the user that HTTP authentication was turned off on load, when the setting is shown */
+  private async notifyHTTPAuthenticationTurnedOff() {
+    if (await firstValueFrom(this.showHTTPAuthenticationCipherSetting$)) {
+      await this.httpAuthenticationService.notifyHTTPAuthenticationTurnedOff();
     }
   }
 

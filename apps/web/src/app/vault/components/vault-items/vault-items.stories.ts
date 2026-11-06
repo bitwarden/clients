@@ -49,6 +49,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import { PasswordRepromptService, VaultBatchBarService } from "@bitwarden/vault";
@@ -75,6 +76,7 @@ export default {
     moduleMetadata({
       imports: [VaultItemsModule, RouterModule, LayoutComponent],
       providers: [
+        { provide: LogService, useFactory: () => new ConsoleLogService(true) },
         {
           provide: EnvironmentService,
           useValue: {

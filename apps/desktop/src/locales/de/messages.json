@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Ordner in $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ Ordner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ Ordner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ verschachtelte geteilte Ordner",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 geteilter verschachtelter Ordner",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ verschachtelte Ordner",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 verschachtelter Ordner",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Mein Ordner"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "Bearbeiten"
   },
+  "editInfo": {
+    "message": "Informationen bearbeiten"
+  },
+  "editAccess": {
+    "message": "Zugriff bearbeiten"
+  },
   "authenticatorKeyTotp": {
     "message": "Authentifizierungsschlüssel (TOTP)"
   },
@@ -1180,6 +1228,15 @@
   },
   "deletedItem": {
     "message": "Eintrag in Papierkorb verschoben"
+  },
+  "deleteItemError": {
+    "message": "Der Eintrag konnte nicht gelöscht werden."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Dieser Eintrag ist eingeschränkt. Deine Änderung wurde nicht gespeichert."
+  },
+  "controlledAccess": {
+    "message": "Kontrollierter Zugriff"
   },
   "overwritePasswordConfirmation": {
     "message": "Bist du sicher, dass du das Passwort überschreiben möchtest?"
@@ -4911,6 +4968,30 @@
   "importDataEverythingTransfersBody": {
     "message": "Zugangsdaten, Karten, Identitäten, sichere Notizen und TOTPs unter Beibehaltung ihrer Ordnerstruktur."
   },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Schnell und sicher"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Dieser Vorgang ist Ende-zu-Ende verschlüsselt. Es ist keine Exportdatei erforderlich."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Du benötigst nur deine Zugangsdaten"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "Im nächsten Schritt gibst du deine $VENDOR$-Zugangsdaten ein.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Was übertragen wird"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Deine Zugangsdaten, sonstige Einträge und Ordner werden übertragen. Passkeys und Anhänge sind möglicherweise davon ausgenommen."
+  },
   "importAcceptedFormats": {
     "message": "Akzeptiert: $FORMATS$",
     "placeholders": {
@@ -5192,6 +5273,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 beschädigter Anhang wurde beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 Eintrag wurden in diesem Export nicht mit einbezogen. Sie unterliegen berechtigten Zugriffsregeln, sodass dessen Zugangsdaten auf diesem Gerät nicht verfügbar sind."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ Einträge wurden in diesem Export nicht mit einbezogen. Sie unterliegen berechtigten Zugriffsregeln, sodass dessen Zugangsdaten auf diesem Gerät nicht verfügbar sind.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ beschädigte Anhänge wurden beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert.",
     "placeholders": {
@@ -5231,8 +5324,92 @@
   "lastPassEmail": {
     "message": "LastPass E-Mail-Adresse"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Eine E-Mail-Adresse ist erforderlich."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Gib eine gültige E-Mail-Adresse ein."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Ein Passwort ist erforderlich."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Gib ein gültiges Passwort ein"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Gib einen gültigen Verifizierungscode ein."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Bitte gib dein LastPass Master-Passwort ein."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Bitte gib den unten stehenden Verifizierungscode ein."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Warten auf die SSO-Authentifizierung"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Sobald du dich angemeldet hast, setzen wir deinen Import automatisch fort."
+  },
   "importingYourAccount": {
     "message": "Importiere dein Konto..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Eine E-Mail-Adresse ist erforderlich."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Gib eine gültige E-Mail-Adresse ein."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Nicht unterstützte Zwei-Faktor-Authentifizierungsmethode. Wechsel die Methode oder importiere die Daten manuell."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Geräte-Genehmigungsmethode"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Gib einen gültigen Verifizierungscode ein."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Verifizierungscode erneut senden"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper-Push-Benachrichtigung an genehmigtes Gerät gesendet."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Genehmige dieses Gerät, indem du eine der folgenden Methoden auswählst."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Bitte überprüfe deine E-Mails und gib unten den Bestätigungscode ein."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Bitte gib den Code aus deiner Authenticator-App ein."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Bitte gib den Code ein, der per Textnachricht gesendet wurde."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Bitte gib dein Keeper Master-Passwort ein."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA gesendet"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Genehmige die Keeper-DNA-Benachrichtigung auf deinem Gerät."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Deine Genehmigungsanfrage wird abgebrochen. Möchtest du wirklich fortfahren?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Wir haben eine Administrator-Genehmigungsanfrage an deinen Administrator gesendet."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Ein Passwort ist erforderlich."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Gib ein gültiges Passwort ein."
   },
   "lastPassMFARequired": {
     "message": "LastPass Multifaktor-Authentifizierung erforderlich"
@@ -6625,6 +6802,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Keine Einträge in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Füge Einträge zu diesem Ordner hinzu. Über die Tresor-Filter kannst du schnell darauf zugreifen.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Keine Einträge in \"Meine Einträge\""
   },
@@ -7265,6 +7456,15 @@
   "unknownCipher": {
     "message": "Unbekannter Eintrag. Du musst möglicherweise eine Berechtigung anfordern, um auf diesen Eintrag zuzugreifen."
   },
+  "viewSharedItem": {
+    "message": "Geteilten Eintrag ansehen"
+  },
+  "copyShareLink": {
+    "message": "Geteilten Link kopieren"
+  },
+  "unableToDetermineItemId": {
+    "message": "Eintrags-ID konnte nicht ermittelt werden"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden hat ein neues Design",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7329,8 +7529,8 @@
   "coachmarkVaultListTitle": {
     "message": "Alle deine Tresore an einem Ort"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Hier sind nun die privaten, familiären und geschäftlichen Tresore aufgelistet."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Schnell zwischen eigenen Einträgen oder Einträgen aus einem Tresor wechseln, den du mit anderen teilst."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Sammlungen und Ordner haben neue Namen"
@@ -7356,5 +7556,46 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Anmelde-Aufforderungen im Browser automatisch ausfüllen",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Auf einfache HTTP-Authentifizierungsanfragen von Websites antworten, die mit diesem Zugangsdaten-Eintrag übereinstimmen."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Hilfe-Artikel zum automatischen Ausfüllen von Anmelde-Aufforderungen im Browser öffnen"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites können diese Aufforderungen ohne dein Wissen auslösen, wodurch deine Zugangsdaten kompromittiert werden könnten.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Um diese Einstellung zu verwenden, wähle für jede Website dieses Zugangsdaten-Eintrags eine andere Option zur Übereinstimmungserkennung als \"Standard\"."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" aktivieren?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "\"Master-Passwort erneut abfragen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "\"Master-Passwort erneut abfragen\" aktivieren?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Standard-Übereinstimmungserkennung verwenden?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites, die die Standard-Übereinstimmungserkennung verwenden, können nicht mit Anmelde-Aufforderungen des Browsers genutzt werden. \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Für diesen Eintrag ist die Option \"Master-Passwort erneut abfragen\" aktiviert, daher wurde \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert. Speicher den Eintrag, um diese Änderung beizubehalten."
   }
 }

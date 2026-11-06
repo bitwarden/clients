@@ -23,6 +23,7 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
   BadgeModule,
@@ -33,7 +34,7 @@ import {
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { SubscriptionPreviewService } from "@bitwarden/web-vault/app/billing/services/subscription-preview.service";
 
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
 import {
@@ -86,7 +87,7 @@ export class CloudHostedPremiumComponent {
   private destroyRef = inject(DestroyRef);
 
   constructor(
-    private accountBillingClient: AccountBillingClient,
+    private subscriptionPreviewService: SubscriptionPreviewService,
     private accountService: AccountService,
     private apiService: ApiService,
     private dialogService: DialogService,
@@ -95,6 +96,7 @@ export class CloudHostedPremiumComponent {
     private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
     private router: Router,
     private activatedRoute: ActivatedRoute,
+    private logService: LogService,
   ) {
     this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -115,9 +117,11 @@ export class CloudHostedPremiumComponent {
     this.hasSubscription$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
-          ? from(this.accountBillingClient.getSubscription()).pipe(
-              map((subscription) => !!subscription),
-              catchError(() => of(false)),
+          ? from(this.subscriptionPreviewService.hasAccountSubscription()).pipe(
+              catchError((error: unknown) => {
+                this.logService.error("Failed to fetch subscription", error);
+                return of(false);
+              }),
             )
           : of(false),
       ),

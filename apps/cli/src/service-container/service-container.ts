@@ -25,11 +25,9 @@ import {
   DefaultAuthRequestApiService,
 } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -331,7 +329,6 @@ export class ServiceContainer {
   encryptService: EncryptServiceImplementation;
   authService: AuthService;
   policyService: DefaultPolicyService;
-  newPolicyService: InternalNewPolicyService;
   policyApiService: PolicyApiServiceAbstraction;
   logService: ConsoleLogService;
   sendService: SendService;
@@ -642,12 +639,10 @@ export class ServiceContainer {
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
 
-    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
-      this.newPolicyService,
       () => this.sdkService,
     );
 
@@ -778,7 +773,6 @@ export class ServiceContainer {
 
     this.policyApiService = new PolicyApiService(
       this.policyService,
-      this.newPolicyService,
       this.apiService,
       this.accountService,
     );
@@ -1048,7 +1042,11 @@ export class ServiceContainer {
       this.masterPasswordUnlockService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
+    const logoutService = new DefaultLogoutService(
+      this.messagingService,
+      this.logService,
+      this.sdkService,
+    );
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
@@ -1065,6 +1063,7 @@ export class ServiceContainer {
       processReloadService,
       this.logService,
       this.keyService,
+      this.sdkService,
     );
 
     this.vaultTimeoutService = new DefaultVaultTimeoutService(
@@ -1091,7 +1090,6 @@ export class ServiceContainer {
       this.collectionService,
       this.messagingService,
       this.policyService,
-      this.newPolicyService,
       this.sendService,
       this.logService,
       this.keyConnectorService,
