@@ -1,3 +1,4 @@
+import { DOCUMENT } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -94,9 +95,12 @@ export class ButtonGroupComponent {
     // current layout, so switching orientation can't feed back into the decision.
     const observer = new MutationObserver(() => this.measure());
     inject(DestroyRef).onDestroy(() => observer.disconnect());
-    afterNextRender(() =>
-      observer.observe(this.host, { childList: true, subtree: true, characterData: true }),
-    );
+    const fonts = inject(DOCUMENT).fonts;
+    afterNextRender(() => {
+      observer.observe(this.host, { childList: true, subtree: true, characterData: true });
+      // document.fonts is missing in JSDOM — fall back to an already-resolved promise.
+      void (fonts?.ready ?? Promise.resolve()).then(() => this.measure());
+    });
 
     effect(() => {
       this.width();

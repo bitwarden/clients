@@ -4,7 +4,7 @@ import { ButtonModule } from "../button";
 
 import { ButtonGroupComponent, ButtonGroupOrientation } from "./button-group.component";
 
-type Args = { orientation: ButtonGroupOrientation; fullWidth: boolean; width: string };
+type Args = { orientation: ButtonGroupOrientation; fullWidth: boolean };
 
 export default {
   title: "Component Library/Button/Group",
@@ -34,38 +34,39 @@ const buttons = /*html*/ `
   <button type="button" bitButton buttonType="primary" startIcon="bwi-plus">Invite member</button>
 `;
 
-const render: Story["render"] = (args) => ({
-  props: args,
-  template: /*html*/ `
-    <div [style.width]="width">
+const renderAt =
+  (width: string): Story["render"] =>
+  (args) => ({
+    props: args,
+    template: /*html*/ `
+    <div style="width: ${width}">
       <bit-button-group [orientation]="orientation" [fullWidth]="fullWidth">
         ${buttons}
       </bit-button-group>
     </div>
   `,
-});
+  });
 
 export const Default: Story = {
-  render,
-  args: { width: "40rem" },
+  render: renderAt("40rem"),
 };
 
 export const FullWidth: Story = {
-  render,
-  args: { width: "40rem", fullWidth: true },
+  render: renderAt("40rem"),
+  args: { fullWidth: true },
 };
 
 export const Vertical: Story = {
-  render,
-  args: { width: "20rem", orientation: "vertical" },
+  render: renderAt("20rem"),
+  args: { orientation: "vertical" },
 };
 
 export const AutoFits: Story = {
-  render,
-  args: { width: "32rem", orientation: "auto", fullWidth: true },
+  render: renderAt("32rem"),
+  args: { orientation: "auto", fullWidth: true },
 };
 
 export const AutoStacked: Story = {
-  render,
-  args: { width: "20rem", orientation: "auto", fullWidth: true },
+  render: renderAt("20rem"),
+  args: { orientation: "auto", fullWidth: true },
 };
