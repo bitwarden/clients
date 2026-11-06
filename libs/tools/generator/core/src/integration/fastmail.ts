@@ -82,8 +82,8 @@ const createForwardingEmail = Object.freeze({
             create: {
               "new-masked-email": {
                 state: "enabled",
-                description: "",
-                forDomain: context.website(request),
+                description: context.website(request, { extractHostname: true }),
+                forDomain: context.website(request, { extractOrigin: true }),
                 emailPrefix: context.prefixEnabled() ? toEmailPrefix(context.prefix(request)) : "",
               },
             },

@@ -125,6 +125,22 @@ describe("Fastmail forwarder", () => {
         expect(methodCall.create["new-masked-email"].forDomain).toEqual("website");
         expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("");
       });
+      it("sends the website's origin as forDomain and its hostname as the description", () => {
+        const website = "https://1up-usa.com/account/login?ref=nav";
+        context.website.mockImplementation((_request, options) =>
+          options?.extractOrigin ? "https://1up-usa.com" : "1up-usa.com",
+        );
+        context.prefixEnabled.mockReturnValue(false);
+        const request = { accountId: "accountId", website };
+
+        const result = Fastmail.forwarder.createForwardingEmail.body(request, context);
+        const maskedEmail = result.methodCalls[0][1].create["new-masked-email"];
+
+        expect(context.website).toHaveBeenCalledWith(request, { extractOrigin: true });
+        expect(context.website).toHaveBeenCalledWith(request, { extractHostname: true });
+        expect(maskedEmail.forDomain).toEqual("https://1up-usa.com");
+        expect(maskedEmail.description).toEqual("1up-usa.com");
+      });
       it("creates a request body with website as email prefix when prefix is enabled", () => {
         context.prefixEnabled.mockReturnValue(true);
         context.prefix.mockReturnValue("example");
