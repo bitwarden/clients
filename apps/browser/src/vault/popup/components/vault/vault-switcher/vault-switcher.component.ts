@@ -124,19 +124,18 @@ export class VaultSwitcherComponent {
     return this.entries().find((entry) => entry.id === id) ?? null;
   });
 
-  protected select(entry: VaultSwitcherEntry): void {
+  protected async select(entry: VaultSwitcherEntry): Promise<void> {
     // The entry in view is clickable too, and the route would reload rather than no-op.
     if (entry.id === this.selectedId()) {
       return;
     }
 
-    // Cleared from the user's action, not the scope publish — that also fires on popup open.
-    if (entry.id != null) {
-      this.listFiltersService.clearVaultScopedFilters();
-    }
-
     // The offset names nothing in a different list, and the rebuilt page would restore it.
     this.scrollPositionService.stop(true);
+
+    // Recorded before navigating: the unscoped route restores the last selection, so choosing All
+    // items has to land first or it would be sent back to the vault just left.
+    await this.listFiltersService.setCachedVaultScopeId(...this.storedSegmentsFor(entry.scope));
 
     void this.router.navigate(vaultScopeCommands(entry.scope, this.basePath), {
       // The scoped vault is the same page narrowed, not a step to return from.
@@ -171,6 +170,18 @@ export class VaultSwitcherComponent {
     }
 
     return entries;
+  }
+
+  /** The `:vaultId` and collection segments a scope is stored under. */
+  private storedSegmentsFor(scope: VaultScope): [string | null, string | null] {
+    switch (scope.type) {
+      case VaultScopeType.MyVault:
+        return [MY_VAULT_ROUTE, null];
+      case VaultScopeType.Organization:
+        return [scope.organizationId, scope.collectionId ?? null];
+      default:
+        return [null, null];
+    }
   }
 
   /** The entry id naming a scope; Trash, Archive, and folders fall back to All items. */

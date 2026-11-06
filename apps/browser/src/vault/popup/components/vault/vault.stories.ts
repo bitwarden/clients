@@ -4,7 +4,7 @@ import { FormBuilder } from "@angular/forms";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { applicationConfig, componentWrapperDecorator, Meta, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -63,7 +63,7 @@ import {
   I18nMockService,
   ToastService,
 } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
 import {
@@ -356,20 +356,22 @@ const buildNotificationPolicies = (args: StoryArgs) => {
     return [];
   }
 
-  const policy = new Policy();
-  policy.id = "00000000-0000-4000-8000-0000000000fd" as PolicyId;
-  policy.organizationId = STORY_ORG_ID;
-  policy.type = PolicyType.OrganizationUserNotification;
-  policy.enabled = true;
-  policy.revisionDate = FIXED_REVISION_DATE;
-  policy.data = {
-    header: "Scheduled maintenance",
-    description:
-      "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
-    buttonText: "Learn more",
-    showAfterEveryLogin: false,
-  };
-  return [policy];
+  return [
+    new Policy({
+      id: "00000000-0000-4000-8000-0000000000fd" as PolicyId,
+      organizationId: STORY_ORG_ID,
+      type: PolicyType.OrganizationUserNotification,
+      enabled: true,
+      revisionDate: FIXED_REVISION_DATE.toISOString(),
+      data: {
+        header: "Scheduled maintenance",
+        description:
+          "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
+        buttonText: "Learn more",
+        showAfterEveryLogin: false,
+      },
+    }),
+  ];
 };
 
 /**
@@ -445,6 +447,7 @@ const buildProviders = (args: StoryArgs) => {
         autoFillCiphers$: of(populated ? AUTOFILL_CIPHERS : []),
         cipherCount$: of(allItems.length),
         searchText$: of(""),
+        searchText: signal(""),
         loading$: of(false),
         // Drives the autofill section's type grouping and its empty-state tip.
         hasFilterApplied$: of(false),
@@ -510,9 +513,8 @@ const buildProviders = (args: StoryArgs) => {
         restoreFilters$: () => of({}),
         saveFilters: () => {},
         cachedFilters: signal({}),
-        clearVaultScopedFilters: () => {},
+        setScope: () => {},
         filterDialogOpen: signal(false),
-        vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
           cipherType: null,
@@ -694,10 +696,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: AutofillService, useValue: {} },
     { provide: EventCollectionService, useValue: { collect: () => Promise.resolve() } },
     // Pulled in by the real `DialogService`, which is reachable via component-level providers.
-    {
-      provide: LogService,
-      useValue: { debug: () => {}, info: () => {}, warning: () => {}, error: () => {} },
-    },
+    { provide: LogService, useFactory: () => new ConsoleLogService(true) },
     { provide: TotpService, useValue: {} },
     { provide: CoachmarkService, useValue: mockCoachmarkService },
     {

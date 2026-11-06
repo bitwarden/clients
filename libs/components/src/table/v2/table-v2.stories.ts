@@ -28,6 +28,7 @@ import { ChipActionComponent } from "../../chips/chip-action";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
+import { HoverRevealDirective } from "../../hover-reveal";
 import { IconButtonModule } from "../../icon-button";
 import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-tile.component";
 import { InputModule } from "../../input/input.module";
@@ -305,7 +306,7 @@ type VaultFilters = {
  *
  * Shows the range of menu content: a radio group (Type), a checkbox group
  * (Vault), a checkbox group with in-menu search + collapsible sections
- * (Collections), and a toggle (Favorites).
+ * (Shared folders), and a toggle (Favorites).
  */
 @Component({
   selector: "demo-filterable-table",
@@ -349,9 +350,9 @@ type VaultFilters = {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
-            placeholderText="Collections"
+            placeholderText="Shared folders"
             multiple
           >
             @for (org of collectionOrgs; track org.name) {
@@ -472,9 +473,9 @@ class DemoFilterableTableComponent {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
-            placeholderText="Collections"
+            placeholderText="Shared folders"
             multiple
           >
             @for (org of collectionOrgs; track org.name) {
@@ -618,7 +619,7 @@ const itemRangeLabel = ({ start, end, total }: TableRowRange) => {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
             placeholderText="Shared folders"
             multiple
@@ -710,7 +711,7 @@ class DemoKitchenSinkTableComponent {
   protected readonly folders = FOLDERS;
 
   protected readonly collectionTile: FilterOptionIconTile = {
-    icon: "bwi-collection-shared",
+    icon: "bwi-shared-folder",
     variant: "brand",
   };
 
@@ -1173,6 +1174,7 @@ export default {
         BulkAdditionalActionComponent,
         IconTileComponent,
         ChipActionComponent,
+        HoverRevealDirective,
         ButtonModule,
         IconButtonModule,
         LayoutComponent,
@@ -1437,6 +1439,36 @@ export const CellFocusRings: Story = {
               size="small"
               label="Options"
               class="tw-test-focus-visible"
+            ></button>
+          </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+/**
+ * Each row is a `bitHoverRevealContainer`, so `bitHoverReveal` actions show on row hover or focus.
+ */
+export const HoverReveal: Story = {
+  render: () => ({
+    props: { table: userTable },
+    template: /*html*/ `
+      <bit-table-v2 [tableDef]="table">
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column width="72px">
+          <bit-header-cell><span class="tw-sr-only">Actions</span></bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.email; let row">
+            <button
+              slot="end"
+              type="button"
+              bitHoverReveal
+              bitIconButton="bwi-pencil-square"
+              size="small"
+              [label]="'Edit ' + row.name"
             ></button>
           </bit-cell>
         </bit-column>

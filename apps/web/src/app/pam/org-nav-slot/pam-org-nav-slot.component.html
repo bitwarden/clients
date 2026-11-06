@@ -3,6 +3,9 @@
     @if (showAccessRules()) {
       <bit-nav-item [text]="'pamAccessRules' | i18n" route="pam/access-rules" />
     }
+    @if (showAuditLog()) {
+      <bit-nav-item [text]="'pamAuditLog' | i18n" route="pam/audit" />
+    }
     @if (showRotation()) {
       <bit-nav-item [text]="'pamRotation' | i18n" route="pam/rotation" />
     }

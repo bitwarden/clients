@@ -1425,6 +1425,29 @@ describe("CartSummaryComponent", () => {
     });
   });
 
+  describe("proration note", () => {
+    const note = () => fixture.debugElement.query(By.css('[data-testid="proration-note"]'));
+
+    it("should render the note when the cart asks for it", () => {
+      fixture.componentRef.setInput("cart", { ...mockCart, showProrationNote: true });
+      fixture.detectChanges();
+
+      expect(note().nativeElement.textContent).toContain("prorationChargeMayDiffer");
+    });
+
+    it("should keep the note visible when the details are collapsed", () => {
+      fixture.componentRef.setInput("cart", { ...mockCart, showProrationNote: true });
+      component.isExpanded.set(false);
+      fixture.detectChanges();
+
+      expect(note()).toBeTruthy();
+    });
+
+    it("should not render the note when the cart does not ask for it", () => {
+      expect(note()).toBeFalsy();
+    });
+  });
+
   describe("applied balance and amount due", () => {
     it("renders Total (gross), Applied balance, and Amount due when a balance applies", () => {
       fixture.componentRef.setInput("cart", {

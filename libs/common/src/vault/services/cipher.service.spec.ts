@@ -43,6 +43,7 @@ import { CipherData } from "../models/data/cipher.data";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginUriView } from "../models/view/login-uri.view";
 import { LoginView } from "../models/view/login.view";
 
 import { CipherService } from "./cipher.service";
@@ -456,7 +457,7 @@ describe("Cipher Service", () => {
       partial.partial = true;
 
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normal, partial]);
 
       const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
@@ -519,7 +520,7 @@ describe("Cipher Service", () => {
 
       const decryptedView = new CipherView(encryptionContext.cipher);
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([decryptedView]);
 
       const sendSpy = jest.spyOn(messageSender, "send");
@@ -594,7 +595,7 @@ describe("Cipher Service", () => {
     });
   });
 
-  describe("partial (PAM-gated) cipher filtering", () => {
+  describe("restricted cipher filtering", () => {
     let normal: CipherView;
     let partial: CipherView;
 
@@ -607,19 +608,19 @@ describe("Cipher Service", () => {
       partial.id = "partial" as CipherId;
       partial.partial = true;
 
-      (cipherService as any).cipherViewsWithPartials$ = jest
+      (cipherService as any).cipherViewsIncludingRestricted$ = jest
         .fn()
         .mockReturnValue(of([normal, partial]));
     });
 
-    it("cipherViews$ excludes partial ciphers", async () => {
+    it("cipherViews$ excludes restricted ciphers", async () => {
       const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
 
       expect(result).toEqual([normal]);
     });
 
     it("cipherViews$ passes a null (decryption-in-progress) emission through unchanged", async () => {
-      (cipherService as any).cipherViewsWithPartials$ = jest.fn().mockReturnValue(of(null));
+      (cipherService as any).cipherViewsIncludingRestricted$ = jest.fn().mockReturnValue(of(null));
 
       const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
 
@@ -640,22 +641,24 @@ describe("Cipher Service", () => {
           .mockResolvedValue([[normalListView, partialListView], []]);
       });
 
-      it("cipherListViews$ excludes partial ciphers", async () => {
+      it("cipherListViews$ excludes restricted ciphers", async () => {
         const result = await firstValueFrom(cipherService.cipherListViews$(mockUserId));
 
         expect(result).toEqual([normalListView]);
       });
 
-      it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
-        const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+      it("cipherListViewsIncludingRestricted$ retains restricted ciphers", async () => {
+        const result = await firstValueFrom(
+          cipherService.cipherListViewsIncludingRestricted$(mockUserId),
+        );
 
         expect(result).toEqual([normalListView, partialListView]);
       });
     });
 
-    it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
+    it("getAllDecrypted excludes restricted ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normal, partial]);
 
       const result = await cipherService.getAllDecrypted(mockUserId);
@@ -663,7 +666,7 @@ describe("Cipher Service", () => {
       expect(result).toEqual([normal]);
     });
 
-    it("getAllDecryptedCiphersOfType excludes partial ciphers (autofill card/identity suggestions)", async () => {
+    it("getAllDecryptedCiphersOfType excludes restricted ciphers (autofill card/identity suggestions)", async () => {
       const normalCard = new CipherView(encryptionContext.cipher);
       normalCard.id = "card-normal" as CipherId;
       normalCard.type = CipherType.Card;
@@ -675,7 +678,7 @@ describe("Cipher Service", () => {
       partialCard.partial = true;
 
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normalCard, partialCard]);
 
       const result = await (cipherService as any).getAllDecryptedCiphersOfType(
@@ -684,6 +687,50 @@ describe("Cipher Service", () => {
       );
 
       expect(result).toEqual([normalCard]);
+    });
+
+    describe("filterCiphersForUrl", () => {
+      const url = "https://example.com/login";
+
+      const login = (restricted: boolean) => {
+        const view = new CipherView();
+        view.id = "login" as CipherId;
+        view.type = CipherType.Login;
+        view.login = new LoginView();
+        const uri = new LoginUriView();
+        uri.uri = "https://example.com";
+        view.login.uris = [uri];
+        view.partial = restricted;
+        return view;
+      };
+
+      beforeEach(() => {
+        domainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
+      });
+
+      it("excludes a restricted login with a matching URI", async () => {
+        const result = await cipherService.filterCiphersForUrl(
+          [login(true)],
+          url,
+          undefined,
+          UriMatchStrategy.Domain,
+        );
+
+        expect(result).toEqual([]);
+      });
+
+      it("matches the same login when it is not restricted", async () => {
+        const view = login(false);
+
+        const result = await cipherService.filterCiphersForUrl(
+          [view],
+          url,
+          undefined,
+          UriMatchStrategy.Domain,
+        );
+
+        expect(result).toEqual([view]);
+      });
     });
   });
 
@@ -1352,6 +1399,66 @@ describe("Cipher Service", () => {
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false);
     });
+
+    it("should return only the successes when some ciphers fail to decrypt", async () => {
+      const success = new CipherView();
+      const failure = new CipherView();
+      failure.decryptionFailure = true;
+
+      jest.spyOn(cipherSdkService, "getAllFromApiForOrganization").mockResolvedValue([[], []]);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[success], [failure]]);
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(result).toEqual([success]);
+    });
+  });
+
+  describe("getAllFromApiForOrganizationWithFailures()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return sorted successes and the failures", async () => {
+      const mockCipher = new Cipher(cipherData);
+
+      const successB = new CipherView();
+      successB.name = "B";
+      const successA = new CipherView();
+      successA.name = "A";
+      const failure1 = new CipherView();
+      failure1.decryptionFailure = true;
+      const failure2 = new CipherView();
+      failure2.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getAllFromApiForOrganization")
+        .mockResolvedValue([[mockCipher], []]);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [successB, successA],
+        [failure1, failure2],
+      ]);
+
+      const result = await cipherService.getAllFromApiForOrganizationWithFailures(testOrgId, true);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true);
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [mockCipher],
+        mockUserId,
+      );
+      expect(result).toEqual({
+        successes: [successA, successB],
+        failures: [failure1, failure2],
+      });
+    });
+
+    it("should return empty results when SDK throws", async () => {
+      jest
+        .spyOn(cipherSdkService, "getAllFromApiForOrganization")
+        .mockRejectedValue(new Error("SDK error"));
+
+      const result = await cipherService.getAllFromApiForOrganizationWithFailures(testOrgId);
+
+      expect(result).toEqual({ successes: [], failures: [] });
+    });
   });
 
   describe("getManyFromApiForOrganization()", () => {
@@ -1398,6 +1505,66 @@ describe("Cipher Service", () => {
       const result = await cipherService.getManyFromApiForOrganization(testOrgId);
 
       expect(result).toEqual([]);
+    });
+
+    it("should return only the successes when some ciphers fail to decrypt", async () => {
+      const success = new CipherView();
+      const failure = new CipherView();
+      failure.decryptionFailure = true;
+
+      jest.spyOn(cipherSdkService, "getManyFromApiForOrganization").mockResolvedValue([[], []]);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[success], [failure]]);
+
+      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+
+      expect(result).toEqual([success]);
+    });
+  });
+
+  describe("getManyFromApiForOrganizationWithFailures()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return sorted successes and the failures", async () => {
+      const mockCipher = new Cipher(cipherData);
+
+      const successB = new CipherView();
+      successB.name = "B";
+      const successA = new CipherView();
+      successA.name = "A";
+      const failure1 = new CipherView();
+      failure1.decryptionFailure = true;
+      const failure2 = new CipherView();
+      failure2.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getManyFromApiForOrganization")
+        .mockResolvedValue([[mockCipher], []]);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [successB, successA],
+        [failure1, failure2],
+      ]);
+
+      const result = await cipherService.getManyFromApiForOrganizationWithFailures(testOrgId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [mockCipher],
+        mockUserId,
+      );
+      expect(result).toEqual({
+        successes: [successA, successB],
+        failures: [failure1, failure2],
+      });
+    });
+
+    it("should return empty results when SDK throws", async () => {
+      jest
+        .spyOn(cipherSdkService, "getManyFromApiForOrganization")
+        .mockRejectedValue(new Error("SDK error"));
+
+      const result = await cipherService.getManyFromApiForOrganizationWithFailures(testOrgId);
+
+      expect(result).toEqual({ successes: [], failures: [] });
     });
   });
 
@@ -1503,14 +1670,21 @@ describe("Cipher Service", () => {
       const mockCipherView2 = new CipherView();
       mockCipherView2.name = "Test Cipher 2";
 
-      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted").mockResolvedValue({
-        successes: [mockCipherView1, mockCipherView2],
-        failures: [],
-      });
+      jest
+        .spyOn(cipherService, "ciphers$")
+        .mockReturnValue(
+          of({ a: { ...cipherData, id: "a" }, b: { ...cipherData, id: "b" } } as Record<
+            CipherId,
+            CipherData
+          >),
+        );
+      cipherEncryptionService.decrypt
+        .mockResolvedValueOnce(mockCipherView1)
+        .mockResolvedValueOnce(mockCipherView2);
 
       const result = await cipherService.getAllDecrypted(mockUserId);
 
-      expect(sdkServiceSpy).toHaveBeenCalledWith(mockUserId);
+      expect(cipherEncryptionService.decrypt).toHaveBeenCalledTimes(2);
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
       expect(result[1]).toBeInstanceOf(CipherView);
@@ -1532,6 +1706,96 @@ describe("Cipher Service", () => {
       expect(sdkServiceSpy).not.toHaveBeenCalled();
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("Cached Cipher");
+    });
+  });
+
+  describe("upsert", () => {
+    const restrictedId = "restricted" as CipherId;
+    const otherId = "other" as CipherId;
+    const stored = (id: CipherId, restricted: boolean, name = "stored") =>
+      Object.assign(new CipherData(), {
+        ...cipherData,
+        id,
+        name,
+        partialData: restricted ? "{}" : undefined,
+      });
+    const state = () =>
+      firstValueFrom(stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).state$);
+
+    beforeEach(() => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({});
+    });
+
+    it("keeps a stored restricted copy when the incoming copy is full", async () => {
+      const kept = stored(restrictedId, true);
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: kept });
+
+      await cipherService.upsert(stored(restrictedId, false, "incoming"), userId);
+
+      expect((await state())[restrictedId]).toEqual(kept);
+      expect(logService.debug).toHaveBeenCalledWith(
+        "Kept 1 stored restricted cipher(s); did not save a full copy.",
+      );
+    });
+
+    it("skips the write and keeps the cache when every item is kept", async () => {
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: stored(restrictedId, true) });
+      const clearCache = jest.spyOn(cipherService, "clearCache");
+
+      await cipherService.upsert(stored(restrictedId, false, "incoming"), userId);
+
+      expect(clearCache).not.toHaveBeenCalled();
+      expect(
+        stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextMock,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("replaces a stored restricted copy with an incoming restricted copy", async () => {
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: stored(restrictedId, true) });
+      const incoming = stored(restrictedId, true, "incoming");
+
+      await cipherService.upsert(incoming, userId);
+
+      expect((await state())[restrictedId]).toEqual(incoming);
+    });
+
+    it("replaces a stored full copy with an incoming restricted copy", async () => {
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: stored(restrictedId, false) });
+      const incoming = stored(restrictedId, true, "incoming");
+
+      await cipherService.upsert(incoming, userId);
+
+      expect((await state())[restrictedId]).toEqual(incoming);
+    });
+
+    it("adds a cipher with no stored copy", async () => {
+      const incoming = stored(otherId, false, "incoming");
+
+      await cipherService.upsert(incoming, userId);
+
+      expect((await state())[otherId]).toEqual(incoming);
+    });
+
+    it("keeps one item and writes another in the same call", async () => {
+      const kept = stored(restrictedId, true);
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: kept });
+      const written = stored(otherId, false, "incoming");
+
+      await cipherService.upsert([stored(restrictedId, false, "incoming"), written], userId);
+
+      const result = await state();
+      expect(result[restrictedId]).toEqual(kept);
+      expect(result[otherId]).toEqual(written);
     });
   });
 
@@ -1632,7 +1896,10 @@ describe("Cipher Service", () => {
       const sdkView = new CipherView();
       sdkView.id = cipherId;
       sdkView.localData = undefined;
-      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
+      jest
+        .spyOn(cipherService, "ciphers$")
+        .mockReturnValue(of({ [cipherId]: { ...cipherData, id: cipherId } }));
+      cipherEncryptionService.decrypt.mockResolvedValue(sdkView);
 
       const [result] = await cipherService.getAllDecrypted(userId);
 
@@ -1647,7 +1914,10 @@ describe("Cipher Service", () => {
 
       const sdkView = new CipherView();
       sdkView.id = cipherId;
-      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
+      jest
+        .spyOn(cipherService, "ciphers$")
+        .mockReturnValue(of({ [cipherId]: { ...cipherData, id: cipherId } }));
+      cipherEncryptionService.decrypt.mockResolvedValue(sdkView);
 
       const result = await cipherService.getAllDecrypted(userId);
 

@@ -171,7 +171,7 @@ export class Cipher extends Domain {
   /**
    * @returns `true` when this is a PAM-gated ("partial") row, whose sensitive fields the server
    *   suppressed in favour of the {@link partialData} envelope. The decrypted-side equivalent is
-   *   `CipherViewLikeUtils.isPartial`.
+   *   `CipherViewLikeUtils.isRestricted`.
    */
   get isPartial(): boolean {
     return this.partialData != null;

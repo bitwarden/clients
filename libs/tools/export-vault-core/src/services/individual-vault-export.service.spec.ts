@@ -1,5 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import * as JSZip from "jszip";
+import * as papa from "papaparse";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -11,7 +12,7 @@ import { BuildTestObject, GetUniqueString } from "@bitwarden/common/spec";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { AttachmentData } from "@bitwarden/common/vault/models/data/attachment.data";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Attachment } from "@bitwarden/common/vault/models/domain/attachment";
@@ -21,6 +22,7 @@ import { Login } from "@bitwarden/common/vault/models/domain/login";
 import { AttachmentResponse } from "@bitwarden/common/vault/models/response/attachment.response";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
@@ -329,6 +331,24 @@ describe("VaultExportService", () => {
     const exportedData = actual as ExportedVaultAsString;
 
     expectEqualCiphers([UserCipherDomains[0], UserCipherDomains[1]], exportedData.data);
+  });
+
+  it("exports custom fields without a value as empty in csv exports", async () => {
+    const cipher = generateCipherView(false);
+    cipher.fields = [
+      BuildTestObject({ name: "Text", value: "value", type: FieldType.Text }, FieldView),
+      BuildTestObject({ name: "Empty", value: null, type: FieldType.Text }, FieldView),
+      BuildTestObject(
+        { name: "Linked", value: undefined, type: FieldType.Linked, linkedId: 100 },
+        FieldView,
+      ),
+    ];
+    cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+
+    const actual = (await exportService.getExport(userId, "csv")) as ExportedVaultAsString;
+
+    const [row] = papa.parse<Record<string, string>>(actual.data, { header: true }).data;
+    expect(row.fields).toEqual("Text: value\nEmpty: \nLinked: ");
   });
 
   describe("zip export", () => {

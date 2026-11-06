@@ -13,25 +13,20 @@ import { PerfTrackGroup } from "@bitwarden/logging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
 import { CollectionData, CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
-import { ProviderData } from "../../admin-console/models/data/provider.data";
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { LogoutReason } from "../../auth/logout";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
@@ -42,6 +37,8 @@ import { UserDecryptionResponse } from "../../key-management/models/response/use
 import { withPasswordManagerSdk } from "../../key-management/utils";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
+import { ProviderService } from "../../provider/abstractions/provider.service";
+import { ProviderData } from "../../provider/models/data/provider.data";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendResponse } from "../../tools/send/models/response/send.response";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
@@ -90,7 +87,6 @@ export class DefaultSyncService extends CoreSyncService {
     collectionService: CollectionService,
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
-    private newPolicyService: InternalNewPolicyService,
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
@@ -190,8 +186,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.retryPendingSendDeletions(response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
-      await this.syncPolicies(response.policies, response.profile.id);
-      await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
+      await this.syncPolicies(response.policiesNew, response.policies, response.profile.id);
       processMeasurement.finish([["Ciphers", response.ciphers?.length ?? 0]]);
 
       await this.setLastSync(now, userId);
@@ -452,32 +447,18 @@ export class DefaultSyncService extends CoreSyncService {
     return this.domainSettingsService.setEquivalentDomains(eqDomains, userId);
   }
 
-  private async syncPolicies(response: PolicyResponse[], userId: UserId) {
-    const policies: { [id: string]: PolicyData } = {};
-    if (response != null) {
-      response.forEach((p) => {
-        policies[p.id] = new PolicyData(p);
-      });
-    }
-    return await this.policyService.replace(policies, userId);
-  }
-
-  private async syncNewPolicies(
+  private async syncPolicies(
     response: PolicyResponse[] | undefined,
     fallback: PolicyResponse[] | undefined,
     userId: UserId,
   ) {
-    // Fall back to `policies` when `policiesNew` is absent or empty, so the new service
-    // is always seeded with data on servers that do not send `policiesNew`.
+    // Fall back to `policies` when `policiesNew` is absent or empty.
     const source = response != null && response.length > 0 ? response : fallback;
-    if (source == null) {
-      return;
-    }
     const policies: { [id: string]: PolicyData } = {};
-    source.forEach((p) => {
+    source?.forEach((p) => {
       policies[p.id] = new PolicyData(p);
     });
-    return await this.newPolicyService.replace(policies, userId);
+    return await this.policyService.replace(policies, userId);
   }
 
   /**

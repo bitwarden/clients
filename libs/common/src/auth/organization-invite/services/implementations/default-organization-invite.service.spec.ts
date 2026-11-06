@@ -4,9 +4,6 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutService } from "@bitwarden/auth/common";
 import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -35,6 +32,7 @@ import { Utils } from "../../../../platform/misc/utils";
 import { MockSdkService } from "../../../../platform/spec/mock-sdk.service";
 import { OrgKey } from "../../../../types/key";
 import { DeepLinkRedirectService } from "../../../deep-link-redirect";
+import { LogoutService } from "../../../logout";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
 import { OpenOrganizationInvite } from "../../models/open-organization-invite";
@@ -770,13 +768,13 @@ describe("DefaultOrganizationInviteService", () => {
     // Callers pass their current page URL so the deep-link guard can replay
     // it after re-auth on the MP-policy detour. Value is opaque to the SUT.
     const acceptOrgUrl = "/join/orgId/link-code?key=xyz";
-    // Deep-mock chain returned by userClient.invite_link.mockDeep(); holds
+    // Deep-mock chain returned by userClient.invite_link.mockDeep().user.mockDeep(); holds
     // .accept_and_optionally_confirm which our implementation calls.
     let inviteLinkClient: any;
 
     beforeEach(() => {
       const userClient = sdkService.simulate.userLogin(activeUserId);
-      inviteLinkClient = userClient.invite_link.mockDeep();
+      inviteLinkClient = userClient.invite_link.mockDeep().user.mockDeep();
       inviteLinkClient.accept_and_optionally_confirm.mockResolvedValue(undefined);
       // Default: no MP-policy detour, no AR auto-enroll, VFO1 off. Individual tests
       // override.
@@ -1208,6 +1206,14 @@ describe("DefaultOrganizationInviteService", () => {
         {
           variant: "SingleOrganizationPolicy",
           expectedKind: "single-org-policy-violation-other-org",
+        },
+        {
+          variant: "AutoConfirmPolicyViolationTargetOrg",
+          expectedKind: "auto-confirm-policy-violation-target-org",
+        },
+        {
+          variant: "AutoConfirmPolicyViolationOtherOrg",
+          expectedKind: "auto-confirm-policy-violation-other-org",
         },
         { variant: "TwoFactorRequiredForMembership", expectedKind: "two-factor-required" },
         {

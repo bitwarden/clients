@@ -373,14 +373,23 @@ export class VaultComponent implements OnInit, OnDestroy {
     private scrollLayoutService: ScrollLayoutService,
     private collectionService: CollectionService,
   ) {
+    // Keyed by the route's own scope rather than `vaultScope`, which turns All items into My vault
+    // once a personal-only account's vaults load, and so would save and restore under different
+    // keys. The route observables replay synchronously, so this lands before the table restores.
     combineLatest([this.activatedRoute.paramMap, this.activatedRoute.data])
       .pipe(takeUntilDestroyed())
-      .subscribe(([params, data]) =>
-        this.vaultPopupListTableFiltersService.setCachedVaultScopeId(
-          params.get("vaultId"),
-          scopedCollectionSegment(params, data),
-        ),
-      );
+      .subscribe(([params, data]) => {
+        const vaultId = params.get("vaultId");
+        if (vaultId != null) {
+          // Only a scoped route records the selection: the unscoped one is also where the vault is
+          // opened from elsewhere, and choosing All items is recorded by the vault switcher.
+          void this.vaultPopupListTableFiltersService.setCachedVaultScopeId(
+            vaultId,
+            scopedCollectionSegment(params, data),
+          );
+        }
+        this.vaultPopupListTableFiltersService.setScope(routeVaultScope(params, data));
+      });
 
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

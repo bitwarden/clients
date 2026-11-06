@@ -34,3 +34,15 @@ export type VaultItemsTableFilters = {
   /** Folder ids, or {@link NO_FOLDER}. Multi-select: a cipher matches any selected value. */
   folder?: string[];
 };
+
+/**
+ * Keys the table uses itself: the chips, `bit-table-v2`'s sort and pagination params. A contributed
+ * filter (`VAULT_ITEM_FILTER`) must not use one of them.
+ */
+export const VAULT_RESERVED_FILTER_KEYS: ReadonlySet<string> = new Set([
+  ...Object.values(VAULT_FILTER_KEYS),
+  "sort",
+  "direction",
+  "page",
+  "pageSize",
+]);
