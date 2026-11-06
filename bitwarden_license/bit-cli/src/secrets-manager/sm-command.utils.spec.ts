@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { BulkOperationStatus } from "@bitwarden/bit-sm/models/bulk-operation-status";
+import { BulkOperationStatus } from "@bitwarden/bit-sm";
 import { CliUtils } from "@bitwarden/cli/utils";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

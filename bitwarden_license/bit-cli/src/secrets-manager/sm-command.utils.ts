@@ -1,6 +1,6 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { BulkOperationStatus } from "@bitwarden/bit-sm/models/bulk-operation-status";
+import { BulkOperationStatus } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { CliUtils } from "@bitwarden/cli/utils";

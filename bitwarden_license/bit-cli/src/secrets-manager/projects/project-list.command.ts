@@ -1,4 +1,4 @@
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { ProjectService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
