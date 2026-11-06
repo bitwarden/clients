@@ -1,9 +1,11 @@
+import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { dialogOver, dialogWith } from "../utils/dialog-mock";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BulkActionComponent } from "./bulk-action.component";
@@ -72,6 +74,7 @@ class HostComponent {
 describe("BulkActionsBarComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
+  let openDialogs: DialogRef[];
 
   const innerBar = () =>
     fixture.debugElement.query(By.css('[role="toolbar"]')).nativeElement as HTMLElement;
@@ -91,9 +94,12 @@ describe("BulkActionsBarComponent", () => {
   const liveRegion = () => fixture.nativeElement.querySelector('[role="status"]') as HTMLElement;
 
   beforeEach(async () => {
+    openDialogs = [];
+
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [
+        { provide: Dialog, useValue: dialogWith(openDialogs) },
         {
           provide: I18nService,
           useFactory: () =>
@@ -112,6 +118,8 @@ describe("BulkActionsBarComponent", () => {
               // so its `aria-label` and label content pipe through i18n even when
               // no additional actions are projected.
               additionalActions: "Additional actions",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
             }),
         },
       ],
@@ -324,6 +332,19 @@ describe("BulkActionsBarComponent", () => {
       expect(document.activeElement).toBe(before);
       expect(host.cleared()).toBe(0);
     }));
+
+    // Ctrl+B must not pull focus past a dialog's focus trap.
+    it("does not pull focus out of an open dialog", () => {
+      outside().focus();
+      openDialogs.push(dialogOver(document.createElement("div")));
+
+      const event = new KeyboardEvent("keydown", { key: "b", ctrlKey: true, cancelable: true });
+      document.dispatchEvent(event);
+      fixture.detectChanges();
+
+      expect(document.activeElement).toBe(outside());
+      expect(event.defaultPrevented).toBe(false);
+    });
   });
 
   describe("modifier label", () => {
@@ -647,6 +668,8 @@ describe("BulkActionsBarComponent — additional actions", () => {
               bulkActionsBar: "Bulk actions",
               bulkActionsBarAnnouncement: "__$1__ items selected. Press __$2__.",
               additionalActions: "Additional actions",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
             }),
         },
       ],
