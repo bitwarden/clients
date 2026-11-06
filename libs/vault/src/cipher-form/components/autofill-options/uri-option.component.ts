@@ -189,7 +189,7 @@ export class UriOptionComponent implements ControlValueAccessor {
     }
   }
 
-  /** Whether this URI pairs the login with a desktop app and should be shown as one. */
+  /** Returns true if this URI is a desktop app pairing */
   protected get isAppUri(): boolean {
     return (
       this.showDesktopApps() &&

@@ -1,33 +1,49 @@
 <div class="tw-p-4">
   <bit-section>
-    <bit-accordion
-      [title]="cipher().name"
-      [subtitle]="cipherSubtitle()"
-      [startIcon]="cipherTypeIcon()"
-      variant="subtle"
-      [open]="false"
-    >
-      <span bitTypography="body2" class="tw-mb-2 tw-block tw-font-semibold">{{
-        "itemDetails" | i18n
-      }}</span>
-      <div class="tw-flex tw-flex-col tw-gap-2">
-        @for (collection of collections(); track collection.id) {
-          <div class="tw-flex tw-items-center tw-gap-2">
-            <bit-icon name="bwi-collection" class="tw-text-muted" />
-            <span bitTypography="body2" class="tw-text-muted">{{ collection.name }}</span>
-          </div>
-        }
-        @if (folder(); as currentFolder) {
-          <div class="tw-flex tw-items-center tw-gap-2">
-            <bit-icon name="bwi-folder" class="tw-text-muted" />
-            <span bitTypography="body2" class="tw-text-muted">{{ currentFolder.name }}</span>
-          </div>
-        }
-        @if (!collections().length && !folder()) {
-          <span bitTypography="body2" class="tw-text-muted">&mdash;</span>
-        }
+    @if (hasItemDetails()) {
+      <bit-accordion
+        [title]="cipher().name"
+        [subtitle]="cipherSubtitle()"
+        [startIcon]="cipherTypeIcon()"
+        variant="subtle"
+        [open]="false"
+      >
+        <span bitTypography="body2" class="tw-mb-2 tw-block tw-font-semibold">{{
+          "itemDetails" | i18n
+        }}</span>
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          @for (collection of collections(); track collection.id) {
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <bit-icon name="bwi-collection" class="tw-text-muted" />
+              <span bitTypography="body2" class="tw-text-muted">{{ collection.name }}</span>
+            </div>
+          }
+          @if (folder(); as currentFolder) {
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <bit-icon name="bwi-folder" class="tw-text-muted" />
+              <span bitTypography="body2" class="tw-text-muted">{{ currentFolder.name }}</span>
+            </div>
+          }
+        </div>
+      </bit-accordion>
+    } @else {
+      <!-- Mirrors the accordion's header so the item looks the same, minus the toggle: with no
+         folder or collections there is nothing for it to reveal. -->
+      <div
+        id="share-item-form_item-summary"
+        class="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-4"
+      >
+        <bit-icon-tile [icon]="cipherTypeIcon()" size="lg" variant="gray"></bit-icon-tile>
+        <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0 tw-gap-1 tw-items-start">
+          <span class="tw-font-medium tw-leading-6 tw-text-lg tw-text-fg-heading">{{
+            cipher().name
+          }}</span>
+          @if (cipherSubtitle(); as subtitle) {
+            <span class="tw-text-sm/5 tw-text-fg-body">{{ subtitle }}</span>
+          }
+        </div>
       </div>
-    </bit-accordion>
+    }
   </bit-section>
 
   <form [formGroup]="form">

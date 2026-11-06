@@ -119,7 +119,8 @@ export class TooltipDirective implements OnInit, OnDestroy {
     this.isVisible.set(false);
   };
 
-  protected showTooltip = () => {
+  /** Opens after the show delay. For a focusable ancestor whose focus never reaches this host. */
+  readonly showTooltip = () => {
     if (this.suppressed()) {
       return;
     }
@@ -141,7 +142,7 @@ export class TooltipDirective implements OnInit, OnDestroy {
     }, TOOLTIP_DELAY_MS);
   };
 
-  protected hideTooltip = () => {
+  readonly hideTooltip = () => {
     this.destroyTooltip();
   };
 

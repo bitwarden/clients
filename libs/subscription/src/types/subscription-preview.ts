@@ -2,12 +2,23 @@ import { Cart } from "@bitwarden/pricing";
 
 import { Storage } from "./storage";
 
+export const SubscriptionStatuses = {
+  Incomplete: "incomplete",
+  IncompleteExpired: "incomplete_expired",
+  Trialing: "trialing",
+  Active: "active",
+  PastDue: "past_due",
+  Canceled: "canceled",
+  Unpaid: "unpaid",
+} as const;
+
+export type SubscriptionStatus = (typeof SubscriptionStatuses)[keyof typeof SubscriptionStatuses];
+
 /**
- * The preview-driven counterpart to `BitwardenSubscription`, projected from a Stripe invoice
- * preview rather than the legacy subscription response.
+ * A subscription projected from a Stripe invoice preview.
  *
- * One deliberate difference from `BitwardenSubscription`: `storage` is optional, because the
- * server returns no storage for subscribers without a maximum storage allowance.
+ * `storage` is optional, because the server returns no storage for subscribers without a maximum
+ * storage allowance.
  */
 
 type HasCart = {
