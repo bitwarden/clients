@@ -670,6 +670,7 @@ describe("Cipher Service", () => {
         await new Promise((resolve) => setTimeout(resolve));
 
         expect(cipherService["decryptCiphersWithSdk"]).toHaveBeenCalledTimes(1);
+        expect(messageSender.send).toHaveBeenCalledTimes(2);
         expect(emitted.at(-1)?.[0].localData?.lastUsedDate).toBe(
           new Date(lastUsedDate).toISOString(),
         );

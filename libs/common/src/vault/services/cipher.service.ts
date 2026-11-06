@@ -182,12 +182,13 @@ export class CipherService implements CipherServiceAbstraction {
         decryptMeasurement.finish([["Items", decrypted.length]]);
       }),
       map(([decrypted]) => decrypted),
-      // The extension's URL matching reads list views, so its inline menu refreshes from here.
-      tap(() => this.messageSender.send("updateOverlayCiphers")),
     );
 
     return combineLatest([decrypted$, this.localData$(userId)]).pipe(
       map(([views, localData]) => this.attachLocalData(views, localData)),
+      // The extension's URL matching reads list views, so its inline menu refreshes from here.
+      // Also on `localData` changes, so the popup refetches and keeps its last-used ordering.
+      tap(() => this.messageSender.send("updateOverlayCiphers")),
     );
   }, this.clearCipherViewsForUser$);
 
