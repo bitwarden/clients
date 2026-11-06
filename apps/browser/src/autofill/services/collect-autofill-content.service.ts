@@ -1830,7 +1830,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
-      this.getPageDetails.bind(this),
+      () => this.getPageDetails(),
       { timeout: adaptiveTimeout },
     );
   }
