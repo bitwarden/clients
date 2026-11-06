@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FieldType } from "@bitwarden/common/vault/enums";
+
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
@@ -35,6 +37,8 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
       }
 
       if (entry.currentVersion != null && entry.currentVersion.fields != null) {
+        let passwordFieldIsLabeled = false;
+        let passwordFieldLabel: string | null = null;
         for (const property in entry.currentVersion.fields) {
           // eslint-disable-next-line
           if (!entry.currentVersion.fields.hasOwnProperty(property)) {
@@ -43,18 +47,50 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
 
           const field = entry.currentVersion.fields[property];
           const actionType = field.actionType != null ? field.actionType.toLowerCase() : null;
+          // Clipperz marks "locked" fields with hidden: true; they must be
+          // imported as hidden custom fields, never as plain text.
+          const fieldType = field.hidden === true ? FieldType.Hidden : FieldType.Text;
           switch (actionType) {
-            case "password":
-              cipher.login.password = this.getValueOrDefault(field.value);
+            case "password": {
+              const labelLower = field.label != null ? field.label.toLowerCase() : null;
+              const labeled =
+                labelLower != null && this.passwordFieldNames.indexOf(labelLower) > -1;
+              if (cipher.login.password == null || (labeled && !passwordFieldIsLabeled)) {
+                // Prefer a field actually labeled as a password: an earlier
+                // unlabeled field that held the slot is demoted to a hidden
+                // custom field rather than overwritten.
+                if (cipher.login.password != null && passwordFieldLabel != null) {
+                  this.processKvp(
+                    cipher,
+                    passwordFieldLabel,
+                    cipher.login.password,
+                    FieldType.Hidden,
+                  );
+                }
+                cipher.login.password = this.getValueOrDefault(field.value);
+                passwordFieldIsLabeled = labeled;
+                passwordFieldLabel = field.label;
+              } else {
+                this.processKvp(cipher, field.label, field.value, fieldType);
+              }
               break;
+            }
             case "email":
             case "username":
             case "user":
             case "name":
-              cipher.login.username = this.getValueOrDefault(field.value);
+              if (cipher.login.username == null) {
+                cipher.login.username = this.getValueOrDefault(field.value);
+              } else {
+                this.processKvp(cipher, field.label, field.value, fieldType);
+              }
               break;
             case "url":
-              cipher.login.uris = this.makeUriArray(field.value);
+              if (cipher.login.uris == null || cipher.login.uris.length === 0) {
+                cipher.login.uris = this.makeUriArray(field.value);
+              } else {
+                this.processKvp(cipher, field.label, field.value, fieldType);
+              }
               break;
             default: {
               const labelLower = field.label != null ? field.label.toLowerCase() : null;
@@ -63,6 +99,8 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
                 this.passwordFieldNames.indexOf(labelLower) > -1
               ) {
                 cipher.login.password = this.getValueOrDefault(field.value);
+                passwordFieldIsLabeled = true;
+                passwordFieldLabel = field.label;
               } else if (
                 cipher.login.username == null &&
                 this.usernameFieldNames.indexOf(labelLower) > -1
@@ -74,7 +112,7 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
               ) {
                 cipher.login.uris = this.makeUriArray(field.value);
               } else {
-                this.processKvp(cipher, field.label, field.value);
+                this.processKvp(cipher, field.label, field.value, fieldType);
               }
               break;
             }
