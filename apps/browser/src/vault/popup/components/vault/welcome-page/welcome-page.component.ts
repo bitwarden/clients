@@ -17,14 +17,12 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { consumeDefaultPasswordManagerSuccessToast } from "../../../../../autofill/default-password-manager-session.util";
-import {
-  DefaultPasswordBackgroundDark,
-  DefaultPasswordBackgroundLight,
-} from "../../../../../autofill/popup/default-password-manager/default-password-manager-illustrations";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { IntroCarouselService } from "../../../services/intro-carousel.service";
+
+import { WelcomeBackgroundDark, WelcomeBackgroundLight } from "./welcome-page-illustrations";
 
 /** Single-page replacement for the intro carousel, gated by `PM45335_ExtensionWelcomePage`. */
 @Component({
@@ -59,7 +57,7 @@ export class WelcomePageComponent implements OnInit {
 
   protected readonly logo = BitwardenLogo;
   protected readonly backgroundIllustration = computed(() =>
-    this.isDarkTheme() ? DefaultPasswordBackgroundDark : DefaultPasswordBackgroundLight,
+    this.isDarkTheme() ? WelcomeBackgroundDark : WelcomeBackgroundLight,
   );
 
   async ngOnInit() {
