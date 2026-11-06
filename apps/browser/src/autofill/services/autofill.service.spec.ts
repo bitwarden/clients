@@ -56,6 +56,8 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { stampWebExtSender } from "../../platform/utils/web-ext-sender";
+import { DefaultAutofillOrchestrator } from "../background/autofill-orchestrator";
+import AutofillInit from "../content/autofill-init";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
@@ -79,8 +81,10 @@ import {
   CollectPageDetailsResponseMessage,
   GenerateFillScriptOptions,
 } from "./abstractions/autofill.service";
+import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { AutoFillConstants } from "./autofill-constants";
 import AutofillService from "./autofill.service";
+import { DomQueryService } from "./dom-query.service";
 
 const mockEquivalentDomains = [
   ["example.com", "exampleapp.com", "example.co.uk", "ejemplo.es"],
@@ -858,6 +862,101 @@ describe("AutofillService", () => {
           outcome: AutofillOutcome.Denied,
         });
       });
+    });
+
+    it("rescans a cached login form when manually filling a selected cipher", async () => {
+      document.body.innerHTML = '<form><input id="login" autocomplete="username"></form>';
+      const visibility = mock<DomElementVisibilityService>();
+      visibility.isElementViewable.mockResolvedValue(true);
+      const runtimeSend = jest
+        .spyOn(chrome.runtime, "sendMessage")
+        .mockImplementation(((_message: unknown, respond: (response: unknown) => void) =>
+          respond({ result: null })) as typeof chrome.runtime.sendMessage);
+      const content = new AutofillInit(new DomQueryService(), visibility);
+      const collector = content["collectAutofillContentService"];
+      const tab = createChromeTabMock({ id: 1, url: location.href });
+      const responses = new Subject<CollectPageDetailsResponseMessage>();
+      messageListener.messages$.mockReturnValue(responses);
+      const responseSpy = jest.spyOn(content as any, "sendExtensionMessage");
+      responseSpy.mockImplementation(async (_command, response) => {
+        if (_command === "collectPageDetailsResponse") {
+          responses.next(stampWebExtSender(response, { tab, frameId: 0 }));
+        }
+      });
+      let insertion: Promise<void> | undefined;
+      const tabSend = jest.spyOn(chrome.tabs, "sendMessage").mockImplementation(((
+        _tabId,
+        message,
+        _options,
+        respond,
+      ) => {
+        const response = new Promise<void>((resolve) =>
+          content["handleExtensionMessage"](message, {}, resolve),
+        );
+        if (message.command === "fillForm") {
+          insertion = response;
+        }
+        void response.then(respond);
+      }) as typeof chrome.tabs.sendMessage);
+      const liveTab = jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockReturnValueOnce(of(false));
+      const orchestrator = new DefaultAutofillOrchestrator(
+        autofillLifecycleService,
+        autofillService,
+        cipherService,
+        autofillSettingsService,
+        accountService,
+        platformUtilsService,
+        async () => {},
+        logService,
+      );
+
+      try {
+        // Run the real content handlers but leave mutation observation disconnected to
+        // model the reported state: the password exists while the cache is still clean.
+        content["isMonitoring"] = true;
+        expect((await collector.getPageDetails()).fields.map((field) => field.htmlID)).toEqual([
+          "login",
+        ]);
+        document
+          .querySelector("form")!
+          .insertAdjacentHTML(
+            "beforeend",
+            '<input id="password" type="password" autocomplete="current-password">',
+          );
+        expect((await collector.getPageDetails()).fields.map((field) => field.htmlID)).toEqual([
+          "login",
+        ]);
+
+        const result = await orchestrator.unsafeAutofillTabWithCipher(tab, autofillOptions.cipher);
+        const collected = responseSpy.mock.calls.find(
+          ([command]) => command === "collectPageDetailsResponse",
+        )?.[1].details as AutofillPageDetails;
+        const password = collected.fields.find((field) => field.htmlID === "password");
+        expect(password).toBeDefined();
+        expect(tabSend).toHaveBeenCalledWith(
+          tab.id,
+          expect.objectContaining({
+            command: "fillForm",
+            fillScript: expect.objectContaining({
+              script: expect.arrayContaining([["fill_by_opid", password!.opid, "password"]]),
+            }),
+          }),
+          { frameId: 0 },
+          expect.any(Function),
+        );
+        expect(result.outcome).toBe(AutofillOutcome.Filled);
+        await insertion;
+        expect(document.querySelector<HTMLInputElement>("#password")?.value).toBe("password");
+      } finally {
+        content.stopMonitoring();
+        tabSend.mockReset();
+        runtimeSend.mockReset();
+        liveTab.mockRestore();
+        document.body.replaceChildren();
+      }
     });
 
     it("will autofill login data for a page", async () => {

@@ -133,7 +133,15 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param tab The tab to collect page details from
    * @param frameId When set, collect only this frame; otherwise collect every frame
    */
-  collectPageDetailsFromTab$(tab: chrome.tabs.Tab, frameId?: number): Observable<PageDetail[]> {
+  collectPageDetailsFromTab$(
+    tab: chrome.tabs.Tab,
+    frameId?: number,
+    forceRescan = false,
+  ): Observable<PageDetail[]> {
+    // Keep cached responses from overlapping background collections out of manual fills.
+    const sender = forceRescan
+      ? AutofillMessageSender.collectFreshPageDetailsFromTabObservable
+      : AutofillMessageSender.collectPageDetailsFromTabObservable;
     /** Replay Subject that can be utilized when `messages$` may not emit the page details. */
     const pageDetailsFallback$ = new ReplaySubject<PageDetail[]>(1);
 
@@ -142,7 +150,7 @@ export default class AutofillService implements AutofillServiceInterface {
       .pipe(
         filter(
           (message) =>
-            message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable &&
+            message.sender === sender &&
             message.tab?.id === tab.id &&
             (frameId === undefined || getWebExtSender(message)?.frameId === frameId),
         ),
@@ -166,7 +174,8 @@ export default class AutofillService implements AutofillServiceInterface {
       {
         tab: tab,
         command: AutofillMessageCommand.collectPageDetails,
-        sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+        sender,
+        ...(forceRescan && { forceRescan }),
       },
       frameId !== undefined ? { frameId } : undefined,
       true,
