@@ -6,10 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
-import {
-  ServiceAccountSecretsDetailsView,
-  ServiceAccountView,
-} from "@bitwarden/bit-sm/models/view/service-account.view";
+import { ServiceAccountSecretsDetailsView, ServiceAccountView } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

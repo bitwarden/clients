@@ -9,9 +9,7 @@ import {
   AbstractControl,
 } from "@angular/forms";
 
-import { BulkOperationStatus } from "@bitwarden/bit-sm/models/bulk-operation-status";
-import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { BulkOperationStatus, ProjectListView, ProjectService } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";

@@ -13,10 +13,7 @@ import {
 } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { ProjectService, ProjectView, SecretListView, SecretService } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,
