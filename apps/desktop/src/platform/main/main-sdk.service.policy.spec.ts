@@ -22,11 +22,11 @@ import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.d
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
-import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -125,7 +125,6 @@ function createMainProcess() {
     stateProvider,
     new DefaultOrganizationService(stateProvider),
     accountService,
-    new DefaultNewPolicyService(stateProvider),
     () => sdkService,
   );
 
@@ -188,6 +187,12 @@ function createRenderer() {
     globalStateProvider,
     new DefaultDerivedStateProvider(),
   );
+  const policyService = new DefaultPolicyService(
+    stateProvider,
+    new DefaultOrganizationService(stateProvider),
+    accountService,
+    () => mock<SdkService>(),
+  );
 
   return {
     async login(userId: UserId) {
@@ -207,10 +212,7 @@ function createRenderer() {
         Object.fromEntries(organizations.map((o) => [o.id, o])),
         userId,
       );
-      await new DefaultNewPolicyService(stateProvider).replace(
-        Object.fromEntries(policies.map((p) => [p.id, p])),
-        userId,
-      );
+      await policyService.replace(Object.fromEntries(policies.map((p) => [p.id, p])), userId);
     },
   };
 }

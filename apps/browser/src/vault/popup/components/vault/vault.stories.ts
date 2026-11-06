@@ -63,7 +63,7 @@ import {
   I18nMockService,
   ToastService,
 } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
 import {
@@ -696,10 +696,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: AutofillService, useValue: {} },
     { provide: EventCollectionService, useValue: { collect: () => Promise.resolve() } },
     // Pulled in by the real `DialogService`, which is reachable via component-level providers.
-    {
-      provide: LogService,
-      useValue: { debug: () => {}, info: () => {}, warning: () => {}, error: () => {} },
-    },
+    { provide: LogService, useFactory: () => new ConsoleLogService(true) },
     { provide: TotpService, useValue: {} },
     { provide: CoachmarkService, useValue: mockCoachmarkService },
     {

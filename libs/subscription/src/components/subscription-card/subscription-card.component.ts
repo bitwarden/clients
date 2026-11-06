@@ -16,7 +16,7 @@ import {
 import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitwardenSubscription, SubscriptionPreview, SubscriptionStatuses } from "../..";
+import { SubscriptionPreview, SubscriptionStatuses } from "../..";
 
 export const SubscriptionCardActions = {
   ContactSupport: "contact-support",
@@ -68,7 +68,7 @@ export class SubscriptionCardComponent {
 
   readonly title = input.required<string>();
 
-  readonly subscription = input.required<BitwardenSubscription | SubscriptionPreview>();
+  readonly subscription = input.required<SubscriptionPreview>();
 
   readonly showUpgradeButton = input<boolean>(false);
 
