@@ -188,10 +188,10 @@ export class BitTableToolbarComponent {
   });
 
   /**
-   * The small-screen layout: a narrow toolbar, or one whose `slot=end` buttons have stacked.
-   * Collapses the filters to the trigger and lets the search fill its row.
+   * The small-screen layout: a narrow toolbar, or one whose `slot=end` buttons have moved to
+   * their own row. Collapses the filters to the trigger and lets the search fill its row.
    */
-  private readonly compact = computed(() => !this.wide() || (this.endGroup()?.stacked() ?? false));
+  private readonly compact = computed(() => !this.wide() || !this.endInline());
 
   /**
    * Whether the filter row is collapsed to the single trigger + dialog. Always in the compact

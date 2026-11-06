@@ -65,8 +65,7 @@ export class ButtonGroupComponent {
     return Math.max(0, ...widths) * widths.length + this.gaps();
   });
 
-  /** Whether the buttons are currently stacked, including when `auto` has stacked them. */
-  readonly stacked = computed(() => {
+  protected readonly stacked = computed(() => {
     switch (this.orientation()) {
       case "vertical":
         return true;
