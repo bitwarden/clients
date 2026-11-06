@@ -1575,6 +1575,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           if (this.shouldListenToTopLayerCandidate(node)) {
             this.pendingTopLayerTargets.add(node);
           }
+          // A popover or dialog nested under a non-candidate added node is still promoted to
+          // the top layer, so it can obscure the inline menu. The added node itself is the only
+          // thing checked above, so walk its descendants to register nested candidates too.
+          for (const descendant of node.querySelectorAll("[popover], dialog")) {
+            if (this.shouldListenToTopLayerCandidate(descendant)) {
+              this.pendingTopLayerTargets.add(descendant);
+            }
+          }
         }
       }
     }
