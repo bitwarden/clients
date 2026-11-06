@@ -6,6 +6,7 @@ export { BitHeaderCellComponent } from "./bit-header-cell.component";
 export { BitHeaderRowComponent } from "./bit-header-row.component";
 export { BitRowComponent } from "./bit-row.component";
 export { BitRowGroupComponent } from "./bit-row-group.component";
+export { BitTableToolbarActionComponent } from "./bit-table-toolbar-action.component";
 export { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 export { BitTablePaginatorComponent, type TableRowRange } from "./bit-table-paginator.component";
 export { type ColumnRef, type ColumnName, type ColumnRefs } from "./column";

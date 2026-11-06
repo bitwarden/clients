@@ -602,6 +602,7 @@ describe("BitTableToolbarComponent customize control", () => {
               search: "Search",
               resetSearch: "Reset search",
               customize: "Customize",
+              additionalActions: "Additional actions",
             }),
         },
         { provide: DialogService, useValue: dialogService },

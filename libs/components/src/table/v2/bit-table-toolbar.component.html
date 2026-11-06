@@ -5,12 +5,12 @@
   `tw-min-w-0` keeps it from growing past a `bitCollapseOnScroll` grid to fit the chip group.
 -->
 <div class="tw-relative tw-flex tw-flex-col tw-min-w-0">
-  <div [class]="searchRowClasses()">
+  <div #searchRow [class]="searchRowClasses()">
     <div [class]="searchClasses()">
       <ng-content select="bit-search"></ng-content>
     </div>
     <!-- Collapsed, the chip row is replaced by this single trigger + applied-count berry. -->
-    @if (showFilterTrigger()) {
+    <ng-template #filterTrigger>
       <div class="tw-relative tw-flex-none">
         <button
           type="button"
@@ -26,20 +26,63 @@
           ></bit-berry>
         }
       </div>
+    </ng-template>
+    <!-- With actions, the trigger sits in the action row, just before its menu. -->
+    @if (showFilterTrigger() && !hasActions()) {
+      <ng-container *ngTemplateOutlet="filterTrigger"></ng-container>
     }
-    <div [class]="endSlotClasses()">
-      @if (canCustomizeColumns()) {
+    @if (hasActions()) {
+      <div
+        #actionList
+        bitOverflowList
+        [gap]="12"
+        [containerWidth]="actionBudget()"
+        class="tw-ms-auto tw-flex tw-min-w-0 tw-items-center tw-gap-3"
+        [class.tw-invisible]="!actionListReady()"
+      >
+        @if (canCustomizeColumns()) {
+          <button
+            type="button"
+            data-testid="customize-columns"
+            bitButton
+            bitOverflowItem
+            class="tw-shrink-0"
+            buttonType="secondary"
+            startIcon="bwi-grid"
+            (click)="openCustomizeColumns()"
+          >
+            {{ "customize" | i18n }}
+          </button>
+        }
+        @for (action of actions(); track action) {
+          <button
+            type="button"
+            bitButton
+            bitOverflowItem
+            class="tw-shrink-0"
+            [pinned]="action.pinned()"
+            [buttonType]="action.buttonType()"
+            [startIcon]="action.icon()"
+            [disabled]="action.disabled()"
+            (click)="action.action()()"
+          >
+            {{ action.label() }}
+          </button>
+        }
+        @if (showFilterTrigger()) {
+          <ng-container *ngTemplateOutlet="filterTrigger"></ng-container>
+        }
         <button
           type="button"
-          data-testid="customize-columns"
-          bitButton
-          buttonType="secondary"
-          startIcon="bwi-grid"
-          (click)="openCustomizeColumns()"
-        >
-          {{ "customize" | i18n }}
-        </button>
-      }
+          bitIconButton="bwi-ellipsis-v"
+          bitOverflowTrigger
+          class="tw-shrink-0"
+          [bitMenuTriggerFor]="actionMenu"
+          [label]="'additionalActions' | i18n"
+        ></button>
+      </div>
+    }
+    <div #endSlot [class]="endSlotClasses()">
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>
@@ -60,6 +103,7 @@
           and flashes the row expanded. `tw-hidden` survives its measurement reveal.
         -->
         <button
+          #clearAllButton
           bitOverflowItem
           [class.tw-hidden]="!appliedCount()"
           id="bit-table-toolbar_button_clear-all"
@@ -104,4 +148,25 @@
       ></bit-chip-group>
     </div>
   }
+  <!-- Keeps the action data-holders attached; they render no DOM of their own. -->
+  <ng-content select="bit-table-toolbar-action"></ng-content>
 </div>
+
+<bit-menu #actionMenu>
+  @for (i of overflowedActions(); track i) {
+    @if (i < actionOffset()) {
+      <button type="button" bitMenuItem (click)="openCustomizeColumns()">
+        <bit-icon slot="start" name="bwi-grid" />
+        {{ "customize" | i18n }}
+      </button>
+    } @else {
+      @let action = actions()[i - actionOffset()];
+      <button type="button" bitMenuItem [disabled]="action.disabled()" (click)="action.action()()">
+        @if (action.icon(); as icon) {
+          <bit-icon slot="start" [name]="icon" />
+        }
+        {{ action.label() }}
+      </button>
+    }
+  }
+</bit-menu>
