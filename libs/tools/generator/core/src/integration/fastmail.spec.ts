@@ -159,6 +159,36 @@ describe("Fastmail forwarder", () => {
         expect(methodCall.accountId).toEqual("accountId");
         expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("");
       });
+      it.each([
+        ["1up-usa", "1up_usa"],
+        ["foo_1up-usa", "foo_1up_usa"],
+        ["EXAMPLE", "example"],
+        ["xn--mnchen-3ya", "xn_mnchen_3ya"],
+        ["-example-", "example"],
+        ["127_0_0", "127_0_0"],
+      ])(
+        "replaces characters fastmail rejects in the email prefix (%s => %s)",
+        (prefix, expected) => {
+          context.prefixEnabled.mockReturnValue(true);
+          context.prefix.mockReturnValue(prefix);
+          const request = { accountId: "accountId", website: "https://example.com" };
+
+          const result = Fastmail.forwarder.createForwardingEmail.body(request, context);
+          const methodCall = result.methodCalls[0][1];
+
+          expect(methodCall.create["new-masked-email"].emailPrefix).toEqual(expected);
+        },
+      );
+      it("truncates the email prefix to the length fastmail accepts", () => {
+        context.prefixEnabled.mockReturnValue(true);
+        context.prefix.mockReturnValue("a".repeat(70));
+        const request = { accountId: "accountId", website: "https://example.com" };
+
+        const result = Fastmail.forwarder.createForwardingEmail.body(request, context);
+        const methodCall = result.methodCalls[0][1];
+
+        expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("a".repeat(64));
+      });
     });
 
     describe("hasJsonPayload", () => {
