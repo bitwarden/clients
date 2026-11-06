@@ -125,12 +125,19 @@ describe("VaultItemCopyActionsComponent", () => {
       });
 
       it("uses the copy labels when the card fields are populated", () => {
-        (component.cipher() as any).__copyable = { cardNumber: true, securityCode: true };
+        (component.cipher() as any).__copyable = {
+          cardholderName: true,
+          cardNumber: true,
+          cardExpiration: true,
+          securityCode: true,
+        };
 
         fixture.detectChanges();
 
         expect(labelFor("bwi-hashtag")).toBe("translated-copyNumber");
         expect(labelFor("bwi-key")).toBe("translated-copySecurityCode");
+        expect(labelFor("bwi-user")).toBe("translated-copyCardholderName");
+        expect(labelFor("bwi-calendar")).toBe("translated-copyExpiration");
       });
 
       it("uses the empty-state labels when the card fields are not populated", () => {
@@ -140,6 +147,8 @@ describe("VaultItemCopyActionsComponent", () => {
 
         expect(labelFor("bwi-hashtag")).toBe("translated-noNumber");
         expect(labelFor("bwi-key")).toBe("translated-noSecurityCode");
+        expect(labelFor("bwi-user")).toBe("translated-noCardholderName");
+        expect(labelFor("bwi-calendar")).toBe("translated-noExpiration");
       });
     });
   });
@@ -326,6 +335,25 @@ describe("VaultItemCopyActionsComponent", () => {
   });
 
   describe("singleCopyableCard", () => {
+    it.each([
+      ["cardholderName", "copyCardholderName"],
+      ["cardExpiration", "copyExpiration"],
+    ])("returns %s when it is the only available card value", (field, key) => {
+      (component.cipher() as any).__copyable = { [field]: true };
+
+      expect(component.singleCopyableCard).toEqual({ key, field });
+      expect(component.hasCardValues).toBe(true);
+    });
+
+    it.each(["cardholderName", "cardExpiration"])(
+      "shows the menu when a card number and %s are available",
+      (field) => {
+        (component.cipher() as any).__copyable = { cardNumber: true, [field]: true };
+
+        expect(component.singleCopyableCard).toBeNull();
+      },
+    );
+
     it("returns security code when it is the only available card value", () => {
       (component.cipher() as any).__copyable = {
         securityCode: true,
@@ -349,6 +377,51 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableCard;
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe("card copy menu", () => {
+    beforeEach(() => {
+      jest.mocked(CipherViewLikeUtils.hasCopyableValue).mockRestore();
+      const cipher = new CipherView();
+      cipher.type = CipherType.Card;
+      cipher.card.cardholderName = "Jane Doe";
+      cipher.card.number = "4111111111111111";
+      cipher.card.expMonth = "5";
+      cipher.card.expYear = "2030";
+      cipher.card.code = "123";
+      fixture.componentRef.setInput("cipher", cipher);
+    });
+
+    it.each([
+      ["cardholderName", "Jane Doe"],
+      ["cardExpiration", "05 / 2030"],
+    ])("copies %s from the dropdown", async (action, value) => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.debugElement.query(By.css("button[bitIconButton]")).nativeElement.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const button = document.querySelector<HTMLButtonElement>(`button[appCopyField="${action}"]`);
+      expect(button).not.toBeNull();
+      expect(button.disabled).toBe(false);
+      button.click();
+      await fixture.whenStable();
+
+      expect(copyCipherFieldService.copy).toHaveBeenCalledWith(value, action, component.cipher());
+    });
+
+    it("disables the new quick copy actions while the list is refreshing", async () => {
+      fixture.componentRef.setInput("showQuickCopyActions", true);
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      for (const action of ["cardholderName", "cardExpiration"]) {
+        const button = fixture.debugElement.query(By.css(`button[appCopyField="${action}"]`));
+        expect(button.nativeElement.getAttribute("aria-disabled")).toBe("true");
+      }
     });
   });
 
@@ -515,6 +588,7 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("computes hasCardValues from card fields", () => {
+      jest.mocked(CipherViewLikeUtils.hasCopyableValue).mockRestore();
       (component.cipher() as CipherView).card = { code: "123", number: null } as any;
 
       expect(component.hasCardValues).toBe(true);
@@ -677,6 +751,11 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("uses copyableFields for card values", () => {
+      jest.mocked(CipherViewLikeUtils.hasCopyableValue).mockRestore();
+      fixture.componentRef.setInput("cipher", {
+        type: { card: { brand: "Visa" } },
+        copyableFields: [],
+      } as CipherListView);
       (component.cipher() as CipherListView).copyableFields = [
         "CardSecurityCode",
       ] as CopyableCipherFields[];
@@ -689,6 +768,20 @@ describe("VaultItemCopyActionsComponent", () => {
 
       expect(component.hasCardValues).toBe(false);
     });
+
+    it.each(["CardCardholderName", "CardExpiration"] as CopyableCipherFields[])(
+      "enables copying when %s is the only available list field",
+      (field) => {
+        jest.mocked(CipherViewLikeUtils.hasCopyableValue).mockRestore();
+        fixture.componentRef.setInput("cipher", {
+          type: { card: { brand: "Visa" } },
+          copyableFields: [field],
+        } as CipherListView);
+
+        expect(component.hasCardValues).toBe(true);
+        expect(component.singleCopyableCard).not.toBeNull();
+      },
+    );
 
     it("uses copyableFields for identity values", () => {
       (component.cipher() as CipherListView).copyableFields = [

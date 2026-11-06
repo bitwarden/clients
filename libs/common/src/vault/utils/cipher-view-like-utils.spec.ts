@@ -655,6 +655,28 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "securityCode")).toBe(true);
       });
 
+      it.each([
+        ["5", "2030", true],
+        ["5", undefined, false],
+        [undefined, "2030", false],
+        ["", "2030", false],
+        ["5", "", false],
+        [undefined, undefined, false],
+      ])("checks card expiration with month %s and year %s", (month, year, expected) => {
+        const cipher = createCipherView(CipherType.Card);
+        cipher.card.expMonth = month;
+        cipher.card.expYear = year;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipher, "cardExpiration")).toBe(expected);
+      });
+
+      it.each([undefined, "", "Jane Doe"])("checks cardholder name %s", (name) => {
+        const cipher = createCipherView(CipherType.Card);
+        cipher.card.cardholderName = name;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipher, "cardholderName")).toBe(!!name);
+      });
+
       it("returns true for identity fields", () => {
         const cipherView = createCipherView(CipherType.Identity);
         cipherView.identity = new IdentityView();
@@ -775,6 +797,20 @@ describe("CipherViewLikeUtils", () => {
 
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "cardNumber")).toBe(true);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "securityCode")).toBe(true);
+      });
+
+      it.each([
+        ["cardholderName", "CardCardholderName"],
+        ["cardExpiration", "CardExpiration"],
+      ])("checks %s in a card list view", (action, field) => {
+        const cipher = {
+          type: { card: { brand: "Visa" } },
+          copyableFields: [field],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipher, action)).toBe(true);
+        cipher.copyableFields = [];
+        expect(CipherViewLikeUtils.hasCopyableValue(cipher, action)).toBe(false);
       });
 
       it("returns true for copyable fields in an sshKey ciphers", () => {
