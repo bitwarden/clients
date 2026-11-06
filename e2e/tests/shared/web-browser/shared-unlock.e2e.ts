@@ -1,3 +1,5 @@
+import { Page } from "@playwright/test";
+
 import { AccountSecurityPage } from "../../../src/browser/account-security";
 import { lockNow as lockExtensionNow } from "../../../src/browser/account-switcher";
 import { test } from "../../../src/browser/fixtures";
@@ -26,6 +28,7 @@ test.describe("shared unlock between web vault and extension", () => {
   test.setTimeout(300_000);
 
   let extension: Extension;
+  let web: Page;
 
   test.beforeEach(async ({ context, popup }) => {
     extension = await logInToExtension(context, popup, FLAGS);
@@ -34,13 +37,13 @@ test.describe("shared unlock between web vault and extension", () => {
     await settings.open(extension.url);
     await settings.expectWebSync();
     await openExtensionVault(extension);
+
+    web = await logInToWeb(context, FLAGS);
   });
 
   test("locking the web vault locks the extension, unlocking the web vault unlocks the extension", async ({
     context,
   }) => {
-    const web = await logInToWeb(context);
-
     extension = await lockExtension(context, extension, () => lockWebNow(web));
     const extensionLock = new LockScreen(extension.popup);
     await extensionLock.waitUntilShown();
@@ -52,8 +55,6 @@ test.describe("shared unlock between web vault and extension", () => {
   test("locking the extension locks the web vault, unlocking the extension unlocks the web vault", async ({
     context,
   }) => {
-    const web = await logInToWeb(context);
-
     extension = await lockExtension(context, extension, () => lockExtensionNow(extension.popup));
     await web.waitForURL(LOCK_URL, { timeout: SYNC_TIMEOUT_MS });
     const webLock = new LockScreen(web);
@@ -67,7 +68,6 @@ test.describe("shared unlock between web vault and extension", () => {
     const settings = new AccountSecurityPage(extension.popup);
     await settings.open(extension.url);
     await settings.setPin(PIN);
-    const web = await logInToWeb(context);
 
     extension = await lockExtension(context, extension, () => lockWebNow(web));
     const webLock = new LockScreen(web);
