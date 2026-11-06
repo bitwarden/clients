@@ -19,7 +19,7 @@ npx playwright install chromium
 npm run test:e2e:web       # webpack dev server + chromium
 npm run test:e2e:browser   # builds the chrome extension, loads it unpacked
 npm run test:e2e:desktop   # builds electron main/renderer/preload, launches the app
-npm run test:e2e:shared    # web + extension together, e.g. passkey unlock
+npm run test:e2e:shared    # web + extension, extension + desktop, e.g. shared unlock
 npm run test:e2e:all       # all four, sequentially
 ```
 

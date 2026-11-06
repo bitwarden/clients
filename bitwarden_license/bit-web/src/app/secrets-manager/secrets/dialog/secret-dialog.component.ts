@@ -4,15 +4,17 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angula
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
 
-import { SecretAccessPoliciesView } from "@bitwarden/bit-sm/models/view/access-policies/secret-access-policies.view";
-import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
-import { SecretProjectView } from "@bitwarden/bit-sm/models/view/secret-project.view";
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+import {
+  AccessPolicyService,
+  ProjectListView,
+  ProjectService,
+  ProjectView,
+  SecretAccessPoliciesView,
+  SecretListView,
+  SecretProjectView,
+  SecretService,
+  SecretView,
+} from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

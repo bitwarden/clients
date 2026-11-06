@@ -8,8 +8,7 @@ The code here is **framework-agnostic** (no Angular) so that it is not tied to t
 (`bitwarden_license/bit-web`), which currently consumes it. The Angular
 DI wiring lives in `bitwarden_license/bit-web/src/app/secrets-manager/provide-secrets-manager.ts`.
 
-Import via the `@bitwarden/bit-sm/*` path alias, for example
-`@bitwarden/bit-sm/projects/project.service`.
+Import from the barrel via the `@bitwarden/bit-sm` path alias (`src/index.ts`); do not deep import.
 
 ## Running tests
 
