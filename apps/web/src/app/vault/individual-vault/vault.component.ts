@@ -1390,15 +1390,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     // Convert `CipherListView` to `CipherView` if necessary
     if (ciphers.some(CipherViewLikeUtils.isCipherListView)) {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      ciphersToAssign = await firstValueFrom(
-        this.cipherService
-          .cipherViews$(userId)
-          .pipe(
-            map(
-              (cipherViews) =>
-                cipherViews.filter((c) => ciphers.some((cc) => cc.id === c.id)) as CipherView[],
-            ),
-          ),
+      ciphersToAssign = await this.cipherService.getAllDecryptedForIds(
+        userId,
+        ciphers.map((c) => CipherViewLikeUtils.getId(c)).filter((id) => id != null),
       );
     } else {
       ciphersToAssign = ciphers as CipherView[];

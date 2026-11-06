@@ -5,7 +5,7 @@ import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
+import { firstValueFrom, Observable, switchMap, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
@@ -27,7 +27,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -242,12 +242,7 @@ export class ViewComponent {
   }
 
   async getCipherData(id: string, userId: UserId) {
-    return await firstValueFrom(
-      this.cipherService.cipherViews$(userId).pipe(
-        filterOutNullish(),
-        map((ciphers) => ciphers.find((c) => c.id === id)),
-      ),
-    );
+    return await firstValueFrom(this.cipherService.cipherView$(userId, id as CipherId));
   }
 
   async editCipher() {

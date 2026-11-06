@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwError } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, map, of, throwError } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -550,40 +550,39 @@ describe("Cipher Service", () => {
   });
 
   describe("cipherView$", () => {
-    let cipher1: CipherView;
     let cipher2: CipherView;
+    let decryptIds: jest.SpyInstance;
 
     beforeEach(() => {
-      cipher1 = new CipherView(encryptionContext.cipher);
-      cipher1.id = "cipher-1" as CipherId;
       cipher2 = new CipherView(encryptionContext.cipher);
       cipher2.id = "cipher-2" as CipherId;
 
       jest
-        .spyOn(cipherService, "cipherViews$")
-        .mockReturnValue(of([cipher1, cipher2]) as Observable<CipherView[]>);
+        .spyOn(cipherService, "cipherListViews$")
+        .mockReturnValue(of([{ id: "cipher-1" }, { id: "cipher-2" }]) as any);
+      decryptIds = jest.spyOn(cipherService as any, "decryptIds").mockResolvedValue([cipher2]);
     });
 
-    it("emits the decrypted cipher matching the given id", async () => {
+    it("decrypts only the cipher matching the given id", async () => {
       const result = await firstValueFrom(
         cipherService.cipherView$(mockUserId, "cipher-2" as CipherId),
       );
 
       expect(result).toBe(cipher2);
+      expect(decryptIds).toHaveBeenCalledWith(mockUserId, ["cipher-2"]);
     });
 
-    it("emits undefined when no cipher matches the given id", async () => {
+    it("emits undefined without decrypting when no cipher matches the given id", async () => {
       const result = await firstValueFrom(
         cipherService.cipherView$(mockUserId, "missing" as CipherId),
       );
 
       expect(result).toBeUndefined();
+      expect(decryptIds).not.toHaveBeenCalled();
     });
 
-    it("does not emit while cipherViews$ is null", async () => {
-      (cipherService.cipherViews$ as jest.Mock).mockReturnValue(
-        of(null) as unknown as Observable<CipherView[]>,
-      );
+    it("does not emit while cipherListViews$ is null", async () => {
+      (cipherService.cipherListViews$ as jest.Mock).mockReturnValue(of(null));
 
       const emitted = jest.fn();
       const subscription = cipherService

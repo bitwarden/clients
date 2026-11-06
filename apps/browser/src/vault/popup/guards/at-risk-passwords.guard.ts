@@ -12,6 +12,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ToastService } from "@bitwarden/components";
 
@@ -69,19 +73,25 @@ export const hasAtRiskPasswords: CanActivateFn = () => {
     switchMap((user) =>
       combineLatest([
         taskService.pendingTasks$(user.id),
-        cipherService.cipherViews$(user.id).pipe(
+        cipherService.cipherListViews$(user.id).pipe(
           filterOutNullish(),
-          map((ciphers) => Object.fromEntries(ciphers.map((c) => [c.id, c]))),
+          map(
+            (ciphers) =>
+              new Map<string, CipherViewLike>(
+                ciphers.map((c) => [CipherViewLikeUtils.getId(c) ?? "", c]),
+              ),
+          ),
         ),
       ]).pipe(
         map(([tasks, ciphers]) => {
-          const hasAtRiskCiphers = tasks.some(
-            (t) =>
+          const hasAtRiskCiphers = tasks.some((t) => {
+            const cipher = t.cipherId != null ? ciphers.get(t.cipherId) : undefined;
+            return (
               t.type === SecurityTaskType.UpdateAtRiskCredential &&
-              t.cipherId != null &&
-              ciphers[t.cipherId] != null &&
-              !ciphers[t.cipherId].isDeleted,
-          );
+              cipher != null &&
+              !CipherViewLikeUtils.isDeleted(cipher)
+            );
+          });
 
           if (!hasAtRiskCiphers) {
             return router.createUrlTree(["/tabs/vault"]);

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, map } from "rxjs";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -321,12 +321,9 @@ export class WebVaultItemActionsService {
     }
 
     const userId = await firstValueFrom(this.userId$);
-    const cipherId = CipherViewLikeUtils.getId(cipher);
-    return firstValueFrom(
-      this.cipherService
-        .cipherViews$(userId)
-        .pipe(map((views) => views.find((v) => v.id === cipherId) as CipherView)),
-    );
+    const cipherId = CipherViewLikeUtils.getId(cipher)!;
+    const [view] = await this.cipherService.getAllDecryptedForIds(userId, [cipherId]);
+    return view;
   }
 
   private async reprompt(reprompt: CipherRepromptType): Promise<boolean> {

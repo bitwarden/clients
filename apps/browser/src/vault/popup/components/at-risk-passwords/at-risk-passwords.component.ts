@@ -111,12 +111,23 @@ export class AtRiskPasswordsComponent implements OnInit {
     switchMap((user) =>
       combineLatest([
         this.taskService.pendingTasks$(user.id),
-        this.cipherService.cipherViews$(user.id).pipe(
-          filterOutNullish(),
-          map((ciphers) => Object.fromEntries(ciphers.map((c) => [c.id, c]))),
-        ),
-        of(user),
-      ]),
+        // Only a change trigger: the vault is not decrypted, just the ciphers the tasks name.
+        this.cipherService.cipherListViews$(user.id).pipe(filterOutNullish()),
+      ]).pipe(
+        switchMap(async ([tasks]) => {
+          const ids = tasks
+            .filter((t) => t.type === SecurityTaskType.UpdateAtRiskCredential)
+            .map((t) => t.cipherId)
+            .filter((id) => id != null);
+          const ciphers = await this.cipherService.getAllDecryptedForIds(user.id, ids);
+
+          return [
+            tasks,
+            Object.fromEntries(ciphers.map((c) => [c.id, c])) as Record<string, CipherView>,
+            user,
+          ] as const;
+        }),
+      ),
     ),
     map(([tasks, ciphers, user]) => ({
       tasks,
