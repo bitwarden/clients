@@ -110,7 +110,7 @@ export class SendView implements View {
     // The SDK no longer derives a sealed item send's id from the `CipherView`; it reads it from
     // `data.metadata.itemId`, which the caller supplies. Fail fast here rather than rotate the
     // send with the wrong id, matching the `MissingField("id")` the SDK used to raise.
-    if (this.type === SendType.Item && this.data?.data?.id == null) {
+    if (this.type === SendType.Item && this.data?.metadata?.itemId == null) {
       throw new Error("Item Send is missing its item id");
     }
 
@@ -144,12 +144,12 @@ export class SendView implements View {
           ? {
               data: this.data?.data?.toSdkCipherView() ?? undefined,
               metadata: {
-                itemId: asUuid(this.data.data.id),
-                folderName: undefined,
-                collectionNames: undefined,
-                organizationName: undefined,
-                creationDate: undefined,
-                revisionDate: undefined,
+                itemId: asUuid(this.data.metadata.itemId),
+                folderName: this.data.metadata.folderName,
+                collectionNames: this.data.metadata.collectionNames,
+                organizationName: this.data.metadata.organizationName,
+                creationDate: this.data.metadata.creationDate,
+                revisionDate: this.data.metadata.revisionDate,
               },
             }
           : undefined,

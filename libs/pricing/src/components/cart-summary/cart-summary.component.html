@@ -505,4 +505,10 @@
       }
     </div>
   }
+
+  @if (cart.showProrationNote) {
+    <p bitTypography="helper" class="tw-text-muted tw-m-0" data-testid="proration-note">
+      {{ "prorationChargeMayDiffer" | i18n }}
+    </p>
+  }
 </div>

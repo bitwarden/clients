@@ -10,7 +10,6 @@ import { Subject, firstValueFrom } from "rxjs";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
-import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -244,7 +243,6 @@ export class Main {
       stateProvider,
       new DefaultOrganizationService(stateProvider),
       accountService,
-      new DefaultNewPolicyService(stateProvider),
       () => sdkService,
     );
 
