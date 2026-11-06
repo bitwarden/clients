@@ -42,6 +42,7 @@
       [cipher]="cipher()"
       [activeUserId]="activeUserId$ | async"
       [showChangePasswordLink]="showChangePasswordLink()"
+      [passwordRiskCategory]="passwordRiskCategory()"
       [changePasswordLink]="changePasswordLink()"
       (handleChangePassword)="launchChangePassword()"
       [hasAnonymousPremium]="hasAnonymousPremium()"

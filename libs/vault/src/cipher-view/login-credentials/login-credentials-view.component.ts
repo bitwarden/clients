@@ -12,6 +12,7 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
+  computed,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { Observable, switchMap } from "rxjs";
@@ -20,10 +21,14 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  BadgeComponent,
+  BadgeVariant,
+  BitwardenIcon,
   FormFieldModule,
   SectionHeaderComponent,
   TypographyModule,
@@ -34,6 +39,35 @@ import {
 
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
+
+type RiskBadge = {
+  labelKey: string;
+  tooltipKey: string;
+  icon: BitwardenIcon;
+  variant: BadgeVariant;
+};
+
+/** Badge styling per risk category; icons and colors match the Health tab. */
+const RISK_BADGES: Record<RiskCategory, RiskBadge> = {
+  [RiskCategory.Exposed]: {
+    labelKey: "exposed",
+    tooltipKey: "passwordExposedInDataBreach",
+    icon: "bwi-error",
+    variant: "danger",
+  },
+  [RiskCategory.Weak]: {
+    labelKey: "weak",
+    tooltipKey: "passwordTooShortOrSimple",
+    icon: "bwi-warning",
+    variant: "warning",
+  },
+  [RiskCategory.Reused]: {
+    labelKey: "reused",
+    tooltipKey: "passwordReusedForSeveralLogins",
+    icon: "bwi-refresh",
+    variant: "primary",
+  },
+};
 
 type TotpCodeValues = {
   totpCode: string;
@@ -57,6 +91,7 @@ type TotpCodeValues = {
     ReadOnlyCipherCardComponent,
     LinkModule,
     PremiumBadgeComponent,
+    BadgeComponent,
   ],
 })
 export class LoginCredentialsViewComponent implements OnChanges {
@@ -68,6 +103,11 @@ export class LoginCredentialsViewComponent implements OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showChangePasswordLink: boolean;
   readonly changePasswordLink = input<string | undefined>();
+  readonly passwordRiskCategory = input<RiskCategory | null>(null);
+  protected readonly riskBadge = computed(() => {
+    const category = this.passwordRiskCategory();
+    return category ? RISK_BADGES[category] : null;
+  });
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() handleChangePassword = new EventEmitter<void>();
