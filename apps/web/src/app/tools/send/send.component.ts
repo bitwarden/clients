@@ -117,7 +117,9 @@ export class SendComponent implements OnDestroy {
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
   });
-  protected readonly allSends = toSignal(this.sendService.sendViews$);
+  protected readonly allSends = toSignal(this.sendService.sendViews$, {
+    initialValue: [],
+  });
 
   protected readonly disableSend = toSignal(
     this.accountService.activeAccount$.pipe(
