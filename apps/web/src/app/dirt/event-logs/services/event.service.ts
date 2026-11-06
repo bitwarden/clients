@@ -839,25 +839,25 @@ export class EventService {
       case EventType.ServiceAccount_UserAdded:
         msg = this.i18nService.t(
           "addedUserToServiceAccountWithId",
-          this.formatUserId(ev, options),
+          this.formatGrantedMemberId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
           "addedUserToServiceAccountWithId",
-          this.formatUserId(ev, options),
-          this.formatServiceAccountId(ev, options),
+          this.getShortId(this.getGrantedMemberId(ev)),
+          this.getShortId(ev.grantedServiceAccountId),
         );
         break;
       case EventType.ServiceAccount_UserRemoved:
         msg = this.i18nService.t(
           "removedUserToServiceAccountWithId",
-          this.formatUserId(ev, options),
+          this.formatGrantedMemberId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
           "removedUserToServiceAccountWithId",
-          this.formatUserId(ev, options),
-          this.formatServiceAccountId(ev, options),
+          this.getShortId(this.getGrantedMemberId(ev)),
+          this.getShortId(ev.grantedServiceAccountId),
         );
         break;
       case EventType.ServiceAccount_GroupRemoved:
@@ -1641,7 +1641,28 @@ export class EventService {
   }
 
   private formatOrgUserId(ev: EventResponse) {
-    const shortId = this.getShortId(ev.organizationUserId);
+    return this.formatMemberLink(ev, ev.organizationUserId);
+  }
+
+  // The member who was granted or lost access to a machine account. Rows written since the
+  // server fix store this in OrganizationUserId. Older rows stored the same value in UserId and
+  // left OrganizationUserId empty, so fall back to UserId to render those rows correctly.
+  private getGrantedMemberId(ev: EventResponse) {
+    return ev.organizationUserId ?? ev.userId;
+  }
+
+  // disableLink is set when the viewer cannot access Secrets Manager. The other Secrets Manager
+  // event formatters render plain text in that case, and this one matches them.
+  private formatGrantedMemberId(ev: EventResponse, options: EventOptions) {
+    const organizationUserId = this.getGrantedMemberId(ev);
+    if (options.disableLink) {
+      return this.getShortId(organizationUserId);
+    }
+    return this.formatMemberLink(ev, organizationUserId);
+  }
+
+  private formatMemberLink(ev: EventResponse, organizationUserId: string) {
+    const shortId = this.getShortId(organizationUserId);
     const a = this.makeAnchor(shortId);
     a.setAttribute(
       "href",
@@ -1650,7 +1671,7 @@ export class EventService {
         "/members?search=" +
         shortId +
         "&viewEvents=" +
-        ev.organizationUserId,
+        organizationUserId,
     );
     return a.outerHTML;
   }
@@ -1729,16 +1750,6 @@ export class EventService {
         ev.grantedServiceAccountId +
         "&type=all",
     );
-    return a.outerHTML;
-  }
-
-  formatUserId(ev: EventResponse, options: EventOptions): string {
-    const shortId = this.getShortId(ev.userId);
-    if (options.disableLink) {
-      return shortId;
-    }
-    const a = this.makeAnchor(shortId);
-    a.setAttribute("href", "#/organizations/" + ev.organizationId + "/members?search=" + shortId);
     return a.outerHTML;
   }
 
