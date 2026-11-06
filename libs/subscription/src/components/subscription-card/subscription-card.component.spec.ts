@@ -5,7 +5,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Cart } from "@bitwarden/pricing";
 
-import { BitwardenSubscription, SubscriptionCardComponent, SubscriptionPreview } from "../..";
+import { SubscriptionCardComponent, SubscriptionPreview } from "../..";
 
 describe("SubscriptionCardComponent", () => {
   let component: SubscriptionCardComponent;
@@ -63,7 +63,7 @@ describe("SubscriptionCardComponent", () => {
     },
   };
 
-  function setupComponent(subscription: BitwardenSubscription, title = "Test Plan") {
+  function setupComponent(subscription: SubscriptionPreview, title = "Test Plan") {
     fixture.componentRef.setInput("title", title);
     fixture.componentRef.setInput("subscription", subscription);
     fixture.detectChanges();
@@ -668,7 +668,7 @@ describe("SubscriptionCardComponent", () => {
       setupComponent({
         ...baseSubscription,
         status: "past_due",
-      } as BitwardenSubscription);
+      } as SubscriptionPreview);
 
       const header = fixture.nativeElement.querySelector(
         '[data-test-id="cart-summary-header-custom"]',
@@ -680,7 +680,7 @@ describe("SubscriptionCardComponent", () => {
       setupComponent({
         ...baseSubscription,
         status: "unpaid",
-      } as BitwardenSubscription);
+      } as SubscriptionPreview);
 
       const header = fixture.nativeElement.querySelector(
         '[data-test-id="cart-summary-header-custom"]',

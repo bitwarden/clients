@@ -1,44 +1,22 @@
 import { provideZonelessChangeDetection } from "@angular/core";
 import { of } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
+import type {
+  AccessLeaseView,
+  AccessRequestDecisionView,
+  AccessRequestView,
+} from "@bitwarden/bit-pam";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Measurement } from "@bitwarden/logging";
+import { HOUR, MINUTE, fromNow } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
 import { ProductSwitcherService } from "@bitwarden/web-vault/app/layouts/product-switcher/shared/product-switcher.service";
 
-import type {
-  AccessLeaseView,
-  AccessRequestDecisionView,
-  AccessRequestView,
-} from "../abstractions/access-lease";
 import type { ResolvedNames } from "../access-requests/access-name-resolver.service";
-
-/**
- * Fixed, so story timestamps don't drift into a visual-regression diff. Build rows through the real
- * row builders, since a hand-written row can disagree with them.
- */
-export const STORY_NOW = new Date("2026-08-17T12:00:00.000Z");
-
-/** An offset from {@link STORY_NOW}, for labels built by a builder that takes `now`. */
-export function fromNow(ms: number): string {
-  return new Date(STORY_NOW.getTime() + ms).toISOString();
-}
-
-/**
- * An offset from the real clock, for surfaces that tick their own `Date.now()`. Call inside a
- * story's provider factory so it stays fresh on every render.
- */
-export function liveFromNow(ms: number): string {
-  return new Date(Date.now() + ms).toISOString();
-}
-
-export const MINUTE = 60 * 1000;
-export const HOUR = 60 * MINUTE;
-export const DAY = 24 * HOUR;
 
 /** A pending request. Overrides widen through `unknown`, since the SDK brands most of these ids. */
 export function accessRequest(overrides: Record<string, unknown> = {}): AccessRequestView {

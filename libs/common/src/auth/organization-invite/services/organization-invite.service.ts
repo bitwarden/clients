@@ -88,6 +88,9 @@ export abstract class OrganizationInviteService {
    * re-authenticates on the MP-policy detour. Callers pass their current page URL so the
    * guard sends the user back to the same page. Ignored on clients without a deep-link
    * redirect service.
+   *
+   * On `email-not-verified`, the invite stays stored, so a later call for the same invite
+   * after the user verifies their email does not trigger the MP-policy detour.
    */
   abstract acceptOpenOrgInvite(
     invite: OpenOrganizationInvite,

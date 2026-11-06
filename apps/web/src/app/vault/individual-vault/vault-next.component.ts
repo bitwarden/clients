@@ -25,7 +25,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -42,6 +42,7 @@ import {
   PopoverModule,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
+import { importQueryParamsForVault } from "@bitwarden/importer-ui";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -52,6 +53,8 @@ import {
   BULK_DELETE_DIALOG,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  COLLECTION_DIALOG,
+  CollectionOptionsMenuComponent,
   copyPresentation$,
   DecryptionFailureDialogComponent,
   DEFAULT_COPY_PRESENTATION,
@@ -71,8 +74,10 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  collectionMenuTargetForScope,
   folderNameForScope,
   hasMultipleVaults,
+  importStartedFrom,
   organizationNameForScope,
   organizationInScope,
   organizationVaultPage,
@@ -80,6 +85,7 @@ import {
   resolveVaultScope,
   routeVaultScope,
   scopedFolderId,
+  sharedFoldersCommands,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   scopedSharedFolderId,
@@ -107,6 +113,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
 
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { CollectionWebDialogAdapter } from "./shared-folders/collection-web-dialog.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -149,6 +156,7 @@ function selectionScopeDetail(scope: VaultScope): string {
     VaultBreadcrumbsComponent,
     MyFolderBreadcrumbsComponent,
     MyFolderMenuComponent,
+    CollectionOptionsMenuComponent,
     IconTileComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
@@ -166,8 +174,21 @@ function selectionScopeDetail(scope: VaultScope): string {
       useAngularDecorators: true,
     }),
     VaultBatchBarService,
-    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
-    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
+    safeProvider({
+      provide: ASSIGN_COLLECTIONS_DIALOG,
+      useClass: AssignCollectionsWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: BULK_DELETE_DIALOG,
+      useClass: BulkDeleteDialogWebAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: COLLECTION_DIALOG,
+      useClass: CollectionWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
   ],
 })
 export class VaultNextComponent implements OnInit {
@@ -266,8 +287,9 @@ export class VaultNextComponent implements OnInit {
   private readonly allCiphers$ = this.userId$.pipe(
     switchMap((userId) =>
       combineLatest([
-        // Emits null until the first decrypt completes.
-        this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+        // Emits null until the first decrypt completes. Reads the with-partials stream so
+        // PAM-gated rows stay listed — a member has to see the item to request access to it.
+        this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(filterOutNullish()),
         this.restrictedItemTypesService.restricted$,
       ]),
     ),
@@ -404,6 +426,16 @@ export class VaultNextComponent implements OnInit {
       ? (collectionId as CollectionId)
       : undefined;
   });
+
+  private readonly collectionMenuTarget = computed(() =>
+    collectionMenuTargetForScope(this.vaultScope(), this.scopedCollections(), this.organizations()),
+  );
+
+  protected readonly currentCollection = computed(() => this.collectionMenuTarget()?.collection);
+
+  protected readonly currentOrganization = computed(
+    () => this.collectionMenuTarget()?.organization,
+  );
 
   /**
    * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
@@ -703,12 +735,47 @@ export class VaultNextComponent implements OnInit {
     }
   }
 
+  private readonly lastViewedFolder = signal<
+    { organizationId: OrganizationId; collectionId: CollectionId } | undefined
+  >(undefined);
+
+  private readonly navigateAwayIfFolderVanishes = effect(() => {
+    const collection = this.currentCollection();
+    const organizationId = this.scopedOrganizationId();
+    const collectionId = this.scopedCollectionId();
+
+    untracked(() => {
+      if (collection != null) {
+        this.lastViewedFolder.set(
+          organizationId != null && collectionId != null
+            ? { organizationId, collectionId }
+            : undefined,
+        );
+        return;
+      }
+
+      const last = this.lastViewedFolder();
+      if (
+        last != null &&
+        last.organizationId === organizationId &&
+        last.collectionId === collectionId
+      ) {
+        this.lastViewedFolder.set(undefined);
+        void this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
+      }
+    });
+  });
+
   protected async openImport(): Promise<void> {
     if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
-      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
-      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
-      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
-      await this.router.navigate(["/tools/import"]);
+      const queryParams = importQueryParamsForVault(
+        this.scopedOrganizationId(),
+        this.scopedCollectionId(),
+        importStartedFrom(this.parsedVaultScope(), this.vaultNav()),
+      );
+      await (queryParams == null
+        ? this.router.navigate(["/tools/import"])
+        : this.router.navigate(["/tools/import"], { queryParams }));
       return;
     }
 

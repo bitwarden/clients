@@ -21,6 +21,16 @@
   @if (scopedFolderId(); as folderId) {
     <vault-my-folder-menu slot="title-suffix" [folderId]="folderId" />
   }
+  @if (currentCollection(); as collection) {
+    <vault-collection-options-menu
+      slot="title-suffix"
+      [collection]="collection"
+      [organization]="currentOrganization()"
+      [showPin]="true"
+      triggerIcon="bwi-angle-down"
+      idPrefix="vault-next"
+    />
+  }
 </app-header>
 
 @if (showSubscriptionEndedMessaging()) {

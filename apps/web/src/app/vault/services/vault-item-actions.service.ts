@@ -16,6 +16,10 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   CipherActionService,
@@ -147,6 +151,12 @@ export class WebVaultItemActionsService {
   async cloneById(id: CipherId): Promise<void> {
     const stored = await this.getCipherOrToast(id);
     if (stored == null) {
+      return;
+    }
+
+    // The menu never offers clone for a restricted item, so only a deep link reaches this.
+    if (!RestrictedCipherPolicy.allows(stored, RestrictedCipherAction.Clone)) {
+      await this.clearItemQueryParams();
       return;
     }
 

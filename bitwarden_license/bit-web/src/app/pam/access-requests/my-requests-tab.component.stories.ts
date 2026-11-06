@@ -8,15 +8,12 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { DAY, HOUR, MINUTE, liveFromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import {
-  DAY,
-  HOUR,
-  MINUTE,
   accessLease,
   accessRequest,
-  liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
   storyNames,
@@ -28,7 +25,7 @@ import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
 const names = storyNames();
 
-/** The tab ticks against the real clock, so these windows are built at render time. */
+/** The tab ticks against `Date.now()`, so these windows are built at render time. */
 function content() {
   const pending = [
     // Approved and ready to activate: renders in the active-access section, badged "Ready to use".
@@ -138,6 +135,7 @@ const empty = (): ReturnType<typeof content> => ({ pending: [], extensions: [], 
 export default {
   title: "Web/PAM/Access Requests/My Requests Tab",
   component: MyRequestsTabComponent,
+  beforeEach: startClockAtStoryNow,
   decorators: [
     applicationConfig({
       providers: [
