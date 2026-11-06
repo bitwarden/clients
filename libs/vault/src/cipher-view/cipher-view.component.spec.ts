@@ -11,6 +11,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -462,7 +463,35 @@ describe("CipherViewComponent", () => {
       // After async completes, should reflect the weak password
       expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(true);
+      expect(component.passwordRiskCategory()).toBe(RiskCategory.Weak);
     }));
+
+    it.each([
+      {
+        desc: "exposed over weak and reused",
+        result: {
+          password_strength: 1,
+          exposed_result: { type: "Found", value: 3 },
+          reuse_count: 2,
+        },
+        expected: RiskCategory.Exposed,
+      },
+      {
+        desc: "reused when only reused",
+        result: { password_strength: 4, exposed_result: { type: "NotFound" }, reuse_count: 2 },
+        expected: RiskCategory.Reused,
+      },
+    ])("sets the risk category to $desc", ({ result, expected }) => {
+      return fakeAsync(() => {
+        mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue(result);
+
+        fixture.componentRef.setInput("cipher", createLoginCipherView());
+        fixture.detectChanges();
+        tick();
+
+        expect(component.passwordRiskCategory()).toBe(expected);
+      })();
+    });
 
     it("returns false when password is strong and not exposed", fakeAsync(() => {
       // Setup mock to return safe password

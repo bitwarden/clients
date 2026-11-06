@@ -1,6 +1,8 @@
 import type { CipherRiskResult, CipherId } from "@bitwarden/sdk-internal";
 
-import { isPasswordAtRisk } from "./cipher-risk.service";
+import { RiskCategory } from "../../dirt/vault-health/models/risk-category";
+
+import { getPasswordRiskCategory, isPasswordAtRisk } from "./cipher-risk.service";
 
 describe("isPasswordAtRisk", () => {
   const mockId = "00000000-0000-0000-0000-000000000000" as unknown as CipherId;
@@ -84,5 +86,44 @@ describe("isPasswordAtRisk", () => {
       const risk = createRisk(overrides);
       expect(isPasswordAtRisk(risk)).toBe(expected);
     });
+  });
+});
+
+describe("getPasswordRiskCategory", () => {
+  const mockId = "00000000-0000-0000-0000-000000000000" as unknown as CipherId;
+
+  const createRisk = (overrides: Partial<CipherRiskResult> = {}): CipherRiskResult => ({
+    id: mockId,
+    password_strength: 4,
+    exposed_result: { type: "NotChecked" },
+    reuse_count: 1,
+    ...overrides,
+  });
+
+  it.each<{ desc: string; overrides: Partial<CipherRiskResult>; expected: RiskCategory | null }>([
+    { desc: "no risk", overrides: {}, expected: null },
+    {
+      desc: "exposed only",
+      overrides: { exposed_result: { type: "Found", value: 1 } },
+      expected: RiskCategory.Exposed,
+    },
+    { desc: "weak only", overrides: { password_strength: 2 }, expected: RiskCategory.Weak },
+    { desc: "reused only", overrides: { reuse_count: 2 }, expected: RiskCategory.Reused },
+    {
+      desc: "weak and reused",
+      overrides: { password_strength: 1, reuse_count: 3 },
+      expected: RiskCategory.Weak,
+    },
+    {
+      desc: "all three",
+      overrides: {
+        password_strength: 0,
+        reuse_count: 2,
+        exposed_result: { type: "Found", value: 4 },
+      },
+      expected: RiskCategory.Exposed,
+    },
+  ])("returns $expected when $desc", ({ overrides, expected }) => {
+    expect(getPasswordRiskCategory(createRisk(overrides))).toBe(expected);
   });
 });
