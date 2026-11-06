@@ -6,7 +6,7 @@
 use std::{collections::HashSet, marker::PhantomData, ptr::NonNull, time::Duration};
 
 use windows::{
-    core::{GUID, HRESULT, PCWSTR},
+    core::{BOOL, GUID, HRESULT, PCWSTR},
     Win32::Foundation::{ERROR_CANCELLED, HWND, NTE_USER_CANCELLED},
 };
 
@@ -769,6 +769,7 @@ pub struct GetAssertionRequest {
     user_verification: UserVerificationRequirement,
     authenticator_attachment: AuthenticatorAttachment,
     cancellation_id: Option<CancellationId>,
+    u2f_app_id: Option<String>,
     prf: Option<PrfInputs>,
 }
 
@@ -799,6 +800,7 @@ impl GetAssertionRequest {
                 user_verification: UserVerificationRequirement::default(),
                 authenticator_attachment: AuthenticatorAttachment::default(),
                 cancellation_id: None,
+                u2f_app_id: None,
                 prf: None,
             },
         }
@@ -847,6 +849,17 @@ impl GetAssertionRequestBuilder {
     /// Allows the request to be cancelled from another thread with [CancellationId::cancel].
     pub fn cancellation_id(mut self, id: CancellationId) -> Self {
         self.request.cancellation_id = Some(id);
+        self
+    }
+
+    /// Allows credentials registered with this U2F app ID to be used, corresponding to the
+    /// [`appid` extension][appid]. [Assertion::u2f_app_id_used] reports whether it was used.
+    ///
+    /// The caller is responsible for checking that the app ID is allowed for the caller's origin.
+    ///
+    /// [appid]: https://www.w3.org/TR/webauthn-3/#sctn-appid-extension
+    pub fn u2f_app_id(mut self, app_id: impl Into<String>) -> Self {
+        self.request.u2f_app_id = Some(app_id.into());
         self
     }
 
@@ -962,6 +975,10 @@ pub fn get_assertion(
         },
     };
 
+    let u2f_app_id = request.u2f_app_id.as_deref().map(str::to_utf16);
+    // Set to TRUE by webauthn.dll if the U2F app ID was used instead of the RP ID.
+    let mut u2f_app_id_used = BOOL(0);
+
     // Version 4 has every field except PRF inputs, and is supported by every API version. The
     // request builder only accepts PRF inputs if the API version supports version 6.
     let mut options = WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS::new(if prf.is_some() {
@@ -977,6 +994,10 @@ pub fn get_assertion(
     }
     if let Some(id) = &request.cancellation_id {
         options.pCancellationId = &id.0;
+    }
+    if let Some(app_id) = &u2f_app_id {
+        options.pwszU2fAppId = app_id.as_ptr();
+        options.pbU2fAppId = &mut u2f_app_id_used;
     }
     if prf.is_some() {
         options.pHmacSecretSaltValues = &salt_values;
@@ -1003,7 +1024,10 @@ pub fn get_assertion(
             "webauthn.dll returned a null assertion",
         )
     })?;
-    Ok(Assertion { ptr })
+    Ok(Assertion {
+        ptr,
+        u2f_app_id_used: u2f_app_id.is_some().then(|| u2f_app_id_used.as_bool()),
+    })
 }
 
 /// Checks that every `eval_by_credential` entry is in the allow list, as required by the
@@ -1087,6 +1111,7 @@ fn operation_error(hresult: HRESULT, description: &str) -> WinWebAuthnError {
 /// The memory is owned by webauthn.dll and freed when this is dropped.
 pub struct Assertion {
     ptr: NonNull<WEBAUTHN_ASSERTION>,
+    u2f_app_id_used: Option<bool>,
 }
 
 // SAFETY: The assertion is exclusively owned by this struct, is never written to, and can be
@@ -1151,6 +1176,12 @@ impl Assertion {
         self.raw()
             .client_data_json()
             .filter(|json| !json.is_empty())
+    }
+
+    /// Whether the U2F app ID was used instead of the RP ID, if one was set with
+    /// [GetAssertionRequestBuilder::u2f_app_id]. This is the `appid` extension output.
+    pub fn u2f_app_id_used(&self) -> Option<bool> {
+        self.u2f_app_id_used
     }
 
     /// The JSON serialization of the [`AuthenticationResponseJSON`][response], if webauthn.dll
