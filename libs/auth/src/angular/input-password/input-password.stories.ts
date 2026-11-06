@@ -9,7 +9,15 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ClientType } from "@bitwarden/common/enums";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
+import {
+  Environment,
+  EnvironmentService,
+  Region,
+  RegionConfig,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -29,6 +37,11 @@ import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
 import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
 
 import { InputPasswordComponent, InputPasswordFlow } from "./input-password.component";
+
+const regions: RegionConfig[] = [
+  { key: Region.US, domain: "bitwarden.com", urls: {} } as RegionConfig,
+  { key: Region.EU, domain: "bitwarden.eu", urls: {} } as RegionConfig,
+];
 
 export default {
   title: "Auth/Input Password",
@@ -76,7 +89,21 @@ export default {
           useValue: {
             launchUri: () => Promise.resolve(true),
             copyToClipboard: () => true,
-          },
+            getClientType: () => ClientType.Web,
+            isSelfHost: () => false,
+          } as Partial<PlatformUtilsService>,
+        },
+        // Server selector, shown in the account registration flow
+        {
+          provide: EnvironmentService,
+          useValue: {
+            globalEnvironment$: of({ getRegion: () => Region.US } as Partial<Environment>),
+            availableRegions: () => regions,
+          } as Partial<EnvironmentService>,
+        },
+        {
+          provide: AvailableRegionsService,
+          useValue: { availableRegions$: of(regions) } as Partial<AvailableRegionsService>,
         },
         {
           provide: DialogService,
