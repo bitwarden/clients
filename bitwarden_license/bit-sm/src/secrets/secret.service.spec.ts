@@ -111,7 +111,7 @@ describe("SecretService", () => {
     it("leaves access policies unchanged when none are given", async () => {
       apiService.send.mockResolvedValue(mockedSecretResponse);
 
-      await sut.update("organizationId", secretView, null, true);
+      await sut.update("organizationId", secretView, undefined, true);
 
       expect(accessPolicyService.getSecretAccessPoliciesRequest).not.toHaveBeenCalled();
       expect(apiService.send).toHaveBeenCalledWith(
@@ -128,7 +128,7 @@ describe("SecretService", () => {
     it("returns the created secret and sends no access policies", async () => {
       apiService.send.mockResolvedValue(mockedSecretResponse);
 
-      const result = await sut.create("organizationId", secretView, null);
+      const result = await sut.create("organizationId", secretView);
 
       expect(result).toEqual(expectedSecretView);
       expect(accessPolicyService.getSecretAccessPoliciesRequest).not.toHaveBeenCalled();

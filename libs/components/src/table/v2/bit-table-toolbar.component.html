@@ -5,7 +5,7 @@
   `tw-min-w-0` keeps it from growing past a `bitCollapseOnScroll` grid to fit the chip group.
 -->
 <div class="tw-relative tw-flex tw-flex-col tw-min-w-0">
-  <div [class]="searchRowClasses()">
+  <div #searchRow [class]="searchRowClasses()">
     <div [class]="searchClasses()">
       <ng-content select="bit-search"></ng-content>
     </div>
@@ -27,7 +27,12 @@
         }
       </div>
     }
-    <div [class]="endSlotClasses()">
+    <bit-button-group
+      class="empty:tw-hidden"
+      [class]="endSlotClasses()"
+      [orientation]="endSlotOrientation()"
+      [fullWidth]="!endInline()"
+    >
       @if (canCustomizeColumns()) {
         <button
           type="button"
@@ -41,7 +46,7 @@
         </button>
       }
       <ng-content select="[slot=end]"></ng-content>
-    </div>
+    </bit-button-group>
   </div>
   <!--
     The filter row: the projected chips and the item count. Hidden (not removed) while

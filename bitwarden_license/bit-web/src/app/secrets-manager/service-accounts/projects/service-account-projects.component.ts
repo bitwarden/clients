@@ -5,8 +5,7 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Subject, switchMap, takeUntil } from "rxjs";
 
-import { ServiceAccountGrantedPoliciesView } from "@bitwarden/bit-sm/models/view/access-policies/service-account-granted-policies.view";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+import { AccessPolicyService, ServiceAccountGrantedPoliciesView } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
