@@ -21,7 +21,6 @@ import type {
   CipherAccessStateView,
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -124,7 +123,7 @@ const ORGANIZATION_ID = "org-1";
  * `accessPam` to model an un-synced membership.
  */
 function organization(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization({} as OrganizationData), {
+  return Object.assign(new Organization(), {
     id: ORGANIZATION_ID,
     enabled: true,
     isProviderUser: false,

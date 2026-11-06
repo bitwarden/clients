@@ -7,7 +7,6 @@ import { of } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { organizationRedirectGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-redirect.guard";
@@ -58,7 +57,7 @@ const routes: Routes = [
 ];
 
 function member(permissions: Partial<PermissionsApi>): Organization {
-  return Object.assign(new Organization({} as OrganizationData), {
+  return Object.assign(new Organization(), {
     id: "org-id",
     enabled: true,
     isMember: true,

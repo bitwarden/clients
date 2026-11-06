@@ -27,7 +27,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -355,7 +354,7 @@ const inSharedFolders = (
   cipher: CipherView,
   folders: typeof SHARED_FOLDER_OPTIONS,
 ): PopupCipherViewLike => {
-  const organization = new Organization({} as OrganizationData);
+  const organization = new Organization();
   organization.id = "org-engineering" as OrganizationId;
   organization.productTierType = ProductTierType.Enterprise;
 

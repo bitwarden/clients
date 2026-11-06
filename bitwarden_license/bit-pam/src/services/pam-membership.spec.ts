@@ -1,10 +1,9 @@
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 import { unlicensedForPam } from "./pam-membership";
 
 function organization(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization({} as OrganizationData), {
+  return Object.assign(new Organization(), {
     id: "org-1",
     enabled: true,
     isProviderUser: false,

@@ -14,7 +14,6 @@ import {
   CipherViewBannerComponent,
 } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -34,7 +33,7 @@ import {
 const ORGANIZATION_ID = "org-1";
 
 function organization(licensed: boolean): Organization {
-  return Object.assign(new Organization({} as OrganizationData), {
+  return Object.assign(new Organization(), {
     id: ORGANIZATION_ID,
     enabled: true,
     usePam: true,

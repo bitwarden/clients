@@ -1,12 +1,11 @@
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 import { pamLandingRoute } from "./pam-landing-route";
 
 function member(permissions: Partial<PermissionsApi>): Organization {
-  return Object.assign(new Organization({} as OrganizationData), {
+  return Object.assign(new Organization(), {
     id: "org-id",
     enabled: true,
     isMember: true,

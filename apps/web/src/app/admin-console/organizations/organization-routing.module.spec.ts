@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 import { PAM_ORG_ADMIN_ROUTE } from "../../pam/pam-org-admin-route.token";
@@ -10,7 +9,7 @@ import { PAM_ORG_ADMIN_ROUTE } from "../../pam/pam-org-admin-route.token";
 import { getOrganizationRoute } from "./organization-routing.module";
 
 function org(props: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization({} as OrganizationData), {
+  return Object.assign(new Organization(), {
     id: "org-id",
     enabled: true,
     isMember: true,
