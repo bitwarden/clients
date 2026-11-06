@@ -71,7 +71,7 @@
     <!-- Options are IDs, so groups or collections sharing a name stay separate. The menu adds its
          own search past 10 options. -->
     @if (organization?.useGroups) {
-      <bit-filter-menu key="access" icon="bwi-users" [placeholderText]="'groups' | i18n" multiple>
+      <bit-filter-menu key="access" [placeholderText]="'groups' | i18n" multiple>
         @for (option of accessOptions(); track option.id) {
           <bit-filter-option [value]="option.id">{{ option.name }}</bit-filter-option>
         }
@@ -79,7 +79,6 @@
     } @else {
       <bit-filter-menu
         key="access"
-        icon="bwi-collection-shared"
         [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
         multiple
       >
