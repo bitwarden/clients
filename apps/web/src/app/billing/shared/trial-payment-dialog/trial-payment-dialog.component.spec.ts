@@ -7,6 +7,7 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
@@ -78,7 +79,10 @@ describe("TrialPaymentDialogComponent", () => {
       isAnnual,
     } as PlanResponse;
     const subscription = { plan: currentPlan } as OrganizationSubscriptionResponse;
-    const organization = Object.assign(new Organization(), { id: ORG_ID, productTierType: tier });
+    const organization = Object.assign(new Organization({} as OrganizationData), {
+      id: ORG_ID,
+      productTierType: tier,
+    });
 
     const apiService = mock<ApiService>();
     apiService.getPlans.mockResolvedValue({

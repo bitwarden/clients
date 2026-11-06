@@ -9,6 +9,7 @@ import {
   CollectionTypes,
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -40,7 +41,7 @@ function org(
     providerOnly?: boolean;
   } = {},
 ): Organization {
-  return Object.assign(new Organization(), {
+  return Object.assign(new Organization({} as OrganizationData), {
     id,
     name,
     productTierType: ProductTierType.Enterprise,

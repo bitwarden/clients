@@ -5,6 +5,7 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -22,7 +23,7 @@ const organizationOwner: ImportOwner = { kind: "organization", organizationId: o
 const orgBase = ["/organizations", orgId, "settings", "tools", "import"];
 
 function organization(type: OrganizationUserType): Organization {
-  return Object.assign(new Organization(), {
+  return Object.assign(new Organization({} as OrganizationData), {
     id: orgId,
     type,
     permissions: {
