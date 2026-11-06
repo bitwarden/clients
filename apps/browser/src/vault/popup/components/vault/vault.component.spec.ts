@@ -347,6 +347,9 @@ describe("VaultComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    // No import result is pending unless a test says so.
+    importConfirmationPopupSvc.conditionallyOpen.mockReset();
+    importConfirmationPopupSvc.conditionallyOpen.mockResolvedValue(false);
     premiumUpsellSvc.showUpsell.mockReturnValue(false);
     routeParams$.next(convertToParamMap({}));
     vaultNav$.next({ vaults: [], organizationDataOwnership: false });
@@ -1406,6 +1409,47 @@ describe("VaultComponent", () => {
       initVault();
 
       expect(newExperienceDialogSpy).toHaveBeenCalled();
+    }));
+
+    it("looks for an import result only after data ownership enforcement has finished", fakeAsync(() => {
+      let finish!: () => void;
+      (vaultItemsTransferSvc.enforceOrganizationDataOwnership as jest.Mock).mockReturnValueOnce(
+        new Promise<void>((resolve) => (finish = resolve)),
+      );
+
+      initVault();
+
+      expect(importConfirmationPopupSvc.conditionallyOpen).not.toHaveBeenCalled();
+
+      finish();
+      tick();
+
+      expect(importConfirmationPopupSvc.conditionallyOpen).toHaveBeenCalledTimes(1);
+    }));
+
+    it("leaves the nudge undismissed on an open that showed the result of an import", fakeAsync(() => {
+      importConfirmationPopupSvc.conditionallyOpen.mockResolvedValueOnce(true);
+
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).not.toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        expect.anything(),
+      );
+    }));
+
+    it("opens the dialog on the next open, after an open that showed the result of an import", fakeAsync(() => {
+      importConfirmationPopupSvc.conditionallyOpen
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(false);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+
+      initVault();
+
+      expect(newExperienceDialogSpy).toHaveBeenCalledTimes(1);
     }));
 
     it("leaves dismissing the nudge to the dialog's actions", fakeAsync(() => {
