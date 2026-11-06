@@ -79,12 +79,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
 
   /**
    * When true, enables the ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field
-   * regardless. The shortcut is suppressed while a dialog is open, unless this search is inside
-   * that dialog.
-   *
-   * Do not set this on desktop: it ships a native `CmdOrCtrl+F` menu accelerator
-   * (`apps/desktop/src/main/menu/menu.view.ts`) that already focuses the vault search, and opting in
-   * would install a second handler for the same chord.
+   * regardless. The shortcut is suppressed behind an open dialog unless this search is inside it.
    */
   readonly useKeyShortcuts = input<boolean>(false);
 
@@ -93,8 +88,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
       key: "f",
       code: "KeyF",
       enabled: () => this.useKeyShortcuts() && !this.disabled(),
-      // Focus and select, matching desktop's native accelerator, so a second press replaces the
-      // term. `select()` is not specified to focus, so both calls are needed.
+      // Select too, so a second press replaces the term; `select()` alone isn't guaranteed to focus.
       handler: () => {
         const el = this.input()?.nativeElement;
         el?.focus();

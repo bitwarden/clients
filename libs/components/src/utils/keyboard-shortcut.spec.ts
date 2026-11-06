@@ -348,3 +348,30 @@ describe("KeyboardShortcutService listener lifecycle", () => {
     expect(removed).toHaveBeenCalledWith("keydown", expect.any(Function), true);
   });
 });
+
+describe("KeyboardShortcutService platform seed", () => {
+  const { platform, userAgent } = window.navigator;
+
+  // `navigator.platform` and `userAgent` are readonly, hence `defineProperty`.
+  const setPlatform = (platform: string, userAgent: string) => {
+    Object.defineProperty(window.navigator, "platform", { value: platform, configurable: true });
+    Object.defineProperty(window.navigator, "userAgent", { value: userAgent, configurable: true });
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: Dialog, useValue: dialogWith([]) }],
+    });
+  });
+
+  afterEach(() => setPlatform(platform, userAgent));
+
+  it.each([
+    ["platform", "MacIntel", ""],
+    ["user agent alone", "", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"],
+  ])("seeds Command from a Mac %s", (_, platform, userAgent) => {
+    setPlatform(platform, userAgent);
+
+    expect(TestBed.inject(KeyboardShortcutService).modifierKey()).toBe("Command");
+  });
+});

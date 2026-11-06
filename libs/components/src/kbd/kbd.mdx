@@ -34,15 +34,9 @@ never flips the glyph back.
 
 ## Localization
 
-Key legends are localized. `Esc`, `Escape`, `Ctrl`, `Control`, and `Command` are matched
-case-insensitively and rendered through `I18nService`, so a German keyboard shows `Strg` and a
-French one `Échap`. Any other token renders verbatim, so the `keys` input stays open-ended. `⌘` is a
-locale-independent glyph and is never translated.
-
-The badge and the `aria-keyshortcuts` attribute deliberately differ. The badge shows the legend
-printed on the user's keyboard; `aria-keyshortcuts` takes
-[UI Events](https://www.w3.org/TR/uievents-key/) key names, which are a fixed vocabulary and must
-stay untranslated.
+`Esc`, `Escape`, `Ctrl`, `Control`, and `Command` (any case) render as the local legend, e.g. `Strg`
+on German keyboards; other tokens render verbatim, and `⌘` is never translated. Keep
+`aria-keyshortcuts` in untranslated [UI Events](https://www.w3.org/TR/uievents-key/) key names.
 
 ## Accessibility
 

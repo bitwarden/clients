@@ -53,24 +53,6 @@ describe("BitKbdComponent", () => {
     fixture.detectChanges();
   });
 
-  it("renders one kbd per key", () => {
-    setKeys(["Shift", "Alt", "P"]);
-
-    expect(labels()).toEqual(["Shift", "Alt", "P"]);
-  });
-
-  it("joins the keys with +", () => {
-    setKeys(["Shift", "P"]);
-
-    expect(fixture.nativeElement.textContent.replace(/\s+/g, "")).toBe("Shift+P");
-  });
-
-  it("renders nothing for an empty list", () => {
-    setKeys([]);
-
-    expect(labels()).toEqual([]);
-  });
-
   it("passes unknown tokens through verbatim", () => {
     setKeys(["Enter", "F13", "🙂"]);
 

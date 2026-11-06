@@ -70,9 +70,8 @@ export const WithShortcutHints: Story = {
   },
 };
 
-// Only the platform is faked; listeners are forwarded to the real document so the shortcut still
-// fires. `KeyboardShortcutService` is re-provided per story component because the root instance
-// would resolve the real DOCUMENT and ignore the override.
+// Fakes only the platform; listeners hit the real document. The service is re-provided per story
+// because the root instance would resolve the real DOCUMENT.
 const makeDoc = (platform: string) =>
   ({
     defaultView: { navigator: { platform } },

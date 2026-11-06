@@ -14,8 +14,6 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { detectInitialModifier, isPrimaryModifier } from "./modifier-key";
-
 /** A chord an owner wants to claim. */
 export interface KeyboardShortcut {
   /** Lowercase Latin letter the chord uses, e.g. `"f"`. */
@@ -30,11 +28,21 @@ export interface KeyboardShortcut {
 
 interface Registration extends KeyboardShortcut {
   host: HTMLElement;
-  /** Registration order, used as the final tie-break. Unique, so a winner always exists. */
+  /** Registration order; the final tie-break. */
   seq: number;
 }
 
 const LATIN_LETTER = /^[a-z]$/;
+
+/** Exactly one of Meta/Ctrl: Cmd on Mac, Ctrl elsewhere. Both held is ambiguous, so not a match. */
+const isPrimaryModifier = (event: KeyboardEvent) => event.metaKey !== event.ctrlKey;
+
+/** Best-guess platform modifier; a later Cmd chord is ground truth. */
+const detectInitialModifier = (document: Document): "Command" | "Ctrl" => {
+  const nav = document.defaultView?.navigator;
+  const isMac = nav?.platform?.startsWith("Mac") || /Macintosh/.test(nav?.userAgent ?? "");
+  return isMac ? "Command" : "Ctrl";
+};
 
 /**
  * Arbitrates primary-modifier chords (⌘/Ctrl + a letter) across the whole page from one document
@@ -55,9 +63,8 @@ export class KeyboardShortcutService implements OnDestroy {
   private readonly modifier = signal(detectInitialModifier(this.document));
 
   /**
-   * The platform's primary modifier. Seeded from `navigator`, then corrected to `"Command"` the
-   * first time a Cmd chord is seen. The correction is one-way: Cmd is Apple-exclusive, but a Ctrl
-   * chord proves nothing, since the macOS caret bindings (Ctrl+A/E/K/D) fire while typing.
+   * The platform's primary modifier. A Cmd chord corrects it to `"Command"`, one way only: the macOS
+   * caret bindings (Ctrl+A/E/K/D) mean a Ctrl chord proves nothing.
    */
   readonly modifierKey: Signal<"Command" | "Ctrl"> = this.modifier.asReadonly();
 
@@ -125,9 +132,8 @@ export class KeyboardShortcutService implements OnDestroy {
   }
 
   /**
-   * `key` is authoritative so a remapped Latin layout follows the user's keycaps; `code` is a
-   * fallback only when the layout reports a non-Latin `key`, which is what makes the chord reachable
-   * on Cyrillic, Greek, and Arabic without letting any layout hijack it onto a different letter.
+   * `key` wins so a remapped Latin layout follows the user's keycaps; `code` is the fallback only for
+   * a non-Latin `key`, which makes the chord reachable on Cyrillic, Greek, and Arabic.
    */
   private matches(event: KeyboardEvent, registration: Registration): boolean {
     const key = event.key.toLowerCase();
@@ -153,11 +159,7 @@ export class KeyboardShortcutService implements OnDestroy {
   /** Owners whose subtree the focused element shares, which is how a nested overlay outranks the page. */
   private nearFocus(candidates: Registration[]): Registration[] {
     const active = this.document.activeElement;
-    if (
-      active == null ||
-      active === this.document.body ||
-      active === this.document.documentElement
-    ) {
+    if (active == null) {
       return [];
     }
     return candidates.filter((r) => r.host.contains(active) || active.contains(r.host));
@@ -183,9 +185,8 @@ export function injectModifierKey(): Signal<"Command" | "Ctrl"> {
 }
 
 /**
- * Returns a readonly signal of the platform modifier key as it should be *displayed* — the
- * locale-independent "⌘" on Mac, the localized Control abbreviation elsewhere (Strg on German
- * keyboards, for instance). Must be called in an injection context.
+ * Returns a readonly signal of the platform modifier key as it should be *displayed*: "⌘" on Mac,
+ * the localized Control abbreviation elsewhere. Must be called in an injection context.
  */
 export function injectModifierGlyph(): Signal<string> {
   const key = injectModifierKey();

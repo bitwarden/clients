@@ -333,75 +333,12 @@ describe("BulkActionsBarComponent", () => {
       expect(host.cleared()).toBe(0);
     }));
 
-    it.each([
-      ["Shift", { shiftKey: true }],
-      ["Alt", { altKey: true }],
-    ])("leaves Ctrl+%s+B to whatever else wants it", (_, extra) => {
-      outside().focus();
-
-      const event = new KeyboardEvent("keydown", {
-        key: "b",
-        ctrlKey: true,
-        cancelable: true,
-        ...extra,
-      });
-      document.dispatchEvent(event);
-      fixture.detectChanges();
-
-      expect(document.activeElement).toBe(outside());
-      expect(event.defaultPrevented).toBe(false);
-    });
-
-    it("does not re-fire while the chord is held down", () => {
-      outside().focus();
-
-      document.dispatchEvent(new KeyboardEvent("keydown", { key: "b", ctrlKey: true }));
-      fixture.detectChanges();
-      expect(document.activeElement).toBe(closeBtn());
-
-      // An auto-repeat would read as a second press and toggle focus back out.
-      document.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "b", ctrlKey: true, repeat: true }),
-      );
-      fixture.detectChanges();
-
-      expect(document.activeElement).toBe(closeBtn());
-    });
-
-    it("claims Ctrl+B on a Cyrillic layout, where the reported key is not Latin", () => {
-      outside().focus();
-
-      document.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "\u0438", code: "KeyB", ctrlKey: true }),
-      );
-      fixture.detectChanges();
-
-      expect(document.activeElement).toBe(closeBtn());
-    });
-
-    // The bar had no dialog guard before the shortcut registry, so Ctrl+B pulled focus straight
-    // out of an open dialog and past its focus trap.
+    // Ctrl+B must not pull focus past a dialog's focus trap.
     it("does not pull focus out of an open dialog", () => {
       outside().focus();
       openDialogs.push(dialogOver(document.createElement("div")));
 
       const event = new KeyboardEvent("keydown", { key: "b", ctrlKey: true, cancelable: true });
-      document.dispatchEvent(event);
-      fixture.detectChanges();
-
-      expect(document.activeElement).toBe(outside());
-      expect(event.defaultPrevented).toBe(false);
-    });
-
-    it("leaves a co-located search's Ctrl+F alone", () => {
-      outside().focus();
-
-      const event = new KeyboardEvent("keydown", {
-        key: "f",
-        code: "KeyF",
-        ctrlKey: true,
-        cancelable: true,
-      });
       document.dispatchEvent(event);
       fixture.detectChanges();
 

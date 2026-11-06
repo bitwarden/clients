@@ -4,7 +4,6 @@ export * from "./function-to-observable";
 export * from "./has-scrollable-content";
 export * from "./i18n-mock.service";
 export * from "./keyboard-shortcut";
-export * from "./modifier-key";
 export * from "./query-param-store";
 export * from "./responsive-utils";
 export * from "./scroll-direction";
