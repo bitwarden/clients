@@ -8435,6 +8435,9 @@
   "viewApiKey": {
     "message": "View API key"
   },
+  "copyApiKey": {
+    "message": "Copy API key"
+  },
   "rotateApiKey": {
     "message": "Rotate API key"
   },
