@@ -9,9 +9,7 @@ import {
 } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SecretVersionView } from "@bitwarden/bit-sm/models/view/secret-version.view";
-import { SecretVersionService } from "@bitwarden/bit-sm/secrets/secret-version.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretService, SecretVersionService, SecretVersionView } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";

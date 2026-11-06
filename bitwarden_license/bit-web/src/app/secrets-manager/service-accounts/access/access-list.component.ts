@@ -4,7 +4,7 @@ import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { NoResults } from "@bitwarden/assets/svg";
-import { AccessTokenView } from "@bitwarden/bit-sm/service-accounts/models/view/access-token.view";
+import { AccessTokenView } from "@bitwarden/bit-sm";
 import { TableDataSource } from "@bitwarden/components";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

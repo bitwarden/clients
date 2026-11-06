@@ -5,8 +5,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { ServiceAccountService, ServiceAccountView } from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

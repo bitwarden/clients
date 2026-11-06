@@ -13,6 +13,18 @@ import { RouterModule } from "@angular/router";
 import { EMPTY, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import {
+  AccessLeaseId,
+  AccessRequestId,
+  activateAccessErrorMessageKey,
+  AccessBadgeState,
+} from "@bitwarden/bit-pam";
+import {
+  AccessBadgeTickerService,
+  AccessStateBadgeComponent,
+  DurationShortPipe,
+  RemainingTimePipe,
+} from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -40,13 +52,6 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { AccessLeaseId, AccessRequestId, activateAccessErrorMessageKey } from "..";
-import { AccessBadgeState } from "../access-state-badge/access-badge-state";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
-import { DurationShortPipe } from "../date/duration-short.pipe";
-import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
 import {
   MyAccessLeaseRow,

@@ -531,9 +531,21 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       if (!sendView.data?.data) {
         throw new Error("Item Send is missing data");
       }
+      if (!sendView.data?.metadata) {
+        throw new Error("Item Send is missing metadata");
+      }
+      const cipherView = sendView.data.data;
       return {
         Item: {
-          data: sendView.data.data.toSdkCipherView(),
+          data: cipherView.toSdkCipherView(),
+          metadata: {
+            itemId: asUuid(cipherView.id),
+            creationDate: cipherView.creationDate.toISOString(),
+            revisionDate: cipherView.revisionDate.toISOString(),
+            folderName: sendView.data.metadata.folderName,
+            collectionNames: sendView.data.metadata.collectionNames,
+            organizationName: sendView.data.metadata.organizationName,
+          },
         },
       };
     }
