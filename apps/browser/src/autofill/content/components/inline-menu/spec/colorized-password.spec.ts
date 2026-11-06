@@ -1,3 +1,5 @@
+import { cache } from "@emotion/css";
+
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { litValues } from "../../lit-stories/lit-values";
@@ -7,6 +9,7 @@ import { ColorizedPassword } from "../colorized-password";
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
 
 describe("ColorizedPassword", () => {
+  const CONTAINER_CLASS_SLOT = 0;
   const ARIA_LABEL_SLOT = 1;
 
   it("builds an aria-label describing letters, numbers, and special characters", () => {
@@ -33,5 +36,17 @@ describe("ColorizedPassword", () => {
     );
 
     expect(values[ARIA_LABEL_SLOT]).toBe(`${mockI18n.generatedPassword}: ? `);
+  });
+
+  it("preserves whitespace so space separators are visible", () => {
+    const values = litValues(
+      ColorizedPassword({
+        password: "word word",
+        theme: ThemeTypes.Light,
+        i18n: mockPasswordGeneratorI18n,
+      }),
+    );
+
+    expect(cache.registered[values[CONTAINER_CLASS_SLOT] as string]).toMatch(/white-space:\s*pre;/);
   });
 });
