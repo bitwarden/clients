@@ -13,7 +13,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, CipherId } from "@bitwarden/common/types/guid";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -73,6 +74,7 @@ describe("ShareLinkService", () => {
         { provide: RevealedCipherService, useValue: revealedCipherService },
         { provide: SendSdkApiService, useValue: mock<SendSdkApiService>() },
         { provide: SendService, useValue: mock<SendService>() },
+        { provide: FolderService, useValue: mock<FolderService>() },
       ],
     });
 

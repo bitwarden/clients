@@ -43,11 +43,13 @@
       "properties": {
         "name": {
           "description": "The name of the application paired.",
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "normalizedPath": {
           "description": "The normalized absolute path of the application paired, including the file name.",
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": ["name", "normalizedPath"]
@@ -57,7 +59,10 @@
       "properties": {
         "packagingType": {
           "description": "The type of packaging of the Bitwarden client this pairing was made on. Informs the operating system and potential sandboxing requirements. Later 1.x versions may add values, so readers must handle values they don't recognize.",
-          "anyOf": [{ "enum": ["windows-msix", "windows-exe"] }, { "type": "string" }]
+          "anyOf": [
+            { "enum": ["windows-msix", "windows-exe"] },
+            { "type": "string", "minLength": 1 }
+          ]
         }
       },
       "required": ["packagingType"]
