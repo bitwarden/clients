@@ -53,7 +53,6 @@ export enum FeatureFlag {
   PM34515_BrowserDesktopCheckout = "pm-34515-browser-desktop-checkout",
   DebugDisableSelfHostPremiumCheck = "debug-disable-self-host-premium-check",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
-  PM36631_PreviewDrivenCart = "pm-36631-preview-driven-cart",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
   PamBillingSupport = "pm-39883-pam-billing-support",
 
@@ -68,7 +67,6 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
-  SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
   ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
@@ -148,7 +146,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
-  [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
   [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
@@ -194,7 +191,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34515_BrowserDesktopCheckout]: FALSE,
   [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
-  [FeatureFlag.PM36631_PreviewDrivenCart]: FALSE,
   [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
 
   /* Key Management */

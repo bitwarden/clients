@@ -17,6 +17,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { LogService } from "@bitwarden/logging";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import { CopyCipherFieldService, VaultCopyButtonsService } from "@bitwarden/vault";
 
@@ -48,6 +49,7 @@ describe("VaultCipherRowComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultCipherRowComponent],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },

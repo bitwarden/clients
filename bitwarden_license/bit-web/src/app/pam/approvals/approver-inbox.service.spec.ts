@@ -6,7 +6,6 @@ import {
   AccessEventService,
   AccessLeaseSdkService,
   AccessRefreshService,
-  AccessRequestSdkService,
   ApprovalSdkService,
   DECIDE_ACCESS_SERVER_ERRORS,
 } from "@bitwarden/bit-pam";
@@ -75,7 +74,6 @@ function alreadyResolved(): Error {
 describe("ApproverInboxService", () => {
   let service: ApproverInboxService;
   let approvalApi: MockProxy<ApprovalSdkService>;
-  let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
   let accessRefresh: MockProxy<AccessRefreshService>;
@@ -84,7 +82,6 @@ describe("ApproverInboxService", () => {
 
   beforeEach(() => {
     approvalApi = mock<ApprovalSdkService>();
-    requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
     accessRefresh = mock<AccessRefreshService>();
@@ -99,7 +96,6 @@ describe("ApproverInboxService", () => {
       providers: [
         ApproverInboxService,
         { provide: ApprovalSdkService, useValue: approvalApi },
-        { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: AccessRefreshService, useValue: accessRefresh },
@@ -379,10 +375,29 @@ describe("ApproverInboxService", () => {
       expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
     });
 
-    it("cancels an approval via access_requests().cancel()", async () => {
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+    it("withdraws an approval via approvals().revoke() with the reason", async () => {
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1");
+      expect(approvalApi.revoke).toHaveBeenCalledWith("req-1", { reason: "Approved by mistake" });
+    });
+
+    it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
+      approvalApi.listHistory.mockClear();
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "req-1",
+          status: "denied",
+          decisions: [
+            humanDecision({ id: "approver-1", verdict: "deny", comment: "Approved by mistake" }),
+          ],
+        }),
+      ]);
+
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
+
+      expect(approvalApi.listHistory).toHaveBeenCalledTimes(1);
+      const history = await firstValueFrom(service.historyRows$);
+      expect(history[0].status).toBe("denied");
     });
 
     it("announces a landed revoke or withdrawal on the refresh signal", async () => {
@@ -390,17 +405,17 @@ describe("ApproverInboxService", () => {
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
       expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(2);
     });
 
     it("restores the row and rethrows when cancelling an approval fails", async () => {
-      requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
+      approvalApi.revoke.mockRejectedValue(new Error("boom"));
 
-      await expect(service.cancelApproval("req-1" as unknown as AccessRequestId)).rejects.toThrow(
-        "boom",
-      );
+      await expect(
+        service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake"),
+      ).rejects.toThrow("boom");
       const history = await firstValueFrom(service.historyRows$);
       expect(history[0].status).toBe("approved");
     });
@@ -410,9 +425,9 @@ describe("ApproverInboxService", () => {
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      // `decide` is the only mutation on `ApprovalSdkService`.
+      // Neither path records a decision through `decide`.
       expect(approvalApi.decide).not.toHaveBeenCalled();
     });
   });
