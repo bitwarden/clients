@@ -1,3 +1,5 @@
+import { KeyId } from "@bitwarden/sdk-internal";
+
 import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -34,6 +36,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   maxStorageGb?: number;
   key: string;
   hasPublicAndPrivateKeys: boolean;
+  organizationKeyId?: KeyId;
   status: OrganizationUserStatusType;
   type: OrganizationUserType;
   enabled: boolean;
@@ -100,6 +103,10 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.maxStorageGb = this.getResponseProperty("MaxStorageGb");
     this.key = this.getResponseProperty("Key");
     this.hasPublicAndPrivateKeys = this.getResponseProperty("HasPublicAndPrivateKeys");
+    const organizationKeyId = this.getResponseProperty("OrganizationKeyId");
+    if (organizationKeyId != null && typeof organizationKeyId === "string") {
+      this.organizationKeyId = organizationKeyId as KeyId;
+    }
     this.status = this.getResponseProperty("Status");
     this.type = this.getResponseProperty("Type");
     this.enabled = this.getResponseProperty("Enabled");
