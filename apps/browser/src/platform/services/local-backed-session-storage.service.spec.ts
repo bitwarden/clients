@@ -142,7 +142,10 @@ describe("LocalBackedSessionStorage", () => {
       onConnect(port);
       encryptService.encryptString.mockResolvedValue(makeEncString("encrypted"));
 
-      const broadcast = jest.spyOn(connectedSut as any, "broadcastMessage");
+      const broadcast = jest.spyOn(
+        connectedSut as unknown as { broadcastMessage: () => void },
+        "broadcastMessage",
+      );
 
       disconnect();
       await connectedSut.save("key", "value");

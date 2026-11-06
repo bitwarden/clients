@@ -523,7 +523,13 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const decryptable = await this.excludeCiphersMissingOrgKey(ciphers, userId);
-    const [successes] = await this.cipherEncryptionService.decryptManyLegacy(decryptable, userId);
+    const [successes, failures] = await this.cipherEncryptionService.decryptManyLegacy(
+      decryptable,
+      userId,
+    );
+    if (failures.length > 0) {
+      this.logService.warning(`Failed to decrypt ${failures.length} requested ciphers.`);
+    }
     const views = new Map(
       hydrateCiphersWithLocalData(successes, localData).map((view) => [view.id, view]),
     );

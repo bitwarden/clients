@@ -677,6 +677,22 @@ describe("Cipher Service", () => {
         subscription.unsubscribe();
       });
 
+      it("leaves list views without localData untouched", async () => {
+        stateProvider.singleUser
+          .getFake(mockUserId, LOCAL_DATA_KEY)
+          .nextState({ other: { lastUsedDate: Date.now() } } as unknown as Record<
+            CipherId,
+            LocalData
+          >);
+
+        const result = await firstValueFrom(
+          cipherService.cipherListViewsIncludingRestricted$(mockUserId),
+        );
+
+        expect(result[0]).toBe(normalListView);
+        stateProvider.singleUser.getFake(mockUserId, LOCAL_DATA_KEY).nextState({});
+      });
+
       it("keeps list views decrypted after a cache clear that finishes late", async () => {
         const emitted: unknown[] = [];
         const subscription = cipherService
