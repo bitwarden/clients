@@ -1795,7 +1795,8 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac
+          AUTOFILL_EXTENSION_PROVISIONING_PROFILE: PM Stable Desktop-ExtAutofill Distrib
+        run: npm run pack:mac -- -c.mac.provisioningProfile=bitwarden_stable_desktop_developer_id.provisionprofile
 
       - name: Upload .zip artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -2055,7 +2056,8 @@ jobs:
           # Skip notarization to save our daily Apple notarization quota while the macOS beta
           # isn't being distributed. Remove before shipping a macOS beta release.
           APPLE_NOTARIZE: false
-        run: npm run pack:mac:beta
+          AUTOFILL_EXTENSION_PROVISIONING_PROFILE: PM Beta Desktop-ExtAutofill Distrib
+        run: npm run pack:mac:beta -- -c.mac.provisioningProfile=bitwarden_beta_desktop_developer_id.provisionprofile
 
       - name: Upload .zip artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -2364,7 +2366,8 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac:mas
+          AUTOFILL_EXTENSION_PROVISIONING_PROFILE: PM Stable Desktop-ExtAutofill AppStore
+        run: npm run pack:mac:mas -- -c.mas.provisioningProfile=bitwarden_stable_desktop_appstore.provisionprofile
 
       - name: Create MacOS App Store build number artifact
         shell: pwsh
