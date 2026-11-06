@@ -229,6 +229,8 @@ apps/web/src/app/layouts                                         @bitwarden/team
 
 ## Key management team files ##
 e2e                                               @bitwarden/team-key-management-dev
+.github/workflows/test-e2e-usdev.yml              @bitwarden/team-key-management-dev
+.github/workflows/test-e2e-usdev-changes.yml      @bitwarden/team-key-management-dev
 apps/desktop/src/key-management                   @bitwarden/team-key-management-dev
 apps/web/src/app/key-management                   @bitwarden/team-key-management-dev
 apps/browser/src/key-management                   @bitwarden/team-key-management-dev
@@ -251,8 +253,10 @@ apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-
 apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-key-management-dev
 
 ## PAM
-bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
 apps/web/src/app/pam                   @bitwarden/team-pam-dev
+bitwarden_license/bit-pam              @bitwarden/team-pam-dev
+bitwarden_license/bit-pam-components   @bitwarden/team-pam-dev
+bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
 libs/pam                               @bitwarden/team-pam-dev
 
 ## Automation driver ##
