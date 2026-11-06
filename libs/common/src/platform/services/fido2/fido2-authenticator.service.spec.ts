@@ -607,6 +607,26 @@ describe("FidoAuthenticatorService", () => {
         });
       });
 
+      it("should skip a credential whose stored id cannot be parsed instead of failing the lookup", async () => {
+        const imported = createCipherView(
+          { type: CipherType.Login },
+          { credentialId: "Lb5SVTumSV6gYJpeWh3laAAAAAA", rpId: RpId },
+        );
+        cipherService.getAllDecrypted.mockResolvedValue([imported, ...ciphers]);
+        userInterfaceSession.pickCredential.mockResolvedValue({
+          cipherId: ciphers[0].id,
+          userVerified: false,
+        });
+
+        await authenticator.getAssertion(params, windowReference);
+
+        expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith({
+          cipherIds: ciphers.map((c) => c.id),
+          userVerification: false,
+          masterPasswordRepromptRequired: false,
+        });
+      });
+
       it("should only ask for discoverable credentials matched by rpId when params does not contains allowedCredentials list", async () => {
         params.allowCredentialDescriptorList = undefined;
         const discoverableCiphers = ciphers.filter((c) => c.login.fido2Credentials[0].discoverable);
