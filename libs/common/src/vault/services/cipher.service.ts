@@ -391,7 +391,9 @@ export class CipherService implements CipherServiceAbstraction {
         PERF_TRACK,
         "getAllDecrypted",
       );
-      const result = await this.cipherSdkService.getAllDecrypted(userId);
+      // Temporary serial decrypt until https://bitwarden.atlassian.net/browse/PM-46138 merges.
+      // const result = await this.cipherSdkService.getAllDecrypted(userId);
+      const result = await this.temporary_get_all_decrypted(userId);
       sdkMeasurement.finish([
         ["Items", result.successes.length],
         ["Failures", result.failures.length],
@@ -409,6 +411,26 @@ export class CipherService implements CipherServiceAbstraction {
       // Return empty array on error to maintain existing behavior
       return [];
     }
+  }
+
+  // Temporary: decrypts one cipher at a time, so SDK memory never grows to the vault size.
+  private async temporary_get_all_decrypted(userId: UserId): Promise<DecryptAllCiphersResult> {
+    const encrypted = Object.values(await firstValueFrom(this.ciphers$(userId)));
+    const result: DecryptAllCiphersResult = { successes: [], failures: [] };
+
+    for (const data of encrypted) {
+      const cipher = new Cipher(data);
+      try {
+        result.successes.push(await this.decrypt(cipher, userId));
+      } catch {
+        const failed = new CipherView(cipher);
+        failed.name = "[error: cannot decrypt]";
+        failed.decryptionFailure = true;
+        result.failures.push(failed);
+      }
+    }
+
+    return result;
   }
 
   private async getDecryptedCiphers(userId: UserId) {
