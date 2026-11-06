@@ -55,12 +55,21 @@ export async function logInToExtension(
 }
 
 /** Logs in to the web vault in a new tab. Open it after the extension started, for its content script. */
-export async function logInToWeb(context: BrowserContext): Promise<Page> {
+export async function logInToWeb(context: BrowserContext, flags: FeatureFlag[]): Promise<Page> {
   const tab = await context.newPage();
   await logInToWebVault(tab);
-  await enableFlags(tab, [FeatureFlag.SharedUnlock]);
+  await enableFlags(tab, flags);
 
   return tab;
+}
+
+/** Turns `flags` on in the desktop app, then logs in. */
+export async function logInToDesktop(window: Page, flags: FeatureFlag[]): Promise<void> {
+  await enableFlags(window, flags);
+
+  const login = new LoginPage(window);
+  await login.logIn();
+  await login.waitForVault(DESKTOP_VAULT_URL);
 }
 
 /**
