@@ -1,10 +1,15 @@
-import { CredentialAlgorithm, CredentialType } from "../metadata";
+import { CredentialAlgorithm, CredentialType, ForwarderExtensionId } from "../metadata";
+
+type AlgorithmPreference = {
+  algorithm: CredentialAlgorithm;
+  updated: Date;
+};
 
 /** The kind of credential to generate using a compound configuration. */
-// FIXME: extend the preferences to include a preferred forwarder
 export type CredentialPreference = {
-  [Key in CredentialType]: {
-    algorithm: CredentialAlgorithm;
-    updated: Date;
+  [Key in CredentialType]: AlgorithmPreference;
+} & {
+  email: AlgorithmPreference & {
+    forwarder?: ForwarderExtensionId;
   };
 };
