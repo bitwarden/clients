@@ -21,6 +21,7 @@ import {
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
+import { CIPHER_SHARE_ACCESS, CipherShareAccess } from "../tokens/cipher-share-access.token";
 import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
@@ -71,6 +72,7 @@ describe("CipherRowMenuService", () => {
   let restrictedTypesSubject: BehaviorSubject<RestrictedCipherType[]>;
   let organizationsSubject: BehaviorSubject<Organization[]>;
   let revealedSubject: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+  let cipherShareAccess: MockProxy<CipherShareAccess>;
   let providers: Provider[];
 
   beforeEach(() => {
@@ -85,6 +87,8 @@ describe("CipherRowMenuService", () => {
 
     organizationsSubject = new BehaviorSubject<Organization[]>([]);
     revealedSubject = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
+    cipherShareAccess = mock<CipherShareAccess>();
+    cipherShareAccess.canShare.mockReturnValue(true);
     const revealedCipherService = mock<RevealedCipherService>();
     revealedCipherService.revealed$.mockReturnValue(revealedSubject.asObservable());
     organizationService.organizations$.mockReturnValue(organizationsSubject.asObservable());
@@ -103,6 +107,7 @@ describe("CipherRowMenuService", () => {
       { provide: AccountService, useValue: mockAccountServiceWith(userId) },
       { provide: CipherActionService, useValue: mock<CipherActionService>() },
       { provide: RevealedCipherService, useValue: revealedCipherService },
+      { provide: CIPHER_SHARE_ACCESS, useValue: cipherShareAccess },
     ];
     TestBed.configureTestingModule({ providers });
 
@@ -400,6 +405,55 @@ describe("CipherRowMenuService", () => {
     });
   });
 
+  describe("shareViaLink", () => {
+    it("shows when the cipher can be shared", () => {
+      cipherShareAccess.canShare.mockReturnValue(true);
+
+      expect(show("shareViaLink", makeCipher())).toBe(true);
+    });
+
+    it("hides when the cipher cannot be shared", () => {
+      cipherShareAccess.canShare.mockReturnValue(false);
+
+      expect(show("shareViaLink", makeCipher())).toBe(false);
+    });
+
+    it("hides when no share access is provided", () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: providers.filter(
+          (p) => (p as { provide?: unknown }).provide !== CIPHER_SHARE_ACCESS,
+        ),
+      });
+      const withoutShare = TestBed.inject(CipherRowMenuService);
+
+      const action = withoutShare
+        .getRowActions([], { edit: () => {}, clone: () => {}, assignToCollections: () => {} })
+        .find((a) => a.id === "shareViaLink");
+
+      expect(action?.show?.(makeCipher())).toBe(false);
+    });
+
+    it("sits directly after addToSharedFolder", () => {
+      const ids = service
+        .getRowActions([], { edit: () => {}, clone: () => {}, assignToCollections: () => {} })
+        .map((a) => a.id);
+
+      expect(ids.indexOf("shareViaLink")).toBe(ids.indexOf("addToSharedFolder") + 1);
+    });
+
+    it("shares the cipher when chosen", () => {
+      const cipher = makeCipher();
+      const action = service
+        .getRowActions([], { edit: () => {}, clone: () => {}, assignToCollections: () => {} })
+        .find((a) => a.id === "shareViaLink");
+
+      void action?.run(cipher);
+
+      expect(cipherShareAccess.share).toHaveBeenCalledWith(cipher);
+    });
+  });
+
   describe("unarchive", () => {
     it("shows when archived and not deleted", () => {
       expect(show("unarchive", makeCipher({ isArchived: true }))).toBe(true);
@@ -599,6 +653,7 @@ describe("CipherRowMenuService", () => {
         "attachments",
         "clone",
         "addToSharedFolder",
+        "shareViaLink",
         "archive",
         "unarchive",
         "restore",
