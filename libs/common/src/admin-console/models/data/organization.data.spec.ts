@@ -1,3 +1,5 @@
+import { KeyId } from "@bitwarden/sdk-internal";
+
 import { ProductTierType } from "../../../billing/enums/product-tier-type.enum";
 import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
 import { ORGANIZATIONS } from "../../services/organization/organization.state";
@@ -44,6 +46,7 @@ describe("ORGANIZATIONS state", () => {
         userId: "userId",
         organizationUserId: "organizationUserId",
         hasPublicAndPrivateKeys: false,
+        organizationKeyId: "0123456789abcdef0123456789abcdef" as KeyId,
         providerId: "providerId",
         providerName: "providerName",
         isProviderUser: false,
