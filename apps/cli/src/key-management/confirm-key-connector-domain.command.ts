@@ -1,5 +1,6 @@
 import * as inquirer from "inquirer";
 
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -12,7 +13,7 @@ export class ConfirmKeyConnectorDomainCommand {
     private readonly userId: UserId,
     private readonly keyConnectorUrl: string,
     private keyConnectorService: KeyConnectorService,
-    private logout: () => Promise<void>,
+    private logoutService: LogoutService,
     private i18nService: I18nService,
   ) {}
 
@@ -20,7 +21,7 @@ export class ConfirmKeyConnectorDomainCommand {
     // If no interaction available, alert user to use web vault
     const canInteract = process.env.BW_NOINTERACTION !== "true";
     if (!canInteract) {
-      await this.logout();
+      await this.logoutService.logout(this.userId, "keyConnectorRequiresInteraction");
       return Response.error(
         new MessageResponse(
           this.i18nService.t("organizationUsingKeyConnectorConfirmLoggedOut"),
@@ -49,13 +50,13 @@ export class ConfirmKeyConnectorDomainCommand {
       try {
         await this.keyConnectorService.convertNewSsoUserToKeyConnector(this.userId);
       } catch (e) {
-        await this.logout();
+        await this.logoutService.logout(this.userId, "keyConnectorError");
         throw e;
       }
 
       return Response.success();
     } else {
-      await this.logout();
+      await this.logoutService.logout(this.userId, "userInitiated");
       return Response.error(this.i18nService.t("youHaveBeenLoggedOut"));
     }
   }

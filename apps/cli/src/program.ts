@@ -177,7 +177,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.twoFactorService,
             this.serviceContainer.syncService,
             this.serviceContainer.keyConnectorService,
-            async () => await this.serviceContainer.logout(),
+            this.serviceContainer.logoutService,
             this.serviceContainer.ssoUrlService,
             this.serviceContainer.i18nService,
             this.serviceContainer.masterPasswordService,
@@ -199,13 +199,12 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async (cmd) => {
-        await this.exitIfNotAuthed();
+        const userId = await this.exitIfNotAuthed();
         const command = new LogoutCommand(
-          this.serviceContainer.authService,
           this.serviceContainer.i18nService,
-          async () => await this.serviceContainer.logout(),
+          this.serviceContainer.logoutService,
         );
-        const response = await command.run();
+        const response = await command.run(userId);
         this.processResponse(response);
       });
 
@@ -223,11 +222,10 @@ export class Program extends BaseProgram {
 
         if (await this.serviceContainer.keyConnectorService.getUsesKeyConnector(userId)) {
           const logoutCommand = new LogoutCommand(
-            this.serviceContainer.authService,
             this.serviceContainer.i18nService,
-            async () => await this.serviceContainer.logout(),
+            this.serviceContainer.logoutService,
           );
-          await logoutCommand.run();
+          await logoutCommand.run(userId);
           this.processResponse(
             Response.error(
               "You cannot lock your vault because you are using Key Connector. " +
@@ -299,7 +297,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.keyConnectorService,
             this.serviceContainer.environmentService,
             this.serviceContainer.organizationApiService,
-            async () => await this.serviceContainer.logout(),
+            this.serviceContainer.logoutService,
             this.serviceContainer.i18nService,
             this.serviceContainer.encryptedMigrator,
             this.serviceContainer.unlockService,

@@ -3,6 +3,7 @@ import { of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -34,7 +35,7 @@ describe("UnlockCommand", () => {
   const keyConnectorService = mock<KeyConnectorService>();
   const environmentService = mock<EnvironmentService>();
   const organizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const logout = jest.fn();
+  const logoutService = mock<LogoutService>();
   const i18nService = mock<I18nService>();
   const encryptedMigrator = mock<EncryptedMigrator>();
   const unlockService = mock<UnlockService>();
@@ -92,7 +93,7 @@ describe("UnlockCommand", () => {
       keyConnectorService,
       environmentService,
       organizationApiService,
-      logout,
+      logoutService,
       i18nService,
       encryptedMigrator,
       unlockService,
