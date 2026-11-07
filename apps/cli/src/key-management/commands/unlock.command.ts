@@ -135,18 +135,14 @@ export class UnlockCommand {
     const res = new MessageResponse(
       "Your vault is now unlocked!",
       "\n" +
-        "To unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n" +
-        '$ export BW_SESSION="' +
-        process.env.BW_SESSION +
-        '"\n' +
-        '> $env:BW_SESSION="' +
-        process.env.BW_SESSION +
-        '"\n\n' +
-        "You can also pass the session key to any command with the `--session` option. ex:\n" +
-        "$ bw list items --session " +
-        process.env.BW_SESSION,
+        "The session key is available to this command process as `BW_SESSION`. To set it in your shell without printing it, run:\n" +
+        '  export BW_SESSION="$(bw unlock --raw)"  # bash/zsh\n' +
+        "  $env:BW_SESSION = (bw unlock --raw)  # PowerShell\n\n" +
+        "Use `bw status` to check your vault state. `bw list items` outputs decrypted vault contents; use it only when you intend to display or process every item.",
     );
-    res.raw = process.env.BW_SESSION;
+    if (process.env.BW_RAW === "true") {
+      res.raw = process.env.BW_SESSION;
+    }
     return Response.success(res);
   }
 }
