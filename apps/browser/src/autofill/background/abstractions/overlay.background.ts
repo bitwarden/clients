@@ -46,6 +46,7 @@ export type FocusedFieldData = {
   showPasskeys?: boolean;
   focusedFieldForm?: string;
   focusedFieldOpid?: string;
+  isCursorFollowerTotp?: boolean;
 };
 
 export type InlineMenuElementPosition = {
