@@ -9,7 +9,6 @@ import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { BannerModule } from "@bitwarden/components";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
-import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
 import { SharedModule } from "../../../shared";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
@@ -19,12 +18,7 @@ import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banner
 @Component({
   selector: "app-vault-banners",
   templateUrl: "./vault-banners.component.html",
-  imports: [
-    VerifyEmailComponent,
-    SharedModule,
-    BannerModule,
-    OrganizationFreeTrialWarningComponent,
-  ],
+  imports: [SharedModule, BannerModule, OrganizationFreeTrialWarningComponent],
   providers: [VaultBannersService],
 })
 export class VaultBannersComponent implements OnInit {
@@ -89,13 +83,11 @@ export class VaultBannersComponent implements OnInit {
 
     const showBrowserOutdated =
       await this.vaultBannerService.shouldShowUpdateBrowserBanner(activeUserId);
-    const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner(activeUserId);
     const showPendingAuthRequest =
       await this.vaultBannerService.shouldShowPendingAuthRequestBanner(activeUserId);
 
     this.visibleBanners = [
       showBrowserOutdated ? VisibleVaultBanner.OutdatedBrowser : null,
-      showVerifyEmail ? VisibleVaultBanner.VerifyEmail : null,
       showPendingAuthRequest ? VisibleVaultBanner.PendingAuthRequest : null,
     ].filter((banner) => banner !== null);
   }
