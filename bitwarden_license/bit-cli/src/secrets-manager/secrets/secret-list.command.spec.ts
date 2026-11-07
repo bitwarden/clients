@@ -1,15 +1,16 @@
 import { mock } from "jest-mock-extended";
 
-import { SecretListView, SecretService } from "@bitwarden/bit-sm";
+import { ProjectService, ProjectView, SecretListView, SecretService } from "@bitwarden/bit-sm";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 
 import { SmSecretResponse } from "../models/sm-secret.response";
-import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg, smOtherOrgId } from "../spec/sm-test-utils";
 
 import { SecretListCommand } from "./secret-list.command";
 
 describe("SecretListCommand", () => {
   const secretService = mock<SecretService>();
+  const projectService = mock<ProjectService>();
   const projectId = "33333333-3333-3333-3333-333333333333";
   let command: SecretListCommand;
 
@@ -22,7 +23,10 @@ describe("SecretListCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    command = new SecretListCommand(secretService);
+    projectService.getByProjectId.mockResolvedValue(
+      Object.assign(new ProjectView(), { id: projectId, organizationId: smOrgId }),
+    );
+    command = new SecretListCommand(secretService, projectService);
   });
 
   it("lists the organization's secrets without values", async () => {
@@ -51,6 +55,19 @@ describe("SecretListCommand", () => {
     expect(secretService.getSecrets).not.toHaveBeenCalled();
   });
 
+  it("returns not found for a project from another organization, even when empty", async () => {
+    projectService.getByProjectId.mockResolvedValue(
+      Object.assign(new ProjectView(), { id: projectId, organizationId: smOtherOrgId }),
+    );
+    secretService.getSecretsByProject.mockResolvedValue([]);
+
+    const response = await command.run(smOrg, projectId);
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("The project was not found, or you do not have access to it.");
+    expect(secretService.getSecretsByProject).not.toHaveBeenCalled();
+  });
+
   it("rejects an invalid project id", async () => {
     const response = await command.run(smOrg, "abc");
 
@@ -59,7 +76,7 @@ describe("SecretListCommand", () => {
   });
 
   it("maps a 404 on a project to a friendly error", async () => {
-    secretService.getSecretsByProject.mockRejectedValue(smNotFoundError());
+    projectService.getByProjectId.mockRejectedValue(smNotFoundError());
 
     const response = await command.run(smOrg, projectId);
 
