@@ -6,7 +6,6 @@ import { Response } from "@bitwarden/cli/models/response";
 import { MessageResponse } from "@bitwarden/cli/models/response/message.response";
 import { StringResponse } from "@bitwarden/cli/models/response/string.response";
 import { CliUtils } from "@bitwarden/cli/utils";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
@@ -16,7 +15,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ServiceContainer } from "../../service-container";
 import { SmExportResponse } from "../models/sm-export.response";
-import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 export type SmExportOptions = {
   output?: string;
@@ -29,22 +28,13 @@ export type SmExportOptions = {
 export class SmExportCommand {
   constructor(
     private portingApiService: SecretsManagerPortingApiService,
-    private organizationService: OrganizationService,
     private accountService: AccountService,
     private userVerificationService: UserVerificationService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private logService: LogService,
   ) {}
 
-  async run(organizationId: string, options: SmExportOptions = {}): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, options: SmExportOptions = {}): Promise<Response> {
     if (!org.organization.isAdmin) {
       return Response.error("Only organization owners and admins can export Secrets Manager data.");
     }
@@ -140,7 +130,6 @@ export class SmExportCommand {
   static create(serviceContainer: ServiceContainer) {
     return new SmExportCommand(
       serviceContainer.secretsManagerPortingApiService,
-      serviceContainer.organizationService,
       serviceContainer.accountService,
       serviceContainer.userVerificationService,
       serviceContainer.userDecryptionOptionsService,

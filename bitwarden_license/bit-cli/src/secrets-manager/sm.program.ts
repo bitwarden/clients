@@ -980,9 +980,14 @@ export class SmProgram extends BaseProgram {
       })
       .action(async (options: OrgOptions & { projectid?: string; machineaccountid?: string }) => {
         await this.exitIfLocked();
-        const response = await CountsCommand.create(this.serviceContainer).run(
+        const response = await withSmOrganization(
+          this.serviceContainer,
           options.organizationid,
-          { projectId: options.projectid, machineAccountId: options.machineaccountid },
+          (org) =>
+            CountsCommand.create(this.serviceContainer).run(org, {
+              projectId: options.projectid,
+              machineAccountId: options.machineaccountid,
+            }),
         );
         this.processResponse(response);
       });
@@ -1006,13 +1011,15 @@ export class SmProgram extends BaseProgram {
       .action(
         async (options: OrgOptions & { machineaccountid: string; start: string; end: string }) => {
           await this.exitIfLocked();
-          const response = await EventsCommand.create(this.serviceContainer).run(
+          const response = await withSmOrganization(
+            this.serviceContainer,
             options.organizationid,
-            {
-              machineAccountId: options.machineaccountid,
-              start: options.start,
-              end: options.end,
-            },
+            (org) =>
+              EventsCommand.create(this.serviceContainer).run(org, {
+                machineAccountId: options.machineaccountid,
+                start: options.start,
+                end: options.end,
+              }),
           );
           this.processResponse(response);
         },
@@ -1054,13 +1061,15 @@ export class SmProgram extends BaseProgram {
           options: OrgOptions & { output?: string; passwordenv?: string; passwordfile?: string },
         ) => {
           await this.exitIfLocked();
-          const response = await SmExportCommand.create(this.serviceContainer).run(
+          const response = await withSmOrganization(
+            this.serviceContainer,
             options.organizationid,
-            {
-              output: options.output,
-              passwordEnv: options.passwordenv,
-              passwordFile: options.passwordfile,
-            },
+            (org) =>
+              SmExportCommand.create(this.serviceContainer).run(org, {
+                output: options.output,
+                passwordEnv: options.passwordenv,
+                passwordFile: options.passwordfile,
+              }),
           );
           this.processResponse(response);
         },
@@ -1084,9 +1093,10 @@ export class SmProgram extends BaseProgram {
       })
       .action(async (file: string, options: OrgOptions) => {
         await this.exitIfLocked();
-        const response = await SmImportCommand.create(this.serviceContainer).run(
+        const response = await withSmOrganization(
+          this.serviceContainer,
           options.organizationid,
-          { file },
+          (org) => SmImportCommand.create(this.serviceContainer).run(org, { file }),
         );
         this.processResponse(response);
       });

@@ -10,8 +10,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { ServiceContainer } from "../service-container";
-
 import { SmBulkStatusResponse } from "./models/sm-bulk-status.response";
 
 /**
@@ -217,7 +215,7 @@ export async function validateSmOrganizationAccess(
  * @returns the validation error, or the response of `action`.
  */
 export async function withSmOrganization(
-  services: Pick<ServiceContainer, "organizationService" | "accountService">,
+  services: { organizationService: OrganizationService; accountService: AccountService },
   organizationId: string,
   action: (org: SmOrganization) => Promise<Response>,
 ): Promise<Response> {

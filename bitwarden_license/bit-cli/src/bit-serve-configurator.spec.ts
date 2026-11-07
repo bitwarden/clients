@@ -3,6 +3,8 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { Response } from "@bitwarden/cli/models/response";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
@@ -12,6 +14,8 @@ import { AccessTokenCreateCommand } from "./secrets-manager/access-tokens/access
 import { SmExportCommand } from "./secrets-manager/porting/sm-export.command";
 import { SmImportCommand } from "./secrets-manager/porting/sm-import.command";
 import { ProjectGetCommand } from "./secrets-manager/projects/project-get.command";
+import { mockSmOrganization, smOrg } from "./secrets-manager/spec/sm-test-utils";
+import { TemplateCommand } from "./secrets-manager/templates/template.command";
 import { TrashRestoreCommand } from "./secrets-manager/trash/trash-restore.command";
 import { ServiceContainer } from "./service-container";
 
@@ -22,6 +26,8 @@ describe("BitServeConfigurator", () => {
   let router: Router;
   let errorIfLocked: jest.SpyInstance;
   const configService = mock<ConfigService>();
+  const organizationService = mock<OrganizationService>();
+  const accountService = mock<AccountService>();
 
   const findRoute = (method: string, path: string) => {
     const layer = router.stack.find((l) => l.path === path && l.methods.includes(method));
@@ -51,7 +57,13 @@ describe("BitServeConfigurator", () => {
   beforeEach(async () => {
     jest.restoreAllMocks();
     configService.getFeatureFlag$.mockReturnValue(of(true));
-    configurator = new BitServeConfigurator(mock<ServiceContainer>({ configService }));
+    mockSmOrganization(accountService, organizationService);
+    // Assigned after `mock()` so the observable stubs are not wrapped in deep mocks.
+    const serviceContainer = mock<ServiceContainer>({ configService });
+    serviceContainer.organizationService =
+      organizationService as unknown as ServiceContainer["organizationService"];
+    serviceContainer.accountService = accountService;
+    configurator = new BitServeConfigurator(serviceContainer);
     router = new Router();
     (configurator as unknown as { serveSecretsManager(r: Router): void }).serveSecretsManager(
       router,
@@ -149,9 +161,69 @@ describe("BitServeConfigurator", () => {
       projectId: id,
     });
 
-    expect(run).toHaveBeenCalledWith(orgId, id);
+    expect(run).toHaveBeenCalledWith(smOrg, id);
     expect(res.status).toBe(400);
     expect(res.body).toMatchObject({ success: false, message: "Nope." });
+  });
+
+  it("passes the validated organization to the command", async () => {
+    const run = jest.fn().mockResolvedValue(Response.success());
+    jest
+      .spyOn(ProjectGetCommand, "create")
+      .mockReturnValue({ run } as unknown as ProjectGetCommand);
+
+    await call("GET", "/sm/:organizationId/projects/:projectId", {
+      organizationId: orgId.toUpperCase(),
+      projectId: id,
+    });
+
+    expect(run).toHaveBeenCalledWith(smOrg, id);
+  });
+
+  it("rejects an invalid organization id without running the command", async () => {
+    const run = jest.fn();
+    jest
+      .spyOn(ProjectGetCommand, "create")
+      .mockReturnValue({ run } as unknown as ProjectGetCommand);
+
+    const res = await call("GET", "/sm/:organizationId/projects/:projectId", {
+      organizationId: "bad",
+      projectId: id,
+    });
+
+    expect(run).not.toHaveBeenCalled();
+    expect(res.status).toBe(400);
+    expect(res.body).toMatchObject({ success: false, message: "`bad` is not a GUID." });
+  });
+
+  it("rejects an organization without Secrets Manager access without running the command", async () => {
+    mockSmOrganization(accountService, organizationService, false);
+    const run = jest.fn();
+    jest
+      .spyOn(ProjectGetCommand, "create")
+      .mockReturnValue({ run } as unknown as ProjectGetCommand);
+
+    const res = await call("GET", "/sm/:organizationId/projects/:projectId", {
+      organizationId: orgId,
+      projectId: id,
+    });
+
+    expect(run).not.toHaveBeenCalled();
+    expect(res.body).toMatchObject({
+      success: false,
+      message: "You do not have access to Secrets Manager for this organization.",
+    });
+  });
+
+  it("does not validate an organization for the template route", async () => {
+    organizationService.organizations$.mockClear();
+    const run = jest.fn().mockResolvedValue(Response.success());
+    jest.spyOn(TemplateCommand, "create").mockReturnValue({ run } as unknown as TemplateCommand);
+
+    await call("GET", "/sm/template/:object", { object: "sm-project" });
+
+    expect(run).toHaveBeenCalledWith("sm-project");
+    expect(organizationService.organizations$).not.toHaveBeenCalled();
   });
 
   it("reads grant options from the body, ignoring non-string values", async () => {
@@ -167,7 +239,7 @@ describe("BitServeConfigurator", () => {
       { body: { grantee: "alice@example.com", permission: 5 } },
     );
 
-    expect(run).toHaveBeenCalledWith(orgId, "project", id, "alice@example.com", undefined);
+    expect(run).toHaveBeenCalledWith(smOrg, "project", id, "alice@example.com", undefined);
   });
 
   it.each([
@@ -187,7 +259,7 @@ describe("BitServeConfigurator", () => {
       { body },
     );
 
-    expect(run).toHaveBeenCalledWith(orgId, id, { name: "CI", expires });
+    expect(run).toHaveBeenCalledWith(smOrg, id, { name: "CI", expires });
   });
 
   it.each([
@@ -232,7 +304,7 @@ describe("BitServeConfigurator", () => {
       { body: { secretIds: [id, 7] } },
     );
 
-    expect(run).toHaveBeenCalledWith(orgId, { secretIds: [id], all: false });
+    expect(run).toHaveBeenCalledWith(smOrg, { secretIds: [id], all: false });
   });
 
   it("imports the request body", async () => {
@@ -242,7 +314,7 @@ describe("BitServeConfigurator", () => {
 
     await call("POST", "/sm/:organizationId/import", { organizationId: orgId }, { body });
 
-    expect(run).toHaveBeenCalledWith(orgId, { data: body });
+    expect(run).toHaveBeenCalledWith(smOrg, { data: body });
   });
   it("passes the master password from the export body to the command", async () => {
     const run = jest.fn().mockResolvedValue(Response.success());
@@ -255,7 +327,7 @@ describe("BitServeConfigurator", () => {
       { body: { password: "master-password" }, query: { passwordFile: "/etc/passwd" } },
     );
 
-    expect(run).toHaveBeenCalledWith(orgId, { password: "master-password" });
+    expect(run).toHaveBeenCalledWith(smOrg, { password: "master-password" });
   });
 
   it("does not register a GET export route", () => {

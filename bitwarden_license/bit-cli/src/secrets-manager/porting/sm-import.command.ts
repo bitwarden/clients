@@ -2,12 +2,10 @@ import { SecretsManagerImportError, SecretsManagerPortingApiService } from "@bit
 import { Response } from "@bitwarden/cli/models/response";
 import { MessageResponse } from "@bitwarden/cli/models/response/message.response";
 import { CliUtils } from "@bitwarden/cli/utils";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ServiceContainer } from "../../service-container";
-import { validateSmOrganizationAccess } from "../sm-command.utils";
+import { SmOrganization } from "../sm-command.utils";
 
 export type SmImportInput =
   { file: string; data?: undefined } | { file?: undefined; data: unknown };
@@ -15,21 +13,9 @@ export type SmImportInput =
 type SmImportCounts = { projects: number; secrets: number };
 
 export class SmImportCommand {
-  constructor(
-    private portingApiService: SecretsManagerPortingApiService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private portingApiService: SecretsManagerPortingApiService) {}
 
-  async run(organizationId: string, input: SmImportInput): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, input: SmImportInput): Promise<Response> {
     if (!org.organization.isAdmin) {
       return Response.error("Only organization owners and admins can import Secrets Manager data.");
     }
@@ -76,11 +62,7 @@ export class SmImportCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new SmImportCommand(
-      serviceContainer.secretsManagerPortingApiService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new SmImportCommand(serviceContainer.secretsManagerPortingApiService);
   }
 }
 

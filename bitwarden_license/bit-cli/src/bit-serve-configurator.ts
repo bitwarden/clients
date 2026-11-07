@@ -42,6 +42,7 @@ import { SecretGetCommand } from "./secrets-manager/secrets/secret-get.command";
 import { SecretListCommand } from "./secrets-manager/secrets/secret-list.command";
 import { SecretRestoreVersionCommand } from "./secrets-manager/secrets/secret-restore-version.command";
 import { SecretVersionsCommand } from "./secrets-manager/secrets/secret-versions.command";
+import { SmOrganization, withSmOrganization } from "./secrets-manager/sm-command.utils";
 import { TemplateCommand } from "./secrets-manager/templates/template.command";
 import { TrashEmptyCommand } from "./secrets-manager/trash/trash-empty.command";
 import { TrashListCommand } from "./secrets-manager/trash/trash-list.command";
@@ -50,6 +51,7 @@ import { SmTrashSelection } from "./secrets-manager/trash/trash-selection";
 import { ServiceContainer } from "./service-container";
 
 type SmRouteHandler = (ctx: RouterContext) => Promise<Response>;
+type SmOrgRouteHandler = (ctx: RouterContext, org: SmOrganization) => Promise<Response>;
 
 export class BitServeConfigurator extends OssServeConfigurator {
   constructor(protected override serviceContainer: ServiceContainer) {
@@ -144,105 +146,77 @@ export class BitServeConfigurator extends OssServeConfigurator {
 
     router.get(
       "/sm/:organizationId/projects",
-      this.smRoute(
-        async (ctx) => await ProjectListCommand.create(sc).run(ctx.params.organizationId),
-      ),
+      this.smOrgRoute(async (ctx, org) => await ProjectListCommand.create(sc).run(org)),
     );
     router.get(
       "/sm/:organizationId/projects/:projectId",
-      this.smRoute(
-        async (ctx) =>
-          await ProjectGetCommand.create(sc).run(ctx.params.organizationId, ctx.params.projectId),
+      this.smOrgRoute(
+        async (ctx, org) => await ProjectGetCommand.create(sc).run(org, ctx.params.projectId),
       ),
     );
     router.post(
       "/sm/:organizationId/projects",
-      this.smRoute(
-        async (ctx) =>
-          await ProjectCreateCommand.create(sc).run(ctx.params.organizationId, smBody(ctx)),
+      this.smOrgRoute(
+        async (ctx, org) => await ProjectCreateCommand.create(sc).run(org, smBody(ctx)),
       ),
     );
     router.put(
       "/sm/:organizationId/projects/:projectId",
-      this.smRoute(
-        async (ctx) =>
-          await ProjectEditCommand.create(sc).run(
-            ctx.params.organizationId,
-            ctx.params.projectId,
-            smBody(ctx),
-          ),
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await ProjectEditCommand.create(sc).run(org, ctx.params.projectId, smBody(ctx)),
       ),
     );
     router.delete(
       "/sm/:organizationId/projects/:projectId",
-      this.smRoute(
-        async (ctx) =>
-          await ProjectDeleteCommand.create(sc).run(ctx.params.organizationId, [
-            ctx.params.projectId,
-          ]),
+      this.smOrgRoute(
+        async (ctx, org) => await ProjectDeleteCommand.create(sc).run(org, [ctx.params.projectId]),
       ),
     );
 
     router.get(
       "/sm/:organizationId/secrets",
-      this.smRoute(
-        async (ctx) =>
-          await SecretListCommand.create(sc).run(
-            ctx.params.organizationId,
-            smQuery(ctx, "projectid"),
-          ),
+      this.smOrgRoute(
+        async (ctx, org) => await SecretListCommand.create(sc).run(org, smQuery(ctx, "projectid")),
       ),
     );
     router.get(
       "/sm/:organizationId/secrets/:secretId",
-      this.smRoute(
-        async (ctx) =>
-          await SecretGetCommand.create(sc).run(ctx.params.organizationId, ctx.params.secretId),
+      this.smOrgRoute(
+        async (ctx, org) => await SecretGetCommand.create(sc).run(org, ctx.params.secretId),
       ),
     );
     router.post(
       "/sm/:organizationId/secrets",
-      this.smRoute(
-        async (ctx) =>
-          await SecretCreateCommand.create(sc).run(ctx.params.organizationId, smBody(ctx)),
+      this.smOrgRoute(
+        async (ctx, org) => await SecretCreateCommand.create(sc).run(org, smBody(ctx)),
       ),
     );
     router.put(
       "/sm/:organizationId/secrets/:secretId",
-      this.smRoute(
-        async (ctx) =>
-          await SecretEditCommand.create(sc).run(
-            ctx.params.organizationId,
-            ctx.params.secretId,
-            smBody(ctx),
-          ),
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await SecretEditCommand.create(sc).run(org, ctx.params.secretId, smBody(ctx)),
       ),
     );
     router.delete(
       "/sm/:organizationId/secrets/:secretId",
-      this.smRoute(
-        async (ctx) =>
-          await SecretDeleteCommand.create(sc).run(ctx.params.organizationId, [
-            ctx.params.secretId,
-          ]),
+      this.smOrgRoute(
+        async (ctx, org) => await SecretDeleteCommand.create(sc).run(org, [ctx.params.secretId]),
       ),
     );
     router.get(
       "/sm/:organizationId/secrets/:secretId/versions",
-      this.smRoute(
-        async (ctx) =>
-          await SecretVersionsCommand.create(sc).run(
-            ctx.params.organizationId,
-            ctx.params.secretId,
-          ),
+      this.smOrgRoute(
+        async (ctx, org) => await SecretVersionsCommand.create(sc).run(org, ctx.params.secretId),
       ),
     );
     router.post(
       "/sm/:organizationId/secrets/:secretId/versions/:versionId/restore",
-      this.smRoute(
-        async (ctx) =>
+      this.smOrgRoute(
+        async (ctx, org) =>
           await SecretRestoreVersionCommand.create(sc).run(
-            ctx.params.organizationId,
+            org,
             ctx.params.secretId,
             ctx.params.versionId,
           ),
@@ -251,55 +225,44 @@ export class BitServeConfigurator extends OssServeConfigurator {
 
     router.get(
       "/sm/:organizationId/trash",
-      this.smRoute(async (ctx) => await TrashListCommand.create(sc).run(ctx.params.organizationId)),
+      this.smOrgRoute(async (ctx, org) => await TrashListCommand.create(sc).run(org)),
     );
     router.post(
       "/sm/:organizationId/trash/restore",
-      this.smRoute(
-        async (ctx) =>
-          await TrashRestoreCommand.create(sc).run(
-            ctx.params.organizationId,
-            smTrashSelection(ctx),
-          ),
+      this.smOrgRoute(
+        async (ctx, org) => await TrashRestoreCommand.create(sc).run(org, smTrashSelection(ctx)),
       ),
     );
     router.post(
       "/sm/:organizationId/trash/empty",
-      this.smRoute(
-        async (ctx) =>
-          await TrashEmptyCommand.create(sc).run(ctx.params.organizationId, smTrashSelection(ctx)),
+      this.smOrgRoute(
+        async (ctx, org) => await TrashEmptyCommand.create(sc).run(org, smTrashSelection(ctx)),
       ),
     );
 
     router.get(
       "/sm/:organizationId/machine-accounts",
-      this.smRoute(
-        async (ctx) => await MachineAccountListCommand.create(sc).run(ctx.params.organizationId),
-      ),
+      this.smOrgRoute(async (ctx, org) => await MachineAccountListCommand.create(sc).run(org)),
     );
     router.get(
       "/sm/:organizationId/machine-accounts/:machineAccountId",
-      this.smRoute(
-        async (ctx) =>
-          await MachineAccountGetCommand.create(sc).run(
-            ctx.params.organizationId,
-            ctx.params.machineAccountId,
-          ),
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await MachineAccountGetCommand.create(sc).run(org, ctx.params.machineAccountId),
       ),
     );
     router.post(
       "/sm/:organizationId/machine-accounts",
-      this.smRoute(
-        async (ctx) =>
-          await MachineAccountCreateCommand.create(sc).run(ctx.params.organizationId, smBody(ctx)),
+      this.smOrgRoute(
+        async (ctx, org) => await MachineAccountCreateCommand.create(sc).run(org, smBody(ctx)),
       ),
     );
     router.put(
       "/sm/:organizationId/machine-accounts/:machineAccountId",
-      this.smRoute(
-        async (ctx) =>
+      this.smOrgRoute(
+        async (ctx, org) =>
           await MachineAccountEditCommand.create(sc).run(
-            ctx.params.organizationId,
+            org,
             ctx.params.machineAccountId,
             smBody(ctx),
           ),
@@ -307,18 +270,16 @@ export class BitServeConfigurator extends OssServeConfigurator {
     );
     router.delete(
       "/sm/:organizationId/machine-accounts/:machineAccountId",
-      this.smRoute(
-        async (ctx) =>
-          await MachineAccountDeleteCommand.create(sc).run(ctx.params.organizationId, [
-            ctx.params.machineAccountId,
-          ]),
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await MachineAccountDeleteCommand.create(sc).run(org, [ctx.params.machineAccountId]),
       ),
     );
     router.get(
       "/sm/:organizationId/machine-accounts/:machineAccountId/events",
-      this.smRoute(
-        async (ctx) =>
-          await EventsCommand.create(sc).run(ctx.params.organizationId, {
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await EventsCommand.create(sc).run(org, {
             machineAccountId: ctx.params.machineAccountId,
             start: smQuery(ctx, "start"),
             end: smQuery(ctx, "end"),
@@ -328,19 +289,16 @@ export class BitServeConfigurator extends OssServeConfigurator {
 
     router.get(
       "/sm/:organizationId/machine-accounts/:machineAccountId/access-tokens",
-      this.smRoute(
-        async (ctx) =>
-          await AccessTokenListCommand.create(sc).run(
-            ctx.params.organizationId,
-            ctx.params.machineAccountId,
-          ),
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await AccessTokenListCommand.create(sc).run(org, ctx.params.machineAccountId),
       ),
     );
     // Unlike the CLI, `expires` is required so that a missing or mistyped field cannot silently
     // create an access token that never expires.
     router.post(
       "/sm/:organizationId/machine-accounts/:machineAccountId/access-tokens",
-      this.smRoute(async (ctx) => {
+      this.smOrgRoute(async (ctx, org) => {
         const body = smBody(ctx);
         const expires = smString(body.expires);
         if (Utils.isNullOrWhitespace(expires)) {
@@ -348,54 +306,42 @@ export class BitServeConfigurator extends OssServeConfigurator {
             "`expires` is required. Use `never` for an access token that does not expire, or an ISO 8601 date.",
           );
         }
-        return await AccessTokenCreateCommand.create(sc).run(
-          ctx.params.organizationId,
-          ctx.params.machineAccountId,
-          { name: smString(body.name), expires },
-        );
+        return await AccessTokenCreateCommand.create(sc).run(org, ctx.params.machineAccountId, {
+          name: smString(body.name),
+          expires,
+        });
       }),
     );
     router.delete(
       "/sm/:organizationId/machine-accounts/:machineAccountId/access-tokens/:accessTokenId",
-      this.smRoute(
-        async (ctx) =>
-          await AccessTokenRevokeCommand.create(sc).run(
-            ctx.params.organizationId,
-            ctx.params.machineAccountId,
-            [ctx.params.accessTokenId],
-          ),
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await AccessTokenRevokeCommand.create(sc).run(org, ctx.params.machineAccountId, [
+            ctx.params.accessTokenId,
+          ]),
       ),
     );
 
     router.get(
       "/sm/:organizationId/access/:target/:id",
-      this.smRoute(
-        async (ctx) =>
-          await AccessGetCommand.create(sc).run(
-            ctx.params.organizationId,
-            ctx.params.target,
-            ctx.params.id,
-          ),
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await AccessGetCommand.create(sc).run(org, ctx.params.target, ctx.params.id),
       ),
     );
     router.put(
       "/sm/:organizationId/access/:target/:id",
-      this.smRoute(
-        async (ctx) =>
-          await AccessSetCommand.create(sc).run(
-            ctx.params.organizationId,
-            ctx.params.target,
-            ctx.params.id,
-            smBody(ctx),
-          ),
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await AccessSetCommand.create(sc).run(org, ctx.params.target, ctx.params.id, smBody(ctx)),
       ),
     );
     router.post(
       "/sm/:organizationId/access/:target/:id/grant",
-      this.smRoute(async (ctx) => {
+      this.smOrgRoute(async (ctx, org) => {
         const body = smBody(ctx);
         return await AccessGrantCommand.create(sc).run(
-          ctx.params.organizationId,
+          org,
           ctx.params.target,
           ctx.params.id,
           smString(body.grantee),
@@ -405,10 +351,10 @@ export class BitServeConfigurator extends OssServeConfigurator {
     );
     router.post(
       "/sm/:organizationId/access/:target/:id/revoke",
-      this.smRoute(
-        async (ctx) =>
+      this.smOrgRoute(
+        async (ctx, org) =>
           await AccessRevokeCommand.create(sc).run(
-            ctx.params.organizationId,
+            org,
             ctx.params.target,
             ctx.params.id,
             smString(smBody(ctx).grantee),
@@ -418,17 +364,16 @@ export class BitServeConfigurator extends OssServeConfigurator {
 
     router.get(
       "/sm/:organizationId/grantees/:type",
-      this.smRoute(
-        async (ctx) =>
-          await GranteesListCommand.create(sc).run(ctx.params.organizationId, ctx.params.type),
+      this.smOrgRoute(
+        async (ctx, org) => await GranteesListCommand.create(sc).run(org, ctx.params.type),
       ),
     );
 
     router.get(
       "/sm/:organizationId/counts",
-      this.smRoute(
-        async (ctx) =>
-          await CountsCommand.create(sc).run(ctx.params.organizationId, {
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await CountsCommand.create(sc).run(org, {
             projectId: smQuery(ctx, "projectid"),
             machineAccountId: smQuery(ctx, "machineaccountid"),
           }),
@@ -439,20 +384,29 @@ export class BitServeConfigurator extends OssServeConfigurator {
     // and environment variable sources are not accepted over HTTP.
     router.post(
       "/sm/:organizationId/export",
-      this.smRoute(
-        async (ctx) =>
-          await SmExportCommand.create(sc).run(ctx.params.organizationId, {
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await SmExportCommand.create(sc).run(org, {
             password: smString(smBody(ctx).password),
           }),
       ),
     );
     router.post(
       "/sm/:organizationId/import",
-      this.smRoute(
-        async (ctx) =>
-          await SmImportCommand.create(sc).run(ctx.params.organizationId, {
+      this.smOrgRoute(
+        async (ctx, org) =>
+          await SmImportCommand.create(sc).run(org, {
             data: ctx.request.body,
           }),
+      ),
+    );
+  }
+
+  /** An `smRoute` for `/sm/:organizationId/...`; the handler receives the validated organization. */
+  private smOrgRoute(handler: SmOrgRouteHandler) {
+    return this.smRoute((ctx) =>
+      withSmOrganization(this.serviceContainer, ctx.params.organizationId, (org) =>
+        handler(ctx, org),
       ),
     );
   }

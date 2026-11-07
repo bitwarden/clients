@@ -7,20 +7,25 @@ import { of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { SecretsManagerPortingApiService } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { mockSmOrganization, smNotFoundError, smOrgId, smUserId } from "../spec/sm-test-utils";
+import {
+  createSmOrg,
+  mockSmActiveAccount,
+  smNotFoundError,
+  smOrgId,
+  smUserId,
+} from "../spec/sm-test-utils";
 
 import { SmExportCommand } from "./sm-export.command";
 
 describe("SmExportCommand", () => {
-  const portingApiService = mock<SecretsManagerPortingApiService>();
-  const organizationService = mock<OrganizationService>();
+  const adminOrg = createSmOrg({ isAdmin: true });
   const accountService = mock<AccountService>();
+  const portingApiService = mock<SecretsManagerPortingApiService>();
   const userVerificationService = mock<UserVerificationService>();
   const userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
   const logService = mock<LogService>();
@@ -39,13 +44,12 @@ describe("SmExportCommand", () => {
     delete process.env.BW_SERVE;
     delete process.env.BW_NOINTERACTION;
     process.env[passwordEnv] = masterPassword;
-    mockSmOrganization(accountService, organizationService, true, { isAdmin: true });
+    mockSmActiveAccount(accountService);
     portingApiService.export.mockResolvedValue(exportJson);
     userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
     userVerificationService.verifyUser.mockResolvedValue(true);
     command = new SmExportCommand(
       portingApiService,
-      organizationService,
       accountService,
       userVerificationService,
       userDecryptionOptionsService,
@@ -62,7 +66,7 @@ describe("SmExportCommand", () => {
   });
 
   it("returns the export JSON when no output is given", async () => {
-    const response = await command.run(smOrgId, { passwordEnv });
+    const response = await command.run(adminOrg, { passwordEnv });
 
     expect(response.success).toBe(true);
     expect(portingApiService.export).toHaveBeenCalledWith(smOrgId);
@@ -72,7 +76,7 @@ describe("SmExportCommand", () => {
   it("writes the export to the output file", async () => {
     const output = path.join(tempDir, "export.json");
 
-    const response = await command.run(smOrgId, { output, passwordEnv });
+    const response = await command.run(adminOrg, { output, passwordEnv });
 
     expect(response.success).toBe(true);
     expect(response.data).toMatchObject({ object: "message", raw: output });
@@ -80,7 +84,7 @@ describe("SmExportCommand", () => {
   });
 
   it("uses a default file name when the output is a directory", async () => {
-    const response = await command.run(smOrgId, { output: tempDir + path.sep, passwordEnv });
+    const response = await command.run(adminOrg, { output: tempDir + path.sep, passwordEnv });
 
     expect(response.success).toBe(true);
     const files = fs.readdirSync(tempDir);
@@ -91,7 +95,7 @@ describe("SmExportCommand", () => {
   it("returns the export as an object under bw serve", async () => {
     process.env.BW_SERVE = "true";
 
-    const response = await command.run(smOrgId, {
+    const response = await command.run(adminOrg, {
       output: path.join(tempDir, "ignored.json"),
       password: masterPassword,
     });
@@ -102,9 +106,7 @@ describe("SmExportCommand", () => {
   });
 
   it("rejects users who are not owners or admins", async () => {
-    mockSmOrganization(accountService, organizationService, true, { isAdmin: false });
-
-    const response = await command.run(smOrgId, { passwordEnv });
+    const response = await command.run(createSmOrg({ isAdmin: false }), { passwordEnv });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -113,19 +115,10 @@ describe("SmExportCommand", () => {
     expect(portingApiService.export).not.toHaveBeenCalled();
   });
 
-  it("rejects organizations without Secrets Manager access", async () => {
-    mockSmOrganization(accountService, organizationService, false, { isAdmin: true });
-
-    const response = await command.run(smOrgId, { passwordEnv });
-
-    expect(response.success).toBe(false);
-    expect(portingApiService.export).not.toHaveBeenCalled();
-  });
-
   it("maps a 404 to a clear error", async () => {
     portingApiService.export.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, { passwordEnv });
+    const response = await command.run(adminOrg, { passwordEnv });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -134,7 +127,7 @@ describe("SmExportCommand", () => {
   });
   describe("master password re-verification", () => {
     it("verifies the master password before fetching the export", async () => {
-      const response = await command.run(smOrgId, { passwordEnv });
+      const response = await command.run(adminOrg, { passwordEnv });
 
       expect(response.success).toBe(true);
       expect(userDecryptionOptionsService.hasMasterPasswordById$).toHaveBeenCalledWith(smUserId);
@@ -151,7 +144,7 @@ describe("SmExportCommand", () => {
       const passwordFile = path.join(tempDir, "password.txt");
       fs.writeFileSync(passwordFile, masterPassword + "\n");
 
-      const response = await command.run(smOrgId, { passwordFile });
+      const response = await command.run(adminOrg, { passwordFile });
 
       expect(response.success).toBe(true);
       expect(userVerificationService.verifyUser).toHaveBeenCalledWith({
@@ -163,7 +156,7 @@ describe("SmExportCommand", () => {
     it("returns an error without the path when the password file cannot be read", async () => {
       const passwordFile = path.join(tempDir, "missing.txt");
 
-      const response = await command.run(smOrgId, { passwordFile });
+      const response = await command.run(adminOrg, { passwordFile });
 
       expect(response.success).toBe(false);
       expect(response.message).toBe("Could not read the master password file.");
@@ -175,7 +168,7 @@ describe("SmExportCommand", () => {
     it("rejects a wrong master password without fetching or echoing it", async () => {
       userVerificationService.verifyUser.mockRejectedValue(new Error("Invalid master password."));
 
-      const response = await command.run(smOrgId, { passwordEnv });
+      const response = await command.run(adminOrg, { passwordEnv });
 
       expect(response.success).toBe(false);
       expect(response.message).toBe("Invalid master password.");
@@ -186,7 +179,7 @@ describe("SmExportCommand", () => {
     it("rejects a failed verification without fetching", async () => {
       userVerificationService.verifyUser.mockResolvedValue(false);
 
-      const response = await command.run(smOrgId, { passwordEnv });
+      const response = await command.run(adminOrg, { passwordEnv });
 
       expect(response.success).toBe(false);
       expect(portingApiService.export).not.toHaveBeenCalled();
@@ -195,7 +188,7 @@ describe("SmExportCommand", () => {
     it("requires a password source when interaction is disabled", async () => {
       process.env.BW_NOINTERACTION = "true";
 
-      const response = await command.run(smOrgId);
+      const response = await command.run(adminOrg);
 
       expect(response.success).toBe(false);
       expect(response.message).toBe(
@@ -208,7 +201,7 @@ describe("SmExportCommand", () => {
     it("requires the password in the request body under bw serve", async () => {
       process.env.BW_SERVE = "true";
 
-      const response = await command.run(smOrgId, { passwordEnv });
+      const response = await command.run(adminOrg, { passwordEnv });
 
       expect(response.success).toBe(false);
       expect(response.message).toBe(
@@ -221,7 +214,7 @@ describe("SmExportCommand", () => {
     it("rejects accounts without a master password", async () => {
       userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
-      const response = await command.run(smOrgId, { passwordEnv });
+      const response = await command.run(adminOrg, { passwordEnv });
 
       expect(response.success).toBe(false);
       expect(response.message).toBe(
@@ -232,9 +225,7 @@ describe("SmExportCommand", () => {
     });
 
     it("does not ask for the master password when the user cannot export", async () => {
-      mockSmOrganization(accountService, organizationService, true, { isAdmin: false });
-
-      await command.run(smOrgId, { passwordEnv });
+      await command.run(createSmOrg({ isAdmin: false }), { passwordEnv });
 
       expect(userVerificationService.verifyUser).not.toHaveBeenCalled();
     });

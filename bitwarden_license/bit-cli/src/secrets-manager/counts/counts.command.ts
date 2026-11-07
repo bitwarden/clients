@@ -1,12 +1,10 @@
 import { CountService, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { resolveSmMachineAccountId } from "../access-tokens/sm-access-token.utils";
 import { SmCountsResponse } from "../models/sm-counts.response";
-import { parseSmId, validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { parseSmId, SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 export type CountsOptions = {
   projectId?: string;
@@ -17,22 +15,11 @@ export class CountsCommand {
   constructor(
     private countService: CountService,
     private serviceAccountService: ServiceAccountService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
   ) {}
 
-  async run(organizationId: string, options: CountsOptions = {}): Promise<Response> {
+  async run(org: SmOrganization, options: CountsOptions = {}): Promise<Response> {
     if (options.projectId != null && options.machineAccountId != null) {
       return Response.badRequest("Specify either `projectid` or `machineaccountid`, not both.");
-    }
-
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
     }
 
     if (options.projectId != null) {
@@ -94,11 +81,6 @@ export class CountsCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new CountsCommand(
-      serviceContainer.countService,
-      serviceContainer.serviceAccountService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new CountsCommand(serviceContainer.countService, serviceContainer.serviceAccountService);
   }
 }

@@ -5,17 +5,14 @@ import * as path from "path";
 import { mock } from "jest-mock-extended";
 
 import { SecretsManagerImportError, SecretsManagerPortingApiService } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smOrgId } from "../spec/sm-test-utils";
+import { createSmOrg, smOrgId } from "../spec/sm-test-utils";
 
 import { SmImportCommand } from "./sm-import.command";
 
 describe("SmImportCommand", () => {
+  const adminOrg = createSmOrg({ isAdmin: true });
   const portingApiService = mock<SecretsManagerPortingApiService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const importData = {
     projects: [{ id: "p1", name: "Backend" }],
     secrets: [
@@ -34,9 +31,8 @@ describe("SmImportCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService, true, { isAdmin: true });
     portingApiService.import.mockResolvedValue();
-    command = new SmImportCommand(portingApiService, organizationService, accountService);
+    command = new SmImportCommand(portingApiService);
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sm-import-"));
   });
 
@@ -47,7 +43,7 @@ describe("SmImportCommand", () => {
   it("imports the contents of a file", async () => {
     const file = writeFile(JSON.stringify(importData));
 
-    const response = await command.run(smOrgId, { file });
+    const response = await command.run(adminOrg, { file });
 
     expect(response.success).toBe(true);
     expect(portingApiService.import).toHaveBeenCalledWith(smOrgId, JSON.stringify(importData));
@@ -58,16 +54,14 @@ describe("SmImportCommand", () => {
   });
 
   it("imports data passed by bw serve", async () => {
-    const response = await command.run(smOrgId, { data: importData });
+    const response = await command.run(adminOrg, { data: importData });
 
     expect(response.success).toBe(true);
     expect(portingApiService.import).toHaveBeenCalledWith(smOrgId, JSON.stringify(importData));
   });
 
   it("rejects users who are not owners or admins", async () => {
-    mockSmOrganization(accountService, organizationService, true, { isAdmin: false });
-
-    const response = await command.run(smOrgId, { data: importData });
+    const response = await command.run(createSmOrg({ isAdmin: false }), { data: importData });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -77,21 +71,21 @@ describe("SmImportCommand", () => {
   });
 
   it("rejects a missing file", async () => {
-    const response = await command.run(smOrgId, { file: path.join(tempDir, "missing.json") });
+    const response = await command.run(adminOrg, { file: path.join(tempDir, "missing.json") });
 
     expect(response.success).toBe(false);
     expect(response.message).toMatch(/^Could not read file: /);
   });
 
   it("rejects an empty file", async () => {
-    const response = await command.run(smOrgId, { file: writeFile("  ") });
+    const response = await command.run(adminOrg, { file: writeFile("  ") });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("Import file was empty.");
   });
 
   it("rejects a file that is not JSON", async () => {
-    const response = await command.run(smOrgId, { file: writeFile("not json") });
+    const response = await command.run(adminOrg, { file: writeFile("not json") });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("The import file is not valid JSON.");
@@ -111,7 +105,7 @@ describe("SmImportCommand", () => {
       "`secrets[0].projectIds` must be an array of strings.",
     ],
   ])("rejects malformed data %j", async (data, message) => {
-    const response = await command.run(smOrgId, { data });
+    const response = await command.run(adminOrg, { data });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(message);
@@ -125,7 +119,7 @@ describe("SmImportCommand", () => {
     ];
     portingApiService.import.mockRejectedValue(error);
 
-    const response = await command.run(smOrgId, { data: importData });
+    const response = await command.run(adminOrg, { data: importData });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -138,7 +132,7 @@ describe("SmImportCommand", () => {
       new SecretsManagerImportError("You do not have permission."),
     );
 
-    const response = await command.run(smOrgId, { data: importData });
+    const response = await command.run(adminOrg, { data: importData });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("You do not have permission.");

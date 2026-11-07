@@ -6,21 +6,17 @@ import {
   ServiceAccountView,
 } from "@bitwarden/bit-sm";
 import { ListResponse as CliListResponse } from "@bitwarden/cli/models/response/list.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventResponse, EventType } from "@bitwarden/common/dirt/event-logs";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import { SmEventResponse } from "../models/sm-event.response";
-import { mockSmOrganization, smNotFoundError, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOtherOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { EventsCommand } from "./events.command";
 
 describe("EventsCommand", () => {
   const eventLogApiService = mock<ServiceAccountEventLogApiService>();
   const serviceAccountService = mock<ServiceAccountService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const machineAccountId = "22222222-2222-2222-2222-222222222222";
   const secretId = "33333333-3333-3333-3333-333333333333";
   let command: EventsCommand;
@@ -48,16 +44,10 @@ describe("EventsCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
     serviceAccountService.getByServiceAccountId.mockResolvedValue(
       Object.assign(new ServiceAccountView(), { id: machineAccountId, organizationId: smOrgId }),
     );
-    command = new EventsCommand(
-      eventLogApiService,
-      serviceAccountService,
-      organizationService,
-      accountService,
-    );
+    command = new EventsCommand(eventLogApiService, serviceAccountService);
   });
 
   it("returns events across all pages", async () => {
@@ -65,7 +55,7 @@ describe("EventsCommand", () => {
       .mockResolvedValueOnce(page([EventType.Secret_Retrieved], "next"))
       .mockResolvedValueOnce(page([EventType.Secret_Edited], null));
 
-    const response = await command.run(smOrgId, options());
+    const response = await command.run(smOrg, options());
 
     expect(response.success).toBe(true);
     expect(eventLogApiService.getEvents).toHaveBeenNthCalledWith(
@@ -88,7 +78,7 @@ describe("EventsCommand", () => {
   });
 
   it("rejects an invalid date", async () => {
-    const response = await command.run(smOrgId, options({ start: "yesterday-ish" }));
+    const response = await command.run(smOrg, options({ start: "yesterday-ish" }));
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`yesterday-ish` is not a valid date for `start`.");
@@ -96,39 +86,17 @@ describe("EventsCommand", () => {
   });
 
   it("rejects a start date after the end date", async () => {
-    const response = await command.run(
-      smOrgId,
-      options({ start: "2026-03-01", end: "2026-02-01" }),
-    );
+    const response = await command.run(smOrg, options({ start: "2026-03-01", end: "2026-02-01" }));
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`start` must be before `end`.");
   });
 
-  it("rejects an invalid organization id", async () => {
-    const response = await command.run("not-a-guid", options());
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe("`not-a-guid` is not a GUID.");
-  });
-
   it("rejects an invalid machine account id", async () => {
-    const response = await command.run(smOrgId, options({ machineAccountId: "abc" }));
+    const response = await command.run(smOrg, options({ machineAccountId: "abc" }));
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`abc` is not a GUID.");
-  });
-
-  it("rejects an organization without Secrets Manager access", async () => {
-    mockSmOrganization(accountService, organizationService, false);
-
-    const response = await command.run(smOrgId, options());
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe(
-      "You do not have access to Secrets Manager for this organization.",
-    );
-    expect(eventLogApiService.getEvents).not.toHaveBeenCalled();
   });
 
   it("rejects a machine account from another organization", async () => {
@@ -139,7 +107,7 @@ describe("EventsCommand", () => {
       }),
     );
 
-    const response = await command.run(smOrgId, options());
+    const response = await command.run(smOrg, options());
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -151,7 +119,7 @@ describe("EventsCommand", () => {
   it("maps a 404 to a friendly error", async () => {
     eventLogApiService.getEvents.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, options());
+    const response = await command.run(smOrg, options());
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
