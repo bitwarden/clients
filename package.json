@@ -219,7 +219,7 @@
     "multer": "2.4.0",
     "ngx-toastr": "19.1.0",
     "node-fetch": "2.7.0",
-    "node-forge": "1.4.0",
+    "node-forge": "1.4.1",
     "oauth4webapi": "3.8.6",
     "open": "8.4.2",
     "papaparse": "5.7.0",
