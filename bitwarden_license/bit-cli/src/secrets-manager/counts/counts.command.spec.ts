@@ -1,13 +1,13 @@
 import { mock } from "jest-mock-extended";
 
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
-import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
-import { OrganizationCountsResponse } from "@bitwarden/bit-sm/shared/counts/models/responses/organization-counts.response";
-import { ProjectCountsResponse } from "@bitwarden/bit-sm/shared/counts/models/responses/project-counts.response";
-import { ServiceAccountCountsResponse } from "@bitwarden/bit-sm/shared/counts/models/responses/service-account-counts.response";
+import {
+  CountService,
+  OrganizationCountsResponse,
+  ProjectCountsResponse,
+  ServiceAccountCountsResponse,
+  ServiceAccountService,
+  ServiceAccountView,
+} from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
@@ -17,7 +17,6 @@ import { CountsCommand } from "./counts.command";
 
 describe("CountsCommand", () => {
   const countService = mock<CountService>();
-  const projectService = mock<ProjectService>();
   const serviceAccountService = mock<ServiceAccountService>();
   const organizationService = mock<OrganizationService>();
   const accountService = mock<AccountService>();
@@ -28,15 +27,11 @@ describe("CountsCommand", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSmOrganization(accountService, organizationService);
-    projectService.getByProjectId.mockResolvedValue(
-      Object.assign(new ProjectView(), { id: projectId, organizationId: smOrgId }),
-    );
     serviceAccountService.getByServiceAccountId.mockResolvedValue(
       Object.assign(new ServiceAccountView(), { id: machineAccountId, organizationId: smOrgId }),
     );
     command = new CountsCommand(
       countService,
-      projectService,
       serviceAccountService,
       organizationService,
       accountService,
@@ -96,16 +91,13 @@ describe("CountsCommand", () => {
     });
   });
 
-  it("rejects a project from another organization", async () => {
-    projectService.getByProjectId.mockResolvedValue(
-      Object.assign(new ProjectView(), { id: projectId, organizationId: smOtherOrgId }),
-    );
+  it("maps a 404 on a project to a friendly error", async () => {
+    countService.getProjectCounts.mockRejectedValue(smNotFoundError());
 
     const response = await command.run(smOrgId, { projectId });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("The project was not found, or you do not have access to it.");
-    expect(countService.getProjectCounts).not.toHaveBeenCalled();
   });
 
   it("rejects a machine account from another organization", async () => {

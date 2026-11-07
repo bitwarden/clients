@@ -4,8 +4,7 @@ import * as path from "path";
 
 import { mock } from "jest-mock-extended";
 
-import { SecretsManagerImportError } from "@bitwarden/bit-sm/settings/models/error/sm-import-error";
-import { SecretsManagerPortingApiService } from "@bitwarden/bit-sm/settings/services/sm-porting-api.service";
+import { SecretsManagerImportError, SecretsManagerPortingApiService } from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 

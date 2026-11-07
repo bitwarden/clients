@@ -1,5 +1,4 @@
-import { SecretsManagerImportError } from "@bitwarden/bit-sm/settings/models/error/sm-import-error";
-import { SecretsManagerPortingApiService } from "@bitwarden/bit-sm/settings/services/sm-porting-api.service";
+import { SecretsManagerImportError, SecretsManagerPortingApiService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { MessageResponse } from "@bitwarden/cli/models/response/message.response";
 import { CliUtils } from "@bitwarden/cli/utils";
@@ -8,7 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ServiceContainer } from "../../service-container";
-import { resolveSmOrganization } from "../sm-command.utils";
+import { validateSmOrganizationAccess } from "../sm-command.utils";
 
 export type SmImportInput =
   { file: string; data?: undefined } | { file?: undefined; data: unknown };
@@ -23,7 +22,7 @@ export class SmImportCommand {
   ) {}
 
   async run(organizationId: string, input: SmImportInput): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

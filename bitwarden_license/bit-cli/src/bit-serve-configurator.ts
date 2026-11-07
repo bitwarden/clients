@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { Response } from "@bitwarden/cli/models/response";
 import { OssServeConfigurator } from "@bitwarden/cli/oss-serve-configurator";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import {
   ApproveAllCommand,
@@ -341,7 +342,8 @@ export class BitServeConfigurator extends OssServeConfigurator {
       "/sm/:organizationId/machine-accounts/:machineAccountId/access-tokens",
       this.smRoute(async (ctx) => {
         const body = smBody(ctx);
-        if (typeof body.expires !== "string" || body.expires.trim() === "") {
+        const expires = smString(body.expires);
+        if (Utils.isNullOrWhitespace(expires)) {
           return Response.badRequest(
             "`expires` is required. Use `never` for an access token that does not expire, or an ISO 8601 date.",
           );
@@ -349,7 +351,7 @@ export class BitServeConfigurator extends OssServeConfigurator {
         return await AccessTokenCreateCommand.create(sc).run(
           ctx.params.organizationId,
           ctx.params.machineAccountId,
-          { name: smString(body.name), expires: body.expires },
+          { name: smString(body.name), expires },
         );
       }),
     );

@@ -1,7 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { SecretsManagerPortingApiService } from "@bitwarden/bit-sm/settings/services/sm-porting-api.service";
+import { SecretsManagerPortingApiService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { MessageResponse } from "@bitwarden/cli/models/response/message.response";
 import { StringResponse } from "@bitwarden/cli/models/response/string.response";
@@ -16,7 +16,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ServiceContainer } from "../../service-container";
 import { SmExportResponse } from "../models/sm-export.response";
-import { resolveSmOrganization, smErrorResponse } from "../sm-command.utils";
+import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 export type SmExportOptions = {
   output?: string;
@@ -37,7 +37,7 @@ export class SmExportCommand {
   ) {}
 
   async run(organizationId: string, options: SmExportOptions = {}): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,
@@ -66,7 +66,7 @@ export class SmExportCommand {
       return Response.success(new SmExportResponse(JSON.parse(exportJson)));
     }
 
-    if (options.output == null || options.output === "") {
+    if (Utils.isNullOrWhitespace(options.output)) {
       return Response.success(new StringResponse(exportJson));
     }
 

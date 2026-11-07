@@ -2,7 +2,7 @@ import {
   SecretsManagerExport,
   SecretsManagerExportProject,
   SecretsManagerExportSecret,
-} from "@bitwarden/bit-sm/settings/models/sm-export";
+} from "@bitwarden/bit-sm";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 export class SmExportResponse implements BaseResponse {

@@ -1,15 +1,15 @@
-import { ServiceAccountEventLogApiService } from "@bitwarden/bit-sm/service-accounts/event-logs/service-account-event-log-api.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { ServiceAccountEventLogApiService, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventResponse } from "@bitwarden/common/dirt/event-logs";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ServiceContainer } from "../../service-container";
 import { resolveSmMachineAccountId } from "../access-tokens/sm-access-token.utils";
 import { SmEventResponse } from "../models/sm-event.response";
-import { resolveSmOrganization, smErrorResponse } from "../sm-command.utils";
+import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 export type EventsOptions = {
   machineAccountId: string;
@@ -26,7 +26,7 @@ export class EventsCommand {
   ) {}
 
   async run(organizationId: string, options: EventsOptions): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,
@@ -76,7 +76,7 @@ export class EventsCommand {
   }
 
   private parseDate(value: string | undefined, label: string): Date | Response {
-    if (value == null || value === "") {
+    if (Utils.isNullOrWhitespace(value)) {
       return Response.badRequest("`" + label + "` is required.");
     }
     const date = new Date(value);

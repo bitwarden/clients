@@ -1,6 +1,4 @@
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
-import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
+import { CountService, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -8,12 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ServiceContainer } from "../../service-container";
 import { resolveSmMachineAccountId } from "../access-tokens/sm-access-token.utils";
 import { SmCountsResponse } from "../models/sm-counts.response";
-import {
-  parseSmId,
-  resolveSmOrganization,
-  smErrorResponse,
-  smNotFoundResponse,
-} from "../sm-command.utils";
+import { parseSmId, validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 export type CountsOptions = {
   projectId?: string;
@@ -23,7 +16,6 @@ export type CountsOptions = {
 export class CountsCommand {
   constructor(
     private countService: CountService,
-    private projectService: ProjectService,
     private serviceAccountService: ServiceAccountService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
@@ -34,7 +26,7 @@ export class CountsCommand {
       return Response.badRequest("Specify either `projectid` or `machineaccountid`, not both.");
     }
 
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,
@@ -49,10 +41,6 @@ export class CountsCommand {
         return project.error;
       }
       try {
-        const view = await this.projectService.getByProjectId(project.id, true);
-        if (view.organizationId !== org.organizationId) {
-          return smNotFoundResponse("project");
-        }
         const counts = await this.countService.getProjectCounts(project.id);
         return Response.success(
           new SmCountsResponse("project", project.id, {
@@ -108,7 +96,6 @@ export class CountsCommand {
   static create(serviceContainer: ServiceContainer) {
     return new CountsCommand(
       serviceContainer.countService,
-      serviceContainer.projectService,
       serviceContainer.serviceAccountService,
       serviceContainer.organizationService,
       serviceContainer.accountService,

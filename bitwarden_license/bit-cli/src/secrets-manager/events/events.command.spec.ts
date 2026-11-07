@@ -1,8 +1,10 @@
 import { mock } from "jest-mock-extended";
 
-import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { ServiceAccountEventLogApiService } from "@bitwarden/bit-sm/service-accounts/event-logs/service-account-event-log-api.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import {
+  ServiceAccountEventLogApiService,
+  ServiceAccountService,
+  ServiceAccountView,
+} from "@bitwarden/bit-sm";
 import { ListResponse as CliListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
