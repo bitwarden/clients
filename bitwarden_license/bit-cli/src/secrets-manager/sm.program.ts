@@ -401,8 +401,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await TrashListCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
+              (org) => TrashListCommand.create(this.serviceContainer).run(org),
             );
             this.processResponse(response);
           }),
@@ -422,9 +424,14 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (secretIds: string[], options: TrashOptions) => {
             await this.exitIfLocked();
-            const response = await TrashRestoreCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              { secretIds, all: options.all },
+              (org) =>
+                TrashRestoreCommand.create(this.serviceContainer).run(org, {
+                  secretIds,
+                  all: options.all,
+                }),
             );
             this.processResponse(response);
           }),
@@ -448,9 +455,14 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (secretIds: string[], options: TrashOptions) => {
             await this.exitIfLocked();
-            const response = await TrashEmptyCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              { secretIds, all: options.all },
+              (org) =>
+                TrashEmptyCommand.create(this.serviceContainer).run(org, {
+                  secretIds,
+                  all: options.all,
+                }),
             );
             this.processResponse(response);
           }),
