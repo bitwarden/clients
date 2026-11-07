@@ -17,6 +17,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ScrollLayoutHostDirective, TableDataSource } from "@bitwarden/components";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 
 import { createApplicationHandlers } from "../../testing/story-callbacks";
 import { createAccessIntelligenceI18nMock } from "../../testing/story-mocks";
@@ -78,6 +79,7 @@ export default {
     }),
     applicationConfig({
       providers: [
+        { provide: LogService, useFactory: () => new ConsoleLogService(true) },
         {
           provide: EnvironmentService,
           useValue: {

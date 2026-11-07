@@ -1,4 +1,4 @@
-import { AccessTokenView } from "@bitwarden/bit-sm/service-accounts/models/view/access-token.view";
+import { AccessTokenView } from "@bitwarden/bit-sm";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 export class SmAccessTokenResponse implements BaseResponse {

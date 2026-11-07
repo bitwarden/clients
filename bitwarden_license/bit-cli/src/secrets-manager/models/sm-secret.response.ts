@@ -1,6 +1,4 @@
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
-import { SecretProjectView } from "@bitwarden/bit-sm/models/view/secret-project.view";
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
+import { SecretListView, SecretProjectView, SecretView } from "@bitwarden/bit-sm";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 export class SmSecretProjectResponse {

@@ -6,9 +6,9 @@ import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } f
 
 import {
   ServiceAccountSecretsDetailsView,
+  ServiceAccountService,
   ServiceAccountView,
-} from "@bitwarden/bit-sm/models/view/service-account.view";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+} from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

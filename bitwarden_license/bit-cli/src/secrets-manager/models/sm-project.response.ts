@@ -1,5 +1,4 @@
-import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
+import { ProjectListView, ProjectView } from "@bitwarden/bit-sm";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 export class SmProjectResponse implements BaseResponse {

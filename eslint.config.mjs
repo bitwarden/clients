@@ -378,12 +378,34 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports(["@bitwarden/bit-common/*"]),
     },
   },
+  // bit-pam stays free of Angular so background scripts can use it; UI code goes in bit-pam-components.
+  {
+    files: ["bitwarden_license/bit-pam/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
+        "@angular",
+        "@bitwarden/angular",
+        "@bitwarden/components",
+        "@bitwarden/ui-common",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["bitwarden_license/bit-pam-components/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports(["@bitwarden/bit-pam-components"]),
+    },
+  },
   {
     files: ["bitwarden_license/bit-sm/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports([
-        "@bitwarden/bit-sm/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -394,8 +416,11 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
-        "@bitwarden/bit-sm/*",
+        "@bitwarden/bit-sm",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -405,7 +430,9 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
-        "@bitwarden/bit-sm/*",
+        "@bitwarden/bit-sm",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
 
         "**/app/core/*",
@@ -424,7 +451,9 @@ export default tseslint.config(
         "@angular",
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
-        "@bitwarden/bit-sm/*",
+        "@bitwarden/bit-sm",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
 
         "**/popup/*",
@@ -438,8 +467,11 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
-        "@bitwarden/bit-sm/*",
+        "@bitwarden/bit-sm",
+        "@bitwarden/bit-pam",
+        "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -455,6 +487,7 @@ export default tseslint.config(
       "apps/web/**/*.html",
       "apps/browser/**/*.html",
       "bitwarden_license/bit-web/**/*.html",
+      "bitwarden_license/bit-pam-components/**/*.html",
       "libs/**/*.html",
     ],
     rules: {
@@ -719,6 +752,8 @@ export default tseslint.config(
       "libs/**/*.ts",
       "bitwarden_license/bit-common/src/**/*.ts",
       "bitwarden_license/bit-sm/src/**/*.ts",
+      "bitwarden_license/bit-pam/src/**/*.ts",
+      "bitwarden_license/bit-pam-components/src/**/*.ts",
     ],
     rules: {
       "@bitwarden/platform/no-self-package-import": "error",

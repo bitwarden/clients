@@ -1,4 +1,4 @@
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -6,7 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 
 import { ServiceContainer } from "../../service-container";
 import { SmMachineAccountResponse } from "../models/sm-machine-account.response";
-import { resolveSmOrganization, smErrorResponse } from "../sm-command.utils";
+import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 export class MachineAccountListCommand {
   constructor(
@@ -16,7 +16,7 @@ export class MachineAccountListCommand {
   ) {}
 
   async run(organizationId: string): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

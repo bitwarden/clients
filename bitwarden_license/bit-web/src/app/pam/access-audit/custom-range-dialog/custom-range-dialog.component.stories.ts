@@ -2,6 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+import { DAY, STORY_NOW, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AUDIT_HISTORY_DAYS, auditRangeValue } from "../access-audit-row";
@@ -11,11 +12,9 @@ import {
   CustomRangeDialogParams,
 } from "./custom-range-dialog.component";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/** Relative to now, since the dialog judges the history window against the clock. */
+/** Relative to {@link STORY_NOW}, which the dialog's clock starts at. */
 function daysAgo(days: number): string {
-  return auditRangeValue(new Date(Date.now() - days * DAY_MS));
+  return auditRangeValue(new Date(STORY_NOW.getTime() - days * DAY));
 }
 
 /** Provided per story, since the dialog reads `DIALOG_DATA` once at construction. */
@@ -32,6 +31,7 @@ function withParams(params: CustomRangeDialogParams) {
 export default {
   title: "Web/PAM/Access Audit/Custom Range Dialog",
   component: CustomRangeDialogComponent,
+  beforeEach: startClockAtStoryNow,
   decorators: [
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],

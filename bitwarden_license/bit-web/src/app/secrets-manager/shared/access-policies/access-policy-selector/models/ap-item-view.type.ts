@@ -3,15 +3,15 @@
 
 import {
   GroupAccessPolicyView,
+  PotentialGranteeView,
+  ProjectPeopleAccessPoliciesView,
+  ProjectServiceAccountsAccessPoliciesView,
+  SecretAccessPoliciesView,
   ServiceAccountAccessPolicyView,
+  ServiceAccountGrantedPoliciesView,
+  ServiceAccountPeopleAccessPoliciesView,
   UserAccessPolicyView,
-} from "@bitwarden/bit-sm/models/view/access-policies/access-policy.view";
-import { PotentialGranteeView } from "@bitwarden/bit-sm/models/view/access-policies/potential-grantee.view";
-import { ProjectPeopleAccessPoliciesView } from "@bitwarden/bit-sm/models/view/access-policies/project-people-access-policies.view";
-import { ProjectServiceAccountsAccessPoliciesView } from "@bitwarden/bit-sm/models/view/access-policies/project-service-accounts-access-policies.view";
-import { SecretAccessPoliciesView } from "@bitwarden/bit-sm/models/view/access-policies/secret-access-policies.view";
-import { ServiceAccountGrantedPoliciesView } from "@bitwarden/bit-sm/models/view/access-policies/service-account-granted-policies.view";
-import { ServiceAccountPeopleAccessPoliciesView } from "@bitwarden/bit-sm/models/view/access-policies/service-account-people-access-policies.view";
+} from "@bitwarden/bit-sm";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SelectItemView } from "@bitwarden/components";
 

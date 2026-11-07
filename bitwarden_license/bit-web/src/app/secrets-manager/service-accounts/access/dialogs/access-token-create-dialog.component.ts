@@ -3,9 +3,7 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
-import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { AccessService } from "@bitwarden/bit-sm/service-accounts/access/access.service";
-import { AccessTokenView } from "@bitwarden/bit-sm/service-accounts/models/view/access-token.view";
+import { AccessService, AccessTokenView, ServiceAccountView } from "@bitwarden/bit-sm";
 import { DialogRef, DIALOG_DATA, DialogService, BitValidators } from "@bitwarden/components";
 
 import { AccessTokenDetails, AccessTokenDialogComponent } from "./access-token-dialog.component";

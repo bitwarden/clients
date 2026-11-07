@@ -1,4 +1,4 @@
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -6,7 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
-import { resolveSmOrganization, smErrorResponse } from "../sm-command.utils";
+import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 export class TrashListCommand {
   constructor(
@@ -16,7 +16,7 @@ export class TrashListCommand {
   ) {}
 
   async run(organizationId: string): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

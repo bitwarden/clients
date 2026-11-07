@@ -1,12 +1,14 @@
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretVersionService } from "@bitwarden/bit-sm/secrets/secret-version.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
-import { AccessService } from "@bitwarden/bit-sm/service-accounts/access/access.service";
-import { ServiceAccountEventLogApiService } from "@bitwarden/bit-sm/service-accounts/event-logs/service-account-event-log-api.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
-import { SecretsManagerPortingApiService } from "@bitwarden/bit-sm/settings/services/sm-porting-api.service";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
-import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
+import {
+  AccessPolicyService,
+  AccessService,
+  CountService,
+  ProjectService,
+  SecretService,
+  SecretsManagerPortingApiService,
+  SecretVersionService,
+  ServiceAccountEventLogApiService,
+  ServiceAccountService,
+} from "@bitwarden/bit-sm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

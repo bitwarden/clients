@@ -1,5 +1,4 @@
-import { AccessService } from "@bitwarden/bit-sm/service-accounts/access/access.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { AccessService, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -7,7 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ServiceContainer } from "../../service-container";
 import {
   parseSmIds,
-  resolveSmOrganization,
+  validateSmOrganizationAccess,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
@@ -27,7 +26,7 @@ export class AccessTokenRevokeCommand {
     machineAccountId: string,
     accessTokenIds: string[],
   ): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

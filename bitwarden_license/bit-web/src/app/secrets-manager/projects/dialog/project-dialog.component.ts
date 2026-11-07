@@ -4,8 +4,7 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";

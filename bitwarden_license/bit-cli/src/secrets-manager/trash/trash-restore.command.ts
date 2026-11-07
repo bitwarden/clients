@@ -1,10 +1,10 @@
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
-import { resolveSmOrganization, smErrorResponse } from "../sm-command.utils";
+import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 import { selectTrashedSecrets, SmTrashSelection, trashResultResponse } from "./trash-selection";
 
@@ -16,7 +16,7 @@ export class TrashRestoreCommand {
   ) {}
 
   async run(organizationId: string, selection: SmTrashSelection): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

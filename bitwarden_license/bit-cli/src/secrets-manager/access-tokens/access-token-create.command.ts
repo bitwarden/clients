@@ -1,14 +1,13 @@
-import { AccessService } from "@bitwarden/bit-sm/service-accounts/access/access.service";
-import { AccessTokenView } from "@bitwarden/bit-sm/service-accounts/models/view/access-token.view";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { AccessService, AccessTokenView, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { StringResponse } from "@bitwarden/cli/models/response/string.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ServiceContainer } from "../../service-container";
 import { SmAccessTokenCreatedResponse } from "../models/sm-access-token.response";
-import { resolveSmOrganization, smErrorResponse } from "../sm-command.utils";
+import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 import { resolveSmMachineAccountId } from "./sm-access-token.utils";
 
@@ -35,7 +34,7 @@ export class AccessTokenCreateCommand {
     machineAccountId: string,
     options: AccessTokenCreateOptions,
   ): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,
@@ -44,8 +43,8 @@ export class AccessTokenCreateCommand {
       return org.error;
     }
 
-    const name = options.name?.trim();
-    if (name == null || name === "") {
+    const name = options.name?.trim() ?? "";
+    if (Utils.isNullOrWhitespace(name)) {
       return Response.badRequest("`name` is required.");
     }
     if (name.length > MAX_NAME_LENGTH) {
@@ -95,7 +94,9 @@ export class AccessTokenCreateCommand {
   }
 
   private parseExpires(expires: string | undefined): Date | null | Response {
-    if (expires == null || expires === "" || NO_EXPIRY_VALUES.includes(expires.toLowerCase())) {
+    const normalized = (expires ?? "").toLowerCase();
+    const isUnset = Utils.isNullOrEmpty(normalized);
+    if (isUnset || NO_EXPIRY_VALUES.includes(normalized)) {
       return null;
     }
     if (!ISO_DATE_PATTERN.test(expires)) {
