@@ -1,14 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input, model } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, map, Observable, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -46,27 +45,24 @@ export class OrgSwitcherComponent {
 
   protected readonly organizations$: Observable<Organization[]> =
     this.accountService.activeAccount$.pipe(
-      switchMap((account) =>
-        this.organizationService
-          .organizations$(account?.id)
-          .pipe(
-            map((orgs) =>
-              orgs.filter((org) => this.filter()(org)).sort((a, b) => a.name.localeCompare(b.name)),
-            ),
-          ),
+      getOptionalUserId,
+      switchMap((userId) =>
+        userId == null ? of([]) : this.organizationService.organizations$(userId),
+      ),
+      map((orgs) =>
+        orgs.filter((org) => this.filter()(org)).sort((a, b) => a.name.localeCompare(b.name)),
       ),
     );
 
-  protected readonly activeOrganization$: Observable<Organization> = combineLatest([
+  protected readonly activeOrganization$: Observable<Organization | undefined> = combineLatest([
     this.route.paramMap,
     this.organizations$,
   ]).pipe(map(([params, orgs]) => orgs.find((org) => org.id === params.get("organizationId"))));
 
   /** The active organization with the tier-colored icon tile it shares with the vault switcher. */
-  protected readonly activeOrganizationView$: Observable<{
-    organization: Organization;
-    tile: IconTileOptions;
-  }> = this.activeOrganization$.pipe(
+  protected readonly activeOrganizationView$: Observable<
+    { organization: Organization; tile: IconTileOptions } | undefined
+  > = this.activeOrganization$.pipe(
     map(
       (organization) =>
         organization && { organization, tile: orgIconTile(organization.productTierType) },
