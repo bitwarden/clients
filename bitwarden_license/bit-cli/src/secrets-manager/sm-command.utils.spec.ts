@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { BulkOperationStatus } from "@bitwarden/bit-sm";
+import { Response } from "@bitwarden/cli/models/response";
 import { CliUtils } from "@bitwarden/cli/utils";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,6 +17,7 @@ import {
   validateSmOrganizationAccess,
   smBulkResponse,
   smErrorResponse,
+  withSmOrganization,
 } from "./sm-command.utils";
 import {
   encodeSmRequest,
@@ -109,6 +111,10 @@ describe("sm-command.utils", () => {
     it("allows a missing or matching organization id", () => {
       expect(checkSmRequestOrganization(smOrgId, undefined)).toBeUndefined();
       expect(checkSmRequestOrganization(smOrgId, smOrgId.toUpperCase())).toBeUndefined();
+    });
+
+    it("treats a whitespace-only organization id as missing", () => {
+      expect(checkSmRequestOrganization(smOrgId, "  ")).toBeUndefined();
     });
 
     it("rejects a different organization id", () => {
@@ -208,6 +214,72 @@ describe("sm-command.utils", () => {
       expect(result.error?.message).toBe(
         "You do not have access to Secrets Manager for this organization.",
       );
+    });
+  });
+
+  describe("withSmOrganization", () => {
+    const services = { organizationService, accountService };
+
+    it("runs the action with the validated organization", async () => {
+      const action = jest.fn().mockResolvedValue(Response.success(undefined));
+
+      const response = await withSmOrganization(services, smOrgId.toUpperCase(), action);
+
+      expect(response.success).toBe(true);
+      expect(action).toHaveBeenCalledWith(
+        expect.objectContaining({
+          organizationId: smOrgId,
+          organization: expect.objectContaining({ id: smOrgId }),
+        }),
+      );
+    });
+
+    it.each([
+      ["rejects an invalid organization id", "bad", "`bad` is not a GUID."],
+      ["rejects a missing organization id", "", "`organizationid` is required."],
+      [
+        "rejects an organization the user is not a member of",
+        smOtherOrgId,
+        "Organization not found.",
+      ],
+    ])("%s without running the action", async (_name, organizationId, message) => {
+      const action = jest.fn();
+
+      const response = await withSmOrganization(services, organizationId, action);
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(message);
+      expect(action).not.toHaveBeenCalled();
+    });
+
+    it("rejects when there is no active user without running the action", async () => {
+      accountService.activeAccount$ = of(null);
+      const action = jest.fn();
+
+      const response = await withSmOrganization(services, smOrgId, action);
+
+      expect(response.message).toBe("No user found.");
+      expect(action).not.toHaveBeenCalled();
+    });
+
+    it("rejects an organization without Secrets Manager access without running the action", async () => {
+      mockSmOrganization(accountService, organizationService, false);
+      const action = jest.fn();
+
+      const response = await withSmOrganization(services, smOrgId, action);
+
+      expect(response.message).toBe(
+        "You do not have access to Secrets Manager for this organization.",
+      );
+      expect(action).not.toHaveBeenCalled();
+    });
+
+    it("returns the response of the action", async () => {
+      const failure = Response.error("Nope.");
+
+      const response = await withSmOrganization(services, smOrgId, async () => failure);
+
+      expect(response).toBe(failure);
     });
   });
 

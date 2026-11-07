@@ -1,7 +1,5 @@
 import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmProjectResponse } from "../models/sm-project.response";
@@ -10,27 +8,15 @@ import {
   parseSmId,
   parseSmRequest,
   readSmName,
-  validateSmOrganizationAccess,
+  SmOrganization,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
 
 export class ProjectEditCommand {
-  constructor(
-    private projectService: ProjectService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private projectService: ProjectService) {}
 
-  async run(organizationId: string, projectId: string, requestJson: unknown): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, projectId: string, requestJson: unknown): Promise<Response> {
     const project = parseSmId(projectId, "projectId");
     if (project.error) {
       return project.error;
@@ -73,10 +59,6 @@ export class ProjectEditCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new ProjectEditCommand(
-      serviceContainer.projectService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new ProjectEditCommand(serviceContainer.projectService);
   }
 }
