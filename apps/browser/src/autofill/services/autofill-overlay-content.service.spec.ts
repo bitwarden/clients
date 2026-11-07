@@ -2539,6 +2539,35 @@ describe("AutofillOverlayContentService", () => {
         });
       });
 
+      it("calculates the sub frame's offsets if the referenced url belongs to a frame of a frameset", async () => {
+        document.body.innerHTML = "";
+        const frame = document.createElement("frame");
+        frame.src = iframeSource;
+        document.body.appendChild(frame);
+        jest
+          .spyOn(frame, "getBoundingClientRect")
+          .mockReturnValue(mockRect({ left: 220, top: 90, width: 1, height: 1 }));
+        jest
+          .spyOn(globalThis, "getComputedStyle")
+          .mockReturnValue({ getPropertyValue: () => "0" } as unknown as CSSStyleDeclaration);
+        sendMockExtensionMessage(
+          {
+            command: "getSubFrameOffsets",
+            subFrameUrl: iframeSource,
+          },
+          mock<chrome.runtime.MessageSender>(),
+          sendResponseSpy,
+        );
+        await flushPromises();
+
+        expect(sendResponseSpy).toHaveBeenCalledWith({
+          frameId: undefined,
+          left: 220,
+          top: 90,
+          url: iframeSource,
+        });
+      });
+
       it("returns null if a matching iframe is not found", async () => {
         document.body.innerHTML = "<iframe src='https://some-other-source.com/'></iframe>";
         sendMockExtensionMessage(
@@ -2775,6 +2804,75 @@ describe("AutofillOverlayContentService", () => {
               subFrameDepth: 1,
             },
           });
+        });
+
+        it("adds the offset of an iframe within a shadow root to the running position", async () => {
+          document.body.innerHTML = `<div id="shadow-host"></div>`;
+          const shadowHost = document.getElementById("shadow-host") as HTMLElement;
+          const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+          shadowRoot.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = shadowRoot.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 400, top: 300 }));
+          jest
+            .spyOn(globalThis, "getComputedStyle")
+            .mockReturnValue({ getPropertyValue: () => "0" } as unknown as CSSStyleDeclaration);
+          sendExtensionMessageSpy.mockResolvedValue(4);
+          const subFrameData = {
+            frameId: 10,
+            left: 20,
+            top: 10,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateSubFrameData", {
+            subFrameData: {
+              frameId: 10,
+              left: 420,
+              top: 310,
+              parentFrameIds: [1, 2, 3, 4],
+              subFrameDepth: 1,
+            },
+          });
+        });
+
+        it("does not query shadow roots when the iframe is found in the light DOM", async () => {
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          const refreshShadowDomStateSpy = jest.spyOn(
+            domQueryService,
+            "refreshShadowDomStateForUserRequest",
+          );
+          const querySpy = jest.spyOn(domQueryService, "query");
+          const subFrameData = {
+            frameId: 10,
+            left: 0,
+            top: 0,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(refreshShadowDomStateSpy).not.toHaveBeenCalled();
+          expect(querySpy).not.toHaveBeenCalled();
         });
 
         it("re-dispatches each relayed message back through the handler until the max depth is reached", async () => {
