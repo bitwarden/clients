@@ -18,6 +18,7 @@ import { SecretGetCommand } from "./secrets/secret-get.command";
 import { SecretListCommand } from "./secrets/secret-list.command";
 import { SecretRestoreVersionCommand } from "./secrets/secret-restore-version.command";
 import { SecretVersionsCommand } from "./secrets/secret-versions.command";
+import { withSmOrganization } from "./sm-command.utils";
 import { SmTemplateObjects, TemplateCommand } from "./templates/template.command";
 import { TrashEmptyCommand } from "./trash/trash-empty.command";
 import { TrashListCommand } from "./trash/trash-list.command";
@@ -83,8 +84,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await ProjectListCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
+              (org) => ProjectListCommand.create(this.serviceContainer).run(org),
             );
             this.processResponse(response);
           }),
@@ -102,9 +105,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (projectId: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await ProjectGetCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              projectId,
+              (org) => ProjectGetCommand.create(this.serviceContainer).run(org, projectId),
             );
             this.processResponse(response);
           }),
@@ -124,9 +128,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (encodedJson: string | undefined, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await ProjectCreateCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              encodedJson,
+              (org) => ProjectCreateCommand.create(this.serviceContainer).run(org, encodedJson),
             );
             this.processResponse(response);
           }),
@@ -148,10 +153,11 @@ export class SmProgram extends BaseProgram {
           .action(
             async (projectId: string, encodedJson: string | undefined, options: OrgOptions) => {
               await this.exitIfLocked();
-              const response = await ProjectEditCommand.create(this.serviceContainer).run(
+              const response = await withSmOrganization(
+                this.serviceContainer,
                 options.organizationid,
-                projectId,
-                encodedJson,
+                (org) =>
+                  ProjectEditCommand.create(this.serviceContainer).run(org, projectId, encodedJson),
               );
               this.processResponse(response);
             },
@@ -177,9 +183,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (projectIds: string[], options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await ProjectDeleteCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              projectIds,
+              (org) => ProjectDeleteCommand.create(this.serviceContainer).run(org, projectIds),
             );
             this.processResponse(response);
           }),
@@ -209,9 +216,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (options: OrgOptions & { projectid?: string }) => {
             await this.exitIfLocked();
-            const response = await SecretListCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              options.projectid,
+              (org) => SecretListCommand.create(this.serviceContainer).run(org, options.projectid),
             );
             this.processResponse(response);
           }),
@@ -229,9 +237,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (secretId: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await SecretGetCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              secretId,
+              (org) => SecretGetCommand.create(this.serviceContainer).run(org, secretId),
             );
             this.processResponse(response);
           }),
@@ -256,9 +265,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (encodedJson: string | undefined, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await SecretCreateCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              encodedJson,
+              (org) => SecretCreateCommand.create(this.serviceContainer).run(org, encodedJson),
             );
             this.processResponse(response);
           }),
@@ -286,10 +296,11 @@ export class SmProgram extends BaseProgram {
           .action(
             async (secretId: string, encodedJson: string | undefined, options: OrgOptions) => {
               await this.exitIfLocked();
-              const response = await SecretEditCommand.create(this.serviceContainer).run(
+              const response = await withSmOrganization(
+                this.serviceContainer,
                 options.organizationid,
-                secretId,
-                encodedJson,
+                (org) =>
+                  SecretEditCommand.create(this.serviceContainer).run(org, secretId, encodedJson),
               );
               this.processResponse(response);
             },
@@ -315,9 +326,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (secretIds: string[], options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await SecretDeleteCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              secretIds,
+              (org) => SecretDeleteCommand.create(this.serviceContainer).run(org, secretIds),
             );
             this.processResponse(response);
           }),
@@ -335,9 +347,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (secretId: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await SecretVersionsCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              secretId,
+              (org) => SecretVersionsCommand.create(this.serviceContainer).run(org, secretId),
             );
             this.processResponse(response);
           }),
@@ -358,10 +371,15 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (secretId: string, versionId: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await SecretRestoreVersionCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              secretId,
-              versionId,
+              (org) =>
+                SecretRestoreVersionCommand.create(this.serviceContainer).run(
+                  org,
+                  secretId,
+                  versionId,
+                ),
             );
             this.processResponse(response);
           }),

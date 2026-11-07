@@ -1,17 +1,13 @@
 import { mock } from "jest-mock-extended";
 
 import { SecretService, SecretView } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { SecretGetCommand } from "./secret-get.command";
 
 describe("SecretGetCommand", () => {
   const secretService = mock<SecretService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const secretId = "22222222-2222-2222-2222-222222222222";
   let command: SecretGetCommand;
 
@@ -27,14 +23,13 @@ describe("SecretGetCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
-    command = new SecretGetCommand(secretService, organizationService, accountService);
+    command = new SecretGetCommand(secretService);
   });
 
   it("returns the secret with its value", async () => {
     secretService.getBySecretId.mockResolvedValue(makeSecret());
 
-    const response = await command.run(smOrgId, secretId);
+    const response = await command.run(smOrg, secretId);
 
     expect(response.success).toBe(true);
     expect(secretService.getBySecretId).toHaveBeenCalledWith(secretId);
@@ -47,37 +42,18 @@ describe("SecretGetCommand", () => {
     });
   });
 
-  it("rejects an invalid organization id", async () => {
-    const response = await command.run("not-a-guid", secretId);
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe("`not-a-guid` is not a GUID.");
-  });
-
   it("rejects an invalid secret id", async () => {
-    const response = await command.run(smOrgId, "abc");
+    const response = await command.run(smOrg, "abc");
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`abc` is not a GUID.");
     expect(secretService.getBySecretId).not.toHaveBeenCalled();
   });
 
-  it("rejects an organization without Secrets Manager access", async () => {
-    mockSmOrganization(accountService, organizationService, false);
-
-    const response = await command.run(smOrgId, secretId);
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe(
-      "You do not have access to Secrets Manager for this organization.",
-    );
-    expect(secretService.getBySecretId).not.toHaveBeenCalled();
-  });
-
   it("maps a 404 to a friendly error", async () => {
     secretService.getBySecretId.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, secretId);
+    const response = await command.run(smOrg, secretId);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("The secret was not found, or you do not have access to it.");
