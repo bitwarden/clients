@@ -1,8 +1,10 @@
 import { mock } from "jest-mock-extended";
 
-import { BulkOperationStatus } from "@bitwarden/bit-sm/models/bulk-operation-status";
-import { ServiceAccountSecretsDetailsView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import {
+  BulkOperationStatus,
+  ServiceAccountSecretsDetailsView,
+  ServiceAccountService,
+} from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 

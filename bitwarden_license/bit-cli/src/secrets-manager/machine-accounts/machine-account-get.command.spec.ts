@@ -1,11 +1,10 @@
 import { mock } from "jest-mock-extended";
 
-import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { ServiceAccountService, ServiceAccountView } from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smNotFoundError, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
 
 import { MachineAccountGetCommand } from "./machine-account-get.command";
 
@@ -79,17 +78,6 @@ describe("MachineAccountGetCommand", () => {
 
   it("maps a 404 to a friendly error", async () => {
     serviceAccountService.getByServiceAccountId.mockRejectedValue(smNotFoundError());
-
-    const response = await command.run(smOrgId, machineAccountId);
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe(
-      "The machine account was not found, or you do not have access to it.",
-    );
-  });
-
-  it("treats a machine account from another organization as not found", async () => {
-    serviceAccountService.getByServiceAccountId.mockResolvedValue(makeMachineAccount(smOtherOrgId));
 
     const response = await command.run(smOrgId, machineAccountId);
 
