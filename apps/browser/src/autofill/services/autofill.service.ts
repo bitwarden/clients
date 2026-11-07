@@ -3256,12 +3256,12 @@ export default class AutofillService implements AutofillServiceInterface {
 
   /**
    * Identifies if the field is a custom field, a custom
-   * field is defined as a field that is a `span` element.
+   * field is defined as a `span` element or a `url` input.
    * @param {AutofillField} field
    * @returns {boolean}
    */
   static forCustomFieldsOnly(field: AutofillField): boolean {
-    return field.tagName === "span";
+    return field.tagName === "span" || field.type === "url";
   }
 
   /**
