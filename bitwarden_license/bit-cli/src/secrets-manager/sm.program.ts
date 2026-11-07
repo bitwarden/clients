@@ -11,6 +11,7 @@ import { ProjectDeleteCommand } from "./projects/project-delete.command";
 import { ProjectEditCommand } from "./projects/project-edit.command";
 import { ProjectGetCommand } from "./projects/project-get.command";
 import { ProjectListCommand } from "./projects/project-list.command";
+import { withSmOrganization } from "./sm-command.utils";
 
 const writeLn = CliUtils.writeLn;
 
@@ -63,8 +64,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await ProjectListCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
+              (org) => ProjectListCommand.create(this.serviceContainer).run(org),
             );
             this.processResponse(response);
           }),
@@ -82,9 +85,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (projectId: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await ProjectGetCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              projectId,
+              (org) => ProjectGetCommand.create(this.serviceContainer).run(org, projectId),
             );
             this.processResponse(response);
           }),
@@ -104,9 +108,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (encodedJson: string | undefined, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await ProjectCreateCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              encodedJson,
+              (org) => ProjectCreateCommand.create(this.serviceContainer).run(org, encodedJson),
             );
             this.processResponse(response);
           }),
@@ -128,10 +133,11 @@ export class SmProgram extends BaseProgram {
           .action(
             async (projectId: string, encodedJson: string | undefined, options: OrgOptions) => {
               await this.exitIfLocked();
-              const response = await ProjectEditCommand.create(this.serviceContainer).run(
+              const response = await withSmOrganization(
+                this.serviceContainer,
                 options.organizationid,
-                projectId,
-                encodedJson,
+                (org) =>
+                  ProjectEditCommand.create(this.serviceContainer).run(org, projectId, encodedJson),
               );
               this.processResponse(response);
             },
@@ -157,9 +163,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (projectIds: string[], options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await ProjectDeleteCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              projectIds,
+              (org) => ProjectDeleteCommand.create(this.serviceContainer).run(org, projectIds),
             );
             this.processResponse(response);
           }),

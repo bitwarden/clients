@@ -1,33 +1,19 @@
 import { ProjectService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import {
   parseSmIds,
-  validateSmOrganizationAccess,
+  SmOrganization,
   smBulkResponse,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
 
 export class ProjectDeleteCommand {
-  constructor(
-    private projectService: ProjectService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private projectService: ProjectService) {}
 
-  async run(organizationId: string, projectIds: string[]): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, projectIds: string[]): Promise<Response> {
     const parsed = parseSmIds(projectIds, "projectId");
     if (parsed.error) {
       return parsed.error;
@@ -52,10 +38,6 @@ export class ProjectDeleteCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new ProjectDeleteCommand(
-      serviceContainer.projectService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new ProjectDeleteCommand(serviceContainer.projectService);
   }
 }
