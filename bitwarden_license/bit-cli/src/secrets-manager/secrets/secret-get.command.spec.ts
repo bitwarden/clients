@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { SecretService, SecretView } from "@bitwarden/bit-sm";
 
-import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg, smOtherOrgId } from "../spec/sm-test-utils";
 
 import { SecretGetCommand } from "./secret-get.command";
 
@@ -40,6 +40,15 @@ describe("SecretGetCommand", () => {
       value: "hunter2",
       note: "rotate monthly",
     });
+  });
+
+  it("returns not found for a secret from another organization", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret(smOtherOrgId));
+
+    const response = await command.run(smOrg, secretId);
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("The secret was not found, or you do not have access to it.");
   });
 
   it("rejects an invalid secret id", async () => {
