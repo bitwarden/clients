@@ -1,7 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  Signal,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { map, Observable, switchMap } from "rxjs";
