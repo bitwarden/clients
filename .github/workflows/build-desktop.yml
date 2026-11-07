@@ -1789,6 +1789,14 @@ jobs:
           EOF
           echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
 
+      # Temporary workaround for actions/runner-images#14924 (BRE-2397): stapler's HTTP/3 (UDP 443)
+      # connections to Apple drop on hosted macOS runners and fail with Error 68. Blocking UDP 443
+      # makes it fall back to HTTPS over TCP. Remove under BRE-2398 once that issue is resolved.
+      - name: Block outbound UDP 443 for notarization stapling
+        run: |
+          echo "block return out quick proto udp from any to any port 443" | sudo pfctl -f -
+          sudo pfctl -E
+
       - name: Build application (dist)
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
