@@ -88,6 +88,56 @@ describe("SecretService", () => {
     });
   });
 
+  describe("project names", () => {
+    const unnamedResponse = () => ({
+      ...mockedSecretResponse,
+      projects: [{ id: "502d93ae-a084-490a-8a64-b187015eb69c", name: null }],
+    });
+
+    it("create returns project names when the server omits them", async () => {
+      apiService.send
+        .mockResolvedValueOnce(unnamedResponse())
+        .mockResolvedValueOnce(mockedSecretResponse);
+
+      const result = await sut.create("organizationId", secretView);
+
+      expect(result.projects).toEqual(expectedSecretView.projects);
+      expect(apiService.send).toHaveBeenLastCalledWith(
+        "GET",
+        "/secrets/" + secretView.id,
+        null,
+        true,
+        true,
+      );
+    });
+
+    it("update returns project names when the server omits the projects", async () => {
+      apiService.send
+        .mockResolvedValueOnce({ ...mockedSecretResponse, projects: null })
+        .mockResolvedValueOnce(mockedSecretResponse);
+
+      const result = await sut.update("organizationId", secretView);
+
+      expect(result.projects).toEqual(expectedSecretView.projects);
+    });
+
+    it("does not refetch when the response already names the projects", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      await sut.create("organizationId", secretView);
+
+      expect(apiService.send).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not refetch when no projects were requested", async () => {
+      apiService.send.mockResolvedValue({ ...mockedSecretResponse, projects: null });
+
+      await sut.create("organizationId", { ...secretView, projects: [] });
+
+      expect(apiService.send).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("update", () => {
     it("emits the secret updated", async () => {
       apiService.send.mockResolvedValue(mockedSecretResponse);
@@ -98,6 +148,64 @@ describe("SecretService", () => {
       });
 
       await sut.update("organizationId", secretView, secretAccessPoliciesView);
+    });
+
+    it("returns the updated secret", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      const result = await sut.update("organizationId", secretView, secretAccessPoliciesView);
+
+      expect(result).toEqual(expectedSecretView);
+    });
+
+    it("leaves access policies unchanged when none are given", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      await sut.update("organizationId", secretView, undefined, true);
+
+      expect(accessPolicyService.getSecretAccessPoliciesRequest).not.toHaveBeenCalled();
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/secrets/" + secretView.id,
+        expect.objectContaining({ accessPoliciesRequests: null, valueChanged: true }),
+        true,
+        true,
+      );
+    });
+  });
+
+  describe("create without access policies", () => {
+    it("returns the created secret and sends no access policies", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      const result = await sut.create("organizationId", secretView);
+
+      expect(result).toEqual(expectedSecretView);
+      expect(accessPolicyService.getSecretAccessPoliciesRequest).not.toHaveBeenCalled();
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/organizationId/secrets",
+        expect.objectContaining({ accessPoliciesRequests: null }),
+        true,
+        true,
+      );
+    });
+  });
+
+  describe("restoreVersion", () => {
+    it("restores the version and returns the secret", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      const result = await sut.restoreVersion("secret-id", "version-id");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/secrets/secret-id/versions/restore",
+        { versionId: "version-id" },
+        true,
+        true,
+      );
+      expect(result).toEqual(expectedSecretView);
     });
   });
 });
