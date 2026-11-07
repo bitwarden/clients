@@ -1,29 +1,24 @@
 import { mock } from "jest-mock-extended";
 
 import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import {
   encodeSmRequest,
-  mockSmOrganization,
   smNotFoundError,
   smOrgId,
   smOtherOrgId,
+  smOrg,
 } from "../spec/sm-test-utils";
 
 import { ProjectCreateCommand } from "./project-create.command";
 
 describe("ProjectCreateCommand", () => {
   const projectService = mock<ProjectService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   let command: ProjectCreateCommand;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
-    command = new ProjectCreateCommand(projectService, organizationService, accountService);
+    command = new ProjectCreateCommand(projectService);
   });
 
   it("creates the project", async () => {
@@ -36,7 +31,7 @@ describe("ProjectCreateCommand", () => {
     );
 
     const response = await command.run(
-      smOrgId,
+      smOrg,
       encodeSmRequest({ organizationId: smOrgId, name: "Backend" }),
     );
 
@@ -51,13 +46,13 @@ describe("ProjectCreateCommand", () => {
   it("accepts an object body", async () => {
     projectService.create.mockResolvedValue(new ProjectView());
 
-    const response = await command.run(smOrgId, { name: "Backend" });
+    const response = await command.run(smOrg, { name: "Backend" });
 
     expect(response.success).toBe(true);
   });
 
   it("requires a name", async () => {
-    const response = await command.run(smOrgId, { name: "" });
+    const response = await command.run(smOrg, { name: "" });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`name` is required.");
@@ -65,16 +60,7 @@ describe("ProjectCreateCommand", () => {
   });
 
   it("rejects a request for another organization", async () => {
-    const response = await command.run(smOrgId, { organizationId: smOtherOrgId, name: "x" });
-
-    expect(response.success).toBe(false);
-    expect(projectService.create).not.toHaveBeenCalled();
-  });
-
-  it("rejects an organization without Secrets Manager access", async () => {
-    mockSmOrganization(accountService, organizationService, false);
-
-    const response = await command.run(smOrgId, { name: "Backend" });
+    const response = await command.run(smOrg, { organizationId: smOtherOrgId, name: "x" });
 
     expect(response.success).toBe(false);
     expect(projectService.create).not.toHaveBeenCalled();
@@ -83,7 +69,7 @@ describe("ProjectCreateCommand", () => {
   it("maps a 404 to a friendly error", async () => {
     projectService.create.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, { name: "Backend" });
+    const response = await command.run(smOrg, { name: "Backend" });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(

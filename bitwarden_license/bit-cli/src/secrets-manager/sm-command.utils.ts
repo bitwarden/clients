@@ -10,7 +10,19 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+import { ServiceContainer } from "../service-container";
+
 import { SmBulkStatusResponse } from "./models/sm-bulk-status.response";
+
+/**
+ * An organization the active user is a member of and can use Secrets Manager in. Commands receive
+ * one instead of a raw `--organizationid` so they never repeat the access check.
+ */
+export type SmOrganization = {
+  /** The normalized (lowercased) organization id. */
+  organizationId: string;
+  organization: Organization;
+};
 
 export type SmOrganizationResult =
   | { organizationId: string; organization: Organization; error?: undefined }
@@ -103,7 +115,7 @@ export function checkSmRequestOrganization(
   organizationId: string,
   requestOrganizationId: unknown,
 ): Response | undefined {
-  if (requestOrganizationId == null || requestOrganizationId === "") {
+  if (isMissing(requestOrganizationId)) {
     return undefined;
   }
   if (
@@ -170,7 +182,7 @@ export function smBulkResponse(results: BulkOperationStatus[], action: string): 
 export async function validateSmOrganizationAccess(
   organizationService: OrganizationService,
   accountService: AccountService,
-  organizationId: string | undefined,
+  organizationId: string,
 ): Promise<SmOrganizationResult> {
   const parsed = parseSmId(organizationId, "organizationid");
   if (parsed.error) {
@@ -197,6 +209,27 @@ export async function validateSmOrganizationAccess(
   }
 
   return { organizationId: parsed.id, organization };
+}
+
+/**
+ * Validates the `--organizationid` once and runs `action` with the validated organization.
+ * Shared by the `bw sm` program and the `bw serve` routes so neither repeats the check.
+ * @returns the validation error, or the response of `action`.
+ */
+export async function withSmOrganization(
+  services: Pick<ServiceContainer, "organizationService" | "accountService">,
+  organizationId: string,
+  action: (org: SmOrganization) => Promise<Response>,
+): Promise<Response> {
+  const result = await validateSmOrganizationAccess(
+    services.organizationService,
+    services.accountService,
+    organizationId,
+  );
+  if (result.error) {
+    return result.error;
+  }
+  return action({ organizationId: result.organizationId, organization: result.organization });
 }
 
 /**

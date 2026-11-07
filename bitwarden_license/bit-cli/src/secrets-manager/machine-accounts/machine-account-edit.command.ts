@@ -1,7 +1,5 @@
 import { ServiceAccountService, ServiceAccountView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmMachineAccountResponse } from "../models/sm-machine-account.response";
@@ -10,31 +8,19 @@ import {
   parseSmId,
   parseSmRequest,
   readSmName,
-  validateSmOrganizationAccess,
+  SmOrganization,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
 
 export class MachineAccountEditCommand {
-  constructor(
-    private serviceAccountService: ServiceAccountService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private serviceAccountService: ServiceAccountService) {}
 
   async run(
-    organizationId: string,
+    org: SmOrganization,
     machineAccountId: string,
     requestJson: unknown,
   ): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
     const machineAccount = parseSmId(machineAccountId, "machineAccountId");
     if (machineAccount.error) {
       return machineAccount.error;
@@ -81,10 +67,6 @@ export class MachineAccountEditCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new MachineAccountEditCommand(
-      serviceContainer.serviceAccountService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new MachineAccountEditCommand(serviceContainer.serviceAccountService);
   }
 }

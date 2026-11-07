@@ -1,35 +1,21 @@
 import { SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
 import {
   checkSmRequestOrganization,
   parseSmRequest,
-  validateSmOrganizationAccess,
+  SmOrganization,
   smErrorResponse,
 } from "../sm-command.utils";
 
 import { readSmSecretRequest } from "./sm-secret-request";
 
 export class SecretCreateCommand {
-  constructor(
-    private secretService: SecretService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private secretService: SecretService) {}
 
-  async run(organizationId: string, requestJson: unknown): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, requestJson: unknown): Promise<Response> {
     const parsed = await parseSmRequest<Record<string, unknown>>(requestJson);
     if (parsed.error) {
       return parsed.error;
@@ -67,10 +53,6 @@ export class SecretCreateCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new SecretCreateCommand(
-      serviceContainer.secretService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new SecretCreateCommand(serviceContainer.secretService);
   }
 }

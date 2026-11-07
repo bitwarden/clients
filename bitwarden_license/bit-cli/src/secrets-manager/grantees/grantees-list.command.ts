@@ -1,37 +1,22 @@
 import { AccessPolicyService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmGranteeResponse } from "../models/sm-grantee.response";
-import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 export const SmGranteeKinds = ["people", "machine-accounts", "projects"] as const;
 export type SmGranteeKind = (typeof SmGranteeKinds)[number];
 
 export class GranteesListCommand {
-  constructor(
-    private accessPolicyService: AccessPolicyService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private accessPolicyService: AccessPolicyService) {}
 
-  async run(organizationId: string, kind: string): Promise<Response> {
+  async run(org: SmOrganization, kind: string): Promise<Response> {
     if (!SmGranteeKinds.includes(kind as SmGranteeKind)) {
       return Response.badRequest(
         "Unknown grantee type `" + kind + "`. Expected one of: " + SmGranteeKinds.join(", ") + ".",
       );
-    }
-
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
     }
 
     try {
@@ -54,10 +39,6 @@ export class GranteesListCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new GranteesListCommand(
-      serviceContainer.accessPolicyService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new GranteesListCommand(serviceContainer.accessPolicyService);
   }
 }

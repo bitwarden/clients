@@ -12,7 +12,7 @@ import {
   smTargetId,
   userPolicy,
 } from "../spec/sm-access-test-utils";
-import { smOrgId } from "../spec/sm-test-utils";
+import { smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { AccessGetCommand } from "./access-get.command";
 
@@ -21,7 +21,7 @@ describe("AccessGetCommand", () => {
   let command: AccessGetCommand;
 
   const run = async (target: string) => {
-    const response = await command.run(smOrgId, target, smTargetId);
+    const response = await command.run(smOrg, target, smTargetId);
     expect(response.success).toBe(true);
     return ((response.data as ListResponse).data as SmAccessPolicyResponse[]).map((p) => [
       p.type,

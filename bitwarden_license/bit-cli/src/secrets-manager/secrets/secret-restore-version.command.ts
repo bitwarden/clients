@@ -1,33 +1,19 @@
 import { SecretService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
 import {
   parseSmId,
-  validateSmOrganizationAccess,
+  SmOrganization,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
 
 export class SecretRestoreVersionCommand {
-  constructor(
-    private secretService: SecretService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private secretService: SecretService) {}
 
-  async run(organizationId: string, secretId: string, versionId: string): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, secretId: string, versionId: string): Promise<Response> {
     const secret = parseSmId(secretId, "secretId");
     if (secret.error) {
       return secret.error;
@@ -58,10 +44,6 @@ export class SecretRestoreVersionCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new SecretRestoreVersionCommand(
-      serviceContainer.secretService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new SecretRestoreVersionCommand(serviceContainer.secretService);
   }
 }

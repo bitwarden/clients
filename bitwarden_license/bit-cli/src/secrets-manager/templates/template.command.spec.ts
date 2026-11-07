@@ -2,12 +2,10 @@ import { mock } from "jest-mock-extended";
 
 import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { TemplateResponse } from "@bitwarden/cli/models/response/template.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ProjectCreateCommand } from "../projects/project-create.command";
 import { checkSmRequestOrganization } from "../sm-command.utils";
-import { encodeSmRequest, mockSmOrganization, smOrgId } from "../spec/sm-test-utils";
+import { encodeSmRequest, smOrg, smOrgId } from "../spec/sm-test-utils";
 
 import { TemplateCommand } from "./template.command";
 
@@ -32,20 +30,13 @@ describe("TemplateCommand", () => {
 
   it("returns an sm-project template that project create accepts", async () => {
     const projectService = mock<ProjectService>();
-    const organizationService = mock<OrganizationService>();
-    const accountService = mock<AccountService>();
-    mockSmOrganization(accountService, organizationService);
     projectService.create.mockImplementation(async (_, view) =>
       Object.assign(new ProjectView(), view, { id: "22222222-2222-2222-2222-222222222222" }),
     );
-    const createCommand = new ProjectCreateCommand(
-      projectService,
-      organizationService,
-      accountService,
-    );
+    const createCommand = new ProjectCreateCommand(projectService);
 
     const response = await createCommand.run(
-      smOrgId,
+      smOrg,
       encodeSmRequest({ ...(await template("sm-project")), name: "Backend" }),
     );
 

@@ -1,17 +1,13 @@
 import { mock } from "jest-mock-extended";
 
 import { ServiceAccountService, ServiceAccountView } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { MachineAccountGetCommand } from "./machine-account-get.command";
 
 describe("MachineAccountGetCommand", () => {
   const serviceAccountService = mock<ServiceAccountService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const machineAccountId = "22222222-2222-2222-2222-222222222222";
   let command: MachineAccountGetCommand;
 
@@ -24,18 +20,13 @@ describe("MachineAccountGetCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
-    command = new MachineAccountGetCommand(
-      serviceAccountService,
-      organizationService,
-      accountService,
-    );
+    command = new MachineAccountGetCommand(serviceAccountService);
   });
 
   it("returns the machine account", async () => {
     serviceAccountService.getByServiceAccountId.mockResolvedValue(makeMachineAccount());
 
-    const response = await command.run(smOrgId, machineAccountId);
+    const response = await command.run(smOrg, machineAccountId);
 
     expect(response.success).toBe(true);
     expect(serviceAccountService.getByServiceAccountId).toHaveBeenCalledWith(
@@ -50,36 +41,18 @@ describe("MachineAccountGetCommand", () => {
     expect(response.data).not.toHaveProperty("accessToSecrets");
   });
 
-  it("rejects an invalid organization id", async () => {
-    const response = await command.run("not-a-guid", machineAccountId);
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe("`not-a-guid` is not a GUID.");
-  });
-
   it("rejects an invalid machine account id", async () => {
-    const response = await command.run(smOrgId, "abc");
+    const response = await command.run(smOrg, "abc");
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`abc` is not a GUID.");
     expect(serviceAccountService.getByServiceAccountId).not.toHaveBeenCalled();
   });
 
-  it("rejects an organization without Secrets Manager access", async () => {
-    mockSmOrganization(accountService, organizationService, false);
-
-    const response = await command.run(smOrgId, machineAccountId);
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe(
-      "You do not have access to Secrets Manager for this organization.",
-    );
-  });
-
   it("maps a 404 to a friendly error", async () => {
     serviceAccountService.getByServiceAccountId.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, machineAccountId);
+    const response = await command.run(smOrg, machineAccountId);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(

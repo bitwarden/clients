@@ -1,7 +1,5 @@
 import { SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 
@@ -11,7 +9,7 @@ import {
   checkSmRequestOrganization,
   parseSmId,
   parseSmRequest,
-  validateSmOrganizationAccess,
+  SmOrganization,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
@@ -23,21 +21,9 @@ import { readSmSecretRequest } from "./sm-secret-request";
  * secret's access policies are left unchanged.
  */
 export class SecretEditCommand {
-  constructor(
-    private secretService: SecretService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private secretService: SecretService) {}
 
-  async run(organizationId: string, secretId: string, requestJson: unknown): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, secretId: string, requestJson: unknown): Promise<Response> {
     const secret = parseSmId(secretId, "secretId");
     if (secret.error) {
       return secret.error;
@@ -103,10 +89,6 @@ export class SecretEditCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new SecretEditCommand(
-      serviceContainer.secretService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new SecretEditCommand(serviceContainer.secretService);
   }
 }

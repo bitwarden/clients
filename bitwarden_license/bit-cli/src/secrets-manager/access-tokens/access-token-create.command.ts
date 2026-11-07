@@ -1,13 +1,11 @@
 import { AccessService, AccessTokenView, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { StringResponse } from "@bitwarden/cli/models/response/string.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { ServiceContainer } from "../../service-container";
 import { SmAccessTokenCreatedResponse } from "../models/sm-access-token.response";
-import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 import { resolveSmMachineAccountId } from "./sm-access-token.utils";
 
@@ -25,24 +23,13 @@ export class AccessTokenCreateCommand {
   constructor(
     private accessService: AccessService,
     private serviceAccountService: ServiceAccountService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
   ) {}
 
   async run(
-    organizationId: string,
+    org: SmOrganization,
     machineAccountId: string,
     options: AccessTokenCreateOptions,
   ): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
-
     const name = options.name?.trim() ?? "";
     if (Utils.isNullOrWhitespace(name)) {
       return Response.badRequest("`name` is required.");
@@ -125,8 +112,6 @@ export class AccessTokenCreateCommand {
     return new AccessTokenCreateCommand(
       serviceContainer.accessService,
       serviceContainer.serviceAccountService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
     );
   }
 }

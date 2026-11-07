@@ -2,18 +2,14 @@ import { mock } from "jest-mock-extended";
 
 import { AccessPolicyService, PotentialGranteeView } from "@bitwarden/bit-sm";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { SmGranteeResponse } from "../models/sm-grantee.response";
-import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { GranteesListCommand } from "./grantees-list.command";
 
 describe("GranteesListCommand", () => {
   const accessPolicyService = mock<AccessPolicyService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   let command: GranteesListCommand;
 
   const grantee = (type: string, name: string) =>
@@ -25,8 +21,7 @@ describe("GranteesListCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
-    command = new GranteesListCommand(accessPolicyService, organizationService, accountService);
+    command = new GranteesListCommand(accessPolicyService);
   });
 
   it("lists people grantees", async () => {
@@ -35,7 +30,7 @@ describe("GranteesListCommand", () => {
       grantee("group", "Engineering"),
     ]);
 
-    const response = await command.run(smOrgId, "people");
+    const response = await command.run(smOrg, "people");
 
     expect(response.success).toBe(true);
     expect(accessPolicyService.getPeoplePotentialGrantees).toHaveBeenCalledWith(smOrgId);
@@ -51,7 +46,7 @@ describe("GranteesListCommand", () => {
       grantee("serviceAccount", "CI runner"),
     ]);
 
-    const response = await command.run(smOrgId, "machine-accounts");
+    const response = await command.run(smOrg, "machine-accounts");
 
     expect(response.success).toBe(true);
     const data = (response.data as ListResponse).data as SmGranteeResponse[];
@@ -63,14 +58,14 @@ describe("GranteesListCommand", () => {
       grantee("project", "Backend"),
     ]);
 
-    const response = await command.run(smOrgId, "projects");
+    const response = await command.run(smOrg, "projects");
 
     expect(response.success).toBe(true);
     expect(accessPolicyService.getProjectsPotentialGrantees).toHaveBeenCalledWith(smOrgId);
   });
 
   it("rejects an unknown grantee type", async () => {
-    const response = await command.run(smOrgId, "robots");
+    const response = await command.run(smOrg, "robots");
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -78,29 +73,10 @@ describe("GranteesListCommand", () => {
     );
   });
 
-  it("rejects an invalid organization id", async () => {
-    const response = await command.run("not-a-guid", "people");
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe("`not-a-guid` is not a GUID.");
-  });
-
-  it("rejects an organization without Secrets Manager access", async () => {
-    mockSmOrganization(accountService, organizationService, false);
-
-    const response = await command.run(smOrgId, "people");
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe(
-      "You do not have access to Secrets Manager for this organization.",
-    );
-    expect(accessPolicyService.getPeoplePotentialGrantees).not.toHaveBeenCalled();
-  });
-
   it("maps a 404 to a friendly error", async () => {
     accessPolicyService.getPeoplePotentialGrantees.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, "people");
+    const response = await command.run(smOrg, "people");
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(

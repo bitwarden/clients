@@ -3,6 +3,7 @@ import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 
 import { ServiceContainer } from "../../service-container";
 import { SmAccessPolicyResponse } from "../models/sm-access-policy.response";
+import { SmOrganization } from "../sm-command.utils";
 
 import { SmAccessPolicyStore } from "./sm-access-policies";
 
@@ -13,12 +14,12 @@ export class AccessRevokeCommand {
   constructor(private store: SmAccessPolicyStore) {}
 
   async run(
-    organizationId: string,
+    org: SmOrganization,
     target: string,
     targetId: string,
     grantee: string,
   ): Promise<Response> {
-    const loaded = await this.store.load(organizationId, target, targetId);
+    const loaded = await this.store.load(org, target, targetId);
     if (loaded.error) {
       return loaded.error;
     }

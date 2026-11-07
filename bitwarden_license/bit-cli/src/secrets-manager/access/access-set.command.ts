@@ -3,7 +3,12 @@ import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 
 import { ServiceContainer } from "../../service-container";
 import { SmAccessPolicyResponse } from "../models/sm-access-policy.response";
-import { checkSmRequestOrganization, parseSmId, parseSmRequest } from "../sm-command.utils";
+import {
+  checkSmRequestOrganization,
+  parseSmId,
+  parseSmRequest,
+  SmOrganization,
+} from "../sm-command.utils";
 
 import {
   checkSmAccessPolicy,
@@ -26,7 +31,7 @@ export class AccessSetCommand {
   constructor(private store: SmAccessPolicyStore) {}
 
   async run(
-    organizationId: string,
+    org: SmOrganization,
     target: string,
     targetId: string,
     requestJson: unknown,
@@ -44,7 +49,7 @@ export class AccessSetCommand {
       return policies.error;
     }
 
-    const loaded = await this.store.load(organizationId, target, targetId);
+    const loaded = await this.store.load(org, target, targetId);
     if (loaded.error) {
       return loaded.error;
     }

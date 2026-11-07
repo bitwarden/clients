@@ -1,12 +1,10 @@
 import { AccessService, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import {
   parseSmIds,
-  validateSmOrganizationAccess,
+  SmOrganization,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
@@ -17,23 +15,13 @@ export class AccessTokenRevokeCommand {
   constructor(
     private accessService: AccessService,
     private serviceAccountService: ServiceAccountService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
   ) {}
 
   async run(
-    organizationId: string,
+    org: SmOrganization,
     machineAccountId: string,
     accessTokenIds: string[],
   ): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
     const parsed = parseSmIds(accessTokenIds, "accessTokenId");
     if (parsed.error) {
       return parsed.error;
@@ -69,8 +57,6 @@ export class AccessTokenRevokeCommand {
     return new AccessTokenRevokeCommand(
       serviceContainer.accessService,
       serviceContainer.serviceAccountService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
     );
   }
 }

@@ -1,27 +1,18 @@
 import { mock } from "jest-mock-extended";
 
 import { ServiceAccountService, ServiceAccountView } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { encodeSmRequest, mockSmOrganization, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import { encodeSmRequest, smOrgId, smOtherOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { MachineAccountCreateCommand } from "./machine-account-create.command";
 
 describe("MachineAccountCreateCommand", () => {
   const serviceAccountService = mock<ServiceAccountService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   let command: MachineAccountCreateCommand;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
-    command = new MachineAccountCreateCommand(
-      serviceAccountService,
-      organizationService,
-      accountService,
-    );
+    command = new MachineAccountCreateCommand(serviceAccountService);
   });
 
   it("creates the machine account", async () => {
@@ -33,7 +24,7 @@ describe("MachineAccountCreateCommand", () => {
       }),
     );
 
-    const response = await command.run(smOrgId, encodeSmRequest({ name: "CI" }));
+    const response = await command.run(smOrg, encodeSmRequest({ name: "CI" }));
 
     expect(response.success).toBe(true);
     expect(serviceAccountService.create).toHaveBeenCalledWith(
@@ -44,7 +35,7 @@ describe("MachineAccountCreateCommand", () => {
   });
 
   it("requires a name", async () => {
-    const response = await command.run(smOrgId, {});
+    const response = await command.run(smOrg, {});
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`name` is required.");
@@ -52,16 +43,7 @@ describe("MachineAccountCreateCommand", () => {
   });
 
   it("rejects a request for another organization", async () => {
-    const response = await command.run(smOrgId, { organizationId: smOtherOrgId, name: "CI" });
-
-    expect(response.success).toBe(false);
-    expect(serviceAccountService.create).not.toHaveBeenCalled();
-  });
-
-  it("rejects an organization without Secrets Manager access", async () => {
-    mockSmOrganization(accountService, organizationService, false);
-
-    const response = await command.run(smOrgId, { name: "CI" });
+    const response = await command.run(smOrg, { organizationId: smOtherOrgId, name: "CI" });
 
     expect(response.success).toBe(false);
     expect(serviceAccountService.create).not.toHaveBeenCalled();
