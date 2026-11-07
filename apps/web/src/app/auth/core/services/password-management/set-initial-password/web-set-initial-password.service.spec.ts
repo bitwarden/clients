@@ -18,12 +18,15 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import {
   DirectOrganizationInvite,
+  OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -58,6 +61,7 @@ describe("WebSetInitialPasswordService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let routerService: MockProxy<RouterService>;
+  let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
   let registerSdkService: MockProxy<RegisterSdkService>;
   let unlockService: MockProxy<UnlockService>;
@@ -70,6 +74,13 @@ describe("WebSetInitialPasswordService", () => {
     initOrganization: false,
     orgSsoIdentifier: "sso-id",
     orgUserHasExistingUser: false,
+    organizationName: "org-name",
+  });
+
+  const stashedOpenOrgInvite = new OpenOrganizationInvite({
+    organizationId: "org-id",
+    inviteLinkCode: "invite-link-code",
+    inviteKey: "invite-key",
     organizationName: "org-name",
   });
 
@@ -87,6 +98,8 @@ describe("WebSetInitialPasswordService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     organizationInviteService = mock<OrganizationInviteService>();
     routerService = mock<RouterService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
     registerSdkService = mock<RegisterSdkService>();
     unlockService = mock<UnlockService>();
@@ -105,6 +118,7 @@ describe("WebSetInitialPasswordService", () => {
       userDecryptionOptionsService,
       organizationInviteService,
       routerService,
+      configService,
       accountCryptographicStateService,
       registerSdkService,
       unlockService,
@@ -222,6 +236,61 @@ describe("WebSetInitialPasswordService", () => {
       });
     });
 
+    describe("given the initial password was successfully set and an open org invite is stashed", () => {
+      beforeEach(() => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOpenOrgInvite);
+      });
+
+      it("should NOT clear the login redirect URL or the org invite when InviteLinkAutoConfirm is on", async () => {
+        // Arrange
+        configService.getFeatureFlag.mockImplementation(
+          async (flag) => flag === FeatureFlag.InviteLinkAutoConfirm,
+        );
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+        expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+      });
+
+      it("should clear the login redirect URL and the org invite when InviteLinkAutoConfirm is off", async () => {
+        // Arrange
+        configService.getFeatureFlag.mockResolvedValue(false);
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+        expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe("given the initial password was successfully set and a direct org invite is stashed while InviteLinkAutoConfirm is on", () => {
+      it("should clear the login redirect URL and the org invite", async () => {
+        // Arrange
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
+        configService.getFeatureFlag.mockImplementation(
+          async (flag) => flag === FeatureFlag.InviteLinkAutoConfirm,
+        );
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+        expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
+      });
+    });
+
     describe("given the initial password was successfully set and no org invite is stashed", () => {
       beforeEach(() => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
@@ -305,6 +374,52 @@ describe("WebSetInitialPasswordService", () => {
     it("should call routerService.getAndClearLoginRedirectUrl() and organizationInviteService.clearOrganizationInvite() when an org invite is stashed", async () => {
       // Arrange
       organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(superSpy).toHaveBeenCalledWith(credentials, userId);
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
+    });
+
+    it("should NOT clear the login redirect URL or the org invite when an open org invite is stashed and InviteLinkAutoConfirm is on", async () => {
+      // Arrange
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOpenOrgInvite);
+      configService.getFeatureFlag.mockImplementation(
+        async (flag) => flag === FeatureFlag.InviteLinkAutoConfirm,
+      );
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(superSpy).toHaveBeenCalledWith(credentials, userId);
+      expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should clear the login redirect URL and the org invite when a direct org invite is stashed and InviteLinkAutoConfirm is on", async () => {
+      // Arrange
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
+      configService.getFeatureFlag.mockImplementation(
+        async (flag) => flag === FeatureFlag.InviteLinkAutoConfirm,
+      );
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(superSpy).toHaveBeenCalledWith(credentials, userId);
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
+    });
+
+    it("should clear the login redirect URL and the org invite when an open org invite is stashed and InviteLinkAutoConfirm is off", async () => {
+      // Arrange
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOpenOrgInvite);
+      configService.getFeatureFlag.mockResolvedValue(false);
 
       // Act
       await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
