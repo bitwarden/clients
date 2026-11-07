@@ -268,6 +268,7 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1, url }),
         0,
+        undefined,
       );
       // Selection is by url; a page-load prefers last-used (no recent last-launched by default).
       expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(url, "user-1", true);
@@ -380,6 +381,7 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1 }),
         3,
+        undefined,
       );
       expect(autofillService.doAutoFill).toHaveBeenCalled();
     });
@@ -582,7 +584,11 @@ describe("DefaultAutofillOrchestrator", () => {
 
       // The orchestrator owns the collect: it asks for every frame (no frame id) rather than
       // being handed a pre-collected page detail.
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, undefined);
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
+        pd.tab,
+        undefined,
+        true,
+      );
       // A command selects the next cipher in the url's rotation and fills with command options.
       expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1");
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
@@ -982,7 +988,11 @@ describe("DefaultAutofillOrchestrator", () => {
 
       const result = await autofillOrchestrator.collectPageDetails(pd.tab);
 
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, undefined);
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
+        pd.tab,
+        undefined,
+        undefined,
+      );
       expect(result).toEqual([pd]);
     });
 
@@ -992,7 +1002,7 @@ describe("DefaultAutofillOrchestrator", () => {
 
       await autofillOrchestrator.collectPageDetails(pd.tab, 2);
 
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 2);
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 2, undefined);
     });
 
     it("collectAutofillTriage resolves the tab's triage response", async () => {
@@ -1181,7 +1191,11 @@ describe("DefaultAutofillOrchestrator", () => {
       emitAutomatedLoginStep(pd);
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, pd.frameId);
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
+        pd.tab,
+        pd.frameId,
+        undefined,
+      );
       expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(
         DEFAULT_URL,
         "user-1",
