@@ -1,6 +1,12 @@
 import { mock } from "jest-mock-extended";
 
-import { SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
+import {
+  SecretProjectView,
+  ProjectService,
+  ProjectView,
+  SecretService,
+  SecretView,
+} from "@bitwarden/bit-sm";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 
@@ -16,6 +22,7 @@ import { SecretEditCommand } from "./secret-edit.command";
 
 describe("SecretEditCommand", () => {
   const secretService = mock<SecretService>();
+  const projectService = mock<ProjectService>();
   const secretId = "22222222-2222-2222-2222-222222222222";
   const projectId = "33333333-3333-3333-3333-333333333333";
   const otherProjectId = "44444444-4444-4444-4444-444444444444";
@@ -39,7 +46,14 @@ describe("SecretEditCommand", () => {
     secretService.update.mockImplementation(async (_orgId, view) =>
       Object.assign(new SecretView(), view),
     );
-    command = new SecretEditCommand(secretService);
+    projectService.getByProjectId.mockResolvedValue(
+      Object.assign(new ProjectView(), {
+        id: otherProjectId,
+        organizationId: smOrgId,
+        name: "Frontend",
+      }),
+    );
+    command = new SecretEditCommand(secretService, projectService);
   });
 
   it("changes only the given properties and records a value change", async () => {
@@ -99,6 +113,27 @@ describe("SecretEditCommand", () => {
       undefined,
       false,
     );
+  });
+
+  it("keeps the project name when the server omits an unchanged project", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+    secretService.update.mockImplementation(async (_orgId, view) =>
+      Object.assign(new SecretView(), view, { projects: undefined }),
+    );
+
+    const response = await command.run(smOrg, secretId, { note: "new" });
+
+    expect(projectService.getByProjectId).not.toHaveBeenCalled();
+    expect(response.data).toMatchObject({ projects: [{ id: projectId, name: "Backend" }] });
+  });
+
+  it("looks up the name of a project the secret is moved to", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+    const response = await command.run(smOrg, secretId, { projectIds: [otherProjectId] });
+
+    expect(projectService.getByProjectId).toHaveBeenCalledWith(otherProjectId, true);
+    expect(response.data).toMatchObject({ projects: [{ id: otherProjectId, name: "Frontend" }] });
   });
 
   it("rejects a secret the user cannot write", async () => {

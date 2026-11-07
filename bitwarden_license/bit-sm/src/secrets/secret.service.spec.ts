@@ -88,56 +88,6 @@ describe("SecretService", () => {
     });
   });
 
-  describe("project names", () => {
-    const unnamedResponse = () => ({
-      ...mockedSecretResponse,
-      projects: [{ id: "502d93ae-a084-490a-8a64-b187015eb69c", name: null }],
-    });
-
-    it("create returns project names when the server omits them", async () => {
-      apiService.send
-        .mockResolvedValueOnce(unnamedResponse())
-        .mockResolvedValueOnce(mockedSecretResponse);
-
-      const result = await sut.create("organizationId", secretView);
-
-      expect(result.projects).toEqual(expectedSecretView.projects);
-      expect(apiService.send).toHaveBeenLastCalledWith(
-        "GET",
-        "/secrets/" + secretView.id,
-        null,
-        true,
-        true,
-      );
-    });
-
-    it("update returns project names when the server omits the projects", async () => {
-      apiService.send
-        .mockResolvedValueOnce({ ...mockedSecretResponse, projects: null })
-        .mockResolvedValueOnce(mockedSecretResponse);
-
-      const result = await sut.update("organizationId", secretView);
-
-      expect(result.projects).toEqual(expectedSecretView.projects);
-    });
-
-    it("does not refetch when the response already names the projects", async () => {
-      apiService.send.mockResolvedValue(mockedSecretResponse);
-
-      await sut.create("organizationId", secretView);
-
-      expect(apiService.send).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not refetch when no projects were requested", async () => {
-      apiService.send.mockResolvedValue({ ...mockedSecretResponse, projects: null });
-
-      await sut.create("organizationId", { ...secretView, projects: [] });
-
-      expect(apiService.send).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe("update", () => {
     it("emits the secret updated", async () => {
       apiService.send.mockResolvedValue(mockedSecretResponse);
