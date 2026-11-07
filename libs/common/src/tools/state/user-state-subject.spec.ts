@@ -13,7 +13,7 @@ import { Account } from "../../auth/abstractions/account.service";
 import { GENERATOR_DISK, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { LegacyEncryptorProvider } from "../cryptography/legacy-encryptor-provider";
-import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
+import { SubjectKeyEncryptor } from "../cryptography/subject-key-encryptor.abstraction";
 import { disabledSemanticLoggerProvider } from "../log";
 import { PrivateClassifier } from "../private-classifier";
 import { StateConstraints } from "../types";
@@ -62,8 +62,9 @@ const SomeObjectKey = {
   },
 } satisfies ObjectKey<TestType>;
 
-const SomeEncryptor: UserEncryptor = {
+const SomeEncryptor: SubjectKeyEncryptor = {
   userId: SomeUser,
+  subjectId: "generator/TestKey",
 
   encrypt(secret) {
     const tmp: any = secret;
@@ -84,9 +85,12 @@ const SomeStateProvider = new FakeStateProvider(SomeAccountService);
 
 const SomeProvider = {
   encryptor: {
-    userEncryptor$: jest.fn(() => {
+    subjectEncryptor$: jest.fn(() => {
       return new BehaviorSubject({ encryptor: SomeEncryptor, userId: SomeUser }).asObservable();
     }),
+    userEncryptor$() {
+      throw new Error("`userEncryptor$` should never be invoked.");
+    },
     organizationEncryptor$() {
       throw new Error("`organizationEncryptor$` should never be invoked.");
     },
