@@ -1241,6 +1241,9 @@
   "controlledAccess": {
     "message": "Controlled access"
   },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Privileged controls: access requires a request"
+  },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"
   },

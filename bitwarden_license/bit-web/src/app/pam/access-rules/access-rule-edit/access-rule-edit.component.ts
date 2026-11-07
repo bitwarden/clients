@@ -39,7 +39,7 @@ import {
   resolveCollectionNames,
   snapToNearestAccessRuleDuration,
 } from "@bitwarden/bit-pam";
-import { accessRuleDeleteConfirmOptions } from "@bitwarden/bit-pam-components";
+import { accessRuleDeleteConfirmOptions, DurationLongPipe } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -114,6 +114,7 @@ import {
     SpinnerComponent,
     TypographyModule,
     I18nPipe,
+    DurationLongPipe,
     ContainerComponent,
   ],
 })
@@ -389,7 +390,7 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
       // rejection would go unseen.
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamAccessRuleCollectionsLoadError"),
+        message: this.i18nService.t("pamAccessRuleSharedFoldersLoadError"),
       });
     } finally {
       this.allCollectionsLoading.set(false);
@@ -461,14 +462,14 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
 
   /** Names the collections at fault, since the server reports only that a conflict exists. */
   private async fieldSaveErrorMessage(messageKey: string): Promise<string> {
-    if (messageKey !== "pamAccessRuleErrorCollectionsGoverned") {
+    if (messageKey !== "pamAccessRuleErrorSharedFoldersGoverned") {
       return this.i18nService.t(messageKey);
     }
 
     const names = await this.conflictingCollectionNames();
     return names.length === 0
       ? this.i18nService.t(messageKey)
-      : this.i18nService.t("pamAccessRuleErrorCollectionsGovernedNamed", names.join(", "));
+      : this.i18nService.t("pamAccessRuleErrorSharedFoldersGovernedNamed", names.join(", "));
   }
 
   /**

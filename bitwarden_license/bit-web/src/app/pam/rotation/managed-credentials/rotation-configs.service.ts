@@ -1,30 +1,36 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable, OnDestroy, inject } from "@angular/core";
 import { BehaviorSubject, Observable, combineLatest, map, switchMap } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
+import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigId, RotationConfigView } from "../rotation";
+import { AccessConnector, RotationConfigId, RotationConfigView } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
+
+const ACTIVE_JOB_POLL_MS = 5000;
 
 /**
  * Data service for the managed credentials tab, provided at the rotation shell route so the tabs
  * share one load. Pause, resume and record-manual patch local state first and roll back on failure.
  */
 @Injectable()
-export class RotationConfigsService {
+export class RotationConfigsService implements OnDestroy {
   private readonly rotationSdk = inject(RotationSdkService);
   private readonly targetSystems = inject(TargetSystemsService);
   private readonly orgCiphers = inject(OrgCiphersService);
+  private readonly accessConnectorsService = inject(AccessConnectorsService);
 
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
   /** Incremented per {@link load} call so a superseded call can drop its outcome. */
   private loadGeneration = 0;
+
+  private pollTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readonly _configs$ = new BehaviorSubject<RotationConfigView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
@@ -43,13 +49,25 @@ export class RotationConfigsService {
     map((configs) => configs.filter((c) => c.awaitingManualRotation).length),
   );
 
+  /**
+   * The access connectors once read successfully, else `null`. An unread or failed list would
+   * otherwise look like an org with no connectors and mark every automatic credential Not
+   * connected.
+   */
+  private readonly connectorsIfKnown$: Observable<AccessConnector[] | null> = combineLatest([
+    this.accessConnectorsService.accessConnectors$,
+    this.accessConnectorsService.loading$,
+    this.accessConnectorsService.loadError$,
+  ]).pipe(map(([connectors, loading, error]) => (loading || error != null ? null : connectors)));
+
   readonly rows$: Observable<RotationConfigRow[]> = combineLatest([
     this._configs$,
     this.targetSystems.systemById$,
     this.orgCiphers.cipherNameById$,
+    this.connectorsIfKnown$,
   ]).pipe(
     // `switchMap`, not `concatMap`: a newer emission wholly supersedes an in-flight older one.
-    switchMap(async ([configs, systemById, cipherNameById]) => {
+    switchMap(async ([configs, systemById, cipherNameById, connectors]) => {
       const descriptions = await this.rotationSdk.describeConfigs(
         configs,
         new Map([...systemById].map(([id, system]) => [id, system.status])),
@@ -65,6 +83,7 @@ export class RotationConfigsService {
                 systemById.get(config.targetSystemId),
                 cipherNameById.get(config.cipherId),
                 description,
+                connectors,
               ),
             ]
           : [];
@@ -91,7 +110,7 @@ export class RotationConfigsService {
       if (generation !== this.loadGeneration) {
         return;
       }
-      this._configs$.next(configs);
+      this.setConfigs(configs);
       this._loadError$.next(null);
     } catch (e) {
       if (generation !== this.loadGeneration) {
@@ -151,7 +170,7 @@ export class RotationConfigsService {
 
   async delete(config: RotationConfigView): Promise<void> {
     await this.rotationSdk.deleteConfig(this.requireOrganizationId(), config.id);
-    this._configs$.next(this._configs$.value.filter((c) => c.id !== config.id));
+    this.setConfigs(this._configs$.value.filter((c) => c.id !== config.id));
   }
 
   private requireOrganizationId(): OrganizationId {
@@ -162,11 +181,57 @@ export class RotationConfigsService {
   }
 
   private patchConfig(id: RotationConfigId, patch: Partial<RotationConfigView>): void {
-    this._configs$.next(
+    this.setConfigs(
       this._configs$.value.map((c) =>
         // A view crosses the WASM boundary as a plain object, so a spread is a faithful copy.
         c.id === id ? { ...c, ...patch } : c,
       ),
     );
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+
+  private setConfigs(configs: RotationConfigView[]): void {
+    this._configs$.next(configs);
+    this.syncPolling();
+  }
+
+  /**
+   * A running job finishes on the server with nothing pushed to the client, so the list is re-read
+   * on a timer for as long as any row has one.
+   */
+  private syncPolling(): void {
+    if (!this._configs$.value.some((c) => c.hasActiveJob)) {
+      this.stopPolling();
+      return;
+    }
+    this.pollTimer ??= setTimeout(() => void this.poll(), ACTIVE_JOB_POLL_MS);
+  }
+
+  private stopPolling(): void {
+    if (this.pollTimer != null) {
+      clearTimeout(this.pollTimer);
+      this.pollTimer = null;
+    }
+  }
+
+  private async poll(): Promise<void> {
+    this.pollTimer = null;
+    const organizationId = this.organizationId;
+    if (organizationId == null) {
+      return;
+    }
+    const generation = this.loadGeneration;
+    try {
+      const configs = await this.rotationSdk.listConfigs(organizationId);
+      if (generation !== this.loadGeneration) {
+        return;
+      }
+      this.setConfigs(configs);
+    } catch {
+      this.syncPolling();
+    }
   }
 }

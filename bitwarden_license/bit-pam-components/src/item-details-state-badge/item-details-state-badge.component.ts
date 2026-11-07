@@ -31,6 +31,7 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 

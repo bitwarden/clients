@@ -91,6 +91,24 @@
         [options]="nestedFolderOptions()"
       ></bit-filter-menu>
     }
+
+    @if (itemFilter != null && controlledAccessOptions().length) {
+      <bit-filter-menu
+        [key]="controlledAccessKey"
+        [placeholderText]="itemFilter.label"
+        multiple
+        [icon]="itemFilter.icon"
+      >
+        @for (option of controlledAccessOptions(); track option.id) {
+          <bit-filter-option
+            [value]="option.id"
+            [iconTile]="controlledAccessTiles().get(option.id)"
+            [count]="controlledAccessCount(option.id)"
+            >{{ option.name }}</bit-filter-option
+          >
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
   <app-vault-filters-tour [toolbar]="toolbar" />
   <!--
@@ -166,15 +184,16 @@
                   [appA11yTitle]="'attachments' | i18n"
                 ></bit-icon>
               }
+              <app-vault-row-access-icon [cipher]="row.cipher"></app-vault-row-access-icon>
             </div>
           </div>
           <span class="tw-text-muted tw-text-xs tw-truncate">
-            {{ CipherViewLikeUtils.subtitle(row.cipher, i18nService) }}
+            <app-vault-row-subtitle [cipher]="row.cipher"></app-vault-row-subtitle>
           </span>
         </div>
       </button>
       <div slot="end" class="tw-flex tw-items-center tw-shrink-0 tw-relative tw-z-10">
-        @if (row.actions.showFillOnHover) {
+        @if (row.actions.showFillOnHover && !isGated(row.cipher)) {
           <button
             type="button"
             (click)="doAutofill(row.cipher)"
@@ -184,7 +203,11 @@
             {{ "fill" | i18n }}
           </button>
         }
-        @if (row.actions.showLaunch && CipherViewLikeUtils.canLaunch(row.cipher)) {
+        @if (
+          row.actions.showLaunch &&
+          CipherViewLikeUtils.canLaunch(row.cipher) &&
+          !isGated(row.cipher)
+        ) {
           <button
             type="button"
             bitIconButton="bwi-external-link"
@@ -193,7 +216,9 @@
             [label]="'launchWebsiteForName' | i18n: row.cipher.name"
           ></button>
         }
-        <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        @if (!isGated(row.cipher)) {
+          <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        }
         <app-item-more-options
           [cipher]="row.cipher"
           [showAutofill]="row.actions.showAutofillInMenu"

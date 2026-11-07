@@ -1004,7 +1004,6 @@ export class ServiceContainer {
       this.accountService,
       this.logService,
       this.cipherEncryptionService,
-      this.messagingService,
       this.cipherSdkService,
     );
 

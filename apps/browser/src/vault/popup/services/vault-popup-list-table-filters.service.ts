@@ -65,6 +65,8 @@ interface CachedTableFilterState {
   collectionIds?: string[];
   folderIds?: string[];
   cipherType?: CipherType | null;
+  /** Option ids of the contributed Controlled access chip (`VAULT_ITEM_FILTER`). */
+  controlledAccessIds?: string[];
 }
 
 /**
@@ -239,6 +241,7 @@ export class VaultPopupListTableFiltersService {
       filters.organizationIds?.length ||
       filters.collectionIds?.length ||
       filters.folderIds?.length ||
+      filters.controlledAccessIds?.length ||
       filters.cipherType != null
     );
   });
@@ -278,6 +281,7 @@ export class VaultPopupListTableFiltersService {
         organization: filters.organizationIds ?? [],
         collection: filters.collectionIds ?? [],
         folder: filters.folderIds ?? [],
+        controlledAccess: filters.controlledAccessIds ?? [],
       };
     }),
   );
@@ -313,6 +317,7 @@ export class VaultPopupListTableFiltersService {
     organization?: string[];
     collection?: string[];
     folder?: string[];
+    controlledAccess?: string[];
   }): void {
     const userId = this.activeUserId();
     if (userId == null) {
@@ -328,6 +333,7 @@ export class VaultPopupListTableFiltersService {
         collectionIds: values.collection ?? [],
         folderIds: values.folder ?? [],
         cipherType: values.cipherType ?? null,
+        controlledAccessIds: values.controlledAccess ?? [],
       },
     }));
   }
@@ -345,6 +351,7 @@ export class VaultPopupListTableFiltersService {
     organization?: string[];
     collection?: string[];
     folder?: string[];
+    controlledAccess?: string[];
   }> {
     return combineLatest([
       this.organizations$,
@@ -363,6 +370,7 @@ export class VaultPopupListTableFiltersService {
           organization?: string[];
           collection?: string[];
           folder?: string[];
+          controlledAccess?: string[];
         } = {};
 
         if (state.organizationIds?.length) {
@@ -392,6 +400,12 @@ export class VaultPopupListTableFiltersService {
 
         if (state.cipherType != null) {
           result.cipherType = state.cipherType;
+        }
+
+        // Not validated here: the service does not know the options, and the table passes every
+        // row for an id the provider does not offer.
+        if (state.controlledAccessIds?.length) {
+          result.controlledAccess = state.controlledAccessIds;
         }
 
         return result;

@@ -1,7 +1,7 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { RouterLink } from "@angular/router";
 
+import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import {
   BadgeModule,
   CopyClickDirective,
@@ -14,6 +14,7 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 import { ResolvedMember } from "@bitwarden/web-vault/app/dirt/event-logs/components/send-access-member";
 
@@ -41,7 +42,6 @@ export type AuditEventDrawerParams = {
   templateUrl: "./audit-event-drawer.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     RouterLink,
     BadgeModule,
     CopyClickDirective,
@@ -49,9 +49,11 @@ export type AuditEventDrawerParams = {
     IconButtonModule,
     LinkModule,
     I18nPipe,
+    TimestampPipe,
   ],
 })
 export class AuditEventDrawerComponent {
+  protected readonly vfo1Terminology = inject(Vfo1TerminologyService);
   private readonly dialogService = inject(DialogService);
   /** Optional, since a story renders the pane without a drawer. */
   private readonly dialogRef = inject(DialogRef, { optional: true });
