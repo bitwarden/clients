@@ -1,4 +1,4 @@
-import { BulkOperationStatus } from "@bitwarden/bit-sm/models/bulk-operation-status";
+import { BulkOperationStatus } from "@bitwarden/bit-sm";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 export class SmBulkStatusResponse implements BaseResponse {

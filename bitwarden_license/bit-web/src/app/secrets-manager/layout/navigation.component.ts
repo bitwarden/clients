@@ -16,12 +16,14 @@ import {
 } from "rxjs";
 
 import { SecretsManagerLogo } from "@bitwarden/assets/svg";
-import { OrganizationCounts } from "@bitwarden/bit-sm/models/view/counts.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
-import { SecretsManagerPortingApiService } from "@bitwarden/bit-sm/settings/services/sm-porting-api.service";
-import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
+import {
+  CountService,
+  OrganizationCounts,
+  ProjectService,
+  SecretService,
+  SecretsManagerPortingApiService,
+  ServiceAccountService,
+} from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

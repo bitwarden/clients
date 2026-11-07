@@ -6,8 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
-import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
+import { ProjectListView, ProjectView } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

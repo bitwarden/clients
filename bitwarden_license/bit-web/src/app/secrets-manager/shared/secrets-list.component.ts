@@ -14,9 +14,7 @@ import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretListView, SecretService, SecretView } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

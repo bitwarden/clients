@@ -8,7 +8,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -52,6 +51,7 @@ describe("SendCreateCommand", () => {
       getSendUrl: () => "https://send.bitwarden.com/#",
     } as any);
     configService.getFeatureFlag.mockResolvedValue(false);
+    policyService.policiesByType$.mockReturnValue(of([]));
 
     command = new SendCreateCommand(
       sendService,
@@ -364,13 +364,25 @@ describe("SendCreateCommand", () => {
     });
   });
 
-  it("with SendControls feature flag OFF, policy enforcement function is not called", async () => {
-    policyService.policiesByType$.mockReturnValue(of([]));
+  it("enforces whoCanAccess with SpecificPeople and domains", async () => {
+    policyService.policiesByType$.mockReturnValue(
+      of([
+        {
+          type: PolicyType.SendControls,
+          data: {
+            whoCanAccess: WhoCanAccessType.SpecificPeople,
+            allowedDomains: "bitwarden.com",
+          },
+        } as any as Policy,
+      ]),
+    );
 
     const requestJson = {
       type: SendType.Text,
       text: { text: "Test Send", hidden: false },
       deletionDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      authType: AuthType.Email,
+      emails: ["user@badguys.com"],
     };
 
     sendApiService.saveView.mockResolvedValue({ id: "send-id" } as any);
@@ -379,84 +391,45 @@ describe("SendCreateCommand", () => {
     } as any);
 
     const response = await command.run(requestJson, {});
-    expect(response.success).toEqual(true);
-    expect(policyService.policiesByType$).not.toHaveBeenCalled();
+    expect(response.success).toEqual(false);
+    expect(response.message).toEqual(
+      "Organization policy restricts email domains. The following emails are not allowed: user@badguys.com. Allowed domains: bitwarden.com.",
+    );
   });
 
-  describe("with SendControls feature flag ON", () => {
-    it("enforces whoCanAccess with SpecificPeople and domains", async () => {
-      // Turn on the SendControls policy feature flag and mock the policy
-      configService.getFeatureFlag.mockResolvedValue(true);
-      policyService.policiesByType$.mockReturnValue(
-        of([
-          {
-            type: PolicyType.SendControls,
-            data: {
-              whoCanAccess: WhoCanAccessType.SpecificPeople,
-              allowedDomains: "bitwarden.com",
-            },
-          } as any as Policy,
-        ]),
-      );
+  it("enforces deletionHours from policy over user command input", async () => {
+    policyService.policiesByType$.mockReturnValue(
+      of([
+        {
+          type: PolicyType.SendControls,
+          data: {
+            deletionHours: 24,
+          },
+        } as any as Policy,
+      ]),
+    );
 
-      const requestJson = {
-        type: SendType.Text,
-        text: { text: "Test Send", hidden: false },
-        deletionDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        authType: AuthType.Email,
-        emails: ["user@badguys.com"],
-      };
+    const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    const requestJson = {
+      type: SendType.Text,
+      text: { text: "Test Send", hidden: false },
+      deletionDate: threeDaysFromNow,
+    };
+    const cmdOptions = {
+      deleteInDays: 3,
+    };
 
-      sendApiService.saveView.mockResolvedValue({ id: "send-id" } as any);
-      sendService.getFromState.mockResolvedValue({
-        decrypt: jest.fn().mockResolvedValue({}),
-      } as any);
+    sendApiService.saveView.mockResolvedValue({ id: "send-id" } as any);
+    sendService.getFromState.mockResolvedValue({
+      decrypt: jest.fn().mockResolvedValue({}),
+    } as any);
 
-      const response = await command.run(requestJson, {});
-      expect(response.success).toEqual(false);
-      expect(response.message).toEqual(
-        "Organization policy restricts email domains. The following emails are not allowed: user@badguys.com. Allowed domains: bitwarden.com.",
-      );
-    });
-
-    it("enforces deletionHours from policy over user command input", async () => {
-      // Turn on the SendControls policy feature flag and mock the policy
-      configService.getFeatureFlag.mockImplementation(async (flag) => {
-        return flag === FeatureFlag.SendControls;
-      });
-      policyService.policiesByType$.mockReturnValue(
-        of([
-          {
-            type: PolicyType.SendControls,
-            data: {
-              deletionHours: 24,
-            },
-          } as any as Policy,
-        ]),
-      );
-
-      const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
-      const requestJson = {
-        type: SendType.Text,
-        text: { text: "Test Send", hidden: false },
-        deletionDate: threeDaysFromNow,
-      };
-      const cmdOptions = {
-        deleteInDays: 3,
-      };
-
-      sendApiService.saveView.mockResolvedValue({ id: "send-id" } as any);
-      sendService.getFromState.mockResolvedValue({
-        decrypt: jest.fn().mockResolvedValue({}),
-      } as any);
-
-      const response = await command.run(requestJson, cmdOptions);
-      expect(response.success).toEqual(true);
-      const savedSendView = sendApiService.saveView.mock.calls[0][0];
-      // We expect the deletion date to have been set to 24 hours from now, plus or minus a minute for clock skew
-      expect(
-        Math.abs(savedSendView.deletionDate.getTime() - 24 * 60 * 60 * 1000 - Date.now()),
-      ).toBeLessThan(60 * 1000);
-    });
+    const response = await command.run(requestJson, cmdOptions);
+    expect(response.success).toEqual(true);
+    const savedSendView = sendApiService.saveView.mock.calls[0][0];
+    // We expect the deletion date to have been set to 24 hours from now, plus or minus a minute for clock skew
+    expect(
+      Math.abs(savedSendView.deletionDate.getTime() - 24 * 60 * 60 * 1000 - Date.now()),
+    ).toBeLessThan(60 * 1000);
   });
 });

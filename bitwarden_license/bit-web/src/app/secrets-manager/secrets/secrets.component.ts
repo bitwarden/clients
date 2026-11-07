@@ -4,8 +4,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretListView, SecretService } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

@@ -4,8 +4,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatestWith, Observable, startWith, switchMap } from "rxjs";
 
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretListView, SecretService } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CenterPositionStrategy, DialogService } from "@bitwarden/components";

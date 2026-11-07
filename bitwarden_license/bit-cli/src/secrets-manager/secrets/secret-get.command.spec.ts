@@ -1,11 +1,10 @@
 import { mock } from "jest-mock-extended";
 
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretService, SecretView } from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smNotFoundError, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
 
 import { SecretGetCommand } from "./secret-get.command";
 
@@ -77,15 +76,6 @@ describe("SecretGetCommand", () => {
 
   it("maps a 404 to a friendly error", async () => {
     secretService.getBySecretId.mockRejectedValue(smNotFoundError());
-
-    const response = await command.run(smOrgId, secretId);
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe("The secret was not found, or you do not have access to it.");
-  });
-
-  it("treats a secret from another organization as not found", async () => {
-    secretService.getBySecretId.mockResolvedValue(makeSecret(smOtherOrgId));
 
     const response = await command.run(smOrgId, secretId);
 

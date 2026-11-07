@@ -1,21 +1,17 @@
 import { mock } from "jest-mock-extended";
 
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretListView, SecretService } from "@bitwarden/bit-sm";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { SmSecretResponse } from "../models/sm-secret.response";
-import { mockSmOrganization, smNotFoundError, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
 
 import { SecretListCommand } from "./secret-list.command";
 
 describe("SecretListCommand", () => {
   const secretService = mock<SecretService>();
-  const projectService = mock<ProjectService>();
   const organizationService = mock<OrganizationService>();
   const accountService = mock<AccountService>();
   const projectId = "33333333-3333-3333-3333-333333333333";
@@ -31,15 +27,7 @@ describe("SecretListCommand", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSmOrganization(accountService, organizationService);
-    projectService.getByProjectId.mockResolvedValue(
-      Object.assign(new ProjectView(), { id: projectId, organizationId: smOrgId, name: "Backend" }),
-    );
-    command = new SecretListCommand(
-      secretService,
-      projectService,
-      organizationService,
-      accountService,
-    );
+    command = new SecretListCommand(secretService, organizationService, accountService);
   });
 
   it("lists the organization's secrets without values", async () => {
@@ -64,21 +52,8 @@ describe("SecretListCommand", () => {
     const response = await command.run(smOrgId, projectId);
 
     expect(response.success).toBe(true);
-    expect(projectService.getByProjectId).toHaveBeenCalledWith(projectId, true);
     expect(secretService.getSecretsByProject).toHaveBeenCalledWith(smOrgId, projectId);
     expect(secretService.getSecrets).not.toHaveBeenCalled();
-  });
-
-  it("rejects a project from another organization", async () => {
-    projectService.getByProjectId.mockResolvedValue(
-      Object.assign(new ProjectView(), { id: projectId, organizationId: smOtherOrgId }),
-    );
-
-    const response = await command.run(smOrgId, projectId);
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe("The project was not found, or you do not have access to it.");
-    expect(secretService.getSecretsByProject).not.toHaveBeenCalled();
   });
 
   it("rejects an invalid organization id", async () => {
@@ -108,7 +83,7 @@ describe("SecretListCommand", () => {
   });
 
   it("maps a 404 on a project to a friendly error", async () => {
-    projectService.getByProjectId.mockRejectedValue(smNotFoundError());
+    secretService.getSecretsByProject.mockRejectedValue(smNotFoundError());
 
     const response = await command.run(smOrgId, projectId);
 
