@@ -1,10 +1,16 @@
-import { CountService, ServiceAccountService } from "@bitwarden/bit-sm";
+import { CountService, ProjectService, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 
 import { ServiceContainer } from "../../service-container";
 import { resolveSmMachineAccountId } from "../access-tokens/sm-access-token.utils";
 import { SmCountsResponse } from "../models/sm-counts.response";
-import { parseSmId, SmOrganization, smErrorResponse } from "../sm-command.utils";
+import {
+  isInSmOrganization,
+  parseSmId,
+  SmOrganization,
+  smErrorResponse,
+  smNotFoundResponse,
+} from "../sm-command.utils";
 
 export type CountsOptions = {
   projectId?: string;
@@ -14,6 +20,7 @@ export type CountsOptions = {
 export class CountsCommand {
   constructor(
     private countService: CountService,
+    private projectService: ProjectService,
     private serviceAccountService: ServiceAccountService,
   ) {}
 
@@ -28,6 +35,10 @@ export class CountsCommand {
         return project.error;
       }
       try {
+        const view = await this.projectService.getByProjectId(project.id, true);
+        if (!isInSmOrganization(view, org)) {
+          return smNotFoundResponse("project");
+        }
         const counts = await this.countService.getProjectCounts(project.id);
         return Response.success(
           new SmCountsResponse("project", project.id, {
@@ -81,6 +92,10 @@ export class CountsCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new CountsCommand(serviceContainer.countService, serviceContainer.serviceAccountService);
+    return new CountsCommand(
+      serviceContainer.countService,
+      serviceContainer.projectService,
+      serviceContainer.serviceAccountService,
+    );
   }
 }

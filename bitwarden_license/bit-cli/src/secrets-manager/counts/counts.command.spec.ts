@@ -3,7 +3,9 @@ import { mock } from "jest-mock-extended";
 import {
   CountService,
   OrganizationCountsResponse,
+  ProjectService,
   ProjectCountsResponse,
+  ProjectView,
   ServiceAccountCountsResponse,
   ServiceAccountService,
   ServiceAccountView,
@@ -15,6 +17,7 @@ import { CountsCommand } from "./counts.command";
 
 describe("CountsCommand", () => {
   const countService = mock<CountService>();
+  const projectService = mock<ProjectService>();
   const serviceAccountService = mock<ServiceAccountService>();
   const projectId = "22222222-2222-2222-2222-222222222222";
   const machineAccountId = "33333333-3333-3333-3333-333333333333";
@@ -22,10 +25,13 @@ describe("CountsCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    projectService.getByProjectId.mockResolvedValue(
+      Object.assign(new ProjectView(), { id: projectId, organizationId: smOrgId }),
+    );
     serviceAccountService.getByServiceAccountId.mockResolvedValue(
       Object.assign(new ServiceAccountView(), { id: machineAccountId, organizationId: smOrgId }),
     );
-    command = new CountsCommand(countService, serviceAccountService);
+    command = new CountsCommand(countService, projectService, serviceAccountService);
   });
 
   it("returns organization counts by default", async () => {
@@ -82,12 +88,24 @@ describe("CountsCommand", () => {
   });
 
   it("maps a 404 on a project to a friendly error", async () => {
-    countService.getProjectCounts.mockRejectedValue(smNotFoundError());
+    projectService.getByProjectId.mockRejectedValue(smNotFoundError());
 
     const response = await command.run(smOrg, { projectId });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("The project was not found, or you do not have access to it.");
+  });
+
+  it("rejects a project from another organization", async () => {
+    projectService.getByProjectId.mockResolvedValue(
+      Object.assign(new ProjectView(), { id: projectId, organizationId: smOtherOrgId }),
+    );
+
+    const response = await command.run(smOrg, { projectId });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("The project was not found, or you do not have access to it.");
+    expect(countService.getProjectCounts).not.toHaveBeenCalled();
   });
 
   it("rejects a machine account from another organization", async () => {
