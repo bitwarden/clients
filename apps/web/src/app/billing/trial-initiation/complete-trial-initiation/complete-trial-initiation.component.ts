@@ -5,11 +5,8 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import {
-  InputPasswordFlow,
-  PasswordInputResult,
-  RegistrationFinishService,
-} from "@bitwarden/auth/angular";
+import { RegistrationFinishService } from "@bitwarden/angular/auth/registration";
+import { InputPasswordFlow, PasswordInputResult } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";

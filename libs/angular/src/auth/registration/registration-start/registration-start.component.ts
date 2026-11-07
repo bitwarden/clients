@@ -6,8 +6,10 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LoginEmailService } from "@bitwarden/auth/common";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
 import { RegisterStartOpenOrgInviteRequest } from "@bitwarden/common/auth/models/request/registration/register-start-open-org-invite.request";
@@ -16,8 +18,6 @@ import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/en
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   ANON_LAYOUT_DEFAULTS,
   AnonLayoutWrapperDataService,
@@ -29,7 +29,7 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
-import { LoginEmailService } from "../../../common";
+import { JslibModule } from "../../../jslib.module";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
 // FIXME: update to use a const object instead of a typescript enum
