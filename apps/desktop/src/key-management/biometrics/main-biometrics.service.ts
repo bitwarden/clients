@@ -1,3 +1,5 @@
+import { app } from "electron";
+
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -15,9 +17,23 @@ import { DesktopBiometricsService } from "./desktop.biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
 
+/**
+ * How long a platform biometrics status is reused before the OS is asked again. The lock screen
+ * and the settings dialog poll the status every second, and each OS check is expensive: on macOS
+ * it creates a new LocalAuthentication context, and on Linux it opens a Secret Service session and
+ * queries polkit.
+ */
+const BiometricsStatusCacheMs = 30_000;
+
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
   private shouldAutoPrompt = true;
+  private biometricsStatusCacheMs = BiometricsStatusCacheMs;
+  private cachedBiometricsStatus: { status: BiometricsStatus; expiresAt: number } | null = null;
+  private pendingBiometricsStatus: Promise<BiometricsStatus> | null = null;
+  // Bumped whenever the cached status is dropped, so a check that was already running can tell
+  // that its answer may be out of date.
+  private biometricsStatusGeneration = 0;
 
   constructor(
     private i18nService: I18nService,
@@ -35,6 +51,8 @@ export class MainBiometricsService extends DesktopBiometricsService {
       );
       const automationBiometricsService = new AutomationBiometricsService(this.logService);
       this.osBiometricsService = automationBiometricsService;
+      // Automation can change the reported status at any time, so always ask it.
+      this.biometricsStatusCacheMs = 0;
       new AutomationBiometricsIPCListener(
         automationBiometricsService,
         this.logService,
@@ -55,6 +73,10 @@ export class MainBiometricsService extends DesktopBiometricsService {
     } else {
       throw new Error("Unsupported platform");
     }
+
+    // The platform status can change while the app is running, for example after the user sets up
+    // Touch ID or Windows Hello in the OS settings, so check again whenever the user comes back.
+    app.on("browser-window-focus", () => this.clearCachedBiometricsStatus());
   }
 
   /**
@@ -63,9 +85,42 @@ export class MainBiometricsService extends DesktopBiometricsService {
    * - HardwareUnavailable: Biometrics are not available on the platform
    * - ManualSetupNeeded: In order to use biometrics, the user must perform manual steps (linux only)
    * - AutoSetupNeeded: In order to use biometrics, the user must perform automatic steps (linux only)
+   * The status is reused for {@link BiometricsStatusCacheMs}, or until an app window gains focus or
+   * biometrics setup runs.
    * @returns the status of the biometrics of the platform
    */
   async getBiometricsStatus(): Promise<BiometricsStatus> {
+    if (this.cachedBiometricsStatus != null && Date.now() < this.cachedBiometricsStatus.expiresAt) {
+      return this.cachedBiometricsStatus.status;
+    }
+
+    // The lock screen polls without waiting for the previous check to finish, so calls that arrive
+    // while the OS is still answering share that check instead of starting their own.
+    this.pendingBiometricsStatus ??= this.refreshBiometricsStatus();
+    return await this.pendingBiometricsStatus;
+  }
+
+  private async refreshBiometricsStatus(): Promise<BiometricsStatus> {
+    const generation = this.biometricsStatusGeneration;
+    try {
+      const status = await this.getPlatformBiometricsStatus();
+      // If the cache was dropped while the OS was answering, this answer may predate the change
+      // that caused it, so it is returned but not kept.
+      if (generation === this.biometricsStatusGeneration) {
+        this.cachedBiometricsStatus = {
+          status,
+          expiresAt: Date.now() + this.biometricsStatusCacheMs,
+        };
+      }
+      return status;
+    } finally {
+      if (generation === this.biometricsStatusGeneration) {
+        this.pendingBiometricsStatus = null;
+      }
+    }
+  }
+
+  private async getPlatformBiometricsStatus(): Promise<BiometricsStatus> {
     if (!(await this.osBiometricsService.supportsBiometrics())) {
       return BiometricsStatus.HardwareUnavailable;
     } else {
@@ -104,7 +159,11 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async setupBiometrics(): Promise<void> {
-    return await this.osBiometricsService.runSetup();
+    try {
+      return await this.osBiometricsService.runSetup();
+    } finally {
+      this.clearCachedBiometricsStatus();
+    }
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
@@ -158,5 +217,11 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return await this.osBiometricsService.hasPersistentKey(userId);
+  }
+
+  private clearCachedBiometricsStatus(): void {
+    this.biometricsStatusGeneration++;
+    this.cachedBiometricsStatus = null;
+    this.pendingBiometricsStatus = null;
   }
 }
