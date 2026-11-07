@@ -8,9 +8,17 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/user-core";
 
+import { SmOrganization } from "../sm-command.utils";
+
 export const smUserId = "user-id" as UserId;
 export const smOrgId = "11111111-1111-1111-1111-111111111111";
 export const smOtherOrgId = "99999999-9999-9999-9999-999999999999";
+
+/** A validated organization, as the program layer hands it to a command's `run()`. */
+export const smOrg: SmOrganization = {
+  organizationId: smOrgId,
+  organization: { id: smOrgId, canAccessSecretsManager: true } as Organization,
+};
 
 /**
  * Wires the account and organization mocks so `smOrgId` resolves to an organization the

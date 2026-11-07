@@ -1,17 +1,13 @@
 import { mock } from "jest-mock-extended";
 
 import { BulkOperationStatus, ProjectListView, ProjectService } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smOrgId } from "../spec/sm-test-utils";
+import { smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { ProjectDeleteCommand } from "./project-delete.command";
 
 describe("ProjectDeleteCommand", () => {
   const projectService = mock<ProjectService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const firstId = "22222222-2222-2222-2222-222222222222";
   const secondId = "33333333-3333-3333-3333-333333333333";
   let command: ProjectDeleteCommand;
@@ -25,15 +21,14 @@ describe("ProjectDeleteCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
     projectService.getProjects.mockResolvedValue(projects);
-    command = new ProjectDeleteCommand(projectService, organizationService, accountService);
+    command = new ProjectDeleteCommand(projectService);
   });
 
   it("deletes several projects", async () => {
     projectService.delete.mockResolvedValue([status(firstId, "One"), status(secondId, "Two")]);
 
-    const response = await command.run(smOrgId, [firstId, secondId.toUpperCase()]);
+    const response = await command.run(smOrg, [firstId, secondId.toUpperCase()]);
 
     expect(response.success).toBe(true);
     expect(projectService.getProjects).toHaveBeenCalledWith(smOrgId);
@@ -50,7 +45,7 @@ describe("ProjectDeleteCommand", () => {
   it("reports projects that could not be deleted", async () => {
     projectService.delete.mockResolvedValue([status(firstId, "One", "Access denied.")]);
 
-    const response = await command.run(smOrgId, [firstId]);
+    const response = await command.run(smOrg, [firstId]);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -61,7 +56,7 @@ describe("ProjectDeleteCommand", () => {
   it("rejects a project that is not in the organization", async () => {
     const unknownId = "44444444-4444-4444-4444-444444444444";
 
-    const response = await command.run(smOrgId, [firstId, unknownId]);
+    const response = await command.run(smOrg, [firstId, unknownId]);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -71,7 +66,7 @@ describe("ProjectDeleteCommand", () => {
   });
 
   it("requires at least one id", async () => {
-    const response = await command.run(smOrgId, []);
+    const response = await command.run(smOrg, []);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("At least one `projectId` is required.");

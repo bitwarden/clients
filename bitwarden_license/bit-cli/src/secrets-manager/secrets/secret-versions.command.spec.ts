@@ -1,25 +1,20 @@
 import { mock } from "jest-mock-extended";
 
 import { SecretVersionService, SecretVersionView } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { SecretVersionsCommand } from "./secret-versions.command";
 
 describe("SecretVersionsCommand", () => {
   const secretVersionService = mock<SecretVersionService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const secretId = "22222222-2222-2222-2222-222222222222";
   const versionId = "33333333-3333-3333-3333-333333333333";
   let command: SecretVersionsCommand;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
-    command = new SecretVersionsCommand(secretVersionService, organizationService, accountService);
+    command = new SecretVersionsCommand(secretVersionService);
   });
 
   it("lists the previous values", async () => {
@@ -36,7 +31,7 @@ describe("SecretVersionsCommand", () => {
       ],
     });
 
-    const response = await command.run(smOrgId, secretId.toUpperCase());
+    const response = await command.run(smOrg, secretId.toUpperCase());
 
     expect(response.success).toBe(true);
     expect(secretVersionService.getSecretVersions).toHaveBeenCalledWith(smOrgId, secretId);
@@ -58,14 +53,14 @@ describe("SecretVersionsCommand", () => {
   it("maps a 404 to a friendly error", async () => {
     secretVersionService.getSecretVersions.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, secretId);
+    const response = await command.run(smOrg, secretId);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("The secret was not found, or you do not have access to it.");
   });
 
   it("rejects an invalid secret id", async () => {
-    const response = await command.run(smOrgId, "nope");
+    const response = await command.run(smOrg, "nope");
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`nope` is not a GUID.");

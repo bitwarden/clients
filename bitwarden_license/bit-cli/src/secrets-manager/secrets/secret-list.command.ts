@@ -1,30 +1,15 @@
 import { SecretService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
-import { parseSmId, validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { parseSmId, SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 export class SecretListCommand {
-  constructor(
-    private secretService: SecretService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private secretService: SecretService) {}
 
-  async run(organizationId: string, projectId?: string): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
-
+  async run(org: SmOrganization, projectId?: string): Promise<Response> {
     let parsedProjectId: string | undefined;
     if (projectId != null) {
       const project = parseSmId(projectId, "projectid");
@@ -46,10 +31,6 @@ export class SecretListCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new SecretListCommand(
-      serviceContainer.secretService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new SecretListCommand(serviceContainer.secretService);
   }
 }
