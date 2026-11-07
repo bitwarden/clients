@@ -127,9 +127,16 @@ All clients ultimately construct a 2FA token as `code|state` (`Duo2faResult.toke
 ## SSO Flow
 
 Unlike the Duo and WebAuthn connectors — which act as intermediaries for all clients including
-mobile — the SSO connector (`sso-connector.html` / `sso.ts`) is only used by **web** and
-**browser extension**. Desktop and CLI receive IdP callbacks directly via deep link or localhost
-HTTP server, bypassing the connector entirely.
+mobile — the SSO **callback** connector (`sso-connector.html` / `sso.ts`) is only used by **web**
+and **browser extension**. Desktop and CLI receive IdP callbacks directly via deep link or localhost
+HTTP server, bypassing the callback connector entirely.
+
+There is a second, distinct SSO connector used only for the **launch** leg: the SSO launch connector
+(`sso-launch-connector.html` / `sso-launch.ts`). It is only relevant when the web vault is served
+behind a pre-authenticating reverse proxy (the `ssoCookieVendor` communication mode) and is used by
+**desktop** to _begin_ an SSO login against such a server. See
+[Desktop launch behind a pre-authenticating reverse proxy](#desktop-launch-behind-a-pre-authenticating-reverse-proxy)
+below.
 
 All clients share a common `SsoComponent` (`libs/auth/src/angular/sso/sso.component.ts`) hosted on
 the web vault that handles org identifier input and IdP redirect. The callback path after IdP
@@ -157,6 +164,31 @@ The browser extension also sets `redirect_uri` to `{webVaultUrl}/sso-connector.h
 5. Background handler (`runtime.background.ts`) validates the referrer is a known vault URL via `isValidVaultReferrer()`
 6. On success, opens an SSO popout window at `popup/index.html#/sso?code={code}&state={state}` via `openSsoAuthResultPopout()` (`auth-popout-window.ts`)
 7. The extension's `SsoComponent` instance completes the token exchange
+
+### Desktop launch behind a pre-authenticating reverse proxy
+
+This concerns the **launch** leg (how desktop opens the browser to _start_ SSO), not the callback.
+It applies only when the server sits behind a pre-authenticating reverse proxy — detected via
+`ServerCommunicationConfigService.needsBootstrap$()` (`desktop-login-component.service.ts`). For
+every other server, desktop launches the browser directly at the `/#/sso?...` hash URL built by
+`SsoUrlService.buildSsoUrl()` and this connector is not involved. If detection errors, the code
+fails safe to that direct URL.
+
+The proxy only ever sees the path + query on the wire (`GET /`), so it can neither capture nor
+restore a URL fragment. Launching directly at `/#/sso?...` would silently drop the SSO parameters
+across the proxy's sign-in roundtrip.
+
+1. Desktop builds the launch URL via `SsoUrlService.buildSsoLaunchConnectorUrl()`, targeting
+   `{webVaultUrl}/sso-launch-connector.html?{clientId,redirectUri,state,codeChallenge,email,identifier}`
+   — a real path + query page the proxy can observe and restore (`sso-url.service.ts`). Both desktop
+   callback mechanisms below use this launch URL; the choice only concerns the launch leg.
+2. Desktop launches the system browser at that URL. If the proxy re-challenges the user, it restores
+   this same path + query after sign-in.
+3. `sso-launch.ts` runs on load and forwards to the SSO hash route via a same-origin, browser-local
+   navigation: `window.location.href = {origin}/#/sso{window.location.search}`, preserving the query
+   string verbatim.
+4. `SsoComponent` handles org identifier input / IdP redirect as usual; the flow then proceeds
+   through one of the desktop callback mechanisms below.
 
 ### Desktop App Callback (bypasses sso-connector.html)
 
