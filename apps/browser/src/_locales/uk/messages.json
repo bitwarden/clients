@@ -1609,6 +1609,167 @@
       }
     }
   },
+  "selectVault": {
+    "message": "Вибрати сховище",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Вибрати розташування",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Вибрати сховище"
+  },
+  "selectALocationTitle": {
+    "message": "Вибрати розташування"
+  },
+  "importDestinationDescription": {
+    "message": "Виберіть, куди імпортувати ці записи."
+  },
+  "importMyItemsOption": {
+    "message": "Мої записи",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Видно лише вам"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Належить $ORGANIZATION$, але доступний для перегляду лише вам",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Сховище організації"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Поділився з однією людиною"
+  },
+  "importFamilyVault": {
+    "message": "Сімейне сховище"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Перемістити всі записи до спільної теки $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Перемістити всі записи у спільну теку $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Перемістіть усі файли до батьківської теки — вкладена структура тек залишиться незмінною."
+  },
+  "importSharedFolderRequired": {
+    "message": "Необхідна спільна тека."
+  },
+  "importIntoOrganization": {
+    "message": "Записи будуть імпортовані в $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Перемістити всі записи у спільну теку"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Без спільної теки неможливо імпортувати записи в $ORGANIZATION$, а ви не керуєте жодною такою текою. Оберіть інше місце.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Імпортувати $COUNT$ записів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Імпортувати 1 запис"
+  },
+  "importToOrganization": {
+    "message": "Імпортувати до $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Ваші дані можуть бути передані членам цієї організації."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ не дозволяє імпортувати $ITEM_TYPES$. Якщо вони містяться у вашому файлі для імпорту, їх буде пропущено.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "Записи входу",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "Захищені нотатки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "картки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "посвідчення",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "Ключі SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "банківські рахунки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "ліцензії",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "паспорти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Перейти до Access Intelligence"
+  },
   "importItems": {
     "message": "Імпортувати записи"
   },
@@ -8081,17 +8242,11 @@
   "sharedUnlock": {
     "message": "Спільне розблокування"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Синхронізація з комп'ютерною програмою"
+  "syncUnlockWithDesktop1": {
+    "message": "Синхронізувати розблокування з настільним комп’ютером"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Розширення браузера Bitwarden блокується і розблоковується разом з комп'ютерною програмою."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Синхронізація з вебпрограмою"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Розширення браузера Bitwarden блокується і розблоковується разом з вебпрограмою."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Розширення для браузера та настільна програма Bitwarden блокуються та розблоковуються одночасно. Якщо є така можливість, для цього використовуються біометричні дані."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Функція спільного розблокування недоступна, оскільки ви вирішили не запам'ятовувати цей пристрій. Щоб увімкнути цю функцію, спробуйте ввійти ще раз."
