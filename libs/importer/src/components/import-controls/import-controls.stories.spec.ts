@@ -4,7 +4,8 @@ import { of } from "rxjs";
 import { DialogService, I18nMockService } from "@bitwarden/components";
 
 import { ImportUpgradeServiceAbstraction } from "../../services";
-import { ImportErrorDialogComponent, ImportSuccessDialogComponent } from "../dialog";
+import { ImportErrorDialogComponent } from "../dialog";
+import { ImportConfirmationDialogComponent } from "../import-confirmation";
 
 import { ImportControlsComponent } from "./import-controls.component";
 
@@ -217,7 +218,7 @@ describe("import-controls.stories i18n and DI coverage", () => {
     await component.submit();
     fixture.detectChanges();
 
-    expect(openedDialogs).toEqual([ImportSuccessDialogComponent]);
+    expect(openedDialogs).toEqual([ImportConfirmationDialogComponent]);
     expect(calledImportMethods).toEqual(["import"]);
     expect(missedKeys).toEqual([]);
   });
@@ -254,7 +255,7 @@ describe("import-controls.stories i18n and DI coverage", () => {
     await component.submit();
     fixture.detectChanges();
 
-    expect(openedDialogs).toEqual([ImportSuccessDialogComponent]);
+    expect(openedDialogs).toEqual([ImportConfirmationDialogComponent]);
     expect(calledImportMethods).toEqual(["import"]);
     expect(missedKeys).toEqual([]);
   });
@@ -271,7 +272,7 @@ describe("import-controls.stories i18n and DI coverage", () => {
     await component.submit();
     fixture.detectChanges();
 
-    expect(openedDialogs).toEqual([ImportSuccessDialogComponent]);
+    expect(openedDialogs).toEqual([ImportConfirmationDialogComponent]);
     expect(calledImportMethods).toEqual(["import"]);
     expect(missedKeys).toEqual([]);
   });
@@ -293,7 +294,7 @@ describe("import-controls.stories i18n and DI coverage", () => {
     fixture.detectChanges();
 
     // Confirms the real SDK branch fired, not just that the same dialog happened to open.
-    expect(openedDialogs).toEqual([ImportSuccessDialogComponent]);
+    expect(openedDialogs).toEqual([ImportConfirmationDialogComponent]);
     expect(calledImportMethods).toEqual(["importWithSdk"]);
     expect(missedKeys).toEqual([]);
   });

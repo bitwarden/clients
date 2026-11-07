@@ -1,0 +1,14 @@
+<div class="tw-flex tw-min-h-screen tw-flex-col tw-bg-bg-secondary tw-p-6">
+  <bit-svg [content]="logo" [ariaLabel]="'appLogoLabel' | i18n" class="tw-block tw-w-32" />
+
+  @if (confirmation; as state) {
+    <div class="tw-flex tw-flex-1 tw-items-center tw-justify-center">
+      <app-import-confirmation-states
+        [phase]="phase()"
+        [total]="state.summary.total"
+        [retrying]="retrying()"
+        (openExtension)="onOpenExtension()"
+      />
+    </div>
+  }
+</div>

@@ -51,6 +51,7 @@ import { Loader } from "../../metadata";
 import {
   CredentialKind,
   ImportDestinationsState,
+  ImportedFile,
   ImportOption,
   ImportResult,
   ImportResultError,
@@ -72,6 +73,7 @@ import {
 import { chromiumLoginsToCsv } from "../chrome/chromium-login-csv";
 import { FilePasswordPromptComponent, ImportErrorDialogComponent } from "../dialog";
 import { errorName } from "../error-name";
+import { ImportOutcomePresenter } from "../import-confirmation/import-outcome-presenter";
 import { pickerIconFor } from "../import-source-select/import-source-picker-metadata";
 import {
   pickerAlwaysPromptsFormat,
@@ -158,6 +160,7 @@ export class ImportControlsComponent {
   private readonly policyService = inject(PolicyService);
   private readonly accountService = inject(AccountService);
   private readonly syncService = inject(SyncService);
+  private readonly presenter = inject(ImportOutcomePresenter);
   private readonly injector = inject(Injector);
   private readonly document = inject(DOCUMENT);
   private readonly importService = inject(ImportUpgradeServiceAbstraction);
@@ -381,6 +384,11 @@ export class ImportControlsComponent {
     ),
   );
 
+  // Read when the user presses Continue: whoever is active when the import ends may be someone else.
+  private readonly activeUserId = toSignal(
+    this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+  );
+
   protected readonly personalOwnershipPolicyPending = computed(
     () => this.personalOwnershipPolicyApplies() === undefined,
   );
@@ -525,6 +533,14 @@ export class ImportControlsComponent {
     initialValue: this.formGroup.controls.file.value,
   });
   protected readonly chosenFileName = computed(() => this.chosenFile()?.name);
+
+  // The file picked for this import. A direct or Chromium import ignores any file chosen earlier.
+  private importedFile(): ImportedFile | undefined {
+    const file = this.chosenFile();
+    return this.primaryMode() === "manual" && this.method() === "file" && file != null
+      ? { name: file.name }
+      : undefined;
+  }
 
   protected readonly pastedContent = toSignal(this.formGroup.controls.fileContents.valueChanges, {
     initialValue: this.formGroup.controls.fileContents.value,
@@ -986,6 +1002,11 @@ export class ImportControlsComponent {
       return;
     }
 
+    const userId = this.activeUserId();
+    if (userId == null) {
+      return;
+    }
+
     let outcome: ImportOutcome;
     try {
       outcome = await this.runImport();
@@ -1004,11 +1025,15 @@ export class ImportControlsComponent {
 
     // A staged outcome has nothing to report yet: the location screen imports and reports then.
     if (outcome.kind !== "staged") {
-      await presentImportOutcome(outcome, {
-        syncService: this.syncService,
-        logService: this.logService,
-        dialogService: this.dialogService,
-      });
+      await presentImportOutcome(
+        outcome,
+        {
+          syncService: this.syncService,
+          logService: this.logService,
+          presenter: this.presenter,
+        },
+        { userId, file: this.importedFile() },
+      );
     }
 
     this.continue.emit();
@@ -1231,7 +1256,13 @@ export class ImportControlsComponent {
     // The SDK parses and writes in one call, so it runs on the location screen with what was
     // collected here.
     if (this.stagesImport()) {
-      return this.stage({ kind: "sdk", format, file: fileBytes, credentials });
+      return this.stage({
+        kind: "sdk",
+        format,
+        file: fileBytes,
+        credentials,
+        importedFile: this.importedFile(),
+      });
     }
 
     try {
@@ -1329,6 +1360,7 @@ export class ImportControlsComponent {
         contents,
         filePassword,
         itemTypeCounts: result == null ? undefined : countCipherTypes(result.ciphers),
+        importedFile: this.importedFile(),
       });
     }
 
