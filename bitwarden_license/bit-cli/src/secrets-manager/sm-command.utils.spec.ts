@@ -10,6 +10,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 
 import {
   checkSmRequestOrganization,
+  isInSmOrganization,
   parseSmId,
   parseSmIds,
   parseSmRequest,
@@ -23,6 +24,7 @@ import {
   encodeSmRequest,
   mockSmOrganization,
   smNotFoundError,
+  smOrg,
   smOrgId,
   smOtherOrgId,
 } from "./spec/sm-test-utils";
@@ -34,6 +36,19 @@ describe("sm-command.utils", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSmOrganization(accountService, organizationService);
+  });
+
+  describe("isInSmOrganization", () => {
+    const org = smOrg;
+
+    it("matches the organization id case-insensitively", () => {
+      expect(isInSmOrganization({ organizationId: smOrgId.toUpperCase() }, org)).toBe(true);
+    });
+
+    it("rejects another organization or a missing id", () => {
+      expect(isInSmOrganization({ organizationId: smOtherOrgId }, org)).toBe(false);
+      expect(isInSmOrganization({}, org)).toBe(false);
+    });
   });
 
   describe("parseSmId", () => {
