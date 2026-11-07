@@ -6,4 +6,5 @@ export type GroupPolicyEnvironment = {
   icons?: string;
   notifications?: string;
   events?: string;
+  ssoOnly?: boolean;
 };
