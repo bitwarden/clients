@@ -785,10 +785,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (target: string, id: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await AccessGetCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              target,
-              id,
+              (org) => AccessGetCommand.create(this.serviceContainer).run(org, target, id),
             );
             this.processResponse(response);
           }),
@@ -821,11 +821,11 @@ export class SmProgram extends BaseProgram {
               options: OrgOptions,
             ) => {
               await this.exitIfLocked();
-              const response = await AccessSetCommand.create(this.serviceContainer).run(
+              const response = await withSmOrganization(
+                this.serviceContainer,
                 options.organizationid,
-                target,
-                id,
-                encodedJson,
+                (org) =>
+                  AccessSetCommand.create(this.serviceContainer).run(org, target, id, encodedJson),
               );
               this.processResponse(response);
             },
@@ -864,12 +864,17 @@ export class SmProgram extends BaseProgram {
               options: OrgOptions & { permission: string },
             ) => {
               await this.exitIfLocked();
-              const response = await AccessGrantCommand.create(this.serviceContainer).run(
+              const response = await withSmOrganization(
+                this.serviceContainer,
                 options.organizationid,
-                target,
-                id,
-                grantee,
-                options.permission,
+                (org) =>
+                  AccessGrantCommand.create(this.serviceContainer).run(
+                    org,
+                    target,
+                    id,
+                    grantee,
+                    options.permission,
+                  ),
               );
               this.processResponse(response);
             },
@@ -896,11 +901,11 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (target: string, id: string, grantee: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await AccessRevokeCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              target,
-              id,
-              grantee,
+              (org) =>
+                AccessRevokeCommand.create(this.serviceContainer).run(org, target, id, grantee),
             );
             this.processResponse(response);
           }),
@@ -931,9 +936,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (type: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await GranteesListCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              type,
+              (org) => GranteesListCommand.create(this.serviceContainer).run(org, type),
             );
             this.processResponse(response);
           }),

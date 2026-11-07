@@ -1,7 +1,7 @@
 import { ProjectView } from "@bitwarden/bit-sm";
 
 import { aliceId, createSmAccessFixture, groupId, smTargetId } from "../spec/sm-access-test-utils";
-import { mockSmOrganization, smNotFoundError, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrg, smOtherOrgId } from "../spec/sm-test-utils";
 
 import {
   checkSmAccessPolicy,
@@ -106,7 +106,7 @@ describe("sm access policies", () => {
         Object.assign(new ProjectView(), { id: smTargetId, organizationId: smOtherOrgId }),
       );
 
-      const result = await store.load(smOrgId, "project", smTargetId);
+      const result = await store.load(smOrg, "project", smTargetId);
 
       expect(result.error?.message).toBe(
         "The project was not found, or you do not have access to it.",
@@ -118,7 +118,7 @@ describe("sm access policies", () => {
       const { store, serviceAccountService } = createSmAccessFixture();
       serviceAccountService.getByServiceAccountId.mockRejectedValue(smNotFoundError());
 
-      const result = await store.load(smOrgId, "machine-account", smTargetId);
+      const result = await store.load(smOrg, "machine-account", smTargetId);
 
       expect(result.error?.message).toBe(
         "The machine account was not found, or you do not have access to it.",
@@ -128,21 +128,10 @@ describe("sm access policies", () => {
     it("rejects an unknown target", async () => {
       const { store } = createSmAccessFixture();
 
-      const result = await store.load(smOrgId, "folder", smTargetId);
+      const result = await store.load(smOrg, "folder", smTargetId);
 
       expect(result.error?.message).toBe(
         "Unknown access target `folder`. Expected one of: project, machine-account, secret.",
-      );
-    });
-
-    it("requires Secrets Manager access", async () => {
-      const { store, accountService, organizationService } = createSmAccessFixture();
-      mockSmOrganization(accountService, organizationService, false);
-
-      const result = await store.load(smOrgId, "project", smTargetId);
-
-      expect(result.error?.message).toBe(
-        "You do not have access to Secrets Manager for this organization.",
       );
     });
   });

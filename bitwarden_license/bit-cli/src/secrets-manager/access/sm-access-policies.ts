@@ -8,8 +8,6 @@ import {
   ServiceAccountService,
 } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
@@ -18,7 +16,7 @@ import { ServiceContainer } from "../../service-container";
 import { SmGranteeType, toSmGranteeType } from "../models/sm-grantee.response";
 import {
   parseSmId,
-  validateSmOrganizationAccess,
+  SmOrganization,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
@@ -246,23 +244,13 @@ export class SmAccessPolicyStore {
     private projectService: ProjectService,
     private serviceAccountService: ServiceAccountService,
     private secretService: SecretService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
   ) {}
 
   async load(
-    organizationId: string,
+    org: SmOrganization,
     target: string,
     targetId: string,
   ): Promise<{ state: SmAccessState; error?: undefined } | { state?: undefined; error: Response }> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return { error: org.error };
-    }
     const parsedTarget = parseSmAccessTarget(target);
     if (parsedTarget.error) {
       return { error: parsedTarget.error };
@@ -563,8 +551,6 @@ export class SmAccessPolicyStore {
       serviceContainer.projectService,
       serviceContainer.serviceAccountService,
       serviceContainer.secretService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
     );
   }
 }

@@ -10,12 +10,10 @@ import {
   ServiceAccountService,
   ServiceAccountView,
 } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { SmAccessPolicyStore } from "../access/sm-access-policies";
 
-import { mockSmOrganization, smOrgId } from "./sm-test-utils";
+import { smOrgId } from "./sm-test-utils";
 
 export const smTargetId = "22222222-2222-2222-2222-222222222222";
 export const aliceId = "a1a1a1a1-0000-0000-0000-000000000001";
@@ -42,10 +40,7 @@ export function createSmAccessFixture() {
   const projectService = mock<ProjectService>();
   const serviceAccountService = mock<ServiceAccountService>();
   const secretService = mock<SecretService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
 
-  mockSmOrganization(accountService, organizationService);
   projectService.getByProjectId.mockResolvedValue(
     Object.assign(new ProjectView(), { id: smTargetId, organizationId: smOrgId, write: true }),
   );
@@ -101,8 +96,6 @@ export function createSmAccessFixture() {
     projectService,
     serviceAccountService,
     secretService,
-    organizationService,
-    accountService,
   );
 
   return {
@@ -111,8 +104,6 @@ export function createSmAccessFixture() {
     projectService,
     serviceAccountService,
     secretService,
-    organizationService,
-    accountService,
   };
 }
 

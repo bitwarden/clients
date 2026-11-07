@@ -9,7 +9,7 @@ import {
   smTargetId,
   userPolicy,
 } from "../spec/sm-access-test-utils";
-import { smOrgId } from "../spec/sm-test-utils";
+import { smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { AccessRevokeCommand } from "./access-revoke.command";
 
@@ -31,7 +31,7 @@ describe("AccessRevokeCommand", () => {
   });
 
   it("removes only the target user", async () => {
-    const response = await command.run(smOrgId, "project", smTargetId, "alice@example.com");
+    const response = await command.run(smOrg, "project", smTargetId, "alice@example.com");
 
     expect(response.success).toBe(true);
     expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).toHaveBeenCalledWith(
@@ -49,7 +49,7 @@ describe("AccessRevokeCommand", () => {
   });
 
   it("removes a machine account by id without touching people access", async () => {
-    const response = await command.run(smOrgId, "project", smTargetId, machineAccountId);
+    const response = await command.run(smOrg, "project", smTargetId, machineAccountId);
 
     expect(response.success).toBe(true);
     expect(
@@ -83,7 +83,7 @@ describe("AccessRevokeCommand", () => {
       ],
     });
 
-    const response = await command.run(smOrgId, "machine-account", smTargetId, "Backend");
+    const response = await command.run(smOrg, "machine-account", smTargetId, "Backend");
 
     expect(response.success).toBe(true);
     expect(fixture.accessPolicyService.putServiceAccountGrantedPolicies).toHaveBeenCalledWith(
@@ -109,7 +109,7 @@ describe("AccessRevokeCommand", () => {
       groupAccessPolicies: [],
     });
 
-    const response = await command.run(smOrgId, "project", smTargetId, "alice@example.com");
+    const response = await command.run(smOrg, "project", smTargetId, "alice@example.com");
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`alice@example.com` does not have access.");
@@ -117,7 +117,7 @@ describe("AccessRevokeCommand", () => {
   });
 
   it("errors when the grantee cannot be found", async () => {
-    const response = await command.run(smOrgId, "project", smTargetId, "nobody@example.com");
+    const response = await command.run(smOrg, "project", smTargetId, "nobody@example.com");
 
     expect(response.success).toBe(false);
     expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).not.toHaveBeenCalled();

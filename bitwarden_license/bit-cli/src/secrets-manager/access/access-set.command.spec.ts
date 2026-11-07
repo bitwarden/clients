@@ -8,7 +8,7 @@ import {
   smTargetId,
   userPolicy,
 } from "../spec/sm-access-test-utils";
-import { encodeSmRequest, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import { encodeSmRequest, smOrgId, smOtherOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { AccessSetCommand } from "./access-set.command";
 
@@ -31,7 +31,7 @@ describe("AccessSetCommand", () => {
 
   it("replaces every policy on the target", async () => {
     const response = await command.run(
-      smOrgId,
+      smOrg,
       "project",
       smTargetId,
       encodeSmRequest({
@@ -60,7 +60,7 @@ describe("AccessSetCommand", () => {
   });
 
   it("accepts an object body from bw serve", async () => {
-    const response = await command.run(smOrgId, "project", smTargetId, {
+    const response = await command.run(smOrg, "project", smTargetId, {
       organizationId: smOrgId,
       policies: [{ type: "machineAccount", id: machineAccountId, permission: "read" }],
     });
@@ -97,7 +97,7 @@ describe("AccessSetCommand", () => {
       "`" + aliceId + "` is listed more than once.",
     ],
   ])("rejects %j", async (request, message) => {
-    const response = await command.run(smOrgId, "project", smTargetId, request);
+    const response = await command.run(smOrg, "project", smTargetId, request);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(message);
@@ -105,7 +105,7 @@ describe("AccessSetCommand", () => {
   });
 
   it("rejects read-only people access to a machine account", async () => {
-    const response = await command.run(smOrgId, "machine-account", smTargetId, {
+    const response = await command.run(smOrg, "machine-account", smTargetId, {
       policies: [{ type: "user", id: aliceId, permission: "read" }],
     });
 
@@ -115,7 +115,7 @@ describe("AccessSetCommand", () => {
   });
 
   it("rejects a request for another organization", async () => {
-    const response = await command.run(smOrgId, "project", smTargetId, {
+    const response = await command.run(smOrg, "project", smTargetId, {
       organizationId: smOtherOrgId,
       policies: [],
     });

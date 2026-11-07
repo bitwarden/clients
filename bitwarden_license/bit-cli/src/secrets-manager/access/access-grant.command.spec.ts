@@ -15,7 +15,7 @@ import {
   smTargetId,
   userPolicy,
 } from "../spec/sm-access-test-utils";
-import { smOrgId } from "../spec/sm-test-utils";
+import { smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { AccessGrantCommand } from "./access-grant.command";
 
@@ -41,13 +41,7 @@ describe("AccessGrantCommand", () => {
     });
 
     it("adds a user by email and preserves existing policies", async () => {
-      const response = await command.run(
-        smOrgId,
-        "project",
-        smTargetId,
-        "alice@example.com",
-        "read",
-      );
+      const response = await command.run(smOrg, "project", smTargetId, "alice@example.com", "read");
 
       expect(response.success).toBe(true);
       expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).toHaveBeenCalledWith(
@@ -68,7 +62,7 @@ describe("AccessGrantCommand", () => {
     });
 
     it("changes the permission of an existing grantee without duplicating it", async () => {
-      await command.run(smOrgId, "project", smTargetId, "Engineering", "read-write");
+      await command.run(smOrg, "project", smTargetId, "Engineering", "read-write");
 
       const people = fixture.accessPolicyService.putProjectPeopleAccessPolicies.mock.calls[0][1];
       expect(people.groupAccessPolicies).toEqual([
@@ -86,13 +80,7 @@ describe("AccessGrantCommand", () => {
         potentialGrantee("serviceAccount", otherId, "Deploy bot"),
       ]);
 
-      const response = await command.run(
-        smOrgId,
-        "project",
-        smTargetId,
-        "Deploy bot",
-        "read-write",
-      );
+      const response = await command.run(smOrg, "project", smTargetId, "Deploy bot", "read-write");
 
       expect(response.success).toBe(true);
       expect(
@@ -117,13 +105,7 @@ describe("AccessGrantCommand", () => {
         serviceAccountAccessPolicies: [],
       });
 
-      const response = await command.run(
-        smOrgId,
-        "project",
-        smTargetId,
-        "alice@example.com",
-        "read",
-      );
+      const response = await command.run(smOrg, "project", smTargetId, "alice@example.com", "read");
 
       const data = (response.data as ListResponse).data as SmAccessPolicyResponse[];
       expect(data).toEqual([
@@ -143,7 +125,7 @@ describe("AccessGrantCommand", () => {
         potentialGrantee("group", "9a9a9a9a-0000-0000-0000-0000000000ff", "ops"),
       ]);
 
-      const response = await command.run(smOrgId, "project", smTargetId, "OPS", "read");
+      const response = await command.run(smOrg, "project", smTargetId, "OPS", "read");
 
       expect(response.success).toBe(false);
       expect(response.message).toBe(
@@ -157,7 +139,7 @@ describe("AccessGrantCommand", () => {
     });
 
     it("rejects an invalid permission before calling the server", async () => {
-      const response = await command.run(smOrgId, "project", smTargetId, "Engineering", "manage");
+      const response = await command.run(smOrg, "project", smTargetId, "Engineering", "manage");
 
       expect(response.message).toBe("`permission` must be one of: read, read-write.");
       expect(fixture.accessPolicyService.getProjectPeopleAccessPolicies).not.toHaveBeenCalled();
@@ -171,7 +153,7 @@ describe("AccessGrantCommand", () => {
         groupAccessPolicies: [],
       });
 
-      const response = await command.run(smOrgId, "machine-account", smTargetId, "backend", "read");
+      const response = await command.run(smOrg, "machine-account", smTargetId, "backend", "read");
 
       expect(response.success).toBe(true);
       expect(fixture.accessPolicyService.putServiceAccountGrantedPolicies).toHaveBeenCalledWith(
@@ -196,7 +178,7 @@ describe("AccessGrantCommand", () => {
 
     it("rejects read-only people access", async () => {
       const response = await command.run(
-        smOrgId,
+        smOrg,
         "machine-account",
         smTargetId,
         "alice@example.com",
@@ -220,7 +202,7 @@ describe("AccessGrantCommand", () => {
         serviceAccountAccessPolicies: [machineAccountPolicy(machineAccountId, "CI runner", true)],
       });
 
-      const response = await command.run(smOrgId, "secret", smTargetId, groupId, "read-write");
+      const response = await command.run(smOrg, "secret", smTargetId, groupId, "read-write");
 
       expect(response.success).toBe(true);
       expect(fixture.secretService.update).toHaveBeenCalledWith(
@@ -244,7 +226,7 @@ describe("AccessGrantCommand", () => {
         Object.assign(new SecretView(), { id: smTargetId, organizationId: smOrgId, write: false }),
       );
 
-      const response = await command.run(smOrgId, "secret", smTargetId, groupId, "read");
+      const response = await command.run(smOrg, "secret", smTargetId, groupId, "read");
 
       expect(response.success).toBe(false);
       expect(fixture.secretService.update).not.toHaveBeenCalled();
