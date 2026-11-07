@@ -27,13 +27,16 @@ import { BitPasswordInputToggleDirective } from "./password-input-toggle.directi
           bitIconButton
           bitSuffix
           bitPasswordInputToggle
+          (toggledChange)="toggledChanges.push($event)"
         ></button>
       </bit-form-field>
     </form>
   `,
   imports: [FormFieldModule, IconButtonModule],
 })
-class TestFormFieldComponent {}
+class TestFormFieldComponent {
+  readonly toggledChanges: boolean[] = [];
+}
 
 describe("PasswordInputToggle", () => {
   let fixture: ComponentFixture<TestFormFieldComponent>;
@@ -83,6 +86,10 @@ describe("PasswordInputToggle", () => {
   describe("when toggled", () => {
     beforeEach(() => {
       toggle.triggerEventHandler("click");
+    });
+
+    it("emits toggledChange once", () => {
+      expect(fixture.componentInstance.toggledChanges).toEqual([true]);
     });
 
     it("has correct icon", () => {
