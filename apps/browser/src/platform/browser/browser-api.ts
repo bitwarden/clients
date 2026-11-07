@@ -596,6 +596,27 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Creates a new active tab inside of the window with the given id.
+   *
+   * @param url - The url to open in the new tab.
+   * @param windowId - The id of the window that will contain the new tab.
+   */
+  static createNewTabInWindow(url: string, windowId: number): Promise<chrome.tabs.Tab> {
+    return new Promise((resolve) =>
+      chrome.tabs.create({ url, windowId, active: true }, (tab) => resolve(tab)),
+    );
+  }
+
+  /**
+   * Removes the tab with the given id.
+   *
+   * @param tabId - The id of the tab to remove.
+   */
+  static async removeTab(tabId: number): Promise<void> {
+    return new Promise((resolve) => chrome.tabs.remove(tabId, () => resolve()));
+  }
+
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
     return new Promise((resolve) =>
       chrome.tabs.create({ url: url, active: active }, (tab) => resolve(tab)),
