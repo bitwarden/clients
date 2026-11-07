@@ -7,6 +7,7 @@ import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domai
 import { View } from "../../../models/view/view";
 import { SafeUrls, UrlType } from "../../../platform/misc/safe-urls";
 import { Utils } from "../../../platform/misc/utils";
+import { UriRegexMatcher } from "../../utils/uri-regex-matcher";
 import { LoginUri } from "../domain/login-uri";
 
 export class LoginUriView implements View {
@@ -143,6 +144,8 @@ export class LoginUriView implements View {
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
+    /** Evaluates `RegularExpression` rules with bounded cost; never use `RegExp` for these. */
+    regexMatcher: UriRegexMatcher,
     defaultUriMatch?: UriMatchStrategySetting,
     /** When present, will override the match strategy for the cipher if it is `Never` with `Domain` */
     overrideNeverMatchStrategy?: true,
@@ -175,15 +178,7 @@ export class LoginUriView implements View {
       case UriMatchStrategy.StartsWith:
         return targetUri.startsWith(this.uri);
       case UriMatchStrategy.RegularExpression:
-        try {
-          const regex = new RegExp(this.uri, "i");
-          return regex.test(targetUri);
-          // FIXME: Remove when updating file. Eslint update
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) {
-          // Invalid regex
-          return false;
-        }
+        return regexMatcher.matches(this.uri, targetUri);
       case UriMatchStrategy.Never:
         return false;
       default:
