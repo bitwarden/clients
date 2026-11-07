@@ -1,30 +1,15 @@
 import { ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmMachineAccountResponse } from "../models/sm-machine-account.response";
-import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 export class MachineAccountListCommand {
-  constructor(
-    private serviceAccountService: ServiceAccountService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private serviceAccountService: ServiceAccountService) {}
 
-  async run(organizationId: string): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
-
+  async run(org: SmOrganization): Promise<Response> {
     try {
       const machineAccounts = await this.serviceAccountService.getServiceAccounts(
         org.organizationId,
@@ -39,10 +24,6 @@ export class MachineAccountListCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new MachineAccountListCommand(
-      serviceContainer.serviceAccountService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new MachineAccountListCommand(serviceContainer.serviceAccountService);
   }
 }

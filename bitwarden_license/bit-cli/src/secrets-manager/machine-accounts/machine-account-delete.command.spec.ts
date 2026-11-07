@@ -5,17 +5,13 @@ import {
   ServiceAccountSecretsDetailsView,
   ServiceAccountService,
 } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smOrgId } from "../spec/sm-test-utils";
+import { smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { MachineAccountDeleteCommand } from "./machine-account-delete.command";
 
 describe("MachineAccountDeleteCommand", () => {
   const serviceAccountService = mock<ServiceAccountService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const machineAccountId = "22222222-2222-2222-2222-222222222222";
   let command: MachineAccountDeleteCommand;
 
@@ -27,13 +23,8 @@ describe("MachineAccountDeleteCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
     serviceAccountService.getServiceAccounts.mockResolvedValue([machineAccount]);
-    command = new MachineAccountDeleteCommand(
-      serviceAccountService,
-      organizationService,
-      accountService,
-    );
+    command = new MachineAccountDeleteCommand(serviceAccountService);
   });
 
   it("deletes the machine account", async () => {
@@ -41,7 +32,7 @@ describe("MachineAccountDeleteCommand", () => {
       Object.assign(new BulkOperationStatus(), { id: machineAccountId, name: "CI" }),
     ]);
 
-    const response = await command.run(smOrgId, [machineAccountId]);
+    const response = await command.run(smOrg, [machineAccountId]);
 
     expect(response.success).toBe(true);
     expect(serviceAccountService.delete).toHaveBeenCalledWith([machineAccount]);
@@ -53,7 +44,7 @@ describe("MachineAccountDeleteCommand", () => {
   it("rejects a machine account that is not in the organization", async () => {
     const unknownId = "44444444-4444-4444-4444-444444444444";
 
-    const response = await command.run(smOrgId, [unknownId]);
+    const response = await command.run(smOrg, [unknownId]);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -63,7 +54,7 @@ describe("MachineAccountDeleteCommand", () => {
   });
 
   it("rejects an invalid id", async () => {
-    const response = await command.run(smOrgId, ["nope"]);
+    const response = await command.run(smOrg, ["nope"]);
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`nope` is not a GUID.");

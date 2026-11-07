@@ -1,30 +1,15 @@
 import { SecretService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
-import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 export class TrashListCommand {
-  constructor(
-    private secretService: SecretService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private secretService: SecretService) {}
 
-  async run(organizationId: string): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
-
+  async run(org: SmOrganization): Promise<Response> {
     try {
       const secrets = await this.secretService.getTrashedSecrets(org.organizationId);
       return Response.success(new ListResponse(secrets.map((s) => new SmSecretResponse(s))));
@@ -34,10 +19,6 @@ export class TrashListCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new TrashListCommand(
-      serviceContainer.secretService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new TrashListCommand(serviceContainer.secretService);
   }
 }

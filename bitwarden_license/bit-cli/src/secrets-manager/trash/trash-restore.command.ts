@@ -1,29 +1,15 @@
 import { SecretService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
-import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 import { selectTrashedSecrets, SmTrashSelection, trashResultResponse } from "./trash-selection";
 
 export class TrashRestoreCommand {
-  constructor(
-    private secretService: SecretService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {}
+  constructor(private secretService: SecretService) {}
 
-  async run(organizationId: string, selection: SmTrashSelection): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, selection: SmTrashSelection): Promise<Response> {
     const hasNoSecretIds = selection.secretIds == null || selection.secretIds.length === 0;
     if (!selection.all && hasNoSecretIds) {
       return Response.badRequest("Provide one or more secret ids, or `--all`.");
@@ -49,10 +35,6 @@ export class TrashRestoreCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new TrashRestoreCommand(
-      serviceContainer.secretService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
-    );
+    return new TrashRestoreCommand(serviceContainer.secretService);
   }
 }

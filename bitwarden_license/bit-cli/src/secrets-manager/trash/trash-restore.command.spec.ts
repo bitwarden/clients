@@ -1,17 +1,13 @@
 import { mock } from "jest-mock-extended";
 
 import { SecretListView, SecretService } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
 
 import { TrashRestoreCommand } from "./trash-restore.command";
 
 describe("TrashRestoreCommand", () => {
   const secretService = mock<SecretService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const firstId = "22222222-2222-2222-2222-222222222222";
   const secondId = "33333333-3333-3333-3333-333333333333";
   let command: TrashRestoreCommand;
@@ -23,13 +19,12 @@ describe("TrashRestoreCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
     secretService.getTrashedSecrets.mockResolvedValue(trashed);
-    command = new TrashRestoreCommand(secretService, organizationService, accountService);
+    command = new TrashRestoreCommand(secretService);
   });
 
   it("applies to the given trashed secrets", async () => {
-    const response = await command.run(smOrgId, { secretIds: [secondId.toUpperCase()] });
+    const response = await command.run(smOrg, { secretIds: [secondId.toUpperCase()] });
 
     expect(response.success).toBe(true);
     expect(secretService.restoreTrashed).toHaveBeenCalledWith(smOrgId, [secondId]);
@@ -41,7 +36,7 @@ describe("TrashRestoreCommand", () => {
   });
 
   it("applies to every trashed secret with --all", async () => {
-    const response = await command.run(smOrgId, { all: true });
+    const response = await command.run(smOrg, { all: true });
 
     expect(response.success).toBe(true);
     expect(secretService.restoreTrashed).toHaveBeenCalledWith(smOrgId, [firstId, secondId]);
@@ -50,14 +45,14 @@ describe("TrashRestoreCommand", () => {
   it("does nothing when --all is given and the trash is empty", async () => {
     secretService.getTrashedSecrets.mockResolvedValue([]);
 
-    const response = await command.run(smOrgId, { all: true });
+    const response = await command.run(smOrg, { all: true });
 
     expect(response.success).toBe(true);
     expect(secretService.restoreTrashed).not.toHaveBeenCalled();
   });
 
   it("requires ids or --all", async () => {
-    const response = await command.run(smOrgId, { secretIds: [] });
+    const response = await command.run(smOrg, { secretIds: [] });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("Provide one or more secret ids, or `--all`.");
@@ -65,7 +60,7 @@ describe("TrashRestoreCommand", () => {
   });
 
   it("rejects ids together with --all", async () => {
-    const response = await command.run(smOrgId, { secretIds: [firstId], all: true });
+    const response = await command.run(smOrg, { secretIds: [firstId], all: true });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("Provide secret ids or `--all`, not both.");
@@ -75,7 +70,7 @@ describe("TrashRestoreCommand", () => {
   it("rejects a secret that is not in the trash", async () => {
     const unknownId = "44444444-4444-4444-4444-444444444444";
 
-    const response = await command.run(smOrgId, { secretIds: [firstId, unknownId] });
+    const response = await command.run(smOrg, { secretIds: [firstId, unknownId] });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -87,7 +82,7 @@ describe("TrashRestoreCommand", () => {
   it("maps a 404 to a friendly error", async () => {
     secretService.getTrashedSecrets.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, { all: true });
+    const response = await command.run(smOrg, { all: true });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(

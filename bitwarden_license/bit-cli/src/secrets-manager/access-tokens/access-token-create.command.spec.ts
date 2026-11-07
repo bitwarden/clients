@@ -3,7 +3,6 @@ import { of } from "rxjs";
 
 import { AccessService, ServiceAccountService, ServiceAccountView } from "@bitwarden/bit-sm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -19,7 +18,13 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
-import { mockSmOrganization, smNotFoundError, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import {
+  mockSmActiveAccount,
+  smNotFoundError,
+  smOrgId,
+  smOtherOrgId,
+  smOrg,
+} from "../spec/sm-test-utils";
 
 import { AccessTokenCreateCommand } from "./access-token-create.command";
 
@@ -30,7 +35,6 @@ describe("AccessTokenCreateCommand", () => {
   const encryptService = mock<EncryptService>();
   const logService = mock<LogService>();
   const serviceAccountService = mock<ServiceAccountService>();
-  const organizationService = mock<OrganizationService>();
   const accountService = mock<AccountService>();
 
   const machineAccountId = "22222222-2222-2222-2222-222222222222";
@@ -47,7 +51,7 @@ describe("AccessTokenCreateCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
+    mockSmActiveAccount(accountService);
     keyService.orgKeys$.mockReturnValue(
       of({ [smOrgId as OrganizationId]: orgKey } as Record<OrganizationId, OrgKey>),
     );
@@ -79,16 +83,11 @@ describe("AccessTokenCreateCommand", () => {
       accountService,
       logService,
     );
-    command = new AccessTokenCreateCommand(
-      accessService,
-      serviceAccountService,
-      organizationService,
-      accountService,
-    );
+    command = new AccessTokenCreateCommand(accessService, serviceAccountService);
   });
 
   it("returns the access token in the `0.<id>.<clientSecret>:<key>` format", async () => {
-    const response = await command.run(smOrgId, machineAccountId, { name: "CI" });
+    const response = await command.run(smOrg, machineAccountId, { name: "CI" });
 
     expect(response.success).toBe(true);
     expect(response.data).toEqual({
@@ -104,7 +103,7 @@ describe("AccessTokenCreateCommand", () => {
   it("creates the access token with the shared access token crypto", async () => {
     const expires = "2099-12-31T00:00:00Z";
 
-    await command.run(smOrgId, machineAccountId, { name: "CI", expires });
+    await command.run(smOrg, machineAccountId, { name: "CI", expires });
 
     expect(keyGenerationService.createKeyWithPurpose).toHaveBeenCalledWith(
       128,
@@ -130,14 +129,14 @@ describe("AccessTokenCreateCommand", () => {
   });
 
   it("returns only the access token string when raw output is requested", async () => {
-    const response = await command.run(smOrgId, machineAccountId, { name: "CI", raw: true });
+    const response = await command.run(smOrg, machineAccountId, { name: "CI", raw: true });
 
     expect(response.success).toBe(true);
     expect(response.data).toEqual({ object: "string", data: expectedToken });
   });
 
   it("never logs the access token", async () => {
-    await command.run(smOrgId, machineAccountId, { name: "CI" });
+    await command.run(smOrg, machineAccountId, { name: "CI" });
 
     for (const call of [
       ...logService.debug.mock.calls,
@@ -150,7 +149,7 @@ describe("AccessTokenCreateCommand", () => {
   });
 
   it("requires a name", async () => {
-    const response = await command.run(smOrgId, machineAccountId, { name: "  " });
+    const response = await command.run(smOrg, machineAccountId, { name: "  " });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`name` is required.");
@@ -158,7 +157,7 @@ describe("AccessTokenCreateCommand", () => {
   });
 
   it("rejects a name longer than 80 characters", async () => {
-    const response = await command.run(smOrgId, machineAccountId, { name: "a".repeat(81) });
+    const response = await command.run(smOrg, machineAccountId, { name: "a".repeat(81) });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`name` must be at most 80 characters.");
@@ -167,7 +166,7 @@ describe("AccessTokenCreateCommand", () => {
   it.each([undefined, "", "never", "none", "NEVER", "None"])(
     "creates an access token that does not expire for the expiration `%s`",
     async (expires) => {
-      const response = await command.run(smOrgId, machineAccountId, { name: "CI", expires });
+      const response = await command.run(smOrg, machineAccountId, { name: "CI", expires });
 
       expect(response.success).toBe(true);
       expect(response.data).toMatchObject({ expireAt: null });
@@ -182,7 +181,7 @@ describe("AccessTokenCreateCommand", () => {
   );
 
   it("creates an access token that expires at an ISO 8601 date", async () => {
-    const response = await command.run(smOrgId, machineAccountId, {
+    const response = await command.run(smOrg, machineAccountId, {
       name: "CI",
       expires: "2099-12-31",
     });
@@ -194,7 +193,7 @@ describe("AccessTokenCreateCommand", () => {
   it.each(["tomorrow", "12/31/2099", "forever"])(
     "rejects the expiration `%s` and names the accepted forms",
     async (expires) => {
-      const response = await command.run(smOrgId, machineAccountId, { name: "CI", expires });
+      const response = await command.run(smOrg, machineAccountId, { name: "CI", expires });
 
       expect(response.success).toBe(false);
       expect(response.message).toBe(
@@ -205,7 +204,7 @@ describe("AccessTokenCreateCommand", () => {
   );
 
   it("rejects an expiration that is not a real date", async () => {
-    const response = await command.run(smOrgId, machineAccountId, {
+    const response = await command.run(smOrg, machineAccountId, {
       name: "CI",
       expires: "2099-13-45",
     });
@@ -216,7 +215,7 @@ describe("AccessTokenCreateCommand", () => {
   });
 
   it("rejects an expiration in the past", async () => {
-    const response = await command.run(smOrgId, machineAccountId, {
+    const response = await command.run(smOrg, machineAccountId, {
       name: "CI",
       expires: "2000-01-01",
     });
@@ -233,7 +232,7 @@ describe("AccessTokenCreateCommand", () => {
       }),
     );
 
-    const response = await command.run(smOrgId, machineAccountId, { name: "CI" });
+    const response = await command.run(smOrg, machineAccountId, { name: "CI" });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -245,22 +244,11 @@ describe("AccessTokenCreateCommand", () => {
   it("reports a machine account the user cannot access", async () => {
     serviceAccountService.getByServiceAccountId.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, machineAccountId, { name: "CI" });
+    const response = await command.run(smOrg, machineAccountId, { name: "CI" });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
       "The machine account was not found, or you do not have access to it.",
-    );
-  });
-
-  it("rejects an organization without Secrets Manager access", async () => {
-    mockSmOrganization(accountService, organizationService, false);
-
-    const response = await command.run(smOrgId, machineAccountId, { name: "CI" });
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe(
-      "You do not have access to Secrets Manager for this organization.",
     );
   });
 });
