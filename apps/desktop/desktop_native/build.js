@@ -6,7 +6,6 @@ const process = require("process");
 
 // Map of the Node arch equivalents for the rust target triplets, used to move the file to the correct location
 const rustTargetsMap = {
-    "i686-pc-windows-msvc":       { nodeArch: 'ia32',  platform: 'win32'  },
     "x86_64-pc-windows-msvc":     { nodeArch: 'x64',   platform: 'win32'  },
     "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
     "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
