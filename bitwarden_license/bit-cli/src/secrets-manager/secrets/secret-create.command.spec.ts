@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { SecretService, SecretView } from "@bitwarden/bit-sm";
+import { ProjectService, ProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
 
 import {
   encodeSmRequest,
@@ -14,6 +14,7 @@ import { SecretCreateCommand } from "./secret-create.command";
 
 describe("SecretCreateCommand", () => {
   const secretService = mock<SecretService>();
+  const projectService = mock<ProjectService>();
   const projectId = "33333333-3333-3333-3333-333333333333";
   let command: SecretCreateCommand;
 
@@ -22,7 +23,10 @@ describe("SecretCreateCommand", () => {
     secretService.create.mockImplementation(async (_orgId, view) =>
       Object.assign(new SecretView(), view, { id: "22222222-2222-2222-2222-222222222222" }),
     );
-    command = new SecretCreateCommand(secretService);
+    projectService.getByProjectId.mockResolvedValue(
+      Object.assign(new ProjectView(), { id: projectId, organizationId: smOrgId, name: "Backend" }),
+    );
+    command = new SecretCreateCommand(secretService, projectService);
   });
 
   it("creates the secret in a project without changing access policies", async () => {
@@ -54,6 +58,40 @@ describe("SecretCreateCommand", () => {
       key: "DB_PASSWORD",
       value: "hunter2",
     });
+  });
+
+  it("fills in project names the server leaves null", async () => {
+    const response = await command.run(smOrg, { key: "K", projectIds: [projectId] });
+
+    expect(projectService.getByProjectId).toHaveBeenCalledWith(projectId, true);
+    expect(response.data).toMatchObject({ projects: [{ id: projectId, name: "Backend" }] });
+  });
+
+  it("does not look up projects that the response already names", async () => {
+    secretService.create.mockImplementation(async (_orgId, view) =>
+      Object.assign(new SecretView(), view, {
+        projects: [{ id: projectId, name: "Backend", decryptionError: false }],
+      }),
+    );
+
+    const response = await command.run(smOrg, { key: "K", projectIds: [projectId] });
+
+    expect(projectService.getByProjectId).not.toHaveBeenCalled();
+    expect(response.data).toMatchObject({ projects: [{ id: projectId, name: "Backend" }] });
+  });
+
+  it("does not use the name of a project from another organization", async () => {
+    projectService.getByProjectId.mockResolvedValue(
+      Object.assign(new ProjectView(), {
+        id: projectId,
+        organizationId: smOtherOrgId,
+        name: "Foreign",
+      }),
+    );
+
+    const response = await command.run(smOrg, { key: "K", projectIds: [projectId] });
+
+    expect(response.data).toMatchObject({ projects: [{ id: projectId, name: null }] });
   });
 
   it("defaults the value and note to empty strings", async () => {
