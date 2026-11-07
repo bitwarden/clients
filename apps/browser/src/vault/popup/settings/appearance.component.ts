@@ -31,12 +31,14 @@ import {
   ShowQuickCopyActionsDetailsPopoverComponent,
 } from "@bitwarden/vault";
 
+import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopupWidthOption } from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupCompactModeService } from "../../../platform/popup/layout/popup-compact-mode.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupSizeService } from "../../../platform/popup/layout/popup-size.service";
+import { SidePanelSettingsService } from "../../../platform/side-panel/side-panel-settings.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -61,6 +63,7 @@ export class AppearanceComponent implements OnInit {
   private compactModeService = inject(PopupCompactModeService);
   private copyButtonsService = inject(VaultCopyButtonsService);
   private popupSizeService = inject(PopupSizeService);
+  private sidePanelSettingsService = inject(SidePanelSettingsService);
   private i18nService = inject(I18nService);
   private accountService = inject(AccountService);
   private billingAccountProfileService = inject(BillingAccountProfileStateService);
@@ -80,8 +83,12 @@ export class AppearanceComponent implements OnInit {
     enableCompactMode: false,
     showQuickCopyActions: false,
     width: "default" as PopupWidthOption,
+    openInSidePanel: false,
     showAtRiskNotifications: true,
   });
+
+  /** The side panel option is only offered by browsers supporting the Chrome Side Panel API */
+  protected readonly sidePanelSupported = BrowserApi.isSidePanelApiSupported;
 
   /** To avoid flashes of inaccurate values, only show the form after the entire form is populated. */
   formLoading = true;
@@ -126,6 +133,7 @@ export class AppearanceComponent implements OnInit {
       this.copyButtonsService.showQuickCopyActions$,
     );
     const width = await firstValueFrom(this.popupSizeService.width$);
+    const openInSidePanel = await firstValueFrom(this.sidePanelSettingsService.openInSidePanel$);
     const showAtRiskNotifications = await firstValueFrom(
       this.vaultSettingsService.showAtRiskPasswordNotifications$,
     );
@@ -139,6 +147,7 @@ export class AppearanceComponent implements OnInit {
       enableCompactMode,
       showQuickCopyActions,
       width,
+      openInSidePanel,
       showAtRiskNotifications,
     });
 
@@ -186,6 +195,12 @@ export class AppearanceComponent implements OnInit {
         void this.updateWidth(width);
       });
 
+    this.appearanceForm.controls.openInSidePanel.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((openInSidePanel) => {
+        void this.updateOpenInSidePanel(openInSidePanel);
+      });
+
     this.appearanceForm.controls.showAtRiskNotifications.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((showAtRiskNotifications) => {
@@ -224,5 +239,9 @@ export class AppearanceComponent implements OnInit {
 
   async updateWidth(width: PopupWidthOption) {
     await this.popupSizeService.setWidth(width);
+  }
+
+  async updateOpenInSidePanel(openInSidePanel: boolean) {
+    await this.sidePanelSettingsService.setOpenInSidePanel(openInSidePanel);
   }
 }
