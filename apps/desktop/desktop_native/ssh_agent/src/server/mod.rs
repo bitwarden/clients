@@ -171,7 +171,7 @@ where
 #[cfg(test)]
 pub(crate) mod test_common {
     use signature::{SignatureEncoding as _, Signer as _};
-    use ssh_key::private::{Ed25519Keypair, KeypairData, RsaKeypair};
+    use ssh_key::private::{EcdsaKeypair, Ed25519Keypair, KeypairData, RsaKeypair};
 
     use super::{
         protocol::{RSA_SHA2_256, RSA_SHA2_512},
@@ -231,6 +231,87 @@ pub(crate) mod test_common {
         let mut payload = Vec::new();
         write_ssh_string(&mut payload, &hostkey_bytes);
         write_ssh_string(&mut payload, session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(u8::from(is_forwarding));
+        payload
+    }
+
+    pub(crate) fn make_session_bind_payload_ecdsa(
+        keypair: &EcdsaKeypair,
+        session_id: &[u8],
+        is_forwarding: bool,
+    ) -> Vec<u8> {
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ecdsa(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair.sign(session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, sig.algorithm().as_str().as_bytes());
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(u8::from(is_forwarding));
+        payload
+    }
+
+    /// A session-bind payload whose host key is an OpenSSH host certificate
+    /// (`ssh-ed25519-cert-v01@openssh.com`) issued by a random CA, with the session signature made
+    /// by the certified host key. Host certificates are not supported for session-bind.
+    pub(crate) fn make_session_bind_payload_host_certificate(is_forwarding: bool) -> Vec<u8> {
+        use ssh_key::{certificate, rand_core::OsRng, Algorithm, PrivateKey};
+
+        let ca = PrivateKey::random(&mut OsRng, Algorithm::Ed25519).unwrap();
+        // Validity is irrelevant to session-bind handling; the end bound only needs to be a
+        // timestamp every platform's `SystemTime` can represent (2100-01-01T00:00:00Z).
+        const VALID_BEFORE: u64 = 4_102_444_800;
+
+        let host = PrivateKey::random(&mut OsRng, Algorithm::Ed25519).unwrap();
+        let mut builder = certificate::Builder::new(
+            [0x11u8; 16],
+            host.public_key().key_data().clone(),
+            0,
+            VALID_BEFORE,
+        )
+        .unwrap();
+        builder.cert_type(certificate::CertType::Host).unwrap();
+        builder.all_principals_valid().unwrap();
+        let cert = builder.sign(&ca).unwrap();
+
+        let session_id = [0x42u8; 32];
+        let sig: ssh_key::Signature = host.key_data().sign(&session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, sig.algorithm().as_str().as_bytes());
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &cert.to_bytes().unwrap());
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(u8::from(is_forwarding));
+        payload
+    }
+
+    /// A well-formed session-bind payload whose host key (`sk-ssh-ed25519@openssh.com`) parses
+    /// but is not a supported session-bind host key type.
+    pub(crate) fn make_session_bind_payload_unsupported_host_key(is_forwarding: bool) -> Vec<u8> {
+        const SK_ED25519: &[u8] = b"sk-ssh-ed25519@openssh.com";
+        let mut hostkey_bytes = Vec::new();
+        write_ssh_string(&mut hostkey_bytes, SK_ED25519);
+        write_ssh_string(&mut hostkey_bytes, &[0x01u8; 32]);
+        write_ssh_string(&mut hostkey_bytes, b"ssh:");
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, SK_ED25519);
+        write_ssh_string(&mut sig_outer, &[0u8; 64]);
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &[0x42u8; 32]);
         write_ssh_string(&mut payload, &sig_outer);
         payload.push(u8::from(is_forwarding));
         payload
