@@ -1,23 +1,19 @@
 import { mock } from "jest-mock-extended";
 
 import { ServiceAccountService, ServiceAccountView } from "@bitwarden/bit-sm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import {
   encodeSmRequest,
-  mockSmOrganization,
   smNotFoundError,
   smOrgId,
   smOtherOrgId,
+  smOrg,
 } from "../spec/sm-test-utils";
 
 import { MachineAccountEditCommand } from "./machine-account-edit.command";
 
 describe("MachineAccountEditCommand", () => {
   const serviceAccountService = mock<ServiceAccountService>();
-  const organizationService = mock<OrganizationService>();
-  const accountService = mock<AccountService>();
   const machineAccountId = "22222222-2222-2222-2222-222222222222";
   let command: MachineAccountEditCommand;
 
@@ -31,12 +27,7 @@ describe("MachineAccountEditCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSmOrganization(accountService, organizationService);
-    command = new MachineAccountEditCommand(
-      serviceAccountService,
-      organizationService,
-      accountService,
-    );
+    command = new MachineAccountEditCommand(serviceAccountService);
   });
 
   it("renames the machine account", async () => {
@@ -44,7 +35,7 @@ describe("MachineAccountEditCommand", () => {
     serviceAccountService.update.mockResolvedValue(makeMachineAccount({ name: "Deploy" }));
 
     const response = await command.run(
-      smOrgId,
+      smOrg,
       machineAccountId.toUpperCase(),
       encodeSmRequest({ name: "Deploy" }),
     );
@@ -63,7 +54,7 @@ describe("MachineAccountEditCommand", () => {
       makeMachineAccount({ organizationId: smOtherOrgId }),
     );
 
-    const response = await command.run(smOrgId, machineAccountId, { name: "Deploy" });
+    const response = await command.run(smOrg, machineAccountId, { name: "Deploy" });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -75,7 +66,7 @@ describe("MachineAccountEditCommand", () => {
   it("maps a 404 to a friendly error", async () => {
     serviceAccountService.getByServiceAccountId.mockRejectedValue(smNotFoundError());
 
-    const response = await command.run(smOrgId, machineAccountId, { name: "Deploy" });
+    const response = await command.run(smOrg, machineAccountId, { name: "Deploy" });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe(
@@ -84,7 +75,7 @@ describe("MachineAccountEditCommand", () => {
   });
 
   it("requires a name", async () => {
-    const response = await command.run(smOrgId, machineAccountId, { name: "  " });
+    const response = await command.run(smOrg, machineAccountId, { name: "  " });
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("`name` is required.");

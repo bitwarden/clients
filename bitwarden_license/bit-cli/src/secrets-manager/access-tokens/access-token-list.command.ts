@@ -1,12 +1,10 @@
 import { AccessService, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ServiceContainer } from "../../service-container";
 import { SmAccessTokenResponse } from "../models/sm-access-token.response";
-import { validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
+import { SmOrganization, smErrorResponse } from "../sm-command.utils";
 
 import { resolveSmMachineAccountId } from "./sm-access-token.utils";
 
@@ -14,19 +12,9 @@ export class AccessTokenListCommand {
   constructor(
     private accessService: AccessService,
     private serviceAccountService: ServiceAccountService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
   ) {}
 
-  async run(organizationId: string, machineAccountId: string): Promise<Response> {
-    const org = await validateSmOrganizationAccess(
-      this.organizationService,
-      this.accountService,
-      organizationId,
-    );
-    if (org.error) {
-      return org.error;
-    }
+  async run(org: SmOrganization, machineAccountId: string): Promise<Response> {
     const machineAccount = await resolveSmMachineAccountId(
       this.serviceAccountService,
       org.organizationId,
@@ -55,8 +43,6 @@ export class AccessTokenListCommand {
     return new AccessTokenListCommand(
       serviceContainer.accessService,
       serviceContainer.serviceAccountService,
-      serviceContainer.organizationService,
-      serviceContainer.accountService,
     );
   }
 }

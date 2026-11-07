@@ -416,8 +416,10 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await MachineAccountListCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
+              (org) => MachineAccountListCommand.create(this.serviceContainer).run(org),
             );
             this.processResponse(response);
           }),
@@ -437,9 +439,11 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (machineAccountId: string, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await MachineAccountGetCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              machineAccountId,
+              (org) =>
+                MachineAccountGetCommand.create(this.serviceContainer).run(org, machineAccountId),
             );
             this.processResponse(response);
           }),
@@ -459,9 +463,11 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (encodedJson: string | undefined, options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await MachineAccountCreateCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              encodedJson,
+              (org) =>
+                MachineAccountCreateCommand.create(this.serviceContainer).run(org, encodedJson),
             );
             this.processResponse(response);
           }),
@@ -487,10 +493,15 @@ export class SmProgram extends BaseProgram {
               options: OrgOptions,
             ) => {
               await this.exitIfLocked();
-              const response = await MachineAccountEditCommand.create(this.serviceContainer).run(
+              const response = await withSmOrganization(
+                this.serviceContainer,
                 options.organizationid,
-                machineAccountId,
-                encodedJson,
+                (org) =>
+                  MachineAccountEditCommand.create(this.serviceContainer).run(
+                    org,
+                    machineAccountId,
+                    encodedJson,
+                  ),
               );
               this.processResponse(response);
             },
@@ -515,9 +526,14 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (machineAccountIds: string[], options: OrgOptions) => {
             await this.exitIfLocked();
-            const response = await MachineAccountDeleteCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              machineAccountIds,
+              (org) =>
+                MachineAccountDeleteCommand.create(this.serviceContainer).run(
+                  org,
+                  machineAccountIds,
+                ),
             );
             this.processResponse(response);
           }),
@@ -545,9 +561,14 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (options: MachineAccountOptions) => {
             await this.exitIfLocked();
-            const response = await AccessTokenListCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              options.machineaccountid,
+              (org) =>
+                AccessTokenListCommand.create(this.serviceContainer).run(
+                  org,
+                  options.machineaccountid,
+                ),
             );
             this.processResponse(response);
           }),
@@ -588,14 +609,19 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (options: MachineAccountOptions & { name: string; expires?: string }) => {
             await this.exitIfLocked();
-            const response = await AccessTokenCreateCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              options.machineaccountid,
-              {
-                name: options.name,
-                expires: options.expires,
-                raw: process.env.BW_RAW === "true",
-              },
+              (org) =>
+                AccessTokenCreateCommand.create(this.serviceContainer).run(
+                  org,
+                  options.machineaccountid,
+                  {
+                    name: options.name,
+                    expires: options.expires,
+                    raw: process.env.BW_RAW === "true",
+                  },
+                ),
             );
             this.processResponse(response);
           }),
@@ -620,10 +646,15 @@ export class SmProgram extends BaseProgram {
           })
           .action(async (accessTokenIds: string[], options: MachineAccountOptions) => {
             await this.exitIfLocked();
-            const response = await AccessTokenRevokeCommand.create(this.serviceContainer).run(
+            const response = await withSmOrganization(
+              this.serviceContainer,
               options.organizationid,
-              options.machineaccountid,
-              accessTokenIds,
+              (org) =>
+                AccessTokenRevokeCommand.create(this.serviceContainer).run(
+                  org,
+                  options.machineaccountid,
+                  accessTokenIds,
+                ),
             );
             this.processResponse(response);
           }),
