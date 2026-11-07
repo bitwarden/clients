@@ -11,6 +11,7 @@ import {
   firstValueFrom,
   from,
   map,
+  Observable,
   of,
   skip,
   Subject,
@@ -32,6 +33,8 @@ import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/m
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -153,7 +156,7 @@ export class SshAgentService implements OnDestroy {
           return of([message, account.id]);
         }),
         concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
-          from(this.cipherService.getAllDecrypted(userId)).pipe(
+          from(this.decryptSshKeys(userId)).pipe(
             map((ciphers) => [message, ciphers] as const),
             catchError((error: unknown) =>
               from(
@@ -259,9 +262,7 @@ export class SshAgentService implements OnDestroy {
           return of([message, account.id] as const);
         }),
         concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
-          from(this.cipherService.getAllDecrypted(userId)).pipe(
-            map((ciphers) => [message, ciphers] as const),
-          ),
+          from(this.decryptSshKeys(userId)).pipe(map((ciphers) => [message, ciphers] as const)),
         ),
         concatMap(async ([message, ciphers]) => {
           const requestId = message.requestId as number;
@@ -313,13 +314,12 @@ export class SshAgentService implements OnDestroy {
               // Start the agent socket server if not already running.
               // Covers the locked-at-startup case: socket must be up so SSH clients
               // can connect and the app can prompt for vault unlock when needed.
-              // When locked, cipherViews$ emits null (caught by the filter below),
-              // so replace() is not called and existing keys are left in the native store.
+              // When locked, nothing is decrypted, so replace() is not called and
+              // existing keys are left in the native store.
               return from(this.ensureAgentRunning()).pipe(
-                // Subscribe to live cipher data for the active account.
-                switchMap(() => this.cipherService.cipherViews$(account.id)),
-                // Skip emissions before cipher data is available (e.g. during initial decrypt).
-                filter((views) => views != null),
+                filter(() => status === AuthenticationStatus.Unlocked),
+                // Subscribe to live SSH key ciphers for the active account.
+                switchMap(() => this.sshKeyViews$(account.id)),
                 // Project to the SSH key fields needed by the agent.
                 map((views) => this.toAgentKeys(views)),
                 // Skip re-push when the SSH key set hasn't actually changed.
@@ -390,6 +390,35 @@ export class SshAgentService implements OnDestroy {
     } catch (e) {
       this.logService.error("Failed to stop the SSH agent server", e);
     }
+  }
+
+  // Decrypts only SSH key ciphers, so the agent never forces a whole-vault decrypt.
+  // Skips PAM-gated ("partial") rows, matching cipherViews$.
+  private sshKeyViews$(userId: UserId): Observable<CipherView[]> {
+    return this.cipherService.ciphers$(userId).pipe(
+      map((ciphers) =>
+        Object.values(ciphers).filter((c) => c.type === CipherType.SshKey && c.partialData == null),
+      ),
+      switchMap((sshCiphers) => this.decryptAll(sshCiphers, userId)),
+    );
+  }
+
+  private decryptSshKeys(userId: UserId): Promise<CipherView[]> {
+    return firstValueFrom(this.sshKeyViews$(userId));
+  }
+
+  // Drops ciphers that fail to decrypt, matching cipherViews$.
+  private async decryptAll(ciphers: CipherData[], userId: UserId): Promise<CipherView[]> {
+    const views = await Promise.all(
+      ciphers.map((data) =>
+        this.cipherService.decrypt(new Cipher(data), userId).catch((): CipherView | null => {
+          this.logService.error("Failed to decrypt an SSH key cipher");
+          return null;
+        }),
+      ),
+    );
+
+    return views.filter((v) => v != null);
   }
 
   private toAgentKeys(
