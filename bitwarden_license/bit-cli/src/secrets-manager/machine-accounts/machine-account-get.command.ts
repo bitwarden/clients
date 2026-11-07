@@ -3,7 +3,13 @@ import { Response } from "@bitwarden/cli/models/response";
 
 import { ServiceContainer } from "../../service-container";
 import { SmMachineAccountResponse } from "../models/sm-machine-account.response";
-import { parseSmId, SmOrganization, smErrorResponse } from "../sm-command.utils";
+import {
+  isInSmOrganization,
+  parseSmId,
+  SmOrganization,
+  smErrorResponse,
+  smNotFoundResponse,
+} from "../sm-command.utils";
 
 export class MachineAccountGetCommand {
   constructor(private serviceAccountService: ServiceAccountService) {}
@@ -19,6 +25,9 @@ export class MachineAccountGetCommand {
         machineAccount.id,
         org.organizationId,
       );
+      if (!isInSmOrganization(view, org)) {
+        return smNotFoundResponse("machine account");
+      }
       return Response.success(new SmMachineAccountResponse(view));
     } catch (e) {
       return smErrorResponse(e, "machine account");
