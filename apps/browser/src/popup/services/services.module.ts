@@ -38,11 +38,7 @@ import {
   SsoComponentService,
   NewDeviceVerificationComponentService,
 } from "@bitwarden/auth/angular";
-import {
-  LoginEmailService,
-  SsoUrlService,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { LoginEmailService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
@@ -68,6 +64,7 @@ import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/ab
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
