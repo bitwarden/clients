@@ -46,7 +46,7 @@ const writeLn = CliUtils.writeLn;
 const ORGANIZATION_ID_OPTION = "--organizationid <organizationid>";
 const ORGANIZATION_ID_DESCRIPTION = "The organization id (required)";
 const ENCODED_JSON_DESCRIPTION =
-  "Base64 encoded JSON of the object, e.g. from `bw sm template` and `bw encode`. Can also be piped into stdin.";
+  "Base64 encoded JSON of the object, e.g. from `bw encode`. Can also be piped into stdin.";
 
 type OrgOptions = {
   organizationid: string;
@@ -149,7 +149,7 @@ export class SmProgram extends BaseProgram {
             writeLn("\n  Examples:");
             writeLn("");
             writeLn(
-              "    bw sm template sm-project | jq '.name=\"Backend\"' | bw encode | bw sm project create --organizationid <organizationid>",
+              '    echo \'{"name":"Backend"}\' | bw encode | bw sm project create --organizationid <organizationid>',
             );
             writeLn("", true);
           })
@@ -570,11 +570,6 @@ export class SmProgram extends BaseProgram {
             writeLn("");
             writeLn("    --expires accepts an ISO 8601 date, or never (also none) for a token");
             writeLn("    that does not expire. Omitting --expires is the same as never.");
-            writeLn("");
-            writeLn("    With `bw serve`, `expires` is required in the JSON body of");
-            writeLn(
-              "    POST /sm/<organizationid>/machine-accounts/<machineaccountid>/access-tokens.",
-            );
             writeLn("");
             writeLn("  Examples:");
             writeLn("");

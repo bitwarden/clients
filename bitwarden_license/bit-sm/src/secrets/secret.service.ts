@@ -87,13 +87,13 @@ export class SecretService {
   }
 
   /**
-   * Creates a secret. Pass `null` for `secretAccessPoliciesView` to create it without
+   * Creates a secret. Omit `secretAccessPoliciesView` to create it without
    * direct access policies.
    */
   async create(
     organizationId: string,
     secretView: SecretView,
-    secretAccessPoliciesView: SecretAccessPoliciesView | null,
+    secretAccessPoliciesView?: SecretAccessPoliciesView,
   ): Promise<SecretView> {
     const request = await this.getSecretRequest(
       organizationId,
@@ -113,13 +113,13 @@ export class SecretService {
   }
 
   /**
-   * Updates a secret. Pass `null` for `secretAccessPoliciesView` to leave its existing
+   * Updates a secret. Omit `secretAccessPoliciesView` to leave its existing
    * access policies unchanged.
    */
   async update(
     organizationId: string,
     secretView: SecretView,
-    secretAccessPoliciesView: SecretAccessPoliciesView | null,
+    secretAccessPoliciesView?: SecretAccessPoliciesView,
     valueChanged: boolean = false,
   ): Promise<SecretView> {
     const request = await this.getSecretRequest(
@@ -200,7 +200,7 @@ export class SecretService {
   private async getSecretRequest(
     organizationId: string,
     secretView: SecretView,
-    secretAccessPoliciesView: SecretAccessPoliciesView | null,
+    secretAccessPoliciesView: SecretAccessPoliciesView | undefined,
     valueChanged: boolean = false,
   ): Promise<SecretRequest> {
     const orgKey = await this.getOrganizationKey(organizationId);

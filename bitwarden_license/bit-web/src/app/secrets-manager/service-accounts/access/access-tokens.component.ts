@@ -12,10 +12,12 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { AccessService } from "@bitwarden/bit-sm/service-accounts/access/access.service";
-import { AccessTokenView } from "@bitwarden/bit-sm/service-accounts/models/view/access-token.view";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import {
+  AccessService,
+  AccessTokenView,
+  ServiceAccountService,
+  ServiceAccountView,
+} from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";

@@ -1,0 +1,79 @@
+import { Page } from "@playwright/test";
+
+import { AccountSecurityPage } from "../../../src/browser/account-security";
+import { lockNow as lockExtensionNow } from "../../../src/browser/account-switcher";
+import { test } from "../../../src/browser/fixtures";
+import { account } from "../../../src/credentials";
+import { FeatureFlag } from "../../../src/feature-flags";
+import { LockScreen } from "../../../src/lock-screen";
+import {
+  Extension,
+  LOCK_URL,
+  lockExtension,
+  logInToExtension,
+  logInToWeb,
+  openExtensionVault,
+  SYNC_TIMEOUT_MS,
+} from "../../../src/shared/clients";
+import { lockNow as lockWebNow } from "../../../src/web/account-menu";
+
+/**
+ * Web vault and extension lock and unlock together ("Sync unlock with web app", on by default).
+ */
+
+const FLAGS = [FeatureFlag.SharedUnlock, FeatureFlag.ContentScriptIpc];
+const PIN = "1234";
+
+test.describe("shared unlock between web vault and extension", () => {
+  test.setTimeout(300_000);
+
+  let extension: Extension;
+  let web: Page;
+
+  test.beforeEach(async ({ context, popup }) => {
+    extension = await logInToExtension(context, popup, FLAGS);
+
+    const settings = new AccountSecurityPage(extension.popup);
+    await settings.open(extension.url);
+    await settings.expectWebSync();
+    await openExtensionVault(extension);
+
+    web = await logInToWeb(context, FLAGS);
+  });
+
+  test("locking the web vault locks the extension, unlocking the web vault unlocks the extension", async ({
+    context,
+  }) => {
+    extension = await lockExtension(context, extension, () => lockWebNow(web));
+    const extensionLock = new LockScreen(extension.popup);
+    await extensionLock.waitUntilShown();
+
+    await new LockScreen(web).unlockWithMasterPassword(account().password);
+    await extensionLock.waitUntilGone();
+  });
+
+  test("locking the extension locks the web vault, unlocking the extension unlocks the web vault", async ({
+    context,
+  }) => {
+    extension = await lockExtension(context, extension, () => lockExtensionNow(extension.popup));
+    await web.waitForURL(LOCK_URL, { timeout: SYNC_TIMEOUT_MS });
+    const webLock = new LockScreen(web);
+    await webLock.waitUntilShown();
+
+    await new LockScreen(extension.popup).unlockWithMasterPassword(account().password);
+    await webLock.waitUntilGone();
+  });
+
+  test("unlocking the extension with a PIN unlocks the web vault", async ({ context }) => {
+    const settings = new AccountSecurityPage(extension.popup);
+    await settings.open(extension.url);
+    await settings.setPin(PIN);
+
+    extension = await lockExtension(context, extension, () => lockWebNow(web));
+    const webLock = new LockScreen(web);
+    await webLock.waitUntilShown();
+
+    await new LockScreen(extension.popup).unlockWithPin(PIN);
+    await webLock.waitUntilGone();
+  });
+});

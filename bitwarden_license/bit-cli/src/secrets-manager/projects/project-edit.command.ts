@@ -1,5 +1,4 @@
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -11,7 +10,7 @@ import {
   parseSmId,
   parseSmRequest,
   readSmName,
-  resolveSmOrganization,
+  validateSmOrganizationAccess,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
@@ -24,7 +23,7 @@ export class ProjectEditCommand {
   ) {}
 
   async run(organizationId: string, projectId: string, requestJson: unknown): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

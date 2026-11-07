@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
 
 import { SubscriptionPreviewResponse } from "@bitwarden/common/billing/models/response/subscription-preview.response";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { SubscriptionPreviewClient } from "../clients/subscription-preview.client";
@@ -135,6 +136,40 @@ describe("SubscriptionPreviewService", () => {
       mockClient.getAccountSubscriptionPreview.mockRejectedValue(new Error("404 Not Found"));
 
       await expect(sut.getAccountSubscriptionPreview()).rejects.toThrow("404 Not Found");
+    });
+  });
+
+  describe("hasAccountSubscription", () => {
+    it("returns true when the account preview resolves", async () => {
+      mockClient.getAccountSubscriptionPreview.mockResolvedValue(
+        new SubscriptionPreviewResponse(responseJson("premium")),
+      );
+
+      await expect(sut.hasAccountSubscription()).resolves.toBe(true);
+    });
+
+    it("does not build the cart, so an adapter failure cannot read as no subscription", async () => {
+      const response = mock<SubscriptionPreviewResponse>();
+      response.toDomain.mockImplementation(() => {
+        throw new Error("adapter failure");
+      });
+      mockClient.getAccountSubscriptionPreview.mockResolvedValue(response);
+
+      await expect(sut.hasAccountSubscription()).resolves.toBe(true);
+      expect(response.toDomain).not.toHaveBeenCalled();
+    });
+
+    it("treats a 404 as no subscription", async () => {
+      mockClient.getAccountSubscriptionPreview.mockRejectedValue(new ErrorResponse(null, 404));
+
+      await expect(sut.hasAccountSubscription()).resolves.toBe(false);
+    });
+
+    it("rethrows non-404 errors", async () => {
+      const error = new ErrorResponse(null, 500);
+      mockClient.getAccountSubscriptionPreview.mockRejectedValue(error);
+
+      await expect(sut.hasAccountSubscription()).rejects.toBe(error);
     });
   });
 });

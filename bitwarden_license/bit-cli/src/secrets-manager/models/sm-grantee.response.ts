@@ -1,4 +1,4 @@
-import { PotentialGranteeView } from "@bitwarden/bit-sm/models/view/access-policies/potential-grantee.view";
+import { PotentialGranteeView } from "@bitwarden/bit-sm";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 export type SmGranteeType = "user" | "group" | "machineAccount" | "project";

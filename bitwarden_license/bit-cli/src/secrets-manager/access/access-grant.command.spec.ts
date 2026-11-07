@@ -1,4 +1,4 @@
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
+import { SecretView } from "@bitwarden/bit-sm";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 
 import { SmAccessPolicyResponse } from "../models/sm-access-policy.response";

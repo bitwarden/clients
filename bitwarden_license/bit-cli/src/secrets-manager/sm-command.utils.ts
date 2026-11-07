@@ -1,6 +1,6 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { BulkOperationStatus } from "@bitwarden/bit-sm/models/bulk-operation-status";
+import { BulkOperationStatus } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { CliUtils } from "@bitwarden/cli/utils";
@@ -21,10 +21,10 @@ export type SmOrganizationResult =
  * @returns the lowercased id, or an error response naming the offending argument.
  */
 export function parseSmId(
-  id: string | undefined,
+  id: string,
   label: string,
 ): { id: string; error?: undefined } | { id?: undefined; error: Response } {
-  if (id == null || id === "") {
+  if (Utils.isNullOrWhitespace(id)) {
     return { error: Response.badRequest("`" + label + "` is required.") };
   }
   const normalized = id.toLowerCase();
@@ -38,10 +38,10 @@ export function parseSmId(
  * Normalizes a list of id arguments, rejecting an empty list, non-GUIDs, and duplicates.
  */
 export function parseSmIds(
-  ids: string[] | undefined,
+  ids: string[],
   label: string,
 ): { ids: string[]; error?: undefined } | { ids?: undefined; error: Response } {
-  if (ids == null || ids.length === 0) {
+  if (ids.length === 0) {
     return { error: Response.badRequest("At least one `" + label + "` is required.") };
   }
   const normalized: string[] = [];
@@ -57,27 +57,35 @@ export function parseSmIds(
   return { ids: normalized };
 }
 
+function isMissing(value: unknown): boolean {
+  if (value == null) {
+    return true;
+  }
+  if (typeof value !== "string") {
+    return false;
+  }
+  return Utils.isNullOrWhitespace(value);
+}
+
 /**
  * Reads a JSON request from a base64 encoded argument, stdin, or an object passed by `bw serve`.
  */
 export async function parseSmRequest<T extends object>(
   requestJson: unknown,
 ): Promise<{ request: Partial<T>; error?: undefined } | { request?: undefined; error: Response }> {
-  if (process.env.BW_SERVE !== "true") {
-    if (requestJson == null || requestJson === "") {
-      requestJson = await CliUtils.readStdin();
-    }
-  }
-  if (requestJson == null || requestJson === "") {
+  const isServe = process.env.BW_SERVE === "true";
+  const shouldReadStdin = !isServe && isMissing(requestJson);
+  const input = shouldReadStdin ? await CliUtils.readStdin() : requestJson;
+  if (isMissing(input)) {
     return { error: Response.badRequest("`requestJson` was not provided.") };
   }
 
   let request: unknown;
-  if (typeof requestJson !== "string") {
-    request = requestJson;
+  if (typeof input !== "string") {
+    request = input;
   } else {
     try {
-      request = JSON.parse(Buffer.from(requestJson, "base64").toString());
+      request = JSON.parse(Buffer.from(input, "base64").toString());
     } catch {
       return { error: Response.badRequest("Error parsing the encoded request data.") };
     }
@@ -159,7 +167,7 @@ export function smBulkResponse(results: BulkOperationStatus[], action: string): 
  * Validates that the active user is a member of the organization and has access to Secrets Manager.
  * The server answers permission failures with a 404, so this check runs first to give a clear error.
  */
-export async function resolveSmOrganization(
+export async function validateSmOrganizationAccess(
   organizationService: OrganizationService,
   accountService: AccountService,
   organizationId: string | undefined,

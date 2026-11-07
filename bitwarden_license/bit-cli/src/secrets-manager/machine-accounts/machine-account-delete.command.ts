@@ -1,4 +1,4 @@
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -6,7 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ServiceContainer } from "../../service-container";
 import {
   parseSmIds,
-  resolveSmOrganization,
+  validateSmOrganizationAccess,
   smBulkResponse,
   smErrorResponse,
   smNotFoundResponse,
@@ -20,7 +20,7 @@ export class MachineAccountDeleteCommand {
   ) {}
 
   async run(organizationId: string, machineAccountIds: string[]): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,

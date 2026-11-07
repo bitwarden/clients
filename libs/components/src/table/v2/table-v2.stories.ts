@@ -28,6 +28,7 @@ import { ChipActionComponent } from "../../chips/chip-action";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
+import { HoverRevealDirective } from "../../hover-reveal";
 import { IconButtonModule } from "../../icon-button";
 import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-tile.component";
 import { InputModule } from "../../input/input.module";
@@ -1173,6 +1174,7 @@ export default {
         BulkAdditionalActionComponent,
         IconTileComponent,
         ChipActionComponent,
+        HoverRevealDirective,
         ButtonModule,
         IconButtonModule,
         LayoutComponent,
@@ -1437,6 +1439,36 @@ export const CellFocusRings: Story = {
               size="small"
               label="Options"
               class="tw-test-focus-visible"
+            ></button>
+          </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+/**
+ * Each row is a `bitHoverRevealContainer`, so `bitHoverReveal` actions show on row hover or focus.
+ */
+export const HoverReveal: Story = {
+  render: () => ({
+    props: { table: userTable },
+    template: /*html*/ `
+      <bit-table-v2 [tableDef]="table">
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column width="72px">
+          <bit-header-cell><span class="tw-sr-only">Actions</span></bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.email; let row">
+            <button
+              slot="end"
+              type="button"
+              bitHoverReveal
+              bitIconButton="bwi-pencil-square"
+              size="small"
+              [label]="'Edit ' + row.name"
             ></button>
           </bit-cell>
         </bit-column>

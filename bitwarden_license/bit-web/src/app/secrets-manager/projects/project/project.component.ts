@@ -15,12 +15,14 @@ import {
   concatMap,
 } from "rxjs";
 
-import { ProjectCounts } from "@bitwarden/bit-sm/models/view/counts.view";
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
-import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
+import {
+  AccessPolicyService,
+  CountService,
+  ProjectCounts,
+  ProjectService,
+  ProjectView,
+  SecretService,
+} from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

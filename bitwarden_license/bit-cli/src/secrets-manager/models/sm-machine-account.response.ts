@@ -1,7 +1,4 @@
-import {
-  ServiceAccountSecretsDetailsView,
-  ServiceAccountView,
-} from "@bitwarden/bit-sm/models/view/service-account.view";
+import { ServiceAccountSecretsDetailsView, ServiceAccountView } from "@bitwarden/bit-sm";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 export class SmMachineAccountResponse implements BaseResponse {

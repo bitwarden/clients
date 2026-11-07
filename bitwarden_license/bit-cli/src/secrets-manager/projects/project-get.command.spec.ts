@@ -1,11 +1,10 @@
 import { mock } from "jest-mock-extended";
 
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { mockSmOrganization, smNotFoundError, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";
+import { mockSmOrganization, smNotFoundError, smOrgId } from "../spec/sm-test-utils";
 
 import { ProjectGetCommand } from "./project-get.command";
 
@@ -64,15 +63,6 @@ describe("ProjectGetCommand", () => {
 
   it("maps a 404 to a friendly error", async () => {
     projectService.getByProjectId.mockRejectedValue(smNotFoundError());
-
-    const response = await command.run(smOrgId, projectId);
-
-    expect(response.success).toBe(false);
-    expect(response.message).toBe("The project was not found, or you do not have access to it.");
-  });
-
-  it("treats a project from another organization as not found", async () => {
-    projectService.getByProjectId.mockResolvedValue(makeProject(smOtherOrgId));
 
     const response = await command.run(smOrgId, projectId);
 

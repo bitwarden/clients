@@ -1,4 +1,4 @@
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 
 import { parseSmId, smErrorResponse, smNotFoundResponse } from "../sm-command.utils";
@@ -10,7 +10,7 @@ import { parseSmId, smErrorResponse, smNotFoundResponse } from "../sm-command.ut
 export async function resolveSmMachineAccountId(
   serviceAccountService: ServiceAccountService,
   organizationId: string,
-  machineAccountId: string | undefined,
+  machineAccountId: string,
 ): Promise<
   | { machineAccountId: string; error?: undefined }
   | { machineAccountId?: undefined; error: Response }

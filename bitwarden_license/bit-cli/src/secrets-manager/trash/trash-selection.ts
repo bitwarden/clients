@@ -1,5 +1,4 @@
-import { BulkOperationStatus } from "@bitwarden/bit-sm/models/bulk-operation-status";
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
+import { BulkOperationStatus, SecretListView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 
@@ -19,15 +18,15 @@ export function selectTrashedSecrets(
   trashed: SecretListView[],
   selection: SmTrashSelection,
 ): { secrets: SecretListView[]; error?: undefined } | { secrets?: undefined; error: Response } {
-  const hasIds = selection.secretIds != null && selection.secretIds.length > 0;
-  if (selection.all && hasIds) {
+  const secretIds = selection.secretIds ?? [];
+  if (selection.all && secretIds.length > 0) {
     return { error: Response.badRequest("Provide secret ids or `--all`, not both.") };
   }
   if (selection.all) {
     return { secrets: trashed };
   }
 
-  const parsed = parseSmIds(selection.secretIds, "secretId");
+  const parsed = parseSmIds(secretIds, "secretId");
   if (parsed.error) {
     return { error: parsed.error };
   }

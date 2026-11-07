@@ -86,7 +86,10 @@ export class AccessSetCommand {
           ),
         };
       }
-      const parsedId = parseSmId(typeof id === "string" ? id : undefined, "id");
+      if (typeof id !== "string") {
+        return { error: Response.badRequest("Each policy's `id` must be a string.") };
+      }
+      const parsedId = parseSmId(id, "id");
       if (parsedId.error) {
         return { error: parsedId.error };
       }

@@ -1,9 +1,11 @@
 import { mock } from "jest-mock-extended";
 
-import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { AccessService } from "@bitwarden/bit-sm/service-accounts/access/access.service";
-import { AccessTokenView } from "@bitwarden/bit-sm/service-accounts/models/view/access-token.view";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import {
+  AccessService,
+  AccessTokenView,
+  ServiceAccountService,
+  ServiceAccountView,
+} from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
