@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { PotentialGranteeView } from "@bitwarden/bit-sm/models/view/access-policies/potential-grantee.view";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+import { AccessPolicyService, PotentialGranteeView } from "@bitwarden/bit-sm";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

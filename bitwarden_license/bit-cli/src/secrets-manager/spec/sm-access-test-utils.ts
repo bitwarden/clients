@@ -1,13 +1,15 @@
 import { mock } from "jest-mock-extended";
 
-import { PotentialGranteeView } from "@bitwarden/bit-sm/models/view/access-policies/potential-grantee.view";
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
-import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+import {
+  AccessPolicyService,
+  PotentialGranteeView,
+  ProjectService,
+  ProjectView,
+  SecretService,
+  SecretView,
+  ServiceAccountService,
+  ServiceAccountView,
+} from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 

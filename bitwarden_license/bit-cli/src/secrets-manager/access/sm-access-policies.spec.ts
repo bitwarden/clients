@@ -1,4 +1,4 @@
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
+import { ProjectView } from "@bitwarden/bit-sm";
 
 import { aliceId, createSmAccessFixture, groupId, smTargetId } from "../spec/sm-access-test-utils";
 import { mockSmOrganization, smNotFoundError, smOrgId, smOtherOrgId } from "../spec/sm-test-utils";

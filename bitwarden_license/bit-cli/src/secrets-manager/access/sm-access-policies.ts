@@ -1,13 +1,16 @@
-import { PotentialGranteeView } from "@bitwarden/bit-sm/models/view/access-policies/potential-grantee.view";
-import { GrantedProjectPolicyPermissionDetailsView } from "@bitwarden/bit-sm/models/view/access-policies/service-account-granted-policies.view";
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+import {
+  AccessPolicyService,
+  GrantedProjectPolicyPermissionDetailsView,
+  PotentialGranteeView,
+  ProjectService,
+  SecretService,
+  SecretView,
+  ServiceAccountService,
+} from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 
@@ -15,7 +18,7 @@ import { ServiceContainer } from "../../service-container";
 import { SmGranteeType, toSmGranteeType } from "../models/sm-grantee.response";
 import {
   parseSmId,
-  resolveSmOrganization,
+  validateSmOrganizationAccess,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
@@ -72,7 +75,9 @@ const GranteeTypeLabels: Record<SmGranteeType, string> = {
  * Machine account people access only supports read-write, matching the web vault.
  */
 function requiresReadWrite(target: SmAccessTarget, type: SmGranteeType): boolean {
-  return target === "machine-account" && (type === "user" || type === "group");
+  const isMachineAccount = target === "machine-account";
+  const isPeopleGrantee = type === "user" || type === "group";
+  return isMachineAccount && isPeopleGrantee;
 }
 
 export function parseSmPermission(
@@ -175,10 +180,10 @@ export function resolveSmGrantee(
   candidates: SmGranteeCandidate[],
   target: SmAccessTarget,
 ): { grantee: SmGranteeCandidate; error?: undefined } | { grantee?: undefined; error: Response } {
-  const normalized = grantee?.trim().toLowerCase() ?? "";
-  if (normalized === "") {
+  if (Utils.isNullOrWhitespace(grantee)) {
     return { error: Response.badRequest("`grantee` is required.") };
   }
+  const normalized = grantee.trim().toLowerCase();
 
   let matches = candidates.filter((c) => c.id.toLowerCase() === normalized);
   if (matches.length === 0) {
@@ -250,7 +255,7 @@ export class SmAccessPolicyStore {
     target: string,
     targetId: string,
   ): Promise<{ state: SmAccessState; error?: undefined } | { state?: undefined; error: Response }> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,
