@@ -21,6 +21,8 @@ import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs
 import { ProjectListView } from "../models/view/project-list.view";
 import { ProjectView } from "../models/view/project.view";
 
+import { fuzzySearchFilter } from "./search/fuzzy-search";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -56,7 +58,9 @@ export class ProjectsListComponent implements OnInit {
   @Input()
   set search(search: string) {
     this.selection.clear();
-    this.dataSource.filter = search;
+    this.dataSource.filter = fuzzySearchFilter<ProjectListView>(search, (project) => [
+      project.name,
+    ]);
   }
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
