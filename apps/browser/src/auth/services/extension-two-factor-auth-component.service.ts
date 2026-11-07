@@ -29,8 +29,11 @@ export class ExtensionTwoFactorAuthComponentService
     return true;
   }
 
+  /**
+   * Adds a CSS class that widens the popup when needed for the WebAuthn 2FA prompt.
+   */
   async extendPopupWidthIfRequired(selected2faProviderType: TwoFactorProviderType): Promise<void> {
-    // WebAuthn prompt appears inside the popup on linux, and requires a larger popup width
+    // The WebAuthn prompt appears inside the popup on Linux, and requires a larger popup width
     // than usual to avoid cutting off the dialog.
     const isLinux = await this.isLinux();
     if (selected2faProviderType === TwoFactorProviderType.WebAuthn && isLinux) {
@@ -42,59 +45,38 @@ export class ExtensionTwoFactorAuthComponentService
     document.body.classList.remove("linux-webauthn");
   }
 
+  /**
+   * Reloads all extension views except the current one.
+   */
   reloadOpenWindows(): void {
-    // Force sidebars (FF && Opera) to reload while exempting current window
-    // because we are just going to close the current window if it is in a popout
-    // or navigate forward if it is in the popup
+    // Forces sidebars (Firefox and Opera) to reload while exempting the current window, because
+    // we are just going to close the current window if it is in a popout or navigate forward if
+    // it is in the popup.
     BrowserApi.reloadOpenWindows(true);
   }
 
+  /**
+   * Closes any auth-related single-action popouts that are open.
+   * @returns `true` if the current view itself is one of those popouts.
+   */
   async closeSingleActionPopouts(): Promise<boolean> {
-    // If we are in a single action popout, we don't need the popout anymore because the intent
-    // is for the user to be left on the web vault screen which tells them to continue in
-    // the browser extension (sidebar or popup).  We don't want the user to be left with a
-    // floating, popped out extension which could be lost behind another window or minimized.
-    // Currently, the popped out window thinks it is active and wouldn't time out which
-    // leads to the security concern. So, we close the popped out extension to avoid this.
-    const inSsoAuthResultPopout = BrowserPopupUtils.inSingleActionPopout(
-      this.window,
-      AuthPopoutType.ssoAuthResult,
-    );
-    if (inSsoAuthResultPopout) {
-      await closeSsoAuthResultPopout();
-      return true;
-    }
+    // The popout may live in a different window than the current view (e.g., user opened the
+    // extension during 2FA), so we close by key unconditionally; `closeSingleActionPopout` is a
+    // no-op if no matching tab exists.
+    const authPopouts = [
+      { type: AuthPopoutType.ssoAuthResult, close: closeSsoAuthResultPopout },
+      { type: AuthPopoutType.twoFactorAuthWebAuthn, close: closeTwoFactorAuthWebAuthnPopout },
+      { type: AuthPopoutType.twoFactorAuthEmail, close: closeTwoFactorAuthEmailPopout },
+      { type: AuthPopoutType.twoFactorAuthDuo, close: closeTwoFactorAuthDuoPopout },
+    ];
 
-    const inTwoFactorAuthWebAuthnPopout = BrowserPopupUtils.inSingleActionPopout(
-      this.window,
-      AuthPopoutType.twoFactorAuthWebAuthn,
+    const currentViewIsInAuthPopout = authPopouts.some(({ type }) =>
+      BrowserPopupUtils.inSingleActionPopout(this.window, type),
     );
 
-    if (inTwoFactorAuthWebAuthnPopout) {
-      await closeTwoFactorAuthWebAuthnPopout();
-      return true;
-    }
+    await Promise.all(authPopouts.map(({ close }) => close()));
 
-    const inTwoFactorAuthEmailPopout = BrowserPopupUtils.inSingleActionPopout(
-      this.window,
-      AuthPopoutType.twoFactorAuthEmail,
-    );
-
-    if (inTwoFactorAuthEmailPopout) {
-      await closeTwoFactorAuthEmailPopout();
-      return true;
-    }
-
-    const inTwoFactorAuthDuoPopout = BrowserPopupUtils.inSingleActionPopout(
-      this.window,
-      AuthPopoutType.twoFactorAuthDuo,
-    );
-    if (inTwoFactorAuthDuoPopout) {
-      await closeTwoFactorAuthDuoPopout();
-      return true;
-    }
-
-    return false;
+    return currentViewIsInAuthPopout;
   }
 
   private async isLinux(): Promise<boolean> {
