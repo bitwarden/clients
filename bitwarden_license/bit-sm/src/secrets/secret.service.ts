@@ -107,7 +107,7 @@ export class SecretService {
       true,
       true,
     );
-    const secret = await this.createSecretView(new SecretResponse(r));
+    const secret = await this.withProjectNames(secretView, new SecretResponse(r));
     this._secret.next(secret);
     return secret;
   }
@@ -129,7 +129,7 @@ export class SecretService {
       valueChanged,
     );
     const r = await this.apiService.send("PUT", "/secrets/" + secretView.id, request, true, true);
-    const secret = await this.createSecretView(new SecretResponse(r));
+    const secret = await this.withProjectNames(secretView, new SecretResponse(r));
     this._secret.next(secret);
     return secret;
   }
@@ -224,6 +224,23 @@ export class SecretService {
         : this.accessPolicyService.getSecretAccessPoliciesRequest(secretAccessPoliciesView);
 
     return request;
+  }
+
+  /**
+   * The server echoes the requested project ids without names on create, and omits unchanged
+   * projects on update, so fall back to a fetch when the response can't name every project.
+   */
+  private async withProjectNames(
+    requested: SecretView,
+    response: SecretResponse,
+  ): Promise<SecretView> {
+    const requestedIds = (requested.projects ?? []).map((p) => p.id);
+    const named = new Set(response.projects?.filter((p) => !!p.name).map((p) => p.id));
+    if (requestedIds.every((id) => named.has(id))) {
+      return await this.createSecretView(response);
+    }
+    const r = await this.apiService.send("GET", "/secrets/" + response.id, null, true, true);
+    return await this.createSecretView(new SecretResponse(r));
   }
 
   private async createSecretView(secretResponse: SecretResponse): Promise<SecretView> {
