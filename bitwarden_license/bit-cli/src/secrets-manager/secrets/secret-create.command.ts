@@ -1,4 +1,4 @@
-import { SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
+import { ProjectService, SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 
 import { ServiceContainer } from "../../service-container";
@@ -10,10 +10,14 @@ import {
   smErrorResponse,
 } from "../sm-command.utils";
 
+import { fillSmSecretProjectNames } from "./sm-secret-project-names";
 import { readSmSecretRequest } from "./sm-secret-request";
 
 export class SecretCreateCommand {
-  constructor(private secretService: SecretService) {}
+  constructor(
+    private secretService: SecretService,
+    private projectService: ProjectService,
+  ) {}
 
   async run(org: SmOrganization, requestJson: unknown): Promise<Response> {
     const parsed = await parseSmRequest<Record<string, unknown>>(requestJson);
@@ -46,6 +50,7 @@ export class SecretCreateCommand {
 
     try {
       const created = await this.secretService.create(org.organizationId, view, undefined);
+      await fillSmSecretProjectNames(this.projectService, org, created, view.projects);
       return Response.success(new SmSecretResponse(created));
     } catch (e) {
       return smErrorResponse(e, view.projects.length > 0 ? "project" : "organization");
@@ -53,6 +58,6 @@ export class SecretCreateCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new SecretCreateCommand(serviceContainer.secretService);
+    return new SecretCreateCommand(serviceContainer.secretService, serviceContainer.projectService);
   }
 }

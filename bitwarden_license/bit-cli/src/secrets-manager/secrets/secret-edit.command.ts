@@ -1,4 +1,4 @@
-import { SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
+import { ProjectService, SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
@@ -14,6 +14,7 @@ import {
   smNotFoundResponse,
 } from "../sm-command.utils";
 
+import { fillSmSecretProjectNames } from "./sm-secret-project-names";
 import { readSmSecretRequest } from "./sm-secret-request";
 
 /**
@@ -21,7 +22,10 @@ import { readSmSecretRequest } from "./sm-secret-request";
  * secret's access policies are left unchanged.
  */
 export class SecretEditCommand {
-  constructor(private secretService: SecretService) {}
+  constructor(
+    private secretService: SecretService,
+    private projectService: ProjectService,
+  ) {}
 
   async run(org: SmOrganization, secretId: string, requestJson: unknown): Promise<Response> {
     const secret = parseSmId(secretId, "secretId");
@@ -82,6 +86,7 @@ export class SecretEditCommand {
         undefined,
         view.value !== existing.value,
       );
+      await fillSmSecretProjectNames(this.projectService, org, updated, view.projects);
       return Response.success(new SmSecretResponse(updated));
     } catch (e) {
       return smErrorResponse(e, "secret");
@@ -89,6 +94,6 @@ export class SecretEditCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new SecretEditCommand(serviceContainer.secretService);
+    return new SecretEditCommand(serviceContainer.secretService, serviceContainer.projectService);
   }
 }
