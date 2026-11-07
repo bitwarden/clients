@@ -3,6 +3,8 @@ import { BehaviorSubject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import {
   ActiveRequest,
   Fido2ActiveRequestManager,
@@ -68,6 +70,16 @@ describe("Fido2Background", () => {
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authServiceMock!: MockProxy<AuthService>;
   let fido2Background!: Fido2Background;
+  let getSenderFrameUrlSpy!: jest.SpyInstance;
+  let getAllFrameDetailsSpy!: jest.SpyInstance;
+  let blockedInteractionsUrisMock$!: BehaviorSubject<NeverDomains>;
+  let neverDomainsMock$!: BehaviorSubject<NeverDomains | null>;
+  // A top-level frame (0) enclosing an intermediate frame (4) enclosing a nested frame (7)
+  const nestedFrameTree = [
+    { frameId: 0, parentFrameId: -1, url: "https://example.com/checkout" },
+    { frameId: 4, parentFrameId: 0, url: "https://wallet.example.org/pay" },
+    { frameId: 7, parentFrameId: 4, url: "https://login.example.net/passkey" },
+  ] as chrome.webNavigation.GetAllFrameResultDetails[];
 
   beforeEach(() => {
     tabMock = mock<chrome.tabs.Tab>({
@@ -76,6 +88,10 @@ describe("Fido2Background", () => {
       windowId: 456,
     });
     senderMock = mock<chrome.runtime.MessageSender>({ id: "1", tab: tabMock });
+    getSenderFrameUrlSpy = jest
+      .spyOn(BrowserApi, "getSenderFrameUrl")
+      .mockResolvedValue("https://example.com");
+    getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([]);
     logService = mock<LogService>();
     fido2ClientService = mock<Fido2ClientService<BrowserFido2ParentWindowReference>>();
     vaultSettingsService = mock<VaultSettingsService>();
@@ -93,6 +109,11 @@ describe("Fido2Background", () => {
     authServiceMock.activeAccountStatus$ = activeAccountStatusMock$;
     const permissionsPolicyBackgroundMock = mock<PermissionsPolicyBackground>();
     permissionsPolicyBackgroundMock.isFeatureAllowedForFrame.mockResolvedValue(true);
+    blockedInteractionsUrisMock$ = new BehaviorSubject<NeverDomains>({});
+    neverDomainsMock$ = new BehaviorSubject<NeverDomains | null>(null);
+    const domainSettingsServiceMock = mock<DomainSettingsService>();
+    domainSettingsServiceMock.blockedInteractionsUris$ = blockedInteractionsUrisMock$;
+    domainSettingsServiceMock.neverDomains$ = neverDomainsMock$;
     fido2Background = new Fido2Background(
       logService,
       fido2ActiveRequestManager,
@@ -101,6 +122,7 @@ describe("Fido2Background", () => {
       scriptInjectorServiceMock,
       authServiceMock,
       permissionsPolicyBackgroundMock,
+      domainSettingsServiceMock,
     );
     fido2Background["abortManager"] = abortManagerMock;
     abortManagerMock.runWithAbortController.mockImplementation((_requestId, runner) =>
@@ -479,11 +501,143 @@ describe("Fido2Background", () => {
 
         expect(fido2ClientService.createCredential).toHaveBeenCalledWith(
           message.data,
-          tabMock,
+          expect.objectContaining({
+            id: tabMock.id,
+            windowId: tabMock.windowId,
+            requestFrameUrl: "https://example.com",
+          }),
           abortController,
         );
         expect(focusTabSpy).toHaveBeenCalledWith(tabMock.id);
         expect(focusWindowSpy).toHaveBeenCalledWith(tabMock.windowId);
+      });
+
+      it("passes the requesting sub-frame's URL rather than the tab's", async () => {
+        const frameUrl = "https://login.example.net/passkey";
+        getSenderFrameUrlSpy.mockResolvedValue(frameUrl);
+        const subFrameSender = mock<chrome.runtime.MessageSender>({
+          id: "1",
+          tab: tabMock,
+          frameId: 4,
+        });
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2RegisterCredentialRequest",
+          requestId: "123",
+          data: mock<CreateCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, subFrameSender);
+        await flushPromises();
+
+        expect(getSenderFrameUrlSpy).toHaveBeenCalledWith(subFrameSender);
+        expect(fido2ClientService.createCredential).toHaveBeenCalledWith(
+          message.data,
+          expect.objectContaining({ id: tabMock.id, requestFrameUrl: frameUrl }),
+          abortController,
+        );
+      });
+
+      it("falls back to the tab URL when the requesting frame's URL cannot be resolved", async () => {
+        getSenderFrameUrlSpy.mockResolvedValue(undefined);
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2RegisterCredentialRequest",
+          requestId: "123",
+          data: mock<CreateCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, senderMock);
+        await flushPromises();
+
+        expect(fido2ClientService.createCredential).toHaveBeenCalledWith(
+          message.data,
+          expect.objectContaining({ requestFrameUrl: tabMock.url }),
+          abortController,
+        );
+      });
+
+      describe("with domain rules for enclosing frames", () => {
+        const sendRegisterRequest = (frameId: number) => {
+          const sendResponse = jest.fn();
+          const sender = mock<chrome.runtime.MessageSender>({ id: "1", tab: tabMock, frameId });
+          const message = mock<Fido2ExtensionMessage>({
+            command: "fido2RegisterCredentialRequest",
+            requestId: "123",
+            data: mock<CreateCredentialParams>(),
+          });
+
+          sendMockExtensionMessage(message, sender, sendResponse);
+
+          return sendResponse;
+        };
+
+        beforeEach(() => {
+          getAllFrameDetailsSpy.mockResolvedValue(nestedFrameTree);
+        });
+
+        it.each([
+          ["excluded", () => neverDomainsMock$.next({ "wallet.example.org": null })],
+          ["blocked", () => blockedInteractionsUrisMock$.next({ "example.org": null })],
+        ])(
+          "requests a browser fallback when an intermediate enclosing frame's domain is %s",
+          async (_ruleType, applyRule) => {
+            applyRule();
+
+            const sendResponse = sendRegisterRequest(7);
+            await flushPromises();
+
+            expect(getAllFrameDetailsSpy).toHaveBeenCalledWith(tabMock.id);
+            expect(fido2ClientService.createCredential).not.toHaveBeenCalled();
+            expect(sendResponse).toHaveBeenCalledWith({
+              error: expect.objectContaining({ fallbackRequested: true }),
+            });
+          },
+        );
+
+        it("requests a browser fallback when the top-level frame's domain is excluded", async () => {
+          neverDomainsMock$.next({ "example.com": null });
+
+          sendRegisterRequest(7);
+          await flushPromises();
+
+          expect(fido2ClientService.createCredential).not.toHaveBeenCalled();
+        });
+
+        it("does not apply a nested frame's domain rule to the frames enclosing it", async () => {
+          neverDomainsMock$.next({ "login.example.net": null });
+
+          sendRegisterRequest(4);
+          await flushPromises();
+
+          expect(fido2ClientService.createCredential).toHaveBeenCalled();
+        });
+
+        it("leaves the requesting frame's own domain rule to the Fido2ClientService", async () => {
+          neverDomainsMock$.next({ "example.com": null });
+
+          sendRegisterRequest(0);
+          await flushPromises();
+
+          expect(getAllFrameDetailsSpy).not.toHaveBeenCalled();
+          expect(fido2ClientService.createCredential).toHaveBeenCalled();
+        });
+
+        it("skips reading the frame tree when there are no domain rules", async () => {
+          sendRegisterRequest(7);
+          await flushPromises();
+
+          expect(getAllFrameDetailsSpy).not.toHaveBeenCalled();
+          expect(fido2ClientService.createCredential).toHaveBeenCalled();
+        });
+
+        it("checks the tab URL when the frame tree cannot be resolved", async () => {
+          getAllFrameDetailsSpy.mockResolvedValue(null);
+          neverDomainsMock$.next({ "example.com": null });
+
+          sendRegisterRequest(7);
+          await flushPromises();
+
+          expect(fido2ClientService.createCredential).not.toHaveBeenCalled();
+        });
       });
     });
 
@@ -500,11 +654,39 @@ describe("Fido2Background", () => {
 
         expect(fido2ClientService.assertCredential).toHaveBeenCalledWith(
           message.data,
-          tabMock,
+          expect.objectContaining({
+            id: tabMock.id,
+            windowId: tabMock.windowId,
+            requestFrameUrl: "https://example.com",
+          }),
           abortController,
         );
         expect(focusTabSpy).toHaveBeenCalledWith(tabMock.id);
         expect(focusWindowSpy).toHaveBeenCalledWith(tabMock.windowId);
+      });
+
+      it("requests a browser fallback when an enclosing frame's domain is excluded", async () => {
+        getAllFrameDetailsSpy.mockResolvedValue(nestedFrameTree);
+        neverDomainsMock$.next({ "wallet.example.org": null });
+        const sendResponse = jest.fn();
+        const nestedFrameSender = mock<chrome.runtime.MessageSender>({
+          id: "1",
+          tab: tabMock,
+          frameId: 7,
+        });
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2GetCredentialRequest",
+          requestId: "123",
+          data: mock<AssertCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, nestedFrameSender, sendResponse);
+        await flushPromises();
+
+        expect(fido2ClientService.assertCredential).not.toHaveBeenCalled();
+        expect(sendResponse).toHaveBeenCalledWith({
+          error: expect.objectContaining({ fallbackRequested: true }),
+        });
       });
     });
   });
@@ -560,6 +742,43 @@ describe("Fido2Background", () => {
       await flushPromises();
 
       expect(portMock.onDisconnect.addListener).toHaveBeenCalled();
+    });
+
+    describe("with domain rules for enclosing frames", () => {
+      beforeEach(() => {
+        getAllFrameDetailsSpy.mockResolvedValue(nestedFrameTree);
+        portMock.sender.url = "https://login.example.net/passkey";
+        portMock.sender.frameId = 7;
+      });
+
+      it("disconnects a nested frame's port connection when an enclosing frame's domain is excluded", async () => {
+        neverDomainsMock$.next({ "wallet.example.org": null });
+
+        triggerRuntimeOnConnectEvent(portMock);
+        await flushPromises();
+
+        expect(portMock.disconnect).toHaveBeenCalled();
+        expect(portMock.onDisconnect.addListener).not.toHaveBeenCalled();
+      });
+
+      it("disconnects a nested frame's port connection when an enclosing frame's domain is blocked by suffix", async () => {
+        blockedInteractionsUrisMock$.next({ "example.org": null });
+
+        triggerRuntimeOnConnectEvent(portMock);
+        await flushPromises();
+
+        expect(portMock.disconnect).toHaveBeenCalled();
+      });
+
+      it("matches an enclosing frame's excluded domain by exact hostname", async () => {
+        neverDomainsMock$.next({ "example.org": null });
+
+        triggerRuntimeOnConnectEvent(portMock);
+        await flushPromises();
+
+        expect(portMock.disconnect).not.toHaveBeenCalled();
+        expect(portMock.onDisconnect.addListener).toHaveBeenCalled();
+      });
     });
   });
 

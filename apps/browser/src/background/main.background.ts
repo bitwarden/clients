@@ -1569,6 +1569,7 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.authService,
       permissionsPolicyBackground,
+      this.domainSettingsService,
     );
 
     const logoutService = new DefaultLogoutService(
