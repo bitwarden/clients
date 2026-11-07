@@ -21,7 +21,10 @@ import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import {
+  CipherService,
+  InvalidCipherViewError,
+} from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
@@ -210,6 +213,10 @@ export class ImportService implements ImportServiceAbstraction {
         await this.handleIndividualImport(importResult, userId);
       }
     } catch (error) {
+      if (error instanceof InvalidCipherViewError) {
+        // An item in the file is not a valid cipher. Its index is in the cipher service's log.
+        throw new Error(this.i18nService.t("importFormatError"));
+      }
       const errorResponse = new ErrorResponse(error, 400);
       throw this.handleServerError(errorResponse, importResult);
     }

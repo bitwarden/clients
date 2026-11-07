@@ -44,6 +44,25 @@ export class RestrictedCipherWriteError extends Error {
   }
 }
 
+/**
+ * A cipher in a batch to encrypt is not a valid cipher, so the SDK refused the whole batch.
+ * Unlike the SDK's own error, it carries no part of the offending value, only its position.
+ */
+export class InvalidCipherViewError extends Error {
+  /**
+   * @param itemIndex The zero-based position of the invalid cipher in the batch, when the SDK
+   *   reported one.
+   */
+  constructor(readonly itemIndex?: number) {
+    super(
+      itemIndex == null
+        ? "A cipher in the batch is not valid."
+        : `The cipher at index ${itemIndex} of the batch is not valid.`,
+    );
+    this.name = "InvalidCipherViewError";
+  }
+}
+
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
   /**
@@ -92,6 +111,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @param userId The user ID to encrypt for
    *
    * @returns A promise that resolves to an array of encryption contexts
+   * @throws {InvalidCipherViewError} When a model is not a valid cipher.
    */
   abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;

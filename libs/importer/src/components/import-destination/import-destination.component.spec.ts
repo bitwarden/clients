@@ -2,7 +2,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of, Subject, throwError } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, of, Subject, throwError } from "rxjs";
 
 import {
   CollectionType,
@@ -16,7 +16,7 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { BitSubmitDirective, DialogService, ToastService } from "@bitwarden/components";
 
 import {
   ImportDestinationKind,
@@ -1565,6 +1565,25 @@ describe("ImportDestinationComponent", () => {
       expect(JSON.stringify(logService.error.mock.calls)).not.toContain("Bank of Acme");
       expect(stagingService.current()).toBeDefined();
       expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("stops loading and shows the error when the import rejects an invalid item", async () => {
+      stageParsed();
+      await setup();
+      // What the import service rejects with when the SDK refuses an item that is not a cipher.
+      importService.importImportResult.mockRejectedValue(new Error("importFormatError"));
+      const bitSubmit = fixture.debugElement
+        .query(By.directive(BitSubmitDirective))
+        .injector.get(BitSubmitDirective);
+
+      fixture.debugElement.query(By.css("form")).nativeElement.dispatchEvent(new Event("submit"));
+      expect(bitSubmit.loading).toBe(true);
+      await firstValueFrom(bitSubmit.loading$.pipe(filter((loading) => !loading)));
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({ data: new Error("importFormatError") }),
+      );
     });
 
     it("imports a fresh copy on a retry, never the object an earlier attempt rewrote", async () => {
