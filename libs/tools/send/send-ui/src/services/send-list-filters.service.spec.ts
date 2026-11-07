@@ -43,7 +43,11 @@ describe("SendListFiltersService", () => {
   });
 
   it("returns all send types", () => {
-    expect(service.sendTypes.map((c) => c.value)).toEqual([SendType.File, SendType.Text]);
+    expect(service.sendTypes.map((c) => c.value)).toEqual([
+      SendType.File,
+      SendType.Text,
+      SendType.Item,
+    ]);
   });
 
   it("resets the filter form", () => {

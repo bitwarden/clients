@@ -6364,6 +6364,9 @@
   "itemLower":{
     "message": "item"
   },
+  "itemUpper": {
+    "message": "Item"
+  },
   "itemsLower":{
     "message": "items"
   },

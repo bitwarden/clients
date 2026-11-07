@@ -20,6 +20,9 @@
               @if (s.type == sendType.Text) {
                 <bit-icon name="bwi-file-text" class="bwi-lg tw-text-muted" />
               }
+              @if (s.type == sendType.Item && itemIcon(s); as icon) {
+                <bit-icon [name]="icon" class="bwi-lg tw-text-muted" />
+              }
             </span>
             <button type="button" bitLink>
               {{ s.name }}
