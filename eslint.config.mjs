@@ -405,6 +405,7 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "@bitwarden/bit-sm",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -419,6 +420,7 @@ export default tseslint.config(
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -469,6 +471,7 @@ export default tseslint.config(
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
