@@ -1,4 +1,5 @@
 import { Response } from "@bitwarden/cli/models/response";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { parseSmId, readSmString } from "../sm-command.utils";
 
@@ -24,7 +25,7 @@ export function readSmSecretRequest(
     }
     fields[property] = read.value;
   }
-  if (fields.key != null && fields.key.trim() === "") {
+  if (fields.key !== undefined && Utils.isNullOrWhitespace(fields.key)) {
     return { error: Response.badRequest("`key` cannot be empty.") };
   }
 
@@ -38,7 +39,10 @@ export function readSmSecretRequest(
     }
     fields.projectIds = [];
     for (const projectId of projectIds) {
-      const parsed = parseSmId(typeof projectId === "string" ? projectId : undefined, "projectIds");
+      if (typeof projectId !== "string") {
+        return { error: Response.badRequest("`projectIds` must be an array of project ids.") };
+      }
+      const parsed = parseSmId(projectId, "projectIds");
       if (parsed.error) {
         return { error: parsed.error };
       }

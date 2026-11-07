@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretService, SecretView } from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
@@ -53,7 +52,7 @@ describe("SecretCreateCommand", () => {
         note: "prod",
         projects: [expect.objectContaining({ id: projectId })],
       }),
-      null,
+      undefined,
     );
     expect(response.data).toMatchObject({
       object: "sm-secret",
@@ -68,7 +67,7 @@ describe("SecretCreateCommand", () => {
     expect(secretService.create).toHaveBeenCalledWith(
       smOrgId,
       expect.objectContaining({ name: "EMPTY", value: "", note: "", projects: [] }),
-      null,
+      undefined,
     );
   });
 

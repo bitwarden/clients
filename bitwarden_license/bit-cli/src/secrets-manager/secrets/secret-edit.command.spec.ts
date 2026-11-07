@@ -1,8 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { SecretProjectView } from "@bitwarden/bit-sm/models/view/secret-project.view";
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 // eslint-disable-next-line no-restricted-imports
@@ -69,7 +67,7 @@ describe("SecretEditCommand", () => {
         note: "prod",
         projects: [expect.objectContaining({ id: projectId })],
       }),
-      null,
+      undefined,
       true,
     );
     expect(response.data).toMatchObject({ object: "sm-secret", value: "new value" });
@@ -83,7 +81,7 @@ describe("SecretEditCommand", () => {
     expect(secretService.update).toHaveBeenCalledWith(
       smOrgId,
       expect.objectContaining({ name: "RENAMED", value: "hunter2" }),
-      null,
+      undefined,
       false,
     );
   });
@@ -95,7 +93,7 @@ describe("SecretEditCommand", () => {
     expect(secretService.update).toHaveBeenLastCalledWith(
       smOrgId,
       expect.objectContaining({ projects: [expect.objectContaining({ id: otherProjectId })] }),
-      null,
+      undefined,
       false,
     );
 
@@ -103,7 +101,7 @@ describe("SecretEditCommand", () => {
     expect(secretService.update).toHaveBeenLastCalledWith(
       smOrgId,
       expect.objectContaining({ projects: [] }),
-      null,
+      undefined,
       false,
     );
   });

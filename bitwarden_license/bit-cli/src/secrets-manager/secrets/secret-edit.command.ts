@@ -1,6 +1,4 @@
-import { SecretProjectView } from "@bitwarden/bit-sm/models/view/secret-project.view";
-import { SecretView } from "@bitwarden/bit-sm/models/view/secret.view";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretProjectView, SecretService, SecretView } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -13,7 +11,7 @@ import {
   checkSmRequestOrganization,
   parseSmId,
   parseSmRequest,
-  resolveSmOrganization,
+  validateSmOrganizationAccess,
   smErrorResponse,
   smNotFoundResponse,
 } from "../sm-command.utils";
@@ -32,7 +30,7 @@ export class SecretEditCommand {
   ) {}
 
   async run(organizationId: string, secretId: string, requestJson: unknown): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,
@@ -95,7 +93,7 @@ export class SecretEditCommand {
       const updated = await this.secretService.update(
         org.organizationId,
         view,
-        null,
+        undefined,
         view.value !== existing.value,
       );
       return Response.success(new SmSecretResponse(updated));

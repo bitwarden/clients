@@ -1,4 +1,4 @@
-import { SecretVersionView } from "@bitwarden/bit-sm/models/view/secret-version.view";
+import { SecretVersionView } from "@bitwarden/bit-sm";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 export class SmSecretVersionResponse implements BaseResponse {
