@@ -1,13 +1,22 @@
-import { SecretService } from "@bitwarden/bit-sm";
+import { ProjectService, SecretService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
-import { parseSmId, SmOrganization, smErrorResponse } from "../sm-command.utils";
+import {
+  isInSmOrganization,
+  parseSmId,
+  SmOrganization,
+  smErrorResponse,
+  smNotFoundResponse,
+} from "../sm-command.utils";
 
 export class SecretListCommand {
-  constructor(private secretService: SecretService) {}
+  constructor(
+    private secretService: SecretService,
+    private projectService: ProjectService,
+  ) {}
 
   async run(org: SmOrganization, projectId?: string): Promise<Response> {
     let parsedProjectId: string | undefined;
@@ -20,6 +29,12 @@ export class SecretListCommand {
     }
 
     try {
+      if (parsedProjectId != null) {
+        const view = await this.projectService.getByProjectId(parsedProjectId, true);
+        if (!isInSmOrganization(view, org)) {
+          return smNotFoundResponse("project");
+        }
+      }
       const secrets =
         parsedProjectId != null
           ? await this.secretService.getSecretsByProject(org.organizationId, parsedProjectId)
@@ -31,6 +46,6 @@ export class SecretListCommand {
   }
 
   static create(serviceContainer: ServiceContainer) {
-    return new SecretListCommand(serviceContainer.secretService);
+    return new SecretListCommand(serviceContainer.secretService, serviceContainer.projectService);
   }
 }
