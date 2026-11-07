@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { ServiceAccountService, ServiceAccountView } from "@bitwarden/bit-sm";
 
-import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg, smOtherOrgId } from "../spec/sm-test-utils";
 
 import { MachineAccountGetCommand } from "./machine-account-get.command";
 
@@ -39,6 +39,17 @@ describe("MachineAccountGetCommand", () => {
       name: "CI runner",
     });
     expect(response.data).not.toHaveProperty("accessToSecrets");
+  });
+
+  it("returns not found for a machine account from another organization", async () => {
+    serviceAccountService.getByServiceAccountId.mockResolvedValue(makeMachineAccount(smOtherOrgId));
+
+    const response = await command.run(smOrg, machineAccountId);
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe(
+      "The machine account was not found, or you do not have access to it.",
+    );
   });
 
   it("rejects an invalid machine account id", async () => {
