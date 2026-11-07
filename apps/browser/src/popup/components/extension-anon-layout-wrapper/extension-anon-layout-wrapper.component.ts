@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   ChangeDetectionStrategy,
   Component,
@@ -46,16 +44,16 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
 }
 
 interface ExtensionAnonLayoutWrapperState {
-  showAcctSwitcher: boolean;
-  showBackButton: boolean;
-  showLogo: boolean;
-  pageTitle: string;
-  pageSubtitle: string;
-  pageIcon: BitSvg;
-  showReadonlyHostname: boolean;
-  maxWidth: LandingContentMaxWidthType;
-  hideFooter: boolean;
-  hideCardWrapper: boolean;
+  showAcctSwitcher: boolean | null;
+  showBackButton: boolean | null;
+  showLogo: boolean | null;
+  pageTitle: string | null;
+  pageSubtitle: string | null;
+  pageIcon: BitSvg | null;
+  showReadonlyHostname: boolean | null;
+  maxWidth: LandingContentMaxWidthType | null;
+  hideFooter: boolean | null;
+  hideCardWrapper: boolean | null;
   hidePageIcon?: boolean;
   contentVerticalPadding?: ContentVerticalPaddingType;
   footerVerticalPadding?: FooterVerticalPaddingType;
@@ -117,7 +115,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit {
 
   ngOnInit(): void {
     // Set the initial page data on load
-    this.setAnonLayoutWrapperDataFromRouteData(this.route.snapshot.firstChild?.data);
+    this.setAnonLayoutWrapperDataFromRouteData(this.route.snapshot.firstChild?.data ?? null);
 
     // Listen for page changes and update the page data appropriately
     this.listenForPageDataChanges();
