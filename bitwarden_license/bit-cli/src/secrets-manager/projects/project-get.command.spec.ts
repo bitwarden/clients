@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 
-import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg, smOtherOrgId } from "../spec/sm-test-utils";
 
 import { ProjectGetCommand } from "./project-get.command";
 
@@ -27,6 +27,15 @@ describe("ProjectGetCommand", () => {
     expect(response.success).toBe(true);
     expect(projectService.getByProjectId).toHaveBeenCalledWith(projectId, true);
     expect(response.data).toMatchObject({ object: "sm-project", id: projectId, name: "Backend" });
+  });
+
+  it("returns not found for a project from another organization", async () => {
+    projectService.getByProjectId.mockResolvedValue(makeProject(smOtherOrgId));
+
+    const response = await command.run(smOrg, projectId);
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("The project was not found, or you do not have access to it.");
   });
 
   it("rejects an invalid project id", async () => {
