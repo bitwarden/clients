@@ -238,6 +238,17 @@ export function smNotFoundResponse(objectName: string): Response {
   return Response.error("The " + objectName + " was not found, or you do not have access to it.");
 }
 
+/**
+ * Fetch-by-id endpoints are not organization scoped, so a command that decrypts with the
+ * `--organizationid` must reject items that belong to another organization.
+ */
+export function isInSmOrganization(
+  item: { organizationId?: string },
+  org: SmOrganization,
+): boolean {
+  return item.organizationId?.toLowerCase() === org.organizationId.toLowerCase();
+}
+
 export function smErrorResponse(error: unknown, objectName: string): Response {
   if (error instanceof ErrorResponse && error.statusCode === 404) {
     return smNotFoundResponse(objectName);

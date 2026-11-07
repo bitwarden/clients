@@ -3,7 +3,13 @@ import { Response } from "@bitwarden/cli/models/response";
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
-import { parseSmId, SmOrganization, smErrorResponse } from "../sm-command.utils";
+import {
+  isInSmOrganization,
+  parseSmId,
+  SmOrganization,
+  smErrorResponse,
+  smNotFoundResponse,
+} from "../sm-command.utils";
 
 export class SecretGetCommand {
   constructor(private secretService: SecretService) {}
@@ -16,6 +22,9 @@ export class SecretGetCommand {
 
     try {
       const view = await this.secretService.getBySecretId(secret.id);
+      if (!isInSmOrganization(view, org)) {
+        return smNotFoundResponse("secret");
+      }
       return Response.success(new SmSecretResponse(view));
     } catch (e) {
       return smErrorResponse(e, "secret");

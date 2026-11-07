@@ -1,12 +1,18 @@
 import { mock } from "jest-mock-extended";
 
-import { SecretVersionService, SecretVersionView } from "@bitwarden/bit-sm";
+import {
+  SecretService,
+  SecretVersionService,
+  SecretVersionView,
+  SecretView,
+} from "@bitwarden/bit-sm";
 
-import { smNotFoundError, smOrgId, smOrg } from "../spec/sm-test-utils";
+import { smNotFoundError, smOrgId, smOrg, smOtherOrgId } from "../spec/sm-test-utils";
 
 import { SecretVersionsCommand } from "./secret-versions.command";
 
 describe("SecretVersionsCommand", () => {
+  const secretService = mock<SecretService>();
   const secretVersionService = mock<SecretVersionService>();
   const secretId = "22222222-2222-2222-2222-222222222222";
   const versionId = "33333333-3333-3333-3333-333333333333";
@@ -14,7 +20,10 @@ describe("SecretVersionsCommand", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    command = new SecretVersionsCommand(secretVersionService);
+    secretService.getBySecretId.mockResolvedValue(
+      Object.assign(new SecretView(), { id: secretId, organizationId: smOrgId }),
+    );
+    command = new SecretVersionsCommand(secretService, secretVersionService);
   });
 
   it("lists the previous values", async () => {
@@ -50,8 +59,20 @@ describe("SecretVersionsCommand", () => {
     });
   });
 
+  it("returns not found for a secret from another organization", async () => {
+    secretService.getBySecretId.mockResolvedValue(
+      Object.assign(new SecretView(), { id: secretId, organizationId: smOtherOrgId }),
+    );
+
+    const response = await command.run(smOrg, secretId);
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("The secret was not found, or you do not have access to it.");
+    expect(secretVersionService.getSecretVersions).not.toHaveBeenCalled();
+  });
+
   it("maps a 404 to a friendly error", async () => {
-    secretVersionService.getSecretVersions.mockRejectedValue(smNotFoundError());
+    secretService.getBySecretId.mockRejectedValue(smNotFoundError());
 
     const response = await command.run(smOrg, secretId);
 
