@@ -133,9 +133,8 @@ describe("Menu — with position input", () => {
   });
 });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "test-app",
   template: `
     <button type="button" [bitMenuTriggerFor]="testMenu">Open menu</button>
@@ -149,9 +148,8 @@ describe("Menu — with position input", () => {
 })
 class TestAppComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "test-app-with-position",
   template: `
     <button type="button" [bitMenuTriggerFor]="testMenu" menuPosition="above-end">Open menu</button>
@@ -220,9 +218,8 @@ class TestAppOnPushComponent {}
  * The trigger lives in a child component so that `fixture.detectChanges()` can't force-refresh
  * the OnPush view the way it would if the trigger sat on the fixture's own component.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "test-app-on-push-parent",
   template: `<test-app-on-push></test-app-on-push>`,
   imports: [TestAppOnPushComponent],
@@ -260,9 +257,8 @@ describe("Menu — host tooltip suppression", () => {
   });
 });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "test-app-with-tooltip",
   template: `
     <button type="button" bitTooltip="Open menu" [bitMenuTriggerFor]="testMenu">Open menu</button>
