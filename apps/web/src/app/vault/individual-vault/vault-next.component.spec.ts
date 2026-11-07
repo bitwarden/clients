@@ -1734,6 +1734,18 @@ describe("VaultNextComponent", () => {
       expect(legacyOpen).toHaveBeenCalledTimes(1);
       expect(legacyOpen.mock.calls[0][1]).toBeUndefined();
     });
+
+    it("passes the scoped folder ID to the legacy dialog when viewing a folder", async () => {
+      const folderId = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a";
+      configService.getFeatureFlag.mockResolvedValue(false);
+      paramMap$.next(convertToParamMap({ folderId }));
+      fixture.detectChanges();
+
+      await component().openImport();
+
+      expect(legacyOpen).toHaveBeenCalledTimes(1);
+      expect(legacyOpen.mock.calls[0][3]).toBe(folderId);
+    });
   });
 
   describe("item deep links", () => {
