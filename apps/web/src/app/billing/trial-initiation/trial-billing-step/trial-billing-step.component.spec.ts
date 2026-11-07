@@ -9,9 +9,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 import { Cart, CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
@@ -94,13 +92,10 @@ describe("TrialBillingStepComponent", () => {
   let component: TrialBillingStepComponent;
   let fixture: ComponentFixture<TrialBillingStepComponent>;
   let discountSubject$: BehaviorSubject<SubscriptionDiscount[]>;
-  let pamBillingSupport$: BehaviorSubject<boolean>;
-  let previewDrivenCart$: BehaviorSubject<boolean>;
 
   const mockTrialBillingStepService = mock<TrialBillingStepService>();
   const mockSubscriptionDiscountService = mock<SubscriptionDiscountService>();
   const mockToastService = mock<ToastService>();
-  const mockConfigService = mock<ConfigService>();
   const mockBillingNotificationService = mock<BillingNotificationService>();
   const mockI18nService = { t: jest.fn((key: string) => key) };
 
@@ -153,27 +148,12 @@ describe("TrialBillingStepComponent", () => {
     mockReset(mockTrialBillingStepService);
     mockReset(mockSubscriptionDiscountService);
     mockReset(mockToastService);
-    mockReset(mockConfigService);
     mockReset(mockBillingNotificationService);
-
-    pamBillingSupport$ = new BehaviorSubject<boolean>(false);
-    previewDrivenCart$ = new BehaviorSubject<boolean>(false);
-    mockConfigService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
-      switch (flag) {
-        case FeatureFlag.PamBillingSupport:
-          return pamBillingSupport$;
-        case FeatureFlag.PM36631_PreviewDrivenCart:
-          return previewDrivenCart$;
-        default:
-          return of(false);
-      }
-    });
 
     discountSubject$ = new BehaviorSubject<SubscriptionDiscount[]>([]);
     mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(null);
     mockSubscriptionDiscountService.isDiscountExpiredError.mockReturnValue(false);
     mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40 }));
-    mockTrialBillingStepService.getCosts.mockResolvedValue({ tax: 0, total: 40 });
     // The component subscribes immediately; the discount-badge tests drive the subject.
     mockTrialBillingStepService.getEligibleDiscounts$.mockReturnValue(
       discountSubject$.asObservable(),
@@ -192,7 +172,6 @@ describe("TrialBillingStepComponent", () => {
       providers: [
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: TrialBillingStepService, useValue: mockTrialBillingStepService },
         { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
         { provide: BillingNotificationService, useValue: mockBillingNotificationService },
@@ -287,13 +266,7 @@ describe("TrialBillingStepComponent", () => {
   });
 
   describe("preview cart wiring", () => {
-    const enableFlags = () => {
-      pamBillingSupport$.next(true);
-      previewDrivenCart$.next(true);
-    };
-
-    it("renders the preview cart and hides both the legacy price block and the radio prices when both flags are on", fakeAsync(() => {
-      enableFlags();
+    it("shows the preview cart when trial length is 0 without PamBillingSupport", fakeAsync(() => {
       mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
 
       fixture.componentRef.setInput("trial", mockDirectPurchase);
@@ -308,23 +281,24 @@ describe("TrialBillingStepComponent", () => {
       expect(fixture.nativeElement.textContent).not.toContain("$40.00");
     }));
 
-    it("renders the legacy radios and price block when a flag is off", fakeAsync(() => {
-      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+    it("does not throw on the first render and keeps submit disabled until the preview has a value", fakeAsync(() => {
+      mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
 
       fixture.componentRef.setInput("trial", mockDirectPurchase);
+      expect(() => fixture.detectChanges()).not.toThrow();
+      const submit = () => fixture.nativeElement.querySelector("button[type='submit']");
+      expect(submit().getAttribute("aria-disabled")).toBe("true");
+
+      flushMicrotasks();
       fixture.detectChanges();
       flushMicrotasks();
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("app-trial-preview-cart")).toBeNull();
-      expect(fixture.nativeElement.querySelector("#price")).toBeTruthy();
-      const text = fixture.nativeElement.textContent;
-      expect(text).toContain("$40.00"); // legacy annual radio price
-      expect(text).toContain("$2.00"); // legacy monthly radio price
+      expect(component["canSubmit"]()).toBe(true);
+      expect(submit().getAttribute("aria-disabled")).not.toBe("true");
     }));
 
     it("disables submit while the preview cart is erroring", fakeAsync(() => {
-      enableFlags();
       mockTrialBillingStepService.previewPurchase.mockRejectedValue(new Error("preview failed"));
 
       fixture.componentRef.setInput("trial", mockDirectPurchase);
@@ -340,7 +314,6 @@ describe("TrialBillingStepComponent", () => {
     }));
 
     it("disables submit while the preview cart is loading", fakeAsync(() => {
-      enableFlags();
       mockTrialBillingStepService.previewPurchase.mockReturnValue(new Promise<Cart>(() => {}));
 
       fixture.componentRef.setInput("trial", mockDirectPurchase);
@@ -356,7 +329,6 @@ describe("TrialBillingStepComponent", () => {
 
     it("hides the header discount badges when the preview cart is showing", fakeAsync(() => {
       // The cart summary renders its own discount badges, so the header would double up.
-      enableFlags();
       mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
       mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
 
@@ -370,20 +342,7 @@ describe("TrialBillingStepComponent", () => {
       expect(fixture.nativeElement.querySelector("billing-discount-badge")).toBeNull();
     }));
 
-    it("shows the header discount badges on the legacy path", fakeAsync(() => {
-      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
-
-      fixture.componentRef.setInput("trial", mockFamiliesTrial);
-      fixture.detectChanges();
-      discountSubject$.next([mockFamiliesDiscount]);
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.querySelector("billing-discount-badge")).toBeTruthy();
-    }));
-
-    it("keeps legacy plan prices and badges for a free trial even with both flags on", fakeAsync(() => {
-      // The preview cart only renders for a direct purchase, so a trial must keep legacy pricing.
-      enableFlags();
+    it("shows cadence prices and discount badges when trial length > 0", fakeAsync(() => {
       mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
       mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
 

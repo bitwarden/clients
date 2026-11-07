@@ -4,9 +4,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, combineLatest, from, switchMap, takeUntil } from "rxjs";
 
-import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+import { AccessPolicyService, ProjectListView, ProjectService } from "@bitwarden/bit-sm";
 import {
   Environment,
   EnvironmentService,

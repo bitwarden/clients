@@ -36,7 +36,7 @@ const writeLn = CliUtils.writeLn;
 const ORGANIZATION_ID_OPTION = "--organizationid <organizationid>";
 const ORGANIZATION_ID_DESCRIPTION = "The organization id (required)";
 const ENCODED_JSON_DESCRIPTION =
-  "Base64 encoded JSON of the object, e.g. from `bw sm template` and `bw encode`. Can also be piped into stdin.";
+  "Base64 encoded JSON of the object, e.g. from `bw encode`. Can also be piped into stdin.";
 
 type OrgOptions = {
   organizationid: string;
@@ -133,7 +133,7 @@ export class SmProgram extends BaseProgram {
             writeLn("\n  Examples:");
             writeLn("");
             writeLn(
-              "    bw sm template sm-project | jq '.name=\"Backend\"' | bw encode | bw sm project create --organizationid <organizationid>",
+              '    echo \'{"name":"Backend"}\' | bw encode | bw sm project create --organizationid <organizationid>',
             );
             writeLn("", true);
           })

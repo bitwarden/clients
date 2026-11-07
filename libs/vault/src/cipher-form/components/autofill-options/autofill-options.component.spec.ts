@@ -6,6 +6,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
@@ -16,7 +17,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
-import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 

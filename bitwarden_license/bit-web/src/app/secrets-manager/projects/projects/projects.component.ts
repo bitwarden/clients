@@ -11,9 +11,7 @@ import {
   switchMap,
 } from "rxjs";
 
-import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { ProjectListView, ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

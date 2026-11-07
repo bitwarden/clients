@@ -1,6 +1,6 @@
 import { inject, NgModule } from "@angular/core";
 import { LoadChildrenCallback, Route, Router, RouterModule, Routes } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { map } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -55,7 +55,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { canActivateImportType } from "@bitwarden/importer-ui";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import {
   FOLDER_ID_PARAM,
@@ -720,22 +720,10 @@ const routes: Routes = [
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
         canActivate: [
-          organizationPolicyGuard((userId, policyService, configService) =>
-            configService
-              .getFeatureFlag$(FeatureFlag.SendControls)
-              .pipe(
-                switchMap((sendControlsEnabled) =>
-                  sendControlsEnabled
-                    ? policyService
-                        .policiesByType$(PolicyType.SendControls, userId)
-                        .pipe(
-                          map((policies) => !policies?.some((p) => p.data?.disableSend === true)),
-                        )
-                    : policyService
-                        .policyAppliesToUser$(PolicyType.DisableSend, userId)
-                        .pipe(map((policyApplies) => !policyApplies)),
-                ),
-              ),
+          organizationPolicyGuard((userId, policyService, _configService) =>
+            policyService
+              .policiesByType$(PolicyType.SendControls, userId)
+              .pipe(map((policies) => !policies?.some((p) => p.data?.disableSend === true))),
           ),
         ],
         canDeactivate: [unsavedSendEditsGuard],
@@ -888,6 +876,17 @@ const routes: Routes = [
                 loadComponent: () =>
                   import("./tools/import/import-controls-web.component").then(
                     (mod) => mod.ImportControlsWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+              {
+                path: IMPORT_DESTINATION_ROUTE_PATH,
+                canActivate: [canActivateImportType("/tools/import")],
+                loadComponent: () =>
+                  import("./tools/import/import-destination-web.component").then(
+                    (mod) => mod.ImportDestinationWebComponent,
                   ),
                 data: {
                   titleId: "importNoun",

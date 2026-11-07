@@ -1,5 +1,4 @@
-import { SecretVersionService } from "@bitwarden/bit-sm/secrets/secret-version.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretVersionService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -7,26 +6,20 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretVersionResponse } from "../models/sm-secret-version.response";
-import {
-  parseSmId,
-  resolveSmOrganization,
-  smErrorResponse,
-  smNotFoundResponse,
-} from "../sm-command.utils";
+import { parseSmId, validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 /**
  * Lists the previous values of a secret, newest first. The current value is not included.
  */
 export class SecretVersionsCommand {
   constructor(
-    private secretService: SecretService,
     private secretVersionService: SecretVersionService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
   ) {}
 
   async run(organizationId: string, secretId: string): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,
@@ -40,11 +33,6 @@ export class SecretVersionsCommand {
     }
 
     try {
-      const existing = await this.secretService.getBySecretId(secret.id);
-      if (existing.organizationId !== org.organizationId) {
-        return smNotFoundResponse("secret");
-      }
-
       const history = await this.secretVersionService.getSecretVersions(
         org.organizationId,
         secret.id,
@@ -59,7 +47,6 @@ export class SecretVersionsCommand {
 
   static create(serviceContainer: ServiceContainer) {
     return new SecretVersionsCommand(
-      serviceContainer.secretService,
       serviceContainer.secretVersionService,
       serviceContainer.organizationService,
       serviceContainer.accountService,

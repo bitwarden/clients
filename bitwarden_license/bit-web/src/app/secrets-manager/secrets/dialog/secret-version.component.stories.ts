@@ -4,12 +4,12 @@ import { provideRouter } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { action } from "storybook/actions";
 
-import { SecretVersionView } from "@bitwarden/bit-sm/models/view/secret-version.view";
 import {
+  SecretService,
   SecretVersionHistory,
   SecretVersionService,
-} from "@bitwarden/bit-sm/secrets/secret-version.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+  SecretVersionView,
+} from "@bitwarden/bit-sm";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";

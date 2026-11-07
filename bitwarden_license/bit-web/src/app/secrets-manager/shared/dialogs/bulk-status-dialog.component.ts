@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 
-import { BulkOperationStatus } from "@bitwarden/bit-sm/models/bulk-operation-status";
+import { BulkOperationStatus } from "@bitwarden/bit-sm";
 import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 export interface BulkStatusDetails {

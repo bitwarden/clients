@@ -16,13 +16,15 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import { OrganizationCounts } from "@bitwarden/bit-sm/models/view/counts.view";
-import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
-import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
-import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
-import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
+import {
+  CountService,
+  OrganizationCounts,
+  ProjectListView,
+  ProjectService,
+  SecretListView,
+  SecretService,
+  ServiceAccountService,
+} from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,

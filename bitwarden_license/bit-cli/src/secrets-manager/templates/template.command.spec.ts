@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { ProjectView } from "@bitwarden/bit-sm/models/view/project.view";
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { TemplateResponse } from "@bitwarden/cli/models/response/template.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

@@ -1,5 +1,4 @@
-import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -7,23 +6,17 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
-import {
-  parseSmId,
-  resolveSmOrganization,
-  smErrorResponse,
-  smNotFoundResponse,
-} from "../sm-command.utils";
+import { parseSmId, validateSmOrganizationAccess, smErrorResponse } from "../sm-command.utils";
 
 export class SecretListCommand {
   constructor(
     private secretService: SecretService,
-    private projectService: ProjectService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
   ) {}
 
   async run(organizationId: string, projectId?: string): Promise<Response> {
-    const org = await resolveSmOrganization(
+    const org = await validateSmOrganizationAccess(
       this.organizationService,
       this.accountService,
       organizationId,
@@ -42,12 +35,6 @@ export class SecretListCommand {
     }
 
     try {
-      if (parsedProjectId != null) {
-        const project = await this.projectService.getByProjectId(parsedProjectId, true);
-        if (project.organizationId !== org.organizationId) {
-          return smNotFoundResponse("project");
-        }
-      }
       const secrets =
         parsedProjectId != null
           ? await this.secretService.getSecretsByProject(org.organizationId, parsedProjectId)
@@ -61,7 +48,6 @@ export class SecretListCommand {
   static create(serviceContainer: ServiceContainer) {
     return new SecretListCommand(
       serviceContainer.secretService,
-      serviceContainer.projectService,
       serviceContainer.organizationService,
       serviceContainer.accountService,
     );

@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 
-import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { SecretService } from "@bitwarden/bit-sm";
 import { DIALOG_DATA } from "@bitwarden/components";
 
 export interface SecretViewDialogParams {

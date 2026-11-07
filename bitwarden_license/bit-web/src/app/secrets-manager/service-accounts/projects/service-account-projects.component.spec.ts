@@ -3,12 +3,12 @@ import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { GrantedProjectAccessPolicyView } from "@bitwarden/bit-sm/models/view/access-policies/access-policy.view";
 import {
+  AccessPolicyService,
+  GrantedProjectAccessPolicyView,
   GrantedProjectPolicyPermissionDetailsView,
   ServiceAccountGrantedPoliciesView,
-} from "@bitwarden/bit-sm/models/view/access-policies/service-account-granted-policies.view";
-import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+} from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
