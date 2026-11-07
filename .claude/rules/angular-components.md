@@ -13,6 +13,7 @@ Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/
 - **Standalone**: Components must be standalone. NgModules may still be used to group components, but the inner components must be standalone. Declare imports on the component decorator; do not register in `NgModule.declarations`.
 - **OnPush**: Set `changeDetection: ChangeDetectionStrategy.OnPush`. With OnPush, mutating arrays/objects in place does **not** trigger change detection — create new references (`[...arr]`, `{...obj}`) or use signals.
 - **Host bindings**: Use the `host` property — not `@HostBinding` / `@HostListener`.
+- **Selectors**: Use dashes, not camelCase (`app-example`, not `appExample`).
 
 ```typescript
 @Component({
@@ -105,18 +106,6 @@ Prefer native `[class.x]` / `[style.x]` over `ngClass` / `ngStyle`. For many cla
 ```html
 <div [class.active]="isActive()" [style.width.px]="width()"></div>
 ```
-
-### IDs for Inputs and Buttons
-
-Every input field and button needs a descriptive ID for QA automation:
-
-`<component_name>_<html_element>_<readable_name>` — underscores between components, dashes within.
-
-```html
-<input id="register-form_input_email" /> <button id="register_button_submit">Submit</button>
-```
-
-Component-library components may emit auto-generated IDs (`<component-selector>-<n>`, e.g. `bit-input-0`) but must allow overrides. Selectors use dashes, not camelCase.
 
 ### Reactive Forms
 
