@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { TrustedDeviceOption } from "@bitwarden/sdk-internal";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
 import { UnlockMethod } from "./unlock-method.enum";
@@ -87,6 +88,20 @@ export abstract class UnlockService {
     userKey: SymmetricCryptoKey,
     method?: UnlockMethod,
   ): Promise<void>;
+
+  /**
+   * Unlocks with this device's device key, which the SDK reads from state, and the trusted device
+   * keys the server returned at login.
+   * @throws EncryptionSettingsError `DeviceNotTrusted`, `DeviceTrustLost` or `DeviceKeyInvalid`
+   *   when the device cannot unlock. Lost trust is reported to the server.
+   */
+  abstract unlockWithTrustedDevice(userId: UserId, option: TrustedDeviceOption): Promise<void>;
+
+  /**
+   * Completes the unlock of an account the SDK registration just created and unlocked: runs the
+   * unlock side effects against the registration client.
+   */
+  abstract completeUnlockAfterRegistration(userId: UserId): Promise<void>;
 
   /**
    * Unlocks the user's account with a user key received from another device over the shared unlock

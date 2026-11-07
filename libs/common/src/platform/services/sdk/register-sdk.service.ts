@@ -19,6 +19,7 @@ import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { DeviceTrustServiceAbstraction } from "../../../key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { UserId } from "../../../types/guid";
@@ -88,6 +89,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private configService: ConfigService,
     private managedSettingsService: ManagedSettingsService,
     private appIdService: AppIdService,
+    private deviceTrustServiceProvider: () => DeviceTrustServiceAbstraction,
     private userAgent: string | null = null,
   ) {}
 
@@ -160,7 +162,13 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
             );
             client
               .km_state_bridge()
-              .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
+              .register_bridge_impl(
+                new JsWasmStateBridge(
+                  this.stateProvider,
+                  userId,
+                  this.deviceTrustServiceProvider(),
+                ),
+              );
 
             await this.loadFeatureFlags(client);
 

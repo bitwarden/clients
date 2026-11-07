@@ -25,7 +25,6 @@ import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -41,11 +40,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { AnonLayoutWrapperDataService, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  LegacyCompatKeyService,
-  SignedSecurityState,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -77,7 +72,6 @@ describe("LoginDecryptionOptionsComponent", () => {
   let validationService: MockProxy<ValidationService>;
   let logoutService: MockProxy<LogoutService>;
   let registerSdkService: MockProxy<RegisterSdkService>;
-  let appIdService: MockProxy<AppIdService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<any>;
   let authService: MockProxy<AuthService>;
@@ -113,7 +107,6 @@ describe("LoginDecryptionOptionsComponent", () => {
     validationService = mock<ValidationService>();
     logoutService = mock<LogoutService>();
     registerSdkService = mock<RegisterSdkService>();
-    appIdService = mock<AppIdService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock();
     authService = mock<AuthService>();
@@ -177,7 +170,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       validationService,
       logoutService,
       registerSdkService,
-      appIdService,
       configService,
       accountCryptographicStateService,
       authService,
@@ -203,43 +195,9 @@ describe("LoginDecryptionOptionsComponent", () => {
     let mockSdkValue: any;
     let mockSdkRef: any;
     let mockSdk: any;
-    let mockDeviceKey: string;
-    let mockDeviceKeyObj: SymmetricCryptoKey;
-    let mockUserKeyBytes: Uint8Array;
-    let mockPrivateKey: string;
-    let mockSignedPublicKey: string;
-    let mockSigningKey: string;
-    let mockSecurityState: SignedSecurityState;
 
     beforeEach(async () => {
-      mockPrivateKey = "mock-private-key";
-      mockSignedPublicKey = "mock-signed-public-key";
-      mockSigningKey = "mock-signing-key";
-      mockSecurityState = {
-        signature: "mock-signature",
-        payload: {
-          version: 2,
-          timestamp: Date.now(),
-          privateKeyHash: "mock-hash",
-        },
-      } as any;
-      const deviceKeyBytes = new Uint8Array(32).fill(5);
-      mockDeviceKey = Buffer.from(deviceKeyBytes).toString("base64");
-      mockDeviceKeyObj = SymmetricCryptoKey.fromString(mockDeviceKey);
-      mockUserKeyBytes = new Uint8Array(64);
-
-      mockPostKeysForTdeRegistration = jest.fn().mockResolvedValue({
-        account_cryptographic_state: {
-          V2: {
-            private_key: mockPrivateKey,
-            signed_public_key: mockSignedPublicKey,
-            signing_key: mockSigningKey,
-            security_state: mockSecurityState,
-          },
-        },
-        device_key: mockDeviceKey,
-        user_key: mockUserKeyBytes,
-      });
+      mockPostKeysForTdeRegistration = jest.fn().mockResolvedValue(undefined);
 
       mockRegistration = {
         post_keys_for_tde_registration: mockPostKeysForTdeRegistration,
@@ -293,7 +251,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);
       router.navigate.mockResolvedValue(true);
-      appIdService.getAppId.mockResolvedValue("mock-app-id");
       organizationApiService.getKeys.mockResolvedValue({
         publicKey: "mock-org-public-key",
         privateKey: "mock-org-private-key",
@@ -306,7 +263,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
         FeatureFlag.PM27279_V2RegistrationTdeJit,
       );
-      expect(appIdService.getAppId).toHaveBeenCalled();
       expect(organizationApiService.getKeys).toHaveBeenCalledWith(mockOrgId);
       expect(registerSdkService.registerClient$).toHaveBeenCalledWith(mockUserId);
 
@@ -317,43 +273,17 @@ describe("LoginDecryptionOptionsComponent", () => {
         org_id: mockOrgId,
         org_public_key: "mock-org-public-key",
         user_id: mockUserId,
-        device_identifier: "mock-app-id",
-        trust_device: true,
+        email: mockEmail,
+        trust: "Trust",
       });
-
-      const expectedDeviceKey = mockDeviceKeyObj;
-      const expectedUserKey = new SymmetricCryptoKey(new Uint8Array(mockUserKeyBytes));
-
-      // Verify keys were set
-      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
-        expect.objectContaining({
-          V2: {
-            private_key: mockPrivateKey,
-            signed_public_key: mockSignedPublicKey,
-            signing_key: mockSigningKey,
-            security_state: mockSecurityState,
-          },
-        }),
-        mockUserId,
-      );
 
       expect(validationService.showError).not.toHaveBeenCalled();
 
-      // Verify device and user keys were persisted
-      expect(deviceTrustService.setDeviceKey).toHaveBeenCalledWith(
-        mockUserId,
-        expect.any(SymmetricCryptoKey),
-      );
-      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
-        mockUserId,
-        expect.any(SymmetricCryptoKey),
-      );
-
-      const [, deviceKeyArg] = deviceTrustService.setDeviceKey.mock.calls[0];
-      const [, userKeyArg] = unlockService.unlockWithDecryptedUserKey.mock.calls[0];
-
-      expect((deviceKeyArg as SymmetricCryptoKey).keyB64).toBe(expectedDeviceKey.keyB64);
-      expect((userKeyArg as SymmetricCryptoKey).keyB64).toBe(expectedUserKey.keyB64);
+      // The SDK persisted state, trusted the device and unlocked; clients only finishes the unlock.
+      expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
+      expect(deviceTrustService.setDeviceKey).not.toHaveBeenCalled();
+      expect(deviceTrustService.trustDevice).not.toHaveBeenCalled();
+      expect(unlockService.completeUnlockAfterRegistration).toHaveBeenCalledWith(mockUserId);
 
       // Verify success toast and navigation
       expect(toastService.showToast).toHaveBeenCalledWith({
@@ -374,7 +304,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);
       router.navigate.mockResolvedValue(true);
-      appIdService.getAppId.mockResolvedValue("mock-app-id");
       organizationApiService.getKeys.mockResolvedValue({
         publicKey: "mock-org-public-key",
         privateKey: "mock-org-private-key",
@@ -382,11 +311,12 @@ describe("LoginDecryptionOptionsComponent", () => {
 
       await component["initializeUserCryptoForJitProvisionedAccount"]();
 
+      // Registration unlocks inside the SDK, so the choice must land before it runs.
       const setUnlockSharingDisabledOrder =
         sharedUnlockSettingsService.setUnlockSharingDisabled.mock.invocationCallOrder[0];
-      const unlockOrder = unlockService.unlockWithDecryptedUserKey.mock.invocationCallOrder[0];
+      const registrationOrder = mockPostKeysForTdeRegistration.mock.invocationCallOrder[0];
 
-      expect(setUnlockSharingDisabledOrder).toBeLessThan(unlockOrder);
+      expect(setUnlockSharingDisabledOrder).toBeLessThan(registrationOrder);
     });
 
     it("persists the unlock sharing choice before unlocking when feature flag is disabled", async () => {
@@ -421,7 +351,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);
       router.navigate.mockResolvedValue(true);
-      appIdService.getAppId.mockResolvedValue("mock-app-id");
       organizationApiService.getKeys.mockResolvedValue({
         publicKey: "mock-org-public-key",
         privateKey: "mock-org-private-key",
@@ -431,6 +360,9 @@ describe("LoginDecryptionOptionsComponent", () => {
 
       await component["initializeUserCryptoForJitProvisionedAccount"]();
 
+      expect(mockPostKeysForTdeRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ trust: "DontTrust" }),
+      );
       expect(sharedUnlockSettingsService.setUnlockSharingDisabled).toHaveBeenCalledWith(
         mockUserId,
         true,
@@ -444,7 +376,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);
       router.navigate.mockResolvedValue(true);
-      appIdService.getAppId.mockResolvedValue("mock-app-id");
       organizationApiService.getKeys.mockResolvedValue({
         publicKey: "mock-org-public-key",
         privateKey: "mock-org-private-key",

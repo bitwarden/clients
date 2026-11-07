@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
+import { concatMap, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -16,10 +16,9 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { measured, PerfTrackGroup } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { DeviceTrustClient, PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import {
@@ -27,12 +26,14 @@ import {
   OtherDeviceKeysUpdateRequest,
   UpdateDevicesTrustRequest,
 } from "../../../auth/models/request/update-devices-trust.request";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../../platform/enums";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
@@ -96,6 +97,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     private logService: LogService,
     private configService: ConfigService,
     private accountService: AccountService,
+    private sdkService: SdkService,
   ) {
     this.supportsDeviceTrust$ = this.accountService.activeAccount$.pipe(
       switchMap((account) => {
@@ -135,7 +137,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     return shouldTrustDevice;
   }
 
-  async setShouldTrustDevice(userId: UserId, value: boolean): Promise<void> {
+  async setShouldTrustDevice(userId: UserId, value: boolean | null): Promise<void> {
     if (!userId) {
       throw new Error("UserId is required. Cannot set should trust device.");
     }
@@ -149,6 +151,16 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       throw new Error("UserId is required. Cannot trust device if required.");
     }
 
+    if (await this.useSdk()) {
+      const outcome = await this.withSdk(userId, (deviceTrust) =>
+        deviceTrust.trust_device_if_required(),
+      );
+      if (outcome === "Trusted") {
+        this.deviceTrustedSubject.next();
+      }
+      return;
+    }
+
     const shouldTrustDevice = await this.getShouldTrustDevice(userId);
     if (shouldTrustDevice) {
       await this.trustDevice(userId);
@@ -157,9 +169,15 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
   }
 
-  async trustDevice(userId: UserId): Promise<DeviceResponse> {
+  async trustDevice(userId: UserId): Promise<void> {
     if (!userId) {
       throw new Error("UserId is required. Cannot trust device.");
+    }
+
+    if (await this.useSdk()) {
+      await this.withSdk(userId, (deviceTrust) => deviceTrust.trust_device());
+      this.deviceTrustedSubject.next();
+      return;
     }
 
     // Attempt to get user key
@@ -194,7 +212,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
     // Send encrypted keys to server
     const deviceIdentifier = await this.appIdService.getAppId();
-    const deviceResponse = await this.devicesApiService.updateTrustedDeviceKeys(
+    await this.devicesApiService.updateTrustedDeviceKeys(
       deviceIdentifier,
       devicePublicKeyEncryptedUserKey.encryptedString,
       userKeyEncryptedDevicePublicKey.encryptedString,
@@ -206,8 +224,6 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
     // This emission will be picked up by consuming components to handle displaying a toast to the user
     this.deviceTrustedSubject.next();
-
-    return deviceResponse;
   }
 
   async getRotatedData(
@@ -448,6 +464,25 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   async recordDeviceTrustLoss(): Promise<void> {
     const deviceIdentifier = await this.appIdService.getAppId();
     await this.devicesApiService.postDeviceTrustLoss(deviceIdentifier);
+  }
+
+  private useSdk(): Promise<boolean> {
+    return this.configService.getFeatureFlag(FeatureFlag.SdkDeviceTrust);
+  }
+
+  /** Runs `fn` with the device trust SDK client of `userId`. */
+  private async withSdk<T>(
+    userId: UserId,
+    fn: (deviceTrust: DeviceTrustClient) => Promise<T>,
+  ): Promise<T> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+          return await fn(ref.value.device_trust());
+        }),
+      ),
+    );
   }
 
   private getSecureStorageOptions(userId: UserId): StorageOptions {

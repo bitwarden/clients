@@ -31,6 +31,7 @@ import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices
 import { UpdateDevicesTrustRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../../../auth/models/response/protected-device.response";
 import { DeviceType } from "../../../enums";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ListResponse } from "../../../models/response/list.response";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
@@ -38,6 +39,7 @@ import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
@@ -64,6 +66,7 @@ describe("deviceTrustService", () => {
   const secureStorageService = mock<AbstractStorageService>();
   const logService = mock<LogService>();
   const configService = mock<ConfigService>();
+  const sdkService = mock<SdkService>();
 
   const userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
   const decryptionOptions = new BehaviorSubject<UserDecryptionOptions>(null);
@@ -161,7 +164,7 @@ describe("deviceTrustService", () => {
   describe("trustDeviceIfRequired", () => {
     it("should trust device and reset when getShouldTrustDevice returns true", async () => {
       jest.spyOn(deviceTrustService, "getShouldTrustDevice").mockResolvedValue(true);
-      jest.spyOn(deviceTrustService, "trustDevice").mockResolvedValue({} as DeviceResponse);
+      jest.spyOn(deviceTrustService, "trustDevice").mockResolvedValue();
       jest.spyOn(deviceTrustService, "setShouldTrustDevice").mockResolvedValue();
 
       await deviceTrustService.trustDeviceIfRequired(mockUserId);
@@ -183,6 +186,70 @@ describe("deviceTrustService", () => {
       expect(getShouldTrustDeviceSpy).toHaveBeenCalledTimes(1);
       expect(trustDeviceSpy).not.toHaveBeenCalled();
       expect(setShouldTrustDeviceSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("with the SdkDeviceTrust flag on", () => {
+    const sdkDeviceTrust = {
+      trust_device: jest.fn(),
+      trust_device_if_required: jest.fn(),
+    };
+
+    beforeEach(() => {
+      configService.getFeatureFlag.mockImplementation(
+        async (flag) => flag === FeatureFlag.SdkDeviceTrust,
+      );
+      sdkService.userClient$.mockReturnValue(
+        of({
+          take: () => ({
+            value: { device_trust: () => sdkDeviceTrust },
+            [Symbol.dispose]: jest.fn(),
+          }),
+        } as any),
+      );
+    });
+
+    afterEach(() => {
+      configService.getFeatureFlag.mockReset();
+    });
+
+    it("trustDevice delegates to the SDK and announces the trust", async () => {
+      const trusted = jest.fn();
+      deviceTrustService.deviceTrusted$.subscribe(trusted);
+
+      await deviceTrustService.trustDevice(mockUserId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(mockUserId);
+      expect(sdkDeviceTrust.trust_device).toHaveBeenCalledTimes(1);
+      expect(devicesApiService.updateTrustedDeviceKeys).not.toHaveBeenCalled();
+      expect(trusted).toHaveBeenCalledTimes(1);
+    });
+
+    it("trustDeviceIfRequired announces the trust when the SDK trusted the device", async () => {
+      const trusted = jest.fn();
+      deviceTrustService.deviceTrusted$.subscribe(trusted);
+      sdkDeviceTrust.trust_device_if_required.mockResolvedValue("Trusted");
+
+      await deviceTrustService.trustDeviceIfRequired(mockUserId);
+
+      expect(sdkDeviceTrust.trust_device_if_required).toHaveBeenCalledTimes(1);
+      expect(trusted).toHaveBeenCalledTimes(1);
+    });
+
+    it("trustDeviceIfRequired stays silent when trust was not requested", async () => {
+      const trusted = jest.fn();
+      deviceTrustService.deviceTrusted$.subscribe(trusted);
+      sdkDeviceTrust.trust_device_if_required.mockResolvedValue("NotRequested");
+
+      await deviceTrustService.trustDeviceIfRequired(mockUserId);
+
+      expect(trusted).not.toHaveBeenCalled();
+    });
+
+    it("propagates SDK failures", async () => {
+      sdkDeviceTrust.trust_device.mockRejectedValue(new Error("Api"));
+
+      await expect(deviceTrustService.trustDevice(mockUserId)).rejects.toThrow("Api");
     });
   });
 
@@ -445,8 +512,8 @@ describe("deviceTrustService", () => {
           .mockResolvedValue(mockDeviceResponse);
       });
 
-      it("calls the required methods with the correct arguments and returns a DeviceResponse", async () => {
-        const response = await deviceTrustService.trustDevice(mockUserId);
+      it("calls the required methods with the correct arguments", async () => {
+        await deviceTrustService.trustDevice(mockUserId);
 
         expect(makeDeviceKeySpy).toHaveBeenCalledTimes(1);
         expect(rsaGenerateKeyPairSpy).toHaveBeenCalledTimes(1);
@@ -469,9 +536,6 @@ describe("deviceTrustService", () => {
           mockUserKeyEncryptedDevicePublicKey.encryptedString,
           mockDeviceKeyEncryptedDevicePrivateKey.encryptedString,
         );
-
-        expect(response).toBeInstanceOf(DeviceResponse);
-        expect(response).toEqual(mockDeviceResponse);
       });
 
       it("throws specific error if user key is not found", async () => {
@@ -935,6 +999,7 @@ describe("deviceTrustService", () => {
       logService,
       configService,
       accountService,
+      sdkService,
     );
   }
 });

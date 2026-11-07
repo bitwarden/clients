@@ -551,6 +551,7 @@ export class ServiceContainer {
       managedSettingsService,
       this.appIdService,
       this.logService,
+      () => this.deviceTrustService,
       customUserAgent,
     );
 
@@ -787,6 +788,7 @@ export class ServiceContainer {
       this.configService,
       managedSettingsService,
       this.appIdService,
+      () => this.deviceTrustService,
       customUserAgent,
     );
 
@@ -902,6 +904,7 @@ export class ServiceContainer {
       this.logService,
       this.configService,
       this.accountService,
+      this.sdkService,
     );
 
     const passwordPreloginApiService = new PasswordPreloginApiService(

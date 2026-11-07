@@ -38,6 +38,7 @@ import {
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
+import { DeviceTrustServiceAbstraction } from "../../../key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { OrganizationId, UserId } from "../../../types/guid";
@@ -124,6 +125,7 @@ export class DefaultSdkService implements SdkService {
     private managedSettingsService: ManagedSettingsService,
     private appIdService: AppIdService,
     private logService: LogService,
+    private deviceTrustServiceProvider: () => DeviceTrustServiceAbstraction,
     private userAgent: string | null = null,
   ) {}
 
@@ -300,7 +302,9 @@ export class DefaultSdkService implements SdkService {
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
     client
       .km_state_bridge()
-      .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
+      .register_bridge_impl(
+        new JsWasmStateBridge(this.stateProvider, userId, this.deviceTrustServiceProvider()),
+      );
     await this.loadFeatureFlags(client);
   }
 

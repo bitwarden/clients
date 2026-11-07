@@ -7,10 +7,16 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { UserId } from "@bitwarden/common/types/guid";
+import {
+  isEncryptionSettingsError,
+  TrustedDeviceOption,
+  UnsignedSharedKey,
+} from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction } from "../abstractions";
@@ -18,6 +24,9 @@ import { SsoLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
 import { LoginStrategyData, LoginStrategy } from "./login.strategy";
+
+/** Trusted device unlock failures that mean "not unlocked", not "broken". */
+const DEVICE_CANNOT_UNLOCK = ["DeviceNotTrusted", "DeviceTrustLost", "DeviceKeyInvalid"];
 
 export class SsoLoginStrategyData implements LoginStrategyData {
   readonly tokenRequest: SsoTokenRequest;
@@ -249,6 +258,15 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
       return;
     }
 
+    if (await this.configService.getFeatureFlag(FeatureFlag.SdkDeviceTrust)) {
+      await this.unlockWithTrustedDevice(userId, {
+        encryptedPrivateKey: trustedDeviceOption.encryptedPrivateKey?.toSdk(),
+        encryptedUserKey: trustedDeviceOption.encryptedUserKey?.toJSON() as
+          UnsignedSharedKey | undefined,
+      });
+      return;
+    }
+
     const deviceKey = await this.deviceTrustService.getDeviceKey(userId);
     const encDevicePrivateKey = trustedDeviceOption?.encryptedPrivateKey;
     const encUserKey = trustedDeviceOption?.encryptedUserKey;
@@ -282,6 +300,22 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
     if (userKey) {
       // TDE unlock during SSO login; the user key comes from DeviceTrustService.decryptUserKeyWithDeviceKey.
       await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
+    }
+  }
+
+  /**
+   * The SDK reads the device key, reports lost trust and drops an invalid key. A device that cannot
+   * unlock leaves the user on the decryption options, as before.
+   */
+  private async unlockWithTrustedDevice(userId: UserId, option: TrustedDeviceOption) {
+    try {
+      await this.unlockService.unlockWithTrustedDevice(userId, option);
+    } catch (e) {
+      if (!isEncryptionSettingsError(e) || !DEVICE_CANNOT_UNLOCK.includes(e.variant)) {
+        throw e;
+      }
+
+      this.logService.warning(`Unable to unlock user with trusted device: ${e.variant}`);
     }
   }
 

@@ -1596,6 +1596,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       ConfigService,
       AccountServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -1945,7 +1946,30 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: RegisterSdkService,
-    useClass: DefaultRegisterSdkService,
+    useFactory: (
+      sdkClientFactory: SdkClientFactory,
+      environmentService: EnvironmentService,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+      accountService: AccountServiceAbstraction,
+      apiService: ApiServiceAbstraction,
+      stateProvider: StateProvider,
+      configService: ConfigService,
+      managedSettingsService: ManagedSettingsService,
+      appIdService: AppIdServiceAbstraction,
+      injector: Injector,
+    ) =>
+      new DefaultRegisterSdkService(
+        sdkClientFactory,
+        environmentService,
+        platformUtilsService,
+        accountService,
+        apiService,
+        stateProvider,
+        configService,
+        managedSettingsService,
+        appIdService,
+        () => injector.get(DeviceTrustServiceAbstraction),
+      ),
     deps: [
       SdkClientFactory,
       EnvironmentService,
@@ -1956,6 +1980,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       ManagedSettingsService,
       AppIdServiceAbstraction,
+      Injector,
     ],
   }),
   safeProvider({
@@ -1987,6 +2012,7 @@ const safeProviders: SafeProvider[] = [
         managedSettingsService,
         appIdService,
         logService,
+        () => injector.get(DeviceTrustServiceAbstraction),
       ),
     deps: [
       SdkClientFactory,

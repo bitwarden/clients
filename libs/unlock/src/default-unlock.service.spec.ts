@@ -23,7 +23,13 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { EncString, PureCrypto, UnsignedSharedKey, V2UpgradeToken } from "@bitwarden/sdk-internal";
+import {
+  EncString,
+  PureCrypto,
+  TrustedDeviceOption,
+  UnsignedSharedKey,
+  V2UpgradeToken,
+} from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { AutoUnlockService } from "./auto-unlock.service";
@@ -359,6 +365,49 @@ describe("DefaultUnlockService", () => {
       await expect(
         service.unlockWithKeyConnector(mockUserId, mockKeyConnectorUnlockData),
       ).rejects.toThrow("SDK not available");
+    });
+  });
+
+  describe("unlockWithTrustedDevice", () => {
+    const option: TrustedDeviceOption = {
+      encryptedPrivateKey: "2.private" as EncString,
+      encryptedUserKey: undefined,
+    };
+
+    it("calls SDK initialize_user_crypto with the trusted device method", async () => {
+      await service.unlockWithTrustedDevice(mockUserId, option);
+
+      expect(mockCrypto.initialize_user_crypto).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: mockUserId,
+          method: { trustedDevice: { option } },
+        }),
+      );
+    });
+
+    it("propagates SDK failures", async () => {
+      mockCrypto.initialize_user_crypto.mockRejectedValue(new Error("DeviceNotTrusted"));
+
+      await expect(service.unlockWithTrustedDevice(mockUserId, option)).rejects.toThrow(
+        "DeviceNotTrusted",
+      );
+    });
+  });
+
+  describe("completeUnlockAfterRegistration", () => {
+    it("runs the unlock side effects without initializing crypto again", async () => {
+      await service.completeUnlockAfterRegistration(mockUserId);
+
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
+      expect(mockCrypto.get_user_encryption_key).toHaveBeenCalled();
+    });
+
+    it("throws when SDK is not available", async () => {
+      registerSdkService.registerClient$.mockReturnValue(of(null as any));
+
+      await expect(service.completeUnlockAfterRegistration(mockUserId)).rejects.toThrow(
+        "SDK not available",
+      );
     });
   });
 
