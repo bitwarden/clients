@@ -60,6 +60,12 @@ describe("ContextMenuClickedHandler", () => {
     };
   };
 
+  /** Serves `ciphers` to lookups by id, as the vault would. */
+  const serveCiphers = (service: MockProxy<CipherService>, ciphers: CipherView[]) =>
+    service.getAllDecryptedForIds.mockImplementation(async (_userId, ids) =>
+      ciphers.filter((cipher) => ids.includes(cipher.id)),
+    );
+
   const createCipher = (data?: {
     id?: CipherView["id"];
     username?: CipherView["login"]["username"];
@@ -179,7 +185,7 @@ describe("ContextMenuClickedHandler", () => {
           extra: () => expect(totpService.getCode$).not.toHaveBeenCalled(),
         },
       ])("breaks silently when cipher is missing for $label", async ({ parentId, extra }) => {
-        cipherService.getAllDecrypted.mockResolvedValue([]);
+        serveCiphers(cipherService, []);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -209,7 +215,7 @@ describe("ContextMenuClickedHandler", () => {
       ])("breaks silently when $label property is missing", async ({ parentId, unset, isTotp }) => {
         const cipher = createCipher();
         unset(cipher);
-        cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+        serveCiphers(cipherService, [cipher]);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -232,7 +238,7 @@ describe("ContextMenuClickedHandler", () => {
 
     it("attempts to autofill the correct cipher", async () => {
       const cipher = createCipher();
-      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+      serveCiphers(cipherService, [cipher]);
 
       await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
 
@@ -242,9 +248,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies username to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([
-        createCipher({ username: "TEST_USERNAME" }),
-      ]);
+      serveCiphers(cipherService, [createCipher({ username: "TEST_USERNAME" })]);
 
       await sut.run(createData(`${COPY_USERNAME_ID}_1`, COPY_USERNAME_ID), {
         url: "https://test.com",
@@ -259,9 +263,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies password to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([
-        createCipher({ password: "TEST_PASSWORD" }),
-      ]);
+      serveCiphers(cipherService, [createCipher({ password: "TEST_PASSWORD" })]);
 
       await sut.run(createData(`${COPY_PASSWORD_ID}_1`, COPY_PASSWORD_ID), {
         url: "https://test.com",
@@ -276,7 +278,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies totp code to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([createCipher({ totp: "TEST_TOTP_SEED" })]);
+      serveCiphers(cipherService, [createCipher({ totp: "TEST_TOTP_SEED" })]);
 
       jest.spyOn(totpService, "getCode$").mockImplementation((seed: string) => {
         if (seed === "TEST_TOTP_SEED") {
