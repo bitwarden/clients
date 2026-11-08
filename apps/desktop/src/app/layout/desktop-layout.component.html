@@ -15,7 +15,7 @@
           (mainContentClicked)="openGenerator()"
         />
         <bit-nav-item
-          icon="bwi-download"
+          icon="bwi-upload"
           [text]="'exportNoun' | i18n"
           (mainContentClicked)="openExport()"
         />
@@ -32,11 +32,11 @@
 
       <bit-nav-item icon="bwi-generate" [text]="'generator' | i18n" (click)="openGenerator()" />
       @if (importUpgradeEnabled()) {
-        <bit-nav-item icon="bwi-import" [text]="'importNoun' | i18n" route="import" />
+        <bit-nav-item icon="bwi-download" [text]="'importNoun' | i18n" route="import" />
       } @else {
-        <bit-nav-item icon="bwi-import" [text]="'importNoun' | i18n" (click)="openImport()" />
+        <bit-nav-item icon="bwi-download" [text]="'importNoun' | i18n" (click)="openImport()" />
       }
-      <bit-nav-item icon="bwi-download" [text]="'exportNoun' | i18n" (click)="openExport()" />
+      <bit-nav-item icon="bwi-upload" [text]="'exportNoun' | i18n" (click)="openExport()" />
     }
   </app-side-nav>
 
