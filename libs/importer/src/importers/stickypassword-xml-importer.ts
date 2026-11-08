@@ -21,7 +21,12 @@ export class StickyPasswordXmlImporter extends BaseImporter implements Importer 
         return;
       }
 
-      const usernameText = loginNode.getAttribute("Name");
+      // When a remark is entered, Sticky Password stores the remark in "Name" and
+      // moves the login name to "Realname", so prefer "Realname" for the username.
+      const realNameText = loginNode.getAttribute("Realname");
+      const usernameText = this.isNullOrWhitespace(realNameText)
+        ? loginNode.getAttribute("Name")
+        : realNameText;
       const passwordText = loginNode.getAttribute("Password");
       let titleText: string = null;
       let linkText: string = null;
