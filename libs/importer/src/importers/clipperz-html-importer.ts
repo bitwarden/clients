@@ -51,11 +51,11 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
             case "password":
               // Clipperz can mark several locked fields as password. Only the primary one is the
               // login password; the rest are kept as hidden custom fields instead of overwriting it.
-              if (field === primaryPassword) {
-                cipher.login.password = this.getValueOrDefault(field.value);
-              } else {
+              if (field !== primaryPassword) {
                 this.processKvp(cipher, field.label, field.value, FieldType.Hidden);
+                break;
               }
+              cipher.login.password = this.getValueOrDefault(field.value);
               break;
             case "email":
             case "username":
