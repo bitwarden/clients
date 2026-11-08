@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FieldType } from "@bitwarden/common/vault/enums";
+
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
@@ -35,6 +37,8 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
       }
 
       if (entry.currentVersion != null && entry.currentVersion.fields != null) {
+        const primaryPassword = this.findPrimaryPasswordField(entry.currentVersion.fields);
+
         for (const property in entry.currentVersion.fields) {
           // eslint-disable-next-line
           if (!entry.currentVersion.fields.hasOwnProperty(property)) {
@@ -45,7 +49,13 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
           const actionType = field.actionType != null ? field.actionType.toLowerCase() : null;
           switch (actionType) {
             case "password":
-              cipher.login.password = this.getValueOrDefault(field.value);
+              // Clipperz can mark several locked fields as password. Only the primary one is the
+              // login password; the rest are kept as hidden custom fields instead of overwriting it.
+              if (field === primaryPassword) {
+                cipher.login.password = this.getValueOrDefault(field.value);
+              } else {
+                this.processKvp(cipher, field.label, field.value, FieldType.Hidden);
+              }
               break;
             case "email":
             case "username":
@@ -89,5 +99,42 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
 
     result.success = true;
     return Promise.resolve(result);
+  }
+
+  /**
+   * Picks the field that holds the login password for an entry, in order of preference: a
+   * password-typed field labelled "password", then one labelled with another known password name
+   * (such as "pass" or "secret"), then the first password-typed field.
+   */
+  private findPrimaryPasswordField(fields: Record<string, any>): any {
+    const passwordTyped: { field: any; label: string | null }[] = [];
+    for (const property in fields) {
+      // eslint-disable-next-line
+      if (!fields.hasOwnProperty(property)) {
+        continue;
+      }
+      const field = fields[property];
+      if (
+        field == null ||
+        field.actionType == null ||
+        field.actionType.toLowerCase() !== "password"
+      ) {
+        continue;
+      }
+      passwordTyped.push({
+        field,
+        label: field.label != null ? field.label.toLowerCase() : null,
+      });
+    }
+
+    const exact = passwordTyped.find((c) => c.label === "password");
+    if (exact != null) {
+      return exact.field;
+    }
+    const named = passwordTyped.find((c) => this.passwordFieldNames.indexOf(c.label) > -1);
+    if (named != null) {
+      return named.field;
+    }
+    return passwordTyped.length > 0 ? passwordTyped[0].field : null;
   }
 }

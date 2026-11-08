@@ -1,3 +1,5 @@
+import { FieldType } from "@bitwarden/common/vault/enums";
+
 import { ClipperzHtmlImporter } from "./clipperz-html-importer";
 
 /**
@@ -71,6 +73,51 @@ describe("ClipperzHtmlImporter", () => {
 
     expect(result.success).toBe(true);
     expect(result.ciphers[0].name).toBe("&xxe;");
+  });
+
+  it("uses the labelled password field and keeps other locked fields as hidden custom fields", async () => {
+    const data = clipperzExport([
+      {
+        label: "Bank",
+        currentVersion: {
+          fields: {
+            "0": { label: "pin", actionType: "password", value: "1234" },
+            "1": { label: "password", actionType: "password", value: "hunter2" },
+            "2": { label: "security code", actionType: "password", value: "999999" },
+          },
+        },
+      },
+    ]);
+
+    const result = await importer.parse(data);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers[0].login.password).toBe("hunter2");
+    const hidden = result.ciphers[0].fields.filter((f) => f.type === FieldType.Hidden);
+    expect(hidden.map((f) => [f.name, f.value])).toEqual([
+      ["pin", "1234"],
+      ["security code", "999999"],
+    ]);
+  });
+
+  it("uses the first password-typed field when none is labelled as a password", async () => {
+    const data = clipperzExport([
+      {
+        label: "Forum",
+        currentVersion: {
+          fields: {
+            "0": { label: "secret", actionType: "password", value: "first" },
+            "1": { label: "other", actionType: "password", value: "second" },
+          },
+        },
+      },
+    ]);
+
+    const result = await importer.parse(data);
+
+    expect(result.ciphers[0].login.password).toBe("first");
+    const hidden = result.ciphers[0].fields.filter((f) => f.type === FieldType.Hidden);
+    expect(hidden.map((f) => f.value)).toEqual(["second"]);
   });
 
   it("fails when the textarea is missing", async () => {
