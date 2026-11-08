@@ -2,6 +2,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 
 import { measured, PerfTrackGroup } from "@bitwarden/logging";
 
+import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
@@ -151,11 +152,12 @@ export class SearchService implements SearchServiceAbstraction {
             if (!loginUri?.uri) {
               return false;
             }
-            const hostname = CipherViewLikeUtils.getUriHostname(loginUri);
-            if (!hostname) {
+            const target =
+              customSchemeTarget(loginUri) ?? CipherViewLikeUtils.getUriHostname(loginUri);
+            if (!target) {
               return false;
             }
-            return normalizeSearchQuery(hostname.toLowerCase()).indexOf(term) > -1;
+            return normalizeSearchQuery(target.toLowerCase()).indexOf(term) > -1;
           })
         ) {
           return true;
@@ -205,4 +207,29 @@ export class SearchService implements SearchServiceAbstraction {
 // Remove accents/diacritics characters from text. This regex is equivalent to the Diacritic unicode property escape, i.e. it will match all diacritic characters.
 export function normalizeSearchQuery(query: string): string {
   return query?.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+/**
+ * Hostname matching only sees the bare host (`myapp-prod` for `ansible://myapp-prod`), so a search
+ * for the full URI missed. Returns their `scheme://host[:port]` part so a search for the URI still
+ * matches. Paths, queries, fragments and userinfo are excluded, as with hostname matching.
+ * Returns undefined for http(s), data:, regular-expression and other URIs without a scheme host.
+ */
+function customSchemeTarget(uri: {
+  uri?: string | null;
+  match?: UriMatchStrategySetting | unknown;
+}): string | undefined {
+  if (!uri?.uri || uri.match === UriMatchStrategy.RegularExpression) {
+    return undefined;
+  }
+  const match = /^([a-z][a-z0-9+.-]*):\/\/([^/?#]+)/i.exec(uri.uri.trim());
+  if (match == null) {
+    return undefined;
+  }
+  const scheme = match[1].toLowerCase();
+  if (scheme === "http" || scheme === "https") {
+    return undefined;
+  }
+  const authority = match[2].slice(match[2].lastIndexOf("@") + 1);
+  return authority ? `${scheme}://${authority}` : undefined;
 }

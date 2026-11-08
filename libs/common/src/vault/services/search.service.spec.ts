@@ -211,6 +211,26 @@ describe("SearchService", () => {
         expect(service.searchCiphersBasic(ciphers, "example.com")).toHaveLength(1);
       });
 
+      it("matches a custom-scheme URI by its scheme and host", () => {
+        const ciphers = [createLoginCipherView("cipher-1", "Ansible", ["ansible://myapp-prod"])];
+
+        expect(service.searchCiphersBasic(ciphers, "ansible://myapp-prod")).toHaveLength(1);
+        expect(service.searchCiphersBasic(ciphers, "myapp-prod")).toHaveLength(1);
+        expect(service.searchCiphersBasic(ciphers, "ansible://myapp-dev")).toHaveLength(0);
+      });
+
+      it("does not match custom-scheme path, query or userinfo", () => {
+        const ciphers = [
+          createLoginCipherView("cipher-1", "Ansible", [
+            "ansible://user-secret:hunter2@myapp-prod/secret-path?token=abc",
+          ]),
+        ];
+
+        expect(service.searchCiphersBasic(ciphers, "secret-path")).toHaveLength(0);
+        expect(service.searchCiphersBasic(ciphers, "token=abc")).toHaveLength(0);
+        expect(service.searchCiphersBasic(ciphers, "hunter2")).toHaveLength(0);
+      });
+
       it("does not throw and does not match when a URI has no parseable hostname", () => {
         const ciphers = [
           createLoginCipherView("cipher-1", "My Login", ["data:text/plain,hello"]),
