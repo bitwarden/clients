@@ -8,7 +8,7 @@ import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
 import { Constraints } from "@bitwarden/common/tools/types";
 
 import { ForwarderContext } from "./forwarder-context";
-import { EmailDomainSettings, EmailPrefixSettings } from "./settings";
+import { EmailDomainSettings, EmailForwardToSettings, EmailPrefixSettings } from "./settings";
 
 /** Mixin for transmitting `getAccountId` result. */
 export type AccountRequest = {
@@ -30,6 +30,7 @@ export type GetAccountIdRpcDef<
 export type ForwarderRequestFields = keyof (ApiSettings &
   SelfHostedApiSettings &
   EmailDomainSettings &
+  EmailForwardToSettings &
   EmailPrefixSettings);
 
 /** Forwarder-specific static definition */

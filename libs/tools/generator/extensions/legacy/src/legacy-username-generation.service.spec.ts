@@ -386,6 +386,7 @@ describe("LegacyUsernameGenerationService", () => {
         forwardedService: ForwardEmail.id,
         forwardedForwardEmailApiToken: "token",
         forwardedForwardEmailDomain: "example.com",
+        forwardedForwardEmailForwardTo: "recipient@example.com",
         website: "example.com",
       } as UsernameGeneratorOptions;
       const forwardEmail = createGenerator<ApiOptions & EmailDomainOptions>(null, null);
@@ -409,6 +410,7 @@ describe("LegacyUsernameGenerationService", () => {
       expect(forwardEmail.generate).toHaveBeenCalledWith({
         token: "token",
         domain: "example.com",
+        forwardTo: "recipient@example.com",
         website: "example.com",
       });
       expect(result).toBe("forwardemail@example.com");

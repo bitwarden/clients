@@ -20,6 +20,6 @@ export const ForwardEmailExtensions: ExtensionMetadata[] = [
       selfHost: "never",
       baseUrl: "https://api.forwardemail.net",
     },
-    requestedFields: [Field.domain, Field.token],
+    requestedFields: [Field.domain, Field.forwardTo, Field.token],
   },
 ];
