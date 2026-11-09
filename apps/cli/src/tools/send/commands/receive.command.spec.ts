@@ -10,9 +10,7 @@ import {
   passwordHashB64Required,
 } from "@bitwarden/common/auth/send-access";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -57,7 +55,6 @@ describe("SendReceiveCommand", () => {
   const sendApiService = mock<SendApiService>();
   const apiService = mock<ApiService>();
   const sendTokenService = mock<SendTokenService>();
-  const configService = mock<ConfigService>();
   const sendDecryptionService = mock<SendDecryptionService>();
   const appIdService = mock<AppIdService>();
 
@@ -81,8 +78,6 @@ describe("SendReceiveCommand", () => {
 
     cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
-    configService.getFeatureFlag.mockResolvedValue(false);
-
     appIdService.getAppId.mockResolvedValue(testAppId);
 
     command = new SendReceiveCommand(
@@ -95,7 +90,6 @@ describe("SendReceiveCommand", () => {
       sendTokenService,
       sendDecryptionService,
       appIdService,
-      configService,
       testUserAgent,
     );
   });
@@ -622,12 +616,7 @@ describe("SendReceiveCommand", () => {
     });
 
     it("should resolve send.bitwarden.eu to api.bitwarden.eu", async () => {
-      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
-      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
-      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
-
       const sendUrl = "https://vault.bitwarden.eu/#/send/abc123/key456";
-      await command.run(sendUrl, {});
 
       const { apiUrl, identityUrl } = await (command as any).resolveSendServer(new URL(sendUrl));
       expect(apiUrl).toBe("https://api.bitwarden.eu");
@@ -731,40 +720,6 @@ describe("SendReceiveCommand", () => {
         headers: { get: () => "application/json" },
         json: async () => body,
       } as any);
-
-    // Ties resolveSendServer to requestToken through run(). The unit tests below hand requestToken a
-    // SendServer directly, so without this a regression that marked another region as the configured
-    // server would leave every other test passing.
-    it("mints and spends a cross-region Send at that region, end to end", async () => {
-      // beforeEach configures US cloud; this link is EU.
-      respondWith(200, { access_token: "eu-token", expires_in: 3600 });
-      sendApiService.postSendAccess.mockResolvedValue({} as any);
-
-      sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
-        { type: SendType.Text, text: { text: "secret" } } as any,
-        new SymmetricCryptoKey(new Uint8Array(64)),
-      ]);
-      const stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
-
-      const response = await command.run("https://vault.bitwarden.eu/#/send/abc123/key456", {});
-
-      expect(response.success).toBe(true);
-
-      // Minted at EU's identity server, never at the configured US one.
-      expect((apiService.nativeFetch.mock.calls[0][0] as Request).url).toBe(
-        "https://identity.bitwarden.eu/connect/token",
-      );
-      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
-      expect(sendTokenService.getSendAccessToken$).not.toHaveBeenCalled();
-
-      // ...and spent at that same region's API.
-      expect(sendApiService.postSendAccess).toHaveBeenCalledWith(
-        expect.objectContaining({ token: "eu-token" }),
-        "https://api.bitwarden.eu",
-      );
-
-      stdoutSpy.mockRestore();
-    });
 
     it("mints a foreign-origin Send at that origin, never the configured server", async () => {
       respondWith(200, { access_token: "foreign-token", expires_in: 3600 });
@@ -888,25 +843,6 @@ describe("SendReceiveCommand", () => {
         expect(deviceIdentifierOf(0)).toBe(testAppId);
       });
 
-      it("sends the app id as the Device-Identifier when a cross-region Send is received", async () => {
-        // beforeEach configures US cloud; this link is EU.
-        respondWith(200, { access_token: "eu-token", expires_in: 3600 });
-        sendApiService.postSendAccess.mockResolvedValue({} as any);
-        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
-          { type: SendType.Text, text: { text: "secret" } } as any,
-          new SymmetricCryptoKey(new Uint8Array(64)),
-        ]);
-        const stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
-
-        const response = await command.run("https://vault.bitwarden.eu/#/send/abc123/key456", {});
-
-        expect(response.success).toBe(true);
-        expect(apiService.nativeFetch).toHaveBeenCalledTimes(1);
-        expect(deviceIdentifierOf(0)).toBe(testAppId);
-
-        stdoutSpy.mockRestore();
-      });
-
       it("sends the same Device-Identifier on the email and email + OTP requests", async () => {
         jest.spyOn(command as any, "promptForEmail").mockResolvedValue("user@example.com");
         jest.spyOn(command as any, "promptForOtp").mockResolvedValue("012345");
@@ -1002,11 +938,6 @@ describe("SendReceiveCommand", () => {
       data: { error, send_access_error_type: sendAccessErrorType },
     });
 
-    const enableSdkSends = (enabled: boolean) =>
-      configService.getFeatureFlag.mockImplementation(async (flag) =>
-        flag === FeatureFlag.Pm30110SdkSendsApi ? enabled : false,
-      );
-
     const sdkReceiver = (server: typeof foreignServer = foreignServer) =>
       (command as any).sdkReceiver(receiveClient, server, keyArray);
 
@@ -1041,7 +972,6 @@ describe("SendReceiveCommand", () => {
     });
 
     beforeEach(() => {
-      enableSdkSends(true);
       platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsCLI);
       platformUtilsService.getApplicationVersionNumber.mockResolvedValue("2026.10.0");
       (SendReceiveClient as unknown as jest.Mock).mockImplementation(() => receiveClient);
@@ -1249,32 +1179,6 @@ describe("SendReceiveCommand", () => {
         expect(sendApiService.postSendAccess).toHaveBeenCalledWith(
           accessToken,
           "https://api.bitwarden.com",
-        );
-      });
-
-      it("keeps a cross-instance Send on the legacy path while the SDK Sends flag is off", async () => {
-        enableSdkSends(false);
-        apiService.nativeFetch.mockResolvedValue({
-          status: 200,
-          headers: { get: () => "application/json" },
-          json: async () => ({ access_token: "eu-token", expires_in: 3600 }),
-        } as any);
-        sendApiService.postSendAccess.mockResolvedValue({} as any);
-        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
-          { type: SendType.Text, text: { text: "secret" } } as any,
-          new SymmetricCryptoKey(new Uint8Array(64)),
-        ]);
-
-        const response = await command.run(euSendUrl, {});
-
-        expect(response.success).toBe(true);
-        expect(SendReceiveClient).not.toHaveBeenCalled();
-        expect((apiService.nativeFetch.mock.calls[0][0] as Request).url).toBe(
-          "https://identity.bitwarden.eu/connect/token",
-        );
-        expect(sendApiService.postSendAccess).toHaveBeenCalledWith(
-          expect.objectContaining({ token: "eu-token" }),
-          "https://api.bitwarden.eu",
         );
       });
     });
