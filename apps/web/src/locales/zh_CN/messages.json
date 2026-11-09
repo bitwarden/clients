@@ -2338,7 +2338,7 @@
     "message": "用于加密"
   },
   "loginWithPasskeyEnabled": {
-    "message": "通行密钥登录已启用"
+    "message": "通行密钥登录已开启"
   },
   "passkeySaved": {
     "message": "$NAME$ 已保存",
@@ -2643,6 +2643,9 @@
     "message": "您的密码库是空的"
   },
   "noItemsMatchSelectedFilters": {
+    "message": "没有匹配所选筛选的项目"
+  },
+  "noItemsMatchTheSelectedFilters": {
     "message": "没有匹配所选筛选的项目"
   },
   "noItemsMatchSearchTerm": {
@@ -3361,19 +3364,19 @@
     "message": "新设备登录"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "停用新设备登录保护"
+    "message": "关闭新设备登录保护"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "启用新设备登录保护"
+    "message": "开启新设备登录保护"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以停用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以关闭从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
     "message": "继续下面的操作以启用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "停用新设备登录保护后，拥有您的主密码的任何人都可以从任意设备访问您的账户。要在无需验证电子邮件的情况下保护您的账户，请设置两步登录。"
+    "message": "关闭新设备登录保护后，拥有您的主密码的任何人都可以从任意设备访问您的账户。要在无需验证电子邮件的情况下保护您的账户，请设置两步登录。"
   },
   "accountNewDeviceLoginProtectionSaved": {
     "message": "新设备登录保护更改已保存"
@@ -3632,6 +3635,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "选择密码库",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "选择位置",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "选择一个密码库"
+  },
+  "selectALocationTitle": {
+    "message": "选择一个位置"
+  },
+  "importDestinationDescription": {
+    "message": "选择这些项目的导入位置。"
+  },
+  "importMyItemsOption": {
+    "message": "我的项目",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "仅您可见"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "由 $ORGANIZATION$ 拥有，但仅您可见",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "组织密码库"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "家庭密码库"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将得到保留。"
+  },
+  "importSharedFolderRequired": {
+    "message": "A shared folder is required."
+  },
+  "importIntoOrganization": {
+    "message": "项目将被导入到 $ORGANIZATION$。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "将所有项目移动到共享文件夹"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "导入 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "导入 1 个项目"
+  },
+  "importToOrganization": {
+    "message": "导入到 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "secure notes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cards",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH keys",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bank accounts",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "licenses",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "passports",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "选择文件"
@@ -4215,10 +4376,10 @@
     "message": "禁用支付卡项目类型"
   },
   "restrictedItemTypePolicyDescV2": {
-    "message": "不允许成员在他们的密码库中创建和存储信用卡项目。启用此策略后，现有的支付卡将被自动隐藏。"
+    "message": "不允许成员在他们的密码库中创建和存储信用卡项目。开启此策略后，现有的支付卡将被自动隐藏。"
   },
   "restrictedItemTypePolicyDescVfo1": {
-    "message": "不允许成员创建和存储信用卡项目。启用此策略后，现有的支付卡将被自动隐藏。",
+    "message": "不允许成员创建和存储信用卡项目。开启此策略后，现有的支付卡将被自动隐藏。",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictedItemTypePolicyDescListVfo1": {
@@ -4231,7 +4392,7 @@
     "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入您的密码库。"
   },
   "yourSingleUseRecoveryCode": {
-    "message": "当您无法访问两步登录提供程序时，您的一次性恢复代码可用于停用两步登录。Bitwarden 建议您写下恢复代码，并将其妥善保管。"
+    "message": "当您无法访问两步登录提供程序时，您的一次性恢复代码可用于关闭两步登录。Bitwarden 建议您写下恢复代码，并将其妥善保管。"
   },
   "viewRecoveryCode": {
     "message": "查看恢复代码"
@@ -4241,10 +4402,10 @@
     "description": "Two-step login providers such as YubiKey, Duo, Authenticator apps, Email, etc."
   },
   "enable": {
-    "message": "启用"
+    "message": "开启"
   },
   "enabled": {
-    "message": "已启用"
+    "message": "已开启"
   },
   "optionEnabled": {
     "message": "已启用"
@@ -4290,7 +4451,7 @@
     "message": "编辑项目，隐藏密码"
   },
   "disable": {
-    "message": "停用"
+    "message": "关闭"
   },
   "orgUserDetailsNotFound": {
     "message": "未找到成员详细信息。"
@@ -4356,10 +4517,10 @@
     "message": "如果您要把它添加到其他设备，下面是您的验证器 App 所需要的二维码（或密钥）。"
   },
   "twoStepDisableDesc": {
-    "message": "确定要停用此两步登录提供程序吗？"
+    "message": "确定要关闭此两步登录提供程序吗？"
   },
   "twoStepDisabled": {
-    "message": "两步登录提供程序已停用。"
+    "message": "两步登录提供程序已关闭。"
   },
   "twoFactorYubikeyAdd": {
     "message": "添加一个新的 YubiKey 到您的账户"
@@ -4482,7 +4643,7 @@
     "message": "由于平台限制，FIDO U2F 不能在所有 Bitwarden 应用程序上使用。您应该设置其他两步登录提供程序，以便在无法使用 FIDO U2F 时可以访问您的账户。支持的平台："
   },
   "twoFactorU2fSupportWeb": {
-    "message": "桌面/笔记本电脑上支持 U2F 的浏览器（启用了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页密码库和浏览器扩展。"
+    "message": "桌面/笔记本电脑上支持 U2F 的浏览器（开启了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页密码库和浏览器扩展。"
   },
   "twoFactorU2fWaiting": {
     "message": "等待您触摸安全密钥上的按钮"
@@ -4908,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "显示定价摘要"
-  },
-  "hidePricingSummary": {
-    "message": "隐藏定价摘要"
-  },
   "summary": {
     "message": "摘要"
   },
@@ -4992,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "订阅过期"
-  },
-  "subscriptionCanceled": {
-    "message": "订阅已被取消。"
   },
   "pendingCancellation": {
     "message": "待取消"
@@ -5215,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "截止 $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -5989,7 +6132,7 @@
     "message": "两步登录已保存"
   },
   "disabled2fa": {
-    "message": "两步登录已停用"
+    "message": "两步登录已关闭"
   },
   "recovered2fa": {
     "message": "从两步登录中恢复了账户。"
@@ -6183,6 +6326,70 @@
   },
   "accessedFileSendV3": {
     "message": "访问了由 $ID$ 创建的文件 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ disabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ enabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Created item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Edited item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Deleted item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Accessed item Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6678,6 +6885,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "拒绝了将项目转移到组织"
+  },
+  "revocationReasonByAdmin": {
+    "message": "By admin",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "No reason recorded",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "因不符合双重验证组织策略，撤销了 $ID$ 对组织的访问权限。",
@@ -7407,7 +7622,7 @@
     "message": "To join this organization, enter the code sent to your email."
   },
   "failedToSendVerificationEmail": {
-    "message": "Failed to send verification email. Please try again."
+    "message": "发送验证电子邮件失败。请重试。"
   },
   "openOrgInviteNoSeatsMessage": {
     "message": "由于没有可用的席位，您的邀请无法被接受。"
@@ -7434,16 +7649,16 @@
     "message": "记住电子邮箱"
   },
   "recoverAccountTwoStepDesc": {
-    "message": "如果您无法通过常规的两步登录方式访问您的账户，您可以使用两步登录恢复代码来停用账户上的所有两步登录提供程序。"
+    "message": "如果您无法通过常规的两步登录方式访问您的账户，您可以使用两步登录恢复代码来停关闭账户上的所有两步登录提供程序。"
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
-    "message": "在下方使用您的一次性恢复代码登录。这将停用您账户上的所有两步提供程序。"
+    "message": "在下方使用您的一次性恢复代码登录。这将关闭您账户上的所有两步提供程序。"
   },
   "recoverAccountTwoStep": {
     "message": "恢复账户两步登录"
   },
   "twoStepRecoverDisabled": {
-    "message": "两步登录已在您的账户中停用。"
+    "message": "两步登录已在您的账户中关闭。"
   },
   "learnMore": {
     "message": "进一步了解"
@@ -7531,10 +7746,6 @@
     "message": "升级方案",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "要将您的账户升级到另一个方案，请提供以下信息。同时请确保您账户已添加有一个有效的付款方式。",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "账单 #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7609,6 +7820,18 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "为您的 Secrets Manager 订阅设置一个席位限制。达到此限制后，您将无法邀请新的成员。"
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
+  },
+  "maximumSeatsCount": {
+    "message": "Maximum $COUNT$ seats",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "席位限制（可选）",
@@ -8276,7 +8499,7 @@
     "message": "启用此策略将撤销未在其账户中启用两步登录的所有用户。受影响的用户将收到电子邮件通知。"
   },
   "twoStepLoginPolicyUserWarning": {
-    "message": "您是组织的成员，该组织要求在您的用户账户上设置两步登录。如果您停用所有两步登录提供程序，您将被自动从这些组织中移除。"
+    "message": "您是组织的成员，该组织要求在您的用户账户上设置两步登录。如果您关闭所有两步登录提供程序，您将被自动从这些组织中移除。"
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "为所有成员生成的密码选择一组最低要求。"
@@ -9043,7 +9266,7 @@
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipDescContent": {
-    "message": "所有项目都将由组织拥有并保存至组织中，从而实现组织范围的控制、可见性和报告。启用后，每个成员都可以使用默认集合来存储项目。进一步了解如何管理",
+    "message": "所有项目都将由组织拥有并保存至组织中，从而实现组织范围的控制、可见性和报告。开启后，每个成员都可以使用默认集合来存储项目。进一步了解如何管理",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
@@ -9063,7 +9286,7 @@
     "message": "在用户离职之前，无法从 Admin Console 进行管理"
   },
   "organizationDataOwnershipWarningContentTop": {
-    "message": "停用此策略后，默认的集合将："
+    "message": "关闭此策略后，默认的集合将："
   },
   "organizationDataOwnershipWarningContentBottom": {
     "message": "进一步了解",
@@ -9084,7 +9307,7 @@
     "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
   },
   "howToTurnOnAutoConfirm": {
-    "message": "如何启用自动用户确认"
+    "message": "如何开启自动用户确认"
   },
   "autoConfirmExtension1": {
     "message": "打开您的 Bitwarden 扩展"
@@ -9094,18 +9317,18 @@
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtension3": {
-    "message": "启用",
+    "message": "开启",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "成功打开 Bitwarden 浏览器扩展。您现在可以激活自动用户确认设置了。"
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "当管理员的设备解锁时，邀请加入组织的新用户将被自动确认。启用此策略前，请审阅并同意以下内容：",
+    "message": "当管理员的设备解锁时，邀请加入组织的新用户将被自动确认。开启此策略前，请审阅并同意以下内容：",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmPolicyEditDescriptionVfo1": {
-    "message": "当管理员的设备解锁时，邀请加入组织密码库的新用户将被自动确认。启用此策略前，请审阅并同意以下内容：",
+    "message": "当管理员的设备解锁时，邀请加入组织密码库的新用户将被自动确认。开启此策略前，请审阅并同意以下内容：",
     "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
@@ -9149,10 +9372,10 @@
     "message": "我接受这些风险和策略更新"
   },
   "autoConfirmEnabledByAdmin": {
-    "message": "启用了自动用户确认设置"
+    "message": "开启了自动用户确认设置"
   },
   "autoConfirmDisabledByAdmin": {
-    "message": "停用了自动用户确认设置"
+    "message": "关闭了自动用户确认设置"
   },
   "autoConfirmEnabledByPortal": {
     "message": "添加了自动用户确认策略"
@@ -9223,10 +9446,19 @@
     "message": "桌面端自动输入默认设置"
   },
   "desktopAutotypePolicyDescV2": {
-    "message": "为成员启用桌面端自动输入。成员将可以在桌面客户端中手动停用自动输入。"
+    "message": "为成员启用桌面端自动输入。成员将可以在桌面客户端中手动关闭自动输入。"
   },
   "desktopAutotypePolicyDescVfo1": {
     "message": "为成员启用桌面端自动输入。"
+  },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "桌面 App 自动填充"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "默认为所有成员开启桌面自动填充。"
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "默认为所有成员开启桌面 App 自动填充。您可以设置键盘快捷键，并选择成员是否必须先确认才能填充。此功能处于 Beta 阶段。"
   },
   "disableSend": {
     "message": "禁用 Send"
@@ -9329,7 +9561,7 @@
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
   "fillAssistPolicyDesc": {
-    "message": "默认为所有成员启用填充辅助。此功能使用经过审核的、站点特定的指令，以提高已知难以自动填充的网站上的自动填充的准确性。"
+    "message": "默认为所有成员开启填充辅助。此功能使用经过审核的、站点特定的指令，以提高已知难以自动填充的网站上的自动填充的准确性。"
   },
   "fillAssistRuleSource": {
     "message": "自动填充规则集"
@@ -9454,7 +9686,7 @@
     "message": "管理轮换"
   },
   "disableRequiredError": {
-    "message": "您必须先手动切换 $POLICYNAME$ 策略，然后才能停用此策略。",
+    "message": "您必须先手动切换 $POLICYNAME$ 策略，然后才能关闭此策略。",
     "placeholders": {
       "policyName": {
         "content": "$1",
@@ -9674,13 +9906,13 @@
     "message": "未注册"
   },
   "withdrawAccountRecovery": {
-    "message": "撤销账户恢复"
+    "message": "撤回账户恢复"
   },
   "enrollPasswordResetSuccess": {
     "message": "注册成功！"
   },
   "withdrawPasswordResetSuccess": {
-    "message": "撤销成功！"
+    "message": "撤回成功！"
   },
   "eventEnrollAccountRecovery": {
     "message": "用户 $ID$ 注册了账户恢复。",
@@ -9692,7 +9924,7 @@
     }
   },
   "eventWithdrawAccountRecovery": {
-    "message": "用户 $ID$ 撤销了账户恢复。",
+    "message": "用户 $ID$ 撤回了账户恢复。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9779,7 +10011,7 @@
     "message": "允许管理员帮助成员重新获取其账户的访问权限。"
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "必须先启用「单一组织」企业策略，然后才能激活此策略。"
+    "message": "必须先开启「单一组织」企业策略，然后才能激活此策略。"
   },
   "accountRecoveryPolicySingleOrgReqV2": {
     "message": "必须先启用「单一组织」策略，然后才能启用此策略。"
@@ -9795,7 +10027,7 @@
     "message": "账户恢复"
   },
   "accountRecoveryPolicyDescV3Part2": {
-    "message": "的成员重新获得其账户的访问权限。启用此策略后，现有成员可以自行注册，也可以选择为新成员自动注册。"
+    "message": "的成员重新获得其账户的访问权限。开启此策略后，现有成员可以自行注册，也可以选择为新成员自动注册。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
@@ -10326,7 +10558,7 @@
     "message": "为所有现有成员和新成员启用浏览器扩展中的页面加载时自动填充设置。请注意，被入侵或不受信任的网站可能会"
   },
   "activateAutofillPolicyDescV3": {
-    "message": "为所有现有成员和新成员启用浏览器扩展中的页面加载时自动填充设置。启用此策略后，成员必须调整其个人设置以启用自动填充。请注意，被入侵或不受信任的网站可能会"
+    "message": "为所有现有成员和新成员启用浏览器扩展中的页面加载时自动填充设置。启用此策略后，成员必须调整其个人设置以开启自动填充。请注意，被入侵或不受信任的网站可能会"
   },
   "exploitAutofillOnPageLoad": {
     "message": "利用页面加载时的自动填充功能"
@@ -10736,10 +10968,10 @@
     "message": "「SSO 登录和 Key Connector 解密」已激活。此策略仅适用于所有者和管理员。"
   },
   "enabledSso": {
-    "message": "SSO 已启用"
+    "message": "SSO 已开启"
   },
   "ssoTurnedOff": {
-    "message": "SSO 已停用"
+    "message": "SSO 已关闭"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ 必须使用单点登录 (SSO)",
@@ -11401,7 +11633,7 @@
     "message": "设备验证"
   },
   "enableDeviceVerification": {
-    "message": "启用设备验证"
+    "message": "开启设备验证"
   },
   "deviceVerificationDesc": {
     "message": "登录未识别的设备时，验证码会发送到您的电子邮箱地址"
@@ -11410,7 +11642,7 @@
     "message": "更新了设备验证"
   },
   "areYouSureYouWantToEnableDeviceVerificationTheVerificationCodeEmailsWillArriveAtX": {
-    "message": "确定要启用设备验证吗？验证码电子邮件将发送到：$EMAIL$",
+    "message": "确定要开启设备验证吗？验证码电子邮件将发送到：$EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -11651,7 +11883,7 @@
     "message": "启动 Duo"
   },
   "turnOn": {
-    "message": "启用"
+    "message": "开启"
   },
   "on": {
     "message": "已开启"
@@ -11867,10 +12099,6 @@
   "serviceAccount": {
     "message": "服务账户",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
-  },
-  "serviceAccounts": {
-    "message": "服务账户",
-    "description": "The title for the section that deals with service accounts."
   },
   "secrets": {
     "message": "机密",
@@ -12151,7 +12379,7 @@
     "description": "Label for the expiration date of an access token."
   },
   "accessTokenCallOutTitle": {
-    "message": "访问令牌不会被存储并且以后无法获取",
+    "message": "访问令牌不会被存储并且以后无法再次获取",
     "description": "Notification to inform the user that access tokens are only displayed once and cannot be retrieved again."
   },
   "copyToken": {
@@ -13207,7 +13435,7 @@
     "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
   },
   "memberDecryptionOptionTdeDescVfo1Part4": {
-    "message": "策略将自动启用。",
+    "message": "策略将自动开启。",
     "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
   },
   "memberDecryptionOptionTdeDescPart2": {
@@ -13227,7 +13455,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "策略将在使用此选项时启用。",
+    "message": "策略将在使用此选项时开启。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -13700,7 +13928,7 @@
     }
   },
   "limitCollectionCreationEnabled": {
-    "message": "启用了限制集合创建设置 $ID$。",
+    "message": "开启了限制集合创建设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13709,7 +13937,7 @@
     }
   },
   "limitSharedFolderCreationEnabled": {
-    "message": "启用了限制共享文件夹创建设置 $ID$。",
+    "message": "开启了限制共享文件夹创建设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13718,7 +13946,7 @@
     }
   },
   "limitCollectionCreationDisabled": {
-    "message": "停用了限制集合创建设置 $ID$。",
+    "message": "关闭了限制集合创建设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13727,7 +13955,7 @@
     }
   },
   "limitSharedFolderCreationDisabled": {
-    "message": "停用了限制共享文件夹创建设置 $ID$。",
+    "message": "关闭了限制共享文件夹创建设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13736,7 +13964,7 @@
     }
   },
   "limitCollectionDeletionEnabled": {
-    "message": "启用了限制集合删除设置 $ID$。",
+    "message": "开启了限制集合删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13745,7 +13973,7 @@
     }
   },
   "limitSharedFolderDeletionEnabled": {
-    "message": "启用了限制共享文件夹删除设置 $ID$。",
+    "message": "开启了限制共享文件夹删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13754,7 +13982,7 @@
     }
   },
   "limitCollectionDeletionDisabled": {
-    "message": "停用了限制集合删除设置 $ID$。",
+    "message": "关闭了限制集合删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13763,7 +13991,7 @@
     }
   },
   "limitSharedFolderDeletionDisabled": {
-    "message": "停用了限制共享文件夹删除设置 $ID$。",
+    "message": "关闭了限制共享文件夹删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13772,7 +14000,7 @@
     }
   },
   "limitItemDeletionEnabled": {
-    "message": "启用了限制项目删除设置 $ID$。",
+    "message": "开启了限制项目删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13781,7 +14009,7 @@
     }
   },
   "limitItemDeletionDisabled": {
-    "message": "停用了限制项目删除设置 $ID$。",
+    "message": "关闭了限制项目删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13790,7 +14018,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsEnabled": {
-    "message": "启用了允许所有者和管理员管理所有集合和项目设置 $ID$。",
+    "message": "开启了允许所有者和管理员管理所有集合和项目设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13799,7 +14027,7 @@
     }
   },
   "allowAdminAccessToAllSharedFolderItemsEnabled": {
-    "message": "启用了允许所有者和管理员管理所有共享文件夹和项目设置 $ID$。",
+    "message": "开启了允许所有者和管理员管理所有共享文件夹和项目设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13808,7 +14036,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsDisabled": {
-    "message": "停用了允许所有者和管理员管理所有集合和项目设置 $ID$。",
+    "message": "关闭了允许所有者和管理员管理所有集合和项目设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13817,7 +14045,7 @@
     }
   },
   "allowAdminAccessToAllSharedFolderItemsDisabled": {
-    "message": "停用了允许所有者和管理员管理所有共享文件夹和项目设置 $ID$。",
+    "message": "关闭了允许所有者和管理员管理所有共享文件夹和项目设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -14096,9 +14324,6 @@
   "cancelSurveyOtherPlaceholder": {
     "message": "请描述您取消的原因",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
-  },
-  "freeForOneYear": {
-    "message": "免费 1 年"
   },
   "newWebApp": {
     "message": "欢迎使用全新改进的网页 App。进一步了解发生了哪些变化。"
@@ -14902,15 +15127,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ 折扣",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "获取 Secrets Manager"
   },
@@ -15037,16 +15253,16 @@
     "message": "（无群组）"
   },
   "memberAccessReportTwoFactorEnabledTrue": {
-    "message": "已开启"
+    "message": "是"
   },
   "memberAccessReportTwoFactorEnabledFalse": {
-    "message": "已关闭"
+    "message": "否"
   },
   "memberAccessReportAuthenticationEnabledTrue": {
-    "message": "已开启"
+    "message": "是"
   },
   "memberAccessReportAuthenticationEnabledFalse": {
-    "message": "已关闭"
+    "message": "否"
   },
   "memberAccessReportLoadError": {
     "message": "成员访问报告加载失败。这可能是由于组织规模过大或网络问题导致的。请重试，如果问题持续存在，请联系支持人员。"
@@ -15129,9 +15345,6 @@
   "contactBitwardenSupport": {
     "message": "联系 Bitwarden 支持。",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
-  },
-  "sponsored": {
-    "message": "赞助"
   },
   "licenseAndBillingManagementDesc": {
     "message": "在 Bitwarden 云服务器中进行更新后，上传许可证文件以应用最新的更改。"
@@ -15344,9 +15557,6 @@
   "accessToPremiumFeatures": {
     "message": "高级版功能访问权限"
   },
-  "additionalStorageGbMessage": {
-    "message": "GB 附加存储"
-  },
   "sshKeyAlgorithm": {
     "message": "密钥算法"
   },
@@ -15513,7 +15723,7 @@
     "message": "自托管"
   },
   "claim-domain-single-org-warning": {
-    "message": "声明域名将启用单一组织策略。"
+    "message": "声明域名将开启单一组织策略。"
   },
   "single-org-revoked-user-warning": {
     "message": "不符合要求的成员将被撤销。管理员可以在他们退出所有其他组织后恢复其成员资格。"
@@ -15736,7 +15946,7 @@
     "message": "已声明"
   },
   "domainStatusPending": {
-    "message": "处理中"
+    "message": "待处理"
   },
   "claimedDomainsDescription": {
     "message": "声明域名以拥有成员账户。使用已声明域名的成员登录时将跳过 SSO 标识符页面，管理员也可以删除已认领的账户。"
@@ -16742,9 +16952,6 @@
   "familiesUpdated": {
     "message": "您已升级为家庭版！"
   },
-  "taxCalculationError": {
-    "message": "计算您所在位置的税费时出错。请重试。"
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "欢迎使用 Bitwarden"
   },
@@ -16766,8 +16973,8 @@
   "upgradeNow": {
     "message": "立即升级"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
-    "message": "使用 Bitwarden 高级版，获得高级在线安全防护。"
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
+    "message": "Get advanced online security with Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "完成此表单将创建一个新的家庭版组织。您可以从 Admin Console 升级您的免费版组织。"
@@ -16832,7 +17039,7 @@
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
-    "message": "启用此策略之前，您必须先声明一个域名。"
+    "message": "开启此策略之前，您必须先声明一个域名。"
   },
   "blockClaimedDomainAccountCreationLearnMoreV2": {
     "message": "进一步了解声明域名"
@@ -17923,10 +18130,10 @@
     "message": "创建并发布自定义通知横幅，所有组织成员在登录后都会在其密码库页面看到该通知横幅。"
   },
   "singleOrgPrerequisite": {
-    "message": "必须先启用「单一组织」策略，然后才能激活此策略。"
+    "message": "必须先开启「单一组织」策略，然后才能激活此策略。"
   },
   "singleOrgPrerequisiteVfo1": {
-    "message": "必须先启用「单一组织成员资格」策略，然后才能激活此策略。"
+    "message": "必须先开启「单一组织成员资格」策略，然后才能激活此策略。"
   },
   "enableBanner": {
     "message": "启用通知横幅"
@@ -18140,7 +18347,7 @@
     "message": "我的请求"
   },
   "pamTabHistory": {
-    "message": "History"
+    "message": "历史记录"
   },
   "pamAccessRequestsSearchPlaceholder": {
     "message": "搜索凭据、集合、请求人"
@@ -18161,7 +18368,7 @@
     "message": "无法加载您的请求"
   },
   "pamMyRequestsPendingSection": {
-    "message": "处理中"
+    "message": "待处理"
   },
   "pamMyRequestsPendingEmpty": {
     "message": "没有待处理的请求"
@@ -18170,7 +18377,7 @@
     "message": "You have no requests"
   },
   "pamMyRequestsEmptyDescription": {
-    "message": "You have no requests for access to sensitive credentials at the moment."
+    "message": "目前您没有针对敏感凭据的访问请求。"
   },
   "pamColumnItem": {
     "message": "项目"
@@ -18200,7 +18407,7 @@
     "message": "操作"
   },
   "pamWindowUntil": {
-    "message": "截止 $DATE$",
+    "message": "截止到 $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -18209,7 +18416,7 @@
     }
   },
   "pamExtendedBadge": {
-    "message": "延期 +$DURATION$ · 截止 $DATE$",
+    "message": "延期 +$DURATION$ · 截止到 $DATE$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18321,7 +18528,7 @@
     "message": "结束访问吗？"
   },
   "pamEndLeaseConfirm": {
-    "message": "这将立即撤销您的访问。此操作无法撤销！"
+    "message": "这将立即撤销您的访问权限。此操作无法撤销！"
   },
   "pamEndLeaseSuccess": {
     "message": "访问已结束。"
@@ -18339,13 +18546,13 @@
     "message": "理由"
   },
   "pamExtendLeaseSuccess": {
-    "message": "Access extended."
+    "message": "访问权限已延期。"
   },
   "pamExtendLeaseError": {
-    "message": "Couldn't extend access."
+    "message": "无法延期访问权限。"
   },
   "pamExtendLeaseEnded": {
-    "message": "Your access ended before it could be extended. The request is in your history."
+    "message": "您的访问权限已在延期前结束。请求已移至历史记录。"
   },
   "pamStatusApproved": {
     "message": "已批准"
@@ -18366,7 +18573,7 @@
     "message": "已撤销"
   },
   "pamStatusSessionEnded": {
-    "message": "Session ended"
+    "message": "会话已结束"
   },
   "pamStatusUnknown": {
     "message": "未知"
@@ -18430,7 +18637,7 @@
     "message": "No matching events"
   },
   "pamAuditNoMatchesMessage": {
-    "message": "No events match the current filters."
+    "message": "没有匹配当前筛选的事件。"
   },
   "pamAuditRangeOutsideHistory": {
     "message": "Choose a date within the last $DAYS$ days.",
@@ -18460,7 +18667,7 @@
     "message": "详细信息"
   },
   "pamAuditDurationExtendedTo": {
-    "message": "Extended to $DATETIME$",
+    "message": "已延期至 $DATETIME$",
     "placeholders": {
       "datetime": {
         "content": "$1",
@@ -18481,19 +18688,19 @@
     "message": "访问已请求"
   },
   "pamAuditKindRequestApproved": {
-    "message": "Request approved"
+    "message": "请求已批准"
   },
   "pamAuditKindRequestDenied": {
-    "message": "Request denied"
+    "message": "请求已拒绝"
   },
   "pamAuditKindRequestCanceled": {
-    "message": "Request canceled"
+    "message": "请求已取消"
   },
   "pamAuditKindRequestExpiredUnanswered": {
     "message": "由于未作出决策，请求已过期"
   },
   "pamAuditKindRequestExpiredUnactivated": {
-    "message": "Approval expired unused"
+    "message": "由于未使用，批准已过期"
   },
   "pamAuditKindAccessActivated": {
     "message": "Access activated"
@@ -18502,10 +18709,10 @@
     "message": "Activation rejected"
   },
   "pamAuditKindAccessExtended": {
-    "message": "Access extended"
+    "message": "访问权限已延期"
   },
   "pamAuditKindAccessExpired": {
-    "message": "访问已过期"
+    "message": "访问权限已过期"
   },
   "pamAuditKindCredentialAccessed": {
     "message": "Credential accessed"
@@ -18532,7 +18739,7 @@
     "message": "Access freeze lifted"
   },
   "pamAuditKindUnknown": {
-    "message": "Unknown event"
+    "message": "未知事件"
   },
   "pamAuditLog": {
     "message": "审计日志"
@@ -18553,13 +18760,13 @@
     "message": "访问请求不可用"
   },
   "pamAccessRequestNotFoundDescription": {
-    "message": "This access request isn't available to you, or it no longer exists."
+    "message": "此访问请求对您不可用，或它已不存在。"
   },
   "pamAccessRequestLoadError": {
-    "message": "Couldn't load this access request."
+    "message": "无法加载此访问请求。"
   },
   "pamActiveLeaseBannerTitle": {
-    "message": "You have active access to this item — $DURATION$ remaining",
+    "message": "您拥有此项目的有效访问权限 — 剩余 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18568,7 +18775,7 @@
     }
   },
   "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Access to this item is ending soon — $DURATION$ remaining",
+    "message": "对此项目的访问权限即将结束 — 剩余 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18583,7 +18790,7 @@
     "message": "访问已批准"
   },
   "pamApprovedRequestBannerDuration": {
-    "message": "$DURATION$ of access",
+    "message": "访问权限的时长为 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18592,10 +18799,10 @@
     }
   },
   "pamRequestAccessBannerBody": {
-    "message": "Credentials are masked until access is granted."
+    "message": "在授予访问权限之前，凭据将保持隐藏状态。"
   },
   "pamRequestAccessBannerHeading": {
-    "message": "You can request access"
+    "message": "您可以请求访问权限"
   },
   "pamUnlicensedBannerHeading": {
     "message": "Privileged Controls license required",
@@ -18641,7 +18848,7 @@
     "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamRequestAccessBannerMaxDuration": {
-    "message": "Access up to $DURATION$",
+    "message": "访问权限最多 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18650,7 +18857,7 @@
     }
   },
   "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "message": "访问权限最多 $DURATION$，符合条件即可即时获批",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18659,7 +18866,7 @@
     }
   },
   "pamRequestAccessButton": {
-    "message": "Request access"
+    "message": "请求访问权限"
   },
   "pamRequestSlotTaken": {
     "message": "目前别人正在访问此项目。您可以请求访问权限，但需等到其完成之后您才能发起访问。"
@@ -18695,7 +18902,7 @@
     "message": "无法取消请求。"
   },
   "requestAccessModalSubmit": {
-    "message": "Request access"
+    "message": "请求访问权限"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Pick a duration. You'll get immediate access for that long."
@@ -18707,22 +18914,22 @@
     "message": "持续时间"
   },
   "requestAccessModalStartDate": {
-    "message": "Start date"
+    "message": "开始日期"
   },
   "requestAccessModalStart": {
-    "message": "Start time"
+    "message": "开始时间"
   },
   "requestAccessModalEndDate": {
-    "message": "End date"
+    "message": "结束日期"
   },
   "requestAccessModalEnd": {
-    "message": "End time"
+    "message": "结束时间"
   },
   "requestAccessModalEndNotAfterStart": {
     "message": "End must be after the start."
   },
   "requestAccessModalStartNow": {
-    "message": "$TIME$ (now)",
+    "message": "$TIME$（现在）",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -18731,19 +18938,19 @@
     }
   },
   "requestAccessModalCustomOption": {
-    "message": "Custom time…"
+    "message": "自定义时间…"
   },
   "requestAccessModalCustomEndOption": {
-    "message": "Custom end date and time…"
+    "message": "自定义结束日期和时间…"
   },
   "requestAccessModalShowStartPresets": {
-    "message": "Show suggested start times"
+    "message": "显示建议的开始时间"
   },
   "requestAccessModalShowEndPresets": {
     "message": "恢复到建议的持续时间"
   },
   "requestAccessModalDurationUntil": {
-    "message": "$DURATION$, until $END$",
+    "message": "$DURATION$，截止到 $END$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18756,7 +18963,7 @@
     }
   },
   "requestAccessModalWindowSummary": {
-    "message": "访问的请求时长为 $DURATION$：$START$ – $END$",
+    "message": "访问权限的请求时长为 $DURATION$：$START$ – $END$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18800,7 +19007,7 @@
     "message": "审批人在审查您的请求时将会看到此理由。"
   },
   "requestAccessModalGenericError": {
-    "message": "Could not request access. Try again."
+    "message": "无法请求访问权限。请重试。"
   },
   "requestAccessModalAlreadyActive": {
     "message": "您已经拥有此项目的有效访问权限。"
@@ -18833,10 +19040,10 @@
     "message": "搜索凭据、集合、请求人"
   },
   "pamDecideAdditionalInformation": {
-    "message": "Additional information"
+    "message": "附加信息"
   },
   "pamDecideCommentAuditHint": {
-    "message": "Optional, saved to the audit log"
+    "message": "可选，保存到审计日志"
   },
   "pamDecideApproveTitle": {
     "message": "批准访问请求"
@@ -18869,10 +19076,10 @@
     "message": "Comment"
   },
   "pamInboxCommentPlaceholder": {
-    "message": "Add an optional comment"
+    "message": "添加可选的评论"
   },
   "pamInboxConfirmApproveButton": {
-    "message": "Approve request"
+    "message": "批准请求"
   },
   "pamInboxConfirmDenyButton": {
     "message": "Deny request"
@@ -18881,7 +19088,7 @@
     "message": "Could not record decision"
   },
   "pamInboxDecisionNoLongerPending": {
-    "message": "This request is no longer pending. It was withdrawn or already decided."
+    "message": "此请求已不再处于待处理状态。它已被撤回或已作出决策。"
   },
   "pamInboxDecisionWindowEnded": {
     "message": "此请求的时间段已结束，无法再作出决策。"
@@ -18929,10 +19136,10 @@
     "message": "请求的理由"
   },
   "pamInboxRevoke": {
-    "message": "Revoke"
+    "message": "撤销"
   },
   "pamInboxRevokeFailed": {
-    "message": "Could not revoke access"
+    "message": "无法撤销访问权限"
   },
   "pamInboxRevokedToast": {
     "message": "访问已撤销"
@@ -18953,7 +19160,7 @@
     "message": "访问请求已加载"
   },
   "pamHistoryLoaded": {
-    "message": "Request history loaded"
+    "message": "请求历史记录已加载"
   },
   "pamHistoryEmptyTitle": {
     "message": "尚无可显示的内容"
@@ -18964,20 +19171,32 @@
   "pamInboxRevokeConfirm": {
     "message": "这将立即撤销成员的访问权限。他们需要新的批准才能重新获取访问权限。"
   },
-  "pamInboxWithdrawApprovalConfirm": {
-    "message": "这将撤回成员对 $ITEM$ 的批准状态。访问不会启动，他们需要新的批准才能获得访问权限。",
-    "placeholders": {
-      "item": {
-        "content": "$1",
-        "example": "Prod database"
-      }
-    }
+  "pamWithdrawApprovalWarningOne": {
+    "message": "This withdraws your approval for",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Access won't start, and",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "will need a new approval to get it.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Reason"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Keep it brief. The requester reads this directly."
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "访问规则"
   },
   "pamCollectionAccessRuleCalloutBody": {
-    "message": "Access to items here is controlled by"
+    "message": "此处项目的访问权限受控制于"
   },
   "pamInboxElapsedHours": {
     "message": "$HOURS$h 前",
@@ -19008,7 +19227,7 @@
     "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
   },
   "pamGatedCollectionBannerName": {
-    "message": "Privileged access",
+    "message": "特权访问权限",
     "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
   },
   "pamNoAccessRule": {
@@ -19237,7 +19456,7 @@
     "message": "您所选的其中一个集合不属于此组织。请选择其他合集。"
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
-    "message": "选择最大延期时长，或停用延期。"
+    "message": "选择最大延期时长，或关闭延期。"
   },
   "pamAccessRuleErrorMissing": {
     "message": "此规则已不存在。它可能已被其他管理员删除。"
@@ -19653,28 +19872,28 @@
     "message": "要使用此设置，请为此登录项目的每个网站选择「默认」以外的匹配检测选项。"
   },
   "turnOnHttpAuthenticationTitle": {
-    "message": "启用浏览器登录自动填充提示吗？"
+    "message": "开启浏览器登录自动填充提示吗？"
   },
   "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "此项目的主密码二次验证将被停用。这两项设置无法同时启用。"
+    "message": "此项目的主密码二次验证将被关闭。这两项设置无法同时开启。"
   },
   "turnOnPasswordRepromptTitle": {
-    "message": "启用主密码二次验证吗？"
+    "message": "开启主密码二次验证吗？"
   },
   "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "此项目的浏览器登录自动填充提示将被停用。这两项设置无法同时启用。"
+    "message": "此项目的浏览器登录自动填充提示将被关闭。这两项设置无法同时开启。"
   },
   "useDefaultMatchDetectionTitle": {
     "message": "使用默认匹配检测吗？"
   },
   "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被停用。"
+    "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被关闭。"
   },
   "httpAuthenticationTurnedOffTitle": {
-    "message": "浏览器登录自动填充提示已停用"
+    "message": "浏览器登录自动填充提示已关闭"
   },
   "httpAuthenticationTurnedOffNotice": {
-    "message": "此项目已启用主密码二次验证，因此浏览器登录自动填充提示功能被停用。请保存此条目以保留此更改。"
+    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存此条目以保留此更改。"
   },
   "pamRotation": {
     "message": "轮换"
@@ -19686,7 +19905,7 @@
     "message": "托管凭据"
   },
   "pamRotationTabTargetSystems": {
-    "message": "Target systems"
+    "message": "目标系统"
   },
   "pamRotationTabAccessConnectors": {
     "message": "访问连接器"
@@ -19698,7 +19917,7 @@
     "message": "访问连接器已加载"
   },
   "pamTargetSystemsLoaded": {
-    "message": "Target systems loaded"
+    "message": "目标系统已加载"
   },
   "pamRotationPageLoaded": {
     "message": "页面已加载"
@@ -19710,10 +19929,10 @@
     "message": "编辑托管凭据"
   },
   "pamTargetSystemCreateTitle": {
-    "message": "Add target system"
+    "message": "添加目标系统"
   },
   "pamTargetSystemEditTitle": {
-    "message": "Edit target system"
+    "message": "编辑目标系统"
   },
   "pamRotationScheduleLabel": {
     "message": "轮换计划任务"
@@ -19820,7 +20039,7 @@
     }
   },
   "pamRotationScheduleTimezoneHint": {
-    "message": "计划任务按 UTC 时间执行，而非您的本地时区。"
+    "message": "计划任务按 UTC 时间运行，而非您的本地时区。"
   },
   "pamRotationScheduleInterval": {
     "message": "时间间隔"
@@ -19841,7 +20060,7 @@
     "message": "具体时间 (UTC)"
   },
   "pamRotationScheduleIntervalHint": {
-    "message": "时间间隔以日历为基准。按天的时间间隔每月 1 日重新开始计算，按月的时间间隔在每月 1 日执行，并于每年 1 月重新开始计算。"
+    "message": "时间间隔以日历为基准。按天的时间间隔每月 1 日重新开始计算，按月的时间间隔在每月 1 日运行，并于每年 1 月重新开始计算。"
   },
   "pamRotationScheduleInvalidInterval": {
     "message": "输入轮换的重复间隔以及具体时间。"
@@ -19850,13 +20069,13 @@
     "message": "输入整数。"
   },
   "pamTargetSystemNew": {
-    "message": "New target system"
+    "message": "新增目标系统"
   },
   "pamTargetSystemSearch": {
-    "message": "Search target systems"
+    "message": "搜索目标系统"
   },
   "pamTargetSystemMethodColumn": {
-    "message": "Method"
+    "message": "方式"
   },
   "pamTargetSystemTypeColumn": {
     "message": "类型"
@@ -19877,49 +20096,49 @@
     "message": "Add the system whose credentials Bitwarden should rotate."
   },
   "pamTargetSystemsStartFromTemplate": {
-    "message": "Start from a template"
+    "message": "从模板开始"
   },
   "pamTargetSystemUseTemplate": {
-    "message": "Use template"
+    "message": "使用模板"
   },
   "pamTargetSystemTemplateManualSummary": {
-    "message": "You rotate the credential yourself; Bitwarden tracks the schedule and logs each rotation."
+    "message": "您自己轮换凭据；Bitwarden 跟踪每次轮换的计划任务并做记录。"
   },
   "pamTargetSystemTemplateEntraSummary": {
-    "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
+    "message": "Bitwarden 自动轮换 Microsoft Entra ID 应用程序机密。"
   },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
-    "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
+    "message": "Bitwarden 通过在已注册的访问连接器上运行您的脚本来自动轮换凭据。"
   },
   "pamTargetSystemNoFilterResults": {
     "message": "没有匹配您的筛选的目标系统。"
   },
   "pamTargetSystemEditTarget": {
-    "message": "Edit target system"
+    "message": "编辑目标系统"
   },
   "pamTargetSystemDeactivate": {
-    "message": "Deactivate"
+    "message": "停用"
   },
   "pamTargetSystemActivate": {
-    "message": "Activate"
+    "message": "激活"
   },
   "pamTargetSystemActivationBlockedPendingSeal": {
     "message": "Finish setting up this target system before activating or deactivating it."
   },
   "pamTargetSystemDeleteTarget": {
-    "message": "Delete target system"
+    "message": "删除目标系统"
   },
   "pamTargetSystemAssignConnectors": {
     "message": "分配访问连接器"
   },
   "pamTargetSystemAssignConnectorTitle": {
-    "message": "Assign access connector"
+    "message": "分配访问连接器"
   },
   "pamTargetSystemAssignConnectorLabel": {
     "message": "访问连接器"
   },
   "pamTargetSystemAssignConnectorNoOptions": {
-    "message": "All active access connectors are already assigned to this target system."
+    "message": "所有有效的访问连接器已分配到此目标系统。"
   },
   "pamTargetSystemAssignConnectorManual": {
     "message": "访问连接器只能分配给已设置为自动轮换的目标系统。"
@@ -19934,22 +20153,22 @@
     "message": "转到访问连接器"
   },
   "pamTargetSystemDeactivateTitle": {
-    "message": "Deactivate target system?"
+    "message": "停用目标系统吗？"
   },
   "pamTargetSystemDeactivateContent": {
     "message": "Deactivating this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
   },
   "pamTargetSystemDeactivateConfirm": {
-    "message": "Deactivate"
+    "message": "停用"
   },
   "pamTargetSystemDeactivateSuccess": {
-    "message": "Target system deactivated."
+    "message": "目标系统已停用。"
   },
   "pamTargetSystemActivateSuccess": {
-    "message": "Target system activated."
+    "message": "目标系统已激活。"
   },
   "pamTargetSystemDeleteTitle": {
-    "message": "Delete target system?"
+    "message": "删除目标系统吗？"
   },
   "pamTargetSystemDeleteContent": {
     "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
@@ -19970,7 +20189,7 @@
     }
   },
   "pamTargetSystemDeleteSuccess": {
-    "message": "Target system deleted."
+    "message": "目标系统已删除。"
   },
   "pamTargetSystemMethodAutomatic": {
     "message": "自动"
@@ -19979,7 +20198,7 @@
     "message": "手动"
   },
   "pamTargetSystemMethodAutomaticHint": {
-    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
+    "message": "完成保存后显示的设置步骤后，轮换就会按照您设置的计划任务运行。"
   },
   "pamTargetSystemMethodManualHint": {
     "message": "未创建轮换作业。您可以手动轮换凭据，然后将其标记为已轮换。"
@@ -20017,7 +20236,7 @@
     "message": "General information"
   },
   "pamTargetSystemIdLabel": {
-    "message": "System ID"
+    "message": "系统 ID"
   },
   "pamTargetSystemCopyId": {
     "message": "Copy system ID"
@@ -20107,7 +20326,7 @@
     "message": "Finish setting up rotation"
   },
   "pamTargetSystemSetupGuidanceAutomaticConnector": {
-    "message": "Assign an access connector in the Assigned access connectors section below."
+    "message": "在下面的已分配访问连接器部分分配一个访问连接器。"
   },
   "pamTargetSystemSetupGuidanceCredential": {
     "message": "Add a managed credential on the Managed credentials tab."
@@ -20134,13 +20353,13 @@
     "message": "Target system not found."
   },
   "pamAccessConnectorSearch": {
-    "message": "Search access connectors"
+    "message": "搜索访问连接器"
   },
   "pamAccessConnectorNew": {
-    "message": "New access connector"
+    "message": "新增访问连接器"
   },
   "pamAccessConnectorRegister": {
-    "message": "Register access connector"
+    "message": "注册访问连接器"
   },
   "pamAccessConnectorEmptyStateTitle": {
     "message": "未注册访问连接器"
@@ -20167,16 +20386,16 @@
     "message": "仅当访问连接器处于活动状态时，才能分配目标系统。"
   },
   "pamAccessConnectorViewDetails": {
-    "message": "View details"
+    "message": "查看详情"
   },
   "pamAccessConnectorAssignTargets": {
-    "message": "Assign targets"
+    "message": "分配目标"
   },
   "pamAccessConnectorDeleteAccessConnector": {
-    "message": "Delete access connector"
+    "message": "删除访问连接器"
   },
   "pamAccessConnectorAssignTargetTitle": {
-    "message": "Assign target system"
+    "message": "分配目标系统"
   },
   "pamAccessConnectorAssignTargetLabel": {
     "message": "目标系统"
@@ -20188,7 +20407,7 @@
     "message": "仅可以分配已设置为自动轮换的目标系统。"
   },
   "pamAccessConnectorAssignNoOptions": {
-    "message": "All automatic target systems are already assigned to this access connector."
+    "message": "所有自动目标系统已分配到此访问连接器。"
   },
   "pamAccessConnectorAssignNoTargetSystems": {
     "message": "没有可分配的自动目标系统。请在「目标系统」选项卡中创建一个。"
@@ -20236,13 +20455,13 @@
     "message": "停用"
   },
   "pamAccessConnectorActivate": {
-    "message": "Activate"
+    "message": "激活"
   },
   "pamAccessConnectorDeactivateConfirmTitle": {
     "message": "停用访问连接器吗？"
   },
   "pamAccessConnectorDeactivateConfirmContent": {
-    "message": "停用 $NAME$ 吗？停用后，它将不再接收新的轮换作业，并且当前正在执行的作业也将被释放。您可以在以后重新激活它。",
+    "message": "停用 $NAME$ 吗？停用后，它将不再接收新的轮换作业，并且当前正在运行的作业也将被释放。您可以在以后重新激活它。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -20251,10 +20470,10 @@
     }
   },
   "pamAccessConnectorDeactivated": {
-    "message": "Access connector deactivated."
+    "message": "访问连接器已停用。"
   },
   "pamAccessConnectorActivated": {
-    "message": "Access connector activated."
+    "message": "访问连接器已激活。"
   },
   "pamAccessConnectorDeleteConfirmTitle": {
     "message": "删除访问连接器吗？"
@@ -20275,7 +20494,7 @@
     "message": "访问连接器已保存。"
   },
   "pamAccessConnectorRegisterTitle": {
-    "message": "Register access connector"
+    "message": "注册访问连接器"
   },
   "pamAccessConnectorNamePlaceholder": {
     "message": "e.g. On-prem production server"
@@ -20293,37 +20512,37 @@
     "message": "访问连接器"
   },
   "pamAccessConnectorDetailsHeading": {
-    "message": "Details"
+    "message": "详细信息"
   },
   "pamAccessConnectorTabConfiguration": {
-    "message": "Configuration"
+    "message": "配置"
   },
   "pamAccessConnectorTabHistory": {
-    "message": "History"
+    "message": "历史记录"
   },
   "pamAccessConnectorActivityEmpty": {
     "message": "尚无轮换活动。"
   },
   "pamAccessConnectorActiveHint": {
-    "message": "When inactive, the access connector does not claim new rotation jobs and any jobs it is running are released."
+    "message": "失效后，访问连接器将不再接收新的轮换作业，并且当前正在运行的作业也将被释放。"
   },
   "pamAccessConnectorTokenTitle": {
     "message": "访问连接器令牌"
   },
   "pamAccessConnectorTokenWarningTitle": {
-    "message": "Save this token now"
+    "message": "立即保存此令牌"
   },
   "pamAccessConnectorTokenWarningBody": {
-    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator who will run this access connector, then paste it into the connector's configuration file. If the token is lost, delete this access connector and register a new one."
+    "message": "此令牌只显示一次，并且以后无法再次获取。复制它并通过其他安全渠道将其提供给负责运行此访问连接器的操作人员，然后将其粘贴到连接器的配置文件中。如果令牌丢失，请删除此访问连接器然后重新注册一个。"
   },
   "pamAccessConnectorTokenLabel": {
     "message": "访问连接器令牌"
   },
   "pamAccessConnectorTokenHint": {
-    "message": "This token will not be shown again."
+    "message": "此令牌将不再显示。"
   },
   "pamAccessConnectorTokenCopy": {
-    "message": "Copy token"
+    "message": "复制令牌"
   },
   "pamAccessConnectorTokenCopied": {
     "message": "访问连接器令牌已复制。"
@@ -20350,19 +20569,19 @@
     "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
   },
   "pamRotationConfigSetUpTargetSystem": {
-    "message": "Set up a target system"
+    "message": "设置目标系统"
   },
   "pamRotationConfigNoResultsFiltered": {
     "message": "没有匹配您的筛选的托管凭据。"
   },
   "pamRotationConfigColumnCredential": {
-    "message": "Credential"
+    "message": "凭据"
   },
   "pamRotationConfigColumnItem": {
-    "message": "Item"
+    "message": "项目"
   },
   "pamRotationConfigColumnTargetSystem": {
-    "message": "Target system"
+    "message": "目标系统"
   },
   "pamRotationConfigColumnSchedule": {
     "message": "Schedule"
@@ -20389,7 +20608,7 @@
     "message": "轮换截止时间"
   },
   "pamRotationConfigRotateNow": {
-    "message": "Rotate now"
+    "message": "立即轮换"
   },
   "pamRotationConfigRotateNowUnavailableTitle": {
     "message": "当前无法轮换。目标系统处于非活动状态，或者轮换已暂停或正在进行中。"
@@ -20398,13 +20617,13 @@
     "message": "Rotation dispatched."
   },
   "pamRotationConfigMarkRotated": {
-    "message": "Mark as rotated"
+    "message": "标记为已轮换"
   },
   "pamRotationConfigRecordManualDisabledTitle": {
     "message": "Nothing to mark yet. This becomes available when the next manual rotation is due."
   },
   "pamRotationConfigMarkRotatedTitle": {
-    "message": "Mark as rotated"
+    "message": "标记为已轮换"
   },
   "pamRotationConfigRecordManualContent": {
     "message": "This records that the credential was rotated outside Bitwarden and resets the schedule. The audit log will reflect the manual rotation."
@@ -20416,16 +20635,16 @@
     "message": "Manual rotation recorded."
   },
   "pamRotationConfigEditCredential": {
-    "message": "Edit credential"
+    "message": "编辑凭据"
   },
   "pamRotationConfigRemoveFromRotation": {
     "message": "Remove from rotation"
   },
   "pamRotationConfigPauseRotation": {
-    "message": "Pause rotation"
+    "message": "暂停轮换"
   },
   "pamRotationConfigPauseSuccess": {
-    "message": "Rotation paused."
+    "message": "轮换已暂停。"
   },
   "pamRotationConfigResumeRotation": {
     "message": "恢复轮换"
@@ -20437,7 +20656,7 @@
     "message": "删除托管凭据"
   },
   "pamRotationConfigDeleteConfirmContent": {
-    "message": "This removes rotation management for this credential. The item stays in your vault and the rotation history remains in the audit log."
+    "message": "这将移除对此凭据的轮换管理。项目会保留在您的密码库中，轮换历史记录也会留存在审计日志中。"
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "轮转进行期间，无法移除。当前作业完成或超时后，此限制将自动解除。"
@@ -20446,37 +20665,37 @@
     "message": "托管凭据已移除。"
   },
   "pamRotationConfigNeverRotated": {
-    "message": "Never"
+    "message": "从不"
   },
   "pamRotationConfigHistoryEmpty": {
-    "message": "尚未执行任何轮换。"
+    "message": "尚未运行任何轮换。"
   },
   "pamRotationConfigRemoveLockedContentConnector": {
-    "message": "轮换作业当前正在进行中。待访问连接器完成该作业或作业超时后，您即可将此凭据从轮换中移除。暂停仅会停阻止启动新作业，不会取消已在运行的作业。"
+    "message": "轮换作业当前正在进行中。待访问连接器完成该作业或作业超时后，您即可将此凭据从轮换中移除。暂停仅会停止启动新的作业，不会取消已在运行的作业。"
   },
   "pamRotationConfigCreateHeading": {
-    "message": "Credential details"
+    "message": "凭据详细信息"
   },
   "pamRotationConfigDetailsHeading": {
-    "message": "Details"
+    "message": "详细信息"
   },
   "pamRotationConfigSettingsHeading": {
     "message": "Rotation settings"
   },
   "pamRotationConfigAccountHeading": {
-    "message": "Account"
+    "message": "账户"
   },
   "pamRotationConfigTabConfiguration": {
-    "message": "Configuration"
+    "message": "配置"
   },
   "pamRotationConfigTabHistory": {
-    "message": "History"
+    "message": "历史记录"
   },
   "pamRotationConfigCipher": {
-    "message": "Credential"
+    "message": "凭据"
   },
   "pamRotationConfigCipherPlaceholder": {
-    "message": "Select a credential"
+    "message": "选择凭据"
   },
   "pamRotationConfigCipherHint": {
     "message": "Select the vault item whose password will be rotated."
@@ -20593,7 +20812,7 @@
     "message": "Abandoned"
   },
   "pamRotationAttemptStatusUnknown": {
-    "message": "Unknown"
+    "message": "未知"
   },
   "pamRotationAttemptInProgress": {
     "message": "In progress"
@@ -20611,7 +20830,7 @@
     "message": "Indeterminate"
   },
   "pamRotationSyncStateUnknown": {
-    "message": "Unknown"
+    "message": "未知"
   },
   "pamRotationSessionTerminationNotRequested": {
     "message": "Session termination not requested"
@@ -20769,13 +20988,13 @@
     "message": "访问连接器已注册"
   },
   "pamAuditKindAccessConnectorRevoked": {
-    "message": "Access connector revoked"
+    "message": "访问连接器已撤销"
   },
   "pamAuditKindAccessConnectorDeactivated": {
-    "message": "Access connector deactivated"
+    "message": "访问连接器已停用"
   },
   "pamAuditKindAccessConnectorActivated": {
-    "message": "Access connector activated"
+    "message": "访问连接器已激活"
   },
   "pamAuditKindAccessConnectorDeleted": {
     "message": "访问连接器已删除"
@@ -20787,28 +21006,28 @@
     "message": "Access connector unassigned from target"
   },
   "pamAuditKindTargetRegistered": {
-    "message": "Target system registered"
+    "message": "目标系统已注册"
   },
   "pamAuditKindTargetDeactivated": {
-    "message": "Target system deactivated"
+    "message": "目标系统已停用"
   },
   "pamAuditKindTargetActivated": {
-    "message": "Target system activated"
+    "message": "目标系统已激活"
   },
   "pamAuditKindTargetRenamed": {
-    "message": "Target system renamed"
+    "message": "目标系统已重命名"
   },
   "pamAuditKindTargetPolicyUpdated": {
-    "message": "Target system settings updated"
+    "message": "目标系统设置已更新"
   },
   "pamAuditKindTargetDeleted": {
-    "message": "Target system deleted"
+    "message": "目标系统已删除"
   },
   "pamAuditKindTargetUpdated": {
-    "message": "Target system updated"
+    "message": "目标系统已更新"
   },
   "pamAuditTargetSystem": {
-    "message": "Target system"
+    "message": "目标系统"
   },
   "pamAuditAccessConnector": {
     "message": "访问连接器"
@@ -20859,7 +21078,7 @@
     }
   },
   "pamEventRequestedAccess": {
-    "message": "Requested privileged access to item $ITEM$ (request $ID$).",
+    "message": "请求了对项目 $ITEM$ 的特权访问权限（请求 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20872,7 +21091,7 @@
     }
   },
   "pamEventApprovedAccessRequest": {
-    "message": "Approved privileged access to item $ITEM$ (request $ID$).",
+    "message": "批准了对项目 $ITEM$ 的特权访问权限（请求 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20885,7 +21104,7 @@
     }
   },
   "pamEventDeniedAccessRequest": {
-    "message": "Denied privileged access to item $ITEM$ (request $ID$).",
+    "message": "拒绝了对项目 $ITEM$ 的特权访问权限（请求 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20898,7 +21117,7 @@
     }
   },
   "pamEventActivatedAccess": {
-    "message": "Activated privileged access to item $ITEM$ (access $ID$).",
+    "message": "激活了对项目 $ITEM$ 的特权访问权限（访问权限 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20911,7 +21130,7 @@
     }
   },
   "pamEventRevokedAccess": {
-    "message": "Revoked privileged access to item $ITEM$ (access $ID$).",
+    "message": "撤销了对项目 $ITEM$ 的特权访问权限（访问权限 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20924,7 +21143,7 @@
     }
   },
   "pamEventCancelledAccessRequest": {
-    "message": "Cancelled the privileged access request for item $ITEM$ (request $ID$).",
+    "message": "取消了对项目 $ITEM$ 的特权访问权限（请求 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20937,7 +21156,7 @@
     }
   },
   "pamEventExtendedAccess": {
-    "message": "Extended privileged access to item $ITEM$ (access $ID$).",
+    "message": "延期了对项目 $ITEM$ 的特权访问权限（访问权限 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20950,7 +21169,7 @@
     }
   },
   "pamEventExpiredAccess": {
-    "message": "Privileged access to item $ITEM$ expired (access $ID$).",
+    "message": "对项目 $ITEM$ 的特权访问权限已过期（访问权限 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20963,7 +21182,7 @@
     }
   },
   "pamEventRejectedAccessLeaseActivation": {
-    "message": "Could not activate privileged access to item $ITEM$ (request $ID$).",
+    "message": "无法激活对项目 $ITEM$ 的特权访问权限（请求 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20985,7 +21204,7 @@
     "message": "删除了特权访问规则。"
   },
   "pamEventRotatedCredential": {
-    "message": "Rotated the credential for item $ITEM$.",
+    "message": "轮换了项目 $ITEM$ 的凭据。",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20994,7 +21213,7 @@
     }
   },
   "pamEventFailedCredentialRotation": {
-    "message": "Could not rotate the credential for item $ITEM$.",
+    "message": "无法轮换项目 $ITEM$ 的凭据。",
     "placeholders": {
       "item": {
         "content": "$1",
