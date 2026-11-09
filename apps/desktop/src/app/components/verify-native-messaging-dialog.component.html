@@ -1,4 +1,4 @@
-<bit-simple-dialog>
+<bit-simple-dialog data-testid="verify-native-messaging-dialog">
   <span bitDialogTitle>
     {{ "verifyNativeMessagingConnectionTitle" | i18n: data.applicationName }}:
   </span>
@@ -8,10 +8,22 @@
     {{ "verifyNativeMessagingConnectionWarning" | i18n }}
   </span>
   <ng-container bitDialogFooter>
-    <button bitButton type="button" buttonType="primary" [bitDialogClose]="true">
+    <button
+      bitButton
+      type="button"
+      buttonType="primary"
+      [bitDialogClose]="true"
+      data-testid="verify-native-messaging-yes-button"
+    >
       {{ "yes" | i18n }}
     </button>
-    <button bitButton type="button" buttonType="secondary" [bitDialogClose]="false">
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      [bitDialogClose]="false"
+      data-testid="verify-native-messaging-no-button"
+    >
       {{ "no" | i18n }}
     </button>
   </ng-container>
