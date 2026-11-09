@@ -3675,6 +3675,70 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("handleOpacityTransitionEnd", () => {
+    let isElementViewableSpy: jest.SpyInstance;
+    let setupAutofillOverlayListenerOnFieldSpy: jest.SpyInstance;
+    let containerElement: HTMLDivElement;
+    let formFieldElement: ElementWithOpId<FormFieldElement>;
+    let autofillField: AutofillField;
+
+    beforeEach(() => {
+      isElementViewableSpy = jest.spyOn(
+        collectAutofillContentService["domElementVisibilityService"],
+        "isElementViewable",
+      );
+      setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+      containerElement = document.createElement("div");
+      formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      containerElement.appendChild(formFieldElement);
+      document.body.appendChild(containerElement);
+      autofillField = mock<AutofillField>({ viewable: false });
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
+    });
+
+    it("ignores transitions of properties other than opacity", async () => {
+      const event = { propertyName: "transform", target: containerElement };
+
+      await collectAutofillContentService["handleOpacityTransitionEnd"](
+        event as unknown as TransitionEvent,
+      );
+
+      expect(isElementViewableSpy).not.toHaveBeenCalled();
+    });
+
+    it("skips setting up the overlay listeners on a field that is still not viewable", async () => {
+      const event = { propertyName: "opacity", target: containerElement };
+      isElementViewableSpy.mockResolvedValueOnce(false);
+
+      await collectAutofillContentService["handleOpacityTransitionEnd"](
+        event as unknown as TransitionEvent,
+      );
+
+      expect(isElementViewableSpy).toHaveBeenCalledWith(formFieldElement);
+      expect(autofillField.viewable).toBe(false);
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it("sets up the overlay listeners on a non-viewable field within the transitioned element once it becomes viewable", async () => {
+      const event = { propertyName: "opacity", target: containerElement };
+      isElementViewableSpy.mockResolvedValueOnce(true);
+
+      await collectAutofillContentService["handleOpacityTransitionEnd"](
+        event as unknown as TransitionEvent,
+      );
+
+      expect(autofillField.viewable).toBe(true);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledWith(
+        formFieldElement,
+        autofillField,
+        expect.anything(),
+      );
+    });
+  });
+
   describe("setupOverlayOnField", () => {
     it("executes immediately on first call then debounces subsequent rapid calls", () => {
       const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
@@ -3954,6 +4018,31 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
 
       expect(collectAutofillContentService["pendingTopLayerTargets"].has(dialog)).toBe(true);
+    });
+
+    it("tracks a top-layer candidate nested below an added node as a pending target", () => {
+      const container = document.createElement("div");
+      const wrapper = document.createElement("div");
+      const nestedPopover = document.createElement("div");
+      nestedPopover.setAttribute("popover", "manual");
+      wrapper.appendChild(nestedPopover);
+      container.appendChild(wrapper);
+      document.body.appendChild(container);
+      const mutation: MutationRecord = {
+        type: "childList",
+        addedNodes: container.childNodes,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nothing-matches-this-selector"),
+        target: document.body,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
+
+      expect(collectAutofillContentService["pendingTopLayerTargets"].has(nestedPopover)).toBe(true);
     });
   });
 

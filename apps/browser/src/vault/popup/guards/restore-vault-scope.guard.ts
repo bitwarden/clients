@@ -5,7 +5,9 @@ import { firstValueFrom, switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
+  defaultUserCollectionId,
   isPersonalOnly,
+  MY_ITEMS_ROUTE,
   parseVaultScope,
   VAULT_BASE_ROUTE,
   VaultNavItemType,
@@ -32,7 +34,10 @@ export const restoreVaultScopeGuard: CanActivateFn = async () => {
   const basePath = inject(VAULT_BASE_ROUTE);
   const listFiltersService = inject(VaultPopupListTableFiltersService);
 
-  const scope = parseVaultScope(await listFiltersService.storedVaultScopeId());
+  const scope = parseVaultScope(
+    await listFiltersService.storedVaultScopeId(),
+    await listFiltersService.storedVaultScopeCollection(),
+  );
   if (scope == null || scope.type === VaultScopeType.AllItems) {
     return true;
   }
@@ -50,7 +55,10 @@ export const restoreVaultScopeGuard: CanActivateFn = async () => {
       : scope.type === VaultScopeType.Organization &&
         nav.vaults.some(
           ({ id, type }) => type !== VaultNavItemType.Personal && id === scope.organizationId,
-        );
+        ) &&
+        // `vaultScopeGuard` sends a "My items" with no collection back here, which would loop.
+        (scope.collectionId !== MY_ITEMS_ROUTE ||
+          defaultUserCollectionId(scope.organizationId, nav) != null);
   if (!offered) {
     await listFiltersService.setCachedVaultScopeId(null);
     return true;
