@@ -26,6 +26,7 @@ import {
 } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
+import { CIPHER_SHARE_ACCESS, CipherShareAccess } from "../tokens/cipher-share-access.token";
 import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
@@ -47,6 +48,7 @@ const BUILT_IN_ACTION_IDS: ReadonlySet<string> = new Set([
   "attachments",
   "clone",
   "addToSharedFolder",
+  "shareViaLink",
   "archive",
   "unarchive",
   "restore",
@@ -92,6 +94,9 @@ export class CipherRowMenuService {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly cipherActionService = inject(CipherActionService);
   private readonly revealedCipherService = inject(RevealedCipherService);
+  private readonly cipherShareAccess = inject<CipherShareAccess>(CIPHER_SHARE_ACCESS, {
+    optional: true,
+  });
   private readonly contributedActions = uniqueContributedActions(
     inject(VAULT_ROW_ACTIONS, { optional: true }) ?? [],
   );
@@ -174,6 +179,13 @@ export class CipherRowMenuService {
         icon: "bwi-shared-folder",
         run: (item) => void handlers.assignToCollections(item),
         show: (item) => this.showAssignToCollections(item, collections),
+      },
+      {
+        id: "shareViaLink",
+        label: this.i18nService.t("shareViaLink"),
+        icon: "bwi-share-link",
+        run: (item) => void this.cipherShareAccess?.share(item),
+        show: (item) => this.cipherShareAccess?.canShare(item) ?? false,
       },
       {
         id: "archive",

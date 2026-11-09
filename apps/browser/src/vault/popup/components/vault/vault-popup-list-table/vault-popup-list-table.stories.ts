@@ -57,6 +57,7 @@ import {
   ScrollLayoutService,
   ToastService,
 } from "@bitwarden/components";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
@@ -668,6 +669,7 @@ const buildProviders = (args: StoryArgs) => {
             "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
         }),
     },
+    { provide: LogService, useFactory: () => new ConsoleLogService(true) },
     {
       provide: EnvironmentService,
       useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
