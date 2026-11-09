@@ -34,13 +34,11 @@ the clear button takes over.
 
 ### Which surfaces should opt in
 
-⌘/Ctrl+F overrides the browser's native find-in-page. That is a deliberate trade for a virtualized
-list, where native find cannot reach rows that are not rendered — but it is a real cost anywhere
-else, so opt in only where the search covers data the browser cannot see.
+⌘/Ctrl+F replaces the browser's find-in-page, so opt in only where native find can't reach the data,
+such as a virtualized list.
 
-**Desktop must not opt in.** It ships a native `CmdOrCtrl+F` menu accelerator
-(`apps/desktop/src/main/menu/menu.view.ts`) that focuses and selects the vault search. Opting in
-would install a second handler for the same chord.
+On desktop, the native `CmdOrCtrl+F` menu shortcut handles any press an opted-in search declines,
+such as while a dialog is open.
 
 ### Arbitration
 
@@ -58,6 +56,5 @@ The hint renders ⌘ on macOS and the localized Control abbreviation elsewhere.
 
 ### Accessibility
 
-`aria-keyshortcuts="Control+f Meta+f"` is set on the input whenever the shortcut is live, and
-dropped when the field is disabled so it never advertises a shortcut that will not fire. The hint
-badge itself is `aria-hidden`, since it duplicates what the attribute already conveys.
+`aria-keyshortcuts="Control+f Meta+f"` is set on the input whenever the shortcut is live and dropped
+when the field is disabled. The hint badge is `aria-hidden`.
