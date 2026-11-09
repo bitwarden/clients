@@ -11,6 +11,7 @@ import {
   RegistrationFinishService,
 } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
+import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -70,11 +71,17 @@ export class CompleteTrialInitiationComponent {
   /** True, registering a password is in progress */
   submitting = false;
 
-  /** True when the PAM-billing support flag is on. */
-  private privilegedControlsAvailable = false;
+  /**
+   * True when customers can add Privileged Controls to a trial themselves: the PAM-billing support flag is on.
+   * With it off, no trial sign-up includes Privileged Controls.
+   */
+  private privilegedControlsSelfServe = false;
 
-  /** True when the trial includes Privileged Controls — requested by the link and enabled by flag */
+  /** True when the trial includes Privileged Controls: the link asked for it and self-serve is on. */
   includesPrivilegedControls = false;
+
+  /** True when the link asked for Privileged Controls but it is not included. The callout points to sales. */
+  showPrivilegedControlsSalesCallout = false;
 
   orgInfoSubLabel = "";
   orgId = "";
@@ -125,10 +132,10 @@ export class CompleteTrialInitiationComponent {
       .getFeatureFlag$(FeatureFlag.PamBillingSupport)
       .pipe(takeUntilDestroyed())
       .subscribe((pamBillingSupport) => {
-        this.privilegedControlsAvailable = pamBillingSupport;
-        this.includesPrivilegedControls = this.params
-          ? this.shouldIncludePrivilegedControls(this.params)
-          : false;
+        this.privilegedControlsSelfServe = pamBillingSupport;
+        if (this.params) {
+          this.applyPrivilegedControls(this.params);
+        }
       });
 
     this.orgInfoFormGroup.controls.name.valueChanges
@@ -154,9 +161,9 @@ export class CompleteTrialInitiationComponent {
     this.salesAssistedToken = params.salesAssistedToken;
     this.product = params.product;
 
-    this.includesPrivilegedControls = this.shouldIncludePrivilegedControls(params);
     this.trialLength = params.trialLength;
     this.paymentOptional = params.paymentOptional;
+    this.applyPrivilegedControls(params);
 
     this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
     if (this.useTrialStepper && params.productTier !== undefined) {
@@ -194,8 +201,7 @@ export class CompleteTrialInitiationComponent {
   async orgNameEntrySubmit(): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    /** Skip payment if paymentOptional from URL and trialLength > 0 */
-    if (this.paymentOptional && this.trialLength > 0) {
+    if (this.startsWithoutPayment(this.paymentOptional, this.trialLength)) {
       await this.createOrganizationOnTrial(activeUserId);
     } else {
       await this.conditionallyCreateOrganization(activeUserId);
@@ -209,9 +215,26 @@ export class CompleteTrialInitiationComponent {
     this.verticalStepper.next();
   }
 
-  /** create an organization on trial without payment method */
+  /**
+   * Create an organization on trial without a payment method. A rejected request shows the error and
+   * leaves the user on the organization step.
+   */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
+    try {
+      const response = await this.purchaseTrialWithoutPayment(activeUserId);
+
+      this.orgId = response.id;
+      this.billingSubLabel = response.name.toString();
+      this.verticalStepper.next();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async purchaseTrialWithoutPayment(activeUserId: UserId): Promise<OrganizationResponse> {
     const trialInitiationPath: InitiationPath = this.salesAssistedToken
       ? InitiationPath.SalesAssistedTrialFromAdminPortal
       : this.product === ProductType.SecretsManager
@@ -248,7 +271,7 @@ export class CompleteTrialInitiationComponent {
       initiationPath: trialInitiationPath,
     };
 
-    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
+    return await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
       {
         organization,
         plan,
@@ -256,11 +279,6 @@ export class CompleteTrialInitiationComponent {
       activeUserId,
       this.trialLength,
     );
-
-    this.orgId = response?.id;
-    this.billingSubLabel = response.name.toString();
-    this.loading = false;
-    this.verticalStepper.next();
   }
 
   /** Move the user to the previous step */
@@ -420,13 +438,22 @@ export class CompleteTrialInitiationComponent {
       });
   }
 
-  private shouldIncludePrivilegedControls(params: TrialInitiationParams): boolean {
-    return (
-      this.privilegedControlsAvailable &&
+  /**
+   * Whether the organization is created without a payment method: the link allows it and there is a trial
+   * period. Step visibility is decided separately by showBillingStep.
+   */
+  private startsWithoutPayment(paymentOptional: boolean, trialLength: number): boolean {
+    return paymentOptional && trialLength > 0;
+  }
+
+  private applyPrivilegedControls(params: TrialInitiationParams): void {
+    const requested =
       this.product === ProductType.PasswordManager &&
       params.productTier === ProductTierType.Enterprise &&
-      params.privilegedControlsRequested
-    );
+      params.privilegedControlsRequested;
+
+    this.includesPrivilegedControls = requested && this.privilegedControlsSelfServe;
+    this.showPrivilegedControlsSalesCallout = requested && !this.includesPrivilegedControls;
   }
 
   get trial(): Trial {

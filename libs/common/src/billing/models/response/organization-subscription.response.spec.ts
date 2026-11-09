@@ -48,11 +48,13 @@ describe("OrganizationSubscriptionResponse", () => {
     it("parses the Privileged Controls seat fields when present", () => {
       const response = new OrganizationSubscriptionResponse({
         PamSeats: 15,
+        OccupiedPamSeats: 7,
         MaxAutoscalePamSeats: 25,
         IsOnPamSalesInitiatedTrial: true,
       });
 
       expect(response.pamSeats).toBe(15);
+      expect(response.occupiedPamSeats).toBe(7);
       expect(response.maxAutoscalePamSeats).toBe(25);
       expect(response.isOnPamSalesInitiatedTrial).toBe(true);
     });
@@ -67,6 +69,7 @@ describe("OrganizationSubscriptionResponse", () => {
       const response = new OrganizationSubscriptionResponse({});
 
       expect(response.pamSeats).toBeUndefined();
+      expect(response.occupiedPamSeats).toBeUndefined();
       expect(response.maxAutoscalePamSeats).toBeUndefined();
       expect(response.isOnPamSalesInitiatedTrial).toBeUndefined();
     });
@@ -74,11 +77,13 @@ describe("OrganizationSubscriptionResponse", () => {
     it("leaves the Privileged Controls seat fields undefined when null", () => {
       const response = new OrganizationSubscriptionResponse({
         PamSeats: null,
+        OccupiedPamSeats: null,
         MaxAutoscalePamSeats: null,
         IsOnPamSalesInitiatedTrial: null,
       });
 
       expect(response.pamSeats).toBeUndefined();
+      expect(response.occupiedPamSeats).toBeUndefined();
       expect(response.maxAutoscalePamSeats).toBeUndefined();
       expect(response.isOnPamSalesInitiatedTrial).toBeUndefined();
     });

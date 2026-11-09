@@ -9,6 +9,7 @@ import { AccessRuleSdkService, AccessRuleView } from "@bitwarden/bit-pam";
 import { accessRuleDeactivateConfirmOptions } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BitTableV2Component,
@@ -115,6 +116,7 @@ const setup = async (
   TestBed.configureTestingModule({
     imports: [AccessRulesComponent],
     providers: [
+      { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       provideRouter([]),
       { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
       {
@@ -192,7 +194,7 @@ const setupBulk = async (
   return fixture;
 };
 
-describe("AccessRulesComponent — create/edit navigation", () => {
+describe("AccessRulesComponent: create/edit navigation", () => {
   let navigate: jest.SpyInstance;
   let route: ActivatedRoute;
 
@@ -237,7 +239,7 @@ describe("AccessRulesComponent — create/edit navigation", () => {
   });
 });
 
-describe("AccessRulesComponent — make a copy", () => {
+describe("AccessRulesComponent: make a copy", () => {
   let navigate: jest.SpyInstance;
   let route: ActivatedRoute;
 
@@ -325,7 +327,7 @@ describe("AccessRulesComponent — make a copy", () => {
 
     expect(showToast).toHaveBeenCalledWith({
       variant: "success",
-      message: "pamAccessRuleCopyCreated",
+      message: "pamAccessRuleCopyCreatedSharedFolder",
     });
   });
 
@@ -371,12 +373,12 @@ describe("AccessRulesComponent — make a copy", () => {
     expect(navigate).not.toHaveBeenCalled();
     expect(showToast).toHaveBeenCalledWith({
       variant: "error",
-      message: "pamAccessRuleErrorCollectionsGoverned",
+      message: "pamAccessRuleErrorSharedFoldersGoverned",
     });
   });
 });
 
-describe("AccessRulesComponent — mutation success toasts", () => {
+describe("AccessRulesComponent: mutation success toasts", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -447,7 +449,7 @@ describe("AccessRulesComponent — mutation success toasts", () => {
   });
 });
 
-describe("AccessRulesComponent — failed mutations", () => {
+describe("AccessRulesComponent: failed mutations", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -460,7 +462,7 @@ describe("AccessRulesComponent — failed mutations", () => {
     await fixture.componentInstance["remove"](target);
 
     const message = showToast.mock.calls.at(-1)![0].message as string;
-    expect(message).toBe("pamAccessRuleErrorCollectionsGoverned");
+    expect(message).toBe("pamAccessRuleErrorSharedFoldersGoverned");
     expect(message).not.toContain("exceptionStackTrace");
     expect(message).not.toContain("status code 400");
   });
@@ -506,7 +508,7 @@ describe("AccessRulesComponent — failed mutations", () => {
   });
 });
 
-describe("AccessRulesComponent — bulk deactivate confirmation", () => {
+describe("AccessRulesComponent: bulk deactivate confirmation", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -566,7 +568,7 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
 });
 
 /** These render the real template, since the table owns the chips' selections. */
-describe("AccessRulesComponent — toolbar filters", () => {
+describe("AccessRulesComponent: toolbar filters", () => {
   let fixture: ComponentFixture<AccessRulesComponent>;
 
   const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
@@ -578,6 +580,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
         {
@@ -638,7 +641,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
     expect(visible()).toEqual(["SSH"]);
   });
 
-  it("widens within the collections chip — a rule matches any of the selected collections", async () => {
+  it("widens within the collections chip, a rule matches any of the selected collections", async () => {
     await setupToolbar(
       [
         ruleIn("rule-1", "VPN", ["col-1"]),
@@ -698,7 +701,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
   });
 });
 
-describe("AccessRulesComponent — table", () => {
+describe("AccessRulesComponent: table", () => {
   const RULES = [
     { ...rule("rule-1", "VPN", true), revisionDate: "2024-03-01T00:00:00.000Z" },
     { ...rule("rule-2", "SSH", false), revisionDate: "2024-05-01T00:00:00.000Z" },
@@ -715,6 +718,7 @@ describe("AccessRulesComponent — table", () => {
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
         {
@@ -898,7 +902,7 @@ describe("AccessRulesComponent — table", () => {
   });
 });
 
-describe("AccessRulesComponent — toolbar", () => {
+describe("AccessRulesComponent: toolbar", () => {
   const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
 
   const ruleIn = (id: string, name: string, collections: string[], enabled = true) =>
@@ -922,6 +926,7 @@ describe("AccessRulesComponent — toolbar", () => {
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
         {

@@ -11,6 +11,9 @@ import {
 } from "@bitwarden/common/platform/ipc";
 import { ipc } from "@bitwarden/desktop-napi";
 import {
+  BroadcastGroup,
+  BroadcastResolution,
+  Endpoint,
   IncomingMessage,
   IpcClient,
   IpcCommunicationBackend,
@@ -76,6 +79,13 @@ export class IpcMainService extends IpcService {
           }
 
           throw new Error(`Destination not supported: ${JSON.stringify(message.destination)}`);
+        },
+        resolve: async (group: BroadcastGroup): Promise<BroadcastResolution> => {
+          if (group === "AllBrowserBackground") {
+            return { Endpoints: this.browserBackgroundEndpoints() };
+          }
+
+          return "Unsupported";
         },
       });
 
@@ -174,6 +184,27 @@ export class IpcMainService extends IpcService {
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
+  }
+
+  /**
+   * The endpoints of the connected native-messaging clients that are browser background pages,
+   * classified the same way as {@link sourceFor}.
+   *
+   * A browser extension opens two native-messaging connections, one for IPC and one for
+   * biometrics, and both announce the same client type, so both are included. The biometrics
+   * connection ignores IPC messages, so a broadcast to it fails with a handshake timeout for that
+   * endpoint. The handshake holds the IPC client's crypto lock and a failed handshake is not
+   * cached, so every broadcast to this group stalls all IPC traffic of this process for the
+   * handshake timeout (2s) per connected browser. This is accepted while the biometrics channel
+   * exists, since it is expected to be removed.
+   */
+  private browserBackgroundEndpoints(): Endpoint[] {
+    return this.nativeMessaging
+      .connectedClientIds()
+      .filter(
+        (clientId) => this.nativeMessaging.clientTypeFor(clientId) !== DesktopIpcPeerClientType.Cli,
+      )
+      .map((clientId) => ({ BrowserBackground: { id: { Id: clientId } } }));
   }
 
   /**
