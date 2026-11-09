@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { BitwardenIcon } from "@bitwarden/components";
+import { BitwardenIcon, IconTileVariant } from "@bitwarden/components";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 /** One option of a contributed filter chip. */
@@ -11,6 +11,8 @@ export type VaultItemFilterOption = {
   /** Already translated. */
   readonly name: string;
   readonly icon: BitwardenIcon;
+  /** Colour of the option's icon tile. Unset renders the tile's default. */
+  readonly tileVariant?: IconTileVariant;
 };
 
 /** One contributed filter chip in the vault items table. */
@@ -23,6 +25,8 @@ export type VaultItemFilter = {
   readonly key: string;
   /** Already-translated chip label. */
   readonly label: string;
+  /** Icon of the chip itself, for hosts that give every chip one (the popup's filter sheet). */
+  readonly icon?: BitwardenIcon;
   /** The chip's options. An empty array hides the chip. */
   readonly options$: Observable<readonly VaultItemFilterOption[]>;
   /**
