@@ -11,7 +11,6 @@ import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import { InvoicePreviewService } from "@bitwarden/web-vault/app/billing/services/invoice-preview.service";
 import { SubscriptionDiscountService } from "@bitwarden/web-vault/app/billing/services/subscription-discount.service";
 
@@ -20,7 +19,6 @@ import { TrialBillingStepService } from "./trial-billing-step.service";
 describe("TrialBillingStepService", () => {
   const mockApiService = mock<ApiService>();
   const mockOrganizationBillingService = mock<OrganizationBillingServiceAbstraction>();
-  const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
   const mockInvoicePreviewService = mock<InvoicePreviewService>();
   const mockSubscriptionDiscountService = mock<SubscriptionDiscountService>();
   const mockAccountService = mock<AccountService>();
@@ -105,7 +103,6 @@ describe("TrialBillingStepService", () => {
   beforeEach(() => {
     mockReset(mockApiService);
     mockReset(mockOrganizationBillingService);
-    mockReset(mockPreviewInvoiceClient);
     mockReset(mockInvoicePreviewService);
     mockReset(mockSubscriptionDiscountService);
     mockReset(mockAccountService);
@@ -129,7 +126,6 @@ describe("TrialBillingStepService", () => {
           provide: OrganizationBillingServiceAbstraction,
           useValue: mockOrganizationBillingService,
         },
-        { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
         { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
         { provide: AccountService, useValue: mockAccountService },
@@ -137,84 +133,6 @@ describe("TrialBillingStepService", () => {
     });
 
     sut = TestBed.inject(TrialBillingStepService);
-  });
-
-  describe("getCosts", () => {
-    const billingAddress = { country: "US", postalCode: "12345" } as any;
-    const mockCosts = { tax: 2.5, total: 42.5 };
-
-    it("passes coupons to previewTaxForOrganizationSubscriptionPurchase when provided", async () => {
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
-        mockCosts,
-      );
-
-      await sut.getCosts("passwordManager", "families", "annually", billingAddress, undefined, [
-        "coupon-abc",
-      ]);
-
-      expect(
-        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalledWith(expect.objectContaining({ tier: "families" }), expect.anything(), [
-        "coupon-abc",
-      ]);
-    });
-
-    it("omits coupons from previewTaxForOrganizationSubscriptionPurchase when undefined", async () => {
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
-        mockCosts,
-      );
-
-      await sut.getCosts(
-        "passwordManager",
-        "families",
-        "annually",
-        billingAddress,
-        undefined,
-        undefined,
-      );
-
-      expect(
-        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({ tier: "families" }),
-        expect.anything(),
-        undefined,
-      );
-    });
-
-    it("includes Privileged Controls in the preview when provided", async () => {
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
-        mockCosts,
-      );
-
-      await sut.getCosts("passwordManager", "enterprise", "annually", billingAddress, {
-        seats: 6,
-      });
-
-      expect(
-        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({ privilegedControls: { seats: 6 } }),
-        expect.anything(),
-        undefined,
-      );
-    });
-
-    it("omits Privileged Controls from the preview when not provided", async () => {
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
-        mockCosts,
-      );
-
-      await sut.getCosts("passwordManager", "enterprise", "annually", billingAddress);
-
-      expect(
-        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({ privilegedControls: undefined }),
-        expect.anything(),
-        undefined,
-      );
-    });
   });
 
   describe("startTrial", () => {
