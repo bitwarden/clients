@@ -20,7 +20,9 @@ const SET_PIN_SUBMIT_BUTTON = "set-pin-submit-button";
  */
 export async function enableEphemeralPin(app: ElectronApplication, window: Page, pin: string) {
   await clickMenuItem(app, MenuItem.Settings);
-  const settings = window.getByRole("dialog");
+  const pinCheckbox = window.getByRole("checkbox", { name: "Unlock with PIN" });
+  // Scoped by its content: the redesigned layout's side navigation is a dialog too.
+  const settings = window.getByRole("dialog").filter({ has: pinCheckbox });
   // Not check(): the box stays unchecked until the set-PIN dialog it opens is submitted.
   await settings.getByRole("checkbox", { name: "Unlock with PIN" }).click();
 
