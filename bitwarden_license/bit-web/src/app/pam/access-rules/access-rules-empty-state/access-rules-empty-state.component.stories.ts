@@ -18,8 +18,8 @@ export default {
           useFactory: () =>
             new I18nMockService({
               pamNoAccessRulesYetTitle: "No access rules yet",
-              pamNoAccessRulesYetDescription:
-                "Create a rule to add extra protection to sensitive collections.",
+              pamNoAccessRulesYetDescriptionSharedFolder:
+                "Create a rule to add extra protection to sensitive shared folders.",
               pamAccessRuleCreateCustom: "Create custom rule",
               pamAccessRulesStartFromTemplate: "Start from a template",
               pamAccessRuleUseTemplate: "Use template",

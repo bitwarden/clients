@@ -4771,6 +4771,167 @@
       }
     }
   },
+  "selectVault": {
+    "message": "Vyberte trezor",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Vyberte umiestnenie",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Vyberte trezor"
+  },
+  "selectALocationTitle": {
+    "message": "Vyberte umiestnenie"
+  },
+  "importDestinationDescription": {
+    "message": "Vyberte, kam chcete tieto položky importovať."
+  },
+  "importMyItemsOption": {
+    "message": "Moje položky",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Viditeľné len pre vás"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Vlastníkom je $ORGANIZATION$, ale viditeľné je to len pre vás",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Trezor organizácie"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Zdieľané s jednou osobou"
+  },
+  "importFamilyVault": {
+    "message": "Rodinný trezor"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Presunúť všetky položky do zdieľaného priečinka $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Presunúť všetky položky do zdieľaného priečinka $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Presunúť všetko do nadradeného priečinka, štruktúra vnorených priečinkov zostane zachovaná."
+  },
+  "importSharedFolderRequired": {
+    "message": "Vyžaduje sa zdieľaný priečinok."
+  },
+  "importIntoOrganization": {
+    "message": "Položky budú importované do $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Presunúť všetky položky do zdieľaného priečinka"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Položky nemôžu byť importované do $ORGANIZATION$ bez zdieľaného priečinka a žiadne v ňom nespravujete. Vyberte iné umiestnenie.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Importovať položky ($COUNT$).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Importovať 1 položku"
+  },
+  "importToOrganization": {
+    "message": "Importovať do $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Vaše údaje môžu byť zdieľané s inými členmi tejto organizácie."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ nepovoľuje importovať $ITEM_TYPES$. Ak sa vo vašom importe nachádzajú, budú preskočené.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "prihlasovacie údaje",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "zabezpečené poznámky",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "karty",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identity",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "kľúče SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bankové účty",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "vodičské preukazy",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "pasy",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Prejsť na Access Intelligence"
+  },
   "chooseFile": {
     "message": "Vybrať súbor"
   },
