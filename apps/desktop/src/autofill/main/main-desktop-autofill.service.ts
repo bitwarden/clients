@@ -3,7 +3,7 @@ import { ipcMain } from "electron";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 
-import { WindowMain } from "../../main/window.main";
+import { RendererVisibility, WindowMain } from "../../main/window.main";
 import { AutofillCommandDefinition } from "../models/autofill-command";
 import {
   AutofillIpcChannelControl,
@@ -44,7 +44,9 @@ type CompletionCallback<Response> = (
 export class DesktopAutofillMain {
   private ipcServer?: AutofillIpcServer;
   private messageBuffer: BufferedMessage[] = [];
-  private listenerReady = false;
+  // The renderer whose autofill listeners are registered. A recreated renderer has a new id
+  // and must announce itself again before it receives requests.
+  private readyWebContentsId: number | null = null;
   private enabled = false;
   private completionCallbacks: Map<string, CompletionCallback<any>> = new Map();
 
@@ -53,19 +55,24 @@ export class DesktopAutofillMain {
     private windowMain: WindowMain,
   ) {}
 
-  /** Whether the OS autofill / passkey provider is serving requests. */
-  get active(): boolean {
-    return this.enabled;
-  }
-
   /**
-   * Safely sends a message to the renderer, buffering it if the server isn't ready yet
+   * Sends a message to the renderer, or buffers it until a renderer announces its listeners.
+   *
+   * The renderer may have been destroyed while hidden to tray. Then it is recreated hidden:
+   * it re-registers its listeners on boot, and {@link flushMessageBuffer} delivers the request.
    */
   private safeSend(channel: string, data: any) {
-    if (this.listenerReady && this.windowMain.win?.webContents) {
-      this.windowMain.win.webContents.send(channel, data);
-    } else {
-      this.messageBuffer.push({ channel, data });
+    const win = this.windowMain.win;
+    const rendererReady =
+      win != null && !win.isDestroyed() && win.webContents.id === this.readyWebContentsId;
+    if (rendererReady) {
+      win.webContents.send(channel, data);
+      return;
+    }
+
+    this.messageBuffer.push({ channel, data });
+    if (win == null || win.isDestroyed()) {
+      void this.windowMain.ensureRenderer(RendererVisibility.Hidden);
     }
   }
 
@@ -187,8 +194,8 @@ export class DesktopAutofillMain {
       cancelRequestCallback,
     });
 
-    ipcMain.on(AutofillIpcChannelControl.ListenerReady, () => {
-      this.listenerReady = true;
+    ipcMain.on(AutofillIpcChannelControl.ListenerReady, (event) => {
+      this.readyWebContentsId = event.sender.id;
       this.logService.info(
         `Listener is ready, flushing ${this.messageBuffer.length} buffered messages`,
       );
@@ -223,6 +230,13 @@ export class DesktopAutofillMain {
       return;
     }
 
+    void this.completeWindowHandleQuery(clientId, sequenceNumber);
+  };
+
+  private async completeWindowHandleQuery(clientId: number, sequenceNumber: number) {
+    // The window may have been destroyed while hidden to tray; the request needs one to anchor to.
+    await this.windowMain.ensureRenderer(RendererVisibility.Hidden);
+
     const window = this.windowMain.win;
     if (!window) {
       this.logService.error("[DesktopAutofillMain]", "windowHandleQuery: No window available");
@@ -236,7 +250,7 @@ export class DesktopAutofillMain {
       handle: Array.from(window.getNativeWindowHandle()),
     };
     this.ipcServer?.completeWindowHandleQuery(clientId, sequenceNumber, response);
-  };
+  }
 
   /**
    * Creates a listener function for an autofill IPC request, and selects a Electron
