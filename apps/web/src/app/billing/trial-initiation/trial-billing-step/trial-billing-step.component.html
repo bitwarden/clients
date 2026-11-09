@@ -2,8 +2,7 @@
   <ng-container *ngTemplateOutlet="loadingSpinner" />
 } @else {
   @let prices = prices$ | async;
-  @let previewPricingEnabled = previewPricingEnabled$ | async;
-  @let showPreviewCart = previewPricingEnabled && trial().length === 0;
+  @let showPreviewCart = trial().length === 0;
   <form [formGroup]="formGroup" [bitSubmit]="submit">
     <div class="tw-container tw-mb-3">
       <!-- Cadence -->
@@ -57,35 +56,13 @@
           [scenario]="{ type: 'checkout', supportsTaxId: trial().tier !== 'families' }"
         ></app-enter-billing-address>
 
-        @if (trial().length === 0) {
-          @if (previewPricingEnabled) {
-            <app-trial-preview-cart
-              [trial]="trial()"
-              [cadence]="cadenceValue()"
-              [billingAddress]="billingAddressValue()"
-              [eligibleDiscounts]="eligibleDiscounts()"
-            />
-          } @else {
-            @let label =
-              trial().product === "passwordManager"
-                ? "passwordManagerPlanPrice"
-                : "secretsManagerPlanPrice";
-            <div id="price" class="tw-my-4">
-              <div class="tw-text-muted tw-text-base">
-                {{ label | i18n }}: {{ selectionPrice$ | async | currency: "USD $" }}
-                <div>
-                  {{ "estimatedTax" | i18n }}:
-                  {{ (selectionCosts$ | async)?.tax | currency: "USD $" }}
-                </div>
-              </div>
-              <hr class="tw-my-1 tw-grid tw-grid-cols-3 tw-ml-0" />
-              <p class="tw-text-lg">
-                <strong>{{ "total" | i18n }}: </strong>
-                @let interval = formGroup.value.cadence === "annually" ? "year" : "month";
-                {{ (selectionCosts$ | async)?.total | currency: "USD $" }}/{{ interval | i18n }}
-              </p>
-            </div>
-          }
+        @if (showPreviewCart) {
+          <app-trial-preview-cart
+            [trial]="trial()"
+            [cadence]="cadenceValue()"
+            [billingAddress]="billingAddressValue()"
+            [eligibleDiscounts]="eligibleDiscounts()"
+          />
         }
       </div>
       <!-- Submit -->
