@@ -578,8 +578,6 @@ export class Main {
         { name: "autotype", active: () => this.mainDesktopAutotypeMvpService.active },
         { name: "autotype-ga", active: () => this.mainDesktopAutotypeService.active },
         { name: "duckduckgo", active: () => ddgEnabled },
-        // Legacy browser biometrics are still answered by the renderer.
-        { name: "native-messaging", active: () => this.nativeMessagingMain.hasClients },
         // Logout cleanup runs in the renderer, so main can only lock on timeout.
         { name: "logout-timeout-action", active: () => this.headlessVaultTimeout.logoutOnTimeout },
       ],
