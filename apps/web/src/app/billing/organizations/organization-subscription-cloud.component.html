@@ -89,6 +89,23 @@
         </div>
       }
 
+      @if (showPrivilegedControlsContactSalesToAdd()) {
+        <div class="tw-mt-7" id="privileged-controls-contact-sales-to-add">
+          <h2 bitTypography="h2">{{ "privilegedControls" | i18n }}</h2>
+          <p bitTypography="body1">{{ "privilegedControlsAddThroughSales" | i18n }}</p>
+          <a
+            bitButton
+            buttonType="secondary"
+            href="https://bitwarden.com/contact/"
+            target="_blank"
+            rel="noreferrer"
+            id="organization-subscription-cloud_button_privileged-controls-contact-sales-add"
+          >
+            {{ "contactSales" | i18n }}
+          </a>
+        </div>
+      }
+
       <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
 
       @if (customerDiscount()?.id === "sm-standalone") {
@@ -185,6 +202,28 @@
           [options]="pamOptions"
           (adjusted)="subscriptionAdjusted()"
         ></app-privileged-controls-adjust-subscription>
+      }
+
+      @if (showPrivilegedControlsContactSalesToChange()) {
+        <div id="privileged-controls-contact-sales-to-change">
+          <h3 bitTypography="h3" class="tw-mt-9">{{ "privilegedControls" | i18n }}</h3>
+          @if (orgSub?.occupiedPamSeats != null && orgSub?.pamSeats != null) {
+            <p bitTypography="body1" id="privileged-controls-read-only-seats">
+              {{ "privilegedControlsSeatsInUse" | i18n: orgSub.occupiedPamSeats : orgSub.pamSeats }}
+            </p>
+          }
+          <p bitTypography="body1">{{ "privilegedControlsChangeThroughSales" | i18n }}</p>
+          <a
+            bitButton
+            buttonType="secondary"
+            href="https://bitwarden.com/contact/"
+            target="_blank"
+            rel="noreferrer"
+            id="organization-subscription-cloud_button_privileged-controls-contact-sales-change"
+          >
+            {{ "contactSales" | i18n }}
+          </a>
+        </div>
       }
 
       <h2 bitTypography="h2" class="tw-mt-7">{{ "additionalOptions" | i18n }}</h2>

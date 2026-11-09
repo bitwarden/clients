@@ -35,10 +35,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
@@ -122,6 +120,10 @@ import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService, LogoutReason, LogoutService } from "@bitwarden/common/auth/logout";
 import {
   NoopOrganizationInviteService,
@@ -311,11 +313,9 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
-import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -1007,7 +1007,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SendDecryptionService,
     useClass: SendDecryptionService,
-    deps: [SdkService, ConfigService, LegacyCompatKeyService],
+    deps: [SdkService, LegacyCompatKeyService],
   }),
   safeProvider({
     provide: InternalSendService,
@@ -1019,7 +1019,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
-      ConfigService,
       SdkService,
       SendDecryptionService,
     ],
@@ -1032,24 +1031,19 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SendApiService,
     useClass: SendApiService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService, LogService],
-  }),
-  safeProvider({
-    provide: SendSdkApiService,
-    useClass: SendSdkApiService,
     deps: [
-      SdkService,
-      SendApiService,
+      ApiServiceAbstraction,
+      FileUploadServiceAbstraction,
       InternalSendService,
-      AccountServiceAbstraction,
       LogService,
+      SdkService,
+      AccountServiceAbstraction,
       SendDecryptionService,
     ],
   }),
   safeProvider({
     provide: SendApiServiceAbstraction,
-    useClass: SendApiServiceSelector,
-    deps: [ConfigService, SendApiService, SendSdkApiService],
+    useExisting: SendApiService,
   }),
   safeProvider({
     provide: SyncService,

@@ -125,6 +125,22 @@ describe("Fastmail forwarder", () => {
         expect(methodCall.create["new-masked-email"].forDomain).toEqual("website");
         expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("");
       });
+      it("sends the website's origin as forDomain and its hostname as the description", () => {
+        const website = "https://1up-usa.com/account/login?ref=nav";
+        context.website.mockImplementation((_request, options) =>
+          options?.extractOrigin ? "https://1up-usa.com" : "1up-usa.com",
+        );
+        context.prefixEnabled.mockReturnValue(false);
+        const request = { accountId: "accountId", website };
+
+        const result = Fastmail.forwarder.createForwardingEmail.body(request, context);
+        const maskedEmail = result.methodCalls[0][1].create["new-masked-email"];
+
+        expect(context.website).toHaveBeenCalledWith(request, { extractOrigin: true });
+        expect(context.website).toHaveBeenCalledWith(request, { extractHostname: true });
+        expect(maskedEmail.forDomain).toEqual("https://1up-usa.com");
+        expect(maskedEmail.description).toEqual("1up-usa.com");
+      });
       it("creates a request body with website as email prefix when prefix is enabled", () => {
         context.prefixEnabled.mockReturnValue(true);
         context.prefix.mockReturnValue("example");
@@ -144,12 +160,20 @@ describe("Fastmail forwarder", () => {
         expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("");
       });
       it.each([
-        ["1up-usa", "1up_usa"],
+        ["1up-usa", "n_1up_usa"],
         ["foo_1up-usa", "foo_1up_usa"],
         ["EXAMPLE", "example"],
         ["xn--mnchen-3ya", "xn_mnchen_3ya"],
         ["-example-", "example"],
-        ["127_0_0", "127_0_0"],
+        ["127_0_0", "n_127_0_0"],
+        ["-1password", "n_1password"],
+        ["www_cnn", "cnn"],
+        ["www_t-mobile", "t_mobile"],
+        ["www_1password", "n_1password"],
+        ["www2_example", "example"],
+        ["www12_example", "example"],
+        ["mail_www", "mail_www"],
+        ["___", ""],
       ])(
         "replaces characters fastmail rejects in the email prefix (%s => %s)",
         (prefix, expected) => {
@@ -172,6 +196,16 @@ describe("Fastmail forwarder", () => {
         const methodCall = result.methodCalls[0][1];
 
         expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("a".repeat(64));
+      });
+      it("truncates the email prefix after prepending n_ to a leading digit", () => {
+        context.prefixEnabled.mockReturnValue(true);
+        context.prefix.mockReturnValue("1".repeat(70));
+        const request = { accountId: "accountId", website: "https://example.com" };
+
+        const result = Fastmail.forwarder.createForwardingEmail.body(request, context);
+        const methodCall = result.methodCalls[0][1];
+
+        expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("n_" + "1".repeat(62));
       });
     });
 
