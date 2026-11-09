@@ -546,6 +546,16 @@ const safeProviders: SafeProvider[] = [
     deps: [WINDOW],
   }),
   // TODO: PM-21212 - Deprecate LogoutCallback in favor of LogoutService
+  // TODO(PM-21212 review): DECISION NEEDED - How should the LOGOUT_CALLBACK removal ship?
+  //   The removal starts after #24285, #24288, and the three client logout service PRs merge.
+  //   A shared DeferredLogoutService (moved from apps/cli to libs/common) breaks the DI cycle
+  //   ApiService -> client LogoutService -> EventUploadService -> ApiService.
+  //   Option 1: four PRs, one per owning team:
+  //     a. DeferredLogoutService + TokenService + ApiService (Auth, Platform for NodeApiService)
+  //     b. KeyConnectorService (Key Management)
+  //     c. DefaultSyncService + DefaultServerNotificationsService (Platform)
+  //     d. Delete LOGOUT_CALLBACK, the browser logoutCallback, and the CLI adapter (Auth)
+  //   Option 2: one PR that all teams review.
   safeProvider({
     provide: LOGOUT_CALLBACK,
     useFactory:

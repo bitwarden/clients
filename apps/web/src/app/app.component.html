@@ -200,7 +200,7 @@
   </div>
 </ng-template>
 
-<ng-container *ngIf="!loading; else loadingState">
+<ng-container *ngIf="!loading(); else loadingState">
   <router-outlet></router-outlet>
 </ng-container>
 

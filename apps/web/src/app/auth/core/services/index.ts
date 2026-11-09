@@ -7,3 +7,4 @@ export * from "./password-management";
 export * from "./registration";
 export * from "./two-factor-auth";
 export * from "./link-sso.service";
+export * from "./logout";

@@ -3,7 +3,7 @@
 import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
+import { firstValueFrom, lastValueFrom, map, Subject, takeUntil } from "rxjs";
 
 import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-deletion";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
@@ -20,19 +20,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AccountSwitcherService } from "@bitwarden/common/auth/account-switcher";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
-import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -45,20 +40,16 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
@@ -67,6 +58,7 @@ import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwar
 
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
+import { DesktopLogoutService } from "../auth/services/logout";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
@@ -93,24 +85,20 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 export class AppComponent implements OnInit, OnDestroy {
   showHeader$ = this.accountService.showHeader$;
   loading = false;
+  protected readonly loggingOut = this.logoutService.activeUserLoggingOut;
 
   private lastActivity: Date = null;
   private idleTimer: number = null;
   private isIdle = false;
   private activeUserId: UserId = null;
-  private activeSimpleDialog: DialogRef<boolean> = null;
   private processingPendingAuthRequests = false;
   private shouldRerunAuthRequestProcessing = false;
 
   private destroy$ = new Subject<void>();
 
-  private accountCleanUpInProgress: { [userId: string]: boolean } = {};
-
   constructor(
     private broadcasterService: BroadcasterService,
-    private folderService: InternalFolderService,
     private syncService: SyncService,
-    private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
@@ -124,23 +112,16 @@ export class AppComponent implements OnInit, OnDestroy {
     private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsService,
     private systemService: SystemService,
-    private processReloadService: ProcessReloadServiceAbstraction,
-    private stateService: StateService,
-    private eventUploadService: EventUploadService,
     private modalService: ModalService,
     private userVerificationService: UserVerificationService,
     private configService: ConfigService,
     private dialogService: DialogService,
-    private biometricStateService: BiometricStateService,
-    private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
     private deviceTrustToastService: DeviceTrustToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private pinService: PinServiceAbstraction,
-    private readonly tokenService: TokenService,
     private readonly lockService: LockService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
@@ -151,6 +132,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private premiumCheckoutPendingService: PremiumCheckoutPendingService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountSwitcherService: AccountSwitcherService,
+    private readonly logoutService: DesktopLogoutService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -214,11 +196,13 @@ export class AppComponent implements OnInit, OnDestroy {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["login"]);
             break;
-          case "logout":
-            this.loading = message.userId == null || message.userId === this.activeUserId;
-            await this.logOut(message.logoutReason, message.userId);
-            this.loading = false;
+          case "logout": {
+            const userId =
+              message.userId ??
+              (await firstValueFrom(getOptionalUserId(this.accountService.activeAccount$)));
+            await this.logoutService.logout(userId, message.logoutReason);
             break;
+          }
           case "lockVault":
             await this.lockService.lock(message.userId ?? this.activeUserId, LockSource.Manual);
             break;
@@ -604,7 +588,7 @@ export class AppComponent implements OnInit, OnDestroy {
         if (
           i != null &&
           userId != null &&
-          !this.isAccountCleanUpInProgress(userId) // skip accounts that are being cleaned up
+          !this.logoutService.isLoggingOut(userId) // skip accounts that are being cleaned up
         ) {
           const availableTimeoutActions = await firstValueFrom(
             this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId),
@@ -648,154 +632,6 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.messagingService.send("updateAppMenu", { updateRequest: updateRequest });
-  }
-
-  private async displayLogoutReason(logoutReason: LogoutReason) {
-    let toastOptions: ToastOptions;
-
-    switch (logoutReason) {
-      case "invalidSecurityStamp":
-      case "sessionExpired": {
-        toastOptions = {
-          variant: "warning",
-          title: this.i18nService.t("loggedOut"),
-          message: this.i18nService.t("loginExpired"),
-        };
-        break;
-      }
-      // We don't expect these scenarios to be common, but we want the user to
-      // understand why they are being logged out before a process reload.
-      case "accessTokenUnableToBeDecrypted": {
-        // Don't create multiple dialogs if this fires multiple times
-        if (this.activeSimpleDialog) {
-          // Let the caller of this function listen for the dialog to close
-          return firstValueFrom(this.activeSimpleDialog.closed);
-        }
-
-        this.activeSimpleDialog = this.dialogService.openSimpleDialogRef({
-          title: { key: "loggedOut" },
-          content: { key: "accessTokenUnableToBeDecrypted" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-
-        await firstValueFrom(this.activeSimpleDialog.closed);
-        this.activeSimpleDialog = null;
-
-        break;
-      }
-      case "refreshTokenSecureStorageRetrievalFailure": {
-        // Don't create multiple dialogs if this fires multiple times
-        if (this.activeSimpleDialog) {
-          // Let the caller of this function listen for the dialog to close
-          return firstValueFrom(this.activeSimpleDialog.closed);
-        }
-
-        this.activeSimpleDialog = this.dialogService.openSimpleDialogRef({
-          title: { key: "loggedOut" },
-          content: { key: "refreshTokenSecureStorageRetrievalFailure" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-
-        await firstValueFrom(this.activeSimpleDialog.closed);
-        this.activeSimpleDialog = null;
-
-        break;
-      }
-    }
-
-    if (toastOptions) {
-      this.toastService.showToast(toastOptions);
-    }
-  }
-
-  // TODO: PM-21212 - consolidate the logic of this method into the new LogoutService
-  // (requires creating a desktop specific implementation of the LogoutService)
-  // Even though the userId parameter is no longer optional doesn't mean a message couldn't be
-  // passing null-ish values to us.
-  private async logOut(logoutReason: LogoutReason, userId: UserId) {
-    // Desktop logout paths bypass DefaultLogoutService (see PM-21212 TODO above),
-    // so the log line that lives there is mirrored here to cover every caller.
-    this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
-    await this.displayLogoutReason(logoutReason);
-
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
-    const userBeingLoggedOut = userId ?? activeUserId;
-
-    // Mark account as being cleaned up so that the updateAppMenu logic (executed on syncCompleted)
-    // doesn't attempt to update a user that is being logged out as we will manually
-    // call updateAppMenu when the logout is complete.
-    this.startAccountCleanUp(userBeingLoggedOut);
-
-    const nextUpAccount =
-      activeUserId === userBeingLoggedOut
-        ? await firstValueFrom(this.accountSwitcherService.nextSwitchableAccount$) // We'll need to switch accounts
-        : null;
-
-    try {
-      // HACK: We shouldn't wait for authentication status to change here but instead subscribe to the
-      // authentication status to do various actions.
-      const logoutPromise = firstValueFrom(
-        this.authService.authStatusFor$(userBeingLoggedOut).pipe(
-          filter((authenticationStatus) => authenticationStatus === AuthenticationStatus.LoggedOut),
-          timeout({
-            first: 5_000,
-            with: () => {
-              throw new Error(
-                "The logout process did not complete in a reasonable amount of time.",
-              );
-            },
-          }),
-        ),
-      );
-
-      // Provide the userId of the user to upload events for
-      await this.eventUploadService.uploadEvents(userBeingLoggedOut);
-
-      await this.cipherService.clear(userBeingLoggedOut);
-      await this.folderService.clear(userBeingLoggedOut);
-      await this.biometricStateService.logout(userBeingLoggedOut);
-      await this.pinService.logout(userBeingLoggedOut);
-
-      await this.keyService.clearKeys(userBeingLoggedOut);
-
-      await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
-
-      await this.stateService.clean({ userId: userBeingLoggedOut });
-      await this.tokenService.clearTokens(userBeingLoggedOut);
-      await this.accountService.clean(userBeingLoggedOut);
-
-      // HACK: Wait for the user logging outs authentication status to transition to LoggedOut
-      await logoutPromise;
-    } finally {
-      this.finishAccountCleanUp(userBeingLoggedOut);
-    }
-
-    // We only need to change the display at all if the account being looked at is the one
-    // being logged out. If it was a background account, no need to do anything.
-    if (userBeingLoggedOut === activeUserId) {
-      if (nextUpAccount != null) {
-        this.messagingService.send("switchAccount", { userId: nextUpAccount.id });
-      } else {
-        // We don't have another user to switch to, bring them to the login page so they
-        // can sign into a user.
-        await this.accountService.switchAccount(null);
-        void this.router.navigate(["login"]);
-      }
-    }
-
-    // This must come last otherwise the logout will prematurely trigger
-    // a process reload before all the state service user data can be cleaned up
-    this.authService.logOut(async () => {
-      // Wipe the current process to clear active secrets in memory.
-      await this.processReloadService.reloadProcess();
-    }, userBeingLoggedOut);
   }
 
   private async recordActivity() {
@@ -864,7 +700,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const options = await this.getVaultTimeoutOptions(userId);
       if (options[0] === timeout) {
         options[1] === "logOut"
-          ? await this.logOut("vaultTimeout", userId as UserId)
+          ? await this.logoutService.logout(userId as UserId, "vaultTimeout")
           : await this.lockService.lock(userId as UserId, LockSource.VaultTimeout);
       }
     }
@@ -878,21 +714,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
     return [timeout, action];
-  }
-
-  // Mark an account's clean up as started
-  private startAccountCleanUp(userId: string): void {
-    this.accountCleanUpInProgress[userId] = true;
-  }
-
-  // Mark an account's clean up as finished
-  private finishAccountCleanUp(userId: string): void {
-    this.accountCleanUpInProgress[userId] = false;
-  }
-
-  // Check if an account's clean up is in progress
-  private isAccountCleanUpInProgress(userId: string): boolean {
-    return this.accountCleanUpInProgress[userId] === true;
   }
 
   // Process the sso callback links
