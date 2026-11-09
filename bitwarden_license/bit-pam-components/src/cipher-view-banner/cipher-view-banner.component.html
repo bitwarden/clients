@@ -33,32 +33,15 @@
   }
   <app-pam-unlicensed-card class="tw-mb-5 bit-compact:tw-mb-4" />
 } @else {
-  @if (popupLayout) {
-    @if (canRequestAccess()) {
-      <button
-        #requestToggleButton
-        type="button"
-        bitButton
-        buttonType="primary"
-        class="tw-mb-4 tw-w-full"
-        (click)="openRequest()"
-        startIcon="bwi-lock"
-        id="pam-cipher-view-banner_button_request-toggle"
-      >
-        {{ "pamRequestAccessButton" | i18n }}
-      </button>
-    }
-
-    @if (showsPrivilegedCard()) {
-      <h2
-        bitTypography="body2"
-        noMargin
-        class="tw-mb-2 tw-font-semibold tw-text-fg-body"
-        data-testid="cipher-view-banner-section-heading"
-      >
-        {{ "pamPrivilegedCredentialsHeading" | i18n }}
-      </h2>
-    }
+  @if (popupLayout && showsPrivilegedCard()) {
+    <h2
+      bitTypography="body2"
+      noMargin
+      class="tw-mb-2 tw-font-semibold tw-text-fg-body"
+      data-testid="cipher-view-banner-section-heading"
+    >
+      {{ "pamPrivilegedCredentialsHeading" | i18n }}
+    </h2>
   }
 
   @if (activeLease(); as lease) {
@@ -99,7 +82,7 @@
     <app-pam-unavailable-card class="tw-mb-5 bit-compact:tw-mb-4" />
   } @else if (accessEnded()) {
     <app-pam-access-ended-card class="tw-mb-5 bit-compact:tw-mb-4">
-      @if (!popupLayout && canRequestAccess()) {
+      @if (canRequestAccess()) {
         <ng-container [ngTemplateOutlet]="requestAccessAction" />
       }
     </app-pam-access-ended-card>
@@ -108,13 +91,11 @@
       class="tw-mb-5 bit-compact:tw-mb-4"
       [terms]="restingRequestTerms()"
     >
-      @if (!popupLayout) {
-        <ng-container [ngTemplateOutlet]="requestAccessAction" />
-      }
+      <ng-container [ngTemplateOutlet]="requestAccessAction" />
     </app-pam-request-access-card>
   }
 
-  <!-- The item dialog's Request access, inside whichever card offers a new request. -->
+  <!-- Request access, inside whichever card offers a new request. -->
   <ng-template #requestAccessAction>
     @if (!requestFormOpen()) {
       <button
@@ -122,8 +103,10 @@
         type="button"
         bitButton
         buttonType="primary"
-        size="small"
-        class="tw-self-start"
+        [size]="popupLayout ? 'default' : 'small'"
+        [class.tw-w-full]="popupLayout"
+        [class.tw-self-start]="!popupLayout"
+        [startIcon]="popupLayout ? 'bwi-lock' : undefined"
         (click)="openRequest()"
         id="pam-cipher-view-banner_button_request-toggle"
       >

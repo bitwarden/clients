@@ -469,17 +469,18 @@ describe("CipherViewBannerComponent", () => {
       expect(query('[data-testid="cipher-view-banner-section-heading"]')).toBeNull();
     });
 
-    it("puts a full-width Request access button with a lock icon above the section heading, in the popup", async () => {
+    it("puts a full-width Request access button with a lock icon inside the request card, under the section heading, in the popup", async () => {
       usePopupLayout();
       await create(gatedCipher());
 
       const button = query("#pam-cipher-view-banner_button_request-toggle");
+      expect(button?.closest('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
       expect(button?.classList.contains("tw-w-full")).toBe(true);
       expect(button?.querySelector(".bwi-lock")).not.toBeNull();
       const heading = query('[data-testid="cipher-view-banner-section-heading"]');
       expect(heading?.textContent).toContain("pamPrivilegedCredentialsHeading");
       expect(
-        button!.compareDocumentPosition(heading!) & Node.DOCUMENT_POSITION_FOLLOWING,
+        heading!.compareDocumentPosition(button!) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     });
 
