@@ -7,21 +7,9 @@ import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
 
 const sshAgent = {
-  init: async () => {
-    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT);
-  },
-  replace: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
-    ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.REPLACE, keys),
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });
   },
-  listRequestResponse: async (requestId: number, accepted: boolean) => {
-    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_RESPONSE, { requestId, accepted });
-  },
-  isLoaded(): Promise<boolean> {
-    return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
-  },
-  stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
 };
 
 // MVP, delete with PM-41067

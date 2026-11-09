@@ -393,7 +393,16 @@ export class Main {
       this.createRendererTeardown(storageBackend),
     );
 
-    this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+    this.sshAgentService = new MainSshAgentService(
+      this.logService,
+      this.messagingService,
+      this.serviceContainer.cipherService,
+      this.serviceContainer.authService,
+      accountService,
+      this.desktopSettingsService,
+      this.i18nService,
+      this.windowMain,
+    );
 
     new EphemeralValueStorageService();
 
@@ -423,6 +432,7 @@ export class Main {
       this.headlessVaultTimeout.dispose();
       this.mainDesktopAutotypeMvpService.dispose();
       this.mainDesktopAutotypeService.dispose();
+      this.sshAgentService.dispose();
       this.storageService.dispose();
     });
   }
@@ -526,6 +536,9 @@ export class Main {
           this.processDeepLink([url]);
         });
 
+        // Main owns the SSH agent; it signs with main's vault, with or without a renderer.
+        this.sshAgentService.init();
+
         // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
         await this.biometricsService.setUnlockService(this.serviceContainer.unlockService);
         await this.serviceContainer.sharedUnlockPeerService.start();
@@ -562,7 +575,6 @@ export class Main {
     return new RendererTeardownMain(
       cachedFlagEnabled(storageBackend, FeatureFlag.DesktopRendererTeardown),
       [
-        { name: "ssh-agent", active: () => this.sshAgentService.running },
         { name: "autotype", active: () => this.mainDesktopAutotypeMvpService.active },
         { name: "autotype-ga", active: () => this.mainDesktopAutotypeService.active },
         { name: "autofill-provider", active: () => this.desktopAutofillMain.active },
