@@ -476,6 +476,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultSharedUnlockSettingsService,
     deps: [StateProvider],
   }),
+  // Started only while main does not run the peer; exactly one per device may run.
   safeProvider({
     provide: SharedUnlockPeerService,
     useClass: DefaultSharedUnlockPeerService,

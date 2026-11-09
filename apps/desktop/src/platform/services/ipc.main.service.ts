@@ -141,6 +141,12 @@ export class IpcMainService extends IpcService {
       // Handle messages from renderer process
       ipcMain.on("ipc.send", async (_event, message: IpcMessage) => {
         try {
+          // The sender is the trusted renderer, but guard for consistency with the native
+          // messaging path and as defense-in-depth against malformed input.
+          if (!isIpcMessage(message)) {
+            return;
+          }
+
           if (message.message.destination === "DesktopMain") {
             this.communicationBackend?.receive(
               new IncomingMessage(
