@@ -77,7 +77,7 @@ describe("formatRequestedWindow", () => {
   /** Stands in for the i18n service: resolves the three window keys the formatter uses. */
   const translate = (key: string, ...args: string[]): string => {
     switch (key) {
-      case "pamWindowUntil":
+      case "pamWindowOpenUntil":
         return `Until ${args[0]}`;
       case "pamWindowRange":
         return `${args[0]} to ${args[1]}`;

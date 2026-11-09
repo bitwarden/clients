@@ -9,7 +9,7 @@ import { RequestedWindowPipe } from "./requested-window.pipe";
 const i18nService = {
   t: (key: string, ...args: string[]) => {
     switch (key) {
-      case "pamWindowUntil":
+      case "pamWindowOpenUntil":
         return `Until ${args[0]}`;
       case "pamWindowRange":
         return `${args[0]} to ${args[1]}`;

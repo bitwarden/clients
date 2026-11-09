@@ -18516,7 +18516,7 @@
       }
     }
   },
-  "pamWindowUntil": {
+  "pamWindowOpenUntil": {
     "message": "Until $END$",
     "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
     "placeholders": {

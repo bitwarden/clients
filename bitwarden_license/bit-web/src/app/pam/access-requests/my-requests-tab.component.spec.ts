@@ -661,7 +661,7 @@ describe("MyRequestsTabComponent", () => {
         create();
 
         const row = rows()[0];
-        expect(text(row)).toContain("pamWindowUntil");
+        expect(text(row)).toContain("pamWindowOpenUntil");
         expect(text(row)).not.toContain("pamWindowRange");
         expect(text(row)).toContain("1 hour");
       });
