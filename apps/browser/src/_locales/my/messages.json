@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "ကျွန်ုပ်၏အရာများ"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "စီမံခန့်ခွဲသူကွန်ဆိုးလ်"
   },

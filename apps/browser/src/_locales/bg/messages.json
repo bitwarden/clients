@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "Моите елементи"
   },
+  "myItemsV2": {
+    "message": "Моите елементи"
+  },
   "adminConsole": {
     "message": "Административна конзола"
   },

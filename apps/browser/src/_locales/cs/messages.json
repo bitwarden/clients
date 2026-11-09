@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "Moje položky"
   },
+  "myItemsV2": {
+    "message": "Moje položky"
+  },
   "adminConsole": {
     "message": "Konzole správce"
   },

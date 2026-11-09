@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "මගේ අයිතම"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "පරිපාලක කොන්සෝලය"
   },

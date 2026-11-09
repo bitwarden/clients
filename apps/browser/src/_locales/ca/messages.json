@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "Els meus elements"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Consola d'administració"
   },

@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "எனது உருப்படிகள்"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "நிர்வாகக் கன்சோல்"
   },

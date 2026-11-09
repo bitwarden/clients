@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "Моји предмети"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Администраторска конзола"
   },

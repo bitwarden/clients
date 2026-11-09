@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "Mục của tôi"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Bảng điều khiển dành cho quản trị viên"
   },

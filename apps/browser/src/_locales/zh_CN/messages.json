@@ -1672,10 +1672,10 @@
     }
   },
   "importSharedFolderHint": {
-    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将得到保留。"
+    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将被保留。"
   },
   "importSharedFolderRequired": {
-    "message": "需要共享文件夹。"
+    "message": "必须选择共享文件夹。"
   },
   "importIntoOrganization": {
     "message": "项目将被导入到 $ORGANIZATION$。",
@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "我的项目"
   },
+  "myItemsV2": {
+    "message": "我的项目"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },
@@ -8246,7 +8249,7 @@
     "message": "与桌面端同步解锁"
   },
   "syncUnlockWithDesktopDescription1": {
-    "message": "Bitwarden 浏览器扩展与桌面 App 会同步锁定和解锁。可用时将使用生物识别。"
+    "message": "Bitwarden 浏览器扩展与桌面 App 将同步锁定和解锁。若可用，将使用生物识别。"
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "共享解锁不可用，因为您选择了不记住此设备。要启用此设置，请尝试重新登录。"

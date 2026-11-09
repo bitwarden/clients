@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "ធាតុរបស់ខ្ញុំ"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "កុងសូលអ្នកគ្រប់គ្រង"
   },

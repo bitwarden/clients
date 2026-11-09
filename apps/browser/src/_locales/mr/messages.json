@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "माझे आयटम"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "प्रशासक कन्सोल"
   },
