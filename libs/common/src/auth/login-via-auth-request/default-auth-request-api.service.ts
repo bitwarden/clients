@@ -1,10 +1,10 @@
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
-import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ApiService } from "../../abstractions/api.service";
+import { ListResponse } from "../../models/response/list.response";
+import { LogService } from "../../platform/abstractions/log.service";
+import { AuthRequest } from "../models/request/auth.request";
+import { AuthRequestResponse } from "../models/response/auth-request.response";
 
-import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
+import { AuthRequestApiServiceAbstraction } from "./auth-request-api.service";
 
 export class DefaultAuthRequestApiService implements AuthRequestApiServiceAbstraction {
   constructor(

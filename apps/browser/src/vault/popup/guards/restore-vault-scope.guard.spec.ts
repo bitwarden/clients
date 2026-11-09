@@ -4,7 +4,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import {
   VAULT_BASE_ROUTE,
   VaultNavItemType,
@@ -40,8 +40,10 @@ describe("restoreVaultScopeGuard", () => {
     organizationDataOwnership: false,
   });
   let stored: string | null;
+  let storedCollection: string | null;
   const listFiltersService = {
     storedVaultScopeId: jest.fn(async (): Promise<string | null> => stored),
+    storedVaultScopeCollection: jest.fn(async (): Promise<string | null> => storedCollection),
     setCachedVaultScopeId: jest.fn(async (): Promise<void> => undefined),
   };
 
@@ -52,6 +54,7 @@ describe("restoreVaultScopeGuard", () => {
 
   beforeEach(() => {
     stored = null;
+    storedCollection = null;
     createUrlTree.mockClear();
     listFiltersService.setCachedVaultScopeId.mockClear();
     nav$.next({ vaults: [personal, organization], organizationDataOwnership: false });
@@ -103,5 +106,32 @@ describe("restoreVaultScopeGuard", () => {
 
     expect(await run()).toBe(true);
     expect(listFiltersService.setCachedVaultScopeId).toHaveBeenCalledWith(null);
+  });
+
+  describe("with a stored My items", () => {
+    beforeEach(() => {
+      stored = ORG_ID;
+      storedCollection = "my-items";
+    });
+
+    it("redirects to the organization's My items", async () => {
+      nav$.next({
+        vaults: [
+          personal,
+          { ...organization, defaultUserCollectionId: "my-items-collection" as CollectionId },
+        ],
+        organizationDataOwnership: true,
+      });
+
+      await run();
+
+      expect(createUrlTree).toHaveBeenCalledWith(["/tabs/vault", ORG_ID, "my-items"]);
+    });
+
+    it("drops it once the organization has no My items collection, rather than redirecting", async () => {
+      expect(await run()).toBe(true);
+      expect(createUrlTree).not.toHaveBeenCalled();
+      expect(listFiltersService.setCachedVaultScopeId).toHaveBeenCalledWith(null);
+    });
   });
 });

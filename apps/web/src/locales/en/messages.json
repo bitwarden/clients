@@ -5754,6 +5754,31 @@
   "trialIncludesPrivilegedControls": {
     "message": "Your trial includes Privileged Controls."
   },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included with this organization."
+  },
+  "contactSales": {
+    "message": "Contact sales"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team. Contact sales to add it to your organization."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "To change your Privileged Controls seats, contact sales."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$OCCUPIED$ of $TOTAL$ seats in use",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
   "monthly": {
     "message": "Monthly"
   },
@@ -8969,14 +8994,34 @@
     "message": "Copy Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Remove password or email verification"
+  },
+  "removedAuth": {
+    "message": "Password or email verification removed"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "Remove password"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
   },
   "removedPassword": {
     "message": "Password removed"
   },
-  "removePasswordConfirmation": {
-    "message": "Are you sure you want to remove the password?"
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "All Sends"
@@ -12945,6 +12990,9 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "This user can access Secrets Manager"
+  },
+  "products": {
+    "message": "Products"
   },
   "privilegedControls": {
     "message": "Privileged Controls",
@@ -19294,11 +19342,11 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "Optional conditions"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Select collections"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Select shared folders"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "This access rule will apply to all selected collections."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "This access rule will apply to all selected shared folders."
   },
   "pamAccessRuleEventLogNotice": {
     "message": "All requests and decisions are logged."
@@ -19306,8 +19354,8 @@
   "pamAccessRuleViewAuditLog": {
     "message": "View audit log"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Couldn't load collections. Refresh the page to try again."
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Couldn't load shared folders. Refresh the page to try again."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "This duration will be pre-filled in access requests."
@@ -19384,8 +19432,8 @@
   "pamAccessRuleApprovers": {
     "message": "Approvers"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Collection managers"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Shared folder managers"
   },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (copy)",
@@ -19410,8 +19458,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Copy created. Choose the collections it applies to."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Copy created. Choose the shared folders it applies to."
   },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
@@ -19425,8 +19473,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
   },
-  "pamAccessRuleDeleteConfirmDescription": {
-    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "This will permanently remove this rule. Users in the shared folders it governs will regain normal access."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Deactivate access rule"
@@ -19443,11 +19491,11 @@
   "pamAccessRuleErrorNameTaken": {
     "message": "Another rule already uses this name. Enter a different name."
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Another access rule already covers one of these collections. Select different collections."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Another access rule already covers one of these shared folders. Select different shared folders."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different shared folders.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -19455,11 +19503,11 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "One of the collections you selected no longer exists. Select a different collection."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "One of the shared folders you selected no longer exists. Select a different shared folder."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "One of the shared folders you selected is not part of this organization. Select a different shared folder."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "Choose a maximum extension length, or turn off extensions."
@@ -19470,8 +19518,8 @@
   "pamNoAccessRulesYetTitle": {
     "message": "No access rules yet"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Create a rule to add extra protection to sensitive collections."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Create a rule to add extra protection to sensitive shared folders."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Create custom rule"
@@ -19509,17 +19557,17 @@
   "pamTemplateIpRestrictedName": {
     "message": "IP-restricted access"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Collections"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Shared folders"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 collection"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 shared folder"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ collections",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
