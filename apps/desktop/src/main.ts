@@ -4,7 +4,7 @@ import "core-js/proposals/explicit-resource-management";
 
 import * as path from "path";
 
-import { app } from "electron";
+import { app, BrowserWindow } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
@@ -265,7 +265,7 @@ export class Main {
       this.desktopSettingsService,
       this.shell,
       (arg) => this.processDeepLink(arg),
-      (win) => this.trayMain.setupWindowListeners(win),
+      (win) => this.setupWindowListeners(win),
       () => this.trayMain.restoreFromTray(),
     );
 
@@ -484,19 +484,23 @@ export class Main {
           event.preventDefault();
           this.processDeepLink([url]);
         });
-
-        // Handle window visibility events
-        this.windowMain.win.on("hide", () => {
-          this.messagingService.send("windowHidden");
-        });
-        this.windowMain.win.on("minimize", () => {
-          this.messagingService.send("windowHidden");
-        });
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
       },
     );
+  }
+
+  /** Runs for every window, so a recreated window gets the same listeners as the first. */
+  private setupWindowListeners(win: BrowserWindow): void {
+    this.trayMain.setupWindowListeners(win);
+
+    win.on("hide", () => {
+      this.messagingService.send("windowHidden");
+    });
+    win.on("minimize", () => {
+      this.messagingService.send("windowHidden");
+    });
   }
 
   private processDeepLink(argv: string[]): void {
