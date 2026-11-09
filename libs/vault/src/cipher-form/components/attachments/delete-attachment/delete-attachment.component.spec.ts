@@ -3,6 +3,7 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -110,6 +111,30 @@ describe("DeleteAttachmentComponent", () => {
       variant: "success",
       title: "",
       message: "deletedAttachment",
+    });
+  });
+
+  it("shows the server error message when deletion fails", async () => {
+    deleteAttachmentWithServer.mockRejectedValueOnce(
+      new ErrorResponse({ Message: "You do not have permission." }, 400),
+    );
+
+    await component.delete();
+
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "error",
+      message: "You do not have permission.",
+    });
+  });
+
+  it("shows a generic error toast when deletion fails unexpectedly", async () => {
+    deleteAttachmentWithServer.mockRejectedValueOnce(new Error("network"));
+
+    await component.delete();
+
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "error",
+      message: "unexpectedError",
     });
   });
 });
