@@ -21,6 +21,8 @@ export class LoginView extends ItemView {
   totp: string | undefined;
   uris: LoginUriView[] = [];
   autofillOnPageLoad: boolean | undefined;
+  /** Whether the login's credentials may answer HTTP authentication challenges. Unset means off. */
+  httpAuthenticationEnabled: boolean | undefined;
   fido2Credentials: Fido2CredentialView[] = [];
 
   constructor(l?: Login) {
@@ -31,6 +33,7 @@ export class LoginView extends ItemView {
 
     this.passwordRevisionDate = l.passwordRevisionDate;
     this.autofillOnPageLoad = l.autofillOnPageLoad;
+    this.httpAuthenticationEnabled = l.httpAuthenticationEnabled;
   }
 
   get uri(): string | undefined {
@@ -122,6 +125,7 @@ export class LoginView extends ItemView {
       obj.passwordRevisionDate == null ? undefined : new Date(obj.passwordRevisionDate);
     loginView.totp = obj.totp;
     loginView.autofillOnPageLoad = obj.autofillOnPageLoad;
+    loginView.httpAuthenticationEnabled = obj.httpAuthenticationEnabled;
     loginView.uris =
       obj.uris
         ?.filter((uri) => uri.uri != null && uri.uri !== "")
@@ -144,6 +148,7 @@ export class LoginView extends ItemView {
       passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
       totp: this.hasTotp ? this.totp : undefined,
       autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
+      httpAuthenticationEnabled: this.httpAuthenticationEnabled ?? undefined,
       uris: this.uris?.map((uri) => uri.toSdkLoginUriView()),
       fido2Credentials: this.fido2Credentials?.length
         ? this.fido2Credentials.map((cred) => cred.toSdkFido2CredentialFullView())

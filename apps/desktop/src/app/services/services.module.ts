@@ -163,12 +163,14 @@ import {
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
+  CipherShareAccessService,
   SHARE_ITEM_PRESENTER,
   SHARE_PASSWORD_REPROMPT,
   ShareButtonComponent,
 } from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
+  CIPHER_SHARE_ACCESS,
   CipherFormGenerationService,
   DefaultSshImportPromptService,
   DefaultVaultNavService,
@@ -194,6 +196,7 @@ import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/des
 import { DesktopLogoutService } from "../../auth/services/logout";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeGaPolicyService } from "../../autofill/services/desktop-autotype-ga-policy.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -465,6 +468,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: DesktopSettingsService,
+    useFactory: (stateProvider: StateProvider) =>
+      new DesktopSettingsService(stateProvider, ipc.platform.isMacAppStore),
     deps: [StateProvider],
   }),
   safeProvider({
@@ -722,6 +727,18 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
+      DesktopAutotypeGaPolicyService,
+      LogService,
+    ],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeGaPolicyService,
+    useClass: DesktopAutotypeGaPolicyService,
+    deps: [
+      AccountServiceAbstraction,
+      AuthServiceAbstraction,
+      PolicyServiceAbstraction,
+      ConfigService,
     ],
   }),
   // Autotype MVP only: must only be consumed within the Autotype MVP scope
@@ -833,6 +850,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SHARE_ITEM_ENTRY_POINT,
     useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: CIPHER_SHARE_ACCESS,
+    useExisting: CipherShareAccessService,
+    deps: [],
   }),
   safeProvider({
     provide: SHARE_PASSWORD_REPROMPT,
