@@ -23,7 +23,7 @@ export class SendRemovePasswordCommand {
 
   async run(id: string) {
     try {
-      await this.sendApiService.removePassword(id);
+      await this.sendApiService.removeAuth(id);
 
       const updatedSend = await firstValueFrom(this.sendService.get$(id));
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

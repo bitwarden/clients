@@ -71,8 +71,10 @@ import {
   DefaultVaultItemsTransferService,
   NewExperienceDialogResult,
   NewExperienceDialogService,
-  parseVaultScope,
+  offersVaultChoice,
   resolveVaultScope,
+  routeVaultScope,
+  scopedCollectionSegment,
   type VaultScope,
   VaultItemsTransferService,
   VaultNavService,
@@ -318,18 +320,17 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly vaultScope = toSignal(
     combineLatest([
       this.activatedRoute.paramMap,
+      this.activatedRoute.data,
       this.activeUserId$.pipe(
         switchMap((userId) => this.vaultNavService.viewModel$(userId)),
         startWith(undefined),
       ),
-    ]).pipe(map(([params, nav]) => resolveVaultScope(parseVaultScope(params.get("vaultId")), nav))),
+    ]).pipe(map(([params, data, nav]) => resolveVaultScope(routeVaultScope(params, data), nav))),
     { initialValue: ALL_ITEMS_SCOPE as VaultScope | null },
   );
 
   protected readonly pageTitle = computed(() =>
-    this.vfo1Enabled() && (this.vaultNav()?.vaults.length ?? 0) > 1
-      ? ""
-      : this.i18nService.t("vault"),
+    this.vfo1Enabled() && offersVaultChoice(this.vaultNav()) ? "" : this.i18nService.t("vault"),
   );
 
   /**
@@ -374,16 +375,21 @@ export class VaultComponent implements OnInit, OnDestroy {
   ) {
     // Keyed by the route's own scope rather than `vaultScope`, which turns All items into My vault
     // once a personal-only account's vaults load, and so would save and restore under different
-    // keys. `paramMap` replays synchronously, so this lands before the table restores its chips.
-    this.activatedRoute.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const vaultId = params.get("vaultId");
-      if (vaultId != null) {
-        // Only a scoped route records the selection: the unscoped one is also where the vault is
-        // opened from elsewhere, and choosing All items is recorded by the vault switcher.
-        void this.vaultPopupListTableFiltersService.setCachedVaultScopeId(vaultId);
-      }
-      this.vaultPopupListTableFiltersService.setScope(parseVaultScope(vaultId));
-    });
+    // keys. The route observables replay synchronously, so this lands before the table restores.
+    combineLatest([this.activatedRoute.paramMap, this.activatedRoute.data])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([params, data]) => {
+        const vaultId = params.get("vaultId");
+        if (vaultId != null) {
+          // Only a scoped route records the selection: the unscoped one is also where the vault is
+          // opened from elsewhere, and choosing All items is recorded by the vault switcher.
+          void this.vaultPopupListTableFiltersService.setCachedVaultScopeId(
+            vaultId,
+            scopedCollectionSegment(params, data),
+          );
+        }
+        this.vaultPopupListTableFiltersService.setScope(routeVaultScope(params, data));
+      });
 
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
