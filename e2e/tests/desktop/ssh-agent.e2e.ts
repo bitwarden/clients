@@ -2,10 +2,9 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { dismissNewLookDialog } from "../../src/desktop/onboarding";
 import { DesktopSettings } from "../../src/desktop/settings";
 import { expect, SshRequestOrigin, test } from "../../src/desktop/ssh-agent";
-import { useWideWindow } from "../../src/desktop/window";
+import { disableFlags, FeatureFlag } from "../../src/feature-flags";
 import { LoginPage } from "../../src/login";
 import { keysByType, SshKey, SshKeyType } from "../../src/ssh/keys";
 import { listAgentKeys, SshClient } from "../../src/ssh/ssh-client";
@@ -38,12 +37,12 @@ test.afterAll(() => {
 });
 
 test.beforeEach(async ({ app, window, agentSocket }) => {
-  await useWideWindow(app);
+  // The redesigned vault's onboarding opens dialogs after login, over or under approvals.
+  await disableFlags(window, [FeatureFlag.VFO1Foundation]);
 
   const login = new LoginPage(window);
   await login.logIn();
   await login.waitForVault(VAULT_URL);
-  await dismissNewLookDialog(window);
 
   const settings = new DesktopSettings(app, window);
   await settings.open();
