@@ -183,6 +183,9 @@ export class SendComponent implements OnDestroy {
         if (st === SendType.File) {
           return { filter: SendFilterType.File, translationKey: "sendTypeFile" };
         }
+        if (st === SendType.Item) {
+          return { filter: SendFilterType.Item, translationKey: "item" };
+        }
         return [];
       }),
     );
@@ -235,6 +238,10 @@ export class SendComponent implements OnDestroy {
         if (typeParam === SendFilterType.File && hasPremium) {
           toggleValue = SendFilterType.File;
           sendType = SendType.File;
+        }
+        if (typeParam === SendFilterType.Item && hasPremium) {
+          toggleValue = SendFilterType.Item;
+          sendType = SendType.Item;
         }
         this.selectedToggleValue = toggleValue;
         this.sendItemsFiltersService.filterForm.patchValue({ sendType });

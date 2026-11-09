@@ -19,6 +19,7 @@ import {
 } from "@bitwarden/components";
 
 import { removeSendAuthI18nKeys } from "../send-auth/remove-send-auth-i18n";
+import { getSendItemIcon } from "../send-item-icon";
 
 /**
  * A table component for displaying Send items with sorting, status indicators, and action menus. Handles the presentation of sends in a tabular format with options
@@ -47,6 +48,8 @@ export class SendTableComponent {
   protected readonly sendType = SendType;
   protected readonly authType = AuthType;
   protected readonly removeSendAuthI18nKeys = removeSendAuthI18nKeys;
+
+  protected readonly itemIcon = getSendItemIcon;
 
   /**
    * The data source containing the Send items to display in the table.

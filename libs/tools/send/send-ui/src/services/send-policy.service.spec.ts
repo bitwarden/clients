@@ -165,6 +165,7 @@ describe("SendPolicyService", () => {
       expect(await firstValueFrom(service.allowedSendTypes$)).toEqual([
         SendType.Text,
         SendType.File,
+        SendType.Item,
       ]);
     });
 
@@ -176,6 +177,7 @@ describe("SendPolicyService", () => {
       expect(await firstValueFrom(service.allowedSendTypes$)).toEqual([
         SendType.Text,
         SendType.File,
+        SendType.Item,
       ]);
     });
   });

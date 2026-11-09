@@ -22,6 +22,9 @@
           @if (send.type === sendType.File) {
             <bit-icon name="bwi-file" class="bwi-lg tw-text-muted tw-w-6" />
           }
+          @if (send.type === sendType.Item && itemIcon(send); as icon) {
+            <bit-icon [name]="icon" class="bwi-lg tw-text-muted tw-w-6" />
+          }
         </div>
         {{ send.name }}
         <div slot="default-trailing" class="tw-flex tw-gap-2 tw-relative tw-z-10">

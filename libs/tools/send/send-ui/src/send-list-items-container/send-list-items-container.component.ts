@@ -28,6 +28,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { getSendItemIcon } from "../send-item-icon";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -51,6 +53,7 @@ import {
 export class SendListItemsContainerComponent {
   sendType = SendType;
   authType = AuthType;
+  itemIcon = getSendItemIcon;
   /**
    * The list of sends to display.
    */
