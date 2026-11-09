@@ -91,6 +91,11 @@ describe("resolveCardGridSource", () => {
             collectionIds: ["web" as CollectionId],
             deletedDate: new Date(),
           }),
+          cipher({
+            organizationId,
+            collectionIds: ["web" as CollectionId],
+            archivedDate: new Date(),
+          }),
         ],
       });
 
@@ -169,6 +174,7 @@ describe("resolveCardGridSource", () => {
           // Directly in the folder in view, so no card's.
           cipher({ folderId: "banking" }),
           cipher({ folderId: "checking", deletedDate: new Date() }),
+          cipher({ folderId: "checking", archivedDate: new Date() }),
         ],
       });
 

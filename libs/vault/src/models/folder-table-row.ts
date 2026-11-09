@@ -65,7 +65,7 @@ export function buildFolderRows(
 }
 
 /**
- * How many non-deleted items each folder holds, keyed by folder id. Folders with no items are
+ * How many active (not trashed or archived) items each folder holds, keyed by folder id. Folders with no items are
  * absent rather than zero.
  *
  * `groupOf` pools folders under a shared key — e.g. each folder under its top-level ancestor. A
@@ -79,6 +79,7 @@ export function myFolderItemCounts(
   for (const cipher of ciphers) {
     if (
       CipherViewLikeUtils.isDeleted(cipher) ||
+      CipherViewLikeUtils.isArchived(cipher) ||
       cipher.folderId == null ||
       cipher.folderId === ""
     ) {
