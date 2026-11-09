@@ -133,3 +133,21 @@ xvfb-run -a npm run test:e2e:browser
 xvfb-run -a npm run test:e2e:desktop
 xvfb-run -a npm run test:e2e:shared
 ```
+
+## Isolated
+
+On a desktop, the windows take focus. Set `BITWARDEN_E2E_ISOLATE_DOCKER=1` to run any
+suite in a Linux container under Xvfb instead (`docker/`):
+
+```
+BITWARDEN_E2E_ISOLATE_DOCKER=1 npm run test:e2e:desktop -- --grep pin
+```
+
+Arguments and environment pass through; `e2e/test-results/` lands on the host.
+
+- The container shares the host's network, to reach the local server on `localhost`.
+  Docker Desktop needs Settings → Resources → Network → Enable host networking.
+- Run the web dev server on the host; the container reuses it. Building it inside
+  needs more memory than Docker Desktop's 8 GB default.
+- Linux `node_modules`, the Rust target and toolchains live in `bitwarden-e2e-*`
+  volumes, so the first run is slow. `docker volume rm` them to start over.
