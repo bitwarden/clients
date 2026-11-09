@@ -159,7 +159,7 @@ export default {
 
 type Story = StoryObj<MyRequestsTabComponent>;
 
-/** All three sections populated; the startable grant sits with the leases, not under Pending. */
+/** Every row kind at once: held access, a startable grant, and an undecided request. */
 export const Default: Story = {
   decorators: [myAccess()],
 };

@@ -121,7 +121,7 @@
           />
         </span>
         @if (row.collectionName) {
-          <span slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</span>
+          <span slot="secondary">{{ "pamInboxInSharedFolder" | i18n: row.collectionName }}</span>
         }
       </bit-cell>
     </bit-column>
@@ -167,9 +167,9 @@
         <time
           class="tw-whitespace-nowrap"
           [attr.datetime]="row.resolvedAt"
-          [bitTooltip]="row.resolvedAt | date: 'medium'"
+          [bitTooltip]="row.resolvedAt | timestamp"
           >{{ row.elapsed.key | i18n: row.elapsed.value
-          }}<span class="tw-sr-only">, {{ row.resolvedAt | date: "medium" }}</span></time
+          }}<span class="tw-sr-only">, {{ row.resolvedAt | timestamp }}</span></time
         >
       </bit-cell>
     </bit-column>

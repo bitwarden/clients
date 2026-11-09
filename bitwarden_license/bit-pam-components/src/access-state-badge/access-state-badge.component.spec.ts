@@ -58,6 +58,22 @@ describe("AccessStateBadgeComponent", () => {
     expect(recipe.label).toBe(label);
   });
 
+  it("lets an approver surface rename the ready state without touching the rest", () => {
+    // "Ready to use" is the requester's word; the Approvals tab shows the same grant as
+    // "Approved", since its viewer has nothing to use.
+    fixture = TestBed.createComponent(AccessStateBadgeComponent);
+    fixture.componentRef.setInput("state", { kind: "ready" } as AccessBadgeState);
+    fixture.componentRef.setInput("readyLabelKey", "pamStatusApproved");
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const recipe = component["recipe"]()!;
+    expect(recipe.label).toBe("pamStatusApproved");
+    // Only the word moves; the pill is still the ready one.
+    expect(recipe.variant).toBe("success");
+    expect(recipe.icon).toBe("bwi-check");
+  });
+
   it("shows the accent countdown above the 5-minute threshold", () => {
     create({ kind: "active", expiresAt: new Date(Date.now() + 18 * 60_000) });
 

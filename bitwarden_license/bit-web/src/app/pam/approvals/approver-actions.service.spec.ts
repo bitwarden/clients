@@ -169,6 +169,34 @@ describe("ApproverActionsService", () => {
   });
 
   describe("withdrawApproval", () => {
+    /** The caller confirms, the access request dialog does so in place, taking the reason. */
+    it("withdraws without confirming again, and toasts", async () => {
+      await expect(service.withdrawApproval(run, busy)).resolves.toBe(true);
+
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(run).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamInboxApprovalWithdrawnToast",
+      });
+    });
+
+    it("logs and toasts a failed withdrawal, and still clears the busy flag", async () => {
+      const error = new Error("boom");
+      run.mockRejectedValue(error);
+
+      await expect(service.withdrawApproval(run, busy)).resolves.toBe(false);
+
+      expect(logService.error).toHaveBeenCalledWith(error);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamInboxWithdrawApprovalFailed",
+      });
+      expect(busy).toHaveBeenLastCalledWith(false);
+    });
+  });
+
+  describe("confirmWithdrawApproval", () => {
     const withdrawParams = {
       itemName: "Prod database",
       organizationName: "Meridian Group",
@@ -179,7 +207,7 @@ describe("ApproverActionsService", () => {
     it("opens the withdraw dialog on the given request", async () => {
       dialogCloses(undefined);
 
-      await service.withdrawApproval(withdrawParams, run, busy);
+      await service.confirmWithdrawApproval(withdrawParams, run, busy);
 
       expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
         data: withdrawParams,
@@ -189,7 +217,7 @@ describe("ApproverActionsService", () => {
     it("withdraws with the reason the dialog closed with, then toasts", async () => {
       dialogCloses({ confirmed: true, reason: "Approved by mistake" });
 
-      await service.withdrawApproval(withdrawParams, run, busy);
+      await service.confirmWithdrawApproval(withdrawParams, run, busy);
 
       expect(run).toHaveBeenCalledWith("Approved by mistake");
       expect(busy.mock.calls).toEqual([[true], [false]]);
@@ -202,25 +230,10 @@ describe("ApproverActionsService", () => {
     it("does nothing when the dialog is dismissed", async () => {
       dialogCloses(undefined);
 
-      await service.withdrawApproval(withdrawParams, run, busy);
+      await service.confirmWithdrawApproval(withdrawParams, run, busy);
 
       expect(run).not.toHaveBeenCalled();
       expect(busy).not.toHaveBeenCalled();
-    });
-
-    it("logs and toasts a failed withdrawal", async () => {
-      const error = new Error("boom");
-      dialogCloses({ confirmed: true, reason: "Approved by mistake" });
-      run.mockRejectedValue(error);
-
-      await service.withdrawApproval(withdrawParams, run, busy);
-
-      expect(logService.error).toHaveBeenCalledWith(error);
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamInboxWithdrawApprovalFailed",
-      });
-      expect(busy).toHaveBeenLastCalledWith(false);
     });
   });
 });

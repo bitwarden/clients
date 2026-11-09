@@ -7,7 +7,7 @@ import {
   inject,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { PRIMARY_OUTLET, Router, UrlTree } from "@angular/router";
+import { ActivatedRoute, PRIMARY_OUTLET, Router, UrlTree } from "@angular/router";
 
 import { DialogService } from "@bitwarden/components";
 
@@ -17,6 +17,12 @@ import { MyRequestsTabComponent } from "../my-requests-tab.component";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 import { AccessRequestDialogComponent } from "./access-request-dialog.component";
+
+/**
+ * Opens the dialog on the withdraw confirmation. Nothing in the tabs sets it yet; it is reserved
+ * for a "Withdraw approval" entry point on the Approvals tab.
+ */
+const WITHDRAW_QUERY_PARAM = "action";
 
 /** The tabs that link to a request row, and so the surfaces the dialog can be opened over. */
 type OriginTab = "approvals" | "history" | "my-requests";
@@ -38,6 +44,7 @@ export class AccessRequestRouteComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   /**
    * The tab the caller navigated from, so an approver opening a row keeps the Approvals inbox
@@ -67,8 +74,15 @@ export class AccessRequestRouteComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // History is a record, so a row opened from it reads without actions. History lists no
+    // approval that can still be withdrawn, so this hides nothing it could offer.
     const dialogRef = AccessRequestDialogComponent.open(this.dialogService, {
       detail: this.detail,
+      readOnly: this.navigatedFrom === "history",
+      intent:
+        this.route.snapshot.queryParamMap.get(WITHDRAW_QUERY_PARAM) === "withdraw"
+          ? "withdraw"
+          : undefined,
     });
 
     // Leaving the route also closes the dialog, and that close must not navigate a second time.
