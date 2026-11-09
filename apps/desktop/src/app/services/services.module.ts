@@ -153,12 +153,14 @@ import {
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
+  CipherShareAccessService,
   SHARE_ITEM_PRESENTER,
   SHARE_PASSWORD_REPROMPT,
   ShareButtonComponent,
 } from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
+  CIPHER_SHARE_ACCESS,
   CipherFormGenerationService,
   DefaultSshImportPromptService,
   DefaultVaultNavService,
@@ -810,6 +812,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SHARE_ITEM_ENTRY_POINT,
     useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: CIPHER_SHARE_ACCESS,
+    useExisting: CipherShareAccessService,
+    deps: [],
   }),
   safeProvider({
     provide: SHARE_PASSWORD_REPROMPT,

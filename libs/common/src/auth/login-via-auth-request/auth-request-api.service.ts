@@ -1,6 +1,6 @@
-import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
-import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ListResponse } from "../../models/response/list.response";
+import { AuthRequest } from "../models/request/auth.request";
+import { AuthRequestResponse } from "../models/response/auth-request.response";
 
 export abstract class AuthRequestApiServiceAbstraction {
   /**
