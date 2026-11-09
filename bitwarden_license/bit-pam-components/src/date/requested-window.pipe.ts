@@ -3,7 +3,6 @@ import { LOCALE_ID, Pipe, PipeTransform, inject } from "@angular/core";
 import { formatRequestedWindow } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-
 /**
  * The "Requested window" column's secondary line, for every table that renders one. Accepts the
  * bounds as ISO strings or epoch milliseconds, since the rows carry them both ways.
