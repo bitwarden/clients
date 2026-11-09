@@ -114,7 +114,7 @@ export class WebauthnUtils {
       allowedCredentials:
         keyOptions.allowCredentials?.map((c) => ({
           id: Fido2Utils.arrayToString(Fido2Utils.bufferSourceToUint8Array(c.id)),
-          transports: c.transports ?? [],
+          transports: Array.from(c.transports ?? []),
         })) ?? [],
       challenge: Fido2Utils.arrayToString(
         Fido2Utils.bufferSourceToUint8Array(keyOptions.challenge),

@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "保管庫にアイテムがありません"
   },
+  "noItemsInFolder": {
+    "message": "$FOLDER_NAME$ にはアイテムがありません",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "このフォルダーにアイテムを追加してください。保管庫のフィルターを使用して素早くアクセスできます。",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "マイアイテムにアイテムがありません"
   },
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "アイテムをごみ箱に移動しました"
   },
+  "deleteItemError": {
+    "message": "アイテムを削除できませんでした。"
+  },
+  "restrictedItemChangeRefused": {
+    "message": "このアイテムは制限されています。変更を保存できませんでした。"
+  },
   "overwritePassword": {
     "message": "パスワードを上書き"
   },
@@ -1588,6 +1608,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "保管庫を選択",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "場所を選択",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "保管庫を選択してください"
+  },
+  "selectALocationTitle": {
+    "message": "場所を選択してください"
+  },
+  "importDestinationDescription": {
+    "message": "アイテムをインポートする場所を選択してください。"
+  },
+  "importMyItemsOption": {
+    "message": "マイアイテム",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "あなただけが見られます"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "$ORGANIZATION$ が所有していますが、あなただけが見られます",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "組織の保管庫"
+  },
+  "importSharedWithOnePerson": {
+    "message": "1人と共有"
+  },
+  "importFamilyVault": {
+    "message": "ファミリー用の保管庫"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "すべてのアイテムを $ORGANIZATION$ 共有フォルダーに移動",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "すべてのアイテムを $ORGANIZATION$ 共有フォルダーに移動",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "すべてを親フォルダーに移動すると、ネストされたフォルダー構造が維持されます。"
+  },
+  "importSharedFolderRequired": {
+    "message": "共有フォルダーが必要です。"
+  },
+  "importIntoOrganization": {
+    "message": "アイテムは $ORGANIZATION$ にインポートされます。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "すべてのアイテムを共有フォルダーに移動"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "共有フォルダーがないと、$ORGANIZATION$ にアイテムをインポートすることはできません。また、現在管理している共有フォルダーもありません。別の場所を選択してください。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "$COUNT$ アイテムをインポート",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "1 アイテムをインポート"
+  },
+  "importToOrganization": {
+    "message": "$ORGANIZATION$ にインポート",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "あなたのデータはこの組織のメンバーと共有される可能性があります。"
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ は $ITEM_TYPES$ のインポートを許可していません。インポートに含まれている場合はスキップされます。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "ログイン",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "セキュアメモ",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "カード",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "ID",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH キー",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "銀行口座",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "ライセンス",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "パスポート",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "アクセスインテリジェンスに移動"
   },
   "importItems": {
     "message": "アイテムのインポート"
@@ -5396,16 +5577,16 @@
     "message": "フォルダー構造を維持したままログイン、カード、ID、セキュアメモ、TOTP を保存します。"
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "高速で安全"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "このプロセスはエンドツーエンドで暗号化されています。エクスポートファイルは必要ありません。"
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "必要なのはログインだけです"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "次のステップで $VENDOR$ のログイン情報を入力してください。",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5595,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "転送する内容"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "ログイン情報、他のアイテム、フォルダーを転送します。パスキーと添付ファイルは除外される場合があります。"
   },
   "importAcceptedFormats": {
     "message": "承認済み: $FORMATS$",
@@ -5700,6 +5881,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。"
   },
+  "exportExcludedGatedItem": {
+    "message": "1個のアイテムがこのエクスポートに含まれませんでした。特権アクセスルールによって保護されているため、その資格情報はこのデバイスでは使用できません。"
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$個のアイテムがこのエクスポートに含まれませんでした。特権アクセスルールによって保護されているため、その資格情報はこのデバイスでは使用できません。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。",
     "placeholders": {
@@ -5803,91 +5996,91 @@
     "message": "LastPass メールアドレス"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "メールアドレスが必要です。"
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "正しいメールアドレスを入力してください。"
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "パスワードが必要です。"
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "正しいパスワードを入力してください"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "正しい認証コードを入力してください。"
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "LastPass のマスターパスワードを入力してください。"
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "以下に認証コードを入力してください。"
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "SSO 認証を待機中"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "ログイン後、自動的にインポートを続行します。"
   },
   "importingYourAccount": {
     "message": "アカウントをインポートしています..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "サーバー"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "メールアドレスが必要です。"
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "正しいメールアドレスを入力してください。"
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "サポートされていない二要素認証方法です。方法を切り替えるか、手動でインポートしてください。"
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "デバイスの承認方法"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "正しい認証コードを入力してください。"
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "認証コードを再送信する"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Keeper プッシュ通知を承認済みデバイスに送信しました"
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "以下の方法を選択してこのデバイスを承認してください。"
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "メールアドレスを確認し、認証コードを以下に入力してください。"
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "認証アプリのコードを入力してください。"
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "テキストメッセージで送信されたコードを入力してください。"
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Keeper マスターパスワードを入力してください。"
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Keeper DNA を送信しました"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "デバイスで Keeper DNA 通知を承認してください。"
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "承認リクエストはキャンセルされます。続行してもよろしいですか？"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "管理者に承認リクエストを送信しました。"
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "パスワードが必要です。"
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "正しいパスワードを入力してください。"
   },
   "lastPassMFARequired": {
     "message": "LastPass の多要素認証が必要です"
@@ -6513,6 +6706,9 @@
     "message": "住所をコピー"
   },
   "myItems": {
+    "message": "マイアイテム"
+  },
+  "myItemsV2": {
     "message": "マイアイテム"
   },
   "adminConsole": {
@@ -8049,17 +8245,11 @@
   "sharedUnlock": {
     "message": "共有ロック解除"
   },
-  "syncUnlockWithDesktop": {
-    "message": "デスクトップアプリとロック解除を同期"
+  "syncUnlockWithDesktop1": {
+    "message": "デスクトップアプリとロック解除を連動させる"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Bitwarden ブラウザ拡張機能とデスクトップアプリを同時にロックまたはロック解除します。"
-  },
-  "syncUnlockWithWeb": {
-    "message": "ウェブアプリとロック解除を同期"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Bitwarden ブラウザ拡張機能とウェブアプリを同時にロックまたはロック解除します。"
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Bitwarden ブラウザー拡張機能とデスクトップアプリのロック・ロック解除を一緒に行います。利用可能な場合は生体認証を使用します。"
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "このデバイスを記憶しないことを選択したため、共有ロック解除は利用できません。この設定を有効にするには、再度ログインしてください。"
@@ -8438,6 +8628,15 @@
   "passwordHasAdditionalRisks": {
     "message": "このパスワードには追加のリスクがあります："
   },
+  "excludeFromList": {
+    "message": "リストから除外"
+  },
+  "excludeFromListDesc": {
+    "message": "除外するとパスワードのリスクは修正されません。アカウントを保護するには、まずパスワードを変更してください。"
+  },
+  "excludeAnyway": {
+    "message": "とにかく除外する"
+  },
   "reused": {
     "message": "再利用",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8757,15 @@
   "unknownCipher": {
     "message": "不明なアイテムです。このアイテムにアクセスする権限をリクエストする必要がある場合があります。"
   },
+  "viewSharedItem": {
+    "message": "共有アイテムを表示"
+  },
+  "copyShareLink": {
+    "message": "共有リンクをコピー"
+  },
+  "unableToDetermineItemId": {
+    "message": "アイテム ID を判断できません"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden が新しい見た目になりました",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8798,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "保管庫を切り替える"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "新しい保管庫スイッチャーでは、プライベート保管庫や他の人と共有する保管庫をすばやく確認できます。"
+  "coachmarkVaultSwitcherDescription": {
+    "message": "新しい保管庫スイッチャーでは、他の人と共有する保管庫のアイテムや個人的なアイテムをすばやく見られます。"
   },
   "coachmarkFiltersTitle": {
     "message": "一致フィルターの混合"
@@ -8616,5 +8824,46 @@
   },
   "resetToDefault": {
     "message": "初期設定に戻す"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "ブラウザーのログインプロンプトの自動入力",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "このログインアイテムに一致するウェブサイトからのベーシック HTTP 認証プロンプトに応答します。"
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "ブラウザーのログインプロンプトの自動入力に関するヘルプ記事を開く"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "ウェブサイトはあなたへの確認なしにプロンプトをトリガーできるため、ログイン情報を予期せず漏洩する可能性があります。",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "この設定を使用するには、ログインアイテムのウェブサイトごとに「デフォルト」以外の一致検出オプションを選択してください。"
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "ブラウザーのログインプロンプトの自動入力をオンにしますか？"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "マスターパスワードの再プロンプトはこのアイテムに対してオフになります。両方の設定は同時にオンにできません。"
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "マスターパスワードの再プロンプトをオンにしますか？"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "ブラウザーのログインプロンプトの自動入力はこのアイテムに対してオフになります。両方の設定は同時にオンにできません。"
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "デフォルトの一致検出を使用しますか？"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "デフォルトの一致検出を使用しているウェブサイトは、ブラウザーのログインプロンプトは使用できません。ブラウザーのログインプロンプトの自動入力は、このアイテムに対してオフになります。"
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "ブラウザーのログインプロンプトの自動入力をオフにする"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "このアイテムにはマスターパスワードの再プロンプトが有効になっているため、ブラウザーのログインプロンプトの自動入力がオフになりました。この変更を維持するにはアイテムを保存してください。"
   }
 }

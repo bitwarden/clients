@@ -391,7 +391,9 @@ export class CipherService implements CipherServiceAbstraction {
         PERF_TRACK,
         "getAllDecrypted",
       );
-      const result = await this.cipherSdkService.getAllDecrypted(userId);
+      // Temporary serial decrypt until https://bitwarden.atlassian.net/browse/PM-46138 merges.
+      // const result = await this.cipherSdkService.getAllDecrypted(userId);
+      const result = await this.temporary_get_all_decrypted(userId);
       sdkMeasurement.finish([
         ["Items", result.successes.length],
         ["Failures", result.failures.length],
@@ -409,6 +411,26 @@ export class CipherService implements CipherServiceAbstraction {
       // Return empty array on error to maintain existing behavior
       return [];
     }
+  }
+
+  // Temporary: decrypts one cipher at a time, so SDK memory never grows to the vault size.
+  private async temporary_get_all_decrypted(userId: UserId): Promise<DecryptAllCiphersResult> {
+    const encrypted = Object.values(await firstValueFrom(this.ciphers$(userId)));
+    const result: DecryptAllCiphersResult = { successes: [], failures: [] };
+
+    for (const data of encrypted) {
+      const cipher = new Cipher(data);
+      try {
+        result.successes.push(await this.decrypt(cipher, userId));
+      } catch {
+        const failed = new CipherView(cipher);
+        failed.name = "[error: cannot decrypt]";
+        failed.decryptionFailure = true;
+        result.failures.push(failed);
+      }
+    }
+
+    return result;
   }
 
   private async getDecryptedCiphers(userId: UserId) {
@@ -570,6 +592,17 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     includeMemberItems = false,
   ): Promise<CipherView[]> {
+    const { successes } = await this.getAllFromApiForOrganizationWithFailures(
+      organizationId,
+      includeMemberItems,
+    );
+    return successes;
+  }
+
+  async getAllFromApiForOrganizationWithFailures(
+    organizationId: string,
+    includeMemberItems = false,
+  ): Promise<DecryptAllCiphersResult> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (!userId) {
       throw new Error("User ID is required");
@@ -582,19 +615,20 @@ export class CipherService implements CipherServiceAbstraction {
         includeMemberItems,
       );
 
-      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
-
-      // Sort by locale (matching existing behavior)
-      cipherViews.sort(this.getLocaleSortingFunction());
-
-      return cipherViews;
+      return await this.decryptAndSortOrganizationCiphers(ciphers, userId);
     } catch {
-      // Return empty array on error to maintain existing behavior
-      return [];
+      return { successes: [], failures: [] };
     }
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
+    const { successes } = await this.getManyFromApiForOrganizationWithFailures(organizationId);
+    return successes;
+  }
+
+  async getManyFromApiForOrganizationWithFailures(
+    organizationId: string,
+  ): Promise<DecryptAllCiphersResult> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (!userId) {
       throw new Error("User ID is required");
@@ -606,14 +640,24 @@ export class CipherService implements CipherServiceAbstraction {
         userId,
       );
 
-      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
-
-      cipherViews.sort(this.getLocaleSortingFunction());
-
-      return cipherViews;
+      return await this.decryptAndSortOrganizationCiphers(ciphers, userId);
     } catch {
-      return [];
+      return { successes: [], failures: [] };
     }
+  }
+
+  private async decryptAndSortOrganizationCiphers(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<DecryptAllCiphersResult> {
+    const [successes, failures] = await this.cipherEncryptionService.decryptManyLegacy(
+      ciphers,
+      userId,
+    );
+
+    successes.sort(this.getLocaleSortingFunction());
+
+    return { successes, failures };
   }
 
   async getCiphersOrganizationLogins(organizationId: string): Promise<DecryptAllCiphersResult> {

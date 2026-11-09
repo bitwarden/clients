@@ -21,4 +21,11 @@ export {
   ImportResultErrorKey,
   ImportUpgradeResult,
 } from "./import-upgrade-result";
+export {
+  ImportDestinationKind,
+  ImportDestinationOption,
+  ImportDestinationRestriction,
+  ImportDestinations,
+  ImportDestinationsState,
+} from "./import-destination";
 export { chromiumBrowserNameFor } from "./chromium-browser-name";

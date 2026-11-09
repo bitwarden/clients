@@ -1259,6 +1259,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Dossiers dans $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ dossiers",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ dossier",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ dossiers partagés imbriqués",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -1272,6 +1300,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 dossier partagé imbriqué",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ sous-dossiers",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 sous-dossier",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Mon dossier"
@@ -2091,6 +2133,12 @@
   "deletedItem": {
     "message": "L'élément a été envoyé dans la corbeille"
   },
+  "deleteItemError": {
+    "message": "Impossible de supprimer l'élément."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Cet élément est restreint. Votre modification n'a pas été enregistrée."
+  },
   "deletedItems": {
     "message": "Les éléments ont été envoyés dans la corbeille"
   },
@@ -2574,6 +2622,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Aucun élément dans $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Ajoutez des éléments à ce dossier. Vous pourrez y accéder rapidement à l'aide de filtres de coffre.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Aucun élément dans Mes éléments"
   },
@@ -2581,6 +2643,9 @@
     "message": "Vos coffres sont vides"
   },
   "noItemsMatchSelectedFilters": {
+    "message": "Aucun élément ne correspond aux filtres sélectionnés"
+  },
+  "noItemsMatchTheSelectedFilters": {
     "message": "Aucun élément ne correspond aux filtres sélectionnés"
   },
   "noItemsMatchSearchTerm": {
@@ -2655,6 +2720,38 @@
   },
   "noMembersInList": {
     "message": "Il n'y a pas de membres à répertorier."
+  },
+  "noMembersInvitedToOrg": {
+    "message": "Aucun membre n'a été invité à rejoindre votre organisation"
+  },
+  "memberCount": {
+    "message": "$COUNT$ membres",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "memberCountSingular": {
+    "message": "1 membre"
+  },
+  "memberRangeOfTotal": {
+    "message": "$START$-$END$ de $TOTAL$ membres",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "150"
+      }
+    }
   },
   "noMembersToExport": {
     "message": "Il n'y a aucun membre à exporter."
@@ -3032,13 +3129,25 @@
     "message": "Ce fichier est protégé par un mot de passe. Veuillez saisir le mot de passe du fichier pour importer les données."
   },
   "exportSuccess": {
-    "message": "Les données de votre coffre-fort ont été exportées."
+    "message": "Les données de votre coffre ont été exportées."
   },
   "exportError": {
     "message": "Une erreur s'est produite lors de l'exportation des données de votre coffre"
   },
   "exportSuccessSkippedAttachment": {
     "message": "1 pièce jointe corrompue a été ignorée lors de l'exportation. Toutes les autres données et pièces jointes du coffre ont été exportées avec succès."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 élément n'a pas été inclus dans cet exportation. Il est protégé par une règle d'accès privilégié, donc ses identifiants ne sont pas disponibles sur cet appareil."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ éléments n'ont pas été inclus dans cet exportation. Ils sont protégés par des règles d'accès privilégié, donc leurs identifiants ne sont pas disponibles sur cet appareil.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ pièces jointes corrompues ont été ignorées lors de l'exportation. Toutes les autres données et pièces jointes du coffre ont été exportées avec succès.",
@@ -3300,7 +3409,7 @@
     }
   },
   "vaultAccessedByProvider": {
-    "message": "Coffre-fort consulté par le fournisseur."
+    "message": "Coffre consulté par le fournisseur."
   },
   "purgeVaultDesc": {
     "message": "Poursuivez ci-dessous pour supprimer tous les éléments et dossiers de votre coffre. Les éléments qui appartiennent à une organisation dont vous êtes membre ne seront pas supprimés."
@@ -3527,6 +3636,164 @@
       }
     }
   },
+  "selectVault": {
+    "message": "Sélectionner un coffre",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Sélectionner un emplacement",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Sélectionner un coffre"
+  },
+  "selectALocationTitle": {
+    "message": "Sélectionner un emplacement"
+  },
+  "importDestinationDescription": {
+    "message": "Choisissez où importer ces éléments."
+  },
+  "importMyItemsOption": {
+    "message": "Mes éléments",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible uniquement pour vous"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Possédé par $ORGANIZATION$, mais visible uniquement pour vous",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Coffre de l'organisation"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Partagé avec une personne"
+  },
+  "importFamilyVault": {
+    "message": "Coffre familial"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Déplacer tous les éléments dans un dossier partagé de $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Déplacer tous les éléments dans un dossier partagé de $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Déplacez tout dans un dossier parent, la structure du dossier imbriqué sera maintenue."
+  },
+  "importSharedFolderRequired": {
+    "message": "Un dossier partagé est requis."
+  },
+  "importIntoOrganization": {
+    "message": "Les éléments seront importés dans $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Déplacer tous les éléments dans un dossier partagé"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Les éléments ne peuvent être importés dans $ORGANIZATION$ sans un dossier partagé, et vous n'en gérez aucun. Choisissez un autre emplacement.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Importer $COUNT$ éléments",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Importer 1 élément"
+  },
+  "importToOrganization": {
+    "message": "Importer dans $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Vos données peuvent être partagées avec les membres de cette organisation."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ ne vous permet pas d'importer $ITEM_TYPES$. S'ils sont dans votre importation, ils seront ignorés.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "identifiants",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "notes sécurisées",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cartes de paiement",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identités",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "clés SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "comptes bancaires",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "licences",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "passeports",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
   "chooseFile": {
     "message": "Choisir un fichier"
   },
@@ -3651,31 +3918,31 @@
     "message": "Courriel LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Un courriel est requis."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Saisissez une adresse courriel valide."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Un mot de passe est requis."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Entrez un mot de passe valide"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Entrez un code de vérification valide."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Veuillez entrer votre mot de passe principal de LastPass."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Veuillez entrer le code de vérification ci-dessous."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "En attente de l'authentification SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "Une fois connecté, nous continuerons automatiquement votre importation."
   },
   "includeSharedFolders": {
     "message": "Inclure les dossiers partagés"
@@ -3761,16 +4028,16 @@
     "message": "Les identifiants, les cartes, les identités, les notes sécurisées et les TOTPs avec leur structure de dossier préservée."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Rapide et sécuritaire"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Ce processus est chiffré de bout en bout. Aucun fichier d'exportation nécessaire."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Tout ce dont vous avez besoin, c'est de votre identifiant"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "Dans la prochaine étape, vous entrerez vos identifiants de connexion $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3779,10 +4046,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Ce qui sera transféré"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Vos identifiants, autres éléments et dossiers seront transférés. Les clés d'accès et pièces jointes peuvent être exclues."
   },
   "importAcceptedFormats": {
     "message": "Accepté : $FORMATS$",
@@ -4802,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Afficher le résumé des prix"
-  },
-  "hidePricingSummary": {
-    "message": "Cacher le résumé des prix"
-  },
   "summary": {
     "message": "Récapitulatif"
   },
@@ -4886,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "Expiration de l'abonnement"
-  },
-  "subscriptionCanceled": {
-    "message": "L'abonnement a été annulé."
   },
   "pendingCancellation": {
     "message": "Annulation en attente"
@@ -5109,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "jusqu'à $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -5502,6 +5751,9 @@
   "trialConfirmationEmail": {
     "message": "Nous avons envoyé un courriel de confirmation sur le courriel de facturation de votre équipe à "
   },
+  "trialIncludesPrivilegedControls": {
+    "message": "Votre période d'essai inclut les Contrôles Privilégiés."
+  },
   "monthly": {
     "message": "Mensuel"
   },
@@ -5589,6 +5841,54 @@
       "quantity": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "deleteGroup": {
+    "message": "Supprimer le groupe"
+  },
+  "deleteGroups": {
+    "message": "Supprimer $QUANTITY$ groupes",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteGroupWarningDesc": {
+    "message": "Une fois que vous supprimez ce groupe, les membres assignés au groupe pourraient perdre l'accès aux dossiers partagés associés. Les membres eux-mêmes ne seront pas supprimés."
+  },
+  "deleteGroupsWarningDesc": {
+    "message": "Une fois que vous supprimez ces groupes, les membres assignés aux groupes pourraient perdre l'accès aux dossiers partagés associés. Les membres eux-mêmes ne seront pas supprimés."
+  },
+  "groupCreated": {
+    "message": "Groupe créé"
+  },
+  "groupDeleted": {
+    "message": "Groupe supprimé"
+  },
+  "groupsDeleted": {
+    "message": "$QUANTITY$ groupes ont été supprimés",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "groupEdited": {
+    "message": "Groupe modifié"
+  },
+  "noGroupsYet": {
+    "message": "Pas encore de groupes"
+  },
+  "noGroupsYetDesc": {
+    "message": "Les groupes aideront à organiser les membres de $ORGANIZATIONNAME$ et leur donneront accès aux dossiers partagés.",
+    "placeholders": {
+      "organizationname": {
+        "content": "$1",
+        "example": "My Organization"
       }
     }
   },
@@ -5742,7 +6042,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Coffre-fort $NAME$",
+    "message": "Coffre $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6026,6 +6326,70 @@
   },
   "accessedFileSendV3": {
     "message": "A accédé au fichier de Send$SENDID$ créé par $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ désactivé par la politique de sécurité",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ activé par la politique de sécurité",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "A créé l'élément Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "A modifié l'élément Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "A supprimé l'élément Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "A accédé à l'élément Send$SENDID$ créé par $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6521,6 +6885,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Transfert d'élément refusé à l'organisation"
+  },
+  "revocationReasonByAdmin": {
+    "message": "Par administrateur",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "Aucune raison enregistrée",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Accès révoqué à l'organisation pour $ID$ pour le non-respect de la politique de connexion à deux facteurs de l'organisation.",
@@ -7243,6 +7615,15 @@
   "openOrgInviteAcceptUnexpected": {
     "message": "Une erreur est survenue, veuillez recharger la page pour réessayer."
   },
+  "verify": {
+    "message": "Vérifier"
+  },
+  "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
+    "message": "Pour rejoindre cette organisation, entrez le code envoyé à votre adresse courriel."
+  },
+  "failedToSendVerificationEmail": {
+    "message": "Échec de l’envoi du courriel de vérification. Merci de réessayer."
+  },
   "openOrgInviteNoSeatsMessage": {
     "message": "Votre invitation n'a pas pu être acceptée car il n'y a pas de place disponible."
   },
@@ -7365,10 +7746,6 @@
     "message": "Changer d'offre",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Mettez à niveau votre compte vers un autre plan en fournissant les informations ci-dessous. Assurez-vous qu'un mode de paiement actif a été ajouté au compte.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Facture n°$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7443,6 +7820,18 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "Définissez une limite de places pour votre abonnement au Secrets Manager. Une fois cette limite atteinte, vous ne pourrez plus inviter de nouveaux membres."
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Définissez une limite de places pour votre abonnement aux Contrôles Privilégiés. Une fois cette limite atteinte, vous ne pourrez plus accorder aux membres l'accès aux Contrôles Privilégiés."
+  },
+  "maximumSeatsCount": {
+    "message": "$COUNT$ sièges maximum",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "Nombre de licences maximum (optionnel)",
@@ -9062,6 +9451,15 @@
   "desktopAutotypePolicyDescVfo1": {
     "message": "Activer l'autotypage bureau pour les membres."
   },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Saisie automatique de l'application de bureau"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Activer la saisie automatique du bureau par défaut pour tous les membres."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Activer la saisie automatique des applications de bureau par défaut pour tous les membres. Vous pouvez définir un raccourci clavier et choisir si les membres doivent confirmer avant de remplir. Cette fonctionnalité est en version bêta."
+  },
   "disableSend": {
     "message": "Supprimer le Send"
   },
@@ -9211,6 +9609,9 @@
   },
   "estimatedTax": {
     "message": "Taxe estimée"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "Vos frais finaux peuvent légèrement varier puisque la prorogation est calculée jusqu'au moment où vous soumettez."
   },
   "subtotal": {
     "message": "Sous-total"
@@ -11702,10 +12103,6 @@
     "message": "Compte de service",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "Comptes de Service",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "Secrets",
     "description": "The title for the section of the application that deals with secrets."
@@ -13931,9 +14328,6 @@
     "message": "Décrivez votre raison d'annulation",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Gratuit pour 1 an"
-  },
   "newWebApp": {
     "message": "Bienvenue dans la nouvelle application web améliorée. En savoir plus sur ce qui a changé."
   },
@@ -14736,15 +15130,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "Remise de $AMOUNT$",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Obtenez Secrets Manager"
   },
@@ -14964,9 +15349,6 @@
     "message": "contactez le support Bitwarden.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "Parrainé"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "Après avoir fait des mises à jour sur le serveur cloud de Bitwarden, téléversez votre fichier de licence pour appliquer les modifications les plus récentes."
   },
@@ -15177,9 +15559,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Accède aux fonctionnalités Premium"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB de stockage additionnel"
   },
   "sshKeyAlgorithm": {
     "message": "Algorithme de clé"
@@ -15834,6 +16213,9 @@
   },
   "restartSubscription": {
     "message": "Redémarrez votre abonnement"
+  },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "Nous n'avons pas pu charger vos informations de facturation. Fermez cette fenêtre et réessayez."
   },
   "suspendedManagedOrgMessage": {
     "message": "Contactez $PROVIDER$ pour obtenir de l'aide.",
@@ -16573,9 +16955,6 @@
   "familiesUpdated": {
     "message": "Vous avez mis à niveau vers Familles!"
   },
-  "taxCalculationError": {
-    "message": "Une erreur s'est produite lors du calcul de la taxe pour votre emplacement. Veuillez réessayer."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Bienvenue sur Bitwarden"
   },
@@ -16597,7 +16976,7 @@
   "upgradeNow": {
     "message": "Mettre à niveau maintenant"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
     "message": "Obtenez une sécurité en ligne avancée avec Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
@@ -17295,31 +17674,31 @@
     "message": "Surveiller la sécurité de votre mot de passe"
   },
   "coachmarkMonitorSecurityDescription": {
-    "message": "Conservez une forte sécurité des éléments de votre coffre-fort en vérifiant les rapports de vulnérabilités."
+    "message": "Conservez une forte sécurité des éléments de votre coffre en vérifiant les rapports de vulnérabilités."
   },
   "whatsNew": {
-    "message": "What's new"
+    "message": "Quoi de neuf"
   },
   "tourTheNewVaultDescription": {
     "message": "Avec la mise à jour de la navigation et du design, il est plus facile que jamais de trouver ce dont vous avez besoin."
   },
   "coachmarkSwitchProductsTitle": {
-    "message": "Switch between products"
+    "message": "Basculer entre les produits"
   },
   "coachmarkSwitchProductsDescription": {
-    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+    "message": "Cliquez pour voir les autres produits de Bitwarden auxquels vous avez accès, ou découvrir de nouveaux produits et abonnements."
   },
   "coachmarkVaultListTitle": {
-    "message": "All your vaults in one place"
+    "message": "Tous vos coffres en un seul endroit"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Voyez rapidement des éléments personnels ou des éléments dans un coffre que vous partagez avec les autres."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "Les collections et les dossiers ont de nouveaux noms"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "Les mêmes fonctionnalités, des noms plus clairs. Les collections sont maintenant appelées dossiers partagés. Les dossiers sont maintenant Mes dossiers."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Surveiller l'activité de sécurité"
@@ -17651,61 +18030,61 @@
     "message": "Importation de votre compte..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "Serveur"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Un courriel est requis."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Saisissez une adresse courriel valide."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Méthode à deux facteurs non prise en charge. Changez de méthode ou importez manuellement."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Méthode d'approbation de l'appareil"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Entrez un code de vérification valide."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Renvoyer le code de vérification"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Notification Keeper Push envoyée à l'appareil approuvé"
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Approuvez cet appareil en sélectionnant une méthode ci-dessous."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Veuillez vérifier votre courriel et entrer le code de vérification ci-dessous."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Veuillez saisir le code de votre application d'authentification."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Veuillez entrer le code envoyé par message texte."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Veuillez entrer votre mot de passe principal de Keeper."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Keeper DNA envoyé"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Approuvez la notification Keeper DNA sur votre appareil."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Votre demande d'approbation sera annulée. Êtes-vous sûr de vouloir continuer ?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Nous avons envoyé une demande d'approbation d'administrateur à votre administrateur."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Un mot de passe est requis."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Entrez un mot de passe valide."
   },
   "passcode": {
     "message": "Code d'accès"
@@ -17958,11 +18337,138 @@
   "copy": {
     "message": "Copier"
   },
-  "pam": {
-    "message": "PAM"
-  },
   "pamAccessRequestsTitle": {
     "message": "Demandes d'accès"
+  },
+  "pamAccessRequestsSubtitle": {
+    "message": "Approuve, surveille et vérifie l'accès limité dans le temps à vos identifiants."
+  },
+  "pamTabApprovals": {
+    "message": "Approbations"
+  },
+  "pamTabMyRequests": {
+    "message": "Mes demandes"
+  },
+  "pamTabHistory": {
+    "message": "Historique"
+  },
+  "pamAccessRequestsSearchPlaceholder": {
+    "message": "Rechercher l'identifiant, la collection, le demandeur"
+  },
+  "pamCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamMyRequestsGroupExtensions": {
+    "message": "Demandes de prolongation"
+  },
+  "pamMyRequestsActiveAccessSection": {
+    "message": "Accès actif"
+  },
+  "pamMyRequestsActiveAccessEmpty": {
+    "message": "Aucun accès actif"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Ne peut charger vos demandes"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "En attente"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "Aucune demande en attente"
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "Vous n'avez aucune demande"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "Vous n'avez pas de demande d'accès à des informations d'identification sensibles pour le moment."
+  },
+  "pamColumnItem": {
+    "message": "Élément"
+  },
+  "pamColumnWindow": {
+    "message": "Fenêtre"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Fenêtre demandée"
+  },
+  "pamColumnSubmitted": {
+    "message": "Soumise"
+  },
+  "pamColumnStatus": {
+    "message": "Statut"
+  },
+  "pamColumnResolvedBy": {
+    "message": "Résolu par"
+  },
+  "pamColumnResolved": {
+    "message": "Résolu"
+  },
+  "pamColumnRemaining": {
+    "message": "Restant"
+  },
+  "pamColumnActions": {
+    "message": "Actions"
+  },
+  "pamWindowUntil": {
+    "message": "Jusqu'à $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2025-06-15 14:00"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Prolongé +$DURATION$ · jusqu'à $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Activer dans $REMAINING$",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Règle d'accès"
+  },
+  "pamResolverRequester": {
+    "message": "Demandeur"
+  },
+  "pamResolverUnknown": {
+    "message": "Utilisateur inconnu"
+  },
+  "pamInboxInCollection": {
+    "message": "dans $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReason": {
+    "message": "Raison"
+  },
+  "pamInboxReasonMissing": {
+    "message": "Aucune raison fournie"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "Accès demandé"
+  },
+  "pamInboxRequester": {
+    "message": "Demandeur"
   },
   "pamInboxDurationMinutes": {
     "message": "$MINUTES$ min",
@@ -17972,6 +18478,12 @@
         "example": "30"
       }
     }
+  },
+  "pamStartLeaseButton": {
+    "message": "Lancer l'accès"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Accès démarré."
   },
   "pamInboxDuration1Hour": {
     "message": "1 heure"
@@ -18006,6 +18518,307 @@
   "pamStartLeaseError": {
     "message": "Impossible de démarrer l'accès."
   },
+  "pamMyRequestsCanceledToast": {
+    "message": "Demande annulée"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "N'a pu annuler la demande"
+  },
+  "pamEndLeaseButton": {
+    "message": "Terminer l'accès"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Terminer l'accès?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Cela révoque immédiatement votre accès. Cette action ne peut pas être annulée."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Accès terminé."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Prolonger"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Prolonger l'accès"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Durée de la prolongation"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Raison"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Accès prolongé."
+  },
+  "pamExtendLeaseError": {
+    "message": "Ne peut étendre l'accès."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Votre accès s'est terminé avant qu'il puisse être prolongé. La requête est dans votre historique."
+  },
+  "pamStatusApproved": {
+    "message": "Approuvé"
+  },
+  "pamStatusActivated": {
+    "message": "Actif"
+  },
+  "pamStatusDenied": {
+    "message": "Refusé"
+  },
+  "pamStatusCanceled": {
+    "message": "Annulé"
+  },
+  "pamStatusExpired": {
+    "message": "Expiré"
+  },
+  "pamStatusRevoked": {
+    "message": "Révoqué"
+  },
+  "pamStatusSessionEnded": {
+    "message": "La session s'est terminée"
+  },
+  "pamStatusUnknown": {
+    "message": "Inconnu"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Contrôles privilégiés : l'accès nécessite une demande"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privilégié"
+  },
+  "pamAccessBadgePending": {
+    "message": "En attente d'approbation"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Indisponible"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Prêt à être utilisé"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ restant(e)(s)",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Fin bientôt • $DURATION$ restant(e)(s)",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Session terminée"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Actif",
+    "description": "Controlled access filter option in the vault table: items with an active access session."
+  },
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "Accès terminé par le demandeur"
+  },
+  "pamAuditKindAccessRevoked": {
+    "message": "Accès révoqué"
+  },
+  "pamAuditLoadError": {
+    "message": "Incapable de charger la trace de l'audit"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "Aucune activité d'audit"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "L'activité d'Accès-privilégié de cette organisation apparaîtra ici."
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "Aucun événement correspondant"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "Aucun événement ne correspond aux filtres actuels."
+  },
+  "pamAuditRangeOutsideHistory": {
+    "message": "Choisissez une date dans les derniers $DAYS$ jours.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "90"
+      }
+    }
+  },
+  "pamAuditColumnEvent": {
+    "message": "Évènement"
+  },
+  "pamAuditColumnActor": {
+    "message": "Acteur"
+  },
+  "pamAuditColumnRequester": {
+    "message": "Demandeur"
+  },
+  "pamAuditColumnItem": {
+    "message": "Élément"
+  },
+  "pamAuditColumnDuration": {
+    "message": "Durée"
+  },
+  "pamAuditColumnDetail": {
+    "message": "Détail"
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "Prolongé à $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
+  },
+  "pamAuditSystem": {
+    "message": "Système"
+  },
+  "pamAuditIncomplete": {
+    "message": "Incomplet"
+  },
+  "pamAuditIncompleteTooltip": {
+    "message": "Cette action a été enregistrée, mais son résultat n'a jamais été confirmé, il est possible qu'elle ait échoué ou qu'elle ait été interrompue."
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "Accès demandé"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "Demande approuvée"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "Demande refusée"
+  },
+  "pamAuditKindRequestCanceled": {
+    "message": "Demande annulée"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "La demande a expiré sans décision"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "Approbation expirée inutilisée"
+  },
+  "pamAuditKindAccessActivated": {
+    "message": "Accès activé"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "Activation rejetée"
+  },
+  "pamAuditKindAccessExtended": {
+    "message": "Accès prolongé"
+  },
+  "pamAuditKindAccessExpired": {
+    "message": "Accès expiré"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "Identification accédée"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "Accès aux informations d'identification refusé"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "Règle d'accès créée"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "Règle d'accès mise à jour"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "Règle d'accès supprimée"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "Interrupteur d'arrêt déclenché"
+  },
+  "pamAuditKindAccessFreezeEnabled": {
+    "message": "Gel d'accès activé"
+  },
+  "pamAuditKindAccessFreezeLifted": {
+    "message": "Gel d'accès levé"
+  },
+  "pamAuditKindUnknown": {
+    "message": "Événement inconnu"
+  },
+  "pamAuditLog": {
+    "message": "Journal d'audit"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Demande d'accès"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Détails de la demande"
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Accès"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Journal de décision"
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Demande d'accès non disponible"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "Cette demande d'accès n'est pas disponible pour vous, ou elle n'existe plus."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Impossible de charger cette demande d'accès."
+  },
+  "pamActiveLeaseBannerTitle": {
+    "message": "Vous avez un accès actif à cet élément — $DURATION$ restant(e)(s)",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "23m"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitle": {
+    "message": "L'accès à cet élément se termine bientôt — $DURATION$ restant(e)(s)",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Demande d'accès en attente d'approbation"
+  },
+  "pamApprovedRequestBannerHeading": {
+    "message": "Accès approuvé"
+  },
+  "pamApprovedRequestBannerDuration": {
+    "message": "$DURATION$ d'accès",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 hour"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Les identifiants sont masqués jusqu'à ce que l'accès soit accordé."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Vous pouvez demander l'accès"
+  },
+  "pamUnlicensedBannerHeading": {
+    "message": "Licence de Contrôles Privilégiés requise",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerBody": {
+    "message": "Vous avez besoin d'une licence de Contrôles Privilégiés pour afficher cet élément. Demandez à votre administrateur d'activer votre licence.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Les demandes d'accès ne sont pas disponibles sans licence.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "La fenêtre d'approbation d'accès n'a pas encore commencé."
   },
@@ -18037,8 +18850,257 @@
     "message": "Une licence de Contrôles Privilégiés est requise. Demandez à votre administrateur d'activer votre licence.",
     "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Accès pendant $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Accédez pendant $DURATION$, approbation instantanée si vous remplissez les conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Demander un accès"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Quelqu'un d'autre a accès à cet élément présentement. Vous pouvez demander l'accès, mais vous ne pourrez pas le démarrer tant qu'il n'aura pas terminé."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Quelqu'un d'autre a accès à cet élément présentement. Vous pouvez demander l'accès, mais vous ne pourrez pas le démarrer avant $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Annuler la demande"
+  },
+  "pamKeepRequest": {
+    "message": "Garder la demande"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Annuler la demande d'accès"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Cela retire votre demande avant qu'un approbateur ne décide sa validité. Vous pouvez soumettre une nouvelle demande à tout moment."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Cela abandonne un accès qui a déjà été approuvé. Vous pouvez soumettre une nouvelle demande, mais elle devra être approuvée à nouveau."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Demande annulée"
+  },
+  "pendingStateCancelError": {
+    "message": "N'a pu annuler la demande."
+  },
+  "requestAccessModalSubmit": {
+    "message": "Demander l'accès"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Choisissez une durée. Vous aurez accès immédiatement pour cette durée."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Choisissez une fenêtre et dites à l'approbateur pourquoi vous avez besoin de l'accès. Il évaluera et décidera."
+  },
+  "requestAccessModalDuration": {
+    "message": "Durée"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Date de début"
+  },
+  "requestAccessModalStart": {
+    "message": "Temps de début"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Date de fin"
+  },
+  "requestAccessModalEnd": {
+    "message": "Temps de fin"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "La fin doit être après le début."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (maintenant)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Temps personnalisé..."
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Date et temps de fin personnalisé..."
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Afficher les temps de début suggérés"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Retour aux dires suggérées"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$ avant $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Demande d'accès de $DURATION$ : $START$ — $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "La fenêtre demandée est déjà terminée. Choisissez une date ou un temps plus éloigné."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "La fenêtre ne peut dépasser $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequired": {
+    "message": "Raison"
+  },
+  "requestAccessModalReasonOptional": {
+    "message": "Raison (optionnel)"
+  },
+  "requestAccessModalReasonPlaceholder": {
+    "message": "Pourquoi avez-vous besoin de cela?"
+  },
+  "requestAccessModalAutomaticReasonHint": {
+    "message": "Cette raison est enregistrée avec votre demande d'accès."
+  },
+  "requestAccessModalHumanReasonHint": {
+    "message": "Les approbateurs verront cette raison quand ils évalueront votre demande."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Ma pu demander l'accès. Réessayez."
+  },
   "requestAccessModalAlreadyActive": {
     "message": "Vous avez déjà un accès actif à cet élément."
+  },
+  "requestAccessModalApprovedSuccess": {
+    "message": "Accès approuvé — sélectionnez Début d'accès pour commencer."
+  },
+  "requestAccessModalRequestCreatedSuccess": {
+    "message": "Demande soumise — en attente d'approbation."
+  },
+  "pamApprovalsActiveAccessEmpty": {
+    "message": "Aucun accès actif"
+  },
+  "pamApprovalsActiveAccessSection": {
+    "message": "Accès actif"
+  },
+  "pamApprovalsCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamApprovalsPendingEmpty": {
+    "message": "Aucune demande en attente de votre décision"
+  },
+  "pamApprovalsPendingSection": {
+    "message": "En attente d'approbation"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Demandeur"
+  },
+  "pamApprovalsSearchPlaceholder": {
+    "message": "Rechercher l'identifiant, la collection, le demandeur"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "Informations supplémentaires"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Optionnel, enregistré dans le journal d'audit"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Approuver la demande d'accès"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Refuser la demande d'accès"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Raison du refus"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "par exemple, l'accès n'est plus nécessaire"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "Une raison est requise pour refuser cette demande."
+  },
+  "pamInboxApprove": {
+    "message": "Accepter"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Demande approuvée"
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "Retirer l'approbation"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "Vous ne pouvez pas approuver votre propre demande."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Commentaire"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Ajouter un commentaire optionnel"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Approuver la demande"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Refuser la demande"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Ne peut enregistrer la décision"
+  },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "Cette demande n'est plus en attente, elle a été retirée ou déjà décidée."
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "La fenêtre de cette requête est terminée et ne peut plus être décidée."
+  },
+  "pamInboxDeny": {
+    "message": "Refuser"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Demande refusée"
   },
   "requestAccessModalAlreadyApproved": {
     "message": "Vous avez déjà une demande approuvée pour cet élément."
@@ -18054,6 +19116,90 @@
         "example": "2"
       }
     }
+  },
+  "pamInboxElapsedWeeks": {
+    "message": "$WEEKS$sem avant",
+    "placeholders": {
+      "weeks": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "Il n'y a aucune demande en attente de votre décision."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Boîte de réception zéro"
+  },
+  "pamInboxLoadFailed": {
+    "message": "Ne peut charger la boîte de réception"
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Raison de la demande"
+  },
+  "pamInboxRevoke": {
+    "message": "Révoquer"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Ne peut révoquer l'accès"
+  },
+  "pamInboxRevokedToast": {
+    "message": "Accès révoqué"
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Approbation retirée"
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Ne peut retirer l'approbation"
+  },
+  "pamInboxWindow": {
+    "message": "Fenêtre demandée"
+  },
+  "pamApprovalsNoResults": {
+    "message": "Aucune demande d'accès ne correspond à vos filtres."
+  },
+  "pamApprovalsLoaded": {
+    "message": "Demandes d'accès chargées"
+  },
+  "pamHistoryLoaded": {
+    "message": "Historique des demandes chargé"
+  },
+  "pamHistoryEmptyTitle": {
+    "message": "Rien à afficher pour l'instant"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "L'activité autour des demandes et des approbations s'affichera ici une fois les actions effectuées."
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "Cela révoque immédiatement l'accès du membre. Il aura besoin d'une nouvelle approbation pour le récupérer."
+  },
+  "pamWithdrawApprovalWarningOne": {
+    "message": "Cela retire votre approbation pour",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". L'accès ne démarrera pas, et",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "nécessitera une nouvelle approbation pour l'obtenir.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Raison"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Affiché au demandeur dans son journal des décisions."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Gardez-la brève. Le demandeur la lit directement."
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "Règle d'accès"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "L'accès aux éléments ici est contrôlé par"
   },
   "pamInboxElapsedHours": {
     "message": "$HOURS$h avant",
@@ -18079,6 +19225,18 @@
   "pamAccessRules": {
     "message": "Règles d'accès"
   },
+  "pamCollectionRequiresRequest": {
+    "message": "Les éléments de cette collection nécessitent une demande.",
+    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+  },
+  "pamGatedCollectionBannerName": {
+    "message": "Accès privilégié",
+    "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
+  },
+  "pamNoAccessRule": {
+    "message": "Aucune règle d'accès",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
+  },
   "pamAccessRuleActive": {
     "message": "Active"
   },
@@ -18100,24 +19258,6 @@
   "pamAccessRuleDeactivateSuccess": {
     "message": "Règle d'accès désactivée."
   },
-  "pamAccessRuleEnabled": {
-    "message": "Activé"
-  },
-  "pamAccessRuleEnabledHint": {
-    "message": "Lorsqu'elle est désactivée, la règles est inactive et ne restreint pas l'accès."
-  },
-  "pamAccessRuleEnable": {
-    "message": "Activer la règle"
-  },
-  "pamAccessRuleDisable": {
-    "message": "Désactiver la règle"
-  },
-  "pamAccessRuleEnableSuccess": {
-    "message": "Règle d'accès activée."
-  },
-  "pamAccessRuleDisableSuccess": {
-    "message": "Règle d'accès désactivée."
-  },
   "pamAccessRuleNotFound": {
     "message": "Règle d'accès introuvable."
   },
@@ -18126,9 +19266,6 @@
   },
   "pamAccessRuleCreate": {
     "message": "Créer une règle d'accès"
-  },
-  "pamAccessRuleNew": {
-    "message": "Nouvelle règle"
   },
   "pamAccessRuleCreateTitle": {
     "message": "Nouvelle règle d'accès"
@@ -18211,9 +19348,6 @@
   "pamAccessRuleDuration2d": {
     "message": "2 jours"
   },
-  "pamAccessRuleDuration24h": {
-    "message": "24 heures"
-  },
   "pamAccessRuleDuration7d": {
     "message": "7 jours"
   },
@@ -18231,18 +19365,6 @@
   },
   "pamAccessRuleAllowAccessExtensionsHint": {
     "message": "Les membres peuvent prolonger leur accès actif une fois sans nouvelle approbation, jusqu'à la longueur maximale ci-dessous."
-  },
-  "pamAccessRuleSingleActiveLease": {
-    "message": "Un seul utilisateur à la fois peut détenir un bail actif"
-  },
-  "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "Les nouvelles demandes sont mises en file d'attente jusqu'à ce que le bail courant soit terminé ou révoqué."
-  },
-  "pamAccessRuleAllowExtensions": {
-    "message": "Autoriser les extensions de bail"
-  },
-  "pamAccessRuleAllowExtensionsHint": {
-    "message": "Les membres peuvent prolonger un bail actif une fois avec une nouvelle approbation, jusqu'à la durée maximale ci-dessous."
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "Longueur maximale d'extension"
@@ -18300,14 +19422,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Supprimer la règle d'accès ?"
   },
-  "pamAccessRuleDeleteConfirmContent": {
-    "message": "Supprimer \"$NAME$\" ? Toutes les collections utilisant cette règle auront leurs baux désactivés.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "VPN + business hours"
-      }
-    }
+  "pamAccessRuleDeleteConfirmDescription": {
+    "message": "Cela supprimera définitivement cette règle. Les utilisateurs des collections qu'il régit récupéreront un accès normal."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Désactiver la règle d'accès"
@@ -18369,9 +19485,6 @@
   "pamTemplateJustInTimeShortSummary": {
     "message": "Auto-approuvée"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Auto-approuvé • Expire après 1h • Audit enregistré"
-  },
   "pamTemplateJustInTimeName": {
     "message": "Accès juste à temps"
   },
@@ -18381,9 +19494,6 @@
   "pamTemplateApprovalRequiredShortSummary": {
     "message": "Approbation humaine • 1 approbateur requis"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Approbation humaine • 1 approbateur requis • Audit enregistré"
-  },
   "pamTemplateApprovalRequiredName": {
     "message": "Approbation requise"
   },
@@ -18392,9 +19502,6 @@
   },
   "pamTemplateIpRestrictedShortSummary": {
     "message": "Auto-approuvée • Liste d'IP approuvées"
-  },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Auto-approuvé • Liste d'approbation IP • Audit enregistré"
   },
   "pamTemplateIpRestrictedName": {
     "message": "Accès restreint par IP"
@@ -18429,12 +19536,6 @@
   "pamAccessRuleDurationColumn": {
     "message": "Durée maximale"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Conditions"
-  },
-  "pamAccessWindow": {
-    "message": "Fenêtre d'accès"
-  },
   "pamAccessRuleLastModified": {
     "message": "Dernière modification"
   },
@@ -18454,12 +19555,6 @@
     "message": "Activer"
   },
   "pamAccessRuleBulkDeactivate": {
-    "message": "Désactiver"
-  },
-  "pamAccessRuleBulkEnable": {
-    "message": "Activer"
-  },
-  "pamAccessRuleBulkDisable": {
     "message": "Désactiver"
   },
   "pamAccessRulesUpdated": {
@@ -18728,6 +19823,15 @@
   "serviceAccountsProratedCharge": {
     "message": "Charge des comptes de service au prorata"
   },
+  "viewSharedItem": {
+    "message": "Afficher l'élément partagé"
+  },
+  "copyShareLink": {
+    "message": "Copier le lien de partage"
+  },
+  "unableToDetermineItemId": {
+    "message": "Impossible de déterminer l'ID de l'élément"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden a un nouveau look",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -18752,5 +19856,1372 @@
   },
   "resetToDefault": {
     "message": "Revenir aux valeurs par défaut"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Saisir automatiquement les invites de connexion du navigateur",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Répondre aux demandes d'authentification HTTP basiques des sites Web qui correspondent à cet élément de connexion."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Ouvrir l'article d'aide sur la saisie automatique des invites de connexion du navigateur"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Les sites Web peuvent cibler ces invites à votre insu, ce qui peut exposer vos identifiants.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Pour utiliser ce paramètre, choisissez une option de détection de correspondances autre que \"Défaut\" pour chaque site Web de cet élément de connexion."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Activer la saisie automatique pour les invites de connexion du navigateur?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "La ressaisie du mot de passe principal sera désactivée pour cet élément. Les deux paramètres ne peuvent pas être activés en même temps."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Activer la ressaisie du mot de passe principal?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "La saisie automatique pour les invites de connexion du navigateur sera désactivée pour cet élément. Les deux paramètres ne peuvent pas être activés en même temps."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Détection de correspondance par défaut?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Les sites Web utilisant la détection de correspondance par défaut ne peuvent pas être utilisés avec les invites de connexion du navigateur. La saisie automatique des invites de connexion du navigateur sera désactivée pour cet élément."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "La saisie automatique des invites de connexion au navigateur a été désactivée"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Cet élément a la ressaisie du mot de passe principal activée, donc la saisie automatique pour les invites de connexion au navigateur a été désactivée . Enregistrez l'élément pour conserver ce changement."
+  },
+  "pamRotation": {
+    "message": "Rotation"
+  },
+  "pamRotationSubtitle": {
+    "message": "Ajoutez les identifiants gérés et les systèmes cibles où ces identifiants vivent. Ensuite, enregistrez les connecteurs d'accès pour s'exécuter à l'intérieur de votre réseau et effectuer la rotation. Une fois configuré, les identifiants peuvent être régénérés automatiquement sur les systèmes cibles."
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Identifiants gérés"
+  },
+  "pamRotationTabTargetSystems": {
+    "message": "Systèmes cibles"
+  },
+  "pamRotationTabAccessConnectors": {
+    "message": "Connecteurs d'accès"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "Identifiants gérés chargés"
+  },
+  "pamAccessConnectorsLoaded": {
+    "message": "Connecteurs d'accès chargés"
+  },
+  "pamTargetSystemsLoaded": {
+    "message": "Systèmes cibles chargés"
+  },
+  "pamRotationPageLoaded": {
+    "message": "Page chargée"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Ajouter un identifiant géré"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Modifier un identifiant géré"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Ajouter un système cible"
+  },
+  "pamTargetSystemEditTitle": {
+    "message": "Modifier le système cible"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Cédule de rotation"
+  },
+  "pamRotationScheduleNone": {
+    "message": "Aucune"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Une fois par heure"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "Toutes les 6 heures"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Quotidiennement"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Hebdomadairement"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Mensuellement"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Personnalisé"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Expression cron personnalisée"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Entrez une expression de cron de 6 champs Quartz (par exemple 0 0 */4 * ?). Le serveur applique un intervalle de 15 minutes minimum."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Veuillez entrer une expression cron Quartz valide (6 ou 7 champs séparés par des espaces)."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "Aucune rotation planifiée. Cet identifiant n'est regénéré que lorsque vous en démarrez un, ou lorsque l'accès se termine si cette option est activée."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Régénénère une fois par heure, à l'heure prévue"
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Régénénère à toutes les 6 heures, à l'heure prévue."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Régénère une fois par jour, à minuit."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Régénère une fois par semaine, à minuit le dimanche."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Régénère une fois par mois, à minuit le premier du mois."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Régénère tous les jours, à $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Régénère tous les $COUNT$ jours, à $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Régénère tous les mois, à $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Régénère tous les $COUNT$ mois, à $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Cédule Quartz personnalisée : $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Les cédules s'exécutent en UTC, pas votre fuseau horaire local."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Interval"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Répéter tous les"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Unité"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Jours"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Mois"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Heure de la journée (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Les intervalles sont ancrés dans le calendrier. Les intervalles de jour redémarrent le 1er de chaque mois, et les intervalles de mois s'exécutent le 1er et redémarrent en janvier."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Entrez la fréquence à laquelle la rotation se répète et l'heure de la journée."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Entrez un nombre entier."
+  },
+  "pamTargetSystemNew": {
+    "message": "Nouveau système cible"
+  },
+  "pamTargetSystemSearch": {
+    "message": "Rechercher dans les systèmes cibles"
+  },
+  "pamTargetSystemMethodColumn": {
+    "message": "Méthode"
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Type"
+  },
+  "pamTargetSystemSessionTerminationColumn": {
+    "message": "Clôture de session"
+  },
+  "pamTargetSystemSessionTerminationYes": {
+    "message": "Supporté"
+  },
+  "pamTargetSystemSessionTerminationNo": {
+    "message": "Non supporté"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "Encore aucun système cible"
+  },
+  "pamNoTargetSystemsYetDescription": {
+    "message": "Ajoute le système dont les identifiants Bitwarden devraient être régénéré."
+  },
+  "pamTargetSystemsStartFromTemplate": {
+    "message": "Commencer à partir d'un modèle"
+  },
+  "pamTargetSystemUseTemplate": {
+    "message": "Utiliser le modèle"
+  },
+  "pamTargetSystemTemplateManualSummary": {
+    "message": "Vous régénérez les informations d'identification vous-même; Bitwarden suit le calendrier et journalise chaque rotation."
+  },
+  "pamTargetSystemTemplateEntraSummary": {
+    "message": "Bitwarden régénère automatiquement un secret de l'application Microsoft Entra ID."
+  },
+  "pamTargetSystemTemplateCustomScriptSummaryConnector": {
+    "message": "Bitwarden régénère automatiquement les identifiants en exécutant votre script sur un connecteur d'accès enregistré."
+  },
+  "pamTargetSystemNoFilterResults": {
+    "message": "Aucun système cible ne correspond à vos filtres."
+  },
+  "pamTargetSystemEditTarget": {
+    "message": "Modifier le système cible"
+  },
+  "pamTargetSystemDeactivate": {
+    "message": "Désactiver"
+  },
+  "pamTargetSystemActivate": {
+    "message": "Activer"
+  },
+  "pamTargetSystemActivationBlockedPendingSeal": {
+    "message": "Terminez la configuration de ce système cible avant de l'activer ou de le désactiver."
+  },
+  "pamTargetSystemDeleteTarget": {
+    "message": "Supprimer le système cible"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Assigner un connecteur d'accès"
+  },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "Assigner un connecteur d'accès"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "Connecteur d'accès"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "Tous les connecteurs d'accès actifs sont déjà assignés à ce système cible."
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Les connecteurs d'accès ne peuvent être assignés qu'aux systèmes cibles réglés pour la rotation automatique."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Seuls les connecteurs d'accès actifs peuvent être assignés à ce système cible."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "Il n'y a pas de connecteur d'accès actif à assigner. Enregistrez-en un sur l'onglet Connecteurs d'accès, ou activez un connecteur existant."
+  },
+  "pamTargetSystemAssignGoToConnectors": {
+    "message": "Aller aux connecteurs d'accès"
+  },
+  "pamTargetSystemDeactivateTitle": {
+    "message": "Désactiver le système cible ?"
+  },
+  "pamTargetSystemDeactivateContent": {
+    "message": "La désactivation de ce système cible empêchera les nouvelles rotations d'être offertes. Les tâches en attente seront conservées sans réclamation. Les rotations déjà en cours continueront jusqu'à leur terme."
+  },
+  "pamTargetSystemDeactivateConfirm": {
+    "message": "Désactiver"
+  },
+  "pamTargetSystemDeactivateSuccess": {
+    "message": "Système cible désactivé."
+  },
+  "pamTargetSystemActivateSuccess": {
+    "message": "Système cible activé."
+  },
+  "pamTargetSystemDeleteTitle": {
+    "message": "Supprimer le système cible ?"
+  },
+  "pamTargetSystemDeleteContent": {
+    "message": "La suppression de $NAME$ est permanente. Tous les identifiants gérés qui régénère contre, doivent d'abord être supprimés.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteContentDeactivateInstead": {
+    "message": "La suppression de $NAME$ est permanente. Tous les identifiants gérés qui régénèrent contre, doivent d'abord être supprimés. Pour arrêter les rotations sans perdre le système cible, désactivez-la à la place. Désactiver retient les tâches en attente et peut être annulé.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteSuccess": {
+    "message": "Le système cible a été supprimé."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Automatique"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Manuel"
+  },
+  "pamTargetSystemMethodAutomaticHint": {
+    "message": "Les rotations s'exécutent sur le calendrier que vous avez défini, une fois que vous avez terminé les étapes de configuration affichées après enregistrement."
+  },
+  "pamTargetSystemMethodManualHint": {
+    "message": "Aucune tâche de rotation n'a été créée. Vous régénérez l'identifiant à la main, puis le marquer comme régénéré."
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Connexion"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Script personnalisé"
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemStatusActive": {
+    "message": "Actif"
+  },
+  "pamTargetSystemStatusInactive": {
+    "message": "Inactif"
+  },
+  "pamTargetSystemStatusPendingSeal": {
+    "message": "Configuration incomplète"
+  },
+  "pamTargetSystemGeneralInfoHeading": {
+    "message": "Informations générales"
+  },
+  "pamTargetSystemIdLabel": {
+    "message": "ID du système"
+  },
+  "pamTargetSystemCopyId": {
+    "message": "Copier l'ID du système"
+  },
+  "pamTargetSystemNamePlaceholder": {
+    "message": "Entrez un nom"
+  },
+  "pamTargetSystemMethodLabel": {
+    "message": "Méthode de rotation"
+  },
+  "pamTargetSystemTypeHeading": {
+    "message": "Type"
+  },
+  "pamTargetSystemTypeLabel": {
+    "message": "Type"
+  },
+  "pamTargetSystemTypeUnverifiedHint": {
+    "message": "L'intégration de cette cible n'a pas pu être confirmée. Choisissez-la à nouveau pour terminer la configuration."
+  },
+  "pamTargetSystemPolicyManualHint": {
+    "message": "Ce sont les règles à suivre lorsque vous régénérez cet identifiant à la main."
+  },
+  "pamTargetSystemPolicyHeading": {
+    "message": "Politique de mot de passe"
+  },
+  "pamTargetSystemPolicyMinLength": {
+    "message": "Longueur minimale"
+  },
+  "pamTargetSystemPolicyMaxLength": {
+    "message": "Longueur maximale"
+  },
+  "pamTargetSystemPolicyMinExceedsMax": {
+    "message": "La longueur minimale doit être inférieure ou égale à la longueur maximale."
+  },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "Inclure au moins un type de caractère."
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "Cette politique est trop faible. Augmentez la longueur ou incluez plus de types de caractères."
+  },
+  "pamTargetSystemPolicyUppercase": {
+    "message": "Inclure des lettres majuscules"
+  },
+  "pamTargetSystemPolicyLowercase": {
+    "message": "Inclure des lettres minuscules"
+  },
+  "pamTargetSystemPolicyDigits": {
+    "message": "Inclure des chiffres"
+  },
+  "pamTargetSystemPolicySymbols": {
+    "message": "Inclure des symboles"
+  },
+  "pamTargetSystemSupportsSessionTermination": {
+    "message": "Supporte la clôture de session"
+  },
+  "pamTargetSystemSupportsSessionTerminationHintConnector": {
+    "message": "Lorsqu'il est activé, le connecteur d'accès mettra fin aux sessions actives après la rotation d'un identifiant."
+  },
+  "pamTargetSystemSessionTerminationSupported": {
+    "message": "Supporté"
+  },
+  "pamTargetSystemSessionTerminationNativeHint": {
+    "message": "Les intégrations natives terminent toujours les sessions actives après la rotation d'un identifiant."
+  },
+  "pamTargetSystemSessionTerminationUnknown": {
+    "message": "Inconnu"
+  },
+  "pamTargetSystemSessionTerminationUnknownTooltip": {
+    "message": "Les paramètres de ce système cible n'ont pas pu être vérifiés, donc le support de la clôture de session est inconnu."
+  },
+  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
+    "message": "La suppression de la prise en charge de la clôture de session est rejetée alors que tout identifiant géré sur ce système cible en dépend toujours. Mettez à jour ces identifiants d'abord."
+  },
+  "pamTargetSystemCreated": {
+    "message": "Système cible créé."
+  },
+  "pamTargetSystemSaved": {
+    "message": "Système cible enregistré."
+  },
+  "pamTargetSystemSavedNotReread": {
+    "message": "Le système cible a été enregistré. Les valeurs enregistrées n'ont pas pu être lues, cette page peut donc être obsolète."
+  },
+  "pamTargetSystemCreatePartialFailure": {
+    "message": "Le système cible a été créé, mais le programme de configuration n'a pas pu se terminer. Enregistrez à nouveau pour terminer de le sécuriser."
+  },
+  "pamTargetSystemSetupGuidanceTitle": {
+    "message": "Terminer la configuration de la rotation"
+  },
+  "pamTargetSystemSetupGuidanceAutomaticConnector": {
+    "message": "Assignez un connecteur d'accès dans la section Connecteurs d'accès assignés ci-dessous."
+  },
+  "pamTargetSystemSetupGuidanceCredential": {
+    "message": "Ajouter un identifiant géré dans l'onglet Identifiants gérés."
+  },
+  "pamTargetSystemSetupIncompleteTitle": {
+    "message": "Configuration incomplète"
+  },
+  "pamTargetSystemSetupIncompleteContent": {
+    "message": "Ce système cible a été créé mais n'a jamais fini de sécuriser ses paramètres. Enregistrez pour finir, ou supprimez-le."
+  },
+  "pamTargetSystemIntegrityCheckFailedTitle": {
+    "message": "La vérification de l'intégrité a échoué"
+  },
+  "pamTargetSystemIntegrityCheckFailedContent": {
+    "message": "Les paramètres de ce système cible n'ont pas pu être vérifiés. Enregistrez-le pour le sécuriser ou le supprimer."
+  },
+  "pamTargetSystemIntegrityCheckFailedTooltip": {
+    "message": "Les paramètres de ce système cible n'ont pas pu être vérifiés."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "La correspondance de la technologie de ce système cible n'a pas pu être confirmée. Rechargez la page et réessayez."
+  },
+  "pamTargetSystemNotFound": {
+    "message": "Système cible introuvable."
+  },
+  "pamAccessConnectorSearch": {
+    "message": "Rechercher des connecteurs d'accès"
+  },
+  "pamAccessConnectorNew": {
+    "message": "Nouveau connecteur d'accès"
+  },
+  "pamAccessConnectorRegister": {
+    "message": "Enregistrer le connecteur d'accès"
+  },
+  "pamAccessConnectorEmptyStateTitle": {
+    "message": "Aucun connecteur d'accès enregistré"
+  },
+  "pamAccessConnectorEmptyStateDescription": {
+    "message": "Enregistrez un connecteur d'accès pour régénérer les identifiants."
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Connexion"
+  },
+  "pamAccessConnectorLastSeen": {
+    "message": "Dernière visite"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Assigner des cibles"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Connecté"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Déconnecté"
+  },
+  "pamAccessConnectorAssignTargetDisabled": {
+    "message": "Les systèmes cibles ne peuvent être assignés que lorsque le connecteur d'accès est actif."
+  },
+  "pamAccessConnectorViewDetails": {
+    "message": "Voir les détails"
+  },
+  "pamAccessConnectorAssignTargets": {
+    "message": "Assigner des cibles"
+  },
+  "pamAccessConnectorDeleteAccessConnector": {
+    "message": "Supprimer le connecteur d'accès"
+  },
+  "pamAccessConnectorAssignTargetTitle": {
+    "message": "Assigner le système cible"
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Système cible"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Assigner des systèmes cibles"
+  },
+  "pamAccessConnectorAssignSelectHint": {
+    "message": "Seuls les systèmes cibles réglés pour la rotation automatique peuvent être assignés."
+  },
+  "pamAccessConnectorAssignNoOptions": {
+    "message": "Tous les systèmes cibles automatiques sont déjà assignés à ce connecteur d'accès."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "Il n'y a pas de système cible automatique à attribuer. Créez-en un dans l'onglet Systèmes cibles."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Aller aux Systèmes cibles"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "N'a pu charger les systèmes cibles. Rafraîchissez la page pour réessayer."
+  },
+  "pamAccessConnectorAssigned": {
+    "message": "Système cible assigné."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "Aucun système cible assigné."
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Connecteur d'accès assigné."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Supprimer $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorUnassignConfirmTitle": {
+    "message": "Retirer l'assignation?"
+  },
+  "pamAccessConnectorUnassignConfirmContent": {
+    "message": "Supprimer $NAME$ de ce connecteur d'accès? Les tâches de rotation actives réclamées par ce connecteur d'accès continueront jusqu'à leur accomplissement.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorUnassigned": {
+    "message": "Système cible supprimé."
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Désactiver"
+  },
+  "pamAccessConnectorActivate": {
+    "message": "Activer"
+  },
+  "pamAccessConnectorDeactivateConfirmTitle": {
+    "message": "Désactiver le connecteur d'accès ?"
+  },
+  "pamAccessConnectorDeactivateConfirmContent": {
+    "message": "Désactiver $NAME$? Il cesse de revendiquer de nouvelles tâches de rotation et toutes les tâches en cours d'exécution sont libérées. Vous pourrez les réactiver plus tard.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivated": {
+    "message": "Connecteur d'accès désactivé."
+  },
+  "pamAccessConnectorActivated": {
+    "message": "Connecteur d'accès activé."
+  },
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Supprimer le connecteur d'accès ?"
+  },
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "La suppression de $NAME$ est permanente et invalide ses identifiants. Ce connecteur d'accès détenait la clé de l'organisation en mémoire. Si vous soupçonnez un compromis, régénérez la clé de l'organisation en guise de remédiation. Les emplois de rotation en cours sont libérés. Enregistrez un nouveau connecteur d'accès pour reprendre la rotation.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeleted": {
+    "message": "Connecteur d'accès supprimé."
+  },
+  "pamAccessConnectorSaved": {
+    "message": "Connecteur d'accès enregistré."
+  },
+  "pamAccessConnectorRegisterTitle": {
+    "message": "Enregistrer le connecteur d'accès"
+  },
+  "pamAccessConnectorNamePlaceholder": {
+    "message": "par exemple, le serveur de production On-prem"
+  },
+  "pamAccessConnectorNameHint": {
+    "message": "Un nom descriptif pour identifier ce connecteur d'accès. Maximum 200 caractères."
+  },
+  "pamAccessConnectorRegistered": {
+    "message": "Connecteur d'accès enregistré."
+  },
+  "pamAccessConnectorNoResults": {
+    "message": "Aucun connecteur d'accès ne correspond à vos filtres."
+  },
+  "pamAccessConnectorDetailTitle": {
+    "message": "Connecteur d'accès"
+  },
+  "pamAccessConnectorDetailsHeading": {
+    "message": "Détails"
+  },
+  "pamAccessConnectorTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamAccessConnectorTabHistory": {
+    "message": "Historique"
+  },
+  "pamAccessConnectorActivityEmpty": {
+    "message": "Aucune activité de rotation pour le moment."
+  },
+  "pamAccessConnectorActiveHint": {
+    "message": "Lorsqu'il est inactif, le connecteur d'accès ne revendique pas de nouvelles tâches de rotation et les tâches qu'il exécute sont libérées."
+  },
+  "pamAccessConnectorTokenTitle": {
+    "message": "Jeton d'accès au connecteur"
+  },
+  "pamAccessConnectorTokenWarningTitle": {
+    "message": "Enregistrer ce jeton maintenant"
+  },
+  "pamAccessConnectorTokenWarningBody": {
+    "message": "Ce jeton est affiché une seule fois et ne peut pas être récupéré plus tard. Copiez-le et délivrez-le hors bande à l'opérateur qui exécutera ce connecteur d'accès, puis collez-le dans le fichier de configuration du connecteur. Si le jeton est perdu, supprimez ce connecteur d'accès et enregistrez en un nouveau."
+  },
+  "pamAccessConnectorTokenLabel": {
+    "message": "Jeton d'accès au connecteur"
+  },
+  "pamAccessConnectorTokenHint": {
+    "message": "Ce jeton ne sera plus affiché."
+  },
+  "pamAccessConnectorTokenCopy": {
+    "message": "Copier jeton"
+  },
+  "pamAccessConnectorTokenCopied": {
+    "message": "Jeton de connecteur copié."
+  },
+  "pamRotationConfigNew": {
+    "message": "Nouvel identifiant géré"
+  },
+  "pamRotationConfigSearch": {
+    "message": "Rechercher des identifiants gérés"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "Aucun identifiant géré configuré"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Ajoutez un identifiant géré pour commencer à le régénérer automatiquement."
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Impossible de charger"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Vérifiez votre connexion et réessayez. Si le problème persiste, actualisez la page."
+  },
+  "pamRotationConfigNoTargetSystems": {
+    "message": "Configurez un système cible avant que vous puissiez régénérer des identifiants. Un système cible définit où vit un identifiant et comment Bitwarden le régénère."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Configurer un système cible"
+  },
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "Aucun identifiant géré ne correspond à vos filtres."
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Identifiant"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Élément"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Système cible"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "Cédule"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Régénère à la fin de l'accès"
+  },
+  "pamRotationConfigColumnLastRotation": {
+    "message": "Dernière rotation"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Régénéré la dernière fois"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Rotation suivante"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "En pause"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Rotation"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Rotation due"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Régénérer maintenant"
+  },
+  "pamRotationConfigRotateNowUnavailableTitle": {
+    "message": "Ne peut régénérer maintenant. Le système cible est inactif, ou la rotation est en pause ou est déjà en cours."
+  },
+  "pamRotationConfigRotateNowSuccess": {
+    "message": "Rotation envoyée."
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "Marquer comme régénéré"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Rien à marquer pour l'instant. Cela devient disponible lorsque la prochaine rotation manuelle est due."
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "Marquer comme régénéré"
+  },
+  "pamRotationConfigRecordManualContent": {
+    "message": "Cela enregistre que l'identifiant a été régénéré en dehors de Bitwarden et réinitialise la cédule. Le journal d'audit reflétera la rotation manuelle."
+  },
+  "pamRotationConfigRecordManualConfirm": {
+    "message": "Enregistre la rotation"
+  },
+  "pamRotationConfigRecordManualSuccess": {
+    "message": "Rotation manuelle enregistrée."
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "Modifier l'identifiants"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Retirer de la rotation"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "Mettre en pause la rotation"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "Rotation en pause."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "Reprendre la rotation"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "Rotation reprise."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Supprimer l'identifiant géré"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "Cela supprime la gestion de la rotation pour cet identifiant. L'élément reste dans votre coffre et l'historique de rotation reste dans le journal d'audit."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Ne peut retirer pendant qu'une rotation est en cours. Il s'efface lorsque la tâche actuelle se termine ou que son délai expire."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "Identifiants gérés retiré."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Jamais"
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "Aucune rotation n'a encore été exécutée."
+  },
+  "pamRotationConfigRemoveLockedContentConnector": {
+    "message": "Une tâche de rotation est en cours. Vous pouvez retirer cet identifiant de la rotation une fois que le connecteur d'accès l'a terminé, ou une fois qu'il a expiré. L'interruption ne fait qu'arrêter les nouvelles tâches; elle n'annule pas celle déjà en cours."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Détails de l'identifiant"
+  },
+  "pamRotationConfigDetailsHeading": {
+    "message": "Détails"
+  },
+  "pamRotationConfigSettingsHeading": {
+    "message": "Paramètres de rotation"
+  },
+  "pamRotationConfigAccountHeading": {
+    "message": "Compte"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "Historique"
+  },
+  "pamRotationConfigCipher": {
+    "message": "Identifiant"
+  },
+  "pamRotationConfigCipherPlaceholder": {
+    "message": "Sélectionnez un identifiant"
+  },
+  "pamRotationConfigCipherHint": {
+    "message": "Sélectionnez l'élément du coffre dont le mot de passe sera régénéré."
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Système cible"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Sélectionnez un système cible"
+  },
+  "pamRotationConfigAccountIdentity": {
+    "message": "Identité du compte"
+  },
+  "pamRotationConfigAccountIdentityHintConnector": {
+    "message": "Le compte à régénérer dans le système cible, par exemple, un UPN, une connexion SQL ou un argument de script. Passé au connecteur d'accès tel quel."
+  },
+  "pamRotationConfigTerminateSessions": {
+    "message": "Clôturer les sessions actives après la rotation"
+  },
+  "pamRotationConfigTerminateSessionsHint": {
+    "message": "Nécessite que le système cible prenne en charge la clôture de session."
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "Le support de clôture de session de ce système cible n'a pas pu être vérifié."
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Régénère à la fin de l'accès"
+  },
+  "pamRotationConfigRotateWhenAccessEndsHint": {
+    "message": "Regénère automatiquement cet identifiant lorsque l'accès PAM se termine."
+  },
+  "pamRotationConfigCreated": {
+    "message": "Identifiants gérés créés."
+  },
+  "pamRotationConfigSaved": {
+    "message": "Identifiants gérés enregistrés."
+  },
+  "pamRotationConfigAccountLockedTitle": {
+    "message": "Paramètre non disponible"
+  },
+  "pamRotationConfigAccountLockedContent": {
+    "message": "Les modifications ne peuvent pas être enregistrées lorsqu'une tâche de rotation est en cours. Vous pourrez enregistrer à nouveau une fois la tâche terminée ou expirée."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "La vérification de l'intégrité a échoué"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "Les paramètres de cet identifiant géré n'ont pu être vérifiés. Enregistrez-le pour le sécuriser à nouveau."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "Ce système cible ne confirme pas qu'il prend en charge les sessions clôturables. Effacez l'option de clôture de session ou mettez à jour le système cible d'abord."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "Les paramètres du système cible sélectionné n'ont pu être vérifiés. Corriger le système cible avant d'enregistrer."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "L'élément de cet identifiant ou le système cible géré n'a pas pu être confirmé. Rechargez la page et réessayez."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "Aucune tâche de rotation n'a encore été enregistrée."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Source"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Tentatives"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Programmé"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "Sur demande"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "Accès terminé"
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Inconnu"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "En attente"
+  },
+  "pamRotationJobStatusClaimed": {
+    "message": "Réclamé"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Réussi"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Échoué"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Expiré"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Inconnu"
+  },
+  "pamRotationAssignmentPendingAssign": {
+    "message": "Assignation en attente"
+  },
+  "pamRotationAssignmentPendingUnassign": {
+    "message": "En attente de suppression"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Exécution en cours"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Régénéré"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Erroné"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Abandonné"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Inconnu"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "En cours"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "Démarré"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "Cible inchangée"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "Cible mise à jour"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Indéterminé"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Inconnu"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "Clôture de session non demandée"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "Sessions clôturées"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "La clôture de session a échoué"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Inconnu"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "Le compte du connecteur d'accès n'est pas autorisé à modifier ce mot de passe. Accordez-lui la permission de réinitialiser le mot de passe du compte cible, puis regénérez à nouveau."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "Le système cible a rejeté la connexion du connecteur d'accès. Vérifiez les identifiants que le connecteur utilise pour ce système cible, puis regénérez à nouveau."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "Le système cible a rejeté le nouveau mot de passe. Vérifiez que la politique de ce mot de passe respecte les règles du système cible, puis regénérez à nouveau."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "Le système cible n'a pas pu trouver le compte à regénérer. Vérifiez l'identité du compte sur cet idenfiant géré, puis regénérez à nouveau."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "Le système cible a refusé de faire le changement. Cela signifie généralement que le nouveau mot de passe enfreint une règle, ou que la connexion au système cible n'était pas chiffrée."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "Le connecteur d'accès n'a pu atteindre le système cible. Vérifiez l'adresse du système cible et que le connecteur peut l'atteindre sur le réseau, puis regénérez à nouveau."
+  },
+  "pamRotationFailureReportedDetail": {
+    "message": "Signalé par le connecteur d'accès : $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "target_rejected: LDAP result code 50"
+      }
+    }
+  },
+  "pamRotationHistoryCaption": {
+    "message": "Tâches de rotation, plus récents en premier"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Durée"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Tentative"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Résultat"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Tentatives, les plus anciennes en premier"
+  },
+  "pamRotationHistoryAttemptsAllAlike": {
+    "message": "Chaque tentative a pris fin de la même façon."
+  },
+  "pamRotationJobDrawerTitle": {
+    "message": "Tâche de rotation"
+  },
+  "pamRotationHistoryFailureHeading": {
+    "message": "Pourquoi cela a échoué"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$s",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$m $SECONDS$s",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$h $MINUTES$m",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "pamAuditKindRotationConfigCreated": {
+    "message": "Configuration de rotation créée"
+  },
+  "pamAuditKindRotationSettingsUpdated": {
+    "message": "Paramètres de rotation mis à jour"
+  },
+  "pamAuditKindRotationAccountUpdated": {
+    "message": "Compte de rotation mis à jour"
+  },
+  "pamAuditKindRotationPaused": {
+    "message": "Rotation en pause"
+  },
+  "pamAuditKindRotationResumed": {
+    "message": "Rotation reprise"
+  },
+  "pamAuditKindRotationConfigDeleted": {
+    "message": "Configuration de rotation supprimée"
+  },
+  "pamAuditKindRotationConfigUpdated": {
+    "message": "Configuration de la rotation mise à jour"
+  },
+  "pamAuditKindRotationOfferedToConnector": {
+    "message": "Rotation offerte pour accéder au connecteur"
+  },
+  "pamAuditKindRotationDispatched": {
+    "message": "Rotation envoyée"
+  },
+  "pamAuditKindRotationSucceeded": {
+    "message": "Identification régénérée"
+  },
+  "pamAuditKindRotationAttemptFailed": {
+    "message": "Tentative de rotation échouée"
+  },
+  "pamAuditKindRotationFailed": {
+    "message": "Rotation échouée"
+  },
+  "pamAuditKindRotationReleased": {
+    "message": "Rotation libérée"
+  },
+  "pamAuditKindRotationTimedOut": {
+    "message": "Délai de rotation dépassé"
+  },
+  "pamAuditKindRotationWriteRejected": {
+    "message": "Écriture du coffre rejetée"
+  },
+  "pamAuditKindRotationReportRejected": {
+    "message": "Rapport de rotation rejeté"
+  },
+  "pamAuditKindManualRotationDue": {
+    "message": "Rotation manuelle due"
+  },
+  "pamAuditKindManualRotationRecorded": {
+    "message": "Rotation manuelle enregistrée"
+  },
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "Connecteur d'accès enregistré"
+  },
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "Connecteur d'accès révoqué"
+  },
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "Connecteur d'accès désactivé"
+  },
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "Connecteur d'accès activé"
+  },
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "Connecteur d'accès supprimé"
+  },
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "Connecteur d'accès assigné à la cible"
+  },
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "Connecteur d'accès non assigné de la cible"
+  },
+  "pamAuditKindTargetRegistered": {
+    "message": "Système cible enregistré"
+  },
+  "pamAuditKindTargetDeactivated": {
+    "message": "Système cible désactivé"
+  },
+  "pamAuditKindTargetActivated": {
+    "message": "Système cible activé"
+  },
+  "pamAuditKindTargetRenamed": {
+    "message": "Système cible renommé"
+  },
+  "pamAuditKindTargetPolicyUpdated": {
+    "message": "Paramètres du système cible mis à jour"
+  },
+  "pamAuditKindTargetDeleted": {
+    "message": "Système cible supprimé"
+  },
+  "pamAuditKindTargetUpdated": {
+    "message": "Système cible mis à jour"
+  },
+  "pamAuditTargetSystem": {
+    "message": "Système cible"
+  },
+  "pamAuditAccessConnector": {
+    "message": "Connecteur d'accès"
+  },
+  "pamAccessConnectorAssignmentCountSingular": {
+    "message": "$COUNT$ cible",
+    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentCount": {
+    "message": "$COUNT$ cibles",
+    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentsNone": {
+    "message": "Aucun",
+    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "Aucun système cible actif parmi lequel choisir."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Connecteurs d'accès assignés"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "Aucun connecteur d'accès n'est assigné à ce système cible."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "Les connecteurs d'accès pour ce système cible n'ont pas pu être chargés."
+  },
+  "pamTargetSystemDeleteAssignedConnectorsContent": {
+    "message": "La suppression de $NAME$ est permanente. Tous les identifiants gérés qui régénèrent contre. doivent être supprimés en premier, et les assignations de connecteur d'accès sont supprimées avec elle.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamEventRequestedAccess": {
+    "message": "Accès privilégié demandé à l'élément $ITEM$ (demande $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventApprovedAccessRequest": {
+    "message": "Accès privilégié approuvé à l'élément $ITEM$ (demande $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventDeniedAccessRequest": {
+    "message": "Accès privilégié refusé à l'élément $ITEM$ (demande $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventActivatedAccess": {
+    "message": "Accès privilégié activé à l'élément $ITEM$ (accès $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRevokedAccess": {
+    "message": "Accès privilégié retiré à l'élément $ITEM$ (accès $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventCancelledAccessRequest": {
+    "message": "Demande d'accès privilégié annulé pour l'élément $ITEM$ (demande $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventExtendedAccess": {
+    "message": "Accès privilégié prolongé à l'élément $ITEM$ (accès $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventExpiredAccess": {
+    "message": "Accès privilégié à l'élément $ITEM$ expiré (accès $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRejectedAccessLeaseActivation": {
+    "message": "Ne peut activer l'accès privilégié à l'élément $ITEM$ (demande $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventCreatedAccessRule": {
+    "message": "Une règle d'accès privilégié a été créée."
+  },
+  "pamEventUpdatedAccessRule": {
+    "message": "A modifié une règle d'accès privilégié."
+  },
+  "pamEventDeletedAccessRule": {
+    "message": "A supprimé une règle d'accès privilégié."
+  },
+  "pamEventRotatedCredential": {
+    "message": "L'identifiant de l'élément $ITEM$ a été regénéré.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "pamEventFailedCredentialRotation": {
+    "message": "Ne peut regénérer l'identifiant pour l'élément $ITEM$.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   }
 }

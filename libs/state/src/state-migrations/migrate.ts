@@ -84,11 +84,12 @@ import { MoveWebAuthnPrfOptionsToCryptoState } from "./migrations/83-move-webaut
 import { RenameOrganizationInviteToDirect } from "./migrations/84-rename-organization-invite-to-direct";
 import { RemoveBiometricClientKeyHalf } from "./migrations/85-remove-biometric-client-key-half";
 import { RemoveMasterKeyEncryptedUserKey } from "./migrations/86-remove-master-key-encrypted-user-key";
+import { MigratePoliciesNewToPolicies } from "./migrations/87-migrate-policies-new-to-policies";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 86;
+export const CURRENT_VERSION = 87;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -176,7 +177,8 @@ export function createMigrationBuilder() {
     .with(MoveWebAuthnPrfOptionsToCryptoState, 82, 83)
     .with(RenameOrganizationInviteToDirect, 83, 84)
     .with(RemoveBiometricClientKeyHalf, 84, 85)
-    .with(RemoveMasterKeyEncryptedUserKey, 85, CURRENT_VERSION);
+    .with(RemoveMasterKeyEncryptedUserKey, 85, 86)
+    .with(MigratePoliciesNewToPolicies, 86, CURRENT_VERSION);
 }
 
 export async function currentVersion(

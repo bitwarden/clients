@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
+import { resolveCollectionNames } from "@bitwarden/bit-pam";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { BadgeModule } from "@bitwarden/components";
 import type { CollectionId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { resolveCollectionNames } from "..";
 
 /**
  * One count badge for a rule's collections, with their names as its tooltip so the column stays
@@ -24,7 +23,7 @@ import { resolveCollectionNames } from "..";
       <span
         bitBadge
         variant="primary"
-        startIcon="bwi-collection-shared"
+        startIcon="bwi-shared-folder"
         tabindex="0"
         [bitTooltip]="tooltip()"
         [addTooltipToDescribedby]="true"
@@ -46,8 +45,8 @@ export class AccessRuleCollectionBadgesComponent {
   protected readonly label = computed(() => {
     const count = this.names().length;
     return count === 1
-      ? this.i18nService.t("pamAccessRuleCollectionCountSingular")
-      : this.i18nService.t("pamAccessRuleCollectionCount", count);
+      ? this.i18nService.t("pamAccessRuleSharedFolderCountSingular")
+      : this.i18nService.t("pamAccessRuleSharedFolderCount", count);
   });
 
   protected readonly tooltip = computed(() => this.names().join(", "));

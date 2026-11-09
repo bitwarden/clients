@@ -19,9 +19,9 @@ import { CryptoSyncData } from "@bitwarden/sdk-internal";
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType } from "../../admin-console/enums";
+import { Collection } from "../../admin-console/models/collections";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
@@ -33,9 +33,11 @@ import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
-import { SyncSendNotification } from "../../models/response/notification.response";
+import {
+  SyncCipherNotification,
+  SyncSendNotification,
+} from "../../models/response/notification.response";
 import { ProviderService } from "../../provider/abstractions/provider.service";
-import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { SendType } from "../../tools/send/types/send-type";
@@ -43,6 +45,9 @@ import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { CipherData } from "../../vault/models/data/cipher.data";
+import { Cipher } from "../../vault/models/domain/cipher";
+import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
 import { SdkService } from "../abstractions/sdk/sdk.service";
@@ -64,7 +69,6 @@ describe("DefaultSyncService", () => {
   let collectionService: MockProxy<CollectionService>;
   let messageSender: MockProxy<MessageSender>;
   let policyService: MockProxy<InternalPolicyService>;
-  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let sendService: MockProxy<InternalSendService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
@@ -97,7 +101,6 @@ describe("DefaultSyncService", () => {
     collectionService = mock();
     messageSender = mock();
     policyService = mock();
-    newPolicyService = mock();
     sendService = mock();
     logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
     keyConnectorService = mock();
@@ -143,7 +146,6 @@ describe("DefaultSyncService", () => {
       collectionService,
       messageSender,
       policyService,
-      newPolicyService,
       sendService,
       logService,
       keyConnectorService,
@@ -834,15 +836,15 @@ describe("DefaultSyncService", () => {
         );
       });
 
-      it("clears policiesNew state when the response contains no policies", async () => {
+      it("clears policy state when the response contains no policies", async () => {
         apiService.getSync.mockResolvedValue(emptySyncResponse);
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).toHaveBeenCalledWith({}, user1);
+        expect(policyService.replace).toHaveBeenCalledWith({}, user1);
       });
 
-      it("calls newPolicyService.replace when policiesNew is present in the response", async () => {
+      it("syncs policiesNew into policyService when present", async () => {
         const syncResponse = new SyncResponse({
           Profile: {
             Id: user1,
@@ -859,13 +861,13 @@ describe("DefaultSyncService", () => {
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).toHaveBeenCalledWith(
+        expect(policyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ "policy-new-1": expect.any(Object) }),
           user1,
         );
       });
 
-      it("routes policies and policiesNew to their respective services independently", async () => {
+      it("uses policiesNew instead of policies when both are present", async () => {
         const syncResponse = new SyncResponse({
           Profile: {
             Id: user1,
@@ -883,12 +885,9 @@ describe("DefaultSyncService", () => {
 
         await sut.fullSync(true);
 
+        expect(policyService.replace).toHaveBeenCalledTimes(1);
         expect(policyService.replace).toHaveBeenCalledWith(
-          expect.objectContaining({ "old-policy": expect.any(Object) }),
-          user1,
-        );
-        expect(newPolicyService.replace).toHaveBeenCalledWith(
-          expect.objectContaining({ "new-policy": expect.any(Object) }),
+          { "new-policy": expect.any(Object) },
           user1,
         );
       });
@@ -910,7 +909,7 @@ describe("DefaultSyncService", () => {
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).toHaveBeenCalledWith(
+        expect(policyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ policy1: expect.any(Object) }),
           user1,
         );
@@ -934,7 +933,7 @@ describe("DefaultSyncService", () => {
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).toHaveBeenCalledWith(
+        expect(policyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ policy1: expect.any(Object) }),
           user1,
         );
@@ -1075,28 +1074,13 @@ describe("DefaultSyncService", () => {
     });
 
     describe("retry pending send deletions", () => {
-      it("retries pending send deletions when the flag is on", async () => {
-        configService.getFeatureFlag.mockImplementation((flag) =>
-          Promise.resolve(flag === FeatureFlag.Pm30110SdkSendsApi),
-        );
-
+      it("retries pending send deletions", async () => {
         await sut.fullSync(true);
 
         expect(sendsClient.retry_pending_deletions).toHaveBeenCalledTimes(1);
       });
 
-      it("does not retry pending send deletions when the flag is off", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
-
-        await sut.fullSync(true);
-
-        expect(sendsClient.retry_pending_deletions).not.toHaveBeenCalled();
-      });
-
       it("completes the sync and logs the error when retrying pending send deletions rejects", async () => {
-        configService.getFeatureFlag.mockImplementation((flag) =>
-          Promise.resolve(flag === FeatureFlag.Pm30110SdkSendsApi),
-        );
         const error = new Error("still offline");
         sendsClient.retry_pending_deletions.mockRejectedValue(error);
 
@@ -1124,8 +1108,7 @@ describe("DefaultSyncService", () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
     });
 
-    it("fetches the send through the SDK when the flag is on", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+    it("fetches the send through the SDK", async () => {
       const sdkSend = {
         id: sendGuid,
         type: SendType.Text,
@@ -1143,22 +1126,131 @@ describe("DefaultSyncService", () => {
 
       expect(result).toBe(true);
       expect(sendsClient.fetch).toHaveBeenCalledWith(sendGuid);
-      expect(sendApiService.getSend).not.toHaveBeenCalled();
       expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
     });
+  });
 
-    it("fetches the send through the legacy API and upserts it when the flag is off", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-      const remoteSend = { id: sendGuid } as any;
-      sendApiService.getSend.mockResolvedValue(remoteSend);
+  describe("syncUpsertCipher", () => {
+    const cipherId = Utils.newGuid();
+    const organizationId = Utils.newGuid();
+    const collectionId = Utils.newGuid();
+    const pushRevision = "2025-01-02T00:00:00.000Z";
 
-      const result = await sut.syncUpsertSend(notification, false);
+    const notification = (collectionIds?: string[]) =>
+      new SyncCipherNotification({
+        Id: cipherId,
+        UserId: user1,
+        OrganizationId: collectionIds ? organizationId : undefined,
+        CollectionIds: collectionIds,
+        RevisionDate: pushRevision,
+      });
+
+    const localCipher = (partial: boolean, revisionDate = "2025-01-01T00:00:00.000Z") => {
+      const cipher = new Cipher();
+      cipher.id = cipherId;
+      cipher.revisionDate = new Date(revisionDate);
+      cipher.partialData = partial ? "{}" : undefined;
+      return cipher;
+    };
+
+    const remoteCipher = (partial: boolean) =>
+      new CipherResponse({
+        Id: cipherId,
+        RevisionDate: pushRevision,
+        PartialData: partial ? "{}" : undefined,
+      });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
+      cipherService.get.mockResolvedValue(null);
+      collectionService.encryptedCollections$.mockReturnValue(of([]));
+    });
+
+    // CipherService.upsert keeps the stored restricted copy; core sync passes the response through.
+    it("hands a full response over a restricted local copy to cipherService.upsert", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true));
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
 
       expect(result).toBe(true);
-      expect(sendApiService.getSend).toHaveBeenCalledWith(sendGuid);
-      expect(sendsClient.fetch).not.toHaveBeenCalled();
-      expect(sendService.upsert).toHaveBeenCalledWith(new SendData(remoteSend));
-      expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+    });
+
+    it.each([
+      ["restricted", "restricted", true, true],
+      ["full", "restricted", false, true],
+      ["full", "full", false, false],
+    ])(
+      "upserts when the local copy is %s and the response is %s",
+      async (_local, _remote, localPartial, remotePartial) => {
+        cipherService.get.mockResolvedValue(localCipher(localPartial));
+        const remote = remoteCipher(remotePartial);
+        apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+        const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+        expect(result).toBe(true);
+        expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+        expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedCipher", { cipherId });
+      },
+    );
+
+    it("upserts a created cipher with no local copy", async () => {
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+      const result = await sut.syncUpsertCipher(notification(), false, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+    });
+
+    // With no local copy, the client can't tell a shared cipher from one a lease made readable.
+    // Only the server can.
+    it("upserts an edited cipher with no local copy when a collection matches", async () => {
+      collectionService.encryptedCollections$.mockReturnValue(
+        of([{ id: collectionId }] as unknown as Collection[]),
+      );
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+      const result = await sut.syncUpsertCipher(notification([collectionId]), true, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+    });
+
+    it("does not fetch when the local copy is already at the pushed revision", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true, pushRevision));
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(false);
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+    });
+
+    it("deletes the local copy when an edited cipher is no longer readable", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true));
+      apiService.getFullCipherDetails.mockRejectedValue({ statusCode: 404 });
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.delete).toHaveBeenCalledWith(cipherId, user1);
+      expect(messageSender.send).toHaveBeenCalledWith("syncedDeletedCipher", { cipherId });
+    });
+
+    it("does not fetch when the user is logged out", async () => {
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.LoggedOut));
+      cipherService.get.mockResolvedValue(localCipher(false));
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(false);
+      expect(cipherService.get).not.toHaveBeenCalled();
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
     });
   });
 
