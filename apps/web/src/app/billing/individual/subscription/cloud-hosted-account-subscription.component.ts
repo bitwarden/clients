@@ -113,12 +113,7 @@ export class CloudHostedAccountSubscriptionComponent {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
       }
-      const previewDrivenCart = await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
-      );
-      const subscription = previewDrivenCart
-        ? await this.getAccountSubscriptionPreview()
-        : await this.accountBillingClient.getSubscription();
+      const subscription = await this.getAccountSubscriptionPreview();
       if (!subscription) {
         const hasPremiumFromAnyOrganization = this.hasPremiumFromAnyOrganization();
         await this.router.navigate([

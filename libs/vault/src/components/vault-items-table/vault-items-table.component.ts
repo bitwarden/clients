@@ -1048,7 +1048,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly contributedTiles = computed(() => {
     const tiles = new Map<string, IconTileOptions>();
     for (const option of this.contributedOptions()) {
-      tiles.set(option.id, { icon: option.icon });
+      tiles.set(option.id, { icon: option.icon, variant: option.tileVariant });
     }
     return tiles;
   });

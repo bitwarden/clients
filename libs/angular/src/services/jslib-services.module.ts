@@ -80,7 +80,6 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -92,7 +91,6 @@ import { DefaultOrganizationDomainsService } from "@bitwarden/common/admin-conso
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
 import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/services/organization-management-preferences/default-organization-management-preferences.service";
-import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
@@ -313,11 +311,9 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
-import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -1009,7 +1005,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SendDecryptionService,
     useClass: SendDecryptionService,
-    deps: [SdkService, ConfigService, LegacyCompatKeyService],
+    deps: [SdkService, LegacyCompatKeyService],
   }),
   safeProvider({
     provide: InternalSendService,
@@ -1021,7 +1017,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
-      ConfigService,
       SdkService,
       SendDecryptionService,
     ],
@@ -1034,24 +1029,19 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SendApiService,
     useClass: SendApiService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService, LogService],
-  }),
-  safeProvider({
-    provide: SendSdkApiService,
-    useClass: SendSdkApiService,
     deps: [
-      SdkService,
-      SendApiService,
+      ApiServiceAbstraction,
+      FileUploadServiceAbstraction,
       InternalSendService,
-      AccountServiceAbstraction,
       LogService,
+      SdkService,
+      AccountServiceAbstraction,
       SendDecryptionService,
     ],
   }),
   safeProvider({
     provide: SendApiServiceAbstraction,
-    useClass: SendApiServiceSelector,
-    deps: [ConfigService, SendApiService, SendSdkApiService],
+    useExisting: SendApiService,
   }),
   safeProvider({
     provide: SyncService,
@@ -1067,7 +1057,6 @@ const safeProviders: SafeProvider[] = [
       CollectionService,
       MessagingServiceAbstraction,
       InternalPolicyService,
-      InternalNewPolicyService,
       InternalSendService,
       LogService,
       KeyConnectorServiceAbstraction,
@@ -1338,37 +1327,21 @@ const safeProviders: SafeProvider[] = [
       stateProvider: StateProvider,
       organizationService: OrganizationServiceAbstraction,
       accountService: AccountServiceAbstraction,
-      newPolicyService: InternalNewPolicyService,
       injector: Injector,
     ) =>
-      new DefaultPolicyService(
-        stateProvider,
-        organizationService,
-        accountService,
-        newPolicyService,
-        () => injector.get(SdkService),
+      new DefaultPolicyService(stateProvider, organizationService, accountService, () =>
+        injector.get(SdkService),
       ),
-    deps: [
-      StateProvider,
-      OrganizationServiceAbstraction,
-      AccountServiceAbstraction,
-      InternalNewPolicyService,
-      Injector,
-    ],
+    deps: [StateProvider, OrganizationServiceAbstraction, AccountServiceAbstraction, Injector],
   }),
   safeProvider({
     provide: PolicyServiceAbstraction,
     useExisting: InternalPolicyService,
   }),
   safeProvider({
-    provide: InternalNewPolicyService,
-    useClass: DefaultNewPolicyService,
-    deps: [StateProvider],
-  }),
-  safeProvider({
     provide: PolicyApiServiceAbstraction,
     useClass: PolicyApiService,
-    deps: [InternalPolicyService, InternalNewPolicyService, ApiServiceAbstraction, AccountService],
+    deps: [InternalPolicyService, ApiServiceAbstraction, AccountService],
   }),
   safeProvider({
     provide: InternalMasterPasswordServiceAbstraction,

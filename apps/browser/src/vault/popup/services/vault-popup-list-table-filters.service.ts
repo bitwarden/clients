@@ -91,6 +91,16 @@ const VAULT_SELECTED_SCOPE = new UserKeyDefinition<string | null>(
   },
 );
 
+/** The collection segment beside {@link VAULT_SELECTED_SCOPE}, e.g. "My items"; `null` for none. */
+const VAULT_SELECTED_COLLECTION = new UserKeyDefinition<string | null>(
+  VAULT_TABLE_FILTERS_DISK,
+  "selectedScopeCollection",
+  {
+    deserializer: (v) => v,
+    clearOn: ["lock", "logout"],
+  },
+);
+
 /**
  * Each vault's search text for a user, keyed by {@link scopeKey}. Search terms can name sites and
  * accounts.
@@ -214,20 +224,42 @@ export class VaultPopupListTableFiltersService {
     initialValue: null,
   });
 
+  /** The collection segment beside {@link cachedVaultScopeId}, so "My items" restores as itself. */
+  readonly cachedVaultScopeCollection = toSignal(this.userState$(VAULT_SELECTED_COLLECTION), {
+    initialValue: null,
+  });
+
   /** Stores the active user's selected vault. Await it before a navigation that reads it back. */
-  async setCachedVaultScopeId(id: string | null): Promise<void> {
+  async setCachedVaultScopeId(
+    id: string | null,
+    collectionSegment: string | null = null,
+  ): Promise<void> {
     const userId = this.activeUserId();
     if (userId != null) {
-      await this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).update(() => id);
+      await Promise.all([
+        this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).update(() => id),
+        this.stateProvider
+          .getUser(userId, VAULT_SELECTED_COLLECTION)
+          .update(() => collectionSegment),
+      ]);
     }
   }
 
   /** The active user's selected vault, once their stored state has loaded. */
   storedVaultScopeId(): Promise<string | null> {
+    return this.storedState(VAULT_SELECTED_SCOPE);
+  }
+
+  /** The collection segment beside {@link storedVaultScopeId}, so "My items" restores as itself. */
+  storedVaultScopeCollection(): Promise<string | null> {
+    return this.storedState(VAULT_SELECTED_COLLECTION);
+  }
+
+  private storedState(key: UserKeyDefinition<string | null>): Promise<string | null> {
     return firstValueFrom(
       this.activeUserId$.pipe(
-        switchMap((userId) => this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).state$),
-        map((id) => id ?? null),
+        switchMap((userId) => this.stateProvider.getUser(userId, key).state$),
+        map((value) => value ?? null),
       ),
     );
   }

@@ -5,7 +5,8 @@ import { WEB_VAULT_URL } from "./src/server";
 
 /**
  * Flows spanning clients: the web vault next to the browser extension, in one
- * persistent Chromium context with the extension loaded (see src/browser/fixtures.ts).
+ * persistent Chromium context with the extension loaded (see src/browser/fixtures.ts),
+ * and the extension next to the desktop app (see src/shared/desktop-fixtures.ts).
  */
 export default defineConfig({
   ...baseConfig,
