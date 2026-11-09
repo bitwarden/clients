@@ -336,22 +336,30 @@ describe("keyService", () => {
       });
     });
 
+    // The ciphertext piece of an EncString: after the IV for AES types (0, 2), first for RSA.
+    function dataBytes(encString: EncString): Uint8Array {
+      const [type, body] = encString.encryptedString!.split(".");
+      const pieces = body.split("|");
+      const aes = type === "0" || type === "2";
+      return Utils.fromB64ToArray(aes ? pieces[1] : pieces[0]);
+    }
+
     function fakePrivateKeyDecryption(encryptedPrivateKey: EncString, key: SymmetricCryptoKey) {
       const output = new Uint8Array(64);
-      output.set(encryptedPrivateKey.dataBytes);
+      output.set(dataBytes(encryptedPrivateKey));
       output.set(
-        key.toEncoded().subarray(0, 64 - encryptedPrivateKey.dataBytes.length),
-        encryptedPrivateKey.dataBytes.length,
+        key.toEncoded().subarray(0, 64 - dataBytes(encryptedPrivateKey).length),
+        dataBytes(encryptedPrivateKey).length,
       );
       return output;
     }
 
     function fakeOrgKeyDecryption(encryptedString: EncString, userPrivateKey: Uint8Array) {
       const output = new Uint8Array(64);
-      output.set(encryptedString.dataBytes);
+      output.set(dataBytes(encryptedString));
       output.set(
-        userPrivateKey.subarray(0, 64 - encryptedString.dataBytes.length),
-        encryptedString.dataBytes.length,
+        userPrivateKey.subarray(0, 64 - dataBytes(encryptedString).length),
+        dataBytes(encryptedString).length,
       );
       return output;
     }

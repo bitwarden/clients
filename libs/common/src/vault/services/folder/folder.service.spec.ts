@@ -122,7 +122,6 @@ describe("Folder Service", () => {
       id: "2",
       name: {
         encryptedString: "ENC",
-        encryptionType: 0,
       },
       revisionDate: expect.any(Date),
     });

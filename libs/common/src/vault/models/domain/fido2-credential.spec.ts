@@ -51,18 +51,18 @@ describe("Fido2Credential", () => {
       const credential = new Fido2Credential(data);
 
       expect(credential).toEqual({
-        credentialId: { encryptedString: "credentialId", encryptionType: 0 },
-        keyType: { encryptedString: "public-key", encryptionType: 0 },
-        keyAlgorithm: { encryptedString: "ECDSA", encryptionType: 0 },
-        keyCurve: { encryptedString: "P-256", encryptionType: 0 },
-        keyValue: { encryptedString: "keyValue", encryptionType: 0 },
-        rpId: { encryptedString: "rpId", encryptionType: 0 },
-        userHandle: { encryptedString: "userHandle", encryptionType: 0 },
-        userName: { encryptedString: "userName", encryptionType: 0 },
-        counter: { encryptedString: "counter", encryptionType: 0 },
-        rpName: { encryptedString: "rpName", encryptionType: 0 },
-        userDisplayName: { encryptedString: "userDisplayName", encryptionType: 0 },
-        discoverable: { encryptedString: "discoverable", encryptionType: 0 },
+        credentialId: { encryptedString: "credentialId" },
+        keyType: { encryptedString: "public-key" },
+        keyAlgorithm: { encryptedString: "ECDSA" },
+        keyCurve: { encryptedString: "P-256" },
+        keyValue: { encryptedString: "keyValue" },
+        rpId: { encryptedString: "rpId" },
+        userHandle: { encryptedString: "userHandle" },
+        userName: { encryptedString: "userName" },
+        counter: { encryptedString: "counter" },
+        rpName: { encryptedString: "rpName" },
+        userDisplayName: { encryptedString: "userDisplayName" },
+        discoverable: { encryptedString: "discoverable" },
         creationDate: mockDate,
       });
     });

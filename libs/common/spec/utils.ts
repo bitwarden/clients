@@ -33,8 +33,11 @@ export function BuildTestObject<T, K extends keyof T = keyof T>(
   return Object.assign(constructor === null ? {} : new constructor(), def) as T;
 }
 
-export function mockEnc(s: string): MockProxy<EncString> {
-  const mocked = mock<EncString>();
+/** An EncString mock carrying its plaintext, which {@link mockContainerService} "decrypts" to. */
+export type MockEncString = MockProxy<EncString> & { decryptedValue?: string };
+
+export function mockEnc(s: string): MockEncString {
+  const mocked: MockEncString = mock<EncString>();
   mocked.decryptedValue = s;
 
   return mocked;
@@ -88,7 +91,7 @@ export const mockContainerService = () => {
   const encryptService = mock<EncryptService>();
   const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   encryptService.decryptString.mockImplementation(async (encStr, _key) => {
-    return encStr.decryptedValue;
+    return (encStr as MockEncString).decryptedValue;
   });
   (window as any).bitwardenContainerService = new ContainerService(
     keyService,

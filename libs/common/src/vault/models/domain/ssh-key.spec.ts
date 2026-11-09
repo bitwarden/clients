@@ -27,9 +27,9 @@ describe("Sshkey", () => {
     const sshKey = new SshKey(data);
 
     expect(sshKey).toEqual({
-      privateKey: { encryptedString: "privateKey", encryptionType: 0 },
-      publicKey: { encryptedString: "publicKey", encryptionType: 0 },
-      keyFingerprint: { encryptedString: "keyFingerprint", encryptionType: 0 },
+      privateKey: { encryptedString: "privateKey" },
+      publicKey: { encryptedString: "publicKey" },
+      keyFingerprint: { encryptedString: "keyFingerprint" },
     });
   });
 
