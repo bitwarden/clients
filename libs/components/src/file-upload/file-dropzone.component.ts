@@ -166,7 +166,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
     } else if (this.formFieldControl.hasError()) {
       base.push("tw-border-border-danger", "tw-cursor-pointer");
     } else if (this.isDragOver()) {
-      base.push("tw-border-border-strong", "tw-cursor-pointer");
+      base.push("!tw-bg-bg-quaternary", "tw-border-border-strong", "tw-cursor-pointer");
     } else {
       base.push("tw-border-border-strong", "tw-cursor-pointer", "hover:tw-bg-bg-quaternary");
     }
