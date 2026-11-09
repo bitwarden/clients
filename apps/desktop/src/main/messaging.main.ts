@@ -3,6 +3,7 @@
 import { app, ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
+import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { autostart } from "@bitwarden/desktop-napi";
 import { LockSource } from "@bitwarden/unlock";
 
@@ -91,6 +92,16 @@ export class MessagingMain {
             await this.main.serviceContainer.lockService.lock(activeAccount.id, LockSource.Manual);
           }
         }
+        break;
+      // Power events reach both processes; main acts on them only while the renderer is destroyed.
+      case "systemSuspended":
+        await this.main.headlessVaultTimeout.onSystemEvent(VaultTimeoutStringType.OnSleep);
+        break;
+      case "systemLocked":
+        await this.main.headlessVaultTimeout.onSystemEvent(VaultTimeoutStringType.OnLocked);
+        break;
+      case "systemIdle":
+        await this.main.headlessVaultTimeout.onSystemEvent(VaultTimeoutStringType.OnIdle);
         break;
       case "lockAllVaults":
         await this.main.serviceContainer.lockService.lockAll(LockSource.Manual);
