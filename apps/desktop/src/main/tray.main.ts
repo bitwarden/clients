@@ -138,21 +138,12 @@ export class TrayMain {
    * the window - foregrounding is not a toggle.
    */
   async restoreFromTray() {
-    if (this.windowMain.win == null) {
-      // On macOS, closing the window via the red button destroys the BrowserWindow instance.
-      await this.windowMain.createWindow();
-      this.windowMain.win.show();
-    } else {
-      if (this.windowMain.win.isMinimized()) {
-        this.windowMain.win.restore();
-      }
-      this.windowMain.show();
-      this.windowMain.win.focus();
+    if (this.isDarwin()) {
+      // Show the dock first: while hidden, the app cannot take focus.
+      await this.showDock();
     }
 
-    if (this.isDarwin()) {
-      this.showDock();
-    }
+    await this.windowMain.ensureRenderer();
   }
 
   showTray() {
@@ -183,10 +174,8 @@ export class TrayMain {
     app.dock.hide();
   }
 
-  private showDock() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    app.dock.show();
+  private showDock(): Promise<void> {
+    return app.dock.show();
   }
 
   private isDarwin() {
