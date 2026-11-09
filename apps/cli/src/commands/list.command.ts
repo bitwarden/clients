@@ -21,6 +21,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
@@ -87,7 +88,10 @@ export class ListCommand {
     if (options.url != null && options.url.trim() !== "") {
       ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
     } else {
-      ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+      // The cached stream, so repeated requests (`bw serve`) do not decrypt the vault each time.
+      ciphers = await firstValueFrom(
+        this.cipherService.cipherViews$(activeUserId).pipe(filterOutNullish()),
+      );
     }
 
     if (

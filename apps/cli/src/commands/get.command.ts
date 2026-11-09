@@ -29,6 +29,7 @@ import { PassportExport } from "@bitwarden/common/models/export/passport.export"
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -39,6 +40,8 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -132,9 +135,18 @@ export class GetCommand extends DownloadCommand {
         decCipher = await this.cipherService.decrypt(cipher, userId);
       }
     } else if (id.trim() !== "") {
-      let ciphers = await this.cipherService.getAllDecrypted(userId);
-      ciphers = ciphers.filter((c) => !c.isDeleted && !c.isArchived);
-      ciphers = this.searchService.searchCiphersBasic(ciphers, id);
+      // Search the list views and decrypt only the matches, so a lookup does not decrypt the vault.
+      const listViews = await firstValueFrom(
+        this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+      );
+      const active = listViews.filter(
+        (v) => !CipherViewLikeUtils.isDeleted(v) && !CipherViewLikeUtils.isArchived(v),
+      );
+      const matches = this.searchService.searchCiphersBasic(active, id);
+      const ciphers = await this.cipherService.getAllDecryptedForIds(
+        userId,
+        matches.map((v) => uuidAsString(v.id)),
+      );
       if (ciphers.length > 1) {
         return ciphers;
       }
