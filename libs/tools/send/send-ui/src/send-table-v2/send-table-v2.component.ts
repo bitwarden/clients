@@ -1,10 +1,20 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, TrackByFunction, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  TrackByFunction,
+  input,
+  output,
+  signal,
+  viewChild,
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
-import { NoSendsIcon } from "@bitwarden/assets/svg";
+import { NoFolders, NoSendsIcon } from "@bitwarden/assets/svg";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { normalizeSearchQuery } from "@bitwarden/common/vault/services/search.service";
 import {
   BitCellComponent,
   BitCellDefDirective,
@@ -24,6 +34,8 @@ import {
   FilterMenuModule,
   StatusLockupComponent,
   SvgComponent,
+  IconTileComponent,
+  FilterMenuComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -54,6 +66,7 @@ type SendFilters = { search: string; type: SendType | null };
     BitTableV2Component,
     ButtonModule,
     IconButtonModule,
+    IconTileComponent,
     IconModule,
     LinkModule,
     MenuModule,
@@ -66,6 +79,7 @@ type SendFilters = { search: string; type: SendType | null };
     NewSendDropdownV2Component,
     StatusLockupComponent,
     SvgComponent,
+    FormsModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -73,7 +87,11 @@ export class SendTableV2Component {
   protected readonly SendType = SendType;
   protected readonly authType = AuthType;
   readonly itemIcon = getSendItemIcon;
-  protected readonly noItemIcon = NoSendsIcon;
+  protected readonly noSendsIcon = NoSendsIcon;
+  protected readonly noVisibleSendsIcon = NoFolders;
+
+  protected readonly sendSearchText = signal<string>("");
+  private readonly sendTypeFilter = viewChild<FilterMenuComponent>("sendTypeFilter");
 
   /**
    * The Sends to display. Sorting and display are handled by the table.
@@ -128,8 +146,31 @@ export class SendTableV2Component {
   protected readonly trackById: TrackByFunction<SendView> = (_index, send) => send.id;
 
   readonly filter = (row: SendView, f: SendFilters) =>
-    (f.type == null || row.type === f.type) &&
-    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase()));
+    (f.type == null || row.type === f.type) && this.sendSearchMatches(row, f.search);
+
+  private sendSearchMatches(row: SendView, query: string | undefined) {
+    if (!query) {
+      return true;
+    }
+    const normalizedQuery = normalizeSearchQuery(query.trim().toLocaleLowerCase());
+    if ((row.name ?? "").toLocaleLowerCase().includes(normalizedQuery)) {
+      return true;
+    }
+    /** The following conditions were considered low priority matches in the V1 table and would show up after
+     * any matches found via the name because we'd pass the table a filtered and ordered data set. The V2 table
+     * handles filtering and ordering itself, so here they're simply further criteria
+     */
+    if ((row.notes ?? "").toLocaleLowerCase().includes(normalizedQuery)) {
+      return true;
+    }
+    if ((row.text?.text ?? "").toLocaleLowerCase().includes(normalizedQuery)) {
+      return true;
+    }
+    if ((row.file?.fileName ?? "").toLocaleLowerCase().includes(normalizedQuery)) {
+      return true;
+    }
+    return false;
+  }
 
   protected onEditSend(send: SendView): void {
     this.editSend.emit(send);
@@ -149,5 +190,14 @@ export class SendTableV2Component {
 
   protected onAddSend(sendType: SendType): void {
     this.addSend.emit(sendType);
+  }
+
+  protected onSearchTextChanged(t: string) {
+    this.sendSearchText.set(t);
+  }
+
+  protected clearAll(): void {
+    this.sendTypeFilter()?.clear();
+    this.sendSearchText.set("");
   }
 }

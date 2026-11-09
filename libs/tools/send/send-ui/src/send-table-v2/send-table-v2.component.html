@@ -1,10 +1,21 @@
 <bit-table-v2 [tableDef]="table" [trackBy]="trackById" [filter]="filter" queryParam="sends">
   <bit-table-toolbar>
-    <bit-search class="tw-flex-1" [placeholder]="'search' | i18n" />
+    <bit-search
+      #sendSearch
+      class="tw-flex-1"
+      [placeholder]="'search' | i18n"
+      [ngModel]="sendSearchText()"
+      (ngModelChange)="onSearchTextChanged($event)"
+    />
     @if (!disableSend()) {
       <tools-new-send-dropdown-v2 buttonType="primary" (addSend)="onAddSend($event)" slot="end" />
     }
-    <bit-filter-menu key="type" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
+    <bit-filter-menu
+      #sendTypeFilter
+      key="type"
+      [placeholderText]="'type' | i18n"
+      [unsetLabel]="'all' | i18n"
+    >
       <bit-filter-option [value]="SendType.Text">{{ "sendTypeText" | i18n }}</bit-filter-option>
       <bit-filter-option [value]="SendType.File">{{ "sendTypeFile" | i18n }}</bit-filter-option>
       <bit-filter-option [value]="SendType.Item">{{ "item" | i18n }}</bit-filter-option>
@@ -18,19 +29,19 @@
       class="tw-cursor-pointer"
       (click)="onEditSend(s)"
     >
-      <div class="tw-flex tw-gap-2 tw-items-center tw-min-w-0">
+      <div class="tw-flex tw-gap-4 tw-items-center tw-min-w-0">
         <span aria-hidden="true">
           @if (s.type == SendType.File) {
-            <bit-icon name="bwi-file" class="bwi-lg tw-text-muted" />
+            <bit-icon-tile icon="bwi-file" size="sm" />
           }
           @if (s.type == SendType.Text) {
-            <bit-icon name="bwi-file-text" class="bwi-lg tw-text-muted" />
+            <bit-icon-tile icon="bwi-file-text" size="sm" />
           }
           @if (s.type == SendType.Item && itemIcon(s); as icon) {
-            <bit-icon [name]="icon" class="bwi-lg tw-text-muted" />
+            <bit-icon-tile [icon]="icon" size="sm" />
           }
         </span>
-        <button type="button" bitLink truncate>
+        <div class="tw-truncate tw-text-fg-heading">
           {{ s.name }}
           <!-- Since the icons are not focusable, we append their screen reader messages to the Send name -->
           @if (s.authType !== authType.None) {
@@ -53,7 +64,7 @@
           @if (s.pendingDelete) {
             <span class="tw-sr-only">, {{ "pendingDeletion" | i18n }}</span>
           }
-        </button>
+        </div>
         @if (s.authType !== authType.None) {
           <bit-icon
             name="bwi-lock"
@@ -95,7 +106,7 @@
       class="tw-text-muted tw-cursor-pointer"
       (click)="onEditSend(s)"
     >
-      <small bitTypography="body2" appStopProp>
+      <small bitTypography="body1" appStopProp>
         {{ s.deletionDate | date: "medium" }}
       </small>
     </bit-cell>
@@ -133,10 +144,26 @@
     </bit-cell>
   </bit-column>
 
-  <!-- We override the table's default empty state with a Send-specific message and graphic -->
+  <!-- The empty message is different depending on whether there are no Sends or no *visible* Sends -->
+  @let noSends = sends().length === 0;
   <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="noItemIcon"></bit-svg>
-    <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-    <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
+    <bit-svg slot="graphic" [content]="noSends ? noSendsIcon : noVisibleSendsIcon"></bit-svg>
+    @if (noSends) {
+      <ng-container slot="title">{{ "sendsTitleNoItemsV2" | i18n }}</ng-container>
+    }
+    <ng-container slot="description">{{
+      (noSends ? "sendsBodyNoItemsV2" : "noItemsMatchSelectedFilters") | i18n
+    }}</ng-container>
+    @if (noSends) {
+      <tools-new-send-dropdown-v2
+        buttonType="primary"
+        (addSend)="onAddSend($event)"
+        slot="button"
+      />
+    } @else {
+      <button type="button" bitButton slot="button" startIcon="bwi-clear" (click)="clearAll()">
+        {{ "clearAll" | i18n }}
+      </button>
+    }
   </bit-status-lockup>
 </bit-table-v2>
