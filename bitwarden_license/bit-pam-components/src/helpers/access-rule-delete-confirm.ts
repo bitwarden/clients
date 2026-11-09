@@ -4,7 +4,7 @@ import type { SimpleDialogOptions } from "@bitwarden/components";
 export function accessRuleDeleteConfirmOptions(): SimpleDialogOptions {
   return {
     title: { key: "pamAccessRuleDeleteConfirmTitle" },
-    content: { key: "pamAccessRuleDeleteConfirmDescription" },
+    content: { key: "pamAccessRuleDeleteConfirmDescriptionSharedFolder" },
     acceptButtonText: { key: "delete" },
     cancelButtonText: { key: "cancel" },
     type: "danger",
