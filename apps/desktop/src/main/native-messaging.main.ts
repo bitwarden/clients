@@ -152,6 +152,13 @@ export class NativeMessagingMain {
     return this.clients.get(clientId);
   }
 
+  /**
+   * The ids of the clients currently connected to the native messaging server.
+   */
+  connectedClientIds(): number[] {
+    return [...this.clients.keys()];
+  }
+
   send(message: object) {
     this.logService.debug("Native messaging reply:", message);
     this.ipcServer?.send(JSON.stringify(message));

@@ -40,8 +40,14 @@ export async function skipOnboardingDialogs(page: Page) {
   for (const { heading, dismiss } of ONBOARDING_DIALOGS) {
     const dialog = page.getByRole("dialog").filter({ hasText: heading });
 
+    // The same dialog can open twice, stacked. Close the topmost copy until none is left: it
+    // covers the ones below, so their buttons cannot be clicked first.
+    const close = dialog.getByRole("button", { name: dismiss });
     await page.addLocatorHandler(dialog, async () => {
-      await dialog.getByRole("button", { name: dismiss }).click();
+      for (let open = await close.count(); open > 0; open = await close.count()) {
+        await close.last().click();
+        await expect(close).toHaveCount(open - 1);
+      }
     });
   }
 }

@@ -67,7 +67,6 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
-  Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
   ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
 
@@ -81,7 +80,6 @@ export enum FeatureFlag {
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
   PasskeyLoginReport = "inno-passkey-directory-report",
-  AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
   HealthReportExclusions = "pm-39196-health-report-exclusions",
@@ -146,7 +144,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
-  [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
   [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
 
@@ -160,7 +157,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
   [FeatureFlag.PasskeyLoginReport]: FALSE,
-  [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
   [FeatureFlag.HealthReportExclusions]: FALSE,
