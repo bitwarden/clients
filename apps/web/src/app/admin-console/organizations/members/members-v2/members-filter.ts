@@ -13,6 +13,24 @@ export const MemberProductFilter = Object.freeze({
 } as const);
 export type MemberProductFilter = (typeof MemberProductFilter)[keyof typeof MemberProductFilter];
 
+/** An Account recovery option in the Policies filter. */
+export const AccountRecoveryFilter = Object.freeze({
+  Enrolled: "enrolled",
+  NotEnrolled: "notEnrolled",
+} as const);
+export type AccountRecoveryFilter =
+  (typeof AccountRecoveryFilter)[keyof typeof AccountRecoveryFilter];
+
+/** A Two-step login option in the Policies filter. */
+export const TwoFactorFilter = Object.freeze({
+  Active: "active",
+  Inactive: "inactive",
+} as const);
+export type TwoFactorFilter = (typeof TwoFactorFilter)[keyof typeof TwoFactorFilter];
+
+/** A Policies filter value. Values are distinct across sections, so one array holds both. */
+export type PolicyOption = AccountRecoveryFilter | TwoFactorFilter;
+
 export type MemberFilters = {
   search?: string;
   status?: StatusOption[];
@@ -20,6 +38,7 @@ export type MemberFilters = {
   /** Group IDs, or collection IDs when the organization doesn't use groups. */
   access?: string[];
   product?: MemberProductFilter[];
+  policies?: PolicyOption[];
 };
 
 /** The roles offered in the Role filter, in display order. */
@@ -105,5 +124,23 @@ export function matchesProduct(
     !product?.length ||
     (product.includes(MemberProductFilter.SecretsManager) && member.accessSecretsManager) ||
     (product.includes(MemberProductFilter.PrivilegedControls) && member.accessPam)
+  );
+}
+
+/**
+ * Whether a member matches the Policies filter. Options within a section combine with OR, and the
+ * Account recovery and Two-step login sections combine with AND.
+ */
+export function matchesPolicies(member: OrganizationUserView, policies?: PolicyOption[]): boolean {
+  const checked = new Set(policies);
+  // A section with neither or both options checked doesn't narrow the list.
+  const matchesSection = (yes: PolicyOption, no: PolicyOption, value: boolean) =>
+    checked.has(yes) === checked.has(no) || checked.has(value ? yes : no);
+  return (
+    matchesSection(
+      AccountRecoveryFilter.Enrolled,
+      AccountRecoveryFilter.NotEnrolled,
+      member.resetPasswordEnrolled,
+    ) && matchesSection(TwoFactorFilter.Active, TwoFactorFilter.Inactive, member.twoFactorEnabled)
   );
 }

@@ -17,9 +17,11 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
+  PolicyType,
   RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { LogoutService } from "@bitwarden/common/auth/logout";
@@ -81,7 +83,10 @@ const COLLECTION_NAMES = new Map([
   ["c-marketing", "Marketing"],
 ]);
 
-/** Secrets Manager and Privileged controls on, so the Products filter offers both. */
+/**
+ * Secrets Manager and Privileged controls on, so the Products filter offers both, and account
+ * recovery on, so the Policies filter offers its Account recovery section.
+ */
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
   return {
     id: ORG_ID,
@@ -90,6 +95,7 @@ function mockOrganization(overrides: Partial<Organization> = {}): Organization {
     useEvents: true,
     useSecretsManager: true,
     usePam: true,
+    useResetPassword: true,
     canManageUsers: true,
     ...overrides,
   } as unknown as Organization;
@@ -122,6 +128,7 @@ function mockUser({
     accessSecretsManager: false,
     accessPam: false,
     resetPasswordEnrolled: false,
+    twoFactorEnabled: false,
     claimedByOrganization: false,
     canSendInvite: false,
     canReinvite: false,
@@ -133,7 +140,10 @@ function mockUser({
   } as unknown as OrganizationUserView;
 }
 
-/** A member in every status, and more than one page of them so the paginator shows. */
+/**
+ * A member in every status, and more than one page of them so the paginator shows. Members mix
+ * two-step login and account recovery enrollment, so both icons and their tooltips show.
+ */
 const mockMembers: OrganizationUserView[] = [
   mockUser({
     id: "user-1" as Guid,
@@ -144,6 +154,8 @@ const mockMembers: OrganizationUserView[] = [
     collections: ["c-engineering", "c-finance"],
     accessSecretsManager: true,
     accessPam: true,
+    twoFactorEnabled: true,
+    resetPasswordEnrolled: true,
   }),
   mockUser({
     id: "user-2" as Guid,
@@ -169,6 +181,7 @@ const mockMembers: OrganizationUserView[] = [
     type: OrganizationUserType.Admin,
     groups: ["g-it", "g-operations"],
     accessPam: true,
+    twoFactorEnabled: true,
   }),
   mockUser({
     id: "user-5" as Guid,
@@ -186,6 +199,8 @@ const mockMembers: OrganizationUserView[] = [
       groups: i % 3 === 0 ? ["g-support"] : ["g-engineering", "g-support"],
       collections: i % 2 === 0 ? ["c-marketing"] : ["c-finance"],
       accessSecretsManager: i % 5 === 0,
+      twoFactorEnabled: i % 2 === 0,
+      resetPasswordEnrolled: i % 3 !== 1,
     }),
   ),
 ];
@@ -304,10 +319,17 @@ const mockBillingAccountProfileStateService = {
   hasPremiumFromAnySource$: () => of(false),
 };
 
-const mockPolicyService = {
-  policies$: () => of([]),
-  policyAppliesToUser$: () => of(false),
-};
+function makePolicyService(resetPasswordPolicyEnabled: boolean) {
+  const policy = {
+    type: PolicyType.ResetPassword,
+    organizationId: ORG_ID,
+    enabled: resetPasswordPolicyEnabled,
+  } as Policy;
+  return {
+    policies$: () => of([policy]),
+    policyAppliesToUser$: () => of(false),
+  };
+}
 
 const mockAvatarService = {
   avatarColor$: of("#FF0000"),
@@ -447,7 +469,7 @@ export default {
         { provide: SyncService, useValue: mockSyncService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: AccountService, useValue: mockAccountService },
-        { provide: PolicyService, useValue: mockPolicyService },
+        { provide: PolicyService, useValue: makePolicyService(true) },
         { provide: ConfigService, useValue: mockConfigService },
         {
           provide: BillingAccountProfileStateService,
@@ -467,11 +489,13 @@ type Story = StoryObj<MembersV2Component>;
 function makeRender(
   members: OrganizationUserView[] | "loading",
   organization: Organization = mockOrganization(),
+  resetPasswordPolicyEnabled = true,
 ): Story["render"] {
   return () => ({
     moduleMetadata: {
       providers: [
         { provide: OrganizationService, useValue: makeOrganizationService(organization) },
+        { provide: PolicyService, useValue: makePolicyService(resetPasswordPolicyEnabled) },
         {
           provide: OrganizationMembersService,
           useValue: makeOrganizationMembersService(members, organization),
@@ -486,7 +510,9 @@ function makeRender(
  * An organization that uses groups, with a member in every status and enough members to page. The
  * toolbar has search, Export, Invite member and the Status, Role, Groups and Products filters.
  * Groups has more than 10 options, so it shows a search, and two of them are named Engineering.
- * Products offers both Secrets Manager and Privileged controls.
+ * Products offers both Secrets Manager and Privileged controls. Policies offers Account recovery
+ * and Two-step login sections, and a lock or key icon follows the name of members with two-step
+ * login or enrolled in account recovery; hover either for its tooltip.
  */
 export const Default: Story = {
   render: makeRender(mockMembers),
@@ -506,6 +532,15 @@ export const Collections: Story = {
 export const WithoutProducts: Story = {
   name: "Without products",
   render: makeRender(mockMembers, mockOrganization({ useSecretsManager: false, usePam: false })),
+};
+
+/**
+ * With the account recovery policy off, the Policies filter only offers Two-step login, and no key
+ * icons show.
+ */
+export const WithoutAccountRecoveryPolicy: Story = {
+  name: "Without account recovery policy",
+  render: makeRender(mockMembers, mockOrganization(), false),
 };
 
 /**
