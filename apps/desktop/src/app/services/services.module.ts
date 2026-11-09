@@ -218,7 +218,6 @@ import {
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
-import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
 import { DesktopCredentialGenerationService } from "../../services/desktop-cipher-form-generator.service";
 import { DesktopCopyListenerService } from "../../services/desktop-copy-listener.service";
 import { DesktopDeviceManagementComponentService } from "../../services/desktop-device-management-component.service";
@@ -294,7 +293,6 @@ const safeProviders: SafeProvider[] = [
     multi: true,
   }),
   safeProvider(NativeMessagingService),
-  safeProvider(BiometricMessageHandlerService),
   safeProvider(DialogService),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
