@@ -111,6 +111,21 @@ Add a scene or query by subclassing `SceneTemplate` in `src/seeder/scenes/` or
 `QueryTemplate` in `src/seeder/queries/`, named after the server's class and typed after its
 `Request` and result.
 
+## SSH agent
+
+`tests/desktop/ssh-agent.e2e.ts` seeds ED25519, ECDSA and RSA keys, and drives the desktop SSH
+agent with OpenSSH's own `ssh`, `ssh-keygen` and `ssh-add` against a local `sshd`:
+
+```
+ssh ──agent socket──▶ desktop SSH agent ──approval dialog──▶ test authorizes
+ └──▶ sshd (127.0.0.1, random port) ──forwarded agent──▶ ssh (second hop)
+```
+
+It needs the SeederApi and OpenSSH, server included. `sshd` runs unprivileged as you, so it
+only accepts logins as you, and its second hop runs in your login shell. It is looked up in
+`/usr/sbin`, Homebrew and `/usr/local/sbin`; `E2E_SSHD` overrides. The agent's socket is a
+temp path, never `~/.bitwarden-ssh-agent.sock`.
+
 ## CI
 
 `.github/workflows/test-e2e-usdev.yml` runs every suite against usdev nightly, and on
