@@ -359,8 +359,8 @@ describe("SendApiService", () => {
       expect(apiService.send).not.toHaveBeenCalled();
     });
 
-    it("removes the password through the SDK, then refetches the send over REST", async () => {
-      await service.removePassword(sendId);
+    it("removes all auth through the SDK, then refetches the send over REST", async () => {
+      await service.removeAuth(sendId);
 
       expect(sendsClient.remove_password).toHaveBeenCalledWith(sendId);
       expect(apiService.send).toHaveBeenCalledTimes(1);

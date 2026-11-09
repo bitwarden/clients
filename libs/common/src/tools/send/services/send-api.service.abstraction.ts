@@ -18,7 +18,11 @@ export abstract class SendApiService {
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse>;
-  abstract removePassword(id: string): Promise<any>;
+  /**
+   * Removes all authentication from a send — a password or an email-verification
+   * requirement — and updates local send state with the result.
+   */
+  abstract removeAuth(id: string): Promise<any>;
   abstract delete(id: string): Promise<any>;
   /**
    * Persists a send.

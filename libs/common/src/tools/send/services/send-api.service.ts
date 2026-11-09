@@ -148,7 +148,7 @@ export class SendApiService implements SendApiServiceAbstraction {
   }
 
   // Removes all auth (password or email OTP) from the send.
-  async removePassword(id: string): Promise<any> {
+  async removeAuth(id: string): Promise<any> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
