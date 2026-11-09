@@ -178,11 +178,8 @@ export class MyAccessService {
   }
 
   /**
-   * Waits on the badges' shared clock rather than a timer of this service's own: PAM keeps two
-   * clocks and no more (see this directory's CLAUDE.md), and the badges on this very tab already
-   * hold that one open. It is also the only form that survives a distant lease, `setTimeout`
-   * fires immediately for a delay past 2^31-1 ms (~24.8 days), so a grant a month out would have
-   * reloaded in a loop rather than waiting.
+   * Waits on the badges' shared clock rather than a timer: `setTimeout` fires immediately for a
+   * delay past 2^31-1 ms (~24.8 days), so a distant end would reload in a loop.
    */
   private lapseAt(endMs: number): Observable<number> {
     return this.ticker.ticks$.pipe(

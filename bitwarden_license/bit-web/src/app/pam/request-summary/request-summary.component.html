@@ -1,6 +1,5 @@
 <bit-card class="tw-mb-6" data-testid="request-summary-item">
   <div class="tw-flex tw-items-start tw-gap-2">
-    <!-- A 40px box with the colored icon, as the vault's own item header frames it. -->
     <span class="tw-flex tw-size-10 tw-shrink-0 tw-items-center tw-justify-center">
       @if (cipher(); as itemCipher) {
         <app-vault-icon [cipher]="itemCipher" [coloredIcon]="true" />
@@ -12,8 +11,6 @@
     <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-2">
       <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3">
         <span class="tw-min-w-0 tw-text-xl tw-font-medium tw-text-main">{{ itemName() }}</span>
-        <!-- The item's status reads with its name, so the badge sits on this row rather than
-             among the fields below. Empty for hosts that project none. -->
         <span class="tw-flex tw-shrink-0 tw-items-center tw-gap-2 empty:tw-hidden">
           <ng-content select="[slot=badge]"></ng-content>
         </span>

@@ -80,10 +80,8 @@ export class ApproverActionsService {
   }
 
   /**
-   * Withdraws an approval the requester has not started. The caller confirms, the access request
-   * dialog does so in place, collecting the reason the server requires, so this only runs the
-   * mutation and reports it. Resolves whether it succeeded, so the caller can keep its
-   * confirmation, and the reason typed into it, open for a retry after a failure.
+   * Runs an already-confirmed withdrawal and reports it. Resolves whether it succeeded, so the
+   * caller can keep its confirmation open for a retry.
    */
   async withdrawApproval(run: () => Promise<void>, busy: ApproverActionBusy): Promise<boolean> {
     return await this.perform(
@@ -94,10 +92,7 @@ export class ApproverActionsService {
     );
   }
 
-  /**
-   * Confirm and withdraw an approval from a surface with no confirmation of its own. The dialog
-   * collects the reason the server requires from an approver, and `run` gets it.
-   */
+  /** Confirm and withdraw an approval from a surface with no confirmation of its own. */
   async confirmWithdrawApproval(
     params: WithdrawApprovalDialogParams,
     run: (reason: string) => Promise<void>,

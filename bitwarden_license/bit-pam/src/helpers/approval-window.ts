@@ -30,8 +30,7 @@ export function durationLabel(
 
 /**
  * The requested duration in words, e.g. "2 days, 2 hours". The same spelling the My requests
- * table uses through `durationCompound`, so the two tabs cannot describe one window differently
- *, this used to top out at hours and render a two-day grant as "50 hours".
+ * table uses through `durationCompound`.
  */
 export function durationText(
   window: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,

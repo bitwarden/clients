@@ -86,10 +86,7 @@ export type AccessRequestDialogParams = {
    * no approval that can still be withdrawn.
    */
   readOnly?: boolean;
-  /**
-   * Opens straight on the withdraw confirmation, as `?action=withdraw` asks. Reserved for a
-   * "Withdraw approval" entry point on the Approvals tab.
-   */
+  /** Opens straight on the withdraw confirmation, as `?action=withdraw` asks. */
   intent?: "withdraw";
 };
 
@@ -280,7 +277,6 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly confirmingWithdraw = signal(false);
 
-  /** Required, so the field carries the required marker as well as gating the action. */
   protected readonly withdrawReason = new FormControl("", {
     nonNullable: true,
     validators: [Validators.required],
@@ -309,7 +305,6 @@ export class AccessRequestDialogComponent implements OnInit {
     initialValue: "",
   });
 
-  /** The server rejects a managing approver's withdrawal without a note, so the action waits. */
   protected readonly withdrawReasonGiven = computed(
     () => this.withdrawReasonText().trim().length > 0,
   );
@@ -357,10 +352,7 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   });
 
-  /**
-   * Only while the request is still undecided. Once approved it offers Start instead, the
-   * requester withdraws an approval they no longer want from the My requests table.
-   */
+  /** Only while the request is still undecided. */
   protected readonly canCancel = computed(
     () => this.offersActions && this.isRequester() && this.request()?.status === "pending",
   );
