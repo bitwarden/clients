@@ -65,11 +65,15 @@ export class DesktopAutotypeGaPolicy extends BasePolicyEditDefinition {
       <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
     </bit-form-control>
     <div [formGroup]="data">
-      <div bitTypography="h6">{{ "appAutofillShortcut" | i18n }}</div>
-      <p bitTypography="body2" class="tw-text-muted tw-mb-3">
-        {{ "appAutofillShortcutDesc" | i18n }}
-      </p>
       <bit-form-control-group formControlName="shortcutOption" [block]="true">
+        <bit-label>
+          <span class="tw-flex tw-flex-col">
+            <span>{{ "appAutofillShortcut" | i18n }}</span>
+            <span bitTypography="body2" class="tw-text-muted tw-font-normal">
+              {{ "appAutofillShortcutDesc" | i18n }}
+            </span>
+          </span>
+        </bit-label>
         <bit-form-control disableMargin>
           <input
             type="radio"
