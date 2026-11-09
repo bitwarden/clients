@@ -1,9 +1,7 @@
-import { readFileSync, rmSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { runOrThrow } from "./process";
-
-/** Key types the SSH agent supports, as `ssh-keygen -t` names them. */
+/** Key types the SSH agent supports. */
 export const SshKeyType = Object.freeze({
   Ed25519: "ed25519",
   Ecdsa: "ecdsa",
@@ -11,63 +9,45 @@ export const SshKeyType = Object.freeze({
 } as const);
 export type SshKeyType = (typeof SshKeyType)[keyof typeof SshKeyType];
 
-// `ssh-keygen -b` per type; ED25519 has a single size.
-const KEY_BITS: Record<SshKeyType, string[]> = {
-  [SshKeyType.Ed25519]: [],
-  [SshKeyType.Ecdsa]: ["-b", "256"],
-  [SshKeyType.Rsa]: ["-b", "3072"],
+// The key's algorithm, as the first field of a public key line names it.
+const ALGORITHM_PREFIXES: Record<SshKeyType, string> = {
+  [SshKeyType.Ed25519]: "ssh-ed25519",
+  [SshKeyType.Ecdsa]: "ecdsa-sha2-",
+  [SshKeyType.Rsa]: "ssh-rsa",
 };
 
-/** A key pair for a vault's SSH key item. Only its public half is on disk. */
+/** A vault SSH key, as the agent offers it. Its private half never leaves the agent. */
 export type SshKey = {
   type: SshKeyType;
-  /** The vault item's name, and the key's comment. */
+  /** The vault item's name, which the agent offers as the key's comment. */
   name: string;
-  /** OpenSSH format. */
-  privateKey: string;
   /** e.g. `ssh-ed25519 AAAA… name`. */
   publicKey: string;
-  /** e.g. `SHA256:…`. */
-  fingerprint: string;
   /** Selects the key from an agent, e.g. `ssh -o IdentityFile=<publicKeyPath>`. */
   publicKeyPath: string;
 };
 
 /**
- * Generates a key pair in `dir`. Deletes the private key file, so only the agent can sign
- * with it: an OpenSSH tool cannot fall back to the file.
+ * The first key of each type in `ssh-add -L` output, e.g.
+ * `ssh-ed25519 AAAAC3Nz… My SSH key`. Writes each public key to `dir`, so OpenSSH tools can
+ * pin it.
  */
-export async function generateKey(dir: string, type: SshKeyType): Promise<SshKey> {
-  const name = `e2e-${type}`;
-  const path = join(dir, name);
-  const publicKeyPath = `${path}.pub`;
+export function keysByType(listed: string, dir: string): Map<SshKeyType, SshKey> {
+  const keys = new Map<SshKeyType, SshKey>();
 
-  await runOrThrow("ssh-keygen", [
-    "-q",
-    "-t",
-    type,
-    ...KEY_BITS[type],
-    "-N",
-    "",
-    "-C",
-    name,
-    "-f",
-    path,
-  ]);
+  for (const line of listed.split("\n")) {
+    const [algorithm, , ...comment] = line.trim().split(" ");
+    const type = Object.values(SshKeyType).find((t) => algorithm.startsWith(ALGORITHM_PREFIXES[t]));
+    if (type == null || keys.has(type)) {
+      continue;
+    }
 
-  // `ssh-keygen -l` prints e.g. `256 SHA256:abc… e2e-ed25519 (ED25519)`.
-  const { stdout } = await runOrThrow("ssh-keygen", ["-l", "-E", "sha256", "-f", publicKeyPath]);
-  const fingerprint = stdout.split(" ")[1];
+    const publicKey = line.trim();
+    const publicKeyPath = join(dir, `${type}.pub`);
+    writeFileSync(publicKeyPath, `${publicKey}\n`);
 
-  const privateKey = readFileSync(path, "utf8");
-  rmSync(path);
+    keys.set(type, { type, name: comment.join(" "), publicKey, publicKeyPath });
+  }
 
-  return {
-    type,
-    name,
-    privateKey,
-    publicKey: readFileSync(publicKeyPath, "utf8").trim(),
-    fingerprint,
-    publicKeyPath,
-  };
+  return keys;
 }

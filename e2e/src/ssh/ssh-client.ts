@@ -9,6 +9,11 @@ import { SSH_HOST, SshServer } from "./ssh-server";
 const FILE_NAMESPACE = "file";
 const SIGNER = "e2e@example.com";
 
+/** `ssh-add -L`: the public keys the agent on `agentSocket` offers. */
+export async function listAgentKeys(agentSocket: string): Promise<ProcessResult> {
+  return run("ssh-add", ["-L"], { env: { SSH_AUTH_SOCK: agentSocket } });
+}
+
 /**
  * OpenSSH's client tools, pointed at one agent socket and one server. They read no user
  * config, keys or known hosts, so only the agent can authenticate.
@@ -26,11 +31,6 @@ export class SshClient {
     private readonly server: SshServer,
   ) {
     this.knownHosts = join(dir, "known_hosts");
-  }
-
-  /** `ssh-add -L`: the public keys the agent offers. */
-  async listKeys(): Promise<ProcessResult> {
-    return run("ssh-add", ["-L"], { env: { SSH_AUTH_SOCK: this.agentSocket } });
   }
 
   /** Logs in to the server with `key` from the agent, and logs out. */
