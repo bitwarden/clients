@@ -76,7 +76,10 @@ describe("SshAgentService", () => {
           signRequestResponse: jest.fn().mockResolvedValue(undefined),
         },
       },
-      platform: { focusWindow: jest.fn() },
+      platform: {
+        focusWindow: jest.fn(),
+        rendererTeardownEnabled: jest.fn().mockResolvedValue(false),
+      },
     };
 
     const mockCipherService = {
@@ -554,7 +557,10 @@ describe("SshAgentService – sign request authorization", () => {
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
         },
       },
-      platform: { focusWindow: mockFocusWindow },
+      platform: {
+        focusWindow: mockFocusWindow,
+        rendererTeardownEnabled: jest.fn().mockResolvedValue(false),
+      },
     };
 
     service = new SshAgentService(
@@ -991,7 +997,10 @@ describe("SshAgentService – list keys request", () => {
           listRequestResponse: mockListRequestResponse,
         },
       },
-      platform: { focusWindow: mockFocusWindow },
+      platform: {
+        focusWindow: mockFocusWindow,
+        rendererTeardownEnabled: jest.fn().mockResolvedValue(false),
+      },
     };
 
     service = new SshAgentService(
@@ -1142,7 +1151,10 @@ describe("SshAgentService – concurrent sign requests", () => {
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
         },
       },
-      platform: { focusWindow: jest.fn() },
+      platform: {
+        focusWindow: jest.fn(),
+        rendererTeardownEnabled: jest.fn().mockResolvedValue(false),
+      },
     };
 
     service = new SshAgentService(
@@ -1249,7 +1261,10 @@ describe("SshAgentService – concurrent list keys requests", () => {
           listRequestResponse: mockListRequestResponse,
         },
       },
-      platform: { focusWindow: jest.fn() },
+      platform: {
+        focusWindow: jest.fn(),
+        rendererTeardownEnabled: jest.fn().mockResolvedValue(false),
+      },
     };
 
     service = new SshAgentService(
