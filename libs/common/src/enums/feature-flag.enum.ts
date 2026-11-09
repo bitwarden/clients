@@ -65,6 +65,7 @@ export enum FeatureFlag {
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
+  DesktopRendererTeardown = "desktop-renderer-teardown",
 
   /* Tools */
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
@@ -200,6 +201,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
+  [FeatureFlag.DesktopRendererTeardown]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
