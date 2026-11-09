@@ -56,6 +56,7 @@ import { DesktopAutofillSettingsService } from "./autofill/services/desktop-auto
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
+import { HeadlessVaultTimeoutMain } from "./key-management/session-timeout/headless-vault-timeout.main";
 import { MainKeyManagementIpcListener } from "./key-management/unlock/main-key-management-ipc.listener";
 import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
@@ -129,6 +130,7 @@ export class Main {
   policyService: PolicyService;
   serviceContainer: MainServiceContainer;
   messageListener: MessageListener;
+  headlessVaultTimeout: HeadlessVaultTimeoutMain;
 
   constructor() {
     // Set paths for portable builds
@@ -378,6 +380,15 @@ export class Main {
       this.logService,
     ).init();
 
+    this.headlessVaultTimeout = new HeadlessVaultTimeoutMain(
+      this.windowMain,
+      this.serviceContainer.vaultTimeoutService,
+      this.serviceContainer.vaultTimeoutSettingsService,
+      accountService,
+      this.serviceContainer.lockService,
+      this.logService,
+    );
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -420,6 +431,7 @@ export class Main {
     );
 
     app.on("will-quit", () => {
+      this.headlessVaultTimeout.dispose();
       this.mainDesktopAutotypeMvpService.dispose();
       this.mainDesktopAutotypeService.dispose();
       this.storageService.dispose();
@@ -449,6 +461,7 @@ export class Main {
         await this.ipcService.init();
 
         await this.windowMain.init(showWindow);
+        this.headlessVaultTimeout.init();
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
@@ -562,6 +575,8 @@ export class Main {
           active: () => this.desktopAutofillMain.status === FeatureStatus.Active,
         },
         { name: "duckduckgo", active: () => ddgEnabled },
+        // Logout cleanup runs in the renderer, so main can only lock on timeout.
+        { name: "logout-timeout-action", active: () => this.headlessVaultTimeout.logoutOnTimeout },
       ],
       this.windowMain,
       this.clipboardMain,
