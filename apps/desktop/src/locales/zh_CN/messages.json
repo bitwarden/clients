@@ -944,10 +944,10 @@
     "message": "编辑"
   },
   "editInfo": {
-    "message": "Edit info"
+    "message": "编辑信息"
   },
   "editAccess": {
-    "message": "Edit access"
+    "message": "编辑访问权限"
   },
   "authenticatorKeyTotp": {
     "message": "验证器密钥 (TOTP)"
@@ -1236,7 +1236,7 @@
     "message": "此项目受到限制。您的更改未被保存。"
   },
   "controlledAccess": {
-    "message": "Controlled access"
+    "message": "受控访问"
   },
   "overwritePasswordConfirmation": {
     "message": "确定要覆盖当前密码吗？"
@@ -4772,31 +4772,31 @@
     }
   },
   "selectVault": {
-    "message": "Select vault",
+    "message": "选择密码库",
     "description": "Progress label of the import step where the user picks which vault to import into."
   },
   "selectLocation": {
-    "message": "Select location",
+    "message": "选择位置",
     "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
   },
   "selectAVaultTitle": {
-    "message": "Select a vault"
+    "message": "选择一个密码库"
   },
   "selectALocationTitle": {
-    "message": "Select a location"
+    "message": "选择一个位置"
   },
   "importDestinationDescription": {
-    "message": "Choose where to import these items."
+    "message": "选择这些项目的导入位置。"
   },
   "importMyItemsOption": {
-    "message": "My items",
+    "message": "我的项目",
     "description": "Card title for the user's own collection inside an organization that centralizes ownership."
   },
   "importVisibleOnlyToYou": {
-    "message": "Visible only to you"
+    "message": "仅您可见"
   },
   "importMyItemsOwnedBy": {
-    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "message": "由 $ORGANIZATION$ 拥有，但仅您可见",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4805,16 +4805,16 @@
     }
   },
   "importOrganizationVault": {
-    "message": "Organization vault"
+    "message": "组织密码库"
   },
   "importSharedWithOnePerson": {
     "message": "Shared with one person"
   },
   "importFamilyVault": {
-    "message": "Family vault"
+    "message": "家庭密码库"
   },
   "importMoveAllItemsIntoSharedFolderA": {
-    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
     "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
     "placeholders": {
       "organization": {
@@ -4824,7 +4824,7 @@
     }
   },
   "importMoveAllItemsIntoSharedFolderAn": {
-    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
     "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
     "placeholders": {
       "organization": {
@@ -4834,13 +4834,13 @@
     }
   },
   "importSharedFolderHint": {
-    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将被保留。"
   },
   "importSharedFolderRequired": {
-    "message": "A shared folder is required."
+    "message": "必须选择共享文件夹。"
   },
   "importIntoOrganization": {
-    "message": "Items will be imported into $ORGANIZATION$.",
+    "message": "项目将被导入到 $ORGANIZATION$。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4849,10 +4849,10 @@
     }
   },
   "importMoveAllItemsIntoSharedFolder": {
-    "message": "Move all items into a shared folder"
+    "message": "将所有项目移动到共享文件夹"
   },
   "importNoSharedFoldersForOrg": {
-    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "message": "项目无法导入到没有共享文件夹且您在其中无任何管理权限的 $ORGANIZATION$ 中。请选择其他位置。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4861,7 +4861,7 @@
     }
   },
   "importItemsCount": {
-    "message": "Import $COUNT$ items",
+    "message": "导入 $COUNT$ 个项目",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4870,10 +4870,10 @@
     }
   },
   "importItemsSingular": {
-    "message": "Import 1 item"
+    "message": "导入 1 个项目"
   },
   "importToOrganization": {
-    "message": "Import to $ORGANIZATION$",
+    "message": "导入到 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4882,10 +4882,10 @@
     }
   },
   "importDataMayBeShared": {
-    "message": "Your data may be shared with members of this organization."
+    "message": "您的数据可能会与此​​组织的成员共享。"
   },
   "importItemTypesRestricted": {
-    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "message": "$ORGANIZATION$ 不允许您导入 $ITEM_TYPES$。如果您的导入内容中包含这些项目，它们将被跳过。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4898,39 +4898,39 @@
     }
   },
   "importRestrictedTypeLogin": {
-    "message": "logins",
+    "message": "登录",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSecureNote": {
-    "message": "secure notes",
+    "message": "安全笔记",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeCard": {
-    "message": "cards",
+    "message": "支付卡",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeIdentity": {
-    "message": "identities",
+    "message": "身份",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSshKey": {
-    "message": "SSH keys",
+    "message": "SSH 密钥",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeBankAccount": {
-    "message": "bank accounts",
+    "message": "银行账户",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeDriversLicense": {
-    "message": "licenses",
+    "message": "驾驶证",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypePassport": {
-    "message": "passports",
+    "message": "护照",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "goToAccessIntelligence": {
-    "message": "Go to Access Intelligence"
+    "message": "前往 Access Intelligence"
   },
   "chooseFile": {
     "message": "选择文件"
@@ -5435,10 +5435,10 @@
     "message": "导出过程中跳过了 1 个损坏的附件。其余所有密码库数据和附件均已成功导出。"
   },
   "exportExcludedGatedItem": {
-    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+    "message": "1 个项目未包含在此导出中。该项目受特权访问规则保护，因此其凭据在此设备上不可用。"
   },
   "exportExcludedGatedItems": {
-    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "message": "$COUNT$ 个项目未包含在此导出中。这些项目受特权访问规则保护，因此其凭据在此设备上不可用。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7723,17 +7723,17 @@
     "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
   },
   "httpAuthenticationSettingDescription": {
-    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+    "message": "响应匹配此登录项目的网站的基本 HTTP 身份验证提示。"
   },
   "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open help article on autofilling browser login prompts"
+    "message": "打开浏览器登录自动填充提示帮助文章"
   },
   "httpAuthenticationSettingWarning": {
-    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
     "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+    "message": "要使用此设置，请为此登录项目的每个网站选择「默认」以外的匹配检测选项。"
   },
   "turnOnHttpAuthenticationTitle": {
     "message": "开启浏览器登录自动填充提示吗？"
@@ -7748,7 +7748,7 @@
     "message": "此项目的浏览器登录自动填充提示将被关闭。这两项设置无法同时开启。"
   },
   "useDefaultMatchDetectionTitle": {
-    "message": "Use default match detection?"
+    "message": "使用默认匹配检测吗？"
   },
   "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
     "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被关闭。"
