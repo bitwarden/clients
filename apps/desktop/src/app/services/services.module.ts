@@ -614,6 +614,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       ToastService,
       SsoUrlService,
+      ServerCommunicationConfigService,
     ],
   }),
   safeProvider({
