@@ -12,6 +12,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -97,7 +98,7 @@ describe("LoginCommand", () => {
   let twoFactorService: MockProxy<TwoFactorService>;
   let syncService: MockProxy<SyncService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
-  let logoutCallback: jest.Mock;
+  let logoutService: MockProxy<LogoutService>;
   let ssoUrlService: MockProxy<SsoUrlService>;
   let i18nService: MockProxy<I18nService>;
   let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
@@ -132,7 +133,7 @@ describe("LoginCommand", () => {
     twoFactorService = mock<TwoFactorService>();
     syncService = mock<SyncService>();
     keyConnectorService = mock<KeyConnectorService>();
-    logoutCallback = jest.fn().mockResolvedValue(undefined);
+    logoutService = mock<LogoutService>();
     ssoUrlService = mock<SsoUrlService>();
     i18nService = mock<I18nService>();
     masterPasswordService = mock<MasterPasswordServiceAbstraction>();
@@ -176,7 +177,7 @@ describe("LoginCommand", () => {
       twoFactorService,
       syncService,
       keyConnectorService,
-      logoutCallback,
+      logoutService,
       ssoUrlService,
       i18nService,
       masterPasswordService,
@@ -547,7 +548,7 @@ describe("LoginCommand", () => {
             (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
           ).resolves.toBeUndefined();
 
-          expect(logoutCallback).not.toHaveBeenCalled();
+          expect(logoutService.logout).not.toHaveBeenCalled();
         });
 
         it("allows user with Key Connector", async () => {
@@ -564,7 +565,7 @@ describe("LoginCommand", () => {
             (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
           ).resolves.toBeUndefined();
 
-          expect(logoutCallback).not.toHaveBeenCalled();
+          expect(logoutService.logout).not.toHaveBeenCalled();
         });
 
         it("allows user with master password AND PRF (MP short-circuits)", async () => {
@@ -581,7 +582,7 @@ describe("LoginCommand", () => {
             (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
           ).resolves.toBeUndefined();
 
-          expect(logoutCallback).not.toHaveBeenCalled();
+          expect(logoutService.logout).not.toHaveBeenCalled();
         });
 
         it("allows user with Key Connector AND PRF (KC short-circuits)", async () => {
@@ -598,7 +599,7 @@ describe("LoginCommand", () => {
             (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
           ).resolves.toBeUndefined();
 
-          expect(logoutCallback).not.toHaveBeenCalled();
+          expect(logoutService.logout).not.toHaveBeenCalled();
         });
 
         it("allows user with master password AND TDE (MP short-circuits)", async () => {
@@ -615,7 +616,7 @@ describe("LoginCommand", () => {
             (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
           ).resolves.toBeUndefined();
 
-          expect(logoutCallback).not.toHaveBeenCalled();
+          expect(logoutService.logout).not.toHaveBeenCalled();
         });
 
         it("rejects TDE-only user with TDE-specific error", async () => {
@@ -637,7 +638,10 @@ describe("LoginCommand", () => {
             ),
           });
 
-          expect(logoutCallback).toHaveBeenCalled();
+          expect(logoutService.logout).toHaveBeenCalledWith(
+            TEST_USER_ID,
+            "noUnlockOptionsAvailable",
+          );
         });
 
         it("rejects PRF-only user with PRF-specific error", async () => {
@@ -659,7 +663,10 @@ describe("LoginCommand", () => {
             ),
           });
 
-          expect(logoutCallback).toHaveBeenCalled();
+          expect(logoutService.logout).toHaveBeenCalledWith(
+            TEST_USER_ID,
+            "noUnlockOptionsAvailable",
+          );
         });
 
         it("rejects TDE + PRF user with TDE error (TDE checked first)", async () => {
@@ -681,7 +688,10 @@ describe("LoginCommand", () => {
             ),
           });
 
-          expect(logoutCallback).toHaveBeenCalled();
+          expect(logoutService.logout).toHaveBeenCalledWith(
+            TEST_USER_ID,
+            "noUnlockOptionsAvailable",
+          );
         });
 
         it("rejects user with no configured decryption method (JIT'd MP-encryption-org)", async () => {
@@ -703,7 +713,10 @@ describe("LoginCommand", () => {
             ),
           });
 
-          expect(logoutCallback).toHaveBeenCalled();
+          expect(logoutService.logout).toHaveBeenCalledWith(
+            TEST_USER_ID,
+            "noUnlockOptionsAvailable",
+          );
         });
       });
     });
@@ -740,7 +753,7 @@ describe("LoginCommand", () => {
         expect(response.message).toContain(
           "does not support SSO login for accounts using trusted device encryption",
         );
-        expect(logoutCallback).toHaveBeenCalled();
+        expect(logoutService.logout).toHaveBeenCalledWith(TEST_USER_ID, "noUnlockOptionsAvailable");
       });
 
       it("rejects SSO login for PRF-only user with PRF-specific message", async () => {
@@ -759,7 +772,7 @@ describe("LoginCommand", () => {
         expect(response.message).toContain(
           "does not support SSO login for accounts using PRF passkey decryption",
         );
-        expect(logoutCallback).toHaveBeenCalled();
+        expect(logoutService.logout).toHaveBeenCalledWith(TEST_USER_ID, "noUnlockOptionsAvailable");
       });
 
       it("rejects SSO login for JIT'd MP-encryption-org user with 'set your master password' message", async () => {
@@ -778,7 +791,7 @@ describe("LoginCommand", () => {
         expect(response.message).toContain(
           "log in through the web vault, the desktop, or the extension to set your master password",
         );
-        expect(logoutCallback).toHaveBeenCalled();
+        expect(logoutService.logout).toHaveBeenCalledWith(TEST_USER_ID, "noUnlockOptionsAvailable");
       });
 
       it("allows SSO login for user with master password", async () => {
@@ -794,7 +807,7 @@ describe("LoginCommand", () => {
         const response = await command.run(NULL, NULL, { sso: true });
 
         expect(response.success).toBe(true);
-        expect(logoutCallback).not.toHaveBeenCalled();
+        expect(logoutService.logout).not.toHaveBeenCalled();
       });
     });
 
@@ -859,7 +872,7 @@ describe("LoginCommand", () => {
 
         expect(response.success).toBe(false);
         expect(response.message).toContain("organization administrator");
-        expect(logoutCallback).toHaveBeenCalled();
+        expect(logoutService.logout).toHaveBeenCalledWith(TEST_USER_ID, "adminForcePasswordReset");
       });
 
       it("logs out and errors on WeakMasterPassword", async () => {
@@ -871,7 +884,10 @@ describe("LoginCommand", () => {
 
         expect(response.success).toBe(false);
         expect(response.message).toContain("organization policies");
-        expect(logoutCallback).toHaveBeenCalled();
+        expect(logoutService.logout).toHaveBeenCalledWith(
+          TEST_USER_ID,
+          "masterPasswordPolicyEnforcement",
+        );
       });
 
       it("skips force password check for API key login", async () => {

@@ -183,7 +183,7 @@ export abstract class BaseProgram {
         this.serviceContainer.keyConnectorService,
         this.serviceContainer.environmentService,
         this.serviceContainer.organizationApiService,
-        this.serviceContainer.logout,
+        this.serviceContainer.logoutService,
         this.serviceContainer.i18nService,
         this.serviceContainer.encryptedMigrator,
         this.serviceContainer.unlockService,

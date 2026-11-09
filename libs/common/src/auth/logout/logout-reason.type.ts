@@ -1,11 +1,13 @@
 export type LogoutReason =
   | "accessTokenUnableToBeDecrypted"
   | "accountDeleted"
+  | "adminForcePasswordReset"
   | "deauthorizedSessions"
   | "emailChanged"
   | "invalidAccessToken"
   | "invalidSecurityStamp"
   | "keyConnectorError"
+  | "keyConnectorRequiresInteraction"
   | "logoutNotification"
   | "masterPasswordPolicyEnforcement"
   | "missingEmailError"

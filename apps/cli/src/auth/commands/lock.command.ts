@@ -16,7 +16,7 @@ export class LockCommand {
   async run() {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await this.lockService.lock(activeUserId, LockSource.Manual);
-    process.env.BW_SESSION = undefined;
+    delete process.env.BW_SESSION;
     const res = new MessageResponse("Your vault is locked.", null);
     return Response.success(res);
   }
