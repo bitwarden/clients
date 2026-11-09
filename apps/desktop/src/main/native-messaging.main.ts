@@ -148,11 +148,6 @@ export class NativeMessagingMain {
    * `desktop_proxy` always announces, so `Unknown` also covers a proxy that predates the
    * announcement.
    */
-  /** Whether any client (browser extension, CLI) is connected. */
-  get hasClients(): boolean {
-    return this.clients.size > 0;
-  }
-
   clientTypeFor(clientId: number): DesktopIpcPeerClientType | undefined {
     return this.clients.get(clientId);
   }
