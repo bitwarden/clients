@@ -47,7 +47,7 @@ describe("AccessStateBadgeComponent", () => {
     ["privileged", "primary", "bwi-key", "pamAccessBadgePrivileged"],
     ["pending", "warning", "bwi-clock", "pamAccessBadgePending"],
     ["unavailable", "subtle", "bwi-lock", "pamAccessBadgeUnavailable"],
-    ["ready", "success", "bwi-check", "pamAccessBadgeReady"],
+    ["ready", "success", "bwi-check-circle", "pamAccessBadgeReady"],
     ["expired", "subtle", "bwi-lock", "pamAccessBadgeEnded"],
   ])("maps the %s state to its badge recipe", (kind, variant, icon, label) => {
     create({ kind } as AccessBadgeState);
@@ -71,7 +71,7 @@ describe("AccessStateBadgeComponent", () => {
     expect(recipe.label).toBe("pamStatusApproved");
     // Only the word moves; the pill is still the ready one.
     expect(recipe.variant).toBe("success");
-    expect(recipe.icon).toBe("bwi-check");
+    expect(recipe.icon).toBe("bwi-check-circle");
   });
 
   it("shows the accent countdown above the 5-minute threshold", () => {
@@ -88,7 +88,7 @@ describe("AccessStateBadgeComponent", () => {
 
     const recipe = component["recipe"]()!;
     expect(recipe.variant).toBe("danger");
-    expect(recipe.icon).toBe("bwi-exclamation-triangle");
+    expect(recipe.icon).toBe("bwi-warning");
     expect(recipe.label).toContain("pamAccessBadgeEndingSoon");
   });
 
