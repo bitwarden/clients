@@ -155,11 +155,13 @@
       (noSends ? "sendsBodyNoItemsV2" : "noItemsMatchSelectedFilters") | i18n
     }}</ng-container>
     @if (noSends) {
-      <tools-new-send-dropdown-v2
-        buttonType="primary"
-        (addSend)="onAddSend($event)"
-        slot="button"
-      />
+      @if (!disableSend()) {
+        <tools-new-send-dropdown-v2
+          buttonType="primary"
+          (addSend)="onAddSend($event)"
+          slot="button"
+        />
+      }
     } @else {
       <button type="button" bitButton slot="button" startIcon="bwi-clear" (click)="clearAll()">
         {{ "clearAll" | i18n }}
