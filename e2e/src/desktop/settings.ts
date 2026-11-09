@@ -2,6 +2,7 @@ import { ElectronApplication, expect, Page } from "@playwright/test";
 
 import { clickMenuItem, MenuItem } from "./app-menu";
 import { Biometrics } from "./biometrics";
+import { mainLogged } from "./main-log";
 
 // The set-PIN dialog (libs/angular/src/auth/components/set-pin.component.ts).
 const PIN_INPUT = 'input[formcontrolname="pin"]';
@@ -12,6 +13,11 @@ const SET_PIN_DIALOG = "set-pin-dialog";
 const SET_PIN_INPUT = "set-pin-input";
 const SET_PIN_ON_RESTART_CHECKBOX = "set-pin-require-master-password-checkbox";
 const SET_PIN_SUBMIT_BUTTON = "set-pin-submit-button";
+const DUCKDUCKGO_CHECKBOX = "settings-duckduckgo-checkbox";
+// The tab holding settings shared by every account ("appPreferences").
+const APP_SETTINGS_TAB = "App settings (all accounts)";
+// NativeMessagingMain.listen, once the IPC server accepts clients.
+const NATIVE_MESSAGING_STARTED = "Native messaging server started at";
 
 /**
  * Turns on unlock with PIN from the settings dialog, leaving "lock with master password on
@@ -71,6 +77,24 @@ export class DesktopSettings {
 
     await expect(setPin).toBeHidden();
     await expect(this.dialog().getByTestId(PIN_CHECKBOX)).toBeChecked();
+  }
+
+  /**
+   * Allows DuckDuckGo to connect over native messaging, and waits until the IPC server is up.
+   * macOS only. It also writes DuckDuckGo's host manifest into the real home directory, if
+   * DuckDuckGo is installed there.
+   */
+  async enableDuckDuckGo() {
+    // Enabling restarts the IPC server, dropping any client that connected before.
+    const started = mainLogged(this.app, NATIVE_MESSAGING_STARTED);
+
+    await this.openAppSettingsTab();
+    await this.dialog().getByTestId(DUCKDUCKGO_CHECKBOX).check();
+    await started;
+  }
+
+  private async openAppSettingsTab() {
+    await this.dialog().getByRole("tab", { name: APP_SETTINGS_TAB }).click();
   }
 
   private dialog() {
