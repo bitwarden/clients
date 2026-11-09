@@ -577,7 +577,6 @@ export class Main {
       [
         { name: "autotype", active: () => this.mainDesktopAutotypeMvpService.active },
         { name: "autotype-ga", active: () => this.mainDesktopAutotypeService.active },
-        { name: "autofill-provider", active: () => this.desktopAutofillMain.active },
         { name: "duckduckgo", active: () => ddgEnabled },
         // Legacy browser biometrics are still answered by the renderer.
         { name: "native-messaging", active: () => this.nativeMessagingMain.hasClients },

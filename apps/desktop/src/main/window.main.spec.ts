@@ -39,7 +39,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
 }));
 
 import { isSnapStore } from "./platform-utils.main";
-import { isConfinedSnap, WindowMain } from "./window.main";
+import { isConfinedSnap, RendererVisibility, WindowMain } from "./window.main";
 
 describe("WindowMain", () => {
   describe("isLocalBundleUrl", () => {
@@ -484,6 +484,26 @@ describe("WindowMain", () => {
 
       jest.runOnlyPendingTimers();
       expect(app.focus).toHaveBeenCalledWith({ steal: true });
+    });
+
+    it("leaves an existing window alone when asked for a hidden renderer", async () => {
+      await sut.ensureRenderer(RendererVisibility.Hidden);
+
+      expect(win.show).not.toHaveBeenCalled();
+      expect(win.focus).not.toHaveBeenCalled();
+    });
+
+    it("recreates a destroyed window without showing it when hidden", async () => {
+      win.isDestroyed.mockReturnValue(true);
+      const recreated = mock<BrowserWindow>();
+      jest.spyOn(sut, "createWindow").mockImplementation(async () => {
+        sut.win = recreated;
+      });
+
+      await sut.ensureRenderer(RendererVisibility.Hidden);
+
+      expect(sut.createWindow).toHaveBeenCalledWith("full-app", false);
+      expect(recreated.once).not.toHaveBeenCalled();
     });
 
     it("restores a minimized window before showing it", async () => {

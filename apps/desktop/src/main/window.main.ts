@@ -48,6 +48,15 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 const mainWindowSizeKey = "mainWindowSize";
+
+/** Whether {@link WindowMain.ensureRenderer} brings the window to the foreground. */
+export const RendererVisibility = Object.freeze({
+  /** Show and focus the window, e.g. the user asked for the app. */
+  Shown: "shown",
+  /** Only make sure a renderer exists, e.g. to answer a background request. */
+  Hidden: "hidden",
+} as const);
+export type RendererVisibility = (typeof RendererVisibility)[keyof typeof RendererVisibility];
 const WindowEventHandlingDelay = 100;
 
 /**
@@ -359,13 +368,19 @@ export class WindowMain {
    * A recreated window is shown on `ready-to-show`: showing it right after `createWindow`
    * races the asynchronous `loadURL`, and macOS sometimes drops the activation.
    */
-  async ensureRenderer(): Promise<void> {
+  async ensureRenderer(visibility: RendererVisibility = RendererVisibility.Shown): Promise<void> {
     // A window created during startup must not be created twice.
     await this.startup;
 
     if (this.win == null || this.win.isDestroyed()) {
       await this.createWindow("full-app", false);
-      this.showWhenReady(this.win);
+      if (visibility === RendererVisibility.Shown) {
+        this.showWhenReady(this.win);
+      }
+      return;
+    }
+
+    if (visibility === RendererVisibility.Hidden) {
       return;
     }
 
