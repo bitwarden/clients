@@ -11,3 +11,7 @@ export { SendListFiltersService } from "./services/send-list-filters.service";
 export { SendTableComponent } from "./send-table/send-table.component";
 export { SendTableV2Component } from "./send-table-v2/send-table-v2.component";
 export { SendListComponent, SendListState } from "./send-list/send-list.component";
+export {
+  removeSendAuthI18nKeys,
+  type RemoveSendAuthI18nKeys,
+} from "./send-auth/remove-send-auth-i18n";

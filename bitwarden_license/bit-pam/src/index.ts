@@ -118,6 +118,7 @@ export {
 } from "./access-state-badge/access-badge-state";
 export type { AccessBadgeState } from "./access-state-badge/access-badge-state";
 export { formatCompoundDuration, formatDuration } from "./date/format-duration";
+export { formatCalendarDate, formatTimeOfDay, formatTimestamp } from "./date/format-date";
 export { isGovernedCipher } from "./helpers/governed-cipher";
 export { isUnlicensedError } from "./helpers/pam-license-error";
 export { AccessLeasesSdkService } from "./services/access-leases-sdk.service";

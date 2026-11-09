@@ -40,6 +40,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { NewSendDropdownV2Component } from "../new-send-dropdown-v2/new-send-dropdown-v2.component";
+import { removeSendAuthI18nKeys } from "../send-auth/remove-send-auth-i18n";
 import { getSendItemIcon } from "../send-item-icon";
 
 /** Synthetic (non-Send) columns declared on the table. */
@@ -89,6 +90,7 @@ export class SendTableV2Component {
   readonly itemIcon = getSendItemIcon;
   protected readonly noSendsIcon = NoSendsIcon;
   protected readonly noVisibleSendsIcon = NoFolders;
+  protected readonly removeSendAuthI18nKeys = removeSendAuthI18nKeys;
 
   protected readonly sendSearchText = signal<string>("");
   private readonly sendTypeFilter = viewChild<FilterMenuComponent>("sendTypeFilter");
@@ -117,11 +119,11 @@ export class SendTableV2Component {
   readonly copySend = output<SendView>();
 
   /**
-   * Emitted when a user clicks the "Remove Password" action.
-   * The SendView is passed as the event payload for password removal.
-   * This action is only available if the Send has a password and Send is not disabled.
+   * Emitted when a user clicks the "Remove password" / "Remove email verification" action.
+   * The SendView is passed as the event payload for authentication removal.
+   * This action is only available if the Send has authentication and Send is not disabled.
    */
-  readonly removePassword = output<SendView>();
+  readonly removeAuth = output<SendView>();
 
   /**
    * Emitted when a user clicks the "Delete" action.
@@ -180,8 +182,8 @@ export class SendTableV2Component {
     this.copySend.emit(send);
   }
 
-  protected onRemovePassword(send: SendView): void {
-    this.removePassword.emit(send);
+  protected onRemoveAuth(send: SendView): void {
+    this.removeAuth.emit(send);
   }
 
   protected onDelete(send: SendView): void {

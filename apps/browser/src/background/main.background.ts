@@ -29,10 +29,8 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
-  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   DefaultLoginStrategyCacheService,
@@ -63,6 +61,10 @@ import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/ab
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService, LogoutReason } from "@bitwarden/common/auth/logout";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
@@ -211,11 +213,9 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -1256,7 +1256,6 @@ export default class MainBackground {
 
     this.sendDecryptionService = new SendDecryptionService(
       this.sdkService,
-      this.configService,
       this.legacyCompatKeyService,
     );
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
@@ -1267,27 +1266,17 @@ export default class MainBackground {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.configService,
       this.sdkService,
       this.sendDecryptionService,
     );
-    const legacySendApiService = new SendApiService(
+    this.sendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
       this.sendService,
       this.logService,
-    );
-    this.sendApiService = new SendApiServiceSelector(
-      this.configService,
-      legacySendApiService,
-      new SendSdkApiService(
-        this.sdkService,
-        legacySendApiService,
-        this.sendService,
-        this.accountService,
-        this.logService,
-        this.sendDecryptionService,
-      ),
+      this.sdkService,
+      this.accountService,
+      this.sendDecryptionService,
     );
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
@@ -1888,6 +1877,11 @@ export default class MainBackground {
     const userIds = Object.keys(accounts) as UserId[];
     await this.tokenService.cleanupTokenStorage(userIds);
 
+    // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+    await this.ipcContentScriptManagerService.init();
+    await this.ipcService.init();
+    await this.sharedUnlockPeerService.start();
+
     for (const userId of userIds) {
       try {
         await this.unlockService.unlockWithAutoUnlockKey(userId);
@@ -1941,9 +1935,6 @@ export default class MainBackground {
     }
 
     await this.initOverlayAndTabsBackground();
-    await this.ipcContentScriptManagerService.init();
-    await this.ipcService.init();
-    await this.sharedUnlockPeerService.start();
     this.badgeService.startListening();
 
     return new Promise<void>((resolve) => {

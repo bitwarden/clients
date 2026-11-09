@@ -31,17 +31,17 @@ export const ACCESS_RULE_SERVER_ERRORS = Object.freeze({
   },
   CollectionsMissing: {
     serverMessage: "One or more collections could not be found.",
-    messageKey: "pamAccessRuleErrorCollectionsMissing",
+    messageKey: "pamAccessRuleErrorSharedFoldersMissing",
     field: "collections",
   },
   CollectionsForeign: {
     serverMessage: "One or more collections do not belong to this organization.",
-    messageKey: "pamAccessRuleErrorCollectionsForeign",
+    messageKey: "pamAccessRuleErrorSharedFoldersForeign",
     field: "collections",
   },
   CollectionsGoverned: {
     serverMessage: "One or more collections are already governed by another access rule.",
-    messageKey: "pamAccessRuleErrorCollectionsGoverned",
+    messageKey: "pamAccessRuleErrorSharedFoldersGoverned",
     field: "collections",
   },
 } as const satisfies Record<
