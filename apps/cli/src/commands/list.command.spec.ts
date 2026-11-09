@@ -86,4 +86,14 @@ describe("ListCommand items", () => {
     expect(cipherService.cipherViews$).not.toHaveBeenCalled();
     expect(listedIds(response)).toEqual(["c9"]);
   });
+
+  // A failed write clears the stream and nothing re-emits it, so waiting would hang.
+  it("decrypts directly when the cached stream was cleared", async () => {
+    cipherService.cipherViews$.mockReturnValue(of(null));
+    cipherService.getAllDecrypted.mockResolvedValue([fullView("c1", "Alpha")]);
+
+    const response = await command.run("items", {});
+
+    expect(listedIds(response)).toEqual(["c1"]);
+  });
 });

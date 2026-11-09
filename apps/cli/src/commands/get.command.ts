@@ -40,8 +40,10 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -135,18 +137,7 @@ export class GetCommand extends DownloadCommand {
         decCipher = await this.cipherService.decrypt(cipher, userId);
       }
     } else if (id.trim() !== "") {
-      // Search the list views and decrypt only the matches, so a lookup does not decrypt the vault.
-      const listViews = await firstValueFrom(
-        this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
-      );
-      const active = listViews.filter(
-        (v) => !CipherViewLikeUtils.isDeleted(v) && !CipherViewLikeUtils.isArchived(v),
-      );
-      const matches = this.searchService.searchCiphersBasic(active, id);
-      const ciphers = await this.cipherService.getAllDecryptedForIds(
-        userId,
-        matches.map((v) => uuidAsString(v.id)),
-      );
+      const ciphers = await this.searchCiphers(id, userId);
       if (ciphers.length > 1) {
         return ciphers;
       }
@@ -157,6 +148,30 @@ export class GetCommand extends DownloadCommand {
 
     return decCipher;
   }
+
+  /**
+   * Searches the list views and decrypts only the matches, so a lookup does not decrypt the vault.
+   * Falls back to decrypting directly when the views were cleared by a write that failed: nothing
+   * re-emits them, so waiting would hang `bw serve`.
+   */
+  private async searchCiphers(query: string, userId: UserId): Promise<CipherView[]> {
+    const listViews = await firstValueFrom(this.cipherService.cipherListViews$(userId));
+
+    if (listViews == null) {
+      const all = await this.cipherService.getAllDecrypted(userId);
+      return this.searchService.searchCiphersBasic(all.filter(this.isActive), query);
+    }
+
+    const matches = this.searchService.searchCiphersBasic(listViews.filter(this.isActive), query);
+
+    return await this.cipherService.getAllDecryptedForIds(
+      userId,
+      matches.map((v) => uuidAsString(v.id)),
+    );
+  }
+
+  private isActive = (c: CipherViewLike): boolean =>
+    !CipherViewLikeUtils.isDeleted(c) && !CipherViewLikeUtils.isArchived(c);
 
   private async getCipher(id: string, filter?: (c: CipherView) => boolean) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
