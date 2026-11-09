@@ -111,6 +111,8 @@ export class WindowMain {
   isQuitting = false;
   isClosing = false;
   private isReloading = false;
+  // Set while the renderer is destroyed for background operation, so closing it does not quit.
+  private tornDown = false;
   // Settles once the first window exists. A reopen during startup must not create a second one.
   private startup: Promise<void> = Promise.resolve();
   /** The in-flight ensureRenderer, so concurrent callers share one window. */
@@ -321,8 +323,9 @@ export class WindowMain {
         // Quit when all windows are closed.
         app.on("window-all-closed", () => {
           // On OS X it is common for applications and their menu bar
-          // to stay active until the user quits explicitly with Cmd + Q
-          if (!isMac() || this.isQuitting || isMacAppStore()) {
+          // to stay active until the user quits explicitly with Cmd + Q.
+          // A renderer destroyed for background operation must not quit the app either.
+          if (this.isQuitting || isMacAppStore() || (!isMac() && !this.tornDown)) {
             app.quit();
           }
         });
@@ -412,6 +415,32 @@ export class WindowMain {
       }, RENDERER_READY_TIMEOUT_MS);
 
       ipcMain.on(RENDERER_READY_CHANNEL, done);
+    });
+  }
+
+  /** Whether the renderer was destroyed by {@link destroyRenderer} and not recreated since. */
+  get rendererDestroyed(): boolean {
+    return this.tornDown;
+  }
+
+  /**
+   * Destroys the renderer, leaving only the main process running. {@link ensureRenderer}
+   * recreates it.
+   */
+  destroyRenderer(): void {
+    if (this.win == null || this.win.isDestroyed()) {
+      return;
+    }
+
+    this.tornDown = true;
+
+    // Close on the next tick: this often runs inside the window's own close handler, which has
+    // already prevented that close.
+    const win = this.win;
+    setTimeout(() => {
+      if (!win.isDestroyed()) {
+        win.close();
+      }
     });
   }
 
@@ -555,6 +584,7 @@ export class WindowMain {
     template: "full-app" | "modal-app" = "full-app",
     show: boolean = true,
   ): Promise<void> {
+    this.tornDown = false;
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,
