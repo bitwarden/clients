@@ -8885,5 +8885,21 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  },
+  "pamStartLeaseButton": {
+    "message": "Start access"
+  },
+  "pamEndLeaseButton": {
+    "message": "End access"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Extend access",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
   }
 }

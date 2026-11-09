@@ -1,7 +1,16 @@
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, input, Input } from "@angular/core";
+import { booleanAttribute, Component, inject, input, Input } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  switchMap,
+} from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -17,6 +26,7 @@ import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -24,6 +34,10 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import {
   DialogService,
   IconButtonModule,
@@ -41,6 +55,11 @@ import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
 } from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
+import {
+  VAULT_ROW_ACCESS,
+  VaultRowAccess,
+  VaultRowAccessStatus,
+} from "../vault-row-access/vault-row-access.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -93,6 +112,35 @@ export class ItemMoreOptionsComponent {
   readonly showViewOption = input(false, { transform: booleanAttribute });
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
+
+  protected readonly RestrictedCipherAction = RestrictedCipherAction;
+  private readonly revealedCipherService = inject(RevealedCipherService);
+
+  private readonly rowAccess: VaultRowAccess | null = inject(VAULT_ROW_ACCESS, { optional: true });
+
+  /** The privileged-control status of this row's cipher, `null` when it is not governed. */
+  protected readonly accessStatus = toSignal(
+    this._cipher$.pipe(
+      switchMap((cipher) =>
+        cipher?.id == null || this.rowAccess == null ? of(null) : this.rowAccess.status$(cipher),
+      ),
+    ),
+    { initialValue: null as VaultRowAccessStatus | null },
+  );
+
+  /** The live revealed view of this row's restricted cipher, if any. */
+  private readonly revealedView = toSignal(
+    combineLatest([this._cipher$, this.accountService.activeAccount$.pipe(getUserId)]).pipe(
+      switchMap(([cipher, userId]) =>
+        cipher?.id == null
+          ? of(undefined)
+          : this.revealedCipherService
+              .revealed$(userId)
+              .pipe(map((revealed) => revealed.get(cipher.id as CipherId))),
+      ),
+    ),
+    { initialValue: undefined },
+  );
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
@@ -157,8 +205,53 @@ export class ItemMoreOptionsComponent {
     private domainSettingsService: DomainSettingsService,
   ) {}
 
+  /**
+   * A PAM-gated item arrives as a reduced partial envelope: there is nothing to edit or fill until
+   * access is active, and the form and autofill paths do not exclude partials themselves.
+   */
+  get isPartial() {
+    return RestrictedCipherPolicy.isRestricted(this.cipher);
+  }
+
+  /**
+   * True for a restricted item with no live revealed view: only the view option remains. While a
+   * reveal is live, the restricted-cipher policy decides each action instead.
+   */
+  protected get isLocked() {
+    return this.isPartial && this.revealedView() == null;
+  }
+
+  /**
+   * True while the member holds the item through privileged control: a live lease, or a restricted
+   * item with a live reveal. Edit, clone and delete stay out of the menu until access ends.
+   */
+  protected get accessActive() {
+    return this.accessStatus()?.kind === "active" || (this.isPartial && !this.isLocked);
+  }
+
   get canEdit() {
-    return this.cipher.edit;
+    return this.cipher.edit && this.allows(RestrictedCipherAction.Edit) && !this.accessActive;
+  }
+
+  protected requestAccess() {
+    return this.rowAccess?.requestAccess(this.cipher);
+  }
+
+  protected startAccess() {
+    return this.rowAccess?.startAccess(this.cipher);
+  }
+
+  protected extendAccess() {
+    return this.rowAccess?.extendAccess(this.cipher);
+  }
+
+  protected endAccess() {
+    return this.rowAccess?.endAccess(this.cipher);
+  }
+
+  /** False when the restricted-cipher rule blocks the action. */
+  protected allows(action: RestrictedCipherAction): boolean {
+    return RestrictedCipherPolicy.allows(this.cipher, action, this.revealedView());
   }
 
   get canViewPassword() {
@@ -173,9 +266,13 @@ export class ItemMoreOptionsComponent {
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
+    // A restricted cipher without a revealed view has nothing to fill.
     return (
-      [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
-    ).includes(CipherViewLikeUtils.getType(this.cipher));
+      !this.isLocked &&
+      (
+        [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
+      ).includes(CipherViewLikeUtils.getType(this.cipher))
+    );
   }
 
   get isLogin() {
@@ -226,7 +323,11 @@ export class ItemMoreOptionsComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
-        viewOnly: !this.cipher.edit,
+        // Adding the URL saves the cipher outside the edit form, which a restricted cipher refuses.
+        viewOnly:
+          !this.cipher.edit ||
+          RestrictedCipherPolicy.isRestricted(this.cipher) ||
+          this.revealedView() != null,
       },
     });
 
