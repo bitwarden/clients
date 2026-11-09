@@ -1,7 +1,6 @@
 import { inject } from "@angular/core";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import {
   ForwardedIpcMessage,
@@ -14,7 +13,6 @@ import {
   IncomingMessage,
   IpcClient,
   IpcCommunicationBackend,
-  ipcRegisterDiscoverHandler,
   OutgoingMessage,
   Source,
 } from "@bitwarden/sdk-internal";
@@ -23,7 +21,6 @@ import { nativeMessagingHost } from "../utils/native-messaging-host";
 
 export class IpcRendererService extends IpcService {
   private logService = inject(LogService);
-  private platformUtilsService = inject(PlatformUtilsService);
   private communicationBackend?: IpcCommunicationBackend;
 
   override async init() {
@@ -76,10 +73,6 @@ export class IpcRendererService extends IpcService {
       });
 
       await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
-
-      await ipcRegisterDiscoverHandler(this.client, {
-        version: await this.platformUtilsService.getApplicationVersion(),
-      });
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
