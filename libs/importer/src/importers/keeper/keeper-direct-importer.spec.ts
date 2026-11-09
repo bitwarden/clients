@@ -5,6 +5,7 @@ import { fromBinary } from "@bufbuild/protobuf";
 import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -47,6 +48,25 @@ describe("Keeper Direct Importer", () => {
 
     const importer = new KeeperDirectImporter(mock<LogService>());
     ({ result, errors } = importer.convertVaultToImportResult(vault));
+  });
+
+  it("moves a result converted without an organization to the shape it would have had with one", () => {
+    const organizationId = "org-1" as OrganizationId;
+    const directWithOrg = new KeeperDirectImporter(mock<LogService>());
+    directWithOrg.organizationId = organizationId;
+    const expected = directWithOrg.convertVaultToImportResult(vault).result;
+
+    const directWithoutOrg = new KeeperDirectImporter(mock<LogService>());
+    const actual = directWithoutOrg.convertVaultToImportResult(vault).result;
+    directWithoutOrg.moveToOrganization(actual, organizationId);
+
+    expect(expected.collections.length).toBeGreaterThan(0);
+    expect(actual.collections.map((c) => [c.name, c.organizationId])).toEqual(
+      expected.collections.map((c) => [c.name, c.organizationId]),
+    );
+    expect(actual.collectionRelationships).toEqual(expected.collectionRelationships);
+    expect(actual.folders).toEqual([]);
+    expect(actual.folderRelationships).toEqual([]);
   });
 
   it("should parse address", () => {

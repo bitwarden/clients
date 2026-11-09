@@ -17,6 +17,7 @@ import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymo
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthRequestType } from "@bitwarden/common/auth/enums/auth-request-type";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthRequestApiServiceAbstraction } from "@bitwarden/common/auth/login-via-auth-request";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
@@ -40,7 +41,6 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
-import { AuthRequestApiServiceAbstraction } from "../../common/abstractions/auth-request-api.service";
 import { LoginViaAuthRequestCacheService } from "../../common/services/auth-request/default-login-via-auth-request-cache.service";
 
 // FIXME: update to use a const object instead of a typescript enum

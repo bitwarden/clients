@@ -173,6 +173,7 @@ export {
 } from "./tokens/collection-dialog.token";
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
+export { CIPHER_SHARE_ACCESS, CipherShareAccess } from "./tokens/cipher-share-access.token";
 export {
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavOrganizationOptions,
@@ -190,7 +191,8 @@ export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { organizationVaultGuard } from "./routing/organization-vault.guard";
-export { MY_ITEMS_ROUTE_DATA } from "./routing/scoped-collection";
+export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-collection";
+export { importStartedFrom, vaultCommandsAfterImport } from "./routing/import-return";
 export { routeVaultScope } from "./routing/route-vault-scope";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultFilterRestoreGuard } from "./routing/vault-filter-restore.guard";
