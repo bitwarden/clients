@@ -3837,14 +3837,14 @@
     "message": "Copy Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Remove Password"
+  "removeAuth": {
+    "message": "Remove Password or Email Verification"
   },
   "delete": {
     "message": "Delete"
   },
-  "removedPassword": {
-    "message": "Password removed"
+  "removedAuth": {
+    "message": "Password or email verification removed"
   },
   "deletedSend": {
     "message": "Send deleted",
@@ -3857,8 +3857,28 @@
   "disabled": {
     "message": "Disabled"
   },
-  "removePasswordConfirmation": {
-    "message": "Are you sure you want to remove the password?"
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
+  "removePassword": {
+    "message": "Remove Password"
+  },
+  "removeEmailVerification": {
+    "message": "Remove Email Verification"
+  },
+  "removedPassword": {
+    "message": "Password removed"
+  },
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Delete Send",
@@ -6708,6 +6728,9 @@
   "myItems": {
     "message": "My Items"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },
@@ -7049,13 +7072,13 @@
       }
     }
   },
-  "desktopAppUri": {
-    "message": "Desktop app (URI)",
-    "description": "Label for an input field that contains a URI pairing the item with an application installed on the computer."
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "desktopAppUriCount": {
-    "message": "Desktop app (URI) $COUNT$",
-    "description": "Label for an input field that contains a URI pairing the item with an application installed on the computer. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",

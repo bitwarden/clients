@@ -244,20 +244,20 @@ describe("UriOptionComponent", () => {
       expect(component["uriLabel"]).toBe("websiteUriCount 2");
     });
 
-    it("returns 'desktopAppUri' for a desktopapp:// URI at index 0 when showDesktopApps is true", () => {
+    it("returns 'desktopApp' for a desktopapp:// URI at index 0 when showDesktopApps is true", () => {
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 0;
       fixture.componentRef.setInput("showDesktopApps", true);
 
-      expect(component["uriLabel"]).toBe("desktopAppUri");
+      expect(component["uriLabel"]).toBe("desktopApp");
     });
 
-    it("returns 'desktopAppUriCount' for a desktopapp:// URI at index greater than 0 when showDesktopApps is true", () => {
+    it("returns 'desktopAppCount' for a desktopapp:// URI at index greater than 0 when showDesktopApps is true", () => {
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 1;
       fixture.componentRef.setInput("showDesktopApps", true);
 
-      expect(component["uriLabel"]).toBe("desktopAppUriCount 2");
+      expect(component["uriLabel"]).toBe("desktopAppCount 2");
     });
   });
 

@@ -157,7 +157,7 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   /**
    * When true, URIs prefixed with the desktop app scheme are shown as desktop apps: a dropdown of
-   * desktop app names labeled "Desktop app (URI)", instead of a "Website (URI)" text input. Should
+   * desktop app names labeled "Desktop app", instead of a "Website (URI)" text input. Should
    * only be true when the WindowsDesktopAutotypeGA feature flag is enabled.
    */
   readonly showDesktopApps = input(false);
@@ -200,8 +200,8 @@ export class UriOptionComponent implements ControlValueAccessor {
   protected get uriLabel() {
     if (this.isAppUri) {
       return this.index === 0
-        ? this.i18nService.t("desktopAppUri")
-        : this.i18nService.t("desktopAppUriCount", this.index + 1);
+        ? this.i18nService.t("desktopApp")
+        : this.i18nService.t("desktopAppCount", this.index + 1);
     }
 
     return this.index === 0

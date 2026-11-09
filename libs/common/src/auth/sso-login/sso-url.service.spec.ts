@@ -1,4 +1,4 @@
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType } from "../../enums";
 
 import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "./sso-url.service";
 

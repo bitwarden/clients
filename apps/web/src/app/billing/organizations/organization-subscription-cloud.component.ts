@@ -353,6 +353,12 @@ export class OrganizationSubscriptionCloudComponent {
     { initialValue: false },
   );
 
+  /** Privileged Controls itself; without it the product is reachable nowhere, so no Contact sales call to action. */
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
+
+  /** Self-serve Privileged Controls: seat and limit adjustment, shown only while PAM billing support is on. */
   readonly showAdjustPrivilegedControls = computed(() => {
     const org = this.organization();
     const sub = this.organizationSubscription();
@@ -362,6 +368,44 @@ export class OrganizationSubscriptionCloudComponent {
     return (
       org.usePam &&
       this.privilegedControlsOptions() != null &&
+      sub.isOnPamSalesInitiatedTrial !== true &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
+    );
+  });
+
+  /**
+   * With PAM billing support off, Privileged Controls is sold only through sales: an organization that has it
+   * sees a "Contact sales" call to action with its seats in use out of its total seats, the same for a
+   * sales-initiated trial and a paid organization. Unlike the self-serve sections, this block is read-only, so
+   * it stays visible on a cancelled or pending-cancellation subscription and the organization can still reach
+   * sales.
+   * Provider-managed organizations are excluded, as is everyone while the Privileged Controls flag itself is off.
+   */
+  readonly showPrivilegedControlsContactSalesToChange = computed(() => {
+    const org = this.organization();
+    if (!this.pamEnabled() || this.pamBillingSupportEnabled() || org == null) {
+      return false;
+    }
+    return org.usePam && !org.hasProvider;
+  });
+
+  /**
+   * With the PamBillingSupport flag off, Privileged Controls is sold only through sales: an Enterprise
+   * organization without it sees a "Contact sales" call to action. The plan's Privileged Controls features are
+   * not sent while the flag is off, so this keys off the Enterprise tier. Excluded: provider-managed
+   * organizations, a sales-initiated trial, a cancelled or pending-cancellation subscription, and everyone while
+   * the Privileged Controls flag itself is off.
+   */
+  readonly showPrivilegedControlsContactSalesToAdd = computed(() => {
+    const org = this.organization();
+    const sub = this.organizationSubscription();
+    if (!this.pamEnabled() || this.pamBillingSupportEnabled() || org == null || sub == null) {
+      return false;
+    }
+    return (
+      !org.hasProvider &&
+      !org.usePam &&
+      sub.plan?.productTier === ProductTierType.Enterprise &&
       sub.isOnPamSalesInitiatedTrial !== true &&
       !this.isSubscriptionCanceledOrPendingCancellation()
     );
