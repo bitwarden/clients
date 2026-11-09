@@ -22,6 +22,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -491,7 +492,7 @@ describe("vault filter service", () => {
   });
 
   function createOrganization(id: OrganizationId, name: string) {
-    return Object.assign(new Organization(), {
+    return buildTestOrganization({
       id,
       name,
       identifier: name,

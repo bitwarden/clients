@@ -33,6 +33,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -436,7 +437,7 @@ function createGroupView(i: number): GroupView {
 }
 
 function createOrganization(i: number): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: `organization-${i}` as OrganizationId,
     name: `Organization ${i}`,
     type: OrganizationUserType.Owner,

@@ -19,7 +19,11 @@ import {
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import {
+  buildTestOrganization,
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
@@ -729,7 +733,7 @@ describe("OrganizationUserResetPasswordService", () => {
 });
 
 function createOrganization(id: string, name: string, resetPasswordEnrolled = true): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: id as OrganizationId,
     name,
     identifier: name,

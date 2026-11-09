@@ -17,6 +17,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -120,7 +121,7 @@ describe("ItemDetailsV2Component", () => {
 
   describe("getAriaLabel", () => {
     it("separates the label and name with a space for organizations", () => {
-      const org = Object.assign(new Organization(), { name: "Organization 1" });
+      const org = buildTestOrganization({ name: "Organization 1" });
       expect(component.getAriaLabel(org)).toBe("ownerAriaLabel Organization 1");
     });
 
@@ -153,7 +154,7 @@ describe("ItemDetailsV2Component", () => {
     });
 
     it("uses 'vault' i18n key for the org item aria-label", () => {
-      const orgInstance = Object.assign(new Organization(), {
+      const orgInstance = buildTestOrganization({
         id: "org1",
         name: "Organization 1",
       });

@@ -3,10 +3,10 @@ import { of } from "rxjs";
 
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
@@ -36,7 +36,7 @@ describe("DefaultOrganizationUserService", () => {
   let accountService: jest.Mocked<AccountService>;
   let i18nService: jest.Mocked<I18nService>;
 
-  const mockOrganization = Object.assign(new Organization(), {
+  const mockOrganization = buildTestOrganization({
     id: "org-123" as OrganizationId,
   });
 
@@ -292,7 +292,7 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = Object.assign(new Organization(), {
+        const org = buildTestOrganization({
           id: mockOrganization.id,
           useMyItems: true,
           usePolicies: true,
@@ -323,7 +323,7 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = Object.assign(new Organization(), {
+        const org = buildTestOrganization({
           id: mockOrganization.id,
           useMyItems: true,
           usePolicies: true,
@@ -359,7 +359,7 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        const org = Object.assign(new Organization(), {
+        const org = buildTestOrganization({
           id: mockOrganization.id,
           useMyItems: false,
           usePolicies: true,

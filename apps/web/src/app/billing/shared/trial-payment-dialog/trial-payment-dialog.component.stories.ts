@@ -5,7 +5,6 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
@@ -13,6 +12,7 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BannerModule, DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
@@ -35,7 +35,7 @@ import { TrialPaymentDialogComponent } from "./trial-payment-dialog.component";
 
 const ORG_ID = "org-1" as OrganizationId;
 
-const mockOrganization = Object.assign(new Organization(), {
+const mockOrganization = buildTestOrganization({
   id: ORG_ID,
   name: "Acme Families",
   productTierType: ProductTierType.Families,

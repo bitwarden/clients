@@ -17,6 +17,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   CopyClickDirective,
@@ -45,7 +46,7 @@ const GROUP_ID = "group-1";
 const USER_ID = "user-1" as UserId;
 
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: ORG_ID,
     name: "Acme Corp",
     useGroups: true,

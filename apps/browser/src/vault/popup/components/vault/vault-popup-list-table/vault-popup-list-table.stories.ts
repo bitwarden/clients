@@ -38,6 +38,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -211,7 +212,7 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => crypto.randomUUID());
 
-  const organization = Object.assign(new Organization(), {
+  const organization = buildTestOrganization({
     id: organizationId,
     productTierType,
   });
@@ -354,7 +355,7 @@ const inSharedFolders = (
   cipher: CipherView,
   folders: typeof SHARED_FOLDER_OPTIONS,
 ): PopupCipherViewLike => {
-  const organization = new Organization();
+  const organization = buildTestOrganization();
   organization.id = "org-engineering" as OrganizationId;
   organization.productTierType = ProductTierType.Enterprise;
 

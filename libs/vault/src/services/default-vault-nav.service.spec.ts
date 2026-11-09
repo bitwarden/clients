@@ -12,6 +12,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { getAvatarDefaultColor } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
@@ -26,7 +27,7 @@ function makeOrg(
   productTierType: ProductTierType,
   enabled: boolean = true,
 ): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: newGuid() as OrganizationId,
     name,
     productTierType,

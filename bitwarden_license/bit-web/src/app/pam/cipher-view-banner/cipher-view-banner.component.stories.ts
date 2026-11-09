@@ -17,6 +17,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -33,7 +34,7 @@ import {
 const ORGANIZATION_ID = "org-1";
 
 function organization(licensed: boolean): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: ORGANIZATION_ID,
     enabled: true,
     usePam: true,

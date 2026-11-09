@@ -31,6 +31,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import {
   CipherId,
   CollectionId,
@@ -207,7 +208,7 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => nextId());
 
-  const organization = Object.assign(new Organization(), {
+  const organization = buildTestOrganization({
     id: organizationId,
     productTierType,
   });

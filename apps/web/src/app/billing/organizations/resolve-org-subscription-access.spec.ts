@@ -2,6 +2,7 @@ import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ProviderType } from "@bitwarden/common/provider";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 
 import {
   OrgSubscriptionAccess,
@@ -403,7 +404,7 @@ function createOrganization(
   } = {},
 ): Organization {
   // Set raw properties
-  const org = Object.assign(new Organization(), {
+  const org = buildTestOrganization({
     id: "test-org-id" as any,
     name: "Test Organization",
     type: config.type ?? OrganizationUserType.User,

@@ -16,6 +16,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { enabledFlags } from "@bitwarden/storybook";
@@ -31,7 +32,7 @@ const COLLECTION_ID = "col-1" as CollectionId;
 const USER_ID = "user-1" as UserId;
 
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: ORG_ID,
     name: "Acme Corp",
     useGroups: true,

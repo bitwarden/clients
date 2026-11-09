@@ -7,12 +7,12 @@ import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-f
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ItemModule, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -42,7 +42,7 @@ class StubHeaderComponent {}
 const ORG_ID = "org-1" as OrganizationId;
 const USER_ID = "user-1" as UserId;
 
-const mockOrganization = Object.assign(new Organization(), {
+const mockOrganization = buildTestOrganization({
   id: ORG_ID,
   name: "Acme Corp",
   useApi: false,

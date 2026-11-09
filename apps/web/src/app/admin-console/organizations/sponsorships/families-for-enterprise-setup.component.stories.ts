@@ -17,6 +17,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -28,7 +29,7 @@ import { FamiliesForEnterpriseSetupComponent } from "./families-for-enterprise-s
 const USER_ID = "user-story-1" as UserId;
 
 function familyOrg(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: "org-1" as OrganizationId,
     name: "My Family",
     status: OrganizationUserStatusType.Confirmed,

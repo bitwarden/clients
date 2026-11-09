@@ -10,7 +10,11 @@ import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import {
+  buildTestOrganization,
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { organizationRedirectGuard } from "./org-redirect.guard";
@@ -40,7 +44,7 @@ export class AdminConsoleSubrouteComponent {}
 const REDIRECT_SEAM = new InjectionToken<string>("RedirectSeam");
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(new Organization(), {
+  buildTestOrganization({
     id: "myOrgId",
     enabled: true,
     type: OrganizationUserType.Admin,

@@ -7,6 +7,7 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -30,7 +31,7 @@ describe("BillingConstraintService", () => {
   const mockOrganizationId = "org-123" as OrganizationId;
 
   const createMockOrganization = (overrides: Partial<Organization> = {}): Organization => {
-    const org = Object.assign(new Organization(), {
+    const org = buildTestOrganization({
       id: mockOrganizationId,
       seats: 10,
       productTierType: ProductTierType.Teams,

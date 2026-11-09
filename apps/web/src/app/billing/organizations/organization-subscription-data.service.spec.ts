@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { ProviderType } from "@bitwarden/common/provider";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { SubscriptionPreview } from "@bitwarden/subscription";
 
@@ -346,7 +347,7 @@ function createOrganization(
     hasReseller?: boolean;
   } = {},
 ): Organization {
-  const org = Object.assign(new Organization(), {
+  const org = buildTestOrganization({
     id: "org-123" as any,
     type: config.type ?? OrganizationUserType.User,
     isProviderUser: config.isProviderUser ?? false,

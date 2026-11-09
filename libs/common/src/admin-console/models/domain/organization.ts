@@ -46,18 +46,18 @@ export class Organization {
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
-  seats: number | null;
-  maxCollections: number | null;
+  seats: number | undefined;
+  maxCollections: number | undefined;
   maxStorageGb?: number;
   ssoBound: boolean;
-  identifier: string | null;
+  identifier: string | undefined;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
-  organizationUserId: string | null;
+  organizationUserId: string | undefined;
   hasPublicAndPrivateKeys: boolean;
-  providerId: string | null;
-  providerName: string | null;
+  providerId: string | undefined;
+  providerName: string | undefined;
   providerType?: ProviderType;
   /**
    * Indicates that a user is a ProviderUser for the organization
@@ -67,11 +67,11 @@ export class Organization {
    * Indicates that a user is a member for the organization (may be `false` if they have access via a Provider only)
    */
   isMember: boolean;
-  familySponsorshipFriendlyName: string | null;
+  familySponsorshipFriendlyName: string | undefined;
   familySponsorshipAvailable: boolean;
   productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
-  keyConnectorUrl: string | null;
+  keyConnectorUrl: string | undefined;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
@@ -108,11 +108,7 @@ export class Organization {
   useMyItems: boolean;
   useInviteLinks: boolean;
 
-  constructor(obj?: OrganizationData) {
-    if (obj == null) {
-      return;
-    }
-
+  constructor(obj: OrganizationData) {
     this.id = obj.id as OrganizationId;
     this.name = obj.name;
     this.status = obj.status;
@@ -139,26 +135,26 @@ export class Organization {
     this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
     this.usersGetPremium = obj.usersGetPremium;
-    this.seats = obj.seats;
-    this.maxCollections = obj.maxCollections;
+    this.seats = obj.seats ?? undefined;
+    this.maxCollections = obj.maxCollections ?? undefined;
     this.maxStorageGb = obj.maxStorageGb;
     this.ssoBound = obj.ssoBound;
-    this.identifier = obj.identifier;
+    this.identifier = obj.identifier ?? undefined;
     this.permissions = obj.permissions;
     this.resetPasswordEnrolled = obj.resetPasswordEnrolled;
     this.userId = obj.userId;
-    this.organizationUserId = obj.organizationUserId;
+    this.organizationUserId = obj.organizationUserId ?? undefined;
     this.hasPublicAndPrivateKeys = obj.hasPublicAndPrivateKeys;
-    this.providerId = obj.providerId;
-    this.providerName = obj.providerName;
+    this.providerId = obj.providerId ?? undefined;
+    this.providerName = obj.providerName ?? undefined;
     this.providerType = obj.providerType;
     this.isProviderUser = obj.isProviderUser;
     this.isMember = obj.isMember;
-    this.familySponsorshipFriendlyName = obj.familySponsorshipFriendlyName;
+    this.familySponsorshipFriendlyName = obj.familySponsorshipFriendlyName ?? undefined;
     this.familySponsorshipAvailable = obj.familySponsorshipAvailable;
     this.productTierType = obj.productTierType;
     this.keyConnectorEnabled = obj.keyConnectorEnabled;
-    this.keyConnectorUrl = obj.keyConnectorUrl;
+    this.keyConnectorUrl = obj.keyConnectorUrl ?? undefined;
     this.familySponsorshipLastSyncDate = obj.familySponsorshipLastSyncDate;
     this.familySponsorshipValidUntil = obj.familySponsorshipValidUntil;
     this.familySponsorshipToDelete = obj.familySponsorshipToDelete;
@@ -431,7 +427,7 @@ export class Organization {
   }
 
   get canManageSponsorships() {
-    return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
+    return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== undefined;
   }
 
   /**
