@@ -350,6 +350,49 @@ export class WindowMain {
     });
   }
 
+  /**
+   * Brings the main window to the foreground, recreating it if it was destroyed.
+   *
+   * A recreated window is shown on `ready-to-show`: showing it right after `createWindow`
+   * races the asynchronous `loadURL`, and macOS sometimes drops the activation.
+   */
+  async ensureRenderer(): Promise<void> {
+    // A window created during startup must not be created twice.
+    await this.startup;
+
+    if (this.win == null || this.win.isDestroyed()) {
+      await this.createWindow("full-app", false);
+      this.showWhenReady(this.win);
+      return;
+    }
+
+    if (this.win.isMinimized()) {
+      this.win.restore();
+    }
+    this.show();
+    this.win.focus();
+
+    if (isMac()) {
+      // With the dock hidden, show() and focus() do not raise the window above other apps.
+      // Steal focus a tick later, once macOS has processed the show; same-tick steals get dropped.
+      setTimeout(() => app.focus({ steal: true }));
+    }
+  }
+
+  private showWhenReady(win: BrowserWindow) {
+    win.once("ready-to-show", () => {
+      if (win.isDestroyed()) {
+        return;
+      }
+
+      win.show();
+      win.focus();
+      if (isMac()) {
+        app.focus({ steal: true });
+      }
+    });
+  }
+
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
     // TODO(PM-33211): The custom file scheme only works on servers that support it for CORS (>=2026.3.0).
     // We have it disabled by default until self-hosted users are updated to maintain compatibility.
