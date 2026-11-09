@@ -44,6 +44,7 @@ import {
   DefaultStateProvider,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
+import { UserId } from "@bitwarden/user-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { FeatureStatus } from "./autofill/main/feature-status";
@@ -55,6 +56,7 @@ import { DesktopAutofillSettingsService } from "./autofill/services/desktop-auto
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
+import { MainKeyManagementIpcListener } from "./key-management/unlock/main-key-management-ipc.listener";
 import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -382,6 +384,14 @@ export class Main {
       this.messageListener,
     );
 
+    new MainKeyManagementIpcListener(
+      this.serviceContainer.unlockService,
+      this.serviceContainer.keyService,
+      accountService,
+      this.serviceContainer.stateProvider,
+      this.logService,
+    ).init();
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -519,6 +529,19 @@ export class Main {
           event.preventDefault();
           this.processDeepLink([url]);
         });
+
+        // Unlock every account with a never-lock ("auto") key, so the renderer re-seeds unlocked.
+        // A failure leaves that account locked rather than failing startup for the others.
+        const accounts = await firstValueFrom(this.serviceContainer.accountService.accounts$);
+        await Promise.all(
+          (Object.keys(accounts) as UserId[]).map(async (userId) => {
+            try {
+              await this.serviceContainer.unlockService.unlockWithAutoUnlockKey(userId);
+            } catch (e) {
+              this.logService.error("[Main] Failed to auto-unlock user on startup", e);
+            }
+          }),
+        );
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
