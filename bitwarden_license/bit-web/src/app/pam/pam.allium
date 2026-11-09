@@ -1873,9 +1873,9 @@ surface VaultRowAccessState {
                   or (request.status = approved and request.lease = null))
 
     @guidance
-        -- Filters: the sidebar's "Controlled access" group narrows the item list by
-        -- the same badge. "Privileged" keeps every item gated for the viewer, and
-        -- "My requests" keeps those with a pending, ready or active badge.
+        -- Filters: the vault table's "Controlled access" chip narrows the item list by
+        -- the same badge, one option per badge state, with "In use" and "Ending soon"
+        -- splitting an active lease. Selected options combine with OR.
         --
         -- Collection level: the collection row's "Privileged" pill, the sidebar lock
         -- and the banner above a governed collection's item list describe the

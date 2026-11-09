@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { RequestSummaryComponent } from "./request-summary.component";
@@ -50,8 +48,6 @@ describe("RequestSummaryComponent", () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [
-        // PAM ships with VFO1 on.
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
         {
           provide: I18nService,
           useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ").trim() },

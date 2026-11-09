@@ -29,10 +29,7 @@
           }
           @if (collectionName(); as collection) {
             <span class="tw-inline-flex tw-items-center tw-gap-1.5">
-              <bit-icon
-                [name]="'bwi-collection' | vfo1Icon"
-                [ariaLabel]="'sharedFolder' | i18n"
-              ></bit-icon>
+              <bit-icon name="bwi-shared-folder" [ariaLabel]="'sharedFolder' | i18n"></bit-icon>
               {{ collection }}
             </span>
           }

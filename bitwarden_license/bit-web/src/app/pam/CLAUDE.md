@@ -113,17 +113,15 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `rulesGoverningCollection` pair the collection dialog uses, and narrows to the
   collection's own PAM-enabled organization before reading at all. A new surface that is
   likewise handed no collection belongs on that helper, not on a re-derived check.
-- `bit-pam-components/src/vault-filter-controlled-access/`, the "Controlled access" filter, in two option sets over
-  one narrowing. The legacy sidebar's children (`options$`, `CONTROLLED_ACCESS_FILTERS`) are
-  state groups: "Privileged" and "My requests" (`pending`/`ready`/`active`). The VFO1 vault
-  table's multi-select chip (`stateOptions$`, `CONTROLLED_ACCESS_STATE_FILTERS`) offers one
+- `bit-pam-components/src/vault-filter-controlled-access/`, the vault tables' "Controlled access"
+  filter. The multi-select chip (`stateOptions$`, `CONTROLLED_ACCESS_STATE_FILTERS`) offers one
   option per `AccessBadgeState.kind`, labelled like the badge it admits, so its counts match
   the badges on screen; the table ORs the selected options itself. "Ending soon" splits the
   active leases at `ENDING_SOON_THRESHOLD_MS`, so "In use" is the badge's "X left" and a lapsed
   lease is in neither. "Unavailable" matches items whose rule refuses a request right now. Each
   row's state is read once per row list and shared across options (`accessKinds$`), so the
-  chip's counts don't multiply the reads. Add an option by appending to the matching list, not
-  by branching in `narrow$`. The service and the chip factory live in `bit-pam-components`
+  chip's counts don't multiply the reads. Add an option by appending to the list, not by
+  branching in `matches$`. The service and the chip factory live in `bit-pam-components`
   because the extension popup binds the same `VAULT_ITEM_FILTER` in `bit-browser`'s
   `provide-pam.ts`, and `bit-browser` cannot import `bit-web`.
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/`, the one
@@ -295,9 +293,8 @@ shared ticker.
 PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
 binds them all. In `libs/vault`: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`,
-`VAULT_CONTROLLED_ACCESS_FILTER` (the sidebar's "Controlled access" group plus the narrowing its
-children apply to the item list), `VAULT_ITEM_FILTER` and `VAULT_ITEM_COLUMN` (the VFO1 vault
-table's "Controlled access" chip and column, over the same state reads), and
+`VAULT_ITEM_FILTER` and `VAULT_ITEM_COLUMN` (the vault table's "Controlled access" chip and
+column, over the same state reads), and
 `SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name). In `apps/web`:
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows,
 collection rows show the "Privileged" pill straight off the collection's server-derived
