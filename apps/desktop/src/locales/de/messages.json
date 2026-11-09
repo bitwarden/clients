@@ -4202,7 +4202,7 @@
     "message": "Gerade eben"
   },
   "requestedXMinutesAgo": {
-    "message": "Vor $MINUTES$ Minuten angefordert",
+    "message": "Vor $MINUTES$ Minuten angefragt",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4226,7 +4226,7 @@
     }
   },
   "logInRequested": {
-    "message": "Anmeldung angefordert"
+    "message": "Anmeldung angefragt"
   },
   "accountAccessRequested": {
     "message": "Kontozugriff angefragt"
