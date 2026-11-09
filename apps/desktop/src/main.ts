@@ -36,7 +36,7 @@ import { DefaultBiometricStateService } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
-import { FlightRecorderClient } from "@bitwarden/sdk-internal";
+import { FlightRecorderClient, ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -54,6 +54,7 @@ import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-auto
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
+import { BiometricsUnlockDriver } from "./key-management/biometrics/biometrics-unlock.driver";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
@@ -448,6 +449,14 @@ export class Main {
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
 
+        // The browser extension and the CLI reach the desktop app over native messaging, and their
+        // messages are answered by main's client. The renderer's own biometrics handlers are not on
+        // that path (the renderer is not even alive when it is headless), so main answers them.
+        await ipcRegisterBiometricsHandlers(
+          this.ipcService.client,
+          new BiometricsUnlockDriver(this.biometricsService, this.serviceContainer.unlockService),
+        );
+
         await this.windowMain.init(showWindow);
         this.headlessVaultTimeout.init();
         this.ssoCookieMain.init(this.windowMain.session);
@@ -517,6 +526,10 @@ export class Main {
           this.processDeepLink([url]);
         });
 
+        // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+        await this.biometricsService.setUnlockService(this.serviceContainer.unlockService);
+        await this.serviceContainer.sharedUnlockPeerService.start();
+
         // Unlock every account with a never-lock ("auto") key, so the renderer re-seeds unlocked.
         // A failure leaves that account locked rather than failing startup for the others.
         const accounts = await firstValueFrom(this.serviceContainer.accountService.accounts$);
@@ -554,7 +567,7 @@ export class Main {
         { name: "autotype-ga", active: () => this.mainDesktopAutotypeService.active },
         { name: "autofill-provider", active: () => this.desktopAutofillMain.active },
         { name: "duckduckgo", active: () => ddgEnabled },
-        // Browser biometrics, shared unlock and CLI unlock are answered by the renderer.
+        // Legacy browser biometrics are still answered by the renderer.
         { name: "native-messaging", active: () => this.nativeMessagingMain.hasClients },
         // Logout cleanup runs in the renderer, so main can only lock on timeout.
         { name: "logout-timeout-action", active: () => this.headlessVaultTimeout.logoutOnTimeout },
