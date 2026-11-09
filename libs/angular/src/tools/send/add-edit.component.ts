@@ -359,7 +359,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     // Capture the plaintext password before encryptSend consumes it. `this.send` is a SendView
     // whose `password` holds the plaintext typed into the form (null when preserving an existing
     // password). Forward it so the SDK path can derive the send password over the key it
-    // generates; the legacy path ignores it.
+    // generates; new file sends (created over REST) ignore it.
     const plaintextPassword = this.send.password;
 
     this.formPromise = this.encryptSend(file).then(async (encSend) => {

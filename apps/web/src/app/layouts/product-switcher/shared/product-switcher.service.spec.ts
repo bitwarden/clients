@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -150,7 +148,7 @@ describe("ProductSwitcherService", () => {
         const products = await firstValueFrom(service.products$);
 
         expect(
-          products.other.find((p) => p.name === "Secrets Manager").otherProductOverrides.name,
+          products.other.find((p) => p.name === "Secrets Manager")!.otherProductOverrides!.name,
         ).toBe("getSecretsManager");
       });
 
@@ -181,8 +179,8 @@ describe("ProductSwitcherService", () => {
 
         const organizations = products.other.find((p) => p.name === "Organizations");
         expect(organizations).toBeDefined();
-        expect(organizations.marketingRoute.route).toBe("/create-organization");
-        expect(organizations.marketingRoute.external).toBe(false);
+        expect(organizations!.marketingRoute!.route).toBe("/create-organization");
+        expect(organizations!.marketingRoute!.external).toBe(false);
 
         expect(products.other.find((p) => p.name === "Organizations")).toBeDefined();
         expect(products.bento.find((p) => p.name === "Admin Console")).toBeUndefined();
@@ -196,8 +194,10 @@ describe("ProductSwitcherService", () => {
 
         const organizations = products.other.find((p) => p.name === "Organizations");
         expect(organizations).toBeDefined();
-        expect(organizations.marketingRoute.route).toBe("https://bitwarden.com/products/business/");
-        expect(organizations.marketingRoute.external).toBe(true);
+        expect(organizations!.marketingRoute!.route).toBe(
+          "https://bitwarden.com/products/business/",
+        );
+        expect(organizations!.marketingRoute!.external).toBe(true);
 
         expect(products.other.find((p) => p.name === "Organizations")).toBeDefined();
         expect(products.bento.find((p) => p.name === "Admin Console")).toBeUndefined();
@@ -271,7 +271,7 @@ describe("ProductSwitcherService", () => {
 
       const products = await firstValueFrom(service.products$);
 
-      const { isActive } = products.bento.find((p) => p.name === "Password Manager");
+      const { isActive } = products.bento.find((p) => p.name === "Password Manager")!;
 
       expect(isActive).toBe(true);
     });
@@ -283,7 +283,7 @@ describe("ProductSwitcherService", () => {
 
       const products = await firstValueFrom(service.products$);
 
-      const { isActive } = products.other.find((p) => p.name === "Secrets Manager");
+      const { isActive } = products.other.find((p) => p.name === "Secrets Manager")!;
 
       expect(isActive).toBe(true);
     });
@@ -299,7 +299,7 @@ describe("ProductSwitcherService", () => {
 
       const products = await firstValueFrom(service.products$);
 
-      const { isActive } = products.bento.find((p) => p.name === "Admin Console");
+      const { isActive } = products.bento.find((p) => p.name === "Admin Console")!;
 
       expect(isActive).toBe(true);
     });
@@ -312,7 +312,7 @@ describe("ProductSwitcherService", () => {
 
       const products = await firstValueFrom(service.products$);
 
-      const { isActive } = products.bento.find((p) => p.name === "Provider Portal");
+      const { isActive } = products.bento.find((p) => p.name === "Provider Portal")!;
 
       expect(isActive).toBe(true);
     });
@@ -343,7 +343,7 @@ describe("ProductSwitcherService", () => {
 
       const products = await firstValueFrom(service.products$);
 
-      const { appRoute } = products.bento.find((p) => p.name === "Secrets Manager");
+      const { appRoute } = products.bento.find((p) => p.name === "Secrets Manager")!;
 
       expect(appRoute).toEqual(["/sm", "4243"]);
     });
@@ -363,7 +363,7 @@ describe("ProductSwitcherService", () => {
 
     const products = await firstValueFrom(service.products$);
 
-    const { appRoute } = products.bento.find((p) => p.name === "Admin Console");
+    const { appRoute } = products.bento.find((p) => p.name === "Admin Console")!;
 
     expect(appRoute).toEqual(["/organizations", "111-22-33"]);
   });

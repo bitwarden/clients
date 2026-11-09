@@ -1,9 +1,14 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
-import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
+import { filter, map, of, switchMap, tap } from "rxjs";
 
 import { BitwardenLogo, BitwardenLogoBeta, BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,6 +22,7 @@ import {
   ContentVerticalPaddingType,
   FooterVerticalPaddingType,
   HeroTextAlignmentType,
+  LandingContentMaxWidthType,
   SecondaryContentLocationType,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -37,13 +43,48 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   hideFooter?: boolean;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+interface ExtensionAnonLayoutWrapperState {
+  showAcctSwitcher: boolean | null;
+  showBackButton: boolean | null;
+  showLogo: boolean | null;
+  pageTitle: string | null;
+  pageSubtitle: string | null;
+  pageIcon: BitSvg | null;
+  showReadonlyHostname: boolean | null;
+  maxWidth: LandingContentMaxWidthType | null;
+  hideFooter: boolean | null;
+  hideCardWrapper: boolean | null;
+  hidePageIcon?: boolean;
+  contentVerticalPadding?: ContentVerticalPaddingType;
+  footerVerticalPadding?: FooterVerticalPaddingType;
+  heroTextAlignment?: HeroTextAlignmentType;
+  secondaryContentLocation?: SecondaryContentLocationType;
+}
+
+const RESET_STATE: ExtensionAnonLayoutWrapperState = {
+  showAcctSwitcher: null,
+  showBackButton: null,
+  showLogo: null,
+  pageTitle: null,
+  pageSubtitle: null,
+  pageIcon: null,
+  showReadonlyHostname: null,
+  maxWidth: null,
+  hideFooter: null,
+  hideCardWrapper: null,
+};
+
+const INITIAL_STATE: ExtensionAnonLayoutWrapperState = {
+  ...RESET_STATE,
+  showLogo: true,
+  hideCardWrapper: false,
+};
+
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "extension-anon-layout-wrapper.component.html",
   imports: [
     AnonLayoutComponent,
-    CommonModule,
     CurrentAccountComponent,
     I18nPipe,
     SvgModule,
@@ -53,51 +94,32 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
     RouterModule,
   ],
 })
-export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class ExtensionAnonLayoutWrapperComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly i18nService = inject(I18nService);
+  private readonly extensionAnonLayoutWrapperDataService = inject(AnonLayoutWrapperDataService);
+  private readonly accountSwitcherService = inject(AccountSwitcherService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected showAcctSwitcher: boolean;
-  protected showBackButton: boolean;
-  protected showLogo: boolean = true;
+  protected readonly state = signal<ExtensionAnonLayoutWrapperState>(INITIAL_STATE);
 
-  protected pageTitle: string;
-  protected pageSubtitle: string;
-  protected pageIcon: BitSvg;
-  protected showReadonlyHostname: boolean;
-  protected maxWidth: "md" | "3xl";
-  protected hasLoggedInAccount: boolean = false;
-  protected hideFooter: boolean;
-  protected hideCardWrapper: boolean = false;
-  protected hidePageIcon?: boolean;
-  protected contentVerticalPadding?: ContentVerticalPaddingType;
-  protected footerVerticalPadding?: FooterVerticalPaddingType;
-  protected heroTextAlignment?: HeroTextAlignmentType;
-  protected secondaryContentLocation?: SecondaryContentLocationType;
+  protected readonly hasLoggedInAccount = toSignal(
+    this.accountSwitcherService.availableAccounts$.pipe(
+      map((accounts) => accounts.some((account) => account.id !== "addAccount")),
+    ),
+    { initialValue: false },
+  );
 
-  protected theme: string;
-  protected logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
+  protected readonly logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private i18nService: I18nService,
-    private extensionAnonLayoutWrapperDataService: AnonLayoutWrapperDataService,
-    private accountSwitcherService: AccountSwitcherService,
-  ) {}
-
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     // Set the initial page data on load
-    this.setAnonLayoutWrapperDataFromRouteData(this.route.snapshot.firstChild?.data);
+    this.setAnonLayoutWrapperDataFromRouteData(this.route.snapshot.firstChild?.data ?? null);
 
     // Listen for page changes and update the page data appropriately
     this.listenForPageDataChanges();
     this.listenForServiceDataChanges();
-
-    this.accountSwitcherService.availableAccounts$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((accounts) => {
-        this.hasLoggedInAccount = accounts.some((account) => account.id !== "addAccount");
-      });
   }
 
   private listenForPageDataChanges() {
@@ -105,9 +127,9 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         // reset page data on page changes
-        tap(() => this.resetPageData()),
-        switchMap(() => this.route.firstChild?.data || null),
-        takeUntil(this.destroy$),
+        tap(() => this.state.set(RESET_STATE)),
+        switchMap(() => this.route.firstChild?.data || of(null)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((firstChildRouteData: Data | null) => {
         this.setAnonLayoutWrapperDataFromRouteData(firstChildRouteData);
@@ -119,44 +141,48 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const next: ExtensionAnonLayoutWrapperState = { ...this.state() };
+
     if (firstChildRouteData["pageTitle"] !== undefined) {
-      this.pageTitle = this.handleStringOrTranslation(firstChildRouteData["pageTitle"]);
+      next.pageTitle = this.handleStringOrTranslation(firstChildRouteData["pageTitle"]);
     }
 
     if (firstChildRouteData["pageSubtitle"] !== undefined) {
-      this.pageSubtitle = this.handleStringOrTranslation(firstChildRouteData["pageSubtitle"]);
+      next.pageSubtitle = this.handleStringOrTranslation(firstChildRouteData["pageSubtitle"]);
     }
 
     if (firstChildRouteData["pageIcon"] !== undefined) {
-      this.pageIcon = firstChildRouteData["pageIcon"];
+      next.pageIcon = firstChildRouteData["pageIcon"];
     }
 
     // When undefined, fall back to ANON_LAYOUT_DEFAULTS / EXTENSION_ANON_LAYOUT_DEFAULTS — single
     // source of truth for route-init defaults, the reset emission, and the component-level
     // input defaults.
-    this.showReadonlyHostname =
+    next.showReadonlyHostname =
       firstChildRouteData["showReadonlyHostname"] ?? ANON_LAYOUT_DEFAULTS.showReadonlyHostname;
-    this.maxWidth = firstChildRouteData["maxWidth"] ?? ANON_LAYOUT_DEFAULTS.maxWidth;
-    this.hideCardWrapper =
+    next.maxWidth = firstChildRouteData["maxWidth"] ?? ANON_LAYOUT_DEFAULTS.maxWidth;
+    next.hideCardWrapper =
       firstChildRouteData["hideCardWrapper"] ?? ANON_LAYOUT_DEFAULTS.hideCardWrapper;
-    this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
-    this.contentVerticalPadding =
+    next.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
+    next.contentVerticalPadding =
       firstChildRouteData["contentVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.contentVerticalPadding;
-    this.footerVerticalPadding =
+    next.footerVerticalPadding =
       firstChildRouteData["footerVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.footerVerticalPadding;
-    this.heroTextAlignment =
+    next.heroTextAlignment =
       firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
 
-    this.showAcctSwitcher =
+    next.showAcctSwitcher =
       firstChildRouteData["showAcctSwitcher"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showAcctSwitcher;
-    this.showBackButton =
+    next.showBackButton =
       firstChildRouteData["showBackButton"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showBackButton;
-    this.showLogo = firstChildRouteData["showLogo"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showLogo;
-    this.hideFooter =
+    next.showLogo = firstChildRouteData["showLogo"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showLogo;
+    next.hideFooter =
       firstChildRouteData["hideFooter"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.hideFooter;
-    this.secondaryContentLocation =
+    next.secondaryContentLocation =
       firstChildRouteData["secondaryContentLocation"] ??
       ANON_LAYOUT_DEFAULTS.secondaryContentLocation;
+
+    this.state.set(next);
 
     // Cache the route-data payload so resetToCachedRouteData() can later restore it.
     this.extensionAnonLayoutWrapperDataService.cacheRouteData(
@@ -167,7 +193,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   private listenForServiceDataChanges() {
     this.extensionAnonLayoutWrapperDataService
       .anonLayoutWrapperData$()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: ExtensionAnonLayoutWrapperData) => {
         this.setAnonLayoutWrapperDataFromService(data);
       });
@@ -178,61 +204,65 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const next: ExtensionAnonLayoutWrapperState = { ...this.state() };
+
     // Null emissions are used to reset the page data as all fields are optional.
 
     if (data.pageTitle !== undefined) {
-      this.pageTitle =
+      next.pageTitle =
         data.pageTitle !== null ? this.handleStringOrTranslation(data.pageTitle) : null;
     }
 
     if (data.pageSubtitle !== undefined) {
-      this.pageSubtitle =
+      next.pageSubtitle =
         data.pageSubtitle !== null ? this.handleStringOrTranslation(data.pageSubtitle) : null;
     }
 
     if (data.pageIcon !== undefined) {
-      this.pageIcon = data.pageIcon !== null ? data.pageIcon : null;
+      next.pageIcon = data.pageIcon !== null ? data.pageIcon : null;
     }
 
     if (data.hideFooter !== undefined) {
-      this.hideFooter = data.hideFooter !== null ? data.hideFooter : null;
+      next.hideFooter = data.hideFooter !== null ? data.hideFooter : null;
     }
 
     if (data.showReadonlyHostname !== undefined) {
-      this.showReadonlyHostname = data.showReadonlyHostname;
+      next.showReadonlyHostname = data.showReadonlyHostname;
     }
 
     if (data.hideCardWrapper !== undefined) {
-      this.hideCardWrapper = data.hideCardWrapper;
+      next.hideCardWrapper = data.hideCardWrapper;
     }
 
     if (data.showAcctSwitcher !== undefined) {
-      this.showAcctSwitcher = data.showAcctSwitcher;
+      next.showAcctSwitcher = data.showAcctSwitcher;
     }
 
     if (data.showBackButton !== undefined) {
-      this.showBackButton = data.showBackButton;
+      next.showBackButton = data.showBackButton;
     }
 
     if (data.showLogo !== undefined) {
-      this.showLogo = data.showLogo;
+      next.showLogo = data.showLogo;
     }
 
     if (data.hidePageIcon !== undefined) {
-      this.hidePageIcon = data.hidePageIcon;
+      next.hidePageIcon = data.hidePageIcon;
     }
     if (data.contentVerticalPadding !== undefined) {
-      this.contentVerticalPadding = data.contentVerticalPadding;
+      next.contentVerticalPadding = data.contentVerticalPadding;
     }
     if (data.footerVerticalPadding !== undefined) {
-      this.footerVerticalPadding = data.footerVerticalPadding;
+      next.footerVerticalPadding = data.footerVerticalPadding;
     }
     if (data.heroTextAlignment !== undefined) {
-      this.heroTextAlignment = data.heroTextAlignment;
+      next.heroTextAlignment = data.heroTextAlignment;
     }
     if (data.secondaryContentLocation !== undefined) {
-      this.secondaryContentLocation = data.secondaryContentLocation;
+      next.secondaryContentLocation = data.secondaryContentLocation;
     }
+
+    this.state.set(next);
   }
 
   private handleStringOrTranslation(value: string | Translation): string {
@@ -243,28 +273,5 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
 
     // If it's a Translation object, translate it
     return this.i18nService.t(value.key, ...(value.placeholders ?? []));
-  }
-
-  private resetPageData() {
-    this.pageTitle = null;
-    this.pageSubtitle = null;
-    this.pageIcon = null;
-    this.showReadonlyHostname = null;
-    this.showAcctSwitcher = null;
-    this.showBackButton = null;
-    this.showLogo = null;
-    this.maxWidth = null;
-    this.hideFooter = null;
-    this.hideCardWrapper = null;
-    this.hidePageIcon = undefined;
-    this.contentVerticalPadding = undefined;
-    this.footerVerticalPadding = undefined;
-    this.heroTextAlignment = undefined;
-    this.secondaryContentLocation = undefined;
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
