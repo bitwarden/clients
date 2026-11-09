@@ -21,8 +21,6 @@ import {
   DefaultLoginStrategySessionTimeoutService,
   UserDecryptionOptionsService,
   SsoUrlService,
-  AuthRequestApiServiceAbstraction,
-  DefaultAuthRequestApiService,
 } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -34,6 +32,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService } from "@bitwarden/common/auth/logout";
 import {
   DefaultPasswordPreloginService,
