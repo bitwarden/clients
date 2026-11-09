@@ -256,8 +256,7 @@
       <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
     </bit-header-cell>
     <bit-cell *bitCellDef="table.columns.options; let row">
-      <!-- Without manage users permission, the menu only holds Recover account. -->
-      @if (organization && (canManage || allowResetPassword(row, organization))) {
+      @if (organization && showRowActions(row, organization)) {
         <div slot="end">
           <button
             type="button"

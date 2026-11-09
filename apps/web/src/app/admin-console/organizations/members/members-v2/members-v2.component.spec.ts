@@ -27,6 +27,7 @@ import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/membe
 
 import { MaxCheckedCount } from "../../../common/people-table-data-source";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
+import { AccountRecoveryDialogResultType } from "../components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
 import {
   MemberDialogManagerService,
@@ -867,6 +868,12 @@ describe("MembersV2Component", () => {
       expect(memberActionsService.confirmUser).not.toHaveBeenCalled();
     });
 
+    it("shows the Options menu for every member when the admin can manage users", () => {
+      memberActionsService.allowResetPassword.mockReturnValue(false);
+
+      expect(component.showRowActions(user, organization)).toBe(true);
+    });
+
     it("checks account recovery with the reset password policy", async () => {
       memberActionsService.allowResetPassword.mockReturnValue(true);
 
@@ -876,6 +883,65 @@ describe("MembersV2Component", () => {
         organization,
         false,
       );
+    });
+  });
+
+  describe("read-only admin who can recover accounts", () => {
+    const enrolled = member({ id: "enrolled" as Guid, resetPasswordEnrolled: true });
+    const notEnrolled = member({ id: "not-enrolled" as Guid, resetPasswordEnrolled: false });
+    let organization: Organization;
+
+    beforeEach(async () => {
+      await setup(
+        { canManageUsers: false, canManageUsersPassword: true, useResetPassword: true },
+        [enrolled, notEnrolled],
+        {},
+        { resetPasswordPolicyEnabled: true },
+      );
+      organization = component.organization();
+      memberActionsService.allowResetPassword.mockImplementation(
+        (user) => user.resetPasswordEnrolled,
+      );
+      memberService.loadMembers.mockClear();
+    });
+
+    it("shows the Options menu for a member who can be recovered", () => {
+      expect(component.showRowActions(enrolled, organization)).toBe(true);
+      expect(memberActionsService.allowResetPassword).toHaveBeenCalledWith(
+        enrolled,
+        organization,
+        true,
+      );
+    });
+
+    it("shows no Options menu for a member who can't be recovered, so none opens empty", () => {
+      expect(component.showRowActions(notEnrolled, organization)).toBe(false);
+    });
+
+    it("has no selection, so no checkbox column", () => {
+      expect(component.selection()).toBeUndefined();
+    });
+
+    it("opens the account recovery dialog and reloads when it succeeds", async () => {
+      memberDialogManager.openAccountRecoveryDialog.mockResolvedValue(
+        AccountRecoveryDialogResultType.Ok,
+      );
+
+      await component.resetPassword(enrolled, organization);
+
+      expect(memberDialogManager.openAccountRecoveryDialog).toHaveBeenCalledWith(
+        enrolled,
+        organization,
+      );
+      expect(memberService.loadMembers).toHaveBeenCalled();
+    });
+
+    it("doesn't reload when the account recovery dialog is dismissed", async () => {
+      memberDialogManager.openAccountRecoveryDialog.mockResolvedValue(undefined);
+
+      await component.resetPassword(enrolled, organization);
+
+      expect(memberService.loadMembers).not.toHaveBeenCalled();
     });
   });
 });

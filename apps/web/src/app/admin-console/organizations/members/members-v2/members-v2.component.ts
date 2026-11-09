@@ -484,6 +484,15 @@ export class MembersV2Component {
     return this.showAccountRecoverySection() && user.resetPasswordEnrolled;
   }
 
+  /**
+   * Whether a member's row gets the Options menu. Without manage users permission, the menu only
+   * holds Recover account, so it's left out for members who can't be recovered rather than open
+   * empty.
+   */
+  protected showRowActions(user: OrganizationUserView, organization: Organization): boolean {
+    return this.showUserManagementControls() || this.allowResetPassword(user, organization);
+  }
+
   allowResetPassword(user: OrganizationUserView, organization: Organization): boolean {
     return this.memberActionsService.allowResetPassword(
       user,

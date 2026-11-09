@@ -555,12 +555,18 @@ export const RowActions: Story = {
 };
 
 /**
- * An admin who can't manage users gets search, but no Export or Invite member button, no checkbox
- * column, no Options column and no clickable cells.
+ * An admin who can't manage users but can recover accounts, like a custom role with only Manage
+ * account recovery. They get search, filters, the count and pagination, but no Export or Invite
+ * member button, no checkbox column and no clickable cells. The Options menu holds only Recover
+ * account, and shows only for members who can be recovered: Alice Smith, enrolled in account
+ * recovery, has it, and Bob Jones, not enrolled, has no action.
  */
 export const ReadOnly: Story = {
   name: "Read only",
-  render: makeRender(mockMembers, mockOrganization({ canManageUsers: false })),
+  render: makeRender(
+    mockMembers,
+    mockOrganization({ canManageUsers: false, canManageUsersPassword: true }),
+  ),
 };
 
 /**
