@@ -2,8 +2,10 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+import { dismissNewLookDialog } from "../../src/desktop/onboarding";
 import { DesktopSettings } from "../../src/desktop/settings";
 import { expect, SshRequestOrigin, test } from "../../src/desktop/ssh-agent";
+import { useWideWindow } from "../../src/desktop/window";
 import { LoginPage } from "../../src/login";
 import { keysByType, SshKey, SshKeyType } from "../../src/ssh/keys";
 import { listAgentKeys, SshClient } from "../../src/ssh/ssh-client";
@@ -36,9 +38,12 @@ test.afterAll(() => {
 });
 
 test.beforeEach(async ({ app, window, agentSocket }) => {
+  await useWideWindow(app);
+
   const login = new LoginPage(window);
   await login.logIn();
   await login.waitForVault(VAULT_URL);
+  await dismissNewLookDialog(window);
 
   const settings = new DesktopSettings(app, window);
   await settings.open();
