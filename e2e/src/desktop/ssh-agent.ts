@@ -1,20 +1,12 @@
-import { randomUUID } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { expect, mergeTests, Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 
-import { LoginPage } from "../login";
-import { test as seederTest } from "../seeder/fixtures";
-import { Play } from "../seeder/play";
-import { seededAccount, SingleUserScene } from "../seeder/scenes/single-user.scene";
-import { UserSshKeyCipherScene } from "../seeder/scenes/user-ssh-key-cipher.scene";
 import { SshKey } from "../ssh/keys";
 
 import { test as desktopTest } from "./fixtures";
-
-const VAULT_URL = /#\/vault/;
 
 // The approval dialog (apps/desktop/src/autofill/components/approve-ssh-request.html).
 const APPROVAL_DIALOG = "ssh-approval-dialog";
@@ -72,39 +64,10 @@ export class SshApproval {
 }
 
 /**
- * Seeds a user whose vault holds `keys` as SSH key items, and logs the desktop app in as them.
- *
- *   SeederApi ──SingleUserScene──────────▶ user
- *             ──UserSshKeyCipherScene × N─▶ SSH key items, encrypted with the user key
- */
-export async function logInWithSshKeys(play: Play, window: Page, keys: SshKey[]) {
-  const user = await play.scene(
-    new SingleUserScene({ email: "ssh-agent@example.com", password: randomUUID() }),
-  );
-
-  for (const key of keys) {
-    await play.scene(
-      new UserSshKeyCipherScene({
-        userId: user.result.userId,
-        userKeyB64: user.result.decryptedKeyB64,
-        name: key.name,
-        privateKey: key.privateKey,
-        publicKey: key.publicKey,
-        fingerprint: key.fingerprint,
-      }),
-    );
-  }
-
-  const login = new LoginPage(window);
-  await login.logIn(seededAccount(user));
-  await login.waitForVault(VAULT_URL);
-}
-
-/**
- * Desktop `test` with seeding, and the SSH agent's socket at `agentSocket` instead of the
+ * Desktop `test` with the SSH agent's socket at `agentSocket` instead of the
  * user's `~/.bitwarden-ssh-agent.sock`.
  */
-export const test = mergeTests(desktopTest, seederTest).extend<{
+export const test = desktopTest.extend<{
   agentSocket: string;
   approval: SshApproval;
 }>({
