@@ -5797,6 +5797,12 @@
   "organizationReadyToGo": {
     "message": "Your new organization is ready to go!"
   },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
+  },
   "organizationUpgraded": {
     "message": "Organization upgraded"
   },

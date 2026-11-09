@@ -208,11 +208,18 @@ export class CompleteTrialInitiationComponent {
     }
   }
 
-  /** Update local details from organization created event */
-  createdOrganization(event: OrganizationCreatedEvent) {
+  /** Finish the flow once the billing step has created the organization. */
+  async createdOrganization(event: OrganizationCreatedEvent) {
     this.orgId = event.organizationId;
     this.billingSubLabel = event.planDescription;
-    this.verticalStepper.next();
+    this.trialLength > 0
+      ? this.showCompletionToast("trialStarted", "trialActive")
+      : this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+    }
   }
 
   /**
@@ -226,7 +233,8 @@ export class CompleteTrialInitiationComponent {
 
       this.orgId = response.id;
       this.billingSubLabel = response.name.toString();
-      this.verticalStepper.next();
+      this.showCompletionToast("trialStarted", "trialActive");
+      await this.navigateToOrganization();
     } catch (e: unknown) {
       this.validationService.showError(e);
     } finally {
@@ -286,6 +294,23 @@ export class CompleteTrialInitiationComponent {
     this.verticalStepper.previous();
   }
 
+  /** Navigate to the organization's vault (Secrets Manager for an SM trial). */
+  private navigateToOrganization(): Promise<boolean> {
+    const commands =
+      this.product === ProductType.SecretsManager
+        ? ["/sm", this.orgId]
+        : ["/organizations", this.orgId, "vault"];
+    return this.router.navigate(commands);
+  }
+
+  private showCompletionToast(titleKey: string, messageKey: string): void {
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t(titleKey),
+      message: this.i18nService.t(messageKey),
+    });
+  }
+
   getPlanType() {
     switch (this.productTier) {
       case ProductTierType.Teams:
@@ -342,27 +367,35 @@ export class CompleteTrialInitiationComponent {
       return;
     }
 
-    const response = await this.organizationBillingService.startFree(
-      {
-        organization: {
-          name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
-          billingEmail:
-            this.orgInfoFormGroup.value.billingEmail == null
-              ? ""
-              : this.orgInfoFormGroup.value.billingEmail,
-          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+    this.loading = true;
+    try {
+      const response = await this.organizationBillingService.startFree(
+        {
+          organization: {
+            name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
+            billingEmail:
+              this.orgInfoFormGroup.value.billingEmail == null
+                ? ""
+                : this.orgInfoFormGroup.value.billingEmail,
+            initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+          },
+          plan: {
+            type: 0,
+            subscribeToSecretsManager: true,
+            isFromSecretsManagerTrial: true,
+          },
         },
-        plan: {
-          type: 0,
-          subscribeToSecretsManager: true,
-          isFromSecretsManagerTrial: true,
-        },
-      },
-      activeUserId,
-    );
+        activeUserId,
+      );
 
-    this.orgId = response.id;
-    this.verticalStepper.next();
+      this.orgId = response.id;
+      this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+    } finally {
+      this.loading = false;
+    }
   }
 
   /**

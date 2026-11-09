@@ -156,12 +156,6 @@ export class TrialBillingStepComponent implements OnInit {
         this.eligibleCouponIds(),
       );
 
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("organizationCreated"),
-        message: this.i18nService.t("organizationReadyToGo"),
-      });
-
       const prices = await firstValueFrom(this.prices$);
       this.organizationCreated.emit({
         organizationId: organization.id,
