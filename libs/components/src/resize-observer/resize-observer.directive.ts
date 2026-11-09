@@ -1,10 +1,12 @@
-import { Directive, ElementRef, EventEmitter, Output, OnDestroy } from "@angular/core";
+import { Directive, ElementRef, inject, OnDestroy, output } from "@angular/core";
 
 @Directive({
   selector: "[resizeObserver]",
 })
 export class ResizeObserverDirective implements OnDestroy {
-  private observer = new ResizeObserver((entries) => {
+  private readonly el = inject(ElementRef);
+
+  private readonly observer = new ResizeObserver((entries) => {
     for (const entry of entries) {
       if (entry.target === this.el.nativeElement) {
         this._resizeCallback(entry);
@@ -12,12 +14,9 @@ export class ResizeObserverDirective implements OnDestroy {
     }
   });
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output()
-  resize = new EventEmitter();
+  readonly resize = output<ResizeObserverEntry>();
 
-  constructor(private el: ElementRef) {
+  constructor() {
     this.observer.observe(this.el.nativeElement);
   }
 

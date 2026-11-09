@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import {
   afterNextRender,
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -35,10 +36,9 @@ import { LayoutFooterService } from "./layout-footer.service";
 import { MAIN_CONTENT_MIN_WIDTH_REM } from "./layout-metrics";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-layout",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "layout.component.html",
   imports: [
     CommonModule,
@@ -56,10 +56,10 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
   },
 })
 export class LayoutComponent {
-  protected sideNavService = inject(SideNavService);
+  protected readonly sideNavService = inject(SideNavService);
   private readonly drawerService = inject(DrawerService);
-  protected drawerPortal = this.drawerService.portal;
-  protected footerPortal = inject(LayoutFooterService).portal;
+  protected readonly drawerPortal = this.drawerService.portal;
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
   private readonly configService = inject(ConfigService, { optional: true });
 
   // remove when VFO1 flag is removed
