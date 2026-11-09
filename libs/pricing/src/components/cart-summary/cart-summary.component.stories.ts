@@ -75,6 +75,8 @@ export default {
                   return "Applied proration credits";
                 case "passwordManagerProratedCharge":
                   return "Password Manager prorated charge";
+                case "prorationChargeMayDiffer":
+                  return "Your final charge may differ slightly, since proration is calculated up to the moment you submit.";
                 case "discount":
                   return "discount";
                 case "appliedBalance":
@@ -438,6 +440,28 @@ export const WithCredit: Story = {
   },
 };
 
+export const WithProrationNote: Story = {
+  name: "With Proration Note (Plan Change)",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+      },
+      cadence: "monthly",
+      credit: {
+        translationKey: "appliedProrationCredits",
+        value: 25.0,
+      },
+      showProrationNote: true,
+      estimatedTax: 10.0,
+    } satisfies Cart,
+  },
+};
+
 export const WithAppliedBalance: Story = {
   name: "With Applied Account Balance (Premium Renewal)",
   args: {
@@ -516,39 +540,6 @@ export const SinglePerLineDiscount: Story = {
       },
       cadence: "annually",
       estimatedTax: 2.03,
-    } satisfies Cart,
-  },
-};
-
-export const FlagOffRegression: Story = {
-  name: "Flag-Off Regression (Legacy One-Element Shim)",
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "The shape the legacy `CartItemResponse` shim emits when the feature flag is off: a " +
-          "one-element `discounts` array with no `amount` and no `label`. Proves the renderer " +
-          "still derives both via `getAmount` / `getLabel`, so flag-off carts render unchanged.",
-      },
-    },
-  },
-  args: {
-    cart: {
-      passwordManager: {
-        seats: {
-          quantity: 5,
-          translationKey: "members",
-          cost: 50.0,
-          discounts: [
-            {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
-          ],
-        },
-      },
-      cadence: "monthly",
-      estimatedTax: 9.6,
     } satisfies Cart,
   },
 };

@@ -3,7 +3,7 @@
     <p class="tw-text-xl">
       {{ "trialThankYou" | i18n: orgLabel }}
     </p>
-    @if (includesPrivilegedControls) {
+    @if (includesPrivilegedControls && trialLength > 0) {
       <p>
         {{ "trialIncludesPrivilegedControls" | i18n }}
       </p>

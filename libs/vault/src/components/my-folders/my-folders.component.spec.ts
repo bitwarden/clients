@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
+import { provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, map, of } from "rxjs";
 
@@ -325,6 +325,77 @@ describe("MyFoldersComponent", () => {
     });
   });
 
+  describe("clicking a row cell", () => {
+    let navigate: jest.SpyInstance;
+
+    beforeEach(() => {
+      navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    });
+
+    /** The `role="cell"` divs of the first body row ("Banking", id 2), in column order. */
+    const firstRowCells = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelector("bit-row").querySelectorAll("[role=cell]"));
+
+    /** Name and items — between the selection checkbox cell and the options cell. */
+    const firstRowDataCells = () => firstRowCells().slice(1, -1);
+
+    const click = (element: Element, init: MouseEventInit = {}) =>
+      element.dispatchEvent(new MouseEvent("click", { bubbles: true, ...init }));
+
+    it("opens the folder from any data cell, not just the name link", () => {
+      const dataCells = firstRowDataCells();
+      expect(dataCells).toHaveLength(2);
+
+      for (const cell of dataCells) {
+        navigate.mockClear();
+        click(cell);
+        expect(navigate).toHaveBeenCalledTimes(1);
+        expect(navigate).toHaveBeenCalledWith(["/folders", "2"]);
+      }
+    });
+
+    it("leaves a click on the name link to the link itself", () => {
+      click(fixture.nativeElement.querySelector("#my-folders_link_name-2"));
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("leaves the selection checkbox to the selection", () => {
+      click(firstRowCells()[0].querySelector("input[type=checkbox]")!);
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("opens the folder from blank space in the options cell", () => {
+      click(firstRowCells().at(-1)!);
+
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(["/folders", "2"]);
+    });
+
+    it("leaves the edit and delete buttons to themselves", () => {
+      jest
+        .spyOn(AddEditFolderDialogComponent, "open")
+        .mockReturnValue({ closed: new BehaviorSubject(undefined) } as never);
+      openDeleteDialog.mockReturnValue({ closed: of(false) } as never);
+
+      click(fixture.nativeElement.querySelector("#my-folders_button_edit-2"));
+      click(fixture.nativeElement.querySelector("#my-folders_button_delete-2"));
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("ignores modifier clicks so selection and browser gestures stay available", () => {
+      const cell = firstRowDataCells()[1];
+
+      for (const modifier of ["ctrlKey", "metaKey", "shiftKey", "altKey"]) {
+        click(cell, { [modifier]: true });
+      }
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+  });
+
   describe("virtual scroll", () => {
     it("renders only the rows in the scroll window, with no paginator", () => {
       folderViews$.next(Array.from({ length: 60 }, (_, i) => folder(`${i}`, `Folder ${i}`)));
@@ -342,7 +413,7 @@ describe("MyFoldersComponent", () => {
     const names = () =>
       fixture.debugElement
         .queryAll(By.css("bit-row"))
-        .map((row) => row.query(By.css("a[bitLink]")).nativeElement.textContent.trim());
+        .map((row) => row.query(By.css("a[vaultTableRowName]")).nativeElement.textContent.trim());
 
     const subtitleOf = (id: string): string | undefined =>
       fixture.debugElement
