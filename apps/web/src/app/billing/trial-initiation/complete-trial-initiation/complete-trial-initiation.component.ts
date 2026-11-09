@@ -85,7 +85,6 @@ export class CompleteTrialInitiationComponent {
 
   orgInfoSubLabel = "";
   orgId = "";
-  orgLabel = "";
   billingSubLabel = "";
 
   /** User's email address associated with the trial */
@@ -106,8 +105,6 @@ export class CompleteTrialInitiationComponent {
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
     billingEmail: [""],
   });
-
-  protected readonly ProductType = ProductType;
 
   constructor(
     protected router: Router,
@@ -168,7 +165,6 @@ export class CompleteTrialInitiationComponent {
     this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
     if (this.useTrialStepper && params.productTier !== undefined) {
       this.productTier = params.productTier;
-      this.orgLabel = this.planTypeDisplay;
     }
 
     // Coming from an email for sponsoring a families organization: after logging in,
@@ -328,19 +324,6 @@ export class CompleteTrialInitiationComponent {
 
   get isSecretsManagerFree() {
     return this.product === ProductType.SecretsManager && this.productTier === ProductTierType.Free;
-  }
-
-  get planTypeDisplay() {
-    switch (this.productTier) {
-      case ProductTierType.Teams:
-        return "Teams";
-      case ProductTierType.Enterprise:
-        return "Enterprise";
-      case ProductTierType.Families:
-        return "Families";
-      default:
-        return "";
-    }
   }
 
   get planInfoLabel() {
