@@ -72,6 +72,11 @@ export class MainSshAgentService {
   }
 
   // Starts the Agent.
+  /** Whether the agent is serving its socket. */
+  get running(): boolean {
+    return this.agentState?.isRunning() ?? false;
+  }
+
   // @pre: The agent must not be running. The caller may utilize `is_running()` and `stop()`.
   private async init() {
     const signCb = (_err: Error | null, data: sshagent.SignRequestData) => this.requestSign(data);

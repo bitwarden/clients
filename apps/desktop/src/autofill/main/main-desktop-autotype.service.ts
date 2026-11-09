@@ -68,6 +68,11 @@ export class MainDesktopAutotypeService {
     }
   }
 
+  /** Whether the autotype keyboard shortcut is registered. */
+  get active(): boolean {
+    return globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat());
+  }
+
   dispose() {
     // Disable Autotype
     this.disableAutotype();
