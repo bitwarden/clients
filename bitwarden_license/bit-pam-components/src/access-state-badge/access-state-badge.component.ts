@@ -18,7 +18,6 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
 
-
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
 type BadgeIcon =
