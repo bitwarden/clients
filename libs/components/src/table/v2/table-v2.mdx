@@ -183,6 +183,27 @@ For more buttons in the `end` slot, add each one's width plus `8px`.
 
 Size text buttons for their longest translation, not the English label.
 
+### Revealing row actions on hover
+
+Each `<bit-row>` is a `bitHoverRevealContainer`, so add `bitHoverReveal` to a cell's action to show
+it only while the row is hovered or focused. See
+[Hover Reveal](?path=/docs/component-library-hover-reveal--docs).
+
+```html
+<bit-cell *bitCellDef="table.columns.actions; let row">
+  <button
+    slot="end"
+    type="button"
+    bitHoverReveal
+    bitIconButton="bwi-pencil-square"
+    size="small"
+    [label]="'Edit ' + row.name"
+  ></button>
+</bit-cell>
+```
+
+<Canvas of={stories.HoverReveal} />
+
 ### Reordering and hiding columns
 
 `[displayedColumns]` is the ordered list of columns to show — each column renders only if listed, at
@@ -754,5 +775,7 @@ two in one table — if you need sort, selection, or any other built-in feature,
   "Edit".
 - Sort buttons expose `aria-sort` on the header and `aria-pressed` on the button.
 - A row carries the hover fill and a focus ring whenever anything inside it is focused.
+- Rows are hover reveal containers. A `bitHoverReveal` row action stays focusable while hidden, so
+  give it a specific label too.
 - The select-all and row checkboxes are labelled for screen readers; override the label via the cell
   template if a row needs richer context.

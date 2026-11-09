@@ -52,6 +52,7 @@ import {
   StorybookGlobalStateProvider,
   ToastService,
 } from "@bitwarden/components";
+import { ConsoleLogService } from "@bitwarden/logging";
 import { MessageListener, MessageSender } from "@bitwarden/messaging";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
@@ -367,7 +368,7 @@ const rootProviders = [
     provide: PlatformUtilsService,
     useValue: { isSelfHost: () => false, copyToClipboard: () => {} },
   },
-  { provide: LogService, useValue: { error: () => {}, info: () => {} } },
+  { provide: LogService, useFactory: () => new ConsoleLogService(true) },
   { provide: DialogService, useValue: {} },
   { provide: ToastService, useValue: { showToast: () => {} } },
   { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },

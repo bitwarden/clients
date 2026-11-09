@@ -37,6 +37,19 @@ const defaultSettings = Object.freeze({
   token: "",
 });
 
+// Fastmail requires `emailPrefix` to contain `a-z`, `0-9` and '_'. 64 chars max.
+// It rejects the whole `MaskedEmail/set` call when the prefix contains anything else.
+const PREFIX_MAX_LENGTH = 64;
+
+function toEmailPrefix(prefix: string) {
+  return prefix
+    .toLowerCase()
+    .replace(/[^a-z0-9_]+/g, "_")
+    .replace(/_+/g, "_")
+    .slice(0, PREFIX_MAX_LENGTH)
+    .replace(/^_+|_+$/g, "");
+}
+
 // supported RPC calls
 const getAccountId = Object.freeze({
   url(_request: IntegrationRequest, context: ForwarderContext<FastmailSettings>) {
@@ -69,9 +82,9 @@ const createForwardingEmail = Object.freeze({
             create: {
               "new-masked-email": {
                 state: "enabled",
-                description: "",
-                forDomain: context.website(request),
-                emailPrefix: context.prefixEnabled() ? context.prefix(request) : "",
+                description: context.website(request, { extractHostname: true }),
+                forDomain: context.website(request, { extractOrigin: true }),
+                emailPrefix: context.prefixEnabled() ? toEmailPrefix(context.prefix(request)) : "",
               },
             },
           },
