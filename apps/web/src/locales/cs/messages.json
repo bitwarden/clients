@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "Odhadovaná daň"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Konečná částka se může mírně lišit, protože poměrné rozdělení se počítá až do okamžiku odeslání žádosti."
+  },
   "subtotal": {
     "message": "Mezisoučet"
   },

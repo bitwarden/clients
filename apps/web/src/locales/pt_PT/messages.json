@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "Imposto estimado"
   },
+  "prorationChargeMayDiffer": {
+    "message": "O valor final a pagar poderá sofrer pequenas alterações, uma vez que o cálculo proporcional é feito até ao momento da submissão."
+  },
   "subtotal": {
     "message": "Subtotal"
   },

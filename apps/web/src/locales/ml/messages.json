@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "കണക്കാക്കിയ നികുതി"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+  },
   "subtotal": {
     "message": "Subtotal"
   },
