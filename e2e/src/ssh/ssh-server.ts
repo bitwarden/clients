@@ -3,8 +3,9 @@ import { existsSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { join } from "node:path";
 
+import { runOrThrow } from "../process";
+
 import { SshKey } from "./keys";
-import { runOrThrow } from "./process";
 
 export const SSH_HOST = "127.0.0.1";
 

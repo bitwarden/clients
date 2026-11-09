@@ -1,8 +1,9 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { ProcessResult, run } from "../process";
+
 import { SshKey } from "./keys";
-import { ProcessResult, run } from "./process";
 import { SSH_HOST, SshServer } from "./ssh-server";
 
 // The namespace `ssh-keygen -Y` signs files in; the agent reports it to the app.
