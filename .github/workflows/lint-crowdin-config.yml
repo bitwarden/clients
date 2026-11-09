@@ -1,3 +1,4 @@
+# Demo: trigger workflow linter. Do not merge.
 name: Lint Crowdin Config
 
 on:
