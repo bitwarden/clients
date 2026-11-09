@@ -69,6 +69,11 @@ Run it beside the local server:
 cd util/SeederApi && dotnet run   # http://localhost:5047
 ```
 
+Tests that seed are skipped, not failed, when no `[seeder]` account is configured, and when
+a deployed vault is paired with a local SeederApi. With an account configured, the SeederApi
+must be running: every test importing `test` from `src/seeder/fixtures.ts` fails without it,
+including ones that seed nothing.
+
 It takes a basic-auth account from its `seederSettings:accounts`. Give the suite the same one
 in a `[seeder]` section:
 
@@ -80,8 +85,7 @@ url=http://localhost:5047
 ```
 
 `url` is optional. `E2E_SEEDER_USERNAME` and `E2E_SEEDER_PASSWORD` take precedence over the
-file, as a pair, and `E2E_SEEDER_URL` over `url`. Tests that seed are skipped with no account
-configured, and against a deployed vault while the SeederApi is local.
+file, as a pair, and `E2E_SEEDER_URL` over `url`.
 
 Data a test creates through the client, rather than seeds, is only deleted when the server
 tracks it too. Add `"testPlayIdTrackingEnabled": true` to `globalSettings` in the server's
