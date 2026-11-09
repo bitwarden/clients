@@ -1,7 +1,7 @@
 import { EventEmitter } from "node:events";
 
 import { BrowserWindow } from "electron";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,7 +26,9 @@ jest.mock("electron", () => ({
 }));
 
 jest.mock("./window.main", () => ({ WindowMain: jest.fn() }));
+jest.mock("./renderer-teardown.main", () => ({ RendererTeardownMain: jest.fn() }));
 
+import { RendererTeardownMain } from "./renderer-teardown.main";
 import { TrayMain } from "./tray.main";
 import { WindowMain } from "./window.main";
 
@@ -35,6 +37,7 @@ describe("TrayMain", () => {
     let runInBackground$: BehaviorSubject<boolean>;
     let windowMain: WindowMain;
     let win: EventEmitter & { hide: jest.Mock };
+    let rendererTeardown: MockProxy<RendererTeardownMain>;
 
     const emitClose = () => {
       const event = { preventDefault: jest.fn() };
@@ -46,7 +49,9 @@ describe("TrayMain", () => {
       globalThis.BIT_ENVIRONMENT = "production";
       runInBackground$ = new BehaviorSubject(false);
       win = Object.assign(new EventEmitter(), { hide: jest.fn() });
-      windowMain = { isQuitting: false, win } as unknown as WindowMain;
+      windowMain = { isQuitting: false, rendererDestroyed: false, win } as unknown as WindowMain;
+      rendererTeardown = mock<RendererTeardownMain>();
+      rendererTeardown.tryTearDown.mockReturnValue(false);
 
       const desktopSettingsService = mock<DesktopSettingsService>();
       desktopSettingsService.runInBackground$ = runInBackground$;
@@ -57,6 +62,7 @@ describe("TrayMain", () => {
         desktopSettingsService,
         mock<MessagingService>(),
         mock<BiometricsService>(),
+        rendererTeardown,
       );
       await sut.init("Bitwarden");
       sut.setupWindowListeners(win as unknown as BrowserWindow);
@@ -93,6 +99,38 @@ describe("TrayMain", () => {
     it("lets the close proceed while the app is quitting", () => {
       runInBackground$.next(true);
       windowMain.isQuitting = true;
+
+      const event = emitClose();
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(win.hide).not.toHaveBeenCalled();
+    });
+
+    it("destroys the renderer instead of hiding when teardown is allowed", () => {
+      runInBackground$.next(true);
+      rendererTeardown.tryTearDown.mockReturnValue(true);
+
+      const event = emitClose();
+
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(rendererTeardown.tryTearDown).toHaveBeenCalled();
+      expect(win.hide).not.toHaveBeenCalled();
+    });
+
+    it("does not tear down when the closing window is not the main window", () => {
+      runInBackground$.next(true);
+      rendererTeardown.tryTearDown.mockReturnValue(true);
+      windowMain.win = { hide: jest.fn() } as unknown as BrowserWindow;
+
+      emitClose();
+
+      expect(rendererTeardown.tryTearDown).not.toHaveBeenCalled();
+      expect(win.hide).toHaveBeenCalled();
+    });
+
+    it("lets the teardown close proceed", () => {
+      runInBackground$.next(true);
+      Object.assign(windowMain, { rendererDestroyed: true });
 
       const event = emitClose();
 

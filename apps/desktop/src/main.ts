@@ -61,6 +61,7 @@ import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { RendererTeardownMain } from "./main/renderer-teardown.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
@@ -156,19 +157,10 @@ export class Main {
 
     const storageBackend = new CachedBackend(new ElectronStoreBackend(app.getPath("userData")));
 
-    // Main has no ConfigService, so it reads the cached server configs straight from the store.
-    let flightRecorderEnabled = false;
-    try {
-      const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
-        string,
-        { featureStates?: Record<string, unknown> }
-      >;
-      flightRecorderEnabled = Object.values(configs).some(
-        (config) => config?.featureStates?.[FeatureFlag.PM30935_FlightRecorderTsLogging] === true,
-      );
-    } catch {
-      // Ignore errors
-    }
+    const flightRecorderEnabled = cachedFlagEnabled(
+      storageBackend,
+      FeatureFlag.PM30935_FlightRecorderTsLogging,
+    );
     const flightRecorder = new FlightRecorderLogRecorder(
       SdkLoadService.Ready.then(() => new FlightRecorderClient()),
     );
@@ -291,14 +283,6 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain, this.shell),
     );
 
-    this.trayMain = new TrayMain(
-      this.windowMain,
-      this.i18nService,
-      this.desktopSettingsService,
-      this.messagingService,
-      this.biometricsService,
-    );
-
     messageSubject.asObservable().subscribe((message) => {
       void this.messagingMain.onMessage(message).catch((err) => {
         this.logService.error(
@@ -321,14 +305,6 @@ export class Main {
       this.desktopSettingsService,
       this.versionMain,
       this.shell,
-    );
-
-    this.trayMain = new TrayMain(
-      this.windowMain,
-      this.i18nService,
-      this.desktopSettingsService,
-      this.messagingService,
-      this.biometricsService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
@@ -361,6 +337,15 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
+      this.biometricsService,
+      this.createRendererTeardown(storageBackend),
+    );
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 
@@ -491,6 +476,33 @@ export class Main {
     );
   }
 
+  /**
+   * Features below answer through the renderer until main owns them, so each keeps it alive.
+   * Services are read lazily: most are constructed after the tray.
+   */
+  private createRendererTeardown(storageBackend: CachedBackend): RendererTeardownMain {
+    let ddgEnabled = false;
+    this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$.subscribe((enabled) => {
+      ddgEnabled = enabled;
+    });
+
+    return new RendererTeardownMain(
+      cachedFlagEnabled(storageBackend, FeatureFlag.DesktopRendererTeardown),
+      [
+        { name: "ssh-agent", active: () => this.sshAgentService.running },
+        { name: "autotype", active: () => this.mainDesktopAutotypeMvpService.active },
+        { name: "autotype-ga", active: () => this.mainDesktopAutotypeService.active },
+        { name: "autofill-provider", active: () => this.desktopAutofillMain.active },
+        { name: "duckduckgo", active: () => ddgEnabled },
+        // Browser biometrics, shared unlock and CLI unlock are answered by the renderer.
+        { name: "native-messaging", active: () => this.nativeMessagingMain.hasClients },
+      ],
+      this.windowMain,
+      this.clipboardMain,
+      this.logService,
+    );
+  }
+
   /** Runs for every window, so a recreated window gets the same listeners as the first. */
   private setupWindowListeners(win: BrowserWindow): void {
     this.trayMain.setupWindowListeners(win);
@@ -533,5 +545,21 @@ export class Main {
         app.disableHardwareAcceleration();
       }
     }
+  }
+}
+
+/**
+ * Whether any cached server config enables `flag`. Main has no ConfigService, so it reads the
+ * configs the renderer stored.
+ */
+function cachedFlagEnabled(storageBackend: CachedBackend, flag: FeatureFlag): boolean {
+  try {
+    const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
+      string,
+      { featureStates?: Record<string, unknown> }
+    >;
+    return Object.values(configs).some((config) => config?.featureStates?.[flag] === true);
+  } catch {
+    return false;
   }
 }

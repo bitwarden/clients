@@ -168,6 +168,48 @@ describe("WindowMain", () => {
         .mock.calls.findLast(([channel]) => channel === "reload-process")[1] as () => Promise<void>;
     };
 
+    describe("window-all-closed", () => {
+      const originalPlatform = process.platform;
+
+      const allClosed = () =>
+        jest
+          .mocked(app.on)
+          .mock.calls.findLast(([event]) => event === "window-all-closed")[1] as () => void;
+
+      beforeEach(async () => {
+        Object.defineProperty(process, "platform", { value: "win32", configurable: true });
+        Object.assign(app, { quit: jest.fn() });
+        await sut.init(true);
+      });
+
+      afterEach(() => {
+        Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
+      });
+
+      it("quits when the last window closes", () => {
+        allClosed()();
+
+        expect(app.quit).toHaveBeenCalled();
+      });
+
+      it("keeps running when the renderer was destroyed for the background", () => {
+        jest.useFakeTimers();
+        const win = mock<BrowserWindow>();
+        win.isDestroyed.mockReturnValue(false);
+        sut.win = win;
+
+        sut.destroyRenderer();
+        jest.runOnlyPendingTimers();
+        jest.useRealTimers();
+
+        expect(sut.rendererDestroyed).toBe(true);
+        expect(win.close).toHaveBeenCalled();
+
+        allClosed()();
+        expect(app.quit).not.toHaveBeenCalled();
+      });
+    });
+
     it("creates the window when the ready event has already fired", async () => {
       await sut.init(true);
 

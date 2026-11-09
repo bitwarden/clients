@@ -79,6 +79,11 @@ export class MainDesktopAutotypeMvpService {
     }
   }
 
+  /** Whether the autotype keyboard shortcut is registered. */
+  get active(): boolean {
+    return globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat());
+  }
+
   dispose() {
     ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
     ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
