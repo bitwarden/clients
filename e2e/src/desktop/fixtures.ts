@@ -22,6 +22,10 @@ const TLS_ARGS = IS_DEV_SERVER ? ["--ignore-certificate-errors"] : [];
 const APPDATA_DIR = resolve(E2E_STATE_DIR, "desktop-profile");
 const IPC_SOCKET_DIR = E2E_STATE_DIR;
 
+// Secrets go to a file instead of the OS keychain (native build has `file_secure_storage`), so
+// runs work without a keyring, e.g. in Docker, and never touch the real installation's entries.
+const SECURE_STORAGE_FILE = resolve(APPDATA_DIR, "secure-storage.json");
+
 const WINDOW_TIMEOUT_MS = 60_000;
 
 // Lets a test reach the renderer again after a process reload crashed it (WindowMain).
@@ -62,6 +66,7 @@ async function launch(
       ...process.env,
       BITWARDEN_APPDATA_DIR: APPDATA_DIR,
       BITWARDEN_IPC_SOCKET_DIR: IPC_SOCKET_DIR,
+      BITWARDEN_SECURE_STORAGE_FILE: SECURE_STORAGE_FILE,
       NODE_ENV: "development",
       ...extraEnv,
     },
