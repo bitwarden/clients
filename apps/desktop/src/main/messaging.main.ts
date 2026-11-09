@@ -4,6 +4,7 @@ import { app, ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
 import { autostart } from "@bitwarden/desktop-napi";
+import { LockSource } from "@bitwarden/unlock";
 
 import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
@@ -62,6 +63,37 @@ export class MessagingMain {
         break;
       case "hideToTray":
         this.main.trayMain.hideToTray();
+        break;
+      case "locked":
+        // The renderer performed a lock; clear main's copy of the user key so the session owner
+        // is locked too.
+        if (message.userId != null) {
+          await this.main.serviceContainer.stateEventRunnerService.handleEvent(
+            "lock",
+            message.userId,
+          );
+        }
+        break;
+      case "logout":
+        if (message.userId != null) {
+          await this.main.serviceContainer.stateEventRunnerService.handleEvent(
+            "logout",
+            message.userId,
+          );
+        }
+        break;
+      case "lockVault":
+        {
+          const activeAccount = await firstValueFrom(
+            this.main.serviceContainer.accountService.activeAccount$,
+          );
+          if (activeAccount != null) {
+            await this.main.serviceContainer.lockService.lock(activeAccount.id, LockSource.Manual);
+          }
+        }
+        break;
+      case "lockAllVaults":
+        await this.main.serviceContainer.lockService.lockAll(LockSource.Manual);
         break;
       case "addOpenAtLogin":
         this.setOpenAtLogin(true);
