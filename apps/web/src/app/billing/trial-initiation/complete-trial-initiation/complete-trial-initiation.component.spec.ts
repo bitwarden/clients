@@ -14,7 +14,6 @@ import { InitiationPath, ProductTierType, ProductType } from "@bitwarden/common/
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -60,7 +59,6 @@ describe("CompleteTrialInitiationComponent", () => {
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: LogService, useValue: mock<LogService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: RouterService, useValue: mock<RouterService>() },
         {
@@ -354,6 +352,28 @@ describe("CompleteTrialInitiationComponent", () => {
 
       expect(passedInitiationPath()).toBe(InitiationPath.SalesAssistedTrialFromAdminPortal);
     });
+
+    it("advances to the next step with the created organization on success", async () => {
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(component.orgId).toBe("org-id");
+      expect(component.billingSubLabel).toBe("Test Org");
+      expect(component.loading).toBe(false);
+      expect(component.verticalStepper.next).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows the error, stops loading and stays on the step when the request is rejected", async () => {
+      const validationService = TestBed.inject(ValidationService) as MockProxy<ValidationService>;
+      const error = new Error("Rejected");
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockRejectedValue(error);
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(validationService.showError).toHaveBeenCalledWith(error);
+      expect(component.loading).toBe(false);
+      expect(component.orgId).toBe("");
+      expect(component.verticalStepper.next).not.toHaveBeenCalled();
+    });
   });
 
   describe("Privileged Controls", () => {
@@ -432,6 +452,146 @@ describe("CompleteTrialInitiationComponent", () => {
           pamSeats: 1,
         }),
       );
+    });
+  });
+
+  describe("Privileged Controls sold through sales", () => {
+    const selfServeParams = { product: "0,2", productTier: ProductTierType.Enterprise };
+    const salesInvitationParams = {
+      ...selfServeParams,
+      salesAssistedToken: "sales-assisted-token-123",
+      paymentOptional: "true",
+      trialLength: "14",
+    };
+
+    function arrangeOrganizationCreation(): void {
+      component.orgInfoFormGroup.patchValue({
+        name: "Test Org",
+        billingEmail: "test@example.com",
+      });
+      component.verticalStepper = { next: jest.fn() } as any;
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+        id: "org-id",
+        name: "Test Org",
+      } as any);
+    }
+
+    describe("with the PAM-billing flag off", () => {
+      beforeEach(() => pamBillingSupport$.next(false));
+
+      it("leaves Privileged Controls out of a sales invitation and shows the sales callout", () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.trial.privilegedControls).toBeUndefined();
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("creates the organization from a sales invitation without Privileged Controls or the token", async () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+        arrangeOrganizationCreation();
+
+        await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+        const request =
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mock.calls[0][0];
+        expect(request.organization.initiationPath).toBe(
+          InitiationPath.SalesAssistedTrialFromAdminPortal,
+        );
+        expect(request.organization).not.toHaveProperty("salesAssistedToken");
+        expect(request.plan).not.toHaveProperty("subscribeToPrivilegedControls");
+        expect(request.plan).not.toHaveProperty("pamSeats");
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("leaves Privileged Controls out of a self-serve link and shows the sales callout", () => {
+        mockActivatedRoute.queryParams.next(selfServeParams);
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.trial.privilegedControls).toBeUndefined();
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("shows the sales callout on a direct-purchase self-serve link with no trial period", () => {
+        mockActivatedRoute.queryParams.next({ ...selfServeParams, trialLength: "0" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("shows the sales callout when a sales invitation goes through the paid billing step", () => {
+        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, paymentOptional: "false" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("leaves Privileged Controls out of a Secrets Manager sales invitation", () => {
+        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, product: "1,2" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("leaves Privileged Controls out of a non-Enterprise sales invitation", () => {
+        mockActivatedRoute.queryParams.next({
+          ...salesInvitationParams,
+          productTier: ProductTierType.Teams,
+        });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("shows no sales callout when the link did not ask for Privileged Controls", () => {
+        mockActivatedRoute.queryParams.next({ ...selfServeParams, product: "0" });
+
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+    });
+
+    describe("with the PAM-billing flag on", () => {
+      beforeEach(() => pamBillingSupport$.next(true));
+
+      it("includes Privileged Controls from a self-serve link and shows no sales callout", () => {
+        mockActivatedRoute.queryParams.next(selfServeParams);
+
+        expect(component.includesPrivilegedControls).toBe(true);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("includes Privileged Controls from a sales invitation", () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+
+        expect(component.includesPrivilegedControls).toBe(true);
+        expect(component.trial.privilegedControls).toEqual({ seats: 1 });
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("asks for Privileged Controls on the sales invitation's no-payment creation, without the token", async () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+        arrangeOrganizationCreation();
+
+        await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+        const request =
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mock.calls[0][0];
+        expect(request.organization).not.toHaveProperty("salesAssistedToken");
+        expect(request.plan).toEqual(
+          expect.objectContaining({ subscribeToPrivilegedControls: true, pamSeats: 1 }),
+        );
+      });
+    });
+
+    it("hides the sales callout once the PAM-billing flag turns on after the params arrive", () => {
+      pamBillingSupport$.next(false);
+      mockActivatedRoute.queryParams.next(salesInvitationParams);
+      expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+
+      pamBillingSupport$.next(true);
+
+      expect(component.includesPrivilegedControls).toBe(true);
+      expect(component.showPrivilegedControlsSalesCallout).toBe(false);
     });
   });
 

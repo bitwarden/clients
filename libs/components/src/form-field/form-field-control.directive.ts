@@ -39,7 +39,7 @@ let nextId = 0;
 export class BitFormFieldControlDirective implements AfterViewInit {
   protected readonly ngControl = inject(NgControl, { optional: true, self: true });
   private readonly destroyRef = inject(DestroyRef);
-  // Bridges NgControl's RxJS events into the signal graph so `required` and `hasError` computed
+  // Bridges NgControl's RxJS events into the signal graph so the `required`, `hasError`, and `error` computed
   // signals re-evaluate on StatusChangeEvent / TouchedChangeEvent.
   private readonly controlEvent = signal<unknown>(null);
 
@@ -77,11 +77,12 @@ export class BitFormFieldControlDirective implements AfterViewInit {
     return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
   });
 
-  get error(): [string, any] {
+  readonly error: Signal<[string, any]> = computed(() => {
+    this.controlEvent();
     const errors = this.ngControl?.errors ?? {};
     const key = Object.keys(errors)[0];
     return [key, errors[key]];
-  }
+  });
 
   ngAfterViewInit() {
     this.ngControl?.control?.events

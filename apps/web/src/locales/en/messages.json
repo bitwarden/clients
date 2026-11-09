@@ -5754,6 +5754,31 @@
   "trialIncludesPrivilegedControls": {
     "message": "Your trial includes Privileged Controls."
   },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included with this organization."
+  },
+  "contactSales": {
+    "message": "Contact sales"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team. Contact sales to add it to your organization."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "To change your Privileged Controls seats, contact sales."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$OCCUPIED$ of $TOTAL$ seats in use",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
   "monthly": {
     "message": "Monthly"
   },
@@ -8434,6 +8459,9 @@
   },
   "viewApiKey": {
     "message": "View API key"
+  },
+  "copyApiKey": {
+    "message": "Copy API key"
   },
   "rotateApiKey": {
     "message": "Rotate API key"
@@ -12962,6 +12990,9 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "This user can access Secrets Manager"
+  },
+  "products": {
+    "message": "Products"
   },
   "privilegedControls": {
     "message": "Privileged Controls",
