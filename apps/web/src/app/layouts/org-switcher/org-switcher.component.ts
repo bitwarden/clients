@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AsyncPipe } from "@angular/common";
-import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, model } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, map, Observable, switchMap } from "rxjs";
@@ -9,12 +9,10 @@ import { combineLatest, map, Observable, switchMap } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   A11yTitleDirective,
-  DialogService,
   IconModule,
   IconTileComponent,
   IconTileOptions,
@@ -22,9 +20,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { orgIconTile } from "@bitwarden/vault";
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "org-switcher",
   templateUrl: "org-switcher.component.html",
   imports: [
@@ -37,31 +34,36 @@ import { orgIconTile } from "@bitwarden/vault";
   ],
 })
 export class OrgSwitcherComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly accountService = inject(AccountService);
+
   /** Under VFO1, "Add plan" in Settings replaces the "New organization" entry. */
   protected readonly vfo1Enabled = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
 
-  protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
-    switchMap((account) =>
-      this.organizationService
-        .organizations$(account?.id)
-        .pipe(
-          map((orgs) =>
-            orgs.filter((org) => this.filter(org)).sort((a, b) => a.name.localeCompare(b.name)),
+  protected readonly organizations$: Observable<Organization[]> =
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        this.organizationService
+          .organizations$(account?.id)
+          .pipe(
+            map((orgs) =>
+              orgs.filter((org) => this.filter()(org)).sort((a, b) => a.name.localeCompare(b.name)),
+            ),
           ),
-        ),
-    ),
-  );
+      ),
+    );
 
-  protected activeOrganization$: Observable<Organization> = combineLatest([
+  protected readonly activeOrganization$: Observable<Organization> = combineLatest([
     this.route.paramMap,
     this.organizations$,
   ]).pipe(map(([params, orgs]) => orgs.find((org) => org.id === params.get("organizationId"))));
 
   /** The active organization with the tier-colored icon tile it shares with the vault switcher. */
-  protected activeOrganizationView$: Observable<{
+  protected readonly activeOrganizationView$: Observable<{
     organization: Organization;
     tile: IconTileOptions;
   }> = this.activeOrganization$.pipe(
@@ -77,42 +79,20 @@ export class OrgSwitcherComponent {
    * const smFilter = (org: Organization) => org.canAccessSecretsManager
    * // <org-switcher [filter]="smFilter">
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  filter: (org: Organization) => boolean = () => true;
+  readonly filter = input<(org: Organization) => boolean>(() => true);
 
   /**
    * Is `true` if the expanded content is visible
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  open = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output()
-  openChange = new EventEmitter<boolean>();
+  readonly open = model(false);
 
   /**
    * Visibility of the New Organization button
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  hideNewButton = false;
-
-  constructor(
-    private route: ActivatedRoute,
-    protected dialogService: DialogService,
-    private organizationService: OrganizationService,
-    protected billingApiService: BillingApiServiceAbstraction,
-    private accountService: AccountService,
-  ) {}
+  readonly hideNewButton = input(false);
 
   protected toggle(event?: MouseEvent) {
     event?.stopPropagation();
-    this.open = !this.open;
-    this.openChange.emit(this.open);
+    this.open.update((open) => !open);
   }
 }
