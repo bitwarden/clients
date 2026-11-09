@@ -8,6 +8,9 @@ export class AutofillInlineMenuButtonIframe extends AutofillInlineMenuIframeElem
       element,
       AutofillOverlayPort.Button,
       {
+        // A fade-in can arrive before the field position. Keep the button out of view until then.
+        width: "0px",
+        height: "0px",
         background: "transparent",
         border: "none",
         colorScheme: "auto",
