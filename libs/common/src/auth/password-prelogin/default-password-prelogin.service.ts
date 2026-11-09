@@ -11,6 +11,9 @@ import { PasswordPreloginRequest } from "./password-prelogin.request";
 import { PasswordPreloginService } from "./password-prelogin.service";
 
 export class DefaultPasswordPreloginService implements PasswordPreloginService {
+  // TODO: PM-46654 - Key the cache on email and environment. A cache keyed on email alone
+  // returns the previous region's KDF config when the user changes region and keeps the same
+  // email.
   private currentEmail: string | null = null;
   private currentPreloginData$: Observable<PasswordPreloginData> | null = null;
 
