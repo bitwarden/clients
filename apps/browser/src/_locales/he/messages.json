@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "הפריטים שלי"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "מסוף מנהל"
   },

@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "我的項目"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "管理控制台"
   },

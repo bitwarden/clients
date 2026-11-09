@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "マイアイテム"
   },
+  "myItemsV2": {
+    "message": "マイアイテム"
+  },
   "adminConsole": {
     "message": "管理コンソール"
   },

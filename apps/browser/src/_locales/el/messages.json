@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "Τα στοιχεία μου"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Κονσόλα διαχειριστή"
   },

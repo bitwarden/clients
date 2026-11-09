@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "Fy Eitemau"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Consol Gweinyddwr"
   },

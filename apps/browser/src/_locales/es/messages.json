@@ -1576,7 +1576,7 @@
     "message": "Seleccionar origen"
   },
   "importData": {
-    "message": "Import data"
+    "message": "Importar datos"
   },
   "importSourceSelectTitle": {
     "message": "Seleccione su origen"
@@ -1614,7 +1614,7 @@
     "description": "Progress label of the import step where the user picks which vault to import into."
   },
   "selectLocation": {
-    "message": "Select location",
+    "message": "Seleccionar ubicación",
     "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
   },
   "selectAVaultTitle": {
@@ -1627,11 +1627,11 @@
     "message": "Choose where to import these items."
   },
   "importMyItemsOption": {
-    "message": "My items",
+    "message": "Mis elementos",
     "description": "Card title for the user's own collection inside an organization that centralizes ownership."
   },
   "importVisibleOnlyToYou": {
-    "message": "Visible only to you"
+    "message": "Visible solo para ti"
   },
   "importMyItemsOwnedBy": {
     "message": "Owned by $ORGANIZATION$, but visible only to you",
@@ -1646,7 +1646,7 @@
     "message": "Organization vault"
   },
   "importSharedWithOnePerson": {
-    "message": "Shared with one person"
+    "message": "Compartido con una persona"
   },
   "importFamilyVault": {
     "message": "Family vault"
@@ -1675,7 +1675,7 @@
     "message": "Move everything to a parent folder, the nested folder structure will be maintained."
   },
   "importSharedFolderRequired": {
-    "message": "A shared folder is required."
+    "message": "Se requiere una carpeta compartida."
   },
   "importIntoOrganization": {
     "message": "Items will be imported into $ORGANIZATION$.",
@@ -1687,7 +1687,7 @@
     }
   },
   "importMoveAllItemsIntoSharedFolder": {
-    "message": "Move all items into a shared folder"
+    "message": "Mover todos los elementos a una carpeta compartida"
   },
   "importNoSharedFoldersForOrg": {
     "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
@@ -1699,7 +1699,7 @@
     }
   },
   "importItemsCount": {
-    "message": "Import $COUNT$ items",
+    "message": "Importar $COUNT$ elementos",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1708,10 +1708,10 @@
     }
   },
   "importItemsSingular": {
-    "message": "Import 1 item"
+    "message": "Importar 1 elemento"
   },
   "importToOrganization": {
-    "message": "Import to $ORGANIZATION$",
+    "message": "Importar a $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1736,23 +1736,23 @@
     }
   },
   "importRestrictedTypeLogin": {
-    "message": "logins",
+    "message": "inicios de sesión",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSecureNote": {
-    "message": "secure notes",
+    "message": "notas seguras",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeCard": {
-    "message": "cards",
+    "message": "tarjetas",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeIdentity": {
-    "message": "identities",
+    "message": "identidades",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSshKey": {
-    "message": "SSH keys",
+    "message": "Claves SSH",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeBankAccount": {
@@ -1760,11 +1760,11 @@
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeDriversLicense": {
-    "message": "licenses",
+    "message": "licencias",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypePassport": {
-    "message": "passports",
+    "message": "pasaportes",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "goToAccessIntelligence": {
@@ -5509,14 +5509,14 @@
     "message": "Importar tus datos"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "Importa tus datos en minutos"
   },
   "importDataDirectSubtitlePrefix": {
     "message": "Import your items directly from",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": "para obtener todos sus datos.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
@@ -6707,6 +6707,9 @@
   },
   "myItems": {
     "message": "Mis Elementos"
+  },
+  "myItemsV2": {
+    "message": "My items"
   },
   "adminConsole": {
     "message": "Consola de administrador"

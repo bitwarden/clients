@@ -1610,31 +1610,31 @@
     }
   },
   "selectVault": {
-    "message": "Select vault",
+    "message": "Sélectionner un coffre",
     "description": "Progress label of the import step where the user picks which vault to import into."
   },
   "selectLocation": {
-    "message": "Select location",
+    "message": "Sélectionner un emplacement",
     "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
   },
   "selectAVaultTitle": {
-    "message": "Select a vault"
+    "message": "Sélectionner un coffre"
   },
   "selectALocationTitle": {
-    "message": "Select a location"
+    "message": "Sélectionner un emplacement"
   },
   "importDestinationDescription": {
-    "message": "Choose where to import these items."
+    "message": "Choisissez où importer ces éléments."
   },
   "importMyItemsOption": {
-    "message": "My items",
+    "message": "Mes éléments",
     "description": "Card title for the user's own collection inside an organization that centralizes ownership."
   },
   "importVisibleOnlyToYou": {
-    "message": "Visible only to you"
+    "message": "Visible uniquement pour vous"
   },
   "importMyItemsOwnedBy": {
-    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "message": "Possédé par $ORGANIZATION$, mais visible uniquement pour vous",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1643,16 +1643,16 @@
     }
   },
   "importOrganizationVault": {
-    "message": "Organization vault"
+    "message": "Coffre de l'organisation"
   },
   "importSharedWithOnePerson": {
-    "message": "Shared with one person"
+    "message": "Partagé avec une personne"
   },
   "importFamilyVault": {
-    "message": "Family vault"
+    "message": "Coffre familial"
   },
   "importMoveAllItemsIntoSharedFolderA": {
-    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "message": "Déplacer tous les éléments dans un dossier partagé de $ORGANIZATION$",
     "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
     "placeholders": {
       "organization": {
@@ -1662,7 +1662,7 @@
     }
   },
   "importMoveAllItemsIntoSharedFolderAn": {
-    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "message": "Déplacer tous les éléments dans un dossier partagé de $ORGANIZATION$",
     "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
     "placeholders": {
       "organization": {
@@ -1672,13 +1672,13 @@
     }
   },
   "importSharedFolderHint": {
-    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+    "message": "Déplacez tout dans un dossier parent, la structure du dossier imbriqué sera maintenue."
   },
   "importSharedFolderRequired": {
-    "message": "A shared folder is required."
+    "message": "Un dossier partagé est requis."
   },
   "importIntoOrganization": {
-    "message": "Items will be imported into $ORGANIZATION$.",
+    "message": "Les éléments seront importés dans $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1687,10 +1687,10 @@
     }
   },
   "importMoveAllItemsIntoSharedFolder": {
-    "message": "Move all items into a shared folder"
+    "message": "Déplacer tous les éléments dans un dossier partagé"
   },
   "importNoSharedFoldersForOrg": {
-    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "message": "Les éléments ne peuvent être importés dans $ORGANIZATION$ sans un dossier partagé, et vous n'en gérez aucun. Choisissez un autre emplacement.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1699,7 +1699,7 @@
     }
   },
   "importItemsCount": {
-    "message": "Import $COUNT$ items",
+    "message": "Importer $COUNT$ éléments",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1708,10 +1708,10 @@
     }
   },
   "importItemsSingular": {
-    "message": "Import 1 item"
+    "message": "Importer 1 élément"
   },
   "importToOrganization": {
-    "message": "Import to $ORGANIZATION$",
+    "message": "Importer dans $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1720,10 +1720,10 @@
     }
   },
   "importDataMayBeShared": {
-    "message": "Your data may be shared with members of this organization."
+    "message": "Vos données peuvent être partagées avec les membres de cette organisation."
   },
   "importItemTypesRestricted": {
-    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "message": "$ORGANIZATION$ ne vous permet pas d'importer $ITEM_TYPES$. S'ils sont dans votre importation, ils seront ignorés.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1736,35 +1736,35 @@
     }
   },
   "importRestrictedTypeLogin": {
-    "message": "logins",
+    "message": "identifiants",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSecureNote": {
-    "message": "secure notes",
+    "message": "notes sécurisées",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeCard": {
-    "message": "cards",
+    "message": "cartes de paiement",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeIdentity": {
-    "message": "identities",
+    "message": "identités",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSshKey": {
-    "message": "SSH keys",
+    "message": "clés SSH",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeBankAccount": {
-    "message": "bank accounts",
+    "message": "comptes bancaires",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeDriversLicense": {
-    "message": "licenses",
+    "message": "licences",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypePassport": {
-    "message": "passports",
+    "message": "passeports",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "goToAccessIntelligence": {
@@ -5601,7 +5601,7 @@
     "message": "Vos identifiants, autres éléments et dossiers seront transférés. Les mots de passe et pièces jointes peuvent être exclus."
   },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "Accepté : $FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -5610,7 +5610,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ file type",
+    "message": "Type de fichier $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5819,7 +5819,7 @@
     "message": "Mot de passe principal de KeePass"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ password",
+    "message": "Mot de passe $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5828,10 +5828,10 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "Le mot de passe est requis."
   },
   "filePasswordRequired": {
-    "message": "File password is required"
+    "message": "Le mot de passe du fichier est requis"
   },
   "filePasswordInvalid": {
     "message": "Enter a valid file password."
@@ -6707,6 +6707,9 @@
   },
   "myItems": {
     "message": "Mes éléments"
+  },
+  "myItemsV2": {
+    "message": "My items"
   },
   "adminConsole": {
     "message": "Console Admin"

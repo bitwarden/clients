@@ -6708,6 +6708,9 @@
   "myItems": {
     "message": "Mani vienumi"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "pārvaldības konsolē,"
   },
