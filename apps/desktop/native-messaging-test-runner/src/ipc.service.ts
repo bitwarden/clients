@@ -171,7 +171,7 @@ export default class IPCService {
     while (this.processOutputBuffer.length > 4) {
       // Read the message length and ensure we have the full message
       const msgLength = this.processOutputBuffer.readUInt32LE(0);
-      if (msgLength + 4 < this.processOutputBuffer.length) {
+      if (this.processOutputBuffer.length < msgLength + 4) {
         return;
       }
 
