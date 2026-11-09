@@ -87,7 +87,7 @@ type SendFilters = { search: string; type: SendType | null };
 export class SendTableV2Component {
   protected readonly SendType = SendType;
   protected readonly authType = AuthType;
-  readonly itemIcon = getSendItemIcon;
+  protected readonly itemIcon = getSendItemIcon;
   protected readonly noSendsIcon = NoSendsIcon;
   protected readonly noVisibleSendsIcon = NoFolders;
   protected readonly removeSendAuthI18nKeys = removeSendAuthI18nKeys;
@@ -147,7 +147,7 @@ export class SendTableV2Component {
 
   protected readonly trackById: TrackByFunction<SendView> = (_index, send) => send.id;
 
-  readonly filter = (row: SendView, f: SendFilters) =>
+  protected readonly filter = (row: SendView, f: SendFilters) =>
     (f.type == null || row.type === f.type) && this.sendSearchMatches(row, f.search);
 
   private sendSearchMatches(row: SendView, query: string | undefined) {
