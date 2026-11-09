@@ -447,8 +447,9 @@ export default tseslint.config(
     },
   },
   // This removes the previous rule forbidding imports from the popup directory
+  // Autofill UI rendered inside extension-origin iframes is Angular, like the popup
   {
-    files: ["apps/browser/src/**/popup/**/*.ts"],
+    files: ["apps/browser/src/**/popup/**/*.ts", "apps/browser/src/autofill/ui/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
