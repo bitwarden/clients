@@ -650,12 +650,12 @@ describe("ApprovalsTabComponent", () => {
       create();
 
       const cell = () => text(query('[data-testid="approvals-cell-window-req-opening"]'));
-      expect(cell()).not.toContain("pamWindowUntil");
+      expect(cell()).not.toContain("pamWindowOpenUntil");
 
       tick(3000);
 
       // Past its start, the window reads as its end alone.
-      expect(cell()).toContain("pamWindowUntil");
+      expect(cell()).toContain("pamWindowOpenUntil");
     });
 
     it("drops a pending request once its own window closes", () => {

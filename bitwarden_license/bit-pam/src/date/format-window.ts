@@ -97,7 +97,7 @@ export function formatRequestedWindow(
   }
   if (startMs <= nowMs) {
     return translate(
-      "pamWindowUntil",
+      "pamWindowOpenUntil",
       joinEndpoint(translate, windowEndpoint(locale, endMs, nowMs)),
     );
   }

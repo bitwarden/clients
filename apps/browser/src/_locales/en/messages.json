@@ -8956,15 +8956,6 @@
   "pamAccessRuleDuration30d": {
     "message": "30 days"
   },
-  "pamWindowUntil": {
-    "message": "Until $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "2025-06-15 14:00"
-      }
-    }
-  },
   "pamLeaseExpires": {
     "message": "Expires $DATE$ at $TIME$",
     "placeholders": {
