@@ -1,8 +1,12 @@
+import { TemplatePortal } from "@angular/cdk/portal";
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
+  TemplateRef,
+  ViewContainerRef,
   computed,
   effect,
   inject,
@@ -24,6 +28,7 @@ import {
   ACCESS_RULE_NAME_MAX_LENGTH,
   accessRuleErrorMessageKey,
   accessRuleToFormValue,
+  accessRuleToRequest,
   AccessRuleSdkService,
   AccessRuleErrorField,
   AccessRuleErrorOutcome,
@@ -39,7 +44,11 @@ import {
   resolveCollectionNames,
   snapToNearestAccessRuleDuration,
 } from "@bitwarden/bit-pam";
-import { accessRuleDeleteConfirmOptions, DurationLongPipe } from "@bitwarden/bit-pam-components";
+import {
+  accessRuleDeactivateConfirmOptions,
+  accessRuleDeleteConfirmOptions,
+  DurationLongPipe,
+} from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -51,7 +60,7 @@ import {
   AsyncActionsModule,
   AutofocusDirective,
   BadgeModule,
-  BreadcrumbsModule,
+  IconModule,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -59,7 +68,10 @@ import {
   DialogService,
   FormFieldModule,
   HeaderComponent,
+  IconButtonModule,
+  LayoutFooterService,
   LinkModule,
+  MenuModule,
   MultiSelectModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -73,6 +85,7 @@ import {
 import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { DetailBreadcrumbComponent } from "../../rotation/detail-breadcrumb.component";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
@@ -97,15 +110,18 @@ import {
     AsyncActionsModule,
     AutofocusDirective,
     BadgeModule,
-    BreadcrumbsModule,
+    IconModule,
     ButtonModule,
     CalloutModule,
     CardComponent,
     CheckboxModule,
+    DetailBreadcrumbComponent,
     FormFieldModule,
     HeaderComponent,
+    IconButtonModule,
     IpAllowlistEditorComponent,
     LinkModule,
+    MenuModule,
     MultiSelectModule,
     RouterLink,
     SectionComponent,
@@ -131,6 +147,8 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
   private readonly organizationService = inject(OrganizationService);
   private readonly cidrValidation = inject(CidrValidationService);
   private readonly dialogService = inject(DialogService);
+  private readonly layoutFooter = inject(LayoutFooterService);
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -151,6 +169,17 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
   /** Null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
+
+  /** Set while an Activate/Deactivate call is in flight, so the menu can't double submit. */
+  protected readonly statusBusy = signal(false);
+
+  /** `FormGroup.dirty` isn't a signal, so the footer follows this mirror of it. */
+  private readonly dirty = signal(false);
+
+  /** Shown only while the form holds unsaved changes. */
+  protected readonly showFooter = computed(() => !this.loading() && this.dirty());
+
+  private readonly footerTemplate = viewChild<TemplateRef<unknown>>("footer");
 
   /**
    * Shown inline rather than toasted, so it stays beside the entered values. Retry shows only for a
@@ -280,9 +309,39 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
       }
       this.saveErrorCallout()?.nativeElement.focus();
     });
+    this.formGroup.events.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.dirty.set(this.formGroup.dirty);
+    });
+    this.pinFooter();
     this.coupleDurationBounds();
     this.coupleIpAllowlistEnabled();
     void this.initialize();
+  }
+
+  /** Pins Save and Cancel to the layout's footer region, outside the scrolling content. */
+  private pinFooter(): void {
+    let portal: TemplatePortal | null = null;
+    const detach = () => {
+      if (portal != null) {
+        this.layoutFooter.detach(portal);
+        portal = null;
+      }
+    };
+    effect(() => {
+      const template = this.footerTemplate();
+      if (template == null || !this.showFooter()) {
+        detach();
+      } else if (portal == null) {
+        portal = new TemplatePortal(template, this.viewContainerRef);
+        this.layoutFooter.attach(portal);
+      }
+    });
+    inject(DestroyRef).onDestroy(detach);
+  }
+
+  private markPristine(): void {
+    this.formGroup.markAsPristine();
+    this.dirty.set(false);
   }
 
   private async initialize(): Promise<void> {
@@ -381,10 +440,7 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
           this.toCollectionOption(c),
         ]),
       );
-      const selected = (rule?.collections ?? [])
-        .map((id) => optionsById.get(uuidAsString(id)))
-        .filter((c: SelectItemView | undefined): c is SelectItemView => c != null);
-      this.formGroup.controls.collections.setValue(selected);
+      this.formGroup.controls.collections.setValue(this.selectedCollections(rule, optionsById));
     } catch {
       // A failure leaves the form unsaveable, so surface it; nothing awaits `initialize()`, so a
       // rejection would go unseen.
@@ -395,6 +451,15 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
     } finally {
       this.allCollectionsLoading.set(false);
     }
+  }
+
+  private selectedCollections(
+    rule: AccessRuleView | null,
+    optionsById: Map<string, SelectItemView>,
+  ): SelectItemView[] {
+    return (rule?.collections ?? [])
+      .map((id) => optionsById.get(uuidAsString(id)))
+      .filter((c: SelectItemView | undefined): c is SelectItemView => c != null);
   }
 
   /** Keeps the default duration at or below the max by dragging the other picker along. */
@@ -497,10 +562,14 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
       return;
     }
 
+    const existing = this.existing();
     const request = formValueToRequest(this.formGroup.getRawValue(), this.unknownConditions());
+    if (existing != null) {
+      // On edit, status changes only through the More menu, so a save never overrides it.
+      request.enabled = existing.enabled;
+    }
 
     try {
-      const existing = this.existing();
       if (existing != null) {
         await this.pamApi.updateAccessRule(this.organizationId, existing.id, request);
         this.toastService.showToast({
@@ -534,9 +603,73 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
     return this.formGroup.dirty;
   }
 
-  /** Leaves through the route's guard, which asks before discarding. */
+  /**
+   * Edit discards in place by restoring the saved rule, so the footer hides. Create leaves through
+   * the route's guard, which asks before discarding.
+   */
   protected readonly cancel = async (): Promise<void> => {
-    await this.router.navigate([".."], { relativeTo: this.route });
+    const existing = this.existing();
+    if (existing == null) {
+      await this.router.navigate([".."], { relativeTo: this.route });
+      return;
+    }
+    this.saveError.set(null);
+    this.applyRule(existing);
+    const optionsById = new Map(
+      this.allCollections().map((c): [string, SelectItemView] => [
+        c.id,
+        this.toCollectionOption(c),
+      ]),
+    );
+    this.formGroup.controls.collections.setValue(this.selectedCollections(existing, optionsById));
+    this.formGroup.markAsUntouched();
+    this.markPristine();
+  };
+
+  /** Deactivate asks first; Activate is easy to undo, so it applies at once. */
+  protected readonly toggleStatus = async (): Promise<void> => {
+    const rule = this.existing();
+    if (rule == null || this.statusBusy()) {
+      return;
+    }
+    const enable = !rule.enabled;
+    if (!enable) {
+      const confirmed = await this.dialogService.openSimpleDialog(
+        accessRuleDeactivateConfirmOptions(),
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    this.statusBusy.set(true);
+    try {
+      // Sends the saved rule, so unsaved form edits are neither written nor discarded.
+      const updated = await this.pamApi.updateAccessRule(
+        this.organizationId,
+        rule.id,
+        accessRuleToRequest(rule, enable),
+      );
+      this.governedCollections.invalidate(this.organizationId);
+      this.existing.set(updated);
+      const enabledControl = this.formGroup.controls.enabled;
+      enabledControl.setValue(updated.enabled, { emitEvent: false });
+      enabledControl.markAsPristine();
+      this.dirty.set(this.formGroup.dirty);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t(
+          enable ? "pamAccessRuleActivateSuccess" : "pamAccessRuleDeactivateSuccess",
+        ),
+      });
+    } catch (e) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+      });
+    } finally {
+      this.statusBusy.set(false);
+    }
   };
 
   protected readonly remove = async (): Promise<void> => {
@@ -569,7 +702,7 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
 
   private navigateToList(): Promise<boolean> {
     // An exit the admin already agreed to; the CanDeactivate guard must not ask a second time.
-    this.formGroup.markAsPristine();
+    this.markPristine();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 }

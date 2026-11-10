@@ -1,25 +1,66 @@
 <bit-header [title]="titleText()">
-  <bit-breadcrumbs slot="breadcrumbs" showTrailingArrow>
-    <bit-breadcrumb [route]="['..']">{{ "pamAccessRules" | i18n }}</bit-breadcrumb>
-  </bit-breadcrumbs>
+  <pam-detail-breadcrumb
+    slot="breadcrumbs"
+    [route]="['..']"
+    parentLabelKey="pamAccessRules"
+    [current]="titleText()"
+  />
 
-  <!-- Inside the h1, so the sr-only label keeps "On"/"Off" from reading as part of the title.
-       Reflects the saved rule, not the unsaved Status checkbox. -->
-  <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center">
-    @if (existing(); as rule) {
+  <!-- Inside the h1, so the sr-only label keeps "Active"/"Inactive" from reading as part of the
+       title. Reflects the saved rule, not any unsaved form edit. Named-slot projection through
+       control flow needs a single root element, so this keeps its own block. -->
+  @if (existing(); as rule) {
+    <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-1">
       <span class="tw-sr-only">{{ "status" | i18n }}:</span>
       <span
         bitBadge
         [variant]="rule.enabled ? 'success' : 'subtle'"
         [startIcon]="null"
         id="access-rule-edit_badge_status"
-        >{{ (rule.enabled ? "on" : "off") | i18n }}</span
+        >{{ (rule.enabled ? "pamAccessRuleActive" : "pamAccessRuleInactive") | i18n }}</span
       >
-    }
-  </span>
+    </span>
+  }
+
+  @if (existing()) {
+    <button
+      type="button"
+      bitIconButton="bwi-ellipsis-v"
+      [bitMenuTriggerFor]="moreMenu"
+      [label]="'moreOptions' | i18n"
+      id="access-rule-edit_button_more"
+    ></button>
+    <bit-menu #moreMenu>
+      <button
+        type="button"
+        bitMenuItem
+        [disabled]="statusBusy()"
+        (click)="toggleStatus()"
+        id="access-rule-edit_button_toggle-status"
+      >
+        <bit-icon
+          slot="start"
+          [name]="existing()?.enabled ? 'bwi-minus-circle' : 'bwi-check-circle'"
+          class="tw-text-muted"
+        ></bit-icon>
+        {{ (existing()?.enabled ? "pamAccessRuleDeactivate" : "pamAccessRuleActivate") | i18n }}
+      </button>
+      <button
+        type="button"
+        bitMenuItem
+        variant="danger"
+        [disabled]="statusBusy()"
+        (click)="remove()"
+        id="access-rule-edit_button_delete"
+      >
+        <bit-icon slot="start" name="bwi-trash"></bit-icon>
+        {{ "pamAccessRuleDeleteAccessRule" | i18n }}
+      </button>
+    </bit-menu>
+  }
 </bit-header>
 
-<bit-container>
+<bit-container [class.tw-pb-20]="showFooter()">
   @if (loading()) {
     <bit-spinner />
   } @else {
@@ -92,23 +133,25 @@
         </bit-card>
       </bit-section>
 
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamAccessRuleStatusHeading" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <bit-form-control disableMargin>
-            <input
-              type="checkbox"
-              bitCheckbox
-              id="access-rule-edit_checkbox_enabled"
-              formControlName="enabled"
-            />
-            <bit-label>{{ "pamAccessRuleActive" | i18n }}</bit-label>
-            <bit-hint>{{ "pamAccessRuleActiveHint" | i18n }}</bit-hint>
-          </bit-form-control>
-        </bit-card>
-      </bit-section>
+      @if (!editing) {
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamAccessRuleStatusHeading" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <bit-form-control disableMargin>
+              <input
+                type="checkbox"
+                bitCheckbox
+                id="access-rule-edit_checkbox_enabled"
+                formControlName="enabled"
+              />
+              <bit-label>{{ "pamAccessRuleActive" | i18n }}</bit-label>
+              <bit-hint>{{ "pamAccessRuleActiveHint" | i18n }}</bit-hint>
+            </bit-form-control>
+          </bit-card>
+        </bit-section>
+      }
 
       <bit-section>
         <bit-section-header>
@@ -235,42 +278,34 @@
       }
 
       <bit-error-summary [formGroup]="formGroup" />
-
-      <div class="tw-flex tw-items-center tw-gap-2">
-        <button
-          type="submit"
-          bitButton
-          buttonType="primary"
-          bitFormButton
-          id="access-rule-edit_button_save"
-        >
-          {{ "save" | i18n }}
-        </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          bitFormButton
-          [bitAction]="cancel"
-          id="access-rule-edit_button_cancel"
-        >
-          {{ "cancel" | i18n }}
-        </button>
-
-        @if (existing() != null) {
-          <button
-            type="button"
-            bitButton
-            buttonType="danger"
-            bitFormButton
-            [bitAction]="remove"
-            class="tw-ms-auto"
-            id="access-rule-edit_button_delete"
-          >
-            {{ "delete" | i18n }}
-          </button>
-        }
-      </div>
     </form>
   }
 </bit-container>
+
+<!-- Pinned to the layout's footer region by the component while the form has unsaved changes. The
+     portal renders outside the form, so Save runs through bitAction rather than a submit button. -->
+<ng-template #footer>
+  <div
+    class="tw-pointer-events-auto tw-absolute tw-inset-x-0 tw-bottom-0 tw-flex tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-bg-bg-primary tw-px-10 tw-py-4"
+    data-testid="access-rule-edit-footer"
+  >
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="submit"
+      id="access-rule-edit_button_save"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [bitAction]="cancel"
+      id="access-rule-edit_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </div>
+</ng-template>
