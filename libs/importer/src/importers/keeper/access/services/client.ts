@@ -84,6 +84,7 @@ export class Client {
   private readonly clientVersion: string = "ts17.0.0";
   private readonly deviceName: string = "TypeScript Keeper SDK";
   private readonly ui: Ui;
+  private readonly accountDeviceApproval: boolean;
   private serverKeyId: number = 7;
   private readonly locale: string = "en_US";
   private password: string | null = null;
@@ -92,6 +93,7 @@ export class Client {
   constructor(options: ClientOptions) {
     this.server = options.region;
     this.ui = options.ui;
+    this.accountDeviceApproval = options.accountDeviceApproval ?? false;
   }
 
   async login(username: string): Promise<LoginResult> {
@@ -138,11 +140,11 @@ export class Client {
               messageSessionUid,
               response,
               socket,
-              [
+              this.approvalChannelsFor(response, [
                 DeviceApprovalChannel.Email,
                 DeviceApprovalChannel.KeeperPush,
                 DeviceApprovalChannel.TwoFactor,
-              ],
+              ]),
             );
             break;
 
@@ -452,6 +454,28 @@ export class Client {
       sessionToken,
       dataKey,
     };
+  }
+
+  // Only the two-factor choices follow the account; Email and Keeper Push are always offered. An
+  // empty channel list means the server didn't say, so the fixed list stands.
+  private approvalChannelsFor(
+    response: LoginResponse,
+    fixed: DeviceApprovalChannel[],
+  ): DeviceApprovalChannel[] {
+    if (!this.accountDeviceApproval || response.channels.length === 0) {
+      return fixed;
+    }
+    const types = new Set(response.channels.map((channel) => channel.channelType));
+    const hasDna = types.has(TwoFactorChannelType.TWO_FA_CT_DNA);
+    const hasTwoFactor =
+      hasDna ||
+      types.has(TwoFactorChannelType.TWO_FA_CT_TOTP) ||
+      types.has(TwoFactorChannelType.TWO_FA_CT_SMS);
+
+    const channels = fixed.filter(
+      (channel) => channel !== DeviceApprovalChannel.TwoFactor || hasTwoFactor,
+    );
+    return hasDna ? [...channels, DeviceApprovalChannel.KeeperDna] : channels;
   }
 
   private async handleDeviceApproval(

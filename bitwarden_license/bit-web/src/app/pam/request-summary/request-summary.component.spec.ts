@@ -1,0 +1,145 @@
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { RequestSummaryComponent } from "./request-summary.component";
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RequestSummaryComponent],
+  template: `
+    <pam-request-summary
+      [itemName]="itemName()"
+      [organizationName]="organizationName()"
+      [collectionName]="collectionName()"
+      [requesterName]="requesterName()"
+      duration="1 hour"
+      [relativeStart]="{ key: 'pamInboxStartTomorrow', value: null }"
+      [exactWindow]="exactWindow()"
+      [reason]="reason()"
+    >
+      <div data-testid="host-row">Resolved</div>
+    </pam-request-summary>
+  `,
+})
+class HostComponent {
+  readonly itemName = signal("Prod database");
+  readonly organizationName = signal<string | null>("Meridian Group");
+  readonly collectionName = signal<string | null>("Production");
+  readonly requesterName = signal("Grace Hopper");
+  readonly reason = signal<string | null>("prod incident");
+  readonly exactWindow = signal<string>("");
+}
+
+describe("RequestSummaryComponent", () => {
+  let fixture: ComponentFixture<HostComponent>;
+
+  function card(name: "item" | "details"): HTMLElement {
+    return fixture.nativeElement.querySelector(`[data-testid="request-summary-${name}"]`);
+  }
+
+  function fieldValue(id: string): string {
+    return (fixture.nativeElement.querySelector(`#${id}`) as HTMLElement).textContent!.trim();
+  }
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [HostComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ").trim() },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+  });
+
+  it("puts the item, its organization and its collection in the item card", () => {
+    expect(card("item").textContent).toContain("Prod database");
+    expect(card("item").textContent).toContain("Meridian Group");
+    expect(card("item").textContent).toContain("Production");
+    expect(card("item").querySelector(".bwi-business")).not.toBeNull();
+    expect(card("item").querySelector(".bwi-shared-folder")).not.toBeNull();
+  });
+
+  it("says which of the two item-card names is the organization and which is the collection", () => {
+    expect(card("item").querySelector(".bwi-business")!.getAttribute("aria-label")).toBe(
+      "organization",
+    );
+    expect(card("item").querySelector(".bwi-shared-folder")!.getAttribute("aria-label")).toBe(
+      "sharedFolder",
+    );
+  });
+
+  it("names the collection only in the item card, never as a request-details row", () => {
+    expect(card("details").textContent).not.toContain("Production");
+  });
+
+  it("renders nothing at all for names that did not resolve", () => {
+    fixture.componentInstance.organizationName.set(null);
+    fixture.componentInstance.collectionName.set(null);
+    fixture.detectChanges();
+
+    expect(card("item").querySelector(".bwi-business")).toBeNull();
+    expect(card("item").querySelector(".bwi-shared-folder")).toBeNull();
+  });
+
+  it("names the requester without their email beside it", () => {
+    expect(card("details").textContent).toContain("Grace Hopper");
+    expect(card("details").textContent).not.toContain("grace@example.com");
+  });
+
+  it("joins the window's duration and start into one requested-access line", () => {
+    expect(fieldValue("pam-request-summary_value_access-requested")).toBe(
+      "1 hour, pamInboxStartTomorrow",
+    );
+  });
+
+  it("shows the exact window as visible text under the coarse label", () => {
+    fixture.componentInstance.exactWindow.set("9/19/26, 2:00 PM – 9/19/26, 6:00 PM");
+    fixture.detectChanges();
+
+    expect(fieldValue("pam-request-summary_value_exact-window")).toBe(
+      "9/19/26, 2:00 PM – 9/19/26, 6:00 PM",
+    );
+  });
+
+  it("shows no exact-window line when none is given", () => {
+    expect(
+      fixture.nativeElement.querySelector("#pam-request-summary_value_exact-window"),
+    ).toBeNull();
+  });
+
+  it("quotes the reason", () => {
+    expect(fieldValue("pam-request-summary_value_reason")).toBe("“prod incident”");
+  });
+
+  it("wraps a long reason rather than clipping it to a single line", () => {
+    fixture.componentInstance.reason.set("x".repeat(400));
+    fixture.detectChanges();
+
+    const reason = fixture.nativeElement.querySelector("#pam-request-summary_value_reason");
+    expect(reason.classList).toContain("tw-whitespace-pre-wrap");
+    expect(reason.textContent).toContain("x".repeat(400));
+  });
+
+  it("says so in muted copy when no reason was given", () => {
+    fixture.componentInstance.reason.set(null);
+    fixture.detectChanges();
+
+    const reason = fixture.nativeElement.querySelector(
+      "#pam-request-summary_value_reason",
+    ) as HTMLElement;
+    expect(reason.textContent).toContain("pamInboxReasonMissing");
+    expect(reason.classList).toContain("tw-text-muted");
+  });
+
+  it("projects the host's extra rows into the request-details card", () => {
+    expect(card("details").querySelector('[data-testid="host-row"]')).not.toBeNull();
+  });
+});

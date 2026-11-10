@@ -2,7 +2,7 @@
 import { EncString } from "@bitwarden/legacy-crypto";
 import { EncString as SdkEncString, SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
 
-import { mockContainerService, mockEnc } from "../../../../spec";
+import { mockContainerService } from "../../../../spec";
 import { SshKeyApi } from "../api/ssh-key.api";
 import { SshKeyData } from "../data/ssh-key.data";
 
@@ -49,22 +49,6 @@ describe("Sshkey", () => {
   it("toSshKeyData", () => {
     const sshKey = new SshKey(data);
     expect(sshKey.toSshKeyData()).toEqual(data);
-  });
-
-  it("Decrypt", async () => {
-    const sshKey = Object.assign(new SshKey(), {
-      privateKey: mockEnc("privateKey"),
-      publicKey: mockEnc("publicKey"),
-      keyFingerprint: mockEnc("keyFingerprint"),
-    });
-    const expectedView = {
-      privateKey: "privateKey",
-      publicKey: "publicKey",
-      keyFingerprint: "keyFingerprint",
-    };
-
-    const loginView = await sshKey.decrypt(null);
-    expect(loginView).toEqual(expectedView);
   });
 
   describe("fromJSON", () => {

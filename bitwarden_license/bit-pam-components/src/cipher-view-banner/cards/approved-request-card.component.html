@@ -1,0 +1,23 @@
+<bit-card data-testid="cipher-view-banner-approved">
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <app-pam-banner-card-header [icon]="badgeLook.ready.icon" variant="success">
+      <span slot="title">{{ "pamApprovedRequestBannerHeadingV2" | i18n }}</span>
+      <span slot="description" data-testid="cipher-view-banner-approved-hint">
+        {{ accessUntilLabel() }}
+      </span>
+    </app-pam-banner-card-header>
+
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [size]="popupLayout ? 'default' : 'small'"
+      [class.tw-w-full]="popupLayout"
+      [class.tw-self-start]="!popupLayout"
+      [bitAction]="startAction()"
+      id="pam-cipher-view-banner_button_start"
+    >
+      {{ "pamStartLeaseButton" | i18n }}
+    </button>
+  </div>
+</bit-card>

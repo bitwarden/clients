@@ -3,6 +3,7 @@
 import { SendAccessResponse as SdkSendAccessResponse } from "@bitwarden/sdk-internal";
 
 import { BaseResponse } from "../../../../models/response/base.response";
+import { asUuid } from "../../../../platform/abstractions/sdk/sdk.service";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
 import { SendItemApi } from "../api/send-item.api";
@@ -75,6 +76,14 @@ export class SendAccessResponse extends BaseResponse {
           ? {
               encryptionVersion: obj.data?.encryptionVersion ?? undefined,
               data: obj.data?.data ?? undefined,
+              metadata: {
+                itemId: asUuid(obj.data?.metadata?.itemId),
+                folderName: obj.data.metadata.folderName,
+                collectionNames: obj.data.metadata.collectionNames,
+                organizationName: obj.data.metadata.organizationName,
+                creationDate: obj.data.metadata.creationDate,
+                revisionDate: obj.data.metadata.revisionDate,
+              },
             }
           : undefined,
     };

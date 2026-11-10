@@ -73,6 +73,10 @@ describe("CartSummaryComponent", () => {
                   return "Password Manager";
                 case "secretsManager":
                   return "Secrets Manager";
+                case "privilegedControls":
+                  return "Privileged Controls";
+                case "privilegedControlsPlanPrice":
+                  return "Privileged Controls plan price";
                 case "additionalStorage":
                   return "Additional Storage";
                 case "estimatedTax":
@@ -91,8 +95,10 @@ describe("CartSummaryComponent", () => {
                   return "Premium membership";
                 case "discount":
                   return "discount";
-                case "accountCredit":
-                  return "accountCredit";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }
@@ -315,6 +321,106 @@ describe("CartSummaryComponent", () => {
       expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
 
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+  });
+
+  describe("Privileged Controls", () => {
+    const pcSeats = { quantity: 4, translationKey: "members", cost: 20 };
+    const pcCharge = {
+      quantity: 1,
+      translationKey: "privilegedControlsProratedCharge",
+      cost: 12.5,
+      hideBreakdown: true,
+    };
+    const normalize = (text: string) => text.replace(/\s+/g, " ").trim();
+    const render = (cart: Cart) => {
+      fixture.componentRef.setInput("cart", cart);
+      fixture.detectChanges();
+    };
+
+    it("should not render the section when the cart has no privileged controls", () => {
+      expect(fixture.debugElement.query(By.css('[id="privileged-controls"]'))).toBeNull();
+    });
+
+    it("should render the section with its heading, seat line, and seat total", () => {
+      render({ ...mockCart, privilegedControls: { seats: pcSeats } });
+
+      const section = fixture.debugElement.query(By.css('[id="privileged-controls"]'));
+      const heading = section.query(By.css('div[bitTypography="h5"]'));
+      const members = fixture.debugElement.query(By.css('[id="privileged-controls-members"]'));
+      const seatsTotal = fixture.debugElement.query(
+        By.css('[data-testid="privileged-controls-seats-total"]'),
+      );
+
+      expect(heading.nativeElement.textContent.trim()).toBe("Privileged Controls");
+      expect(normalize(members.nativeElement.children[0].textContent)).toBe(
+        "4 Members x $20.00 / month",
+      );
+      expect(seatsTotal.nativeElement.textContent.trim()).toBe("$80.00");
+    });
+
+    it("should render a proration-only section without a seat line", () => {
+      render({ ...mockCart, privilegedControls: { prorationCharges: [pcCharge] } });
+
+      const members = fixture.debugElement.query(By.css('[id="privileged-controls-members"]'));
+      const charge = fixture.debugElement.query(
+        By.css('[data-testid="privileged-controls-proration-charge"]'),
+      );
+      const chargeTotal = fixture.debugElement.query(
+        By.css('[data-testid="privileged-controls-proration-charge-total"]'),
+      );
+
+      expect(members).toBeNull();
+      expect(charge.nativeElement.textContent).toContain("privilegedControlsProratedCharge");
+      expect(chargeTotal.nativeElement.textContent.trim()).toBe("$12.50");
+    });
+
+    it("should hide the cost breakdown when hideBreakdown is true", () => {
+      render({
+        ...mockCart,
+        privilegedControls: { seats: { ...pcSeats, hideBreakdown: true } },
+      });
+
+      const members = fixture.debugElement.query(By.css('[id="privileged-controls-members"]'));
+
+      expect(normalize(members.nativeElement.children[0].textContent)).toBe("4 Members");
+    });
+
+    it("should indent a seat discount under the line and net it out of the subtotal", () => {
+      render({
+        ...mockCart,
+        privilegedControls: {
+          seats: {
+            ...pcSeats,
+            discounts: [{ type: DiscountTypes.AmountOff, value: 8, amount: 8, label: "PAM" }],
+          },
+        },
+        discounts: [{ type: DiscountTypes.PercentOff, value: 10, amount: 44.4 }],
+      });
+
+      const label = fixture.debugElement.query(
+        By.css('[data-testid="privileged-controls-seats-discount-label"]'),
+      );
+      const amount = fixture.debugElement.query(
+        By.css('[data-testid="privileged-controls-seats-discount-amount"]'),
+      );
+      const subtotalAmount = fixture.debugElement.query(By.css('[data-testid="subtotal-amount"]'));
+
+      expect(label.nativeElement.classList.contains("tw-pl-4")).toBe(true);
+      expect(amount.nativeElement.textContent.trim()).toBe("-$8.00");
+      expect(component.subtotal()).toBe(444);
+      expect(subtotalAmount.nativeElement.textContent.trim()).toBe("$444.00");
+    });
+
+    it("should include seats and proration charges in the computed total", () => {
+      render({
+        ...mockCart,
+        privilegedControls: { seats: pcSeats, prorationCharges: [pcCharge] },
+      });
+
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      expect(bottomTotal.nativeElement.textContent).toContain("$474.10");
     });
   });
 
@@ -1318,6 +1424,138 @@ describe("CartSummaryComponent", () => {
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
   });
+
+  describe("proration note", () => {
+    const note = () => fixture.debugElement.query(By.css('[data-testid="proration-note"]'));
+
+    it("should render the note when the cart asks for it", () => {
+      fixture.componentRef.setInput("cart", { ...mockCart, showProrationNote: true });
+      fixture.detectChanges();
+
+      expect(note().nativeElement.textContent).toContain("prorationChargeMayDiffer");
+    });
+
+    it("should keep the note visible when the details are collapsed", () => {
+      fixture.componentRef.setInput("cart", { ...mockCart, showProrationNote: true });
+      component.isExpanded.set(false);
+      fixture.detectChanges();
+
+      expect(note()).toBeTruthy();
+    });
+
+    it("should not render the note when the cart does not ask for it", () => {
+      expect(note()).toBeFalsy();
+    });
+  });
+
+  describe("applied balance and amount due", () => {
+    it("renders Total (gross), Applied balance, and Amount due when a balance applies", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="final-total"]')).nativeElement.textContent,
+      ).toContain("$14.54");
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="applied-balance-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$12.96");
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="amount-due"]')).nativeElement.textContent,
+      ).toContain("$1.58");
+    });
+
+    it("omits the applied balance and amount due rows when there is no balance", () => {
+      fixture.componentRef.setInput("cart", mockCart);
+      fixture.detectChanges();
+
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="applied-balance-amount"]')),
+      ).toBeNull();
+      expect(fixture.debugElement.query(By.css('[data-testid="amount-due"]'))).toBeNull();
+    });
+
+    it("shows amount due, not the gross total, in the default header", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      const defaultHeader = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(defaultHeader.nativeElement.textContent).toContain("$1.58");
+      expect(defaultHeader.nativeElement.textContent).not.toContain("$14.54");
+    });
+
+    it("labels the default header 'Amount due' when a balance applies and 'Total' otherwise", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      const withBalance = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(withBalance.nativeElement.textContent).toContain("Amount due");
+      expect(withBalance.nativeElement.textContent).not.toContain("Total");
+
+      fixture.componentRef.setInput("cart", mockCart);
+      fixture.detectChanges();
+
+      const noBalance = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(noBalance.nativeElement.textContent).toContain("Total");
+    });
+
+    it("shows total and total balance in header total when amount due is zero", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 12,
+        appliedBalance: 0,
+        amountDue: 0,
+      });
+      fixture.detectChanges();
+
+      const headerTotal = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(headerTotal.nativeElement.textContent).toContain("$12");
+      expect(headerTotal.nativeElement.textContent).not.toContain("$0");
+    });
+
+    it("shows the negative gross total in the header, matching the breakdown, when a credit exceeds the charge", () => {
+      // Credit exceeds the new plan's charge, so the invoice total is negative and nothing is due.
+      // The header must show the gross total (matching the breakdown Total), not the $0 amount due.
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: -17.38,
+        appliedBalance: 0,
+        amountDue: 0,
+      });
+      fixture.detectChanges();
+
+      const headerTotal = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      const bottomTotal = fixture.debugElement.query(By.css('[data-testid="final-total"]'));
+      expect(headerTotal.nativeElement.textContent).toContain("-$17.38");
+      expect(headerTotal.nativeElement.textContent).not.toContain("$0.00");
+      expect(bottomTotal.nativeElement.textContent).toContain("-$17.38");
+    });
+  });
 });
 
 describe("CartSummaryComponent - Non-Latin locale (double-translation regression)", () => {
@@ -1462,8 +1700,10 @@ describe("CartSummaryComponent - Custom Header Template", () => {
                   return "Collapse purchase details";
                 case "discount":
                   return "discount";
-                case "accountCredit":
-                  return "accountCredit";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }

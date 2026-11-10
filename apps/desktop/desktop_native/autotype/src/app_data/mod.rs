@@ -1,6 +1,6 @@
 //! Data about applications used for autotype app pairing and verification.
 
-use std::path::PathBuf;
+use std::{fmt, path::PathBuf};
 
 pub mod path;
 pub mod running_apps;
@@ -29,4 +29,17 @@ pub struct AppMetadata {
 pub struct VerifiableAppData {
     pub app_data: AppData,
     pub app_metadata: AppMetadata,
+}
+
+impl fmt::Display for VerifiableAppData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "App (name: {}, path: {}, id: {}, pid: {})",
+            self.app_data.display_name,
+            self.app_data.path.display(),
+            self.app_metadata.id,
+            self.app_metadata.pid,
+        )
+    }
 }

@@ -15,9 +15,9 @@ import {
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -28,6 +28,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillTriageFieldResult } from "../types/autofill-triage";
 import { emptyDraft, WebmapperDraft } from "../webmapper/draft";
@@ -43,6 +44,7 @@ import {
   CopyToClipboardOptions,
   GeneratePasswordToClipboardAction,
   AutofillAction,
+  CollectAutofillTriageAction,
 } from "./context-menu-clicked-handler";
 
 describe("ContextMenuClickedHandler", () => {
@@ -83,14 +85,16 @@ describe("ContextMenuClickedHandler", () => {
   let copyToClipboard: CopyToClipboardAction;
   let generatePasswordToClipboard: GeneratePasswordToClipboardAction;
   let autofill: AutofillAction;
+  let collectAutofillTriage: jest.Mock<ReturnType<CollectAutofillTriageAction>, [number, number?]>;
   let authService: MockProxy<AuthService>;
-  let cipherService: MockProxy<CipherService>;
+  let fillCipherPolicy: MockProxy<FillCipherPolicy>;
   let accountService: FakeAccountService;
   let totpService: MockProxy<TotpService>;
   let eventCollectionService: MockProxy<EventCollectionService>;
   let userVerificationService: MockProxy<UserVerificationService>;
   let triageService: MockProxy<AutofillTriageService>;
   let webmapperDrafts: MockProxy<WebmapperDraftService>;
+  let intraprocessMessageSender: MockProxy<IntraprocessMessageSender>;
 
   let sut: ContextMenuClickedHandler;
 
@@ -98,27 +102,31 @@ describe("ContextMenuClickedHandler", () => {
     copyToClipboard = jest.fn<void, [CopyToClipboardOptions]>();
     generatePasswordToClipboard = jest.fn<Promise<void>, [tab: chrome.tabs.Tab]>();
     autofill = jest.fn<Promise<void>, [tab: chrome.tabs.Tab, cipher: CipherView]>();
+    collectAutofillTriage = jest.fn<ReturnType<CollectAutofillTriageAction>, [number, number?]>();
     authService = mock();
-    cipherService = mock();
+    fillCipherPolicy = mock();
     accountService = mockAccountServiceWith(mockUserId as UserId);
     totpService = mock();
     eventCollectionService = mock();
     userVerificationService = mock();
     triageService = mock();
     webmapperDrafts = mock();
+    intraprocessMessageSender = mock();
 
     sut = new ContextMenuClickedHandler(
       copyToClipboard,
       generatePasswordToClipboard,
       autofill,
+      collectAutofillTriage,
       authService,
-      cipherService,
       totpService,
       eventCollectionService,
       userVerificationService,
       accountService,
       triageService,
       webmapperDrafts,
+      intraprocessMessageSender,
+      fillCipherPolicy,
     );
   });
 
@@ -146,7 +154,7 @@ describe("ContextMenuClickedHandler", () => {
           data: createData(`${COPY_USERNAME_ID}_${NOOP_COMMAND_SUFFIX}`, COPY_USERNAME_ID),
           tab: {} as any,
           expectNotCalled: () => {
-            expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+            expect(fillCipherPolicy.ciphersForUrl).not.toHaveBeenCalled();
             expect(copyToClipboard).not.toHaveBeenCalled();
           },
         },
@@ -171,7 +179,7 @@ describe("ContextMenuClickedHandler", () => {
           extra: () => expect(totpService.getCode$).not.toHaveBeenCalled(),
         },
       ])("breaks silently when cipher is missing for $label", async ({ parentId, extra }) => {
-        cipherService.getAllDecrypted.mockResolvedValue([]);
+        fillCipherPolicy.ciphers.mockResolvedValue([]);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -201,7 +209,7 @@ describe("ContextMenuClickedHandler", () => {
       ])("breaks silently when $label property is missing", async ({ parentId, unset, isTotp }) => {
         const cipher = createCipher();
         unset(cipher);
-        cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+        fillCipherPolicy.ciphers.mockResolvedValue([cipher]);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -224,7 +232,7 @@ describe("ContextMenuClickedHandler", () => {
 
     it("attempts to autofill the correct cipher", async () => {
       const cipher = createCipher();
-      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+      fillCipherPolicy.ciphers.mockResolvedValue([cipher]);
 
       await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
 
@@ -233,10 +241,16 @@ describe("ContextMenuClickedHandler", () => {
       expect(autofill).toHaveBeenCalledWith({ id: 5 }, cipher);
     });
 
+    it("looks up the cipher the user picked by id as a user fill", async () => {
+      fillCipherPolicy.ciphers.mockResolvedValue([createCipher()]);
+
+      await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
+
+      expect(fillCipherPolicy.ciphers).toHaveBeenCalledWith(mockUserId, CipherUse.UserFill);
+    });
+
     it("copies username to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([
-        createCipher({ username: "TEST_USERNAME" }),
-      ]);
+      fillCipherPolicy.ciphers.mockResolvedValue([createCipher({ username: "TEST_USERNAME" })]);
 
       await sut.run(createData(`${COPY_USERNAME_ID}_1`, COPY_USERNAME_ID), {
         url: "https://test.com",
@@ -251,9 +265,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies password to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([
-        createCipher({ password: "TEST_PASSWORD" }),
-      ]);
+      fillCipherPolicy.ciphers.mockResolvedValue([createCipher({ password: "TEST_PASSWORD" })]);
 
       await sut.run(createData(`${COPY_PASSWORD_ID}_1`, COPY_PASSWORD_ID), {
         url: "https://test.com",
@@ -268,7 +280,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies totp code to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([createCipher({ totp: "TEST_TOTP_SEED" })]);
+      fillCipherPolicy.ciphers.mockResolvedValue([createCipher({ totp: "TEST_TOTP_SEED" })]);
 
       jest.spyOn(totpService, "getCode$").mockImplementation((seed: string) => {
         if (seed === "TEST_TOTP_SEED") {
@@ -297,7 +309,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("attempts to find a cipher when noop but unlocked", async () => {
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+      fillCipherPolicy.ciphersForUrl.mockResolvedValue([
         {
           ...createCipher({ username: "NOOP_USERNAME" }),
           reprompt: CipherRepromptType.None,
@@ -308,12 +320,13 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
         "https://test.com",
         mockUserId,
-        [],
+        CipherUse.UserFill,
+        { includeOtherTypes: [] },
       );
 
       expect(copyToClipboard).toHaveBeenCalledTimes(1);
@@ -325,7 +338,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("attempts to find a cipher when noop but unlocked", async () => {
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+      fillCipherPolicy.ciphersForUrl.mockResolvedValue([
         {
           ...createCipher({ username: "NOOP_USERNAME" }),
           reprompt: CipherRepromptType.Password,
@@ -336,12 +349,13 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
         "https://test.com",
         mockUserId,
-        [],
+        CipherUse.UserFill,
+        { includeOtherTypes: [] },
       );
     });
 
@@ -356,11 +370,7 @@ describe("ContextMenuClickedHandler", () => {
       };
 
       beforeEach(() => {
-        jest
-          .spyOn(BrowserApi, "sendTabsMessage")
-          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
-            callback?.({ pageDetails: mockPageDetails });
-          });
+        collectAutofillTriage.mockResolvedValue({ pageDetails: mockPageDetails } as any);
         jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
         jest.spyOn(BrowserApi, "setSidePanelOptions").mockResolvedValue(undefined);
         jest.spyOn(BrowserApi, "openSidePanel").mockResolvedValue(undefined);
@@ -376,15 +386,10 @@ describe("ContextMenuClickedHandler", () => {
         };
       });
 
-      it("sends collectAutofillTriage to the tab and stores the result", async () => {
+      it("collects triage through the orchestrator and stores the result", async () => {
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
-        expect(BrowserApi.sendTabsMessage).toHaveBeenCalledWith(
-          mockTab.id,
-          { command: "collectAutofillTriage", targetElementId: undefined },
-          { frameId: undefined },
-          expect.any(Function),
-        );
+        expect(collectAutofillTriage).toHaveBeenCalledWith(mockTab.id, undefined);
         expect(sut.triageResult).not.toBeUndefined();
         expect(sut.triageResult?.tabId).toBe(mockTab.id);
         expect(sut.triageResult?.pageUrl).toBe(mockTab.url);
@@ -436,11 +441,7 @@ describe("ContextMenuClickedHandler", () => {
 
       it("sends triageResultReady when page details collection fails so the component exits the loading state", async () => {
         const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
-        jest
-          .spyOn(BrowserApi, "sendTabsMessage")
-          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
-            callback?.(null);
-          });
+        collectAutofillTriage.mockResolvedValue(undefined);
 
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 

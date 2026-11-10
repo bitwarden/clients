@@ -18,6 +18,7 @@ import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-web
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   DevicesIcon,
   ExpiredIcon,
@@ -45,12 +46,13 @@ import {
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultScopeGuard } from "@bitwarden/vault";
+import { MY_ITEMS_ROUTE, MY_ITEMS_ROUTE_DATA, vaultScopeGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
@@ -69,6 +71,12 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
+import { HealthRiskCategoryDetailComponent } from "../dirt/health/popup/health-risk-category-detail.component";
+import { HealthComponent } from "../dirt/health/popup/health.component";
+import {
+  canAccessHealth,
+  canAccessHealthDetail,
+} from "../dirt/health/popup/services/health-access.service";
 import { PhishingWarningComponent } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
@@ -77,12 +85,15 @@ import { RouteCacheOptions } from "../platform/services/popup-view-cache-backgro
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
 import { filePickerPopoutGuard } from "../tools/popup/guards/file-picker-popout.guard";
+import { importUpgradeRedirectGuard } from "../tools/popup/guards/import-upgrade-redirect.guard";
+import { importUpgradeRequiredGuard } from "../tools/popup/guards/import-upgrade-required.guard";
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
+import { ImportShellBrowserComponent } from "../tools/popup/settings/import/import-shell-browser.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { ShareItemComponent } from "../tools/popup/share/share-item.component";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
@@ -94,6 +105,7 @@ import { NewItemPageComponent } from "../vault/popup/components/vault/new-item-p
 import { PasswordHistoryComponent } from "../vault/popup/components/vault/vault-password-history/vault-password-history.component";
 import { VaultComponent } from "../vault/popup/components/vault/vault.component";
 import { ViewComponent } from "../vault/popup/components/vault/view/view.component";
+import { WelcomePageComponent } from "../vault/popup/components/vault/welcome-page/welcome-page.component";
 import {
   atRiskPasswordAuthGuard,
   canAccessAtRiskPasswords,
@@ -101,6 +113,7 @@ import {
 } from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
+import { restoreVaultScopeGuard } from "../vault/popup/guards/restore-vault-scope.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
@@ -123,6 +136,9 @@ import { TabsV2Component } from "./tabs-v2.component";
  */
 export interface RouteDataProperties extends RouteCacheOptions {
   elevation: RouteElevation;
+
+  /** Marks the import shell route; NoRouteReuseStrategy reuses it across its child routes. */
+  importShell?: boolean;
 
   /**
    * A boolean to indicate that the URL should not be saved in memory in the BrowserRouterService.
@@ -284,8 +300,44 @@ const routes: Routes = [
   {
     path: "import",
     component: ImportBrowserV2Component,
-    canActivate: [authGuard, filePickerPopoutGuard()],
+    canActivate: [authGuard, importUpgradeRedirectGuard, filePickerPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "import-source-select",
+    component: ImportShellBrowserComponent,
+    canActivate: [authGuard, importUpgradeRequiredGuard],
+    data: { elevation: 1, importShell: true } satisfies RouteDataProperties,
+    children: [
+      {
+        path: "",
+        pathMatch: "full",
+        // Lazy load vendor icon set
+        loadComponent: () =>
+          import("../tools/popup/settings/import/import-source-select-browser.component").then(
+            (m) => m.ImportSourceSelectBrowserComponent,
+          ),
+        data: { elevation: 1 } satisfies RouteDataProperties,
+      },
+      {
+        path: ":importType",
+        loadComponent: () =>
+          import("../tools/popup/settings/import/import-controls-browser.component").then(
+            (m) => m.ImportControlsBrowserComponent,
+          ),
+        canActivate: [canActivateImportType("/import-source-select")],
+        data: { elevation: 1 } satisfies RouteDataProperties,
+      },
+      {
+        path: IMPORT_DESTINATION_ROUTE_PATH,
+        loadComponent: () =>
+          import("../tools/popup/settings/import/import-destination-browser.component").then(
+            (m) => m.ImportDestinationBrowserComponent,
+          ),
+        canActivate: [canActivateImportType("/import-source-select")],
+        data: { elevation: 1 } satisfies RouteDataProperties,
+      },
+    ],
   },
   {
     path: "export",
@@ -710,22 +762,31 @@ const routes: Routes = [
     canActivate: [],
     data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
   },
-  {
-    path: "intro-carousel",
-    component: ExtensionAnonLayoutWrapperComponent,
-    canActivate: [],
-    data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
-    children: [
-      {
-        path: "",
-        component: IntroCarouselComponent,
-        data: {
-          pageIcon: null,
-          hideFooter: true,
-        } satisfies ExtensionAnonLayoutWrapperData,
-      },
-    ],
-  },
+  ...featureFlaggedRoute({
+    defaultComponent: ExtensionAnonLayoutWrapperComponent,
+    flaggedComponent: WelcomePageComponent,
+    featureFlag: FeatureFlag.PM45335_ExtensionWelcomePage,
+    routeOptions: {
+      path: "intro-carousel",
+      canActivate: [],
+      data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+      children: [
+        {
+          path: "",
+          component: IntroCarouselComponent,
+          data: {
+            pageIcon: null,
+            hideFooter: true,
+          } satisfies ExtensionAnonLayoutWrapperData,
+        },
+      ],
+    },
+    flaggedRouteOptions: {
+      path: "intro-carousel",
+      canActivate: [],
+      data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+    },
+  }),
   {
     path: "confirm-key-connector-domain",
     component: ExtensionAnonLayoutWrapperComponent,
@@ -762,7 +823,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultComponent,
-        canActivate: [authGuard],
+        canActivate: [authGuard, restoreVaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
@@ -776,6 +837,14 @@ const routes: Routes = [
         canActivate: [authGuard, vaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        // An organization's "My items" collection, named by a static segment — see `MY_ITEMS_ROUTE`.
+        path: `vault/:vaultId/${MY_ITEMS_ROUTE}`,
+        component: VaultComponent,
+        canActivate: [authGuard, vaultScopeGuard],
+        canDeactivate: [clearVaultStateGuard],
+        data: { ...MY_ITEMS_ROUTE_DATA, elevation: 0 } satisfies RouteDataProperties,
       },
       {
         path: "generator",
@@ -795,7 +864,19 @@ const routes: Routes = [
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
+      {
+        path: "health",
+        component: HealthComponent,
+        canActivate: [authGuard, canAccessHealth],
+        data: { elevation: 0 } satisfies RouteDataProperties,
+      },
     ],
+  },
+  {
+    path: "health/:category",
+    component: HealthRiskCategoryDetailComponent,
+    canActivate: [authGuard, canAccessHealth, canAccessHealthDetail],
+    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "at-risk-passwords",
@@ -866,7 +947,19 @@ export class NoRouteReuseStrategy implements RouteReuseStrategy {
   }
 
   shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot) {
-    return false;
+    // The import shell is reused so its progress bar persists across its child routes. Only the
+    // flagged import route carries the marker, so every other route still returns false.
+    if (future.routeConfig !== curr.routeConfig) {
+      return false;
+    }
+    // Root's routeConfig is always null; reuse it only when both sides are inside the import shell.
+    if (future.routeConfig === null) {
+      return (
+        future.firstChild?.routeConfig?.data?.["importShell"] === true &&
+        curr.firstChild?.routeConfig?.data?.["importShell"] === true
+      );
+    }
+    return future.routeConfig.data?.["importShell"] === true;
   }
 }
 

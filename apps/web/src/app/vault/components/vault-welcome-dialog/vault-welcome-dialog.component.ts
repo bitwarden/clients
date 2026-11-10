@@ -14,8 +14,7 @@ import {
   CenterPositionStrategy,
 } from "@bitwarden/components";
 import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
-
-import { CoachmarkService } from "../coachmark/coachmark.service";
+import { CoachmarkService, newUserTour } from "@bitwarden/vault";
 
 export const VaultWelcomeDialogResult = {
   Dismissed: "dismissed",
@@ -56,7 +55,7 @@ export class VaultWelcomeDialogComponent {
   protected async onPrimaryCta(): Promise<void> {
     await this.setAcknowledged();
     await this.dialogRef.close(VaultWelcomeDialogResult.GetStarted);
-    await this.coachmarkService.startTour();
+    await this.coachmarkService.startTour(newUserTour(this.stateProvider));
   }
 
   private async setAcknowledged(): Promise<void> {

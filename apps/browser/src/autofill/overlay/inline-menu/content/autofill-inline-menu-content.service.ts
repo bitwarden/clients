@@ -141,7 +141,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    *
    * @param element  - The element being checked
    */
-  isElementInlineMenu(element: HTMLElement) {
+  isElementInlineMenu(element: Element) {
     return element === this.buttonElement || element === this.listElement;
   }
 
@@ -563,36 +563,23 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   /**
-   * Returns the name of the generated container tags for usage internally to avoid
-   * unintentional targeting of the owned experience.
-   */
-  getOwnedTagNames = (): string[] => {
-    return [
-      ...(this.buttonElement?.tagName ? [this.buttonElement.tagName] : []),
-      ...(this.listElement?.tagName ? [this.listElement.tagName] : []),
-    ];
-  };
-
-  /**
    * Queries and return elements (excluding those of the inline menu) that exist in the
    * top-layer via popover or dialog
    * @param {boolean} [includeCandidates=false] indicate whether top-layer candidate (which
    * may or may not be active) should be included in the query
    */
-  getUnownedTopLayerItems = (includeCandidates = false) => {
-    const inlineMenuTagExclusions = [
-      ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
-      ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
-      ":popover-open",
-    ].join("");
+  getUnownedTopLayerItems = (includeCandidates = false): Element[] => {
     const selector = [
       ":modal",
-      inlineMenuTagExclusions,
+      ":popover-open",
       ...(includeCandidates ? ["[popover], dialog"] : []),
     ].join(",");
-    const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
+    const topLayerItems = globalThis.document.querySelectorAll(selector);
 
-    return otherTopLayeritems;
+    // Exclude the inline menu by element identity rather than by tag name: Firefox renders
+    // the menu containers as plain `div` elements, so a tag name exclusion would also
+    // exclude every page `div` popover.
+    return Array.from(topLayerItems).filter((element) => !this.isElementInlineMenu(element));
   };
 
   /**
@@ -633,6 +620,29 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     element.showPopover();
   };
 
+  /**
+   * Re-promotes an inline menu popover into the top layer, so that it renders above
+   * dialogs and popovers the page has opened. Uses the stored element reference rather
+   * than looking the element up by tag name: Firefox renders the menu containers as
+   * plain `div` elements, so a tag name lookup resolves the page's first `div` instead of
+   * the menu and `hidePopover` throws for that element.
+   *
+   * @param element - The inline menu element to refresh
+   * @returns whether the element was refreshed
+   */
+  private refreshPopoverTopLayerPosition = (element?: HTMLElement): boolean => {
+    // `hidePopover` throws for elements that are not popovers, and `showPopover`
+    // requires the element to be connected, so verify both before refreshing.
+    if (!element?.isConnected || !element.hasAttribute("popover")) {
+      return false;
+    }
+
+    element.hidePopover();
+    element.showPopover();
+
+    return true;
+  };
+
   refreshTopLayerPosition = () => {
     if (!this.inlineMenuEnabled) {
       return;
@@ -645,24 +655,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    const buttonInDocument =
-      this.buttonElement &&
-      (globalThis.document.getElementsByTagName(this.buttonElement.tagName)[0] as HTMLElement);
-    const listInDocument =
-      this.listElement &&
-      (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+    const buttonRefreshed = this.refreshPopoverTopLayerPosition(this.buttonElement);
+    const listRefreshed = this.refreshPopoverTopLayerPosition(this.listElement);
 
-    if (buttonInDocument) {
-      buttonInDocument.hidePopover();
-      buttonInDocument.showPopover();
-    }
-
-    if (listInDocument) {
-      listInDocument.hidePopover();
-      listInDocument.showPopover();
-    }
-
-    if (buttonInDocument || listInDocument) {
+    if (buttonRefreshed || listRefreshed) {
       this.checkAndUpdateRefreshCount("topLayer");
     }
   };

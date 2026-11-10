@@ -4,6 +4,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { ChromeCsvImporter } from "./chrome-csv-importer";
 import { data as androidData } from "./spec-data/chrome-csv/android-data.csv";
+import { data as notesData } from "./spec-data/chrome-csv/note-data.csv";
 import { data as simplePasswordData } from "./spec-data/chrome-csv/simple-password-data.csv";
 
 const CipherData = [
@@ -41,9 +42,37 @@ const CipherData = [
       type: 1,
     }),
   },
+  {
+    title: "should parse note",
+    csv: notesData,
+    expected: Object.assign(new CipherView(), {
+      name: "www.example.com",
+      notes: 'First line, with a comma\nSecond line with "quotes"',
+      login: Object.assign(new LoginView(), {
+        username: "username@example.com",
+        password: "fake-password",
+        uris: [
+          Object.assign(new LoginUriView(), {
+            uri: "https://www.example.com/",
+          }),
+        ],
+      }),
+      type: 1,
+    }),
+  },
 ];
 
 describe("Chrome CSV Importer", () => {
+  it("normalizes android:// URI without polynomial backtracking (FIND-DF8ECA3A491E)", async () => {
+    // A URL with no @ must be returned as-is (not converted to androidapp://)
+    // and must resolve promptly without backtracking.
+    const noAtUrl = "android://com.example.app.noemail";
+    const csv = `name,url,username,password\n,${noAtUrl},user,pass`;
+    const importer = new ChromeCsvImporter();
+    const result = await importer.parse(csv);
+    expect(result.ciphers[0].login.uris[0].uri).toBe(noAtUrl);
+  });
+
   CipherData.forEach((data) => {
     it(data.title, async () => {
       jest.useFakeTimers().setSystemTime(data.expected.creationDate);

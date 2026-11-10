@@ -4,24 +4,18 @@ import { inject } from "@angular/core";
 import { CanActivateFn } from "@angular/router";
 import { Observable, map } from "rxjs";
 
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AccountSwitcherService } from "@bitwarden/common/auth/account-switcher";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
-const maxAllowedAccounts = 5;
-
 function maxAccountsGuard(): Observable<boolean> {
-  const authService = inject(AuthService);
+  const accountSwitcherService = inject(AccountSwitcherService);
   const toastService = inject(ToastService);
   const i18nService = inject(I18nService);
 
-  return authService.authStatuses$.pipe(
-    map((statuses) =>
-      Object.values(statuses).filter((status) => status != AuthenticationStatus.LoggedOut),
-    ),
-    map((accounts) => {
-      if (accounts != null && Object.keys(accounts).length >= maxAllowedAccounts) {
+  return accountSwitcherService.canAddAccount$.pipe(
+    map((canAddAccount) => {
+      if (!canAddAccount) {
         toastService.showToast({
           variant: "error",
           title: null,

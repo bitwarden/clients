@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  Type,
   WritableSignal,
   computed,
   inject,
@@ -40,8 +41,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -73,6 +72,7 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
+import { COLLECTION_ACCESS_RULE_CALLOUT } from "./collection-access-rule-callout.token";
 import {
   CollectionDialogAction,
   CollectionDialogParams,
@@ -114,9 +114,17 @@ export class CollectionDialogComponent implements OnInit {
   private readonly accountService = inject(AccountService);
   private readonly toastService = inject(ToastService);
   private readonly collectionService = inject(CollectionService);
-  private readonly configService = inject(ConfigService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  /**
+   * PAM's access-rule callout, provided by commercial code; null in OSS-only builds. Annotated
+   * because `inject` infers `unknown` from a SafeInjectionToken, which `ngComponentOutlet` rejects.
+   */
+  protected readonly accessRuleCallout: Type<unknown> | null = inject(
+    COLLECTION_ACCESS_RULE_CALLOUT,
+    { optional: true },
+  );
 
   protected readonly formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
@@ -300,10 +308,6 @@ export class CollectionDialogComponent implements OnInit {
 
   protected readonly initialPermission = signal(
     this.params.initialPermission ?? CollectionPermission.View,
-  );
-
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
 
   private readonly orgExceedingCollectionLimit$ = this.organizationSelected.statusChanges.pipe(

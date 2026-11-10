@@ -7,9 +7,12 @@ import * as path from "path";
 import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
-import { SsoUrlService } from "@bitwarden/auth/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
@@ -27,9 +30,13 @@ import { DefaultGovModeService } from "@bitwarden/common/platform/services/defau
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -63,6 +70,7 @@ import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { MainSdkService } from "./platform/main/main-sdk.service";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -111,6 +119,8 @@ export class Main {
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
+  /** Read-only: main must not write policy state, the renderer would not observe it. */
+  policyService: PolicyService;
 
   constructor() {
     // Set paths for portable builds
@@ -144,26 +154,29 @@ export class Main {
       });
     }
 
-    this.logService = new ElectronLogMainService(null, app.getPath("userData"));
+    const storageBackend = new CachedBackend(new ElectronStoreBackend(app.getPath("userData")));
 
-    const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
-    const cachedBackend = new CachedBackend(electronStoreBackend);
-
-    // Main doesn't have access to ConfigService or the feature flags easily at this
-    // early stage, so instead we try to read the raw feature flag value directly
-    // from the storage to determine whether to use the cached backend or not.
-    let isCacheEnabled = false;
+    // Main has no ConfigService, so it reads the cached server configs straight from the store.
+    let flightRecorderEnabled = false;
     try {
-      isCacheEnabled = Object.values(
-        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
-      ).some((s: any) => s?.featureStates?.[FeatureFlag.ElectronStorageCache] === true);
+      const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
+        string,
+        { featureStates?: Record<string, unknown> }
+      >;
+      flightRecorderEnabled = Object.values(configs).some(
+        (config) => config?.featureStates?.[FeatureFlag.PM30935_FlightRecorderTsLogging] === true,
+      );
     } catch {
       // Ignore errors
     }
-    this.logService.info(`Electron storage cache enabled: ${isCacheEnabled}`);
-    this.storageService = new ElectronStorageService(
-      isCacheEnabled ? cachedBackend : electronStoreBackend,
+    const flightRecorder = new FlightRecorderLogRecorder(
+      SdkLoadService.Ready.then(() => new FlightRecorderClient()),
     );
+    flightRecorder.setEnabled(flightRecorderEnabled);
+
+    this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
+
+    this.storageService = new ElectronStorageService(storageBackend);
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
@@ -221,6 +234,18 @@ export class Main {
 
     this.govModeService = new DefaultGovModeService(this.environmentService);
 
+    const sdkService = new MainSdkService(
+      new DefaultSdkClientFactory(),
+      this.environmentService,
+      new DefaultManagedSettingsService(SdkLoadService.Ready),
+    );
+    this.policyService = new DefaultPolicyService(
+      stateProvider,
+      new DefaultOrganizationService(stateProvider),
+      accountService,
+      () => sdkService,
+    );
+
     this.migrationRunner = new MigrationRunner(
       this.storageService,
       this.logService,
@@ -228,7 +253,7 @@ export class Main {
       ClientType.Desktop,
     );
 
-    this.desktopSettingsService = new DesktopSettingsService(stateProvider);
+    this.desktopSettingsService = new DesktopSettingsService(stateProvider, isMacAppStore());
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
 
     this.shell = new SafeShell(this.logService);
@@ -307,7 +332,7 @@ export class Main {
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
-      "Bitwarden",
+      app.getName(),
       this.logService,
     );
     this.mainBiometricsIpcListener = new MainBiometricsIPCListener(
@@ -386,6 +411,12 @@ export class Main {
         // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
         // autostart is enabled.
         const showWindow = !isAutostart;
+
+        // Main-process bitwarden-ipc handlers should be registered after `ipcService.init()` and
+        // before `windowMain.init()`, so the renderer always finds main's IPC client and handlers ready.
+        await this.sdkLoadService.loadAndInit();
+        await this.ipcService.init();
+
         await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
@@ -461,9 +492,6 @@ export class Main {
         this.windowMain.win.on("minimize", () => {
           this.messagingService.send("windowHidden");
         });
-
-        await this.sdkLoadService.loadAndInit();
-        await this.ipcService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);

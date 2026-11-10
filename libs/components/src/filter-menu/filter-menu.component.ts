@@ -46,8 +46,8 @@ import { OverflowItemDirective } from "../overflow-list";
 import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
-import { StatusLockupComponent } from "../status-lockup";
 import { TooltipDirective } from "../tooltip";
+import { TypographyModule } from "../typography";
 import { focusAfterRender } from "../utils/focus-after-render";
 
 import { FilterOptionNode } from "./filter-option.component";
@@ -167,10 +167,13 @@ const CLEAR_FILTER = Symbol("clear-filter");
     CheckboxModule,
     FilterTreeRowDirective,
     IconTileComponent,
-    StatusLockupComponent,
     TooltipDirective,
+    TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Trigger carries the padding, and -tw-my-px over the border, so the menu anchors to the
+  // chip's outer edges.
+  host: { class: "!tw-ps-0 !tw-py-0" },
   providers: [
     { provide: FILTER_GROUP, useExisting: forwardRef(() => FilterMenuComponent) },
     { provide: FILTER_TREE_HOST, useExisting: forwardRef(() => FilterMenuComponent) },
@@ -220,7 +223,17 @@ export class FilterMenuComponent
   /** Leading icon, shown on the chip and beside the filter's row in the responsive dialog. */
   readonly icon = input<BitwardenIcon>();
 
+  /**
+   * Shows the in-menu search however few options there are. Without it, the search shows once
+   * the menu has more than ten options.
+   */
+  readonly searchable = input(false, { transform: booleanAttribute });
+
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
+
+  protected readonly triggerPaddingClass = computed(() =>
+    this.baseChip.size() === "small" ? "tw-ps-1.5 tw-py-0.5" : "tw-ps-2 tw-py-1",
+  );
 
   /** The filterable surface this chip is projected into, if any. */
   private readonly filterHost = inject(FILTER_HOST, { optional: true });
@@ -293,7 +306,7 @@ export class FilterMenuComponent
     "has-[:focus-visible]:tw-bg-bg-brand-softer",
     "has-[:focus-visible]:tw-text-fg-heading",
     "has-[:disabled]:tw-cursor-default",
-    "has-[:disabled]:hover:tw-bg-background",
+    "has-[:disabled]:hover:tw-bg-bg-primary",
     "has-[:disabled]:!tw-text-fg-inactive",
   ];
 
@@ -383,8 +396,10 @@ export class FilterMenuComponent
   /** Whether any option has children — nesting requires `multiple`. */
   protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.expandable()));
 
-  /** Whether the menu has enough options to warrant the in-menu search box. */
-  protected readonly showSearch = computed(() => this.allOptions().length > SEARCH_THRESHOLD);
+  /** Whether to show the in-menu search box: opted in, or enough options to warrant it. */
+  protected readonly showSearch = computed(
+    () => this.searchable() || this.allOptions().length > SEARCH_THRESHOLD,
+  );
 
   /**
    * How many options the running search matched, or `undefined` when no search is running. Shown
@@ -440,7 +455,7 @@ export class FilterMenuComponent
     return counts;
   });
 
-  /** The count for the "All" row: every row the host holds, since it pins no value. */
+  /** The "All" row's count: rows matching the other active filters, since it pins no value. */
   protected readonly unsetCount = computed(() => this.filterHost?.optionCount?.(this.key(), null));
 
   /**
@@ -482,6 +497,8 @@ export class FilterMenuComponent
       this.selected.set(selected);
     });
     effect(() => this.baseChip.selectedState.set(this.active()));
+    // Tighter trailing padding while the dismiss button shows.
+    effect(() => this.baseChip.hasTrailingIcon.set(this.active()));
     // Otherwise only committed on menu close, leaving a stale berry on the chip.
     effect(() => {
       if (!this.active()) {

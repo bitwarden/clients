@@ -1,5 +1,5 @@
-import { inject, Injectable, NgZone } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { computed, inject, Injectable, NgZone } from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   debounceTime,
@@ -21,6 +21,7 @@ import {
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -53,13 +54,31 @@ import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filt
   providedIn: "root",
 })
 export class VaultPopupItemsService {
+  /** The legacy (VFO1 off) search text. It lives in the popup view cache, never on disk. */
   private cachedSearchText = inject(PopupViewCacheService).signal<string>({
     key: "vault-search-text",
     initialValue: "",
     persistNavigation: true,
   });
 
-  readonly searchText$ = toObservable(this.cachedSearchText);
+  private readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+
+  /**
+   * The search text in view. With VFO1 it is the active user's per-vault search text, otherwise
+   * the legacy view-cached text.
+   */
+  readonly searchText = computed(() =>
+    this.vfo1Enabled()
+      ? this.vaultPopupListTableFiltersService.searchText()
+      : this.cachedSearchText(),
+  );
+
+  readonly searchText$ = toObservable(this.searchText);
 
   /**
    * Subject that emits whenever new ciphers are being processed/filtered.
@@ -146,7 +165,7 @@ export class VaultPopupItemsService {
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
             .filter((c) => !CipherViewLikeUtils.isDeleted(c) && !CipherViewLikeUtils.isArchived(c))
-
+            .filter((c) => hasAccessibleOrganization(c, orgMap))
             .map((cipher) => {
               (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
                 (colId) => collectionMap[colId as CollectionId],
@@ -340,6 +359,7 @@ export class VaultPopupItemsService {
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
             .filter((c) => CipherViewLikeUtils.isDeleted(c))
+            .filter((c) => hasAccessibleOrganization(c, orgMap))
             .map(
               (cipher) =>
                 ({
@@ -371,21 +391,22 @@ export class VaultPopupItemsService {
     private configService: ConfigService,
     private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
   ) {
-    // VFO1 intentionally persists search text across navigating.
-    // But switching the active account must always clear the search text.
-    // This service is `providedIn: "root"` and lives through the switch, manual clearing is necessary.
+    // Switching the active account must always clear the legacy search text. This service is
+    // `providedIn: "root"` and lives through the switch, so manual clearing is necessary.
+    // The VFO1 search text is stored per user, so it needs no clearing.
     this.activeUserId$
       .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
-      .subscribe(() => this.clearSearchText());
+      .subscribe(() => this.cachedSearchText.set(""));
   }
 
-  /** Clears the persisted search text. Called when the active account changes. */
-  private clearSearchText(): void {
-    this.cachedSearchText.set("");
-  }
-
+  /** Sets the legacy search text, which is held in the popup view cache. */
   applyFilter(newSearchText: string) {
     this.cachedSearchText.set(newSearchText);
+  }
+
+  /** Sets the search text for the vault in view, stored per user and vault (VFO1). */
+  applyScopedFilter(newSearchText: string) {
+    void this.vaultPopupListTableFiltersService.setSearchText(newSearchText);
   }
 
   /**
@@ -416,6 +437,18 @@ export class VaultPopupItemsService {
     return this.cipherService.sortCiphersByLastUsedThenName(a, b);
   }
 }
+
+/**
+ * Whether the cipher is personal or belongs to an organization the user is still a member of.
+ *
+ * A sync replaces organizations before ciphers, so after a user is revoked or removed from an
+ * organization there is a window where that organization's ciphers are still listed but the
+ * organization itself is gone. Those ciphers are no longer accessible and must not be rendered.
+ */
+const hasAccessibleOrganization = (
+  cipher: CipherViewLike,
+  orgMap: Record<string, Organization>,
+): boolean => !cipher.organizationId || orgMap[cipher.organizationId as OrganizationId] != null;
 
 /**
  * Operator that waits until the active account has synced at least once before allowing the source to continue emission.

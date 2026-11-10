@@ -52,7 +52,6 @@ const initEventCount = Object.freeze(
 
 let confirmSpy: jest.SpyInstance<boolean, [message?: string]>;
 let windowLocationSpy: jest.SpyInstance<any>;
-let savedURLs: string[] | null = ["https://bitwarden.com"];
 function setMockWindowLocation({
   protocol,
   hostname,
@@ -102,7 +101,7 @@ describe("InsertAutofillContentService", () => {
         delay_between_operations: 20,
       },
       autosubmit: [],
-      savedUrls: ["https://bitwarden.com"],
+      requiresInsecurePageConfirmation: true,
       untrustedIframe: false,
       itemType: "login",
     };
@@ -235,52 +234,34 @@ describe("InsertAutofillContentService", () => {
   describe("userCancelledInsecureUrlAutofill", () => {
     const currentHostname = "bitwarden.com";
 
-    beforeEach(() => {
-      savedURLs = [`https://${currentHostname}`];
-    });
-
     describe("returns false if Autofill occurring...", () => {
-      it("when there are no saved URLs", () => {
-        savedURLs = [];
+      it("when the fill script does not require insecure page confirmation", () => {
         setMockWindowLocation({ protocol: "http:", hostname: currentHostname });
 
         const userCancelledInsecureUrlAutofill =
-          insertAutofillContentService["userCancelledInsecureUrlAutofill"](savedURLs);
+          insertAutofillContentService["userCancelledInsecureUrlAutofill"](false);
 
         expect(userCancelledInsecureUrlAutofill).toBe(false);
 
-        savedURLs = null;
-
         const userCancelledInsecureUrlAutofill2 =
-          insertAutofillContentService["userCancelledInsecureUrlAutofill"](savedURLs);
+          insertAutofillContentService["userCancelledInsecureUrlAutofill"](undefined);
 
         expect(confirmSpy).not.toHaveBeenCalled();
         expect(userCancelledInsecureUrlAutofill2).toBe(false);
       });
 
-      it("on http page and saved URLs contain no https values", () => {
-        savedURLs = ["http://bitwarden.com"];
+      it("on https page when the fill script requires insecure page confirmation", () => {
+        setMockWindowLocation({ protocol: "https:", hostname: currentHostname });
+
+        const userCancelledInsecureUrlAutofill =
+          insertAutofillContentService["userCancelledInsecureUrlAutofill"](true);
+
+        expect(confirmSpy).not.toHaveBeenCalled();
+        expect(userCancelledInsecureUrlAutofill).toBe(false);
+      });
+
+      it("on http page with no password field", () => {
         setMockWindowLocation({ protocol: "http:", hostname: currentHostname });
-
-        const userCancelledInsecureUrlAutofill =
-          insertAutofillContentService["userCancelledInsecureUrlAutofill"](savedURLs);
-
-        expect(confirmSpy).not.toHaveBeenCalled();
-        expect(userCancelledInsecureUrlAutofill).toBe(false);
-      });
-
-      it("on https page with saved https URL", () => {
-        setMockWindowLocation({ protocol: "https:", hostname: currentHostname });
-
-        const userCancelledInsecureUrlAutofill =
-          insertAutofillContentService["userCancelledInsecureUrlAutofill"](savedURLs);
-
-        expect(confirmSpy).not.toHaveBeenCalled();
-        expect(userCancelledInsecureUrlAutofill).toBe(false);
-      });
-
-      it("on page with no password field", () => {
-        setMockWindowLocation({ protocol: "https:", hostname: currentHostname });
 
         document.body.innerHTML = `
         <div id="root">
@@ -291,44 +272,33 @@ describe("InsertAutofillContentService", () => {
       `;
 
         const userCancelledInsecureUrlAutofill =
-          insertAutofillContentService["userCancelledInsecureUrlAutofill"](savedURLs);
+          insertAutofillContentService["userCancelledInsecureUrlAutofill"](true);
 
         expect(confirmSpy).not.toHaveBeenCalled();
         expect(userCancelledInsecureUrlAutofill).toBe(false);
       });
 
-      it("on http page with saved https URL and user approval", () => {
+      it("on http page requiring insecure page confirmation and user approval", () => {
         setMockWindowLocation({ protocol: "http:", hostname: currentHostname });
         confirmSpy.mockImplementation(jest.fn(() => true));
 
         const userCancelledInsecureUrlAutofill =
-          insertAutofillContentService["userCancelledInsecureUrlAutofill"](savedURLs);
+          insertAutofillContentService["userCancelledInsecureUrlAutofill"](true);
 
         expect(confirmSpy).toHaveBeenCalled();
         expect(userCancelledInsecureUrlAutofill).toBe(false);
       });
     });
 
-    it("returns true if Autofill occurring on http page with saved https URL and user disapproval", () => {
+    it("returns true if Autofill occurring on http page requiring insecure page confirmation and user disapproval", () => {
       setMockWindowLocation({ protocol: "http:", hostname: currentHostname });
       confirmSpy.mockImplementation(jest.fn(() => false));
 
       const userCancelledInsecureUrlAutofill =
-        insertAutofillContentService["userCancelledInsecureUrlAutofill"](savedURLs);
+        insertAutofillContentService["userCancelledInsecureUrlAutofill"](true);
 
       expect(confirmSpy).toHaveBeenCalled();
       expect(userCancelledInsecureUrlAutofill).toBe(true);
-    });
-
-    it("returns false if the vault item contains uris with both secure and insecure uris, but a insecure uri is being used on a insecure web page", () => {
-      setMockWindowLocation({ protocol: "http:", hostname: currentHostname });
-      savedURLs = ["http://bitwarden.com", "https://some-other-uri.com"];
-
-      const userCancelledInsecureUrlAutofill =
-        insertAutofillContentService["userCancelledInsecureUrlAutofill"](savedURLs);
-
-      expect(confirmSpy).not.toHaveBeenCalled();
-      expect(userCancelledInsecureUrlAutofill).toBe(false);
     });
   });
 

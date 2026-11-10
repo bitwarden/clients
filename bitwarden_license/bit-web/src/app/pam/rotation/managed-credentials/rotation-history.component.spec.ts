@@ -1,0 +1,991 @@
+import { TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { MockProxy, mock } from "jest-mock-extended";
+import { Subject } from "rxjs";
+
+import { formatTimestamp } from "@bitwarden/bit-pam";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogService } from "@bitwarden/components";
+
+import type { RotationJob } from "../rotation";
+import {
+  RotationAttemptStatus,
+  RotationJobStatus,
+  RotationSource,
+  RotationSyncState,
+  SessionTerminationOutcome,
+} from "../rotation";
+import {
+  accessConnector,
+  attemptId,
+  configId,
+  jobId,
+  rotationAttempt,
+  rotationJob,
+} from "../testing/rotation-builders";
+
+import { RotationHistoryComponent } from "./rotation-history.component";
+
+describe("RotationHistoryComponent", () => {
+  let component: RotationHistoryComponent;
+
+  function setup(jobs: RotationJob[]) {
+    TestBed.overrideComponent(RotationHistoryComponent, {
+      set: { template: "<div>stub</div>", imports: [] },
+    });
+
+    TestBed.configureTestingModule({
+      imports: [RotationHistoryComponent],
+      providers: [{ provide: DialogService, useValue: mock<DialogService>() }],
+    });
+
+    const fixture = TestBed.createComponent(RotationHistoryComponent);
+    fixture.componentRef.setInput("jobs", jobs);
+    fixture.detectChanges();
+    component = fixture.componentInstance as any;
+    return fixture;
+  }
+
+  it("creates without error", () => {
+    setup([]);
+    expect(component).toBeTruthy();
+  });
+
+  describe("job order", () => {
+    const orderedIds = () => (component as any).jobViews().map((view: any) => view.id);
+
+    it("sorts jobs newest-first by the start the table shows", () => {
+      const older = rotationJob({
+        id: jobId("1"),
+        attempts: [rotationAttempt({ startedAt: "2024-01-01T00:00:00Z" })],
+      });
+      const newer = rotationJob({
+        id: jobId("2"),
+        attempts: [rotationAttempt({ startedAt: "2024-06-01T00:00:00Z" })],
+      });
+      setup([older, newer]);
+      expect(orderedIds()).toEqual([jobId("2"), jobId("1")]);
+    });
+
+    it("orders by the start rather than the queue wait in front of it", () => {
+      const queuedFirst = rotationJob({
+        id: jobId("1"),
+        createdAt: "2026-01-01T10:00:00Z",
+        attempts: [rotationAttempt({ startedAt: "2026-01-01T10:05:00Z" })],
+      });
+      const claimedFirst = rotationJob({
+        id: jobId("2"),
+        createdAt: "2026-01-01T10:01:00Z",
+        attempts: [rotationAttempt({ startedAt: "2026-01-01T10:02:00Z" })],
+      });
+      setup([queuedFirst, claimedFirst]);
+      expect(orderedIds()).toEqual([jobId("1"), jobId("2")]);
+    });
+
+    it("places a job that never started by when it was queued", () => {
+      const started1002 = rotationJob({
+        id: jobId("1"),
+        attempts: [rotationAttempt({ startedAt: "2026-01-01T10:02:00Z" })],
+      });
+      const queued1003 = rotationJob({
+        id: jobId("2"),
+        status: RotationJobStatus.Pending,
+        attempts: [],
+        createdAt: "2026-01-01T10:03:00Z",
+      });
+      const started1004 = rotationJob({
+        id: jobId("3"),
+        attempts: [rotationAttempt({ startedAt: "2026-01-01T10:04:00Z" })],
+      });
+      setup([started1002, queued1003, started1004]);
+      expect(orderedIds()).toEqual([jobId("3"), jobId("2"), jobId("1")]);
+    });
+
+    it("returns empty array when jobs input is empty", () => {
+      setup([]);
+      expect(orderedIds()).toHaveLength(0);
+    });
+  });
+
+  describe("sourceLabelKey", () => {
+    it("returns scheduled key for Scheduled source", () => {
+      setup([]);
+      expect((component as any).sourceLabelKey(RotationSource.Scheduled)).toBe(
+        "pamRotationSourceScheduled",
+      );
+    });
+
+    it("returns onDemand key for OnDemand source", () => {
+      setup([]);
+      expect((component as any).sourceLabelKey(RotationSource.OnDemand)).toBe(
+        "pamRotationSourceOnDemand",
+      );
+    });
+
+    it("returns accessEnd key for AccessEnd source", () => {
+      setup([]);
+      expect((component as any).sourceLabelKey(RotationSource.AccessEnd)).toBe(
+        "pamRotationSourceAccessEnd",
+      );
+    });
+  });
+
+  describe("jobStatusVariant", () => {
+    it("returns success variant for Succeeded", () => {
+      setup([]);
+      expect((component as any).jobStatusVariant(RotationJobStatus.Succeeded)).toBe("success");
+    });
+
+    it("returns danger variant for Failed", () => {
+      setup([]);
+      expect((component as any).jobStatusVariant(RotationJobStatus.Failed)).toBe("danger");
+    });
+
+    it("returns danger variant for TimedOut", () => {
+      setup([]);
+      expect((component as any).jobStatusVariant(RotationJobStatus.TimedOut)).toBe("danger");
+    });
+
+    it("returns secondary variant for Pending and Claimed", () => {
+      setup([]);
+      expect((component as any).jobStatusVariant(RotationJobStatus.Pending)).toBe("secondary");
+      expect((component as any).jobStatusVariant(RotationJobStatus.Claimed)).toBe("secondary");
+    });
+  });
+
+  describe("syncStateLabelKey", () => {
+    it("maps TargetUnchanged correctly", () => {
+      setup([]);
+      expect((component as any).syncStateLabelKey(RotationSyncState.TargetUnchanged)).toBe(
+        "pamRotationSyncStateTargetUnchanged",
+      );
+    });
+
+    it("maps TargetUpdated correctly", () => {
+      setup([]);
+      expect((component as any).syncStateLabelKey(RotationSyncState.TargetUpdated)).toBe(
+        "pamRotationSyncStateTargetUpdated",
+      );
+    });
+  });
+
+  describe("sessionTerminationLabelKey", () => {
+    it("maps Terminated correctly", () => {
+      setup([]);
+      expect(
+        (component as any).sessionTerminationLabelKey(SessionTerminationOutcome.Terminated),
+      ).toBe("pamRotationSessionTerminationTerminated");
+    });
+
+    it("maps TermFailed correctly", () => {
+      setup([]);
+      expect(
+        (component as any).sessionTerminationLabelKey(SessionTerminationOutcome.TermFailed),
+      ).toBe("pamRotationSessionTerminationTermFailed");
+    });
+  });
+
+  describe("attempt status labels", () => {
+    it("maps all attempt statuses correctly", () => {
+      setup([]);
+      expect((component as any).attemptStatusLabelKey(RotationAttemptStatus.Executing)).toBe(
+        "pamRotationAttemptStatusExecuting",
+      );
+      expect((component as any).attemptStatusLabelKey(RotationAttemptStatus.Rotated)).toBe(
+        "pamRotationAttemptStatusRotated",
+      );
+      expect((component as any).attemptStatusLabelKey(RotationAttemptStatus.Errored)).toBe(
+        "pamRotationAttemptStatusErrored",
+      );
+      expect((component as any).attemptStatusLabelKey(RotationAttemptStatus.Abandoned)).toBe(
+        "pamRotationAttemptStatusAbandoned",
+      );
+    });
+  });
+
+  describe("failureCauseLabelKey", () => {
+    it.each([
+      ["target_rejected: LDAP result code 19", "pamRotationFailureCausePasswordRejected"],
+      ["target_rejected: LDAP result code 32", "pamRotationFailureCauseAccountNotFound"],
+      ["target_rejected: LDAP result code 49", "pamRotationFailureCauseInvalidCredentials"],
+      ["target_rejected: LDAP result code 50", "pamRotationFailureCauseInsufficientRights"],
+      ["target_rejected: LDAP result code 53", "pamRotationFailureCauseDirectoryRefused"],
+      ["target_rejected: ldap error code 50", "pamRotationFailureCauseInsufficientRights"],
+      [
+        "target_unreachable: error kind: ConnectionRefused",
+        "pamRotationFailureCauseTargetUnreachable",
+      ],
+    ])("maps %s to %s", (failureReason, expected) => {
+      setup([]);
+      expect((component as any).failureCauseLabelKey(failureReason)).toBe(expected);
+    });
+
+    it.each([
+      ["target_rejected: LDAP result code 68"],
+      ["target unreachable"],
+      ["flaky target"],
+      ["target_rejected"],
+    ])("returns null for %s", (failureReason) => {
+      setup([]);
+      expect((component as any).failureCauseLabelKey(failureReason)).toBeNull();
+    });
+  });
+
+  describe("durationParts", () => {
+    it("splits an elapsed span into hours, minutes and seconds", () => {
+      setup([]);
+      expect(
+        (component as any).durationParts("2026-01-01T00:00:00Z", "2026-01-01T01:02:03Z"),
+      ).toEqual({ hours: 1, minutes: 2, seconds: 3 });
+    });
+
+    it("rounds to whole seconds", () => {
+      setup([]);
+      expect(
+        (component as any).durationParts("2026-01-01T00:00:00.000Z", "2026-01-01T00:00:13.400Z"),
+      ).toEqual({ hours: 0, minutes: 0, seconds: 13 });
+    });
+
+    it("returns null without an end", () => {
+      setup([]);
+      expect((component as any).durationParts("2026-01-01T00:00:00Z", null)).toBeNull();
+    });
+
+    it("returns null when the end precedes the start", () => {
+      setup([]);
+      expect(
+        (component as any).durationParts("2026-01-01T00:01:00Z", "2026-01-01T00:00:00Z"),
+      ).toBeNull();
+    });
+
+    it("returns null for an unparseable timestamp", () => {
+      setup([]);
+      expect((component as any).durationParts("2026-01-01T00:00:00Z", "not a date")).toBeNull();
+    });
+  });
+
+  describe("toJobView", () => {
+    function failingJob(reason = "target_unreachable: error kind: ConnectionRefused") {
+      return rotationJob({
+        status: RotationJobStatus.Failed,
+        createdAt: "2026-01-01T00:00:00Z",
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: reason,
+            syncState: RotationSyncState.TargetUnchanged,
+            sessionTermination: SessionTerminationOutcome.NotRequested,
+            startedAt: "2026-01-01T00:00:10Z",
+            endedAt: "2026-01-01T00:00:26Z",
+          }),
+          rotationAttempt({
+            id: attemptId("2"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: reason,
+            syncState: RotationSyncState.TargetUnchanged,
+            sessionTermination: SessionTerminationOutcome.NotRequested,
+            startedAt: "2026-01-01T00:00:40Z",
+            endedAt: "2026-01-01T00:00:55Z",
+          }),
+        ],
+      });
+    }
+
+    it("takes the job cause from the final attempt and states it once", () => {
+      setup([]);
+      const view = (component as any).toJobView(failingJob());
+      expect(view.failed).toBe(true);
+      expect(view.causeLabelKey).toBe("pamRotationFailureCauseTargetUnreachable");
+      expect(view.reportedReason).toBe("target_unreachable: error kind: ConnectionRefused");
+      expect(view.attempts.every((a: any) => a.failureReason === view.reportedReason)).toBe(true);
+      expect(
+        view.attempts.every(
+          (a: any) => a.causeLabelKey === "pamRotationAttemptCauseTargetUnreachable",
+        ),
+      ).toBe(true);
+    });
+
+    it("marks a retry set as uniform when every attempt matches the final one", () => {
+      setup([]);
+      expect((component as any).toJobView(failingJob()).attemptsUniform).toBe(true);
+    });
+
+    it("does not claim uniformity for a single attempt", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({
+          status: RotationJobStatus.Failed,
+          attempts: [
+            rotationAttempt({
+              id: attemptId("1"),
+              status: RotationAttemptStatus.Errored,
+              failureReason: "flaky target",
+            }),
+          ],
+        }),
+      );
+      expect(view.attemptsUniform).toBe(false);
+    });
+
+    it("gives each failed attempt its own cause and raw reason", () => {
+      setup([]);
+      const job = failingJob();
+      (job.attempts[0] as any).failureReason = "target_rejected: LDAP result code 50";
+      const view = (component as any).toJobView(job);
+      expect(view.attemptsUniform).toBe(false);
+      expect(view.attempts[0].failureReason).toBe("target_rejected: LDAP result code 50");
+      expect(view.attempts[0].causeLabelKey).toBe("pamRotationFailureCauseInsufficientRights");
+      expect(view.attempts[1].causeLabelKey).toBe("pamRotationAttemptCauseTargetUnreachable");
+    });
+
+    it("labels attempts Succeeded or Failed, and In progress while executing", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({
+          status: RotationJobStatus.Succeeded,
+          attempts: [
+            rotationAttempt({
+              id: attemptId("1"),
+              status: RotationAttemptStatus.Errored,
+              startedAt: "2026-01-01T00:00:00Z",
+            }),
+            rotationAttempt({
+              id: attemptId("2"),
+              status: RotationAttemptStatus.Rotated,
+              startedAt: "2026-01-01T00:01:00Z",
+            }),
+            rotationAttempt({
+              id: attemptId("3"),
+              status: RotationAttemptStatus.Executing,
+              startedAt: "2026-01-01T00:02:00Z",
+            }),
+          ],
+        }),
+      );
+      expect(view.attempts.map((a: any) => a.resultLabelKey)).toEqual([
+        "pamRotationAttemptResultFailed",
+        "pamRotationAttemptResultSucceeded",
+        "pamRotationAttemptStatusExecuting",
+      ]);
+      expect(view.retrySucceeded).toBe(true);
+    });
+
+    it("explains a timed-out job's attempt as the target not responding", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({
+          status: RotationJobStatus.TimedOut,
+          attempts: [
+            rotationAttempt({ status: RotationAttemptStatus.Abandoned, failureReason: undefined }),
+          ],
+        }),
+      );
+      expect(view.attempts[0].causeLabelKey).toBe("pamRotationAttemptCauseTargetUnreachable");
+    });
+
+    it("names an attempt's access connector from the supplied map", () => {
+      const fixture = setup([]);
+      fixture.componentRef.setInput(
+        "connectorNames",
+        new Map([[String(accessConnector().id), "East"]]),
+      );
+      const view = (component as any).toJobView(rotationJob());
+      expect(view.attempts[0].connectorName).toBe("East");
+    });
+
+    it("starts the job at its first attempt rather than when it was queued", () => {
+      setup([]);
+      expect((component as any).toJobView(failingJob()).startedAt).toBe("2026-01-01T00:00:10Z");
+      expect((component as any).toJobView(failingJob()).createdAt).toBe("2026-01-01T00:00:00Z");
+    });
+
+    it("takes the earliest start, not the first attempt the server listed", () => {
+      setup([]);
+      const job = failingJob();
+      (job.attempts[0] as any).startedAt = "2026-01-01T00:00:50Z";
+      expect((component as any).toJobView(job).startedAt).toBe("2026-01-01T00:00:40Z");
+    });
+
+    it("measures the job from its first attempt to the last one that ended", () => {
+      setup([]);
+      expect((component as any).toJobView(failingJob()).duration).toEqual({
+        hours: 0,
+        minutes: 0,
+        seconds: 45,
+      });
+    });
+
+    it("keeps the wait in the queue out of the job's span", () => {
+      setup([]);
+      const view = (component as any).toJobView(failingJob());
+      expect(view.duration).not.toEqual({ hours: 0, minutes: 0, seconds: 55 });
+      expect(view.duration.seconds).toBe(45);
+      expect(Date.parse(view.startedAt) - Date.parse(view.createdAt)).toBe(10_000);
+    });
+
+    it("has no start and no span for a job that has not attempted anything", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({ status: RotationJobStatus.Pending, attempts: [] }),
+      );
+      expect(view.startedAt).toBeNull();
+      expect(view.duration).toBeNull();
+    });
+
+    it("does not call a job still waiting in the queue running", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({ status: RotationJobStatus.Pending, attempts: [] }),
+      );
+      expect(view.running).toBe(false);
+    });
+
+    it("has no duration while an attempt is still running", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({
+          status: RotationJobStatus.Claimed,
+          attempts: [
+            rotationAttempt({
+              id: attemptId("1"),
+              status: RotationAttemptStatus.Executing,
+              endedAt: undefined,
+            }),
+          ],
+        }),
+      );
+      expect(view.duration).toBeNull();
+      expect(view.running).toBe(true);
+    });
+
+    it("does not call a job that timed out before it was claimed running", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({ status: RotationJobStatus.TimedOut, attempts: [] }),
+      );
+      expect(view.duration).toBeNull();
+      expect(view.running).toBe(false);
+      expect(view.failed).toBe(true);
+    });
+
+    it("leaves the duration null for an abandoned attempt with no recorded end", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({
+          status: RotationJobStatus.Failed,
+          attempts: [
+            rotationAttempt({
+              id: attemptId("1"),
+              status: RotationAttemptStatus.Abandoned,
+              endedAt: undefined,
+            }),
+          ],
+        }),
+      );
+      expect(view.attempts[0].duration).toBeNull();
+    });
+
+    it("numbers attempts in the order the server returned them", () => {
+      setup([]);
+      expect(
+        (component as any).toJobView(failingJob()).attempts.map((a: any) => a.ordinal),
+      ).toEqual([1, 2]);
+    });
+
+    it("numbers a reordered page by start rather than by position, in step with the cause", () => {
+      setup([]);
+      const job = failingJob();
+      (job.attempts[0] as any).startedAt = "2026-01-01T00:00:50Z";
+      (job.attempts[0] as any).id = attemptId("later");
+      (job.attempts[1] as any).id = attemptId("earlier");
+      const view = (component as any).toJobView(job);
+      expect(view.attempts.map((a: any) => a.id)).toEqual([
+        attemptId("earlier"),
+        attemptId("later"),
+      ]);
+      expect(view.attempts.map((a: any) => a.ordinal)).toEqual([1, 2]);
+    });
+
+    it("reports the sync state on a failed job only", () => {
+      setup([]);
+      expect((component as any).toJobView(failingJob()).syncStateLabelKey).toBe(
+        "pamRotationSyncStateTargetUnchanged",
+      );
+      expect((component as any).toJobView(rotationJob()).syncStateLabelKey).toBeNull();
+    });
+
+    it("flags an indeterminate sync state", () => {
+      setup([]);
+      const job = failingJob();
+      (job.attempts[1] as any).syncState = RotationSyncState.Indeterminate;
+      expect((component as any).toJobView(job).syncStateIndeterminate).toBe(true);
+    });
+
+    it("names the managed credential from the supplied map", () => {
+      const fixture = setup([]);
+      fixture.componentRef.setInput(
+        "credentialNames",
+        new Map([[configId("7"), "Prod service account"]]),
+      );
+      const view = (component as any).toJobView(rotationJob({ rotationConfigId: configId("7") }));
+      expect(view.credentialName).toBe("Prod service account");
+      expect(view.credentialResolved).toBe(true);
+    });
+
+    it("falls back to the config id when the map has no name for it", () => {
+      setup([]);
+      const view = (component as any).toJobView(rotationJob({ rotationConfigId: configId("7") }));
+      expect(view.credentialName).toBe(String(configId("7")));
+      expect(view.credentialResolved).toBe(false);
+    });
+
+    it("omits session termination when it was not requested", () => {
+      setup([]);
+      expect((component as any).toJobView(rotationJob()).sessionTerminationLabelKey).toBeNull();
+    });
+
+    it("surfaces a failed session termination", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({
+          attempts: [
+            rotationAttempt({
+              id: attemptId("1"),
+              sessionTermination: SessionTerminationOutcome.TermFailed,
+            }),
+          ],
+        }),
+      );
+      expect(view.sessionTerminationLabelKey).toBe("pamRotationSessionTerminationTermFailed");
+      expect(view.sessionTerminationFailed).toBe(true);
+    });
+  });
+});
+
+describe("RotationHistoryComponent rendering", () => {
+  const i18nFake: Pick<I18nService, "t"> = {
+    t: (id: string, ...substitutions: (string | number)[]) =>
+      [id, ...substitutions.filter((s) => s !== undefined)].join(" "),
+  };
+
+  const CONNECTION_REFUSED = "target_unreachable: error kind: ConnectionRefused";
+
+  /** A job queued at this instant and never claimed, so nothing about it ever started. */
+  const QUEUED_AT = "2026-03-04T09:15:00Z";
+
+  let dialogService: MockProxy<DialogService>;
+
+  function render(jobs: RotationJob[], inputs: Record<string, unknown> = {}) {
+    TestBed.resetTestingModule();
+    dialogService = mock<DialogService>();
+
+    TestBed.configureTestingModule({
+      imports: [RotationHistoryComponent],
+      providers: [
+        { provide: I18nService, useValue: i18nFake },
+        { provide: DialogService, useValue: dialogService },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(RotationHistoryComponent);
+    fixture.componentRef.setInput("jobs", jobs);
+    for (const [name, value] of Object.entries(inputs)) {
+      fixture.componentRef.setInput(name, value);
+    }
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  /** The seeded worst case, with one failure retried five identical times. */
+  function retriedFailure(): RotationJob {
+    return rotationJob({
+      status: RotationJobStatus.Failed,
+      createdAt: "2026-01-01T00:00:00Z",
+      attempts: [1, 2, 3, 4, 5].map((n) =>
+        rotationAttempt({
+          id: attemptId(String(n)),
+          status: RotationAttemptStatus.Errored,
+          failureReason: CONNECTION_REFUSED,
+          syncState: RotationSyncState.TargetUnchanged,
+          startedAt: `2026-01-01T00:0${n}:00Z`,
+          endedAt: `2026-01-01T00:0${n}:16Z`,
+        }),
+      ),
+    });
+  }
+
+  function jobRows(fixture: any) {
+    return fixture.debugElement.queryAll(By.css("[data-testid='rotation-history-job']"));
+  }
+
+  function resultCell(fixture: any, index = 0) {
+    return fixture.debugElement.queryAll(By.css("[data-testid='rotation-history-job-result']"))[
+      index
+    ];
+  }
+
+  function jobHeaders(fixture: any) {
+    return fixture.debugElement
+      .queryAll(By.css("[data-testid='rotation-history-columns'] th"))
+      .map((th: any) => th.nativeElement.textContent.trim());
+  }
+
+  /** Returns the drawer's `closed` subject, so a test can drive the close. */
+  function openedDrawer(): Subject<unknown> {
+    const closed = new Subject<unknown>();
+    dialogService.openDrawer.mockResolvedValue({ closed } as any);
+    return closed;
+  }
+
+  /** Lets the component's own `await` on `openDrawer` resolve, then renders what it changed. */
+  async function settle(fixture: any) {
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  it("keeps the table's header over the empty state when there are no jobs", () => {
+    const fixture = render([]);
+    const empty = fixture.debugElement.query(By.css("[data-testid='rotation-history-empty']"));
+
+    expect(fixture.debugElement.query(By.css("bit-table-v2"))).not.toBeNull();
+    expect(empty.nativeElement.textContent).toContain("pamRotationConfigHistoryEmptyTitle");
+    expect(empty.nativeElement.textContent).toContain("pamRotationConfigHistoryEmptyState");
+  });
+
+  it("shows the connector page's empty message when there are no jobs", () => {
+    const fixture = render([], { showCredential: true });
+    expect(jobRows(fixture)).toHaveLength(0);
+    expect(fixture.debugElement.query(By.css("table"))).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain("pamRotationHistoryEmpty");
+  });
+
+  it("keeps the connector page's columns when it names the credential", () => {
+    const fixture = render([rotationJob()], { showCredential: true });
+
+    expect(jobHeaders(fixture)).toEqual([
+      "pamRotationAttemptStarted",
+      "pamRotationConfigColumnCredential",
+      "pamRotationHistoryColumnSource",
+      "pamRotationHistoryColumnResult",
+      "pamRotationHistoryDurationLabel",
+      "pamRotationHistoryColumnAttempts",
+    ]);
+  });
+
+  describe("the job table", () => {
+    const headers = (fixture: any) =>
+      fixture.debugElement
+        .queryAll(By.css('bit-table-v2 [role="columnheader"]'))
+        .map((h: any) => h.nativeElement.textContent.trim());
+
+    it("renders a table with Rotation started, Final result, Trigger and Details", () => {
+      const fixture = render([rotationJob()]);
+      expect(fixture.debugElement.query(By.css("bit-table-v2"))).not.toBeNull();
+      expect(headers(fixture)).toEqual([
+        "pamRotationHistoryColumnRotationStarted",
+        "pamRotationHistoryColumnFinalResult",
+        "pamRotationHistoryColumnRotationTrigger",
+        "details",
+      ]);
+    });
+
+    it("leaves the connector page on its own table", () => {
+      const fixture = render([rotationJob()], { showCredential: true });
+      expect(fixture.debugElement.query(By.css("bit-table-v2"))).toBeNull();
+    });
+  });
+
+  describe("the Result and Details columns", () => {
+    const detailsOf = (fixture: any) =>
+      fixture.debugElement
+        .query(By.css("[data-testid='rotation-history-job-details']"))
+        .nativeElement.textContent.trim();
+
+    it("says none for a job that needed no retry", () => {
+      expect(detailsOf(render([rotationJob()]))).toBe("pamRotationDetailNone");
+    });
+
+    it("says the retry succeeded for a job that needed one", () => {
+      const job = rotationJob({
+        attempts: [
+          rotationAttempt({ id: attemptId("1"), status: RotationAttemptStatus.Errored }),
+          rotationAttempt({ id: attemptId("2"), status: RotationAttemptStatus.Rotated }),
+        ],
+      });
+      expect(detailsOf(render([job]))).toBe("pamRotationHistoryRetrySucceeded");
+    });
+
+    it("explains a failed job by its final attempt's cause", () => {
+      expect(detailsOf(render([retriedFailure()]))).toBe(
+        "pamRotationAttemptCauseTargetUnreachable",
+      );
+    });
+
+    it("says no access connector picked up a job that timed out unclaimed", () => {
+      const job = rotationJob({ status: RotationJobStatus.TimedOut, attempts: [] });
+      expect(detailsOf(render([job]))).toBe("pamRotationHistoryNoConnectorPickedUp");
+    });
+
+    it("leaves a failure with no recognised cause blank", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Failed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: "flaky target",
+          }),
+        ],
+      });
+      expect(detailsOf(render([job]))).toBe("");
+    });
+
+    it("names a retrying job and the attempt that failed", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Claimed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: CONNECTION_REFUSED,
+            startedAt: "2026-01-01T00:00:00Z",
+          }),
+          rotationAttempt({
+            id: attemptId("2"),
+            status: RotationAttemptStatus.Executing,
+            startedAt: "2026-01-01T00:05:00Z",
+            endedAt: undefined,
+          }),
+        ],
+      });
+      const fixture = render([job]);
+
+      expect(detailsOf(fixture).replace(/\s+/g, " ")).toBe(
+        "pamRotationHistoryAttemptFailed 1 pamRotationAttemptCauseTargetUnreachable",
+      );
+      expect(fixture.nativeElement.textContent).toContain("pamRotationJobStatusRetrying");
+    });
+
+    it("calls a claimed job with no failure in progress", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Claimed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Executing,
+            endedAt: undefined,
+          }),
+        ],
+      });
+      const fixture = render([job]);
+
+      expect(detailsOf(fixture)).toBe("pamRotationDetailNone");
+      expect(fixture.nativeElement.textContent).toContain("pamRotationAttemptInProgress");
+    });
+
+    it("says whether a succeeded job's sessions ended", () => {
+      const withTermination = (sessionTermination: SessionTerminationOutcome) =>
+        rotationJob({
+          attempts: [rotationAttempt({ id: attemptId("1"), sessionTermination })],
+        });
+
+      expect(detailsOf(render([withTermination(SessionTerminationOutcome.Terminated)]))).toBe(
+        "pamRotationHistorySessionsEnded",
+      );
+      expect(detailsOf(render([withTermination(SessionTerminationOutcome.TermFailed)]))).toBe(
+        "pamRotationHistorySessionsNotEnded",
+      );
+    });
+  });
+
+  describe("the started column", () => {
+    it("leaves a never-started job undated", () => {
+      const fixture = render(
+        [rotationJob({ status: RotationJobStatus.Pending, attempts: [], createdAt: QUEUED_AT })],
+        { showCredential: true },
+      );
+      expect(jobRows(fixture)[0].query(By.css("th")).nativeElement.textContent.trim()).toBe("");
+      expect(fixture.nativeElement.textContent).not.toContain(
+        formatTimestamp("en-US", Date.parse(QUEUED_AT)),
+      );
+    });
+  });
+
+  it("shows the job duration rather than a second raw timestamp", () => {
+    const fixture = render([retriedFailure()], { showCredential: true });
+
+    expect(jobRows(fixture)[0].nativeElement.textContent).toContain(
+      "pamRotationDurationMinutes 4 16",
+    );
+  });
+
+  it("keeps the connector's raw reason and the drawer's explanations off the table", () => {
+    const recognised = render([retriedFailure()]);
+    expect(recognised.nativeElement.textContent).not.toContain(
+      "pamRotationFailureCauseTargetUnreachable",
+    );
+    expect(recognised.nativeElement.textContent).not.toContain(CONNECTION_REFUSED);
+    expect(recognised.nativeElement.textContent).not.toContain(
+      "pamRotationHistoryAttemptsAllAlike",
+    );
+
+    const unrecognised = render([
+      rotationJob({
+        status: RotationJobStatus.Failed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: "flaky target",
+          }),
+        ],
+      }),
+    ]);
+    expect(unrecognised.nativeElement.textContent).not.toContain("flaky target");
+  });
+
+  it("leaves an ordinary session termination to the drawer", () => {
+    const fixture = render([
+      rotationJob({
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            sessionTermination: SessionTerminationOutcome.Terminated,
+          }),
+        ],
+      }),
+    ]);
+
+    expect(fixture.nativeElement.textContent).not.toContain(
+      "pamRotationSessionTerminationTerminated",
+    );
+    expect(resultCell(fixture).nativeElement.getAttribute("aria-describedby")).toBeNull();
+  });
+
+  describe("the credential column", () => {
+    it("is absent by default", () => {
+      const fixture = render([rotationJob()]);
+      expect(jobHeaders(fixture)).not.toContain("pamRotationConfigColumnCredential");
+      expect(
+        fixture.debugElement.queryAll(By.css("[data-testid='rotation-history-job-credential']")),
+      ).toHaveLength(0);
+    });
+
+    it("names the managed credential when asked to", () => {
+      const fixture = render([rotationJob({ rotationConfigId: configId("7") })], {
+        showCredential: true,
+        credentialNames: new Map([[configId("7"), "Prod service account"]]),
+      });
+
+      expect(jobHeaders(fixture)[1]).toBe("pamRotationConfigColumnCredential");
+      const cell = fixture.debugElement.query(
+        By.css("[data-testid='rotation-history-job-credential']"),
+      ).nativeElement;
+      expect(cell.textContent.trim()).toBe("Prod service account");
+      expect(cell.querySelector("span").className).not.toContain("tw-truncate");
+      expect(cell.querySelector("[title]")).toBeNull();
+    });
+
+    it("falls back to the config id when no name resolved", () => {
+      const fixture = render([rotationJob({ rotationConfigId: configId("7") })], {
+        showCredential: true,
+      });
+
+      const cell = fixture.debugElement.query(
+        By.css("[data-testid='rotation-history-job-credential']"),
+      );
+      expect(cell.nativeElement.textContent.trim()).toBe(String(configId("7")));
+      expect(cell.nativeElement.querySelector("span").className).toContain("tw-font-mono");
+      expect(cell.nativeElement.querySelector("span").className).not.toContain("tw-truncate");
+    });
+  });
+
+  describe("attempts", () => {
+    it("counts a job's attempts in the ledger without listing them", () => {
+      const fixture = render([retriedFailure()], { showCredential: true });
+
+      const cell = fixture.debugElement.query(
+        By.css("[data-testid='rotation-history-job-attempts']"),
+      );
+      expect(cell.nativeElement.textContent.trim()).toBe("5");
+    });
+
+    it("renders no attempt value in the job table", () => {
+      const fixture = render([retriedFailure()]);
+
+      expect(fixture.nativeElement.textContent).not.toContain("pamRotationAttemptStatusErrored");
+      expect(fixture.nativeElement.textContent).not.toContain("pamRotationHistoryColumnAttempt ");
+    });
+  });
+
+  describe("opening a job", () => {
+    it("hands focus back to the row when the drawer closes", async () => {
+      const fixture = render([retriedFailure()]);
+      const closed = openedDrawer();
+
+      const cell = resultCell(fixture).nativeElement as HTMLElement;
+      cell.click();
+      await settle(fixture);
+
+      (document.activeElement as HTMLElement)?.blur();
+      expect(document.activeElement).not.toBe(cell);
+
+      closed.next(undefined);
+      expect(document.activeElement).toBe(cell);
+    });
+
+    it("leaves focus alone when opening a row supersedes a still-open drawer", async () => {
+      const fixture = render([
+        rotationJob({ id: jobId("1"), createdAt: "2026-01-01T00:00:00Z" }),
+        rotationJob({ id: jobId("2"), createdAt: "2026-02-01T00:00:00Z" }),
+      ]);
+      const closedA = new Subject<unknown>();
+      const closedB = new Subject<unknown>();
+      dialogService.openDrawer
+        .mockResolvedValueOnce({ closed: closedA } as any)
+        .mockResolvedValueOnce({ closed: closedB } as any);
+
+      const cellA = resultCell(fixture, 0).nativeElement as HTMLElement;
+      const cellB = resultCell(fixture, 1).nativeElement as HTMLElement;
+
+      cellA.click();
+      await settle(fixture);
+
+      // DialogService.openDrawer closes the current drawer before the new one opens, so B's open
+      // fires A's close before B's own promise settles.
+      cellB.click();
+      closedA.next(undefined);
+      expect(document.activeElement).not.toBe(cellA);
+
+      await settle(fixture);
+      closedB.next(undefined);
+      expect(document.activeElement).toBe(cellB);
+    });
+
+    it("stands Source, Duration and Attempts down while the pane is beside the table", async () => {
+      const fixture = render([retriedFailure()], { showCredential: true });
+      const closed = openedDrawer();
+      const hidden = () =>
+        fixture.debugElement
+          .queryAll(By.css("[data-testid='rotation-history-columns'] th"))
+          .filter((th: any) => th.nativeElement.className.includes("tw-hidden"))
+          .map((th: any) => th.nativeElement.textContent.trim());
+
+      expect(hidden()).toEqual([]);
+
+      jobRows(fixture)[0].nativeElement.click();
+      await settle(fixture);
+
+      expect(hidden()).toEqual([
+        "pamRotationHistoryColumnSource",
+        "pamRotationHistoryDurationLabel",
+        "pamRotationHistoryColumnAttempts",
+      ]);
+
+      closed.next(undefined);
+      fixture.detectChanges();
+      expect(hidden()).toEqual([]);
+    });
+  });
+});

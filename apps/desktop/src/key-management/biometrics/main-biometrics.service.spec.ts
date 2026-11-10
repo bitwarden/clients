@@ -20,6 +20,9 @@ import OsBiometricsServiceMac from "./os-biometrics-mac.service";
 import { OsBiometricService } from "./os-biometrics.service";
 
 jest.mock("electron", () => ({
+  app: {
+    getName: jest.fn().mockReturnValue("Bitwarden"),
+  },
   systemPreferences: {
     canPromptTouchID: jest.fn(),
     promptTouchID: jest.fn(),

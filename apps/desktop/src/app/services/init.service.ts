@@ -18,12 +18,11 @@ import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { LogService } from "@bitwarden/logging";
+import { limitPerformanceMeasurements, LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -42,7 +41,6 @@ import { UpdateRestartService } from "./update-restart.service";
 export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
-    private syncService: SyncServiceAbstraction,
     private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
@@ -77,6 +75,7 @@ export class InitService {
 
   init() {
     return async () => {
+      limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);
@@ -87,6 +86,9 @@ export class InitService {
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const userIds = Object.keys(accounts) as UserId[];
       await this.tokenService.cleanupTokenStorage(userIds);
+
+      // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+      await this.sharedUnlockPeerService.start();
 
       // For each acct, we must await the process of unlocking with the never-lock key
       // if it is set, to avoid race conditions of any code trying to access the user key
@@ -103,9 +105,6 @@ export class InitService {
       );
 
       await this.serverCommunicationConfigService.init();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.syncService.fullSync(true);
       await this.vaultTimeoutService.init(true);
       await (this.i18nService as I18nRendererService).init();
       (this.eventUploadService as EventUploadService).init(true);
@@ -126,7 +125,6 @@ export class InitService {
       containerService.attachToGlobal(this.win);
       this.automationDriver.attachToGlobal(this.win);
 
-      await this.sharedUnlockPeerService.start();
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeMvpService.init();

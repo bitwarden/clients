@@ -42,6 +42,11 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  IntraprocessMessageSender,
+  isExternalMessage,
+  MessageListener,
+} from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -70,6 +75,7 @@ import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import {
   AutofillOverlayElement,
   AutofillOverlayPort,
@@ -81,7 +87,9 @@ import {
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
+import { didFillOccur, shouldAutoCopyTotp } from "../types/fill-result";
 import {
   areKeyValuesNull,
   generateDomainMatchPatterns,
@@ -93,6 +101,13 @@ import {
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
 import { getSubFrameUrlVariations } from "../utils/url-variations";
 
+import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
+import {
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
+  LockedVaultPendingNotificationsData,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
+} from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
@@ -219,14 +234,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         this.triggerDestroyInlineMenuListeners(tab, message.subFrameData?.frameId),
       ),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
-    unlockCompleted: ({ message }) => this.unlockCompleted(message),
-    doFullSync: () => this.updateOverlayCiphers(),
-    addedCipher: () => this.updateOverlayCiphers(),
-    addEditCipherSubmitted: () => this.updateOverlayCiphers(),
-    editedCipher: () => this.updateOverlayCiphers(),
-    deletedCipher: () => this.updateOverlayCiphers(),
-    bgSaveCipher: () => this.updateOverlayCiphers(),
-    updateOverlayCiphers: () => this.updateOverlayCiphers(),
     fido2AbortRequest: ({ sender }) =>
       void this.withSenderTab(sender, (tab) => this.abortFido2ActiveRequest(tab.id)),
     routeTargetedFieldsToFrame: ({ message, sender }) =>
@@ -274,7 +281,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private autofillOrchestrator: AutofillOrchestrator,
     private configService: ConfigService,
+    /** Publishes the retry queued for after the unlock. */
+    private intraprocessMessageSender: IntraprocessMessageSender,
+    private messageListener: MessageListener,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {
     this.initOverlayEventObservables();
   }
@@ -567,7 +579,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId)
+      await this.fillCipherPolicy.ciphersForUrl(
+        currentTab.url || "",
+        activeUserId,
+        CipherUse.UserFill,
+      )
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     return this.cardAndIdentityCiphers
@@ -591,11 +607,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.cardAndIdentityCiphers.clear();
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
-        CipherType.Card,
-        CipherType.Identity,
-        CipherType.SshKey,
-      ])
+      await this.fillCipherPolicy.ciphersForUrl(currentTab.url || "", userId, CipherUse.UserFill, {
+        includeOtherTypes: [CipherType.Card, CipherType.Identity, CipherType.SshKey],
+      })
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     if (!this.cardAndIdentityCiphers) {
@@ -1446,11 +1460,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
     const tab = sender.tab;
     const tabId = tab.id;
-    await BrowserApi.tabSendMessage(
-      tab,
-      { command: "collectPageDetails" },
-      { frameId: this.focusedFieldData?.frameId },
-    );
+    // awaiting `collectPageDetails` lets the frames' responses settle into `pageDetailsForTab`
+    // (via `storePageDetails`) before the read.
+    await this.autofillOrchestrator.collectPageDetails(tab, this.focusedFieldData?.frameId);
 
     const pageDetailsForTab = this.pageDetailsForTab[tabId];
     if (!inlineMenuCipherId || !pageDetailsForTab?.size) {
@@ -1491,7 +1503,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    const result = await this.autofillService.doAutoFill({
+    const result = await this.autofillOrchestrator.fillCipher({
       tab,
       cipher,
       pageDetails,
@@ -1502,18 +1514,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    // A no-fill (or a fill with no TOTP target) doesn't imply no TOTP: some sites hide the TOTP
-    // input so the fill script can't target it. Still resolve + copy when the user explicitly
-    // chose a TOTP-bearing cipher.
-    const totpCode =
-      result.didAutofill && result.totp
-        ? result.totp
-        : await this.autofillService.getTotpCopyCode(cipher);
-    if (totpCode) {
-      this.platformUtilsService.copyToClipboard(totpCode);
+    // A denial terminates the request.
+    if (!didFillOccur(result)) {
+      return;
     }
 
-    if (!result.didAutofill) {
+    if (shouldAutoCopyTotp(result)) {
+      this.platformUtilsService.copyToClipboard(result.totp);
+    }
+
+    // Last-used records a credential the user actually placed, so an attempt that filled nothing
+    // leaves the ordering alone.
+    if (result.outcome !== AutofillOutcome.Filled) {
       return;
     }
 
@@ -1868,12 +1880,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[focusedTabId];
     let subFrameOffsets: SubFrameOffsetData | null = null;
     if (subFrameOffsetsForTab) {
-      subFrameOffsets = subFrameOffsetsForTab.get(focusedFrameId) ?? null;
-      if (subFrameOffsets === null) {
+      const focusedFrameOffsets = subFrameOffsetsForTab.get(focusedFrameId);
+      // `null` marks offsets invalidated by a reposition and awaiting rebuild. A missing entry
+      // (e.g. the top frame) has no offsets to wait for.
+      if (focusedFrameOffsets === null) {
         this.rebuildSubFrameOffsets$.next(sender);
         this.startUpdateInlineMenuPosition$.next(sender);
         return;
       }
+      subFrameOffsets = focusedFrameOffsets ?? null;
     }
 
     if (overlayElement === AutofillOverlayElement.Button) {
@@ -2310,7 +2325,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         uri: "",
       });
 
-      const { didAutofill } = await this.autofillService.doAutoFill({
+      const generatedPasswordFill = await this.autofillOrchestrator.fillCipher({
         tab: senderTab,
         cipher,
         pageDetails,
@@ -2322,9 +2337,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       });
 
       // The follow-on modify-login message only makes sense when a password was actually filled;
-      // gate on the outcome so a no-fill does not arm it (a no-fill previously aborted here by throw).
+      // gate on the outcome so an attempt that placed nothing does not arm it.
       const frameId = this.focusedFieldData?.frameId;
-      if (didAutofill && frameId !== null && frameId !== undefined) {
+      if (
+        generatedPasswordFill.outcome === AutofillOutcome.Filled &&
+        frameId !== null &&
+        frameId !== undefined
+      ) {
         globalThis.setTimeout(() => {
           BrowserApi.tabSendMessage(
             senderTab,
@@ -2587,10 +2606,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
-    await this.openUnlockPopout(sender.tab, {
-      commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
-      target: "overlay.background",
-    });
+    await this.openUnlockPopout(sender.tab, () =>
+      this.intraprocessMessageSender.send(ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS, {
+        data: {
+          commandToRetry: {
+            message: { command: "openAutofillInlineMenu" },
+            [RETRY_SENDER]: sender,
+          },
+          target: "overlay.background",
+        },
+      }),
+    );
   }
 
   /**
@@ -2632,15 +2658,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Updates the authentication status for the user and opens the inline menu if
-   * a followup command is present in the message.
+   * a followup command is present in the retained command.
    *
-   * @param message - Extension message received from the `unlockCompleted` command
+   * Unlike the other consumers this one still refreshes on a retry it cannot act on, because the
+   * auth status and cipher list are stale either way. Only the inline menu is gated: it resolves
+   * its tab from {@link BrowserApi.getTabFromCurrentWindowId}, so without a retained
+   * {@link RETRY_SENDER} to focus first it would refocus a field on whichever tab happens to be
+   * active rather than the one the retry named.
+   *
+   * @param data - The command the background retained when it opened the unlock popout
+   * @see {@link RETRY_WHEN_UNLOCK_COMPLETED} for why this must not be read off `chrome.runtime`.
    */
-  private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
+  private async unlockCompleted(data: LockedVaultPendingNotificationsData) {
     await this.updateInlineMenuButtonAuthStatus();
 
+    const retryNamesATab = data?.commandToRetry?.[RETRY_SENDER]?.tab != null;
     const openInlineMenu =
-      message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu";
+      retryNamesATab && data.commandToRetry.message?.command === "openAutofillInlineMenu";
     await this.updateOverlayCiphers(true, openInlineMenu);
   }
 
@@ -2962,6 +2996,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     try {
       this.closeInlineMenu(sender);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      if (
+        login &&
+        cipherView.type === CipherType.Login &&
+        !(await this.fillCipherPolicy.canOfferSave(
+          {
+            uri: login.uri || sender.tab?.url || "",
+            username: login.username,
+            password: login.password,
+          },
+          activeUserId,
+        ))
+      ) {
+        cipherView.login.password = "";
+      }
       await this.cipherService.setAddEditCipherInfo(
         {
           cipher: cipherView,
@@ -3408,6 +3456,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     BrowserApi.messageListener("overlay.background", this.handleExtensionMessage);
     BrowserApi.addListener(chrome.webNavigation.onCommitted, this.handleWebNavigationOnCommitted);
     BrowserApi.addListener(chrome.runtime.onConnect, this.handlePortOnConnect);
+
+    this.messageListener
+      .messages$(RETRY_WHEN_UNLOCK_COMPLETED)
+      .pipe(filter((message) => !isExternalMessage(message)))
+      .subscribe(({ data }) => {
+        this.unlockCompleted(data).catch((error) => this.logService.error(error));
+      });
   }
 
   /**

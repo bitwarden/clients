@@ -6,17 +6,17 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ProviderService, ProviderStatusType, Provider } from "@bitwarden/common/provider";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import { OrganizationWarningsService } from "../../../billing/organizations/warnings/services/organization-warnings.service";
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
+import { InviteLinkCalloutService } from "../members/services/invite-link-callout/invite-link-callout.service";
 
 import { OrganizationLayoutComponent } from "./organization-layout.component";
 
@@ -30,6 +30,7 @@ describe("OrganizationLayoutComponent", () => {
   let mockProviderService: MockProxy<ProviderService>;
   let mockFreeFamiliesPolicyService: MockProxy<FreeFamiliesPolicyService>;
   let mockOrganizationWarningsService: MockProxy<OrganizationWarningsService>;
+  let mockInviteLinkCalloutService: MockProxy<InviteLinkCalloutService>;
   let mockAccountService: ReturnType<typeof mockAccountServiceWith>;
 
   let routeParamsSubject: BehaviorSubject<{ organizationId: OrganizationId }>;
@@ -84,6 +85,7 @@ describe("OrganizationLayoutComponent", () => {
     mockProviderService = mock<ProviderService>();
     mockFreeFamiliesPolicyService = mock<FreeFamiliesPolicyService>();
     mockOrganizationWarningsService = mock<OrganizationWarningsService>();
+    mockInviteLinkCalloutService = mock<InviteLinkCalloutService>();
     mockAccountService = mockAccountServiceWith(userId);
 
     mockOrganizationService.organizations$.mockReturnValue(of([makeOrg()]));
@@ -92,6 +94,7 @@ describe("OrganizationLayoutComponent", () => {
     mockProviderService.get$.mockReturnValue(of(undefined));
     mockFreeFamiliesPolicyService.showSponsoredFamiliesDropdown$.mockReturnValue(of(false));
     mockOrganizationWarningsService.getTaxIdWarning$.mockReturnValue(of(null));
+    mockInviteLinkCalloutService.showIfEligible.mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [OrganizationLayoutComponent],
@@ -104,6 +107,8 @@ describe("OrganizationLayoutComponent", () => {
         { provide: AccountService, useValue: mockAccountService },
         { provide: FreeFamiliesPolicyService, useValue: mockFreeFamiliesPolicyService },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
+        { provide: InviteLinkCalloutService, useValue: mockInviteLinkCalloutService },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

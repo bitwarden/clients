@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2026.9.0",
+  "version": "2026.11.0",
   "scripts": {
     "build": "npm run build:chrome",
     "build:bit": "npm run build:bit:chrome",
@@ -53,14 +53,16 @@
     "build:bit:beta:chrome": "cross-env CHANNEL=beta npm run build:bit:prod:chrome",
     "build:qa:beta:chrome": "cross-env ENV=qa npm run build:beta:chrome",
     "build:bit:qa:beta:chrome": "cross-env ENV=qa npm run build:bit:beta:chrome",
+    "build:beta:firefox": "cross-env CHANNEL=beta npm run build:prod:firefox",
+    "build:bit:beta:firefox": "cross-env CHANNEL=beta npm run build:bit:prod:firefox",
     "dist:chrome": "npm run build:prod:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
     "dist:qa:chrome": "npm run build:qa:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome-QA.zip",
     "dist:bit:chrome": "npm run build:bit:prod:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
     "dist:bit:qa:chrome": "npm run build:bit:qa:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome-QA.zip",
-    "dist:beta:chrome": "npm run build:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
-    "dist:bit:beta:chrome": "npm run build:bit:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
-    "dist:qa:beta:chrome": "npm run build:qa:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome-QA.zip",
-    "dist:bit:qa:beta:chrome": "npm run build:bit:qa:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome-QA.zip",
+    "dist:beta:chrome": "npm run build:beta:chrome && npm run update:beta && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
+    "dist:bit:beta:chrome": "npm run build:bit:beta:chrome && npm run update:beta && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
+    "dist:qa:beta:chrome": "npm run build:qa:beta:chrome && npm run update:beta && mkdir -p dist && ./scripts/compress.sh dist-chrome-QA.zip",
+    "dist:bit:qa:beta:chrome": "npm run build:bit:qa:beta:chrome && npm run update:beta && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome-QA.zip",
     "dist:edge": "npm run build:prod:edge && mkdir -p dist && ./scripts/compress.sh dist-edge.zip",
     "dist:qa:edge": "npm run build:qa:edge && mkdir -p dist && ./scripts/compress.sh dist-edge-QA.zip",
     "dist:bit:edge": "npm run build:bit:prod:edge && mkdir -p dist && ./scripts/compress.sh bit-dist-edge.zip",
@@ -69,6 +71,8 @@
     "dist:qa:firefox": "npm run build:qa:firefox && mkdir -p dist && ./scripts/compress.sh dist-firefox-QA.zip",
     "dist:bit:firefox": "npm run build:bit:prod:firefox && mkdir -p dist && ./scripts/compress.sh bit-dist-firefox.zip",
     "dist:bit:qa:firefox": "npm run build:bit:qa:firefox && mkdir -p dist && ./scripts/compress.sh bit-dist-firefox-QA.zip",
+    "dist:beta:firefox": "npm run build:beta:firefox && npm run update:beta && mkdir -p dist && ./scripts/compress.sh dist-firefox.zip",
+    "dist:bit:beta:firefox": "npm run build:bit:beta:firefox && npm run update:beta && mkdir -p dist && ./scripts/compress.sh bit-dist-firefox.zip",
     "dist:opera": "npm run build:prod:opera && mkdir -p dist && ./scripts/compress.sh dist-opera.zip",
     "dist:qa:opera": "npm run build:qa:opera && mkdir -p dist && ./scripts/compress.sh dist-opera-QA.zip",
     "dist:bit:opera": "npm run build:bit:prod:opera && mkdir -p dist && ./scripts/compress.sh bit-dist-opera.zip",
@@ -98,6 +102,6 @@
     "test:watch:all": "jest --watchAll",
     "test:clearCache": "jest --clear-cache",
     "update:dev:chrome": "./scripts/update-manifest-dev.sh",
-    "update:beta:chrome": "./scripts/update-manifest-beta.sh"
+    "update:beta": "./scripts/update-manifest-beta.sh"
   }
 }

@@ -61,9 +61,16 @@ describe("AutoSubmitLogin content script", () => {
     mockQuerySelectorAll.mockRestore();
   });
 
-  it("ends the auto-submit login workflow if the page does not contain any fields", async () => {
-    pageDetailsMock.fields = [];
+  it("reports the auto-submit step-ready fact for the frame to the background", async () => {
+    await initAutoSubmitWorkflow();
 
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+      { command: "automatedLoginStepReady" },
+      expect.any(Function),
+    );
+  });
+
+  it("clears the filling flag at the start of each step so a stalled step cannot suppress the inline menu", async () => {
     await initAutoSubmitWorkflow();
 
     expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(

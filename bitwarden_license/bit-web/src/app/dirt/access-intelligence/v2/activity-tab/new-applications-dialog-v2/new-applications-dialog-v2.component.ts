@@ -7,7 +7,7 @@ import {
   signal,
   computed,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { EMPTY, catchError, switchMap } from "rxjs";
 
 import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence";
@@ -107,10 +107,6 @@ export class NewApplicationsDialogV2Component {
   protected readonly selectedApplications = signal<Set<string>>(new Set());
 
   protected readonly saving = signal<boolean>(false);
-
-  protected readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
-    initialValue: [],
-  });
 
   protected readonly newCriticalApplications = computed(() => {
     return this.dialogParams.newApplications.filter((app) =>

@@ -14,6 +14,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   inject,
+  untracked,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
@@ -119,9 +120,9 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   /** Combined disabled state from both input and programmatic control */
   readonly disabled = computed(() => this.disabledInput() || this.disabledState());
 
-  /** Computed class list for host element based on fullWidth state */
+  /** Padding lives on the trigger button so the menu anchors to the chip's outer edges. */
   protected readonly classList = computed(() => {
-    const baseClasses = "!tw-ps-0 !tw-pb-0";
+    const baseClasses = "!tw-ps-0 !tw-py-0";
     const widthClasses = this.baseChip.fullWidth() ? "tw-block tw-w-full" : "tw-inline-block";
     return `${baseClasses} ${widthClasses}`;
   });
@@ -174,10 +175,9 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
       const items = this.menuItems();
       const currentMenu = this.menu();
       const trigger = this.menuTrigger();
-      // Note: `isOpen` is intentionally accessed outside signal tracking (via `trigger?.isOpen`)
-      // to avoid re-focusing when the menu state changes. We only want to focus during
-      // submenu navigation, not on initial open/close.
-      if (items.length > 0 && trigger?.isOpen) {
+      // Note: `isOpen` is intentionally read untracked to avoid re-focusing when the menu state
+      // changes. We only want to focus during submenu navigation, not on initial open/close.
+      if (items.length > 0 && untracked(() => trigger?.isOpen())) {
         currentMenu?.keyManager()?.setFirstItemActive();
       }
     });

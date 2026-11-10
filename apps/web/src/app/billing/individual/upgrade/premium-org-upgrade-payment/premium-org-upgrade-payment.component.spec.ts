@@ -14,6 +14,7 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
@@ -25,7 +26,6 @@ import { CartSummaryComponent } from "@bitwarden/pricing";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { AccountBillingClient } from "../../../clients/account-billing.client";
-import { PreviewInvoiceClient } from "../../../clients/preview-invoice.client";
 import { SubscriberBillingClient } from "../../../clients/subscriber-billing.client";
 import {
   EnterBillingAddressComponent,
@@ -91,7 +91,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
   const mockSubscriptionPricingService = mock<SubscriptionPricingServiceAbstraction>();
   const mockToastService = mock<ToastService>();
   const mockAccountBillingClient = mock<AccountBillingClient>();
-  const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
   const mockLogService = mock<LogService>();
   const mockOrganizationService = mock<OrganizationService>();
   const mockSubscriberBillingClient = mock<SubscriberBillingClient>();
@@ -147,12 +146,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expiration: "12/2025",
     });
     mockOrganizationService.organizations$.mockReturnValue(of([]));
-    mockPremiumOrgUpgradeService.previewProratedInvoice.mockResolvedValue({
-      tax: 5.0,
-      total: 53.0,
-      credit: 10.0,
-      newPlanProratedMonths: 1,
-    });
 
     // Mock static form group methods (required for component creation)
     jest.spyOn(EnterPaymentMethodComponent, "getFormGroup").mockReturnValue(
@@ -194,7 +187,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: AccountBillingClient, useValue: mockAccountBillingClient },
-        { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: AccountService, useValue: mockAccountService },
         { provide: ApiService, useValue: mockApiService },
@@ -273,23 +265,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       expect(newComponent["selectedPlan"]()).toBeNull();
     });
-
-    it("should handle invoice preview errors gracefully", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewProratedInvoice.mockRejectedValue(
-        new Error("Network error"),
-      );
-
-      // Component should still render and be usable even when invoice preview fails
-      fixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
-      component = fixture.componentInstance;
-      fixture.componentRef.setInput("selectedPlanId", "teams" as BusinessSubscriptionPricingTierId);
-      fixture.componentRef.setInput("account", mockAccount);
-      fixture.detectChanges();
-
-      expect(component).toBeTruthy();
-      expect(component["selectedPlan"]()).not.toBeNull();
-      expect(mockToastService.showToast).not.toHaveBeenCalled();
-    }));
   });
 
   describe("submit", () => {
@@ -596,9 +571,8 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       tick(1500);
       fixture.detectChanges();
 
-      const estimatedInvoice = component["estimatedInvoice"]();
-      expect(estimatedInvoice.tax).toBe(0);
-      expect(estimatedInvoice.total).toBe(0);
+      expect(component["previewCart"]()).toBeNull();
+      expect(component["cart"]().estimatedTax).toBe(0);
     }));
   });
 
@@ -630,6 +604,269 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(cart.passwordManager.seats.quantity).toBe(0);
       expect(cart.estimatedTax).toBe(0);
     });
+  });
+
+  describe("preview-driven cart", () => {
+    const serverCart = {
+      passwordManager: {
+        seats: {
+          translationKey: "teamsMembership",
+          cost: 26.67,
+          quantity: 1,
+          hideBreakdown: true,
+        },
+      },
+      cadence: "annually" as const,
+      estimatedTax: 2,
+      total: 22,
+      credit: { translationKey: "premiumSubscriptionCredit", value: 6.67 },
+    };
+
+    const completeTheForm = () =>
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
+
+    it("should build the cart from the server preview", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      const cart = component["cart"]();
+      expect(cart.passwordManager.seats.cost).toBe(26.67);
+      expect(cart.passwordManager.seats.quantity).toBe(1);
+      expect(cart.credit).toEqual({
+        translationKey: "premiumSubscriptionCredit",
+        value: 6.67,
+      });
+      expect(cart.estimatedTax).toBe(2);
+    }));
+
+    it("should hand the selected plan and the form's billing address to the upgrade service", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).toHaveBeenCalledWith(
+        expect.objectContaining({ tier: "teams" }),
+        expect.objectContaining({ country: "US", postalCode: "12345" }),
+      );
+    }));
+
+    it("should render the server cart's seat label verbatim", fakeAsync(() => {
+      // The adapter owns the prorated-months label; the component must not relabel the seat line.
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
+        ...serverCart,
+        passwordManager: {
+          seats: {
+            ...serverCart.passwordManager.seats,
+            translationKey: "planProratedMembershipInMonths",
+            translationParams: ["Teams", "8 months"],
+          },
+        },
+      });
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      const seats = component["cart"]().passwordManager.seats;
+      expect(seats.translationKey).toBe("planProratedMembershipInMonths");
+      expect(seats.translationParams).toEqual(["Teams", "8 months"]);
+    }));
+
+    it("should not call the preview endpoint while the billing address is incomplete", fakeAsync(() => {
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: { country: "US", postalCode: "" },
+      });
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).not.toHaveBeenCalled();
+      // Falls back to the locally computed placeholder rather than rendering a blank summary.
+      expect(component["cart"]().passwordManager.seats.cost).toBe(48);
+    }));
+
+    it("should preview once the billing address is complete, before the organization name is entered", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+
+      component["formGroup"].patchValue({
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
+      tick(1500);
+
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).toHaveBeenCalledTimes(1);
+      expect(component["cart"]().estimatedTax).toBe(2);
+    }));
+
+    it("should show an error toast and withhold the cart summary when the preview fails", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "invoicePreviewErrorMessage",
+      });
+      // The locally computed cart would show list price with $0 tax and $0 credit, so it is
+      // hidden behind an error callout instead of being rendered.
+      expect(component["previewFailed"]()).toBe(true);
+      expect(
+        fixture.nativeElement.querySelector("[data-testid='invoice-preview-error']"),
+      ).not.toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("billing-cart-summary").classList.contains("tw-hidden"),
+      ).toBe(true);
+    }));
+
+    describe("billing address rejection", () => {
+      const addressError = new ErrorResponse(
+        {
+          Message: "The model state is invalid.",
+          ValidationErrors: {
+            BillingAddress: [
+              "Your location wasn't recognized. Please ensure your country and postal code are valid and try again.",
+            ],
+          },
+        },
+        400,
+      );
+
+      it("toasts and shows the billing-details message when the preview rejects the billing address", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(addressError);
+
+        completeTheForm();
+        tick(1500);
+        fixture.detectChanges();
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "billingPreviewInvalidAddressError",
+        });
+        const callout = fixture.nativeElement.querySelector(
+          "[data-testid='invoice-preview-error']",
+        );
+        expect(callout).not.toBeNull();
+        expect(callout.textContent).toContain("billingPreviewInvalidAddressError");
+      }));
+
+      it("keeps the generic message for a 400 that isn't about the address", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(
+          new ErrorResponse({ Message: "User does not have an active Premium subscription." }, 400),
+        );
+
+        completeTheForm();
+        tick(1500);
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "invoicePreviewErrorMessage",
+        });
+        expect(component["previewErrorMessageKey"]()).toBe("invoicePreviewErrorMessage");
+      }));
+
+      it("replaces an earlier address message with the generic message on a later failure", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart
+          .mockRejectedValueOnce(addressError)
+          .mockRejectedValue(new Error("500"));
+
+        completeTheForm();
+        tick(1500);
+        expect(component["previewErrorMessageKey"]()).toBe("billingPreviewInvalidAddressError");
+
+        component["formGroup"].patchValue({ billingAddress: { postalCode: "54321" } });
+        tick(1500);
+
+        expect(component["previewErrorMessageKey"]()).toBe("invoicePreviewErrorMessage");
+      }));
+    });
+
+    describe("submit availability", () => {
+      const submitButton = (): HTMLElement | null =>
+        fixture.nativeElement.querySelector('button[type="submit"]');
+
+      it("should disable submit while the preview has failed", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
+
+        completeTheForm();
+        tick(1500);
+        fixture.detectChanges();
+
+        expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+      }));
+
+      it("should enable submit once a later preview succeeds", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValueOnce(new Error("500"));
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverCart);
+
+        completeTheForm();
+        tick(1500);
+        component["formGroup"].patchValue({
+          billingAddress: { country: "US", postalCode: "54321" },
+        });
+        tick(1500);
+        fixture.detectChanges();
+
+        expect(submitButton()?.hasAttribute("aria-disabled")).toBe(false);
+      }));
+
+      it("should not upgrade when submitted while the preview has failed", fakeAsync(async () => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue("new-org-id");
+
+        completeTheForm();
+        tick(1500);
+        await component["submit"]();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+      }));
+    });
+
+    it("should restore the cart summary once a later preview succeeds", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValueOnce(new Error("500"));
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverCart);
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+      expect(component["previewFailed"]()).toBe(true);
+
+      component["formGroup"].patchValue({ billingAddress: { country: "US", postalCode: "54321" } });
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(component["previewFailed"]()).toBe(false);
+      expect(
+        fixture.nativeElement.querySelector("[data-testid='invoice-preview-error']"),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("billing-cart-summary").classList.contains("tw-hidden"),
+      ).toBe(false);
+      expect(component["cart"]().passwordManager.seats.cost).toBe(26.67);
+    }));
+
+    it("should clear the failed state when the billing address becomes incomplete", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+      expect(component["previewFailed"]()).toBe(true);
+
+      component["formGroup"].patchValue({ billingAddress: { country: "US", postalCode: "" } });
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(component["previewFailed"]()).toBe(false);
+    }));
   });
 
   describe("ngAfterViewInit", () => {

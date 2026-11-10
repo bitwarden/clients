@@ -67,26 +67,35 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         initializeLogging()
         let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
 
+        // The app that contains this extension, derived from the extension's own location:
+        // <App>.app/Contents/PlugIns/<extension>.appex. Resolving it by path rather than by
+        // bundle identifier keeps the beta and stable channels apart without hardcoding
+        // either one, and stops a stale copy of the app registered elsewhere on the system
+        // from being launched in place of the real container.
+        let containerURL = Bundle.main.bundleURL
+            .deletingLastPathComponent() // PlugIns
+            .deletingLastPathComponent() // Contents
+            .deletingLastPathComponent() // <App>.app
+            .resolvingSymlinksInPath()
+
         // Check if the Electron app is running
         let workspace = NSWorkspace.shared
         let isRunning = workspace.runningApplications.contains { app in
-            app.bundleIdentifier == "com.bitwarden.desktop"
+            app.bundleURL?.resolvingSymlinksInPath() == containerURL
         }
 
         if !isRunning {
-            logger.log("[autofill-extension] Bitwarden Desktop not running, attempting to launch")
+            logger.log("[autofill-extension] Bitwarden Desktop not running, attempting to launch \(containerURL.path, privacy: .public)")
 
             // Launch the app and wait for it to be ready
-            if let appURL = workspace.urlForApplication(withBundleIdentifier: "com.bitwarden.desktop") {
-                await withCheckedContinuation { continuation in
-                    workspace.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration()) { app, error in
-                        if let error = error {
-                            logger.error("[autofill-extension] Failed to launch Bitwarden Desktop: \(error.localizedDescription)")
-                        } else {
-                            logger.log("[autofill-extension] Successfully launched Bitwarden Desktop")
-                        }
-                        continuation.resume()
+            await withCheckedContinuation { continuation in
+                workspace.openApplication(at: containerURL, configuration: NSWorkspace.OpenConfiguration()) { app, error in
+                    if let error = error {
+                        logger.error("[autofill-extension] Failed to launch Bitwarden Desktop: \(error.localizedDescription)")
+                    } else {
+                        logger.log("[autofill-extension] Successfully launched Bitwarden Desktop")
                     }
+                    continuation.resume()
                 }
             }
         }
@@ -305,7 +314,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
      For now we just claim to always need UI displayed.
      */
     override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
-       let error = ASExtensionError(.userInteractionRequired)
+       // We only support passkeys right now, so fail early on non-passkey requests.
+       let error = if credentialRequest is ASPasskeyCredentialRequest {
+           ASExtensionError(.userInteractionRequired)
+       } else {
+           ASExtensionError(.failed)
+       }
+
        self.extensionContext.cancelRequest(withError: error)
        return
     }
@@ -352,7 +367,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         self.onFinish()
                         logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
                         self.timeoutTimer.cancel()
-                        ctx.cancelRequest(withError: error)
+                        // The system asked for a specific credential identity that the vault no longer holds.
+                        if case .CredentialNotFound = error {
+                            ctx.cancelRequest(withError: ASExtensionError(.credentialIdentityNotFound))
+                        } else {
+                            ctx.cancelRequest(withError: error)
+                        }
                     }
                 }
 
@@ -448,7 +468,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         self.onFinish()
                         logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
                         self.timeoutTimer.cancel()
-                        ctx.cancelRequest(withError: error)
+                        // We only pass excluded credentials on macOS 15+, the same release that added this error code.
+                        if case .ExcludedCredentialMatched = error, #available(macOSApplicationExtension 15.0, *) {
+                            ctx.cancelRequest(withError: ASExtensionError(.matchedExcludedCredential))
+                        } else {
+                            ctx.cancelRequest(withError: error)
+                        }
                     }
                 }
 
@@ -499,6 +524,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         timeoutTimer.cancel()
         // If we didn't get a passkey, return an error
         self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Invalid registration request"))
+    }
+
+    // We don't provide passwords yet, but Safari may still offer this extension for password
+    // fields and call this when the user selects it. Cancel immediately so the request doesn't hang.
+    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        logger.log("[autofill-extension] prepareCredentialList(password) called; passwords are not supported")
+        self.extensionContext.cancelRequest(withError: ASExtensionError(.userCanceled))
     }
 
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier], requestParameters: ASPasskeyCredentialRequestParameters) {

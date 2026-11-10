@@ -69,9 +69,7 @@ export default {
         },
         {
           provide: MasterPasswordServiceAbstraction,
-          useValue: {
-            decryptUserKeyWithMasterKey: () => Promise.resolve("example-decrypted-user-key"),
-          },
+          useValue: {},
         },
         {
           provide: PlatformUtilsService,

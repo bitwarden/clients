@@ -1,6 +1,6 @@
 # This workflow will run in the context of the source of the PR.
 # On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
-# If additional artifacts are needed, the failed "build-cli-target.yml" workflow held up by the check-run should be re-run.
+# If signed artifacts are needed for a fork PR, review it and add the "ci:signed-build" label to run "build-cli-target.yml".
 
 name: Build CLI
 
@@ -420,30 +420,6 @@ jobs:
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG_BUILT% -save %WIN_PKG_BUILT% -action addoverwrite -resource version-info.res
 
-      - name: Log in to Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "code-signing-vault-url,
-            code-signing-client-id,
-            code-signing-tenant-id,
-            code-signing-client-secret,
-            code-signing-cert-name"
-
-      - name: Log out from Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/azure-logout@main
-
       - name: Install
         run: npm ci
         working-directory: ./
@@ -495,15 +471,60 @@ jobs:
       - name: Build & Package Windows
         run: npm run dist:${{ matrix.license_type.build_prefix }}:win --quiet
 
+      # Retrieve signing secrets and mint a signing access token only after dependencies are installed and the build has finished.
+      - name: Log in to Azure for signing
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "gh-org-bitwarden"
+          secrets: "CODE-SIGNING-VAULT-URL,
+            CODE-SIGNING-CERT-NAME"
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Log in to Azure as the code-signing identity
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID_CODE_SIGNING }}
+          allow_no_subscriptions: "true"
+
+      - name: Get signing access token
+        id: signing-token
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        shell: pwsh
+        run: |
+          $token = az account get-access-token --resource https://vault.azure.net --query accessToken --output tsv
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($token)) {
+            Write-Error "Failed to get a Key Vault access token for signing"
+            exit 1
+          }
+          Write-Output "::add-mask::$token"
+          "token=$token" >> $env:GITHUB_OUTPUT
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Sign executable
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         shell: pwsh
         env:
-          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
-          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
-          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
-          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
-          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
+          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.CODE-SIGNING-VAULT-URL }}
+          SIGNING_ACCESS_TOKEN: ${{ steps.signing-token.outputs.token }}
+          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.CODE-SIGNING-CERT-NAME }}
           EXE_PATH: dist/${{ matrix.license_type.build_prefix }}/windows/bw.exe
         run: . .\scripts\sign-cli.ps1
 

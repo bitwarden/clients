@@ -8,8 +8,11 @@
     "libs/*/src/**/*",
     "libs/tools/send/**/src/**/*",
     "libs/dirt/card/src/**/*",
+    "bitwarden_license/bit-desktop/src/**/*",
     "bitwarden_license/bit-web/src/**/*",
     "bitwarden_license/bit-common/src/**/*",
+    "bitwarden_license/bit-pam/src/**/*",
+    "bitwarden_license/bit-pam-components/src/**/*",
     "bitwarden_license/bit-browser/src/**/*"
   ],
   "exclude": [

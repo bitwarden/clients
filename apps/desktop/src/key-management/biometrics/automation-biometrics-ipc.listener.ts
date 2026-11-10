@@ -3,8 +3,11 @@ import { ipcMain } from "electron";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { BiometricsStatus } from "@bitwarden/key-management";
 
+import { WindowMain } from "../../main/window.main";
+
 import {
   AUTOMATION_BIOMETRIC_CHANNEL,
+  AUTOMATION_BIOMETRIC_REQUEST_CHANNEL,
   AutomationBiometricAction,
   AutomationBiometricMessage,
 } from "./automation-biometric-message";
@@ -19,9 +22,15 @@ export class AutomationBiometricsIPCListener {
   constructor(
     private biometricsService: AutomationBiometricsService,
     private logService: LogService,
+    private windowMain: WindowMain,
   ) {}
 
   init() {
+    // Lets the renderer show each request, standing in for the native prompt
+    this.biometricsService.requests$.subscribe((request) => {
+      this.windowMain.win?.webContents.send(AUTOMATION_BIOMETRIC_REQUEST_CHANNEL, request);
+    });
+
     ipcMain.handle(
       AUTOMATION_BIOMETRIC_CHANNEL,
       async (event: any, message: AutomationBiometricMessage) => {
@@ -33,11 +42,9 @@ export class AutomationBiometricsIPCListener {
             case AutomationBiometricAction.ListPending:
               return this.biometricsService.listPendingRequests();
             case AutomationBiometricAction.Approve:
-              this.biometricsService.approveRequest(message.id);
-              return;
+              return this.biometricsService.approveRequest(message.id);
             case AutomationBiometricAction.Deny:
-              this.biometricsService.denyRequest(message.id);
-              return;
+              return this.biometricsService.denyRequest(message.id);
             default:
               return;
           }

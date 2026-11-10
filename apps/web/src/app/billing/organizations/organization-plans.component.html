@@ -14,7 +14,7 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
 }
-@if (createOrganization() && selfHosted) {
+@if (selfHosted) {
   <ng-container>
     <organization-self-hosting-license-uploader
       (onLicenseFileUploaded)="onLicenseFileUploaded($event)"
@@ -22,19 +22,34 @@
   </ng-container>
 }
 @if (!isLoading && !selfHosted && passwordManagerPlans && secretsManagerPlans) {
-  <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-pt-6">
-    <bit-section [ngClass]="{ 'tw-hidden': !createOrganization() }">
+  <form
+    [formGroup]="formGroup"
+    [bitSubmit]="submit"
+    [class.tw-pt-6]="!sponsoredPlanLayout()"
+    [class.tw-pt-2]="sponsoredPlanLayout()"
+  >
+    <bit-section
+      [class.tw-block]="sponsoredPlanLayout()"
+      [class.tw-mb-6]="sponsoredPlanLayout()"
+      [disableMargin]="sponsoredPlanLayout()"
+    >
       <app-org-info
         (changedBusinessOwned)="changedOwnedBusiness()"
         [formGroup]="formGroup"
-        [createOrganization]="createOrganization()"
-        [isProvider]="!!providerId()"
         [acceptingSponsorship]="acceptingSponsorship()"
       >
       </app-org-info>
     </bit-section>
-    <bit-section>
-      <h2 bitTypography="h2">{{ "chooseYourPlan" | vfo1I18n: "choosePlan" }}</h2>
+    <bit-section
+      [disableMargin]="sponsoredPlanLayout()"
+      [class.tw-block]="sponsoredPlanLayout()"
+      [class.tw-mb-6]="sponsoredPlanLayout()"
+    >
+      @if (acceptingSponsorship()) {
+        <h2 bitTypography="h2">{{ "chooseYourPlan" | vfo1I18n: "sponsoredPlanDetails" }}</h2>
+      } @else {
+        <h2 bitTypography="h2">{{ "chooseYourPlan" | vfo1I18n: "choosePlan" }}</h2>
+      }
       <bit-radio-group formControlName="productTier" [block]="true">
         @for (selectableProduct of selectableProducts(); track $index) {
           @let pm = selectableProduct.PasswordManager;
@@ -49,12 +64,9 @@
           @let trialPeriodDays = selectableProduct.trialPeriodDays;
           @let effectiveTrial = trialLength() ?? trialPeriodDays;
           @let showTrialOffer =
-            tier != productTypes.Free &&
-            effectiveTrial &&
-            createOrganization() &&
-            !upgradingFromPremium;
+            tier != productTypes.Free && effectiveTrial && !upgradingFromPremium;
 
-          <div class="tw-mb-3">
+          <div [class.tw-mb-3]="!sponsoredPlanLayout()">
             <bit-radio-button [value]="tier" (change)="changedProduct()">
               <bit-label>{{ selectableProduct.nameLocalizationKey | i18n }}</bit-label>
               <bit-hint class="tw-text-sm"
@@ -150,7 +162,7 @@
               </bit-hint>
             </bit-radio-button>
 
-            @if (tier != productTypes.Free) {
+            @if (tier != productTypes.Free && !sponsoredPlanLayout()) {
               <span class="tw-pl-4">
                 @if (pm.basePrice && !acceptingSponsorship()) {
                   {{
@@ -189,13 +201,17 @@
     </bit-section>
     @if (formGroup.value.productTier !== productTypes.Free) {
       @let plan = selectedPlan();
-      <bit-section>
+      <bit-section [disableMargin]="sponsoredPlanLayout()">
         @if (
           plan.PasswordManager.hasAdditionalSeatsOption &&
           !plan.PasswordManager.baseSeats &&
           !upgradingFromPremium
         ) {
-          <bit-section>
+          <bit-section
+            [disableMargin]="sponsoredPlanLayout()"
+            [class.tw-block]="sponsoredPlanLayout()"
+            [class.tw-mb-6]="sponsoredPlanLayout()"
+          >
             <h2 bitTypography="h2">{{ "users" | i18n }}</h2>
             <div class="tw-grid tw-grid-cols-12 tw-gap-4">
               <bit-form-field class="tw-col-span-6">
@@ -213,7 +229,11 @@
           </bit-section>
         }
         @if (!upgradingFromPremium) {
-          <bit-section>
+          <bit-section
+            [disableMargin]="sponsoredPlanLayout()"
+            [class.tw-block]="sponsoredPlanLayout()"
+            [class.tw-mb-6]="sponsoredPlanLayout()"
+          >
             <h2 bitTypography="h2">{{ "addons" | i18n }}</h2>
             @if (plan.PasswordManager.hasAdditionalSeatsOption && plan.PasswordManager.baseSeats) {
               <div class="tw-grid tw-grid-cols-12 tw-gap-4">
@@ -257,7 +277,7 @@
             </div>
           </bit-section>
         }
-        <bit-section>
+        <bit-section [disableMargin]="sponsoredPlanLayout()">
           @if (plan.PasswordManager.hasPremiumAccessOption) {
             <div class="tw-grid tw-grid-cols-12 tw-gap-4">
               <bit-form-control class="tw-col-span-6">
@@ -271,7 +291,11 @@
           }
         </bit-section>
         @if (!upgradingFromPremium) {
-          <bit-section>
+          <bit-section
+            [disableMargin]="sponsoredPlanLayout()"
+            [class.tw-block]="sponsoredPlanLayout()"
+            [class.tw-mb-6]="sponsoredPlanLayout()"
+          >
             <h2 bitTypography="h2">{{ "summary" | i18n }}</h2>
             <bit-radio-group formControlName="plan">
               @for (selectablePlan of selectablePlans(); track $index) {
@@ -389,32 +413,33 @@
       </bit-section>
     }
     <!-- Secrets Manager -->
-    <bit-section>
-      @if (planOffersSecretsManager() && !hasProvider() && !upgradingFromPremium) {
+    <bit-section [disableMargin]="sponsoredPlanLayout()">
+      @if (planOffersSecretsManager() && !upgradingFromPremium) {
         <sm-subscribe
           [formGroup]="formGroup.controls.secretsManager"
           [selectedPlan]="selectedSecretsManagerPlan()"
-          [upgradeOrganization]="!createOrganization()"
         ></sm-subscribe>
       }
     </bit-section>
 
     <!-- Payment info -->
     @if (formGroup.value.productTier !== productTypes.Free) {
-      <bit-section>
+      <bit-section
+        [disableMargin]="sponsoredPlanLayout()"
+        [class.tw-block]="sponsoredPlanLayout()"
+        [class.tw-mb-6]="sponsoredPlanLayout()"
+      >
         <h2 bitTypography="h2">
-          {{ (createOrganization() ? "paymentInformation" : "billingInformation") | i18n }}
+          {{ "paymentInformation" | i18n }}
         </h2>
         <p class="tw-text-muted tw-italic tw-mb-3 tw-block" bitTypography="body2">
           {{ paymentDesc }}
         </p>
-        @if (createOrganization() || upgradeRequiresPaymentMethod) {
-          <app-enter-payment-method
-            #enterPaymentMethodComponent
-            [group]="billingFormGroup.controls.paymentMethod"
-            [showBankAccount]="!upgradingFromPremium"
-          ></app-enter-payment-method>
-        }
+        <app-enter-payment-method
+          #enterPaymentMethodComponent
+          [group]="billingFormGroup.controls.paymentMethod"
+          [showBankAccount]="!upgradingFromPremium"
+        ></app-enter-payment-method>
         <app-enter-billing-address
           [group]="billingFormGroup.controls.billingAddress"
           [scenario]="{ type: 'checkout', supportsTaxId: showTaxIdField() }"
@@ -422,32 +447,44 @@
         >
         </app-enter-billing-address>
         <div id="price" class="tw-my-4">
-          <billing-cart-summary [cart]="cart()" [showDiscountBadges]="true" />
+          @if (previewFailed()) {
+            <bit-callout type="danger" data-testid="invoice-preview-error">
+              {{ previewErrorMessageKey() | i18n }}
+            </bit-callout>
+          }
+          <billing-cart-summary
+            [cart]="cart()"
+            [showDiscountBadges]="true"
+            [class.tw-hidden]="previewFailed()"
+          />
         </div>
       </bit-section>
     }
     @if (singleOrgPolicyBlock) {
-      <bit-section>
+      <bit-section
+        [disableMargin]="sponsoredPlanLayout()"
+        [class.tw-block]="sponsoredPlanLayout()"
+        [class.tw-mb-6]="sponsoredPlanLayout()"
+      >
         <bit-callout type="danger" [title]="'error' | i18n">
           {{ "singleOrgBlockCreateMessage" | i18n }}
         </bit-callout>
       </bit-section>
     }
-    <bit-section>
+    <bit-section
+      [disableMargin]="sponsoredPlanLayout()"
+      [class.tw-block]="sponsoredPlanLayout()"
+      [class.tw-mb-6]="sponsoredPlanLayout()"
+    >
       <button
         type="submit"
         buttonType="primary"
         bitButton
         bitFormButton
-        [disabled]="!formGroup.valid"
+        [disabled]="!formGroup.valid || previewFailed()"
       >
         {{ "submit" | i18n }}
       </button>
-      @if (showCancel()) {
-        <button type="button" buttonType="secondary" bitButton bitFormButton (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      }
       <bit-error-summary [formGroup]="formGroup"></bit-error-summary>
     </bit-section>
   </form>

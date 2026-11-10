@@ -48,6 +48,7 @@ export enum EventType {
   Cipher_ClientToggledIbanVisible = 1130,
   Cipher_ClientCopiedNationalIdentificationNumber = 1131,
   Cipher_ClientToggledNationalIdentificationNumberVisible = 1132,
+  Cipher_ClientHttpAuthReleased = 1133,
 
   Collection_Created = 1300,
   Collection_Updated = 1301,
@@ -84,6 +85,8 @@ export enum EventType {
   OrganizationUser_InviteLinkAccepted = 1524,
   OrganizationUser_AdminChangedEmail = 1525,
   OrganizationUser_InviteLinkConfirmed = 1526,
+  OrganizationUser_InviteReminderSent = 1527,
+  OrganizationUser_Reinvited = 1528,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
@@ -169,4 +172,28 @@ export enum EventType {
   Send_Deleted_File = 2509,
   Send_Accessed_Text = 2510,
   Send_Accessed_File = 2511,
+  Send_PolicyDisabled = 2512,
+  Send_PolicyEnabled = 2513,
+  Send_Created_Item = 2514,
+  Send_Edited_Item = 2515,
+  Send_Deleted_Item = 2516,
+  Send_Accessed_Item = 2517,
+
+  // PAM events reported organization-wide, a subset of PAM's own audit trail. Keep in sync with
+  // the server's EventType.
+  Pam_AccessRequest_Submitted = 2600,
+  Pam_AccessRequest_Approved = 2601,
+  Pam_AccessRequest_Denied = 2602,
+  Pam_AccessLease_Activated = 2603,
+  Pam_AccessLease_Revoked = 2604,
+  Pam_AccessRequest_Cancelled = 2605,
+  Pam_AccessLease_Extended = 2606,
+  Pam_AccessLease_Expired = 2607,
+  Pam_AccessLease_ActivationRejected = 2608,
+  // Rule events carry no subject id: a rule spans collections and the event has no column for it.
+  Pam_AccessRule_Created = 2609,
+  Pam_AccessRule_Updated = 2610,
+  Pam_AccessRule_Deleted = 2611,
+  Pam_Rotation_Succeeded = 2612,
+  Pam_Rotation_Failed = 2613,
 }

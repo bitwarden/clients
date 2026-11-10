@@ -17,8 +17,10 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
@@ -52,6 +54,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     private i18nService: I18nService,
     private cipherService: CipherService,
     private stateProvider: StateProvider,
+    private logService: LogService,
   ) {}
 
   folders$(userId: UserId): Observable<Folder[]> {
@@ -275,6 +278,11 @@ export class FolderService implements InternalFolderServiceAbstraction {
       return [];
     }
 
+    const decryptMeasurement = this.logService.startMeasurement(
+      PerfTrackGroup.Unlock,
+      "Folders",
+      "decryptFolders",
+    );
     const decryptFolderPromises = folders.map(async (f) => {
       try {
         return await f.decryptWithKey(userKey, this.encryptService);
@@ -285,6 +293,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     const decryptedFolders = (await Promise.all(decryptFolderPromises))
       .filter((p) => p !== null)
       .sort(Utils.getSortFunction(this.i18nService, "name"));
+    decryptMeasurement.finish([["Items", folders.length]]);
 
     const noneFolder = new FolderView();
     noneFolder.name = this.i18nService.t("noneFolder");

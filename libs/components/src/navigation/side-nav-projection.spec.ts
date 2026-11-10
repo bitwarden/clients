@@ -334,6 +334,26 @@ describe("side-nav v1 content projection", () => {
     expect(fixture.componentInstance.endActionClicked).toBe(true);
     expect(toolsGroup.componentInstance.open()).toBe(true);
   });
+
+  // A `bitHoverRevealContainer` on the group host must not treat hovering a child as hovering the row.
+  it.each([false, true])(
+    "wraps expanded children, but not the row, in a hover-reveal boundary (vfo1: %s)",
+    (vfo1) => {
+      vfo1Enabled.next(vfo1);
+      sideNavService.open.set(true);
+      fixture.detectChanges();
+
+      const toolsGroup = fixture.debugElement
+        .queryAll(By.directive(NavGroupComponent))
+        .find((de) => de.componentInstance.text() === "Tools")!;
+      const boundary = toolsGroup.nativeElement.querySelector(
+        "[bitHoverRevealBoundary]",
+      ) as HTMLElement;
+
+      expect(boundary.textContent).toContain("Child A");
+      expect(boundary.querySelector("[data-testid='end-action']")).toBeNull();
+    },
+  );
 });
 
 // Mirrors the app-level wrappers (`apps/web/src/app/layouts/web-side-nav.component.html`,

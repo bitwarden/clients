@@ -1,15 +1,24 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
+import {
+  BehaviorSubject,
+  bufferCount,
+  firstValueFrom,
+  lastValueFrom,
+  of,
+  Subscription,
+  take,
+} from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
+import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -17,6 +26,7 @@ import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/ser
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
+import { ProfileProviderOrganizationResponse } from "@bitwarden/common/provider";
 import {
   makeEncString,
   makeStaticByteArray,
@@ -27,7 +37,7 @@ import {
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
+import { UserKey, ProviderKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
@@ -38,8 +48,10 @@ import {
   SymmetricCryptoKey,
   UnsignedPublicKey,
 } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
+import { CipherDecryptionKeys } from "./abstractions/key.service";
 import { BiometricsService } from "./biometrics/biometric.service";
 import { DefaultKeyService } from "./key.service";
 
@@ -49,19 +61,18 @@ describe("keyService", () => {
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
   const platformUtilService = mock<PlatformUtilsService>();
-  const logService = mock<LogService>();
+  const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const stateService = mock<StateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   const biometricsService = mock<BiometricsService>();
+  const sdkService = mock<SdkService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
-  let masterPasswordService: FakeMasterPasswordService;
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(mockUserId);
-    masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
 
     await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
@@ -70,6 +81,8 @@ describe("keyService", () => {
       value: Promise.resolve(),
       configurable: true,
     });
+
+    sdkService.cryptoReady$.mockReturnValue(of(true));
 
     keyService = new DefaultKeyService(
       cryptoFunctionService,
@@ -80,6 +93,7 @@ describe("keyService", () => {
       stateProvider,
       accountCryptographicStateService,
       biometricsService,
+      sdkService,
     );
   });
 
@@ -114,6 +128,31 @@ describe("keyService", () => {
     it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
       setUserKeyState(mockUserId, hasKey ? mockUserKey : null);
       expect(await keyService.hasUserKey(mockUserId)).toBe(hasKey);
+    });
+  });
+
+  describe("userKey$", () => {
+    it("does not re-emit when the same user key is written again", async () => {
+      // Every emission makes cipher consumers decrypt the whole vault, e.g. after each sync.
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      const emitted: (UserKey | null)[] = [];
+      const subscription = keyService.userKey$(mockUserId).subscribe((key) => emitted.push(key));
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(1);
+    });
+
+    it("re-emits when the user key changes", async () => {
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      const emitted: (UserKey | null)[] = [];
+      const subscription = keyService.userKey$(mockUserId).subscribe((key) => emitted.push(key));
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 1));
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(2);
     });
   });
 
@@ -536,29 +575,164 @@ describe("keyService", () => {
         emittedValues[4]!.orgKeys![org1Id].keyB64,
       );
     });
+
+    it("does not re-emit when a sync rewrites identical org and provider keys", async () => {
+      // Every emission makes cipher consumers decrypt the whole vault.
+      const orgKeys = {
+        [org1Id]: { type: "organization" as const, key: makeEncString("org1Key").encryptedString! },
+      };
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys,
+      });
+
+      const emitted: unknown[] = [];
+      const subscription = keyService
+        .cipherDecryptionKeys$(mockUserId)
+        .subscribe((keys) => emitted.push(keys));
+      await new Promise(process.nextTick);
+
+      updateKeys({ providerKeys: {} });
+      await new Promise(process.nextTick);
+      updateKeys({ orgKeys: { ...orgKeys } });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(1);
+    });
+
+    it("re-emits when an org key changes", async () => {
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+        },
+      });
+
+      const emitted: unknown[] = [];
+      const subscription = keyService
+        .cipherDecryptionKeys$(mockUserId)
+        .subscribe((keys) => emitted.push(keys));
+      await new Promise(process.nextTick);
+
+      updateKeys({
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1KeyB").encryptedString! },
+        },
+      });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(2);
+    });
+
+    describe("SDK client readiness", () => {
+      let cryptoReady$: BehaviorSubject<boolean>;
+      let emitted: (CipherDecryptionKeys | null)[];
+      let subscription: Subscription;
+
+      const settle = () => new Promise(process.nextTick);
+      const subscribe = async () => {
+        subscription = keyService
+          .cipherDecryptionKeys$(mockUserId)
+          .subscribe((keys) => emitted.push(keys));
+        await settle();
+      };
+
+      beforeEach(() => {
+        cryptoReady$ = new BehaviorSubject<boolean>(false);
+        sdkService.cryptoReady$.mockReturnValue(cryptoReady$);
+        emitted = [];
+      });
+
+      afterEach(() => {
+        subscription?.unsubscribe();
+      });
+
+      it("emits nothing while the client is not ready and keys are present", async () => {
+        updateKeys({
+          userKey: makeSymmetricCryptoKey<UserKey>(64),
+          encryptedPrivateKey: makeEncString("privateKey"),
+        });
+
+        await subscribe();
+
+        expect(emitted).toHaveLength(0);
+      });
+
+      it("emits null while the client is not ready and there is no user key", async () => {
+        setUserKeyState(mockUserId, null);
+
+        await subscribe();
+
+        expect(emitted).toEqual([null]);
+      });
+
+      it("emits the keys exactly once when the client becomes ready", async () => {
+        updateKeys({
+          userKey: makeSymmetricCryptoKey<UserKey>(64),
+          encryptedPrivateKey: makeEncString("privateKey"),
+        });
+        await subscribe();
+
+        cryptoReady$.next(true);
+        await settle();
+
+        expect(emitted).toHaveLength(1);
+        expect(emitted[0]).toEqual({ userKey: expect.anything(), orgKeys: {} });
+      });
+
+      it("holds the keys through a lock and unlock until the client is ready again", async () => {
+        const initialUserKey = makeSymmetricCryptoKey<UserKey>(64, 0);
+        updateKeys({ userKey: initialUserKey, encryptedPrivateKey: makeEncString("privateKey") });
+        cryptoReady$.next(true);
+        await subscribe();
+        expect(emitted).toEqual([{ userKey: initialUserKey, orgKeys: {} }]);
+
+        // Lock: the client stops being ready before the user key is cleared
+        cryptoReady$.next(false);
+        await settle();
+        setUserKeyState(mockUserId, null);
+        await settle();
+        expect(emitted).toEqual([{ userKey: initialUserKey, orgKeys: {} }, null]);
+
+        // Unlock: the user key is written before the organization keys reach the client
+        cryptoReady$.next(false);
+        const unlockedUserKey = makeSymmetricCryptoKey<UserKey>(64, 1);
+        setUserKeyState(mockUserId, unlockedUserKey);
+        await settle();
+        expect(emitted).toHaveLength(2);
+
+        cryptoReady$.next(true);
+        await settle();
+        expect(emitted).toEqual([
+          { userKey: initialUserKey, orgKeys: {} },
+          null,
+          { userKey: unlockedUserKey, orgKeys: {} },
+        ]);
+      });
+    });
   });
 
   describe("userEncryptionKeyPair$", () => {
     type SetupKeysParams = {
-      makeMasterKey: boolean;
       makeUserKey: boolean;
     };
 
-    function setupKeys({
-      makeMasterKey,
-      makeUserKey,
-    }: SetupKeysParams): [UserKey | null, MasterKey | null] {
+    function setupKeys({ makeUserKey }: SetupKeysParams): UserKey | null {
       const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64, 0) : null;
-      masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64, 1) : null;
       userKeyState.nextState(fakeUserKey);
-      return [fakeUserKey, fakeMasterKey];
+      return fakeUserKey;
     }
 
     it("returns null when private key is null", async () => {
-      setupKeys({ makeMasterKey: false, makeUserKey: false });
+      setupKeys({ makeUserKey: false });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
@@ -566,7 +740,7 @@ describe("keyService", () => {
     });
 
     it("returns null when private key is undefined", async () => {
-      setupKeys({ makeUserKey: true, makeMasterKey: false });
+      setupKeys({ makeUserKey: true });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
@@ -574,7 +748,7 @@ describe("keyService", () => {
     });
 
     it("returns keys when private key is defined", async () => {
-      setupKeys({ makeUserKey: false, makeMasterKey: true });
+      setupKeys({ makeUserKey: false });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject("private key"));
       cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(
@@ -585,6 +759,315 @@ describe("keyService", () => {
         privateKey: "private key",
         publicKey: Utils.fromUtf8ToArray("public key") as UnsignedPublicKey,
       });
+    });
+  });
+
+  describe("encryptedOrgKeys$", () => {
+    const org1Id = "org1" as OrganizationId;
+    const org2Id = "org2" as OrganizationId;
+    const provider1Id = "provider1" as ProviderId;
+
+    let mockUserPrivateKey: Uint8Array;
+    let mockUserPublicKey: Uint8Array;
+    let mockProviderKeys: Record<ProviderId, ProviderKey>;
+    let org1EncryptedKey: EncString;
+    let org2ProviderEncryptedKey: EncString;
+
+    beforeEach(() => {
+      mockUserPrivateKey = makeStaticByteArray(64, 1);
+      mockUserPublicKey = makeStaticByteArray(64, 2);
+      mockProviderKeys = {
+        [provider1Id]: makeSymmetricCryptoKey<ProviderKey>(64, 0),
+      };
+      org1EncryptedKey = makeEncString("org1Key");
+      org2ProviderEncryptedKey = makeEncString("org2Key");
+
+      stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS).nextState({
+        [org1Id]: { type: "organization", key: org1EncryptedKey.encryptedString! },
+        [org2Id]: {
+          type: "provider",
+          key: org2ProviderEncryptedKey.encryptedString!,
+          providerId: provider1Id,
+        },
+      });
+
+      cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(mockUserPublicKey);
+      encryptService.unwrapSymmetricKey.mockResolvedValue(makeSymmetricCryptoKey(64, 3));
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(makeEncString("reencryptedOrg2Key"));
+    });
+
+    it("returns an empty record when userPrivateKey is null", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(null));
+
+      const result = await firstValueFrom(keyService.encryptedOrgKeys$(mockUserId));
+
+      expect(result).toEqual({});
+    });
+
+    it("passes through user-encrypted org keys and re-encrypts provider-encrypted org keys with the user's public key", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(mockProviderKeys));
+
+      const result = await firstValueFrom(keyService.encryptedOrgKeys$(mockUserId));
+
+      expect(result).toEqual({
+        [org1Id]: org1EncryptedKey,
+        [org2Id]: makeEncString("reencryptedOrg2Key"),
+      });
+      expect(cryptoFunctionService.rsaExtractPublicKey).toHaveBeenCalledWith(mockUserPrivateKey);
+      expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(
+        org2ProviderEncryptedKey,
+        mockProviderKeys[provider1Id],
+      );
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        makeSymmetricCryptoKey(64, 3),
+        mockUserPublicKey,
+      );
+    });
+
+    it("skips provider-encrypted org keys when there are no provider keys", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(null));
+
+      const result = await firstValueFrom(keyService.encryptedOrgKeys$(mockUserId));
+
+      expect(result).toEqual({ [org1Id]: org1EncryptedKey });
+      expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setOrgKeys", () => {
+    const org1Id = "org1" as OrganizationId;
+    const org2Id = "org2" as OrganizationId;
+    const staleOrgId = "staleOrg" as OrganizationId;
+    const provider1Id = "provider1" as ProviderId;
+
+    let mockUserPrivateKey: Uint8Array;
+    let mockProviderKeys: Record<ProviderId, ProviderKey>;
+    let org1EncryptedKey: EncString;
+    let org2ProviderEncryptedKey: EncString;
+    let reencryptedOrg2Key: EncString;
+    let orgs: ProfileOrganizationResponse[];
+    let providerOrgs: ProfileProviderOrganizationResponse[];
+    let orgKeysState: FakeSingleUserState<Record<OrganizationId, EncryptedOrganizationKeyData>>;
+
+    beforeEach(() => {
+      mockUserPrivateKey = makeStaticByteArray(64, 1);
+      mockProviderKeys = { [provider1Id]: makeSymmetricCryptoKey<ProviderKey>(64, 0) };
+      org1EncryptedKey = makeEncString("org1Key");
+      org2ProviderEncryptedKey = makeEncString("org2Key");
+      reencryptedOrg2Key = makeEncString("reencryptedOrg2Key");
+      orgs = [
+        mock<ProfileOrganizationResponse>({ id: org1Id, key: org1EncryptedKey.encryptedString! }),
+      ];
+      providerOrgs = [
+        mock<ProfileProviderOrganizationResponse>({
+          id: org2Id,
+          key: org2ProviderEncryptedKey.encryptedString!,
+          providerId: provider1Id,
+        }),
+      ];
+
+      orgKeysState = stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS);
+      orgKeysState.nextState({
+        [staleOrgId]: { type: "organization", key: makeEncString("staleKey").encryptedString! },
+      });
+
+      cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(makeStaticByteArray(64, 2));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(makeSymmetricCryptoKey(64, 3));
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(reencryptedOrg2Key);
+      sdkService.setOrgKeys.mockResolvedValue(undefined);
+    });
+
+    it("pushes the organization keys to the SDK before writing them to state", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(mockProviderKeys));
+      let stateWritesAtPush: number | undefined;
+      sdkService.setOrgKeys.mockImplementation(async () => {
+        stateWritesAtPush = orgKeysState.nextMock.mock.calls.length;
+      });
+
+      await keyService.setOrgKeys(orgs, providerOrgs, mockUserId);
+
+      expect(stateWritesAtPush).toBe(0);
+      expect(sdkService.setOrgKeys.mock.invocationCallOrder[0]).toBeLessThan(
+        orgKeysState.nextMock.mock.invocationCallOrder[0],
+      );
+      expect(orgKeysState.nextMock).toHaveBeenCalledWith({
+        [org1Id]: { type: "organization", key: org1EncryptedKey.encryptedString },
+        [org2Id]: {
+          type: "provider",
+          providerId: provider1Id,
+          key: org2ProviderEncryptedKey.encryptedString,
+        },
+      });
+    });
+
+    it("pushes the given keys converted to the SDK form, without reading the stored keys", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(mockProviderKeys));
+      const encryptedOrgKeysSpy = jest.spyOn(keyService, "encryptedOrgKeys$");
+
+      await keyService.setOrgKeys(orgs, providerOrgs, mockUserId);
+
+      expect(sdkService.setOrgKeys).toHaveBeenCalledWith(mockUserId, {
+        [org1Id]: org1EncryptedKey.toJSON(),
+        [org2Id]: reencryptedOrg2Key.toJSON(),
+      });
+      expect(encryptedOrgKeysSpy).not.toHaveBeenCalled();
+    });
+
+    it("skips the push but still writes state when the user private key is unavailable", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(null));
+
+      await keyService.setOrgKeys(orgs, providerOrgs, mockUserId);
+
+      expect(sdkService.setOrgKeys).not.toHaveBeenCalled();
+      expect(orgKeysState.nextMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("skips the push but still writes state when building the SDK keys fails", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(mockProviderKeys));
+      encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("decryption failed"));
+
+      await keyService.setOrgKeys(orgs, providerOrgs, mockUserId);
+
+      expect(logService.error).toHaveBeenCalled();
+      expect(sdkService.setOrgKeys).not.toHaveBeenCalled();
+      expect(orgKeysState.nextMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("buildSdkUnlockData", () => {
+    const org1Id = "org1" as OrganizationId;
+    const org2Id = "org2" as OrganizationId;
+    const provider1Id = "provider1" as ProviderId;
+
+    let userKey: UserKey;
+    let accountCryptographicState: WrappedAccountCryptographicState;
+    let mockEncryptedPrivateKey: EncryptedString;
+    let mockUserPrivateKey: Uint8Array;
+    let mockProviderKeys: Record<ProviderId, ProviderKey>;
+    let org1EncryptedKey: EncString;
+    let reencryptedOrg2Key: EncString;
+
+    beforeEach(() => {
+      userKey = makeSymmetricCryptoKey<UserKey>(64, 7);
+      mockEncryptedPrivateKey = makeEncString("encryptedPrivateKey").encryptedString!;
+      accountCryptographicState = { V1: { private_key: mockEncryptedPrivateKey } };
+      mockUserPrivateKey = makeStaticByteArray(64, 1);
+      mockProviderKeys = { [provider1Id]: makeSymmetricCryptoKey<ProviderKey>(64, 0) };
+      org1EncryptedKey = makeEncString("org1Key");
+      reencryptedOrg2Key = makeEncString("reencryptedOrg2Key");
+
+      // A locked account: the user key is only available in memory.
+      setUserKeyState(mockUserId, null);
+      stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS).nextState({
+        [org1Id]: { type: "organization", key: org1EncryptedKey.encryptedString! },
+        [org2Id]: {
+          type: "provider",
+          key: makeEncString("org2Key").encryptedString!,
+          providerId: provider1Id,
+        },
+      });
+
+      accountCryptographicStateService.accountCryptographicState$.mockReturnValue(
+        of(accountCryptographicState),
+      );
+      encryptService.unwrapDecapsulationKey.mockResolvedValue(mockUserPrivateKey);
+      cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(makeStaticByteArray(64, 2));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(makeSymmetricCryptoKey(64, 3));
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(reencryptedOrg2Key);
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(mockProviderKeys));
+    });
+
+    it("returns null and pushes nothing when the account cryptographic state is unavailable", async () => {
+      accountCryptographicStateService.accountCryptographicState$.mockReturnValue(of(null));
+
+      const result = await keyService.buildSdkUnlockData(mockUserId, userKey);
+
+      expect(result).toBeNull();
+      expect(encryptService.unwrapDecapsulationKey).not.toHaveBeenCalled();
+      expect(sdkService.setOrgKeys).not.toHaveBeenCalled();
+    });
+
+    it("decrypts the private key with the given user key without reading the user key from state", async () => {
+      const userKeySpy = jest.spyOn(keyService, "userKey$");
+
+      await keyService.buildSdkUnlockData(mockUserId, userKey);
+
+      expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
+        new EncString(mockEncryptedPrivateKey),
+        userKey,
+      );
+      expect((keyService as any).providerKeysHelper$).toHaveBeenCalledWith(
+        mockUserId,
+        mockUserPrivateKey,
+      );
+      expect(userKeySpy).not.toHaveBeenCalled();
+    });
+
+    it("returns the unlock request and the organization keys in the SDK form", async () => {
+      const result = await keyService.buildSdkUnlockData(mockUserId, userKey);
+
+      expect(result).toEqual({
+        request: {
+          userId: mockUserId,
+          method: { decryptedKey: { decrypted_user_key: userKey.toSdk() } },
+          accountCryptographicState,
+        },
+        orgKeys: {
+          [org1Id]: org1EncryptedKey.toJSON(),
+          [org2Id]: reencryptedOrg2Key.toJSON(),
+        },
+      });
+    });
+
+    it("returns no organization keys when the account has no private key", async () => {
+      accountCryptographicStateService.accountCryptographicState$.mockReturnValue(
+        of({ V1: { private_key: null } } as any),
+      );
+
+      const result = await keyService.buildSdkUnlockData(mockUserId, userKey);
+
+      expect(result?.orgKeys).toEqual({});
+      expect((keyService as any).providerKeysHelper$).not.toHaveBeenCalled();
+    });
+
+    it("returns the unlock request with no organization keys when none are stored", async () => {
+      stateProvider.singleUser
+        .getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS)
+        .nextState(null);
+
+      const result = await keyService.buildSdkUnlockData(mockUserId, userKey);
+
+      expect(result).toEqual({
+        request: {
+          userId: mockUserId,
+          method: { decryptedKey: { decrypted_user_key: userKey.toSdk() } },
+          accountCryptographicState,
+        },
+        orgKeys: {},
+      });
+    });
+  });
+
+  describe("toUserEncryptedOrgKeys", () => {
+    it("returns an empty record when userPrivateKey is null", async () => {
+      const result = await (keyService as any).toUserEncryptedOrgKeys(
+        {
+          ["org1" as OrganizationId]: {
+            type: "organization",
+            key: makeEncString("org1Key").encryptedString!,
+          },
+        },
+        null,
+        null,
+      );
+
+      expect(result).toEqual({});
+      expect(cryptoFunctionService.rsaExtractPublicKey).not.toHaveBeenCalled();
     });
   });
 

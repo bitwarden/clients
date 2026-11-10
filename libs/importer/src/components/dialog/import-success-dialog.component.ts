@@ -119,15 +119,14 @@ export class ImportSuccessDialogComponent implements OnInit {
         list.push({ icon: row.icon, type: row.label, count });
       }
     }
-    if (importResult.folders.length > 0) {
-      list.push({ icon: "folder", type: "folders", count: importResult.folders.length });
+    const folderCount = importResult.folders.length - (importResult.targetFolderIncluded ? 1 : 0);
+    if (folderCount > 0) {
+      list.push({ icon: "folder", type: "folders", count: folderCount });
     }
-    if (importResult.collections.length > 0) {
-      list.push({
-        icon: "collection",
-        type: "collections",
-        count: importResult.collections.length,
-      });
+    const collectionCount =
+      importResult.collections.length - (importResult.targetCollectionIncluded ? 1 : 0);
+    if (collectionCount > 0) {
+      list.push({ icon: "collection", type: "collections", count: collectionCount });
     }
     return list;
   }

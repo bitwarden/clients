@@ -1,4 +1,4 @@
-import { signal, WritableSignal } from "@angular/core";
+import { computed, signal, WritableSignal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of, take, timeout } from "rxjs";
@@ -54,6 +54,7 @@ describe("VaultPopupItemsService", () => {
   let mockOrg: Organization;
   let mockCollections: CollectionView[];
   let activeUserLastSync$: BehaviorSubject<Date | null>;
+  let vfo1Enabled$: BehaviorSubject<boolean>;
   let viewCacheService: {
     signal: jest.Mock;
     mockSignal: WritableSignal<string | null>;
@@ -71,7 +72,12 @@ describe("VaultPopupItemsService", () => {
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
   const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
-  const vaultPopupListTableFiltersServiceMock = mock<VaultPopupListTableFiltersService>();
+  /** Stands in for the filters service's per-vault search text store. */
+  const searchTextByScope = signal<Record<string, string>>({});
+  const vaultPopupListTableFiltersServiceMock = mock<VaultPopupListTableFiltersService>({
+    searchText: computed(() => searchTextByScope()["allItems"] ?? ""),
+    setSearchText: jest.fn(async (text: string) => searchTextByScope.set({ allItems: text })),
+  });
   const configServiceMock = mock<ConfigService>();
   let filters$: BehaviorSubject<PopupListFilter>;
 
@@ -118,7 +124,8 @@ describe("VaultPopupItemsService", () => {
     searchService.searchCiphers.mockImplementation(
       async (userId, _organizationId, _query, ciphers) => ciphers!,
     );
-    configServiceMock.getFeatureFlag$.mockReturnValue(of(false));
+    vfo1Enabled$ = new BehaviorSubject<boolean>(false);
+    configServiceMock.getFeatureFlag$.mockReturnValue(vfo1Enabled$);
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(uuidAsString(c.id))),
     );
@@ -150,6 +157,7 @@ describe("VaultPopupItemsService", () => {
     vaultPopupListFiltersServiceMock.filters$ = filters$;
     vaultPopupListFiltersServiceMock.filterFunction$ = of((ciphers) => ciphers);
     vaultPopupListTableFiltersServiceMock.hasFilterApplied$ = of(false);
+    searchTextByScope.set({});
 
     mockCollections = [
       { id: "col1", name: "Collection 1" } as CollectionView,
@@ -446,6 +454,57 @@ describe("VaultPopupItemsService", () => {
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
       expect(deletedCiphers.length).toBe(1);
     });
+
+    it("should exclude deleted ciphers from organizations the user no longer belongs to", async () => {
+      const personalCipher = new CipherView();
+      personalCipher.deletedDate = new Date();
+      const memberOrgCipher = new CipherView();
+      memberOrgCipher.deletedDate = new Date();
+      memberOrgCipher.organizationId = "org1";
+      const revokedOrgCipher = new CipherView();
+      revokedOrgCipher.deletedDate = new Date();
+      revokedOrgCipher.organizationId = "revokedOrg";
+
+      cipherServiceMock.cipherListViews$.mockReturnValue(
+        of([personalCipher, memberOrgCipher, revokedOrgCipher]),
+      );
+      ciphersSubject.next({});
+
+      const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
+      expect(deletedCiphers.map((c) => c.organizationId)).toEqual([undefined, "org1"]);
+    });
+  });
+
+  describe("organization access", () => {
+    it("should exclude ciphers from organizations the user no longer belongs to", async () => {
+      const cipherList = Object.values(allCiphers);
+      cipherList[0].organizationId = "org1";
+      cipherList[1].organizationId = "revokedOrg";
+
+      const activeCiphers = await firstValueFrom(service.activeCiphers$);
+
+      expect(activeCiphers.map((c) => c.id)).not.toContain(cipherList[1].id);
+      expect(activeCiphers.find((c) => c.id === cipherList[0].id)?.organization).toEqual(mockOrg);
+      expect(activeCiphers.length).toBe(cipherList.length - 1);
+    });
+
+    it("should drop an organization's ciphers as soon as the organization is removed", async () => {
+      const organizations$ = new BehaviorSubject<Organization[]>([mockOrg]);
+      organizationServiceMock.organizations$.mockReturnValue(organizations$);
+      const cipherList = Object.values(allCiphers);
+      cipherList[0].organizationId = "org1";
+
+      const tracker = new ObservableTracker(service.activeCiphers$, false);
+      const [initial] = await tracker.pauseUntilReceived(1);
+      expect(initial.map((c) => c.id)).toContain(cipherList[0].id);
+
+      // A sync replaces organizations before ciphers, so the cipher list has not changed yet.
+      organizations$.next([]);
+
+      const updated = (await tracker.pauseUntilReceived(2))[1];
+      expect(updated.map((c) => c.id)).not.toContain(cipherList[0].id);
+      expect(updated.every((c) => !c.organizationId || c.organization != null)).toBe(true);
+    });
   });
 
   describe("showDeactivatedOrg$", () => {
@@ -569,7 +628,7 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
-  it("should update searchText$ when applyFilter is called", (done) => {
+  it("should update searchText$ and the view cache when applyFilter is called", (done) => {
     service.searchText$.subscribe((val) => {
       expect(val).toEqual("test search");
       expect(viewCacheService.mockSignal()).toEqual("test search");
@@ -577,6 +636,39 @@ describe("VaultPopupItemsService", () => {
     });
 
     service.applyFilter("test search");
+  });
+
+  it("should not write the legacy search text to the per-user state", () => {
+    service.applyFilter("test search");
+
+    expect(vaultPopupListTableFiltersServiceMock.setSearchText).not.toHaveBeenCalled();
+  });
+
+  describe("with VFO1 enabled", () => {
+    beforeEach(() => {
+      vfo1Enabled$.next(true);
+    });
+
+    it("should store the search text per user when applyScopedFilter is called", () => {
+      service.applyScopedFilter("test search");
+
+      expect(vaultPopupListTableFiltersServiceMock.setSearchText).toHaveBeenCalledWith(
+        "test search",
+      );
+      expect(viewCacheService.mockSignal()).toBe("");
+    });
+
+    it("should read the search text from the per-user state", () => {
+      service.applyScopedFilter("test search");
+
+      expect(service.searchText()).toBe("test search");
+    });
+
+    it("should ignore the view-cached search text", () => {
+      viewCacheService.mockSignal.set("legacy text");
+
+      expect(service.searchText()).toBe("");
+    });
   });
 
   describe("clearSearchText on account switch", () => {

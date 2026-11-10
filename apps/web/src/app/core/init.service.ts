@@ -23,7 +23,7 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { LogService } from "@bitwarden/logging";
+import { limitPerformanceMeasurements, LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { VersionService } from "../platform/version.service";
@@ -58,11 +58,16 @@ export class InitService {
 
   init() {
     return async () => {
+      limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.run();
 
       const accounts = await firstValueFrom(this.accountService.accounts$);
       await this.tokenService.cleanupTokenStorage(Object.keys(accounts) as UserId[]);
+
+      // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+      await this.ipcService.init();
+      await this.sharedUnlockPeerService.start();
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       if (activeAccount) {
@@ -85,8 +90,6 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
-      await this.ipcService.init();
-      await this.sharedUnlockPeerService.start();
       this.taskService.listenForTaskNotifications();
 
       // Opportunistic sweep of any sealed open-org-invite secrets whose TTL has expired

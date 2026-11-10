@@ -1,0 +1,15 @@
+<bit-simple-dialog>
+  <div bitDialogTitle>{{ "deleteItem" | i18n }}</div>
+  <div bitDialogContent class="tw-flex tw-flex-col tw-w-full">
+    <p bitTypography="body1">
+      {{ "deleteAtRiskItemDesc" | i18n }}
+    </p>
+    <dirt-health-additional-risks [item]="item" [currentCategory]="currentCategory" />
+  </div>
+  <div bitDialogFooter class="tw-flex tw-flex-col tw-gap-2">
+    <button bitButton type="button" buttonType="danger" [bitAction]="onDeleteItem">
+      {{ "delete" | i18n }}
+    </button>
+    <button bitButton type="button" bitDialogClose>{{ "cancel" | i18n }}</button>
+  </div>
+</bit-simple-dialog>

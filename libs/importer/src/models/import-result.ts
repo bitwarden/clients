@@ -17,6 +17,10 @@ export class ImportResult {
   folderRelationships: FolderRelationship[] = [];
   collections: CollectionView[] = [];
   collectionRelationships: CollectionRelationship[] = [];
+  /** True when `folders[0]` is the pre-existing destination folder, not parsed from the source. */
+  targetFolderIncluded = false;
+  /** True when `collections[0]` is the pre-existing destination collection, not parsed from the source. */
+  targetCollectionIncluded = false;
   /**
    * Items that could not be imported and were skipped. When non-empty on a successful import, the
    * valid items were still imported; the UI/CLI surface these to the user.

@@ -1,5 +1,6 @@
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
+import { CommandDefinition } from "@bitwarden/common/platform/messaging";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -71,7 +72,24 @@ export type NotificationQueueMessageItem =
   | AddUnlockVaultQueueMessage
   | AtRiskPasswordQueueMessage;
 
+/**
+ * Key under which a retry carries the sender whose tab receives the retried autofill.
+ *
+ * Symbol-keyed so the sender cannot leave this context: serializing a message out drops the key,
+ * so a retry that crosses a boundary arrives with no target rather than a forged one, and without
+ * disclosing the tab it named.
+ *
+ * It is an ordinary enumerable property, so it does survive `{ ...commandToRetry }` within this
+ * context. That is deliberate — code here already holds the sender. Judging whether a *message*
+ * arrived from elsewhere stays `isExternalMessage`'s job.
+ */
+export const RETRY_SENDER = Symbol("retrySender");
+
 export type LockedVaultPendingNotificationsData = {
+  /**
+   * The command to replay, and the tab to replay it against. Naming a tab makes this a
+   * capability rather than a notification, so only the background may author one.
+   */
   commandToRetry: {
     message: {
       command: string;
@@ -79,10 +97,32 @@ export type LockedVaultPendingNotificationsData = {
       folder?: string;
       edit?: boolean;
     };
-    sender: chrome.runtime.MessageSender;
+    [RETRY_SENDER]?: chrome.runtime.MessageSender;
   };
+  /** Selects the consumer that replays the command. The others ignore it. */
   target: string;
 };
+
+/**
+ * Payload shared by both locked-vault retry commands.
+ *
+ * WARNING: never deliver this over chrome messaging. Serialization drops the
+ * {@link RETRY_SENDER} naming the tab to replay against, and discloses the rest of the retry to
+ * every context that can read the message.
+ *
+ * `data` is shared with the other consumers of the same emission, not cloned per consumer. Treat
+ * it as read-only.
+ */
+export type LockedVaultRetryMessage = { data: LockedVaultPendingNotificationsData };
+
+/** Queues a command to replay once the vault is unlocked. */
+export const ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS =
+  new CommandDefinition<LockedVaultRetryMessage>("addToLockedVaultPendingNotifications");
+
+/** Replays the queued command, now that the vault is unlocked. */
+export const RETRY_WHEN_UNLOCK_COMPLETED = new CommandDefinition<LockedVaultRetryMessage>(
+  "unlockCompleted",
+);
 
 export type AdjustNotificationBarMessageData = {
   height: number;
@@ -106,9 +146,7 @@ export type UnlockVaultMessageData = {
 export type NotificationBackgroundExtensionMessage = {
   [key: string]: any;
   command: string;
-  data?: Partial<LockedVaultPendingNotificationsData> &
-    Partial<AdjustNotificationBarMessageData> &
-    Partial<UnlockVaultMessageData>;
+  data?: Partial<AdjustNotificationBarMessageData> & Partial<UnlockVaultMessageData>;
   folder?: string;
   edit?: boolean;
   details?: AutofillPageDetails;
@@ -125,7 +163,6 @@ type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSende
 
 export type NotificationBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  unlockCompleted: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgGetFolderData: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<FolderView[]>;
   bgGetCollectionData: ({
     message,

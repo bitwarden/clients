@@ -37,10 +37,16 @@
       </div>
     </section>
     <section>
+      @if (previewFailed()) {
+        <bit-callout type="danger" data-testid="invoice-preview-error">
+          {{ previewErrorMessageKey() | i18n }}
+        </bit-callout>
+      }
       <billing-cart-summary
         #cartSummaryComponent
         [cart]="cart()"
         [hidePricingTerm]="true"
+        [class.tw-hidden]="previewFailed()"
       ></billing-cart-summary>
     </section>
   </ng-container>
@@ -49,7 +55,7 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="loading() || !isFormValid()"
+      [disabled]="loading() || !isFormValid() || previewFailed()"
       type="submit"
     >
       {{ "upgrade" | i18n }}

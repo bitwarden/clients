@@ -6,4 +6,6 @@ export enum EventSystemUser {
   DomainVerification = 2,
   PublicApi = 3,
   BitwardenPortal = 5,
+  Pam = 6,
+  ScheduledJob = 7,
 }

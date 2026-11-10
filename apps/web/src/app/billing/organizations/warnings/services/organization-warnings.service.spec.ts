@@ -6,10 +6,17 @@ jest.mock("@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.com
   openChangePlanDialog: jest.fn(),
 }));
 
+jest.mock(
+  "@bitwarden/web-vault/app/billing/organizations/restart-subscription-dialog.component",
+  () => ({
+    openRestartSubscriptionDialog: jest.fn(),
+  }),
+);
+
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -27,6 +34,10 @@ import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
+import {
+  openRestartSubscriptionDialog,
+  RestartSubscriptionDialogResultType,
+} from "@bitwarden/web-vault/app/billing/organizations/restart-subscription-dialog.component";
 import {
   OrganizationWarningsService,
   TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
@@ -85,6 +96,7 @@ describe("OrganizationWarningsService", () => {
     stateProvider = mock<StateProvider>();
 
     (openChangePlanDialog as jest.Mock).mockReset();
+    (openRestartSubscriptionDialog as jest.Mock).mockReset();
 
     platformUtilsService.isSelfHost.mockReturnValue(false);
     accountService.activeAccount$ = of(activeAccount);
@@ -161,7 +173,7 @@ describe("OrganizationWarningsService", () => {
     });
 
     it("should return warning with count message when remaining trial days >= 2", (done) => {
-      const warning = { remainingTrialDays: 5 };
+      const warning = { remainingTrialDays: 5, isSalesAssisted: false };
       organizationBillingClient.getWarnings.mockResolvedValue({
         freeTrial: warning,
       } as OrganizationWarningsResponse);
@@ -170,45 +182,14 @@ describe("OrganizationWarningsService", () => {
         expect(result).toEqual({
           organization: organization,
           message: "Your free trial ends in 5 days.",
+          isSalesAssisted: false,
         });
         expect(i18nService.t).toHaveBeenCalledWith("freeTrialEndPromptCount", 5);
         done();
       });
     });
 
-    it("should return warning with tomorrow message when remaining trial days = 1", (done) => {
-      const warning = { remainingTrialDays: 1 };
-      organizationBillingClient.getWarnings.mockResolvedValue({
-        freeTrial: warning,
-      } as OrganizationWarningsResponse);
-
-      service.getFreeTrialWarning$(organization).subscribe((result) => {
-        expect(result).toEqual({
-          organization: organization,
-          message: "Your free trial ends tomorrow.",
-        });
-        expect(i18nService.t).toHaveBeenCalledWith("freeTrialEndPromptTomorrowNoOrgName");
-        done();
-      });
-    });
-
-    it("should return warning with today message when remaining trial days = 0", (done) => {
-      const warning = { remainingTrialDays: 0 };
-      organizationBillingClient.getWarnings.mockResolvedValue({
-        freeTrial: warning,
-      } as OrganizationWarningsResponse);
-
-      service.getFreeTrialWarning$(organization).subscribe((result) => {
-        expect(result).toEqual({
-          organization: organization,
-          message: "Your free trial ends today.",
-        });
-        expect(i18nService.t).toHaveBeenCalledWith("freeTrialEndingTodayWithoutOrgName");
-        done();
-      });
-    });
-
-    it("should return warning when the free trial is sales-assisted", (done) => {
+    it("should propagate isSalesAssisted when the trial is sales-assisted", (done) => {
       const warning = { remainingTrialDays: 5, isSalesAssisted: true };
       organizationBillingClient.getWarnings.mockResolvedValue({
         freeTrial: warning,
@@ -218,15 +199,67 @@ describe("OrganizationWarningsService", () => {
         expect(result).toEqual({
           organization: organization,
           message: "Your free trial ends in 5 days.",
+          isSalesAssisted: true,
         });
-        expect(i18nService.t).toHaveBeenCalledWith("freeTrialEndPromptCount", 5);
+        done();
+      });
+    });
+
+    it.each([
+      [5, "freeTrialEndPromptMultipleDays", ["Test Organization", 5]],
+      [1, "freeTrialEndPromptTomorrow", ["Test Organization"]],
+      [0, "freeTrialEndPromptToday", ["Test Organization"]],
+    ])(
+      "should use the organization-name message key for %i remaining days when includeOrganizationNameInMessaging is true",
+      async (remainingTrialDays, expectedKey, expectedArgs) => {
+        organizationBillingClient.getWarnings.mockResolvedValue({
+          freeTrial: { remainingTrialDays, isSalesAssisted: false },
+        } as OrganizationWarningsResponse);
+
+        const result = await firstValueFrom(service.getFreeTrialWarning$(organization, true));
+
+        expect(i18nService.t).toHaveBeenCalledWith(expectedKey, ...expectedArgs);
+        expect(result?.message).toBe(expectedKey);
+      },
+    );
+
+    it("should return warning with tomorrow message when remaining trial days = 1", (done) => {
+      const warning = { remainingTrialDays: 1, isSalesAssisted: false };
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: warning,
+      } as OrganizationWarningsResponse);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          organization: organization,
+          message: "Your free trial ends tomorrow.",
+          isSalesAssisted: false,
+        });
+        expect(i18nService.t).toHaveBeenCalledWith("freeTrialEndPromptTomorrowNoOrgName");
+        done();
+      });
+    });
+
+    it("should return warning with today message when remaining trial days = 0", (done) => {
+      const warning = { remainingTrialDays: 0, isSalesAssisted: false };
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: warning,
+      } as OrganizationWarningsResponse);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          organization: organization,
+          message: "Your free trial ends today.",
+          isSalesAssisted: false,
+        });
+        expect(i18nService.t).toHaveBeenCalledWith("freeTrialEndingTodayWithoutOrgName");
         done();
       });
     });
 
     it("should refresh warning when refreshFreeTrialWarning is called", (done) => {
-      const initialWarning = { remainingTrialDays: 3 };
-      const refreshedWarning = { remainingTrialDays: 2 };
+      const initialWarning = { remainingTrialDays: 3, isSalesAssisted: false };
+      const refreshedWarning = { remainingTrialDays: 2, isSalesAssisted: true };
       let invocationCount = 0;
 
       organizationBillingClient.getWarnings
@@ -244,11 +277,13 @@ describe("OrganizationWarningsService", () => {
           expect(result).toEqual({
             organization: organization,
             message: "Your free trial ends in 3 days.",
+            isSalesAssisted: false,
           });
         } else if (invocationCount === 2) {
           expect(result).toEqual({
             organization: organization,
             message: "Your free trial ends in 2 days.",
+            isSalesAssisted: true,
           });
           subscription.unsubscribe();
           done();
@@ -652,24 +687,23 @@ describe("OrganizationWarningsService", () => {
       });
     });
 
-    it("should open change plan dialog for resubscribe resolution", (done) => {
-      const warning = { resolution: "resubscribe" };
-      const subscription = { id: "sub-123" } as OrganizationSubscriptionResponse;
+    describe("resubscribe resolution", () => {
+      const arrange = (status: string) => {
+        const subscription = { subscription: { status } } as OrganizationSubscriptionResponse;
+        organizationBillingClient.getWarnings.mockResolvedValue({
+          inactiveSubscription: { resolution: "resubscribe" },
+        } as OrganizationWarningsResponse);
+        organizationApiService.getSubscription.mockResolvedValue(subscription);
+        (openChangePlanDialog as jest.Mock).mockReturnValue({
+          closed: of("submitted"),
+        } as DialogRef<ChangePlanDialogResultType>);
+        (openRestartSubscriptionDialog as jest.Mock).mockReturnValue({
+          closed: of("submitted"),
+        } as DialogRef<RestartSubscriptionDialogResultType>);
+        return subscription;
+      };
 
-      organizationBillingClient.getWarnings.mockResolvedValue({
-        inactiveSubscription: warning,
-      } as OrganizationWarningsResponse);
-
-      organizationApiService.getSubscription.mockResolvedValue(subscription);
-
-      const mockDialogRef = {
-        closed: of("submitted"),
-      } as DialogRef<ChangePlanDialogResultType>;
-
-      (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
-
-      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
-        expect(organizationApiService.getSubscription).toHaveBeenCalledWith(organization.id);
+      const expectChangePlanDialog = (subscription: OrganizationSubscriptionResponse) => {
         expect(openChangePlanDialog).toHaveBeenCalledWith(dialogService, {
           data: {
             organizationId: organization.id,
@@ -677,7 +711,38 @@ describe("OrganizationWarningsService", () => {
             productTierType: organization.productTierType,
           },
         });
-        done();
+        expect(openRestartSubscriptionDialog).not.toHaveBeenCalled();
+      };
+
+      const expectRestartSubscriptionDialog = (subscription: OrganizationSubscriptionResponse) => {
+        expect(openRestartSubscriptionDialog).toHaveBeenCalledWith(dialogService, {
+          data: { organizationId: organization.id, subscription },
+        });
+        expect(openChangePlanDialog).not.toHaveBeenCalled();
+      };
+
+      it("opens the restart subscription dialog when the subscription is canceled", async () => {
+        const subscription = arrange("canceled");
+
+        await firstValueFrom(service.showInactiveSubscriptionDialog$(organization));
+
+        expectRestartSubscriptionDialog(subscription);
+      });
+
+      it("opens the restart subscription dialog when the subscription is incomplete_expired", async () => {
+        const subscription = arrange("incomplete_expired");
+
+        await firstValueFrom(service.showInactiveSubscriptionDialog$(organization));
+
+        expectRestartSubscriptionDialog(subscription);
+      });
+
+      it("opens the change plan dialog when the subscription has not ended", async () => {
+        const subscription = arrange("active");
+
+        await firstValueFrom(service.showInactiveSubscriptionDialog$(organization));
+
+        expectChangePlanDialog(subscription);
       });
     });
 

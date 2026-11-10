@@ -22,6 +22,7 @@ import { AccountService } from "../../../auth/abstractions/account.service";
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { UserId } from "../../../types/guid";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { RegisterSdkService } from "../../abstractions/sdk/register-sdk.service";
@@ -86,6 +87,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private managedSettingsService: ManagedSettingsService,
+    private appIdService: AppIdService,
     private userAgent: string | null = null,
   ) {}
 
@@ -204,6 +206,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
       deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      deviceIdentifier: await this.appIdService.getAppId(),
       userAgent: this.userAgent ?? navigator.userAgent,
       bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
     };

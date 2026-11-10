@@ -85,4 +85,38 @@ describe("Vfo1TerminologyService", () => {
       expect(service.iconClass("bwi-collection-shared")).toBe("bwi-collection-shared");
     });
   });
+
+  describe("collectionQueryParams", () => {
+    it("writes collectionId and nulls sharedFolderId when the flag is off", () => {
+      const service = TestBed.inject(Vfo1TerminologyService);
+
+      expect(service.collectionQueryParams("col1")).toEqual({
+        collectionId: "col1",
+        sharedFolderId: null,
+      });
+    });
+
+    it("writes sharedFolderId and nulls collectionId when the flag is on", () => {
+      flagSubject.next(true);
+      const service = TestBed.inject(Vfo1TerminologyService);
+
+      expect(service.collectionQueryParams("col1")).toEqual({
+        collectionId: null,
+        sharedFolderId: "col1",
+      });
+    });
+
+    it("nulls both params when collectionId is null or undefined", () => {
+      const service = TestBed.inject(Vfo1TerminologyService);
+
+      expect(service.collectionQueryParams(null)).toEqual({
+        collectionId: null,
+        sharedFolderId: null,
+      });
+      expect(service.collectionQueryParams(undefined)).toEqual({
+        collectionId: null,
+        sharedFolderId: null,
+      });
+    });
+  });
 });

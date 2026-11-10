@@ -1,7 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
+import { combineLatest, filter, map, Observable, switchMap, take, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AdminConsoleLogo } from "@bitwarden/assets/svg";
@@ -18,14 +19,14 @@ import {
   singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { ProviderService, ProviderStatusType, Provider } from "@bitwarden/common/provider";
 import { BannerModule, SvgModule } from "@bitwarden/components";
 import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
@@ -37,6 +38,7 @@ import { FreeFamiliesPolicyService } from "../../../billing/services/free-famili
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-slot.component";
+import { InviteLinkCalloutService } from "../members/services/invite-link-callout/invite-link-callout.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -66,8 +68,14 @@ export class OrganizationLayoutComponent {
   private readonly accountService = inject(AccountService);
   private readonly freeFamiliesPolicyService = inject(FreeFamiliesPolicyService);
   private readonly organizationWarningsService = inject(OrganizationWarningsService);
+  private readonly inviteLinkCalloutService = inject(InviteLinkCalloutService);
 
   protected readonly logo = AdminConsoleLogo;
+
+  protected readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected readonly orgFilter = (org: Organization) => canAccessOrgAdmin(org);
 
@@ -138,6 +146,14 @@ export class OrganizationLayoutComponent {
 
   constructor() {
     document.body.classList.remove("layout_frontend");
+
+    this.organization$
+      .pipe(
+        take(1),
+        switchMap((organization) => this.inviteLinkCalloutService.showIfEligible(organization)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   canShowVaultTab(organization: Organization): boolean {

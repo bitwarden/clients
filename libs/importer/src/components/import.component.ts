@@ -83,9 +83,11 @@ import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
 import { DataLoader, Loader } from "../metadata";
 import {
   CredentialKind,
+  HIDDEN_IMPORT_TYPE_IDS,
   ImportOption,
   ImportResult,
   ImportType,
+  OnePasswordImportSummary,
   SdkImportCredentials,
 } from "../models";
 import {
@@ -104,9 +106,24 @@ import {
   ImportSuccessDialogComponent,
   ImportSuccessDialogData,
 } from "./dialog";
+import {
+  ImportSourceGroup,
+  ImportSourceGroupId,
+  availableImportSourceGroup,
+  importSourceGroup,
+  importSourceGroupForFormat,
+  isImportSourceGroupId,
+} from "./import-source-groups";
 import { ImporterProviders } from "./importer-providers";
 import { ImportKeeperComponent, defaultKeeperImportMethod } from "./keeper";
 import { ImportLastPassComponent } from "./lastpass";
+import { ImportOnePasswordComponent } from "./onepassword";
+
+/** An entry in the source dropdown. */
+interface ImportSource {
+  id: string;
+  name: string;
+}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -127,6 +144,7 @@ import { ImportLastPassComponent } from "./lastpass";
     ImportChromeComponent,
     ImportLastPassComponent,
     ImportKeeperComponent,
+    ImportOnePasswordComponent,
     RadioButtonModule,
     CardComponent,
     SectionHeaderComponent,
@@ -155,9 +173,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.vfo1Enabled() ? "bwi-shared-folder" : "bwi-collection-shared";
   }
 
-  featuredImportOptions: ImportOption[];
-  importOptions: ImportOption[];
+  /** The sources the dropdown lists: a format, or a group of formats with a Method dropdown. */
+  featuredImportSources: ImportSource[];
+  importSources: ImportSource[];
   format: ImportType = null;
+  /** The selected source when it is a group, with only the methods this client offers. */
+  protected selectedSourceGroup: ImportSourceGroup | undefined;
   showKeyFile = false;
 
   folders$: Observable<FolderView[]>;
@@ -202,6 +223,21 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  /**
+   * Pre-selects an organization in the vault selector without locking it, allowing the user to
+   * change the destination.
+   *
+   * Contrast with {@link organizationId}, which locks the selector to a single org.
+   */
+  readonly defaultOrganizationId = input<string | undefined>(undefined);
+
+  /**
+   * Pre-selects a collection in the target selector when {@link defaultOrganizationId} is also
+   * provided. The collection is only applied if it belongs to the default organization and the
+   * active user has `manage` permission on it. The user may change the selection freely afterward.
+   */
+  readonly defaultCollectionId = input<string | undefined>(undefined);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
@@ -222,18 +258,16 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
+  private onePasswordImportRunning = false;
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   formGroup = this.formBuilder.group({
-    vaultSelector: [
-      "myVault",
-      {
-        nonNullable: true,
-        validators: [Validators.required],
-      },
-    ],
+    // Always has a value, so it is not marked as required.
+    vaultSelector: this.formBuilder.nonNullable.control("myVault"),
     targetSelector: [null],
+    source: [null as ImportType | ImportSourceGroupId | null, [Validators.required]],
+    method: [null as ImportType | null],
     format: [null as ImportType | null, [Validators.required]],
     fileContents: [],
     file: [null as File | null],
@@ -253,6 +287,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(ImportKeeperComponent)
   private importKeeper?: ImportKeeperComponent;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(ImportOnePasswordComponent)
+  private importOnePassword?: ImportOnePasswordComponent;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -339,6 +378,16 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.format === "keeper";
   }
 
+  protected get isOnePasswordDirectFormat(): boolean {
+    return this.format === "onepassword";
+  }
+
+  /** The i18n key of the hint for the selected method of a grouped source, if it has one. */
+  protected get selectedMethodHint(): string | undefined {
+    const method = this.formGroup.controls.method.value;
+    return this.selectedSourceGroup?.methods.find((m) => m.format === method)?.hint;
+  }
+
   protected get keeperMethod(): "direct" | "csv" | "json" | undefined {
     const subgroup = this.formGroup.get("keeperOptions");
     // Default before import-keeper registers keeperOptions, or the @if below throws NG0100.
@@ -397,6 +446,30 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         this.updateKdbxControls(value);
       });
 
+    // The format follows the source dropdown, or its Method dropdown when the source is a group.
+    this.formGroup.controls.source.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((source) => {
+        if (isImportSourceGroupId(source)) {
+          this.selectedSourceGroup = this.availableSourceGroup(importSourceGroup(source));
+          const method = this.selectedSourceGroup?.methods[0].format ?? null;
+          this.formGroup.controls.method.setValue(method, { emitEvent: false });
+          this.formGroup.controls.format.setValue(method);
+        } else {
+          this.selectedSourceGroup = undefined;
+          this.formGroup.controls.method.setValue(null, { emitEvent: false });
+          this.formGroup.controls.format.setValue(source);
+        }
+      });
+
+    this.formGroup.controls.method.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((method) => {
+        if (this.selectedSourceGroup && method) {
+          this.formGroup.controls.format.setValue(method);
+        }
+      });
+
     await this.handlePolicies();
   }
 
@@ -453,6 +526,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
+    const defaultCollectionId = this.defaultCollectionId();
+    const defaultOrgId = this.defaultOrganizationId();
+    let defaultCollectionApplied = false;
+
     // React to vault destination changes (personal vault vs organization selection)
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
       .pipe(takeUntil(this.destroy$))
@@ -479,11 +556,33 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
                   .sort(Utils.getSortFunction(this.i18nService, "name")),
               ),
             );
+
+          // Pre-fill the default collection once when the default org is first selected.
+          // Reads from this.collections$ directly to avoid a second decryptedCollections$ call.
+          // firstValueFrom is used instead of a nested subscribe to satisfy rxjs/no-nested-subscribe.
+          // It resolves asynchronously even for synchronous observables, so setValue(null) above is
+          // guaranteed to have already run before the collection value is applied.
+          if (!defaultCollectionApplied && defaultCollectionId && value === defaultOrgId) {
+            defaultCollectionApplied = true;
+            firstValueFrom(
+              this.collections$.pipe(
+                map((collections) => collections.find((c) => c.id === defaultCollectionId)),
+              ),
+            )
+              .then((collection) => {
+                if (collection) {
+                  this.formGroup.controls.targetSelector.setValue(collection);
+                }
+              })
+              .catch(() => {
+                // Collection not found or not manageable; leave targetSelector at its default.
+              });
+          }
         }
       });
 
-    // Set initial vault selector to personal vault
-    this.formGroup.controls.vaultSelector.setValue("myVault");
+    // Pre-select defaultOrganizationId when provided; otherwise default to personal vault
+    this.formGroup.controls.vaultSelector.setValue(defaultOrgId ?? "myVault");
   }
 
   /**
@@ -559,6 +658,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
+    // 1Password is direct-only, so there is no file path to fall through to. Its prompts show the
+    // import's progress, so the form is not left busy behind them.
+    if (this.isOnePasswordDirectFormat) {
+      void this.performOnePasswordImport();
+      return;
+    }
+
     await this.performImport();
   };
 
@@ -621,6 +727,77 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         this.organization?.canAccessImport && this.isFromAC,
       ),
     );
+  }
+
+  /**
+   * 1Password signs in and submits inside the SDK, so unlike the other importers the destination is
+   * confirmed up front and the component reports back a summary rather than an `ImportResult`. It
+   * runs outside the form's submit handler, which would put the form in a loading state, so it
+   * guards against a second submit itself.
+   */
+  private async performOnePasswordImport(): Promise<void> {
+    if (this.onePasswordImportRunning) {
+      return;
+    }
+    this.onePasswordImportRunning = true;
+    try {
+      const selectedImportTarget = this.formGroup.controls.targetSelector.value;
+      const canAccessImportExport = (this.organization?.canAccessImport && this.isFromAC) ?? false;
+
+      // The import service rejects this too, but only after the user has typed their
+      // credentials, and the prompt reports it as a generic failure.
+      if (this.organizationId && !selectedImportTarget && !canAccessImportExport) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("importUnassignedItemsError"),
+        });
+        return;
+      }
+
+      if (!(await this.validateImport())) {
+        return;
+      }
+
+      await this.importOnePassword?.submitDirect(
+        {
+          organizationId: this.organizationId ?? undefined,
+          selectedImportTarget: selectedImportTarget ?? undefined,
+          canAccessImportExport,
+        },
+        (summary) => this.showOnePasswordResult(summary),
+      );
+    } catch (error) {
+      this.logService.error(error);
+    } finally {
+      this.onePasswordImportRunning = false;
+    }
+  }
+
+  private async showOnePasswordResult(summary: OnePasswordImportSummary): Promise<void> {
+    const returnDestination = this.returnTo()
+      ? this.resolveReturnDestination(this.returnTo())
+      : undefined;
+    this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
+      data: {
+        sdkSummary: summary.imported,
+        ...returnDestination,
+      },
+    });
+
+    // The SDK reports what it could not read rather than failing the whole import; surface it so a
+    // partial import isn't mistaken for a complete one.
+    const skipped = summary.skipped_vaults.length + summary.skipped_items.length;
+    if (skipped > 0) {
+      this.toastService.showToast({
+        variant: "warning",
+        title: null,
+        message: this.i18nService.t("onePasswordPartialImport", skipped.toString()),
+      });
+    }
+
+    await this.syncService.fullSync(true);
+    this.onSuccessfulImport.emit(this._organizationId);
   }
 
   protected async performDirectImport(result: ImportResult) {
@@ -777,9 +954,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.format == null ? undefined : this.importService.getImportOption(this.format);
   }
 
+  /** Named after the vendor for a grouped source, since its instructions cover every method. */
   getFormatInstructionTitle() {
     const option = this.selectedImportOption;
-    return option ? this.i18nService.t("instructionsFor", option.name) : null;
+    const name = this.selectedSourceGroup
+      ? (option?.sourceName ?? this.selectedSourceGroup.name)
+      : option?.name;
+    return name ? this.i18nService.t("instructionsFor", name) : null;
   }
 
   protected handleChromeImportError(error: string) {
@@ -791,16 +972,30 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected setImportOptions() {
-    this.featuredImportOptions = this.importService.importOptions.filter((o) => o.featuredImporter);
+    const sources: (ImportSource & { featured: boolean })[] = [];
+    const addedGroups = new Set<ImportSourceGroupId>();
+    for (const option of this.importService.importOptions) {
+      const group = importSourceGroupForFormat(option.id);
+      if (group == null) {
+        if (this.isImportOptionAvailable(option)) {
+          sources.push({ id: option.id, name: option.name, featured: option.featuredImporter });
+        }
+      } else if (!addedGroups.has(group.id)) {
+        // A group takes the place of its first member, and only if this client offers a method.
+        addedGroups.add(group.id);
+        if (this.availableSourceGroup(group)) {
+          sources.push({ id: group.id, name: group.name, featured: group.featuredImporter });
+        }
+      }
+    }
 
-    // The unified `keeper` entry covers csv/json via the Method dropdown,
-    // so hide the standalone variants from the UI. They remain in the option
-    // list for non-UI consumers (CLI) and for backward compatibility.
-    const visibleRegularOptions = this.importService.importOptions.filter(
-      (o) => !o.featuredImporter && o.id !== "keepercsv" && o.id !== "keeperjson",
+    this.featuredImportSources = sources.filter((s) => s.featured);
+
+    const visibleRegularSources = sources.filter(
+      (s) => !s.featured && !HIDDEN_IMPORT_TYPE_IDS.has(s.id),
     );
 
-    this.importOptions = [...visibleRegularOptions].sort((a, b) => {
+    this.importSources = visibleRegularSources.sort((a, b) => {
       if (a.name == null && b.name != null) {
         return -1;
       }
@@ -815,6 +1010,25 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         ? this.i18nService.collator.compare(a.name, b.name)
         : a.name.localeCompare(b.name);
     });
+  }
+
+  private availableSourceGroup(group: ImportSourceGroup): ImportSourceGroup | undefined {
+    return availableImportSourceGroup(group, (format) =>
+      this.isImportOptionAvailable(this.importService.getImportOption(format)),
+    );
+  }
+
+  /**
+   * 1Password direct import calls 1Password's API from the app. Its API does not allow cross-origin
+   * requests. The desktop app's `file://` pages and the browser extension's host permissions are
+   * exempt from CORS, but the web vault is not.
+   */
+  private isImportOptionAvailable(option: ImportOption): boolean {
+    if (option.id !== "onepassword") {
+      return true;
+    }
+    const clientType = this.platformUtilsService.getClientType();
+    return clientType === ClientType.Desktop || clientType === ClientType.Browser;
   }
 
   addKeyFile() {

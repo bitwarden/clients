@@ -8,7 +8,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
 import { ScimConfigApi } from "@bitwarden/common/admin-console/models/api/scim-config.api";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
@@ -154,20 +153,7 @@ describe("ScimComponent", () => {
       expect(ta(component).inviteUsersAfterProvisioning.value).toBe(true);
     }));
 
-    it("defaults inviteUsersAfterProvisioning to true for a new connection when the staged status flag is off", fakeAsync(() => {
-      initComponent({
-        id: null,
-        config: null,
-      } as unknown as OrganizationConnectionResponse<ScimConfigApi>);
-
-      void component.load();
-      tick();
-
-      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(true);
-    }));
-
-    it("defaults inviteUsersAfterProvisioning to false for a new connection when the staged status flag is on", fakeAsync(() => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
+    it("defaults inviteUsersAfterProvisioning to false for a new connection", fakeAsync(() => {
       initComponent({
         id: null,
         config: null,
@@ -187,23 +173,6 @@ describe("ScimComponent", () => {
 
       expect(openSpy).not.toHaveBeenCalled();
     }));
-  });
-
-  describe("staged status feature flag", () => {
-    it("disables the invite toggle when the flag is off", () => {
-      initComponent();
-
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.StagedStatus);
-      expect(ta(component).stagedStatusEnabled()).toBe(false);
-    });
-
-    it("enables the invite toggle when the flag is on", () => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
-
-      initComponent();
-
-      expect(ta(component).stagedStatusEnabled()).toBe(true);
-    });
   });
 
   describe("loadApiKey", () => {
@@ -233,6 +202,7 @@ describe("ScimComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
         organizationId: orgId,
         titleKey: "viewScimApiKey",
+        submitButtonKey: "viewApiKey",
         isRotation: false,
       });
       expect(ta(component).formData.get("clientSecret").value).toBe("revealed-key");
@@ -266,6 +236,7 @@ describe("ScimComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
         organizationId: orgId,
         titleKey: "rotateScimKey",
+        submitButtonKey: "rotateKey",
         isRotation: true,
       });
       expect(ta(component).formData.get("clientSecret").value).toBe("rotated-key");
@@ -301,6 +272,7 @@ describe("ScimComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
         organizationId: orgId,
         titleKey: "copyScimKey",
+        submitButtonKey: "copyApiKey",
         isRotation: false,
       });
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("revealed-key");

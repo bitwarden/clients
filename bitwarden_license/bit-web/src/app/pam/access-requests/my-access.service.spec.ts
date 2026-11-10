@@ -1,0 +1,537 @@
+import { TestBed } from "@angular/core/testing";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
+
+import {
+  AccessEventService,
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+} from "@bitwarden/bit-pam";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import type {
+  AccessLeaseId,
+  AccessLeaseView,
+  AccessRequestId,
+  AccessRequestView,
+} from "@bitwarden/sdk-internal";
+
+import {
+  AccessNameResolverService,
+  ResolvedNames,
+  emptyResolvedNames,
+} from "./access-name-resolver.service";
+import { MyAccessService } from "./my-access.service";
+
+// Loosely typed, not `Partial<AccessRequestView>`/`Partial<AccessLeaseView>`, since
+// id/cipherId/collectionId are opaque branded types.
+function request(id: string, overrides: Record<string, unknown> = {}): AccessRequestView {
+  return {
+    id,
+    cipherId: "cipher-1",
+    collectionId: "col-1",
+    organizationId: "org-1",
+    requesterId: "user-1",
+    ruleId: undefined,
+    status: "pending",
+    leaseNotBefore: "2024-01-01T00:00:00.000Z",
+    leaseNotAfter: "2024-01-01T01:00:00.000Z",
+    reason: undefined,
+    submittedAt: "2024-01-01T00:00:00.000Z",
+    resolvedAt: undefined,
+    decisions: [],
+    producedLeaseId: undefined,
+    producedLeaseStatus: undefined,
+    extensionOfLeaseId: undefined,
+    ...overrides,
+  } as unknown as AccessRequestView;
+}
+
+function lease(id: string, overrides: Record<string, unknown> = {}): AccessLeaseView {
+  return {
+    id,
+    requestId: "req-1",
+    cipherId: "cipher-1",
+    collectionId: "col-1",
+    organizationId: "org-1",
+    requesterId: "user-1",
+    status: "active",
+    notBefore: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    notAfter: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    termination: undefined,
+    ...overrides,
+  } as unknown as AccessLeaseView;
+}
+
+describe("MyAccessService", () => {
+  let service: MyAccessService;
+  let requestsApi: MockProxy<AccessRequestSdkService>;
+  let leasesApi: MockProxy<AccessLeaseSdkService>;
+  let nameResolver: MockProxy<AccessNameResolverService>;
+  let accessRefresh: MockProxy<AccessRefreshService>;
+  let push$: Subject<void>;
+  let activeAccount$: BehaviorSubject<Account | null>;
+
+  beforeEach(() => {
+    push$ = new Subject<void>();
+    activeAccount$ = new BehaviorSubject<Account | null>({
+      id: "user-1",
+      name: "Ada",
+      email: "ada@example.com",
+    } as Account);
+    requestsApi = mock<AccessRequestSdkService>();
+    leasesApi = mock<AccessLeaseSdkService>();
+    nameResolver = mock<AccessNameResolverService>();
+    accessRefresh = mock<AccessRefreshService>();
+
+    requestsApi.listMyAccessRequests.mockResolvedValue([]);
+    leasesApi.listMyLeases.mockResolvedValue([]);
+    nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames() as ResolvedNames);
+
+    TestBed.configureTestingModule({
+      providers: [
+        MyAccessService,
+        { provide: AccessEventService, useValue: { accessChanged$: () => push$.asObservable() } },
+        { provide: AccessRequestSdkService, useValue: requestsApi },
+        { provide: AccessLeaseSdkService, useValue: leasesApi },
+        { provide: AccessNameResolverService, useValue: nameResolver },
+        { provide: AccessRefreshService, useValue: accessRefresh },
+        { provide: AccountService, useValue: { activeAccount$ } },
+      ],
+    });
+
+    service = TestBed.inject(MyAccessService);
+  });
+
+  describe("a lease running out on its own", () => {
+    it("drops a lease whose window has closed, whatever its status says", async () => {
+      leasesApi.listMyLeases.mockResolvedValue([
+        lease("lease-live"),
+        lease("lease-lapsed", {
+          notBefore: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          notAfter: new Date(Date.now() - 60 * 1000).toISOString(),
+        }),
+      ]);
+
+      await service.load();
+
+      const ids = (await firstValueFrom(service.leases$)).map((row) => row.id);
+      expect(ids).toEqual(["lease-live"]);
+    });
+
+    it("re-reads when the soonest-ending lease is due to lapse", async () => {
+      jest.useFakeTimers();
+      try {
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-1", { notAfter: new Date(Date.now() + 60 * 1000).toISOString() }),
+        ]);
+
+        await service.load();
+        const callsAfterLoad = leasesApi.listMyLeases.mock.calls.length;
+
+        jest.advanceTimersByTime(60 * 1000 + 1);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBeGreaterThan(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it("waits out a lease further off than setTimeout can count to", async () => {
+      // A delay past 2^31-1 ms (~24.8 days) overflows and fires a `setTimeout` at once, which
+      // would have reloaded in a loop. The shared ticker just compares clocks.
+      jest.useFakeTimers();
+      try {
+        const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+        const endsAt = Date.now() + thirtyDaysMs;
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-distant", { notAfter: new Date(endsAt).toISOString() }),
+        ]);
+
+        await service.load();
+        const callsAfterLoad = leasesApi.listMyLeases.mock.calls.length;
+
+        jest.advanceTimersByTime(5000);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBe(callsAfterLoad);
+
+        // Still re-reads once the window actually closes; jumped rather than ticked, since a
+        // second-by-second month is millions of fires.
+        jest.setSystemTime(new Date(endsAt + 1));
+        jest.advanceTimersByTime(1000);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBeGreaterThan(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it("re-reads when an unstarted grant's window is due to close", async () => {
+      // The server refuses to activate past the window, so the grant has to leave Pending for
+      // History, and no push announces that, just as none announces a lease running out.
+      jest.useFakeTimers();
+      try {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-grant", {
+            status: "approved",
+            leaseNotAfter: new Date(Date.now() + 60 * 1000).toISOString(),
+          }),
+        ]);
+        leasesApi.listMyLeases.mockResolvedValue([]);
+
+        await service.load();
+        const callsAfterLoad = requestsApi.listMyAccessRequests.mock.calls.length;
+
+        jest.advanceTimersByTime(60 * 1000 + 1);
+        await Promise.resolve();
+
+        expect(requestsApi.listMyAccessRequests.mock.calls.length).toBeGreaterThan(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it("schedules nothing while the caller holds no lease", async () => {
+      jest.useFakeTimers();
+      try {
+        await service.load();
+        const callsAfterLoad = leasesApi.listMyLeases.mock.calls.length;
+
+        jest.advanceTimersByTime(24 * 60 * 60 * 1000);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBe(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+  });
+
+  describe("load", () => {
+    it("resolves names from the union of the requests' and leases' cipher/collection refs, and clears loading", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", { cipherId: "cipher-a", collectionId: "col-a" }),
+      ]);
+      leasesApi.listMyLeases.mockResolvedValue([
+        lease("lease-1", { cipherId: "cipher-b", collectionId: "col-b" }),
+      ]);
+
+      await service.load();
+
+      expect(nameResolver.resolveNames).toHaveBeenCalledWith([
+        { cipherId: "cipher-a", collectionId: "col-a" },
+        { cipherId: "cipher-b", collectionId: "col-b" },
+      ]);
+      expect(await firstValueFrom(service.loading$)).toBe(false);
+      expect(await firstValueFrom(service.loadError$)).toBeNull();
+    });
+
+    // The server omits the requester from the caller's own read.
+    it("names the caller as the requester of their own requests", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", { status: "denied" }),
+        request("req-2", { status: "denied", requesterName: "Server name" }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.historyRows$);
+      expect(rows.map((r) => [r.id, r.requester, r.requesterEmail])).toEqual([
+        ["req-1", "Ada", "ada@example.com"],
+        ["req-2", "Server name", null],
+      ]);
+    });
+
+    it("leaves the requester unnamed when no account is active", async () => {
+      activeAccount$.next(null);
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "denied" })]);
+
+      await service.load();
+
+      expect((await firstValueFrom(service.historyRows$))[0].requester).toBe("");
+    });
+
+    it("records the error and clears loading when a fetch fails", async () => {
+      const error = new Error("boom");
+      requestsApi.listMyAccessRequests.mockRejectedValue(error);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.loadError$)).toBe(error);
+      expect(await firstValueFrom(service.loading$)).toBe(false);
+    });
+
+    describe("partitioning", () => {
+      it("puts pending and approved requests in pendingRows$", async () => {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-1", { status: "pending" }),
+          request("req-2", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
+          request("req-3", { status: "denied" }),
+        ]);
+
+        await service.load();
+
+        const rows = await firstValueFrom(service.pendingRows$);
+        expect(rows.map((r) => r.id)).toEqual(["req-1", "req-2"]);
+      });
+
+      it("moves a grant whose activation window has lapsed out of pendingRows$ and into history", async () => {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-live", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
+          request("req-lapsed", { status: "approved", leaseNotAfter: "2000-01-01T00:00:00.000Z" }),
+        ]);
+
+        await service.load();
+
+        expect((await firstValueFrom(service.pendingRows$)).map((r) => r.id)).toEqual(["req-live"]);
+        expect((await firstValueFrom(service.historyRows$)).map((r) => r.id)).toEqual([
+          "req-lapsed",
+        ]);
+      });
+
+      it("badges a grant that lapsed unactivated Expired rather than Approved", async () => {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-lapsed", { status: "approved", leaseNotAfter: "2000-01-01T00:00:00.000Z" }),
+        ]);
+
+        await service.load();
+
+        const [row] = await firstValueFrom(service.historyRows$);
+        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
+      });
+
+      it("badges a lease that lapsed since the load Expired rather than Active", async () => {
+        // The server record still reads `active`; only the clock says otherwise, and History is
+        // terminal, so "Active" is not something it can mean.
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-lapsed", {
+            status: "approved",
+            producedLeaseId: "lease-1",
+            producedLeaseStatus: "active",
+          }),
+        ]);
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-1", {
+            status: "active",
+            notBefore: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            notAfter: new Date(Date.now() - 60 * 1000).toISOString(),
+          }),
+        ]);
+
+        await service.load();
+
+        const [row] = await firstValueFrom(service.historyRows$);
+        expect(row.id).toBe("req-lapsed");
+        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
+      });
+
+      it("includes only active leases in leases$", async () => {
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-1", { status: "active" }),
+          lease("lease-2", { status: "expired" }),
+          lease("lease-3", { status: "revoked" }),
+        ]);
+
+        await service.load();
+
+        const rows = await firstValueFrom(service.leases$);
+        expect(rows.map((r) => r.id)).toEqual(["lease-1"]);
+      });
+
+      it("excludes pending/approved requests and one whose lease is still active from historyRows$", async () => {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-1", { status: "denied" }), // terminal, no lease -> included
+          // still actionable -> excluded (in Pending)
+          request("req-2", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
+          request("req-3", { status: "pending" }), // still actionable -> excluded (in Pending)
+          request("req-4", {
+            status: "approved",
+            producedLeaseId: "lease-1",
+            producedLeaseStatus: "active",
+          }), // lease still active -> excluded (in Active access)
+          request("req-5", {
+            status: "approved",
+            producedLeaseId: "lease-2",
+            producedLeaseStatus: "expired",
+          }), // lease no longer active -> included
+        ]);
+        leasesApi.listMyLeases.mockResolvedValue([lease("lease-1", { status: "active" })]);
+
+        await service.load();
+
+        const rows = await firstValueFrom(service.historyRows$);
+        expect(rows.map((r) => r.id).sort()).toEqual(["req-1", "req-5"]);
+      });
+
+      it("surfaces a denied extension in historyRows$ while an applied one stays folded away", async () => {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-1", {
+            status: "approved",
+            producedLeaseId: "lease-1",
+            producedLeaseStatus: "expired",
+          }),
+          request("ext-applied", {
+            extensionOfLeaseId: "lease-1",
+            status: "approved",
+            leaseNotBefore: "2024-01-01T01:00:00.000Z",
+            leaseNotAfter: "2024-01-01T02:00:00.000Z",
+          }),
+          // Denied because the lease ended first.
+          request("ext-denied", { extensionOfLeaseId: "lease-2", status: "denied" }),
+        ]);
+        leasesApi.listMyLeases.mockResolvedValue([]);
+
+        await service.load();
+
+        const rows = await firstValueFrom(service.historyRows$);
+        expect(rows.map((r) => r.id).sort()).toEqual(["ext-denied", "req-1"]);
+        expect(await firstValueFrom(service.extensionRows$)).toEqual([]);
+      });
+    });
+  });
+
+  describe("cancel", () => {
+    it("optimistically flips the row to canceled before the SDK call resolves, without a reload", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
+      await service.load();
+
+      await service.cancel("req-1" as unknown as AccessRequestId);
+
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1");
+      expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1); // no reload
+      const pending = await firstValueFrom(service.pendingRows$);
+      expect(pending).toEqual([]);
+      const history = await firstValueFrom(service.historyRows$);
+      expect(history.map((r) => r.id)).toEqual(["req-1"]);
+      expect(history[0].status).toBe("canceled");
+    });
+
+    it("announces a landed cancel, so the nav badge re-reads without waiting on a push", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
+      await service.load();
+
+      await service.cancel("req-1" as unknown as AccessRequestId);
+
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("rolls back the optimistic patch and rethrows when the SDK call fails", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
+      await service.load();
+      const error = new Error("nope");
+      requestsApi.cancelAccessRequest.mockRejectedValue(error);
+
+      await expect(service.cancel("req-1" as unknown as AccessRequestId)).rejects.toThrow(error);
+
+      const pending = await firstValueFrom(service.pendingRows$);
+      expect(pending.map((r) => r.id)).toEqual(["req-1"]);
+      expect(pending[0].status).toBe("pending");
+      expect(accessRefresh.notifyAccessChanged).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("endLease", () => {
+    it("optimistically removes the lease and marks its request canceled, without a reload", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", {
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+      ]);
+      leasesApi.listMyLeases.mockResolvedValue([lease("lease-1", { status: "active" })]);
+      await service.load();
+
+      await service.endLease("lease-1" as unknown as AccessLeaseId);
+
+      expect(leasesApi.endLease).toHaveBeenCalledWith("lease-1", { reason: undefined });
+      expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1); // no reload
+
+      const leases = await firstValueFrom(service.leases$);
+      expect(leases).toEqual([]);
+      const history = await firstValueFrom(service.historyRows$);
+      expect(history.map((r) => r.id)).toEqual(["req-1"]);
+      expect(history[0].statusBadge?.labelKey).toBe("pamStatusCanceled");
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("rolls back the optimistic patch and rethrows when the SDK call fails", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", {
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+      ]);
+      leasesApi.listMyLeases.mockResolvedValue([lease("lease-1", { status: "active" })]);
+      await service.load();
+      const error = new Error("nope");
+      leasesApi.endLease.mockRejectedValue(error);
+
+      await expect(service.endLease("lease-1" as unknown as AccessLeaseId)).rejects.toThrow(error);
+
+      const leases = await firstValueFrom(service.leases$);
+      expect(leases.map((l) => l.id)).toEqual(["lease-1"]);
+      const history = await firstValueFrom(service.historyRows$);
+      expect(history).toEqual([]);
+    });
+  });
+
+  describe("activate", () => {
+    it("calls through then reloads (non-optimistic)", async () => {
+      requestsApi.activateAccessRequest.mockResolvedValue(lease("lease-1"));
+
+      await service.activate("req-1" as unknown as AccessRequestId);
+
+      expect(requestsApi.activateAccessRequest).toHaveBeenCalledWith("req-1");
+      expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
+      expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1);
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("live refresh", () => {
+    it("reloads on a server-pushed access event", async () => {
+      await service.load();
+      requestsApi.listMyAccessRequests.mockClear();
+      leasesApi.listMyLeases.mockClear();
+
+      push$.next();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
+      expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1);
+    });
+
+    it("surfaces an approver's decision without the page reloading", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
+      await service.load();
+      expect(await firstValueFrom(service.pendingRows$)).toHaveLength(1);
+
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
+      ]);
+      push$.next();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const rows = await firstValueFrom(service.pendingRows$);
+      expect(rows).toHaveLength(1);
+      expect(rows[0].status).toBe("approved");
+    });
+
+    it("serialises overlapping pushes so state never mixes two loads", async () => {
+      await service.load();
+      requestsApi.listMyAccessRequests.mockClear();
+
+      push$.next();
+      push$.next();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(2);
+      expect(await firstValueFrom(service.loading$)).toBe(false);
+    });
+  });
+});

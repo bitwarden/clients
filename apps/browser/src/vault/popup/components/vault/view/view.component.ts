@@ -116,10 +116,6 @@ type LoadAction =
 })
 export class ViewComponent {
   private readonly configService = inject(ConfigService);
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
 
   private activeUserId: UserId;
 
@@ -231,20 +227,12 @@ export class ViewComponent {
   setHeader(type: CipherType) {
     const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
-      [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
-        ? "viewItemHeaderLoginSentenceCase"
-        : "viewItemHeaderLogin",
-      [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
-        ? "viewItemHeaderCardSentenceCase"
-        : "viewItemHeaderCard",
-      [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
-        ? "viewItemHeaderIdentitySentenceCase"
-        : "viewItemHeaderIdentity",
+      [CipherType.Login]: "viewItemHeaderLoginSentenceCase",
+      [CipherType.Card]: "viewItemHeaderCardSentenceCase",
+      [CipherType.Identity]: "viewItemHeaderIdentitySentenceCase",
       [CipherType.SecureNote]: newItemTypesEnabled
         ? "viewItemHeaderSecureNote"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "viewItemHeaderNoteSentenceCase"
-          : "viewItemHeaderNote",
+        : "viewItemHeaderNoteSentenceCase",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
       [CipherType.BankAccount]: "viewItemHeaderBankAccount",
       [CipherType.DriversLicense]: "viewItemHeaderLicense",

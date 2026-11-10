@@ -13,7 +13,6 @@ import { deepLinkGuard } from "@bitwarden/web-vault/app/auth/guards/deep-link/de
 
 import { SsoManageComponent } from "../../auth/sso/sso-manage.component";
 
-import { DomainVerificationComponent } from "./manage/domain-verification/domain-verification.component";
 import { ScimComponent } from "./manage/scim.component";
 
 const routes: Routes = [
@@ -28,7 +27,10 @@ const routes: Routes = [
         children: [
           {
             path: "domain-verification",
-            component: DomainVerificationComponent,
+            loadComponent: () =>
+              import("./manage/domain-verification/domain-verification.component").then(
+                (mod) => mod.DomainVerificationComponent,
+              ),
             canActivate: [organizationPermissionsGuard((org) => org.canManageDomainVerification)],
             data: {
               titleId: "claimedDomains",

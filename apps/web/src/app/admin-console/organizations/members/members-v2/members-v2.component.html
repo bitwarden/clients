@@ -1,0 +1,419 @@
+@let organization = this.organization();
+@let canManage = showUserManagementControls();
+
+<app-header></app-header>
+
+<bit-table-v2
+  [tableDef]="table"
+  [displayedColumns]="displayedColumns()"
+  [selection]="selection()"
+  [loading]="!firstLoaded()"
+  [filter]="filter"
+  [filters]="initialFilters"
+  queryParam="members"
+>
+  <bit-table-toolbar [rangeLabel]="rangeLabel">
+    <bit-search class="tw-flex-1" [placeholder]="'searchMembers' | i18n"></bit-search>
+
+    <!-- One element per `@if`: a block with multiple roots isn't matched by the `end` slot. -->
+    @if (canManage) {
+      <button
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-upload"
+        (click)="exportMembers()"
+      >
+        {{ "exportVerb" | i18n }}
+      </button>
+    }
+    @if (canManage) {
+      <button
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-plus"
+        [disabled]="!firstLoaded() || !organization"
+        (click)="organization && invite(organization)"
+      >
+        {{ "inviteMember" | i18n }}
+      </button>
+    }
+
+    <bit-filter-menu key="status" [placeholderText]="'status' | i18n" multiple searchable>
+      @if (hasStagedMembers()) {
+        <bit-filter-option [value]="userStatusType.Staged">{{ "staged" | i18n }}</bit-filter-option>
+      }
+      <bit-filter-option [value]="userStatusType.Invited">{{ "invited" | i18n }}</bit-filter-option>
+      <bit-filter-option [value]="userStatusType.Accepted">{{
+        "needsConfirmation" | i18n
+      }}</bit-filter-option>
+      <bit-filter-option [value]="userStatusType.Confirmed">{{
+        "active" | i18n
+      }}</bit-filter-option>
+      <!-- Revoked members match on their reason, so checking Revoked checks every reason. -->
+      <bit-filter-option [value]="userStatusType.Revoked">
+        {{ "revoked" | i18n }}
+        @for (reason of revocationReasons; track reason.value) {
+          <bit-filter-option [value]="reason.value">{{ reason.labelKey | i18n }}</bit-filter-option>
+        }
+      </bit-filter-option>
+    </bit-filter-menu>
+
+    <bit-filter-menu key="role" [placeholderText]="'role' | i18n" multiple>
+      @for (role of roleOptions; track role.value) {
+        <bit-filter-option [value]="role.value">{{ role.labelKey | i18n }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+
+    <!-- Options are IDs, so groups or collections sharing a name stay separate. The menu adds its
+         own search past 10 options. -->
+    @if (organization?.useGroups) {
+      <bit-filter-menu key="access" [placeholderText]="'groups' | i18n" multiple>
+        @for (option of accessOptions(); track option.id) {
+          <bit-filter-option [value]="option.id">{{ option.name }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    } @else {
+      <bit-filter-menu
+        key="access"
+        [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
+        multiple
+      >
+        @for (option of accessOptions(); track option.id) {
+          <bit-filter-option [value]="option.id">{{ option.name }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+
+    @if (canUseSecretsManager() || canUsePrivilegedControls()) {
+      <bit-filter-menu key="product" [placeholderText]="'products' | i18n" multiple>
+        @if (canUseSecretsManager()) {
+          <bit-filter-option [value]="productFilter.SecretsManager">{{
+            "secretsManager" | i18n
+          }}</bit-filter-option>
+        }
+        @if (canUsePrivilegedControls()) {
+          <bit-filter-option [value]="productFilter.PrivilegedControls">{{
+            "privilegedControls" | i18n
+          }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+
+    <!-- Options in a section combine with OR, and the two sections combine with AND. -->
+    <bit-filter-menu key="policies" [placeholderText]="'policies' | i18n" multiple>
+      @if (showAccountRecoverySection()) {
+        <bit-filter-section [label]="'accountRecovery' | i18n" collapsible>
+          <bit-filter-option [value]="accountRecoveryFilter.Enrolled">{{
+            "enrolled" | i18n
+          }}</bit-filter-option>
+          <bit-filter-option [value]="accountRecoveryFilter.NotEnrolled">{{
+            "notEnrolled" | i18n
+          }}</bit-filter-option>
+        </bit-filter-section>
+      }
+      <bit-filter-section [label]="'twoStepLogin' | i18n" collapsible>
+        <bit-filter-option [value]="twoFactorFilter.Active">{{
+          "active" | i18n
+        }}</bit-filter-option>
+        <bit-filter-option [value]="twoFactorFilter.Inactive">{{
+          "inactive" | i18n
+        }}</bit-filter-option>
+      </bit-filter-section>
+    </bit-filter-menu>
+  </bit-table-toolbar>
+
+  <!-- No matches: filters hide every member, with Clear all. Otherwise: the org has no members. -->
+  <bit-status-lockup slot="empty">
+    <bit-svg slot="graphic" [content]="noMatches() ? noMatchesIcon : emptyIcon"></bit-svg>
+    <span slot="title">{{
+      (noMatches() ? "noItemsMatchTheSelectedFilters" : "noMembersInvitedToOrg") | i18n
+    }}</span>
+    @if (noMatches()) {
+      <button
+        slot="button"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-clear"
+        (click)="clearAllFilters()"
+      >
+        {{ "clearAll" | i18n }}
+      </button>
+    }
+  </bit-status-lockup>
+
+  <!-- Name -->
+  <bit-column sortable [sortFn]="sortByName" width="minmax(240px, 2fr)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">
+      <bit-avatar
+        slot="start"
+        size="sm"
+        [text]="row | userName"
+        [id]="row | avatarId"
+        [color]="row.avatarColor"
+      ></bit-avatar>
+      <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
+        @if (canManage && organization) {
+          <button
+            type="button"
+            bitLink
+            class="tw-truncate"
+            [attr.id]="'members-v2_button_edit-member-' + row.id"
+            (click)="edit(row, organization)"
+          >
+            {{ row.name ?? row.email }}
+          </button>
+        } @else {
+          <span class="tw-truncate">{{ row.name ?? row.email }}</span>
+        }
+        <!-- The v1 page's Policies column, moved next to the name. -->
+        @if (row.twoFactorEnabled) {
+          <bit-icon
+            name="bwi-lock"
+            class="tw-shrink-0 tw-text-muted"
+            [ariaLabel]="'userUsingTwoStep' | i18n"
+            [bitTooltip]="'userUsingTwoStep' | i18n"
+          />
+        }
+        @if (showEnrolledStatus(row)) {
+          <bit-icon
+            name="bwi-key"
+            class="tw-shrink-0 tw-text-muted"
+            [ariaLabel]="'enrolledAccountRecovery' | i18n"
+            [bitTooltip]="'enrolledAccountRecovery' | i18n"
+          />
+        }
+      </span>
+      @if (row.name) {
+        <span slot="secondary">{{ row.email }}</span>
+      }
+    </bit-cell>
+  </bit-column>
+
+  <!-- Status -->
+  <bit-column sortable [sortFn]="sortByStatus" width="minmax(220px, 1fr)">
+    <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.status; let row">
+      @let badge = statusBadge(row.status);
+      @if (badge) {
+        <span bitBadge [variant]="badge.variant">{{ badge.labelKey | i18n }}</span>
+      }
+    </bit-cell>
+  </bit-column>
+
+  <!-- Role -->
+  <bit-column sortable width="minmax(120px, 1fr)">
+    <bit-header-cell>{{ "role" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.type; let row">
+      @if (canManage && organization) {
+        <button
+          type="button"
+          bitLink
+          linkType="secondary"
+          [attr.id]="'members-v2_button_edit-role-' + row.id"
+          (click)="edit(row, organization, memberTab.Details)"
+        >
+          {{ row.type | userType }}
+        </button>
+      } @else {
+        {{ row.type | userType }}
+      }
+    </bit-cell>
+  </bit-column>
+
+  <!-- Groups: shown for organizations that use groups -->
+  <bit-column sortable [sortFn]="sortByGroups" width="minmax(160px, 1fr)">
+    <bit-header-cell>{{ "groups" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.groupNames; let row">
+      <bit-chip-group
+        size="small"
+        [chips]="accessChips().get(row) ?? []"
+        (chipSelect)="filterByAccess($event.id)"
+      ></bit-chip-group>
+    </bit-cell>
+  </bit-column>
+
+  <!-- Collections: shown instead of Groups for organizations that don't use groups -->
+  <bit-column sortable [sortFn]="sortByCollections" width="minmax(160px, 1fr)">
+    <bit-header-cell>{{ "collections" | vfo1I18n: "sharedFolders" }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.collectionNames; let row">
+      <bit-chip-group
+        size="small"
+        [chips]="accessChips().get(row) ?? []"
+        (chipSelect)="filterByAccess($event.id)"
+      ></bit-chip-group>
+    </bit-cell>
+  </bit-column>
+
+  <!-- Options: only displayed for admins who can manage users or recover accounts -->
+  <bit-column width="minmax(80px, 1fr)">
+    <bit-header-cell>
+      <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+    </bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.options; let row">
+      <!-- Without manage users permission, the menu only holds Recover account. -->
+      @if (organization && (canManage || allowResetPassword(row, organization))) {
+        <div slot="end">
+          <button
+            type="button"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
+            [attr.id]="'members-v2_button_options-' + row.id"
+            [label]="'optionsForItem' | i18n: row.name ?? row.email"
+            [bitMenuTriggerFor]="rowMenu"
+          ></button>
+          <bit-menu #rowMenu>
+            @if (canManage) {
+              @if (row.canSendInvite) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_send-invite-' + row.id"
+                  (click)="isProcessing() ? null : sendInvite(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-envelope" />
+                  {{ "sendInvite" | i18n }}
+                </button>
+              }
+              @if (row.canReinvite) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_resend-invitation-' + row.id"
+                  (click)="isProcessing() ? null : reinvite(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-envelope" />
+                  {{ "resendInvitation" | i18n }}
+                </button>
+              }
+              @if (row.canConfirm) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_confirm-' + row.id"
+                  (click)="isProcessing() ? null : confirm(row, organization)"
+                >
+                  <span class="tw-text-success">
+                    <bit-icon slot="start" fixedWidth name="bwi-check" />
+                    {{ "confirm" | i18n }}
+                  </span>
+                </button>
+              }
+              @if (row.canConfirm || row.canReinvite || row.canSendInvite) {
+                <bit-menu-divider></bit-menu-divider>
+              }
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_member-role-' + row.id"
+                (click)="isProcessing() ? null : edit(row, organization, memberTab.Details)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-user" />
+                {{ "memberRole" | i18n }}
+              </button>
+              @if (organization.useGroups) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_groups-' + row.id"
+                  (click)="isProcessing() ? null : edit(row, organization, memberTab.Groups)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-users" />
+                  {{ "groups" | i18n }}
+                </button>
+              }
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_collections-' + row.id"
+                (click)="isProcessing() ? null : edit(row, organization, memberTab.Collections)"
+              >
+                <bit-icon slot="start" fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" />
+                {{ "collections" | vfo1I18n: "sharedFolders" }}
+              </button>
+              <bit-menu-divider></bit-menu-divider>
+              @if (organization.useEvents && row.status === userStatusType.Confirmed) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_event-logs-' + row.id"
+                  (click)="isProcessing() ? null : openEventsDialog(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-file-text" />
+                  {{ "eventLogs" | i18n }}
+                </button>
+              }
+            }
+            <!-- Account recovery is available to all users with the appropriate permissions. -->
+            @if (allowResetPassword(row, organization)) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_recover-account-' + row.id"
+                (click)="isProcessing() ? null : resetPassword(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-key" />
+                {{ "recoverAccount" | i18n }}
+              </button>
+            }
+            @if (canManage) {
+              @if (row.canRestore) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_restore-' + row.id"
+                  (click)="isProcessing() ? null : restore(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-plus-circle" />
+                  {{ "restoreAccess" | i18n }}
+                </button>
+              }
+              @if (row.canRevoke) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_revoke-' + row.id"
+                  (click)="isProcessing() ? null : revoke(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-minus-circle" />
+                  {{ "revokeAccess" | i18n }}
+                </button>
+              }
+              <!-- Claimed members can't be removed, only deleted. -->
+              @if (row.canRemove) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  variant="danger"
+                  [attr.id]="'members-v2_menu-item_remove-' + row.id"
+                  (click)="isProcessing() ? null : remove(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-close" />
+                  {{ "remove" | i18n }}
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  bitMenuItem
+                  variant="danger"
+                  [attr.id]="'members-v2_menu-item_delete-' + row.id"
+                  (click)="isProcessing() ? null : deleteUser(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-trash" />
+                  {{ "delete" | i18n }}
+                </button>
+              }
+            }
+          </bit-menu>
+        </div>
+      }
+    </bit-cell>
+  </bit-column>
+
+  <bit-table-paginator [pageSize]="10"></bit-table-paginator>
+</bit-table-v2>

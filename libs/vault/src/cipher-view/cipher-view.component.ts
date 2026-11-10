@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, resource } from "@angular/core";
+import { Component, computed, inject, input, resource } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
@@ -13,8 +13,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
@@ -30,12 +28,9 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
-import {
-  CalloutModule,
-  SearchModule,
-  TypographyModule,
-  LinkComponent,
-} from "@bitwarden/components";
+import { CalloutModule, SearchModule, TypographyModule } from "@bitwarden/components";
+
+import { CIPHER_VIEW_BANNER, CipherViewBanner } from "../tokens/cipher-view-banner.token";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
@@ -74,7 +69,6 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
-    LinkComponent,
     TypographyModule,
   ],
 })
@@ -83,6 +77,11 @@ export class CipherViewComponent {
    * The cipher to display details for
    */
   readonly cipher = input.required<CipherView>();
+
+  /** Host-provided banner below the cipher's details; null when unprovided. */
+  protected readonly bannerComponent: CipherViewBanner | null = inject(CIPHER_VIEW_BANNER, {
+    optional: true,
+  });
 
   /**
    * Observable version of the cipher input
@@ -112,6 +111,20 @@ export class CipherViewComponent {
    * premium in anonymous environments where the userId is not available
    */
   readonly hasAnonymousPremium = input<boolean>(false);
+  /**
+   * Optional input for explicitly disabling the at-risk password link (used for
+   * situations where the cipher contents are not editable)
+   */
+  readonly hideChangePasswordLink = input<boolean>(false);
+  /**
+   * Optional input for explicitly disabling the item history section of cipher details
+   */
+  readonly hideItemHistory = input<boolean>(false);
+  /**
+   * Optional input for hiding the expired card callout (used where the viewer cannot act on it,
+   * such as a card shared with them through a Send)
+   */
+  readonly hideExpiredCardWarning = input<boolean>(false);
 
   constructor(
     private organizationService: OrganizationService,
@@ -126,7 +139,6 @@ export class CipherViewComponent {
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
     private vaultSettingsService: VaultSettingsService,
-    private configService: ConfigService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -226,7 +238,7 @@ export class CipherViewComponent {
 
   readonly cardIsExpired = computed(() => {
     const cipher = this.cipher();
-    if (cipher == null) {
+    if (cipher == null || this.hideExpiredCardWarning()) {
       return false;
     }
     return isCardExpired(cipher.card);
@@ -318,6 +330,7 @@ export class CipherViewComponent {
 
   readonly showChangePasswordLink = computed(() => {
     return (
+      !this.hideChangePasswordLink() &&
       this.hasLoginUri() &&
       (this.hadPendingChangePasswordTask() ||
         // Only show the change password link if the password is at risk and the user has opted to see at-risk password notifications.
@@ -329,11 +342,6 @@ export class CipherViewComponent {
 
   readonly showAtRiskPasswordNotifications = toSignal(
     this.vaultSettingsService.showAtRiskPasswordNotifications$,
-  );
-
-  readonly removeAtRiskCallout = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32016RemoveAtRiskCallout),
-    { initialValue: false },
   );
 
   protected readonly changePasswordUrl = resource({
