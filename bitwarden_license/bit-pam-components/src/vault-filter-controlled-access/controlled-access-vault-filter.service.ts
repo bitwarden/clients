@@ -153,7 +153,10 @@ function sameMatches(
     a.size === b.size &&
     [...a].every(([option, ids]) => {
       const other = b.get(option);
-      return other != null && other.size === ids.size && [...ids].every((id) => other.has(id));
+      if (other == null || other.size !== ids.size) {
+        return false;
+      }
+      return [...ids].every((id) => other.has(id));
     })
   );
 }
