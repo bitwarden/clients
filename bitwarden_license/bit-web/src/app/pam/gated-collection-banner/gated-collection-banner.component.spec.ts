@@ -67,7 +67,7 @@ describe("GatedCollectionBannerComponent", () => {
     create(PAM_ORG, COLLECTION);
 
     expect(banner()).not.toBeNull();
-    expect(banner()?.textContent).toContain("pamCollectionRequiresRequest");
+    expect(banner()?.textContent).toContain("pamSharedFolderRequiresRequest");
   });
 
   it("names the notice's landmark with a label distinct from the sentence it displays", () => {
