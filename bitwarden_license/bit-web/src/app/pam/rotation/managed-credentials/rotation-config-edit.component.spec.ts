@@ -2300,3 +2300,83 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
     });
   });
 });
+
+describe("RotationConfigEditComponent: while a rotation job runs", () => {
+  const TEN_MINUTES = 10 * 60_000;
+
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  async function settle(fixture: ComponentFixture<RotationConfigEditComponent>, ms = 0) {
+    await jest.advanceTimersByTimeAsync(ms);
+    fixture.detectChanges();
+    await jest.advanceTimersByTimeAsync(0);
+  }
+
+  it("re-reads the config until the job ends, then unlocks editing", async () => {
+    const { component, fixture, rotationSdk } = setup({
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ hasActiveJob: true }),
+    });
+    await settle(fixture);
+    expect(rotationSdk.getConfig).toHaveBeenCalledTimes(1);
+    expect(component.accountForm.controls.accountIdentity.disabled).toBe(true);
+
+    rotationSdk.getConfig.mockResolvedValue(loadedConfig({ hasActiveJob: false }));
+    await settle(fixture, 10_000);
+
+    expect(rotationSdk.getConfig).toHaveBeenCalledTimes(2);
+    expect(component.config().hasActiveJob).toBe(false);
+    expect(component.accountForm.controls.accountIdentity.disabled).toBe(false);
+
+    await settle(fixture, TEN_MINUTES);
+    expect(rotationSdk.getConfig).toHaveBeenCalledTimes(2);
+  });
+
+  it("starts re-reading once Rotate now starts a job", async () => {
+    const { component, fixture, rotationSdk } = setup({ configId: configId("cfg-1") });
+    await settle(fixture);
+    rotationSdk.getConfig
+      .mockResolvedValueOnce(loadedConfig({ hasActiveJob: true }))
+      .mockResolvedValue(loadedConfig({ hasActiveJob: false }));
+
+    await component.rotateNow();
+    expect(component.config().hasActiveJob).toBe(true);
+
+    await settle(fixture, 10_000);
+    expect(component.config().hasActiveJob).toBe(false);
+  });
+
+  it("does not re-read while no job runs", async () => {
+    const { fixture, rotationSdk } = setup({ configId: configId("cfg-1") });
+    await settle(fixture, TEN_MINUTES);
+
+    expect(rotationSdk.getConfig).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops re-reading after a failed read", async () => {
+    const { fixture, rotationSdk } = setup({
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ hasActiveJob: true }),
+    });
+    await settle(fixture);
+    rotationSdk.getConfig.mockRejectedValue(new Error("boom"));
+
+    await settle(fixture, TEN_MINUTES);
+
+    expect(rotationSdk.getConfig).toHaveBeenCalledTimes(2);
+  });
+
+  it("stops re-reading when the page is destroyed", async () => {
+    const { fixture, rotationSdk } = setup({
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ hasActiveJob: true }),
+    });
+    await settle(fixture);
+
+    fixture.destroy();
+    await jest.advanceTimersByTimeAsync(TEN_MINUTES);
+
+    expect(rotationSdk.getConfig).toHaveBeenCalledTimes(1);
+  });
+});

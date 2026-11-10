@@ -27,6 +27,7 @@ import {
   targetSystem,
 } from "../testing/rotation-builders";
 
+import { ACTIVE_JOB_MAX_READS } from "./active-job-poller";
 import { RotationConfigsService } from "./rotation-configs.service";
 
 const ORG_ID = ORGANIZATION_ID;
@@ -232,10 +233,12 @@ describe("RotationConfigsService", () => {
   });
 
   describe("polling while a job runs", () => {
+    const TEN_MINUTES = 10 * 60_000;
+
     beforeEach(() => jest.useFakeTimers());
     afterEach(() => jest.useRealTimers());
 
-    it("re-reads the list until no row has a running job", async () => {
+    it("re-reads the list on a slowing timer until no row has a running job", async () => {
       rotationSdk.listConfigs
         .mockResolvedValueOnce([rotationConfig({ hasActiveJob: true })])
         .mockResolvedValueOnce([rotationConfig({ hasActiveJob: true })])
@@ -243,15 +246,27 @@ describe("RotationConfigsService", () => {
       await service.load(ORG_ID);
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
 
-      await jest.advanceTimersByTimeAsync(5000);
+      await jest.advanceTimersByTimeAsync(10_000);
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(2);
 
-      await jest.advanceTimersByTimeAsync(5000);
+      await jest.advanceTimersByTimeAsync(10_000);
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(2);
+
+      await jest.advanceTimersByTimeAsync(10_000);
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(3);
       expect((await firstValueFrom(service.configs$))[0].hasActiveJob).toBe(false);
 
-      await jest.advanceTimersByTimeAsync(30000);
+      await jest.advanceTimersByTimeAsync(TEN_MINUTES);
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(3);
+    });
+
+    it("gives up after a bounded number of re-reads while the job keeps running", async () => {
+      rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ hasActiveJob: true })]);
+      await service.load(ORG_ID);
+
+      await jest.advanceTimersByTimeAsync(3 * TEN_MINUTES);
+
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1 + ACTIVE_JOB_MAX_READS);
     });
 
     it("starts polling when rotate now marks a row as running", async () => {
@@ -259,28 +274,27 @@ describe("RotationConfigsService", () => {
       await service.rotateNow((await firstValueFrom(service.configs$))[0]);
       rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ hasActiveJob: false })]);
 
-      await jest.advanceTimersByTimeAsync(5000);
+      await jest.advanceTimersByTimeAsync(10_000);
 
       expect((await firstValueFrom(service.configs$))[0].hasActiveJob).toBe(false);
     });
 
     it("does not poll when nothing is running", async () => {
       await service.load(ORG_ID);
-      await jest.advanceTimersByTimeAsync(30000);
+      await jest.advanceTimersByTimeAsync(TEN_MINUTES);
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
     });
 
-    it("keeps polling after a failed re-read", async () => {
+    it("stops polling after a failed re-read", async () => {
       rotationSdk.listConfigs
         .mockResolvedValueOnce([rotationConfig({ hasActiveJob: true })])
         .mockRejectedValueOnce(new Error("boom"))
         .mockResolvedValue([rotationConfig({ hasActiveJob: false })]);
       await service.load(ORG_ID);
 
-      await jest.advanceTimersByTimeAsync(5000);
-      await jest.advanceTimersByTimeAsync(5000);
+      await jest.advanceTimersByTimeAsync(TEN_MINUTES);
 
-      expect((await firstValueFrom(service.configs$))[0].hasActiveJob).toBe(false);
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(2);
     });
 
     it("stops polling when the service is destroyed", async () => {
@@ -288,7 +302,7 @@ describe("RotationConfigsService", () => {
       await service.load(ORG_ID);
 
       service.ngOnDestroy();
-      await jest.advanceTimersByTimeAsync(30000);
+      await jest.advanceTimersByTimeAsync(TEN_MINUTES);
 
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
     });
@@ -300,12 +314,12 @@ describe("RotationConfigsService", () => {
         .mockReturnValueOnce(new Promise((resolve) => (resolveReRead = resolve)))
         .mockResolvedValue([rotationConfig({ hasActiveJob: true })]);
       await service.load(ORG_ID);
-      await jest.advanceTimersByTimeAsync(5000);
+      await jest.advanceTimersByTimeAsync(10_000);
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(2);
 
       service.stopPolling();
       resolveReRead([rotationConfig({ hasActiveJob: true })]);
-      await jest.advanceTimersByTimeAsync(30000);
+      await jest.advanceTimersByTimeAsync(TEN_MINUTES);
 
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(2);
     });
@@ -315,7 +329,7 @@ describe("RotationConfigsService", () => {
       service.stopPolling();
 
       await service.rotateNow((await firstValueFrom(service.configs$))[0]);
-      await jest.advanceTimersByTimeAsync(30000);
+      await jest.advanceTimersByTimeAsync(TEN_MINUTES);
 
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
     });
@@ -326,7 +340,7 @@ describe("RotationConfigsService", () => {
       service.stopPolling();
 
       await service.load(ORG_ID);
-      await jest.advanceTimersByTimeAsync(5000);
+      await jest.advanceTimersByTimeAsync(10_000);
 
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(3);
     });

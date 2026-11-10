@@ -5,6 +5,7 @@ import {
   Component,
   DestroyRef,
   LOCALE_ID,
+  NgZone,
   TemplateRef,
   ViewContainerRef,
   computed,
@@ -99,6 +100,7 @@ import { RotationConfigDescription, RotationSdkService } from "../rotation-sdk.s
 import { formatRotationAge } from "../rotation-timestamp";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
+import { ActiveJobPoller } from "./active-job-poller";
 import { confirmPauseRotation, confirmRotateNow } from "./rotation-action-dialogs";
 import { RotationRowStatus } from "./rotation-config-row";
 import { RotationHistorySkeletonComponent } from "./rotation-history-skeleton.component";
@@ -564,6 +566,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   constructor() {
     this.coupleTargetControls();
     this.pinCreateFooter();
+    inject(DestroyRef).onDestroy(() => this.poller.stop());
     void this.initialize();
   }
 
@@ -581,6 +584,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     try {
       if (this.editing) {
         await this.initializeEditMode();
+        this.pollIfJobRuns();
       } else {
         await this.initializeCreateMode();
       }
@@ -712,6 +716,18 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     await this.loadDescriptionsAndApplyDetail(
       await this.rotationSdk.getConfig(this.organizationId, this.configId!),
     );
+  }
+
+  private readonly poller = new ActiveJobPoller(inject(NgZone), async () => {
+    await this.reloadConfig();
+    return this.config()?.hasActiveJob ?? false;
+  });
+
+  /** Starts a polling run when the config has a running job, so the page sees it finish. */
+  private pollIfJobRuns(): void {
+    if (this.config()?.hasActiveJob) {
+      this.poller.start();
+    }
   }
 
   private applyEditLocks(config: RotationConfigView): void {
@@ -908,6 +924,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       "pamRotationConfigRotateNowStarted",
       "pamRotationConfigRotateNowFailed",
     );
+    this.pollIfJobRuns();
   };
 
   protected readonly markRotated = async (): Promise<void> => {

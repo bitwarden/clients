@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy, inject } from "@angular/core";
+import { Injectable, NgZone, OnDestroy, inject } from "@angular/core";
 import { BehaviorSubject, Observable, combineLatest, map, switchMap } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -9,9 +9,8 @@ import { AccessConnector, RotationConfigId, RotationConfigView } from "../rotati
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
+import { ActiveJobPoller } from "./active-job-poller";
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
-
-const ACTIVE_JOB_POLL_MS = 5000;
 
 /**
  * Data service for the managed credentials tab, provided at the rotation shell route so the tabs
@@ -30,9 +29,9 @@ export class RotationConfigsService implements OnDestroy {
   /** Incremented per {@link load} call so a superseded call can drop its outcome. */
   private loadGeneration = 0;
 
-  private pollTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly poller = new ActiveJobPoller(inject(NgZone), () => this.poll());
 
-  /** Set by {@link load} and cleared by {@link stopPolling}; nothing restarts the timer while off. */
+  /** Set by {@link load} and cleared by {@link stopPolling}; Rotate now starts no polling while off. */
   private pollingEnabled = false;
 
   private readonly _configs$ = new BehaviorSubject<RotationConfigView[]>([]);
@@ -102,6 +101,7 @@ export class RotationConfigsService implements OnDestroy {
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
     this.pollingEnabled = true;
+    this.poller.stop();
     const generation = ++this.loadGeneration;
     this._loading$.next(true);
     this._loadError$.next(null);
@@ -116,6 +116,9 @@ export class RotationConfigsService implements OnDestroy {
       }
       this.setConfigs(configs);
       this._loadError$.next(null);
+      if (this.pollingEnabled && configs.some((c) => c.hasActiveJob)) {
+        this.poller.start();
+      }
     } catch (e) {
       if (generation !== this.loadGeneration) {
         return;
@@ -148,10 +151,16 @@ export class RotationConfigsService implements OnDestroy {
     }
   }
 
-  /** Sets `hasActiveJob` once the server accepts, so the row shows the job without a reload. */
+  /**
+   * Sets `hasActiveJob` once the server accepts, so the row shows the job without a reload, and
+   * starts a fresh polling run to see it finish.
+   */
   async rotateNow(config: RotationConfigView): Promise<void> {
     await this.rotationSdk.rotateNow(this.requireOrganizationId(), config.id);
     this.patchConfig(config.id, { hasActiveJob: true });
+    if (this.pollingEnabled) {
+      this.poller.start();
+    }
   }
 
   async recordManual(config: RotationConfigView): Promise<void> {
@@ -203,48 +212,21 @@ export class RotationConfigsService implements OnDestroy {
    */
   stopPolling(): void {
     this.pollingEnabled = false;
-    this.clearPollTimer();
+    this.poller.stop();
   }
 
   private setConfigs(configs: RotationConfigView[]): void {
     this._configs$.next(configs);
-    this.syncPolling();
   }
 
-  /**
-   * A running job finishes on the server with nothing pushed to the client, so the list is re-read
-   * on a timer for as long as any row has one.
-   */
-  private syncPolling(): void {
-    if (!this.pollingEnabled || !this._configs$.value.some((c) => c.hasActiveJob)) {
-      this.clearPollTimer();
-      return;
-    }
-    this.pollTimer ??= setTimeout(() => void this.poll(), ACTIVE_JOB_POLL_MS);
-  }
-
-  private clearPollTimer(): void {
-    if (this.pollTimer != null) {
-      clearTimeout(this.pollTimer);
-      this.pollTimer = null;
-    }
-  }
-
-  private async poll(): Promise<void> {
-    this.pollTimer = null;
-    const organizationId = this.organizationId;
-    if (organizationId == null) {
-      return;
-    }
+  /** Re-reads the list for {@link poller}, and reports whether any row still has a running job. */
+  private async poll(): Promise<boolean> {
     const generation = this.loadGeneration;
-    try {
-      const configs = await this.rotationSdk.listConfigs(organizationId);
-      if (generation !== this.loadGeneration) {
-        return;
-      }
-      this.setConfigs(configs);
-    } catch {
-      this.syncPolling();
+    const configs = await this.rotationSdk.listConfigs(this.requireOrganizationId());
+    if (generation !== this.loadGeneration) {
+      return false;
     }
+    this.setConfigs(configs);
+    return configs.some((c) => c.hasActiveJob);
   }
 }
