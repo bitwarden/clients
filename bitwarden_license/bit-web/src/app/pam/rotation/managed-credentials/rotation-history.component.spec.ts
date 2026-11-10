@@ -215,6 +215,10 @@ describe("RotationHistoryComponent", () => {
         "target_unreachable: error kind: ConnectionRefused",
         "pamRotationFailureCauseTargetUnreachable",
       ],
+      [
+        "target_rejected: error kind: AmbiguousAccountIdentity",
+        "pamRotationFailureCauseAmbiguousAccountIdentity",
+      ],
     ])("maps %s to %s", (failureReason, expected) => {
       setup([]);
       expect((component as any).failureCauseLabelKey(failureReason)).toBe(expected);
@@ -225,9 +229,12 @@ describe("RotationHistoryComponent", () => {
       ["target unreachable"],
       ["flaky target"],
       ["target_rejected"],
-    ])("returns null for %s", (failureReason) => {
+      ["target_rejected: error kind: SomethingNew"],
+    ])("falls back to the generic cause for %s", (failureReason) => {
       setup([]);
-      expect((component as any).failureCauseLabelKey(failureReason)).toBeNull();
+      expect((component as any).failureCauseLabelKey(failureReason)).toBe(
+        "pamRotationFailureCauseUnknown",
+      );
     });
   });
 
@@ -660,7 +667,7 @@ describe("RotationHistoryComponent rendering", () => {
     expect(fixture.nativeElement.textContent).toContain("pamRotationHistoryEmpty");
   });
 
-  it("keeps the connector page's columns when it names the credential", () => {
+  it("keeps the connector page's columns and adds Details when it names the credential", () => {
     const fixture = render([rotationJob()], { showCredential: true });
 
     expect(jobHeaders(fixture)).toEqual([
@@ -670,6 +677,7 @@ describe("RotationHistoryComponent rendering", () => {
       "pamRotationHistoryColumnResult",
       "pamRotationHistoryDurationLabel",
       "pamRotationHistoryColumnAttempts",
+      "details",
     ]);
   });
 
@@ -693,6 +701,25 @@ describe("RotationHistoryComponent rendering", () => {
     it("leaves the connector page on its own table", () => {
       const fixture = render([rotationJob()], { showCredential: true });
       expect(fixture.debugElement.query(By.css("bit-table-v2"))).toBeNull();
+    });
+
+    it("gives a failed row on the connector page a plain-language reason", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Failed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: "target_rejected: error kind: AmbiguousAccountIdentity",
+          }),
+        ],
+      });
+      const fixture = render([job], { showCredential: true });
+      expect(
+        fixture.debugElement
+          .query(By.css("[data-testid='rotation-history-job-details']"))
+          .nativeElement.textContent.trim(),
+      ).toBe("pamRotationFailureCauseAmbiguousAccountIdentity");
     });
   });
 
@@ -727,7 +754,7 @@ describe("RotationHistoryComponent rendering", () => {
       expect(detailsOf(render([job]))).toBe("pamRotationHistoryNoConnectorPickedUp");
     });
 
-    it("leaves a failure with no recognised cause blank", () => {
+    it("gives a failure with no recognised cause the generic reason", () => {
       const job = rotationJob({
         status: RotationJobStatus.Failed,
         attempts: [
@@ -738,7 +765,35 @@ describe("RotationHistoryComponent rendering", () => {
           }),
         ],
       });
-      expect(detailsOf(render([job]))).toBe("");
+      expect(detailsOf(render([job]))).toBe("pamRotationFailureCauseUnknown");
+    });
+
+    it("gives a failure with no reason at all the generic reason", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Failed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: undefined,
+          }),
+        ],
+      });
+      expect(detailsOf(render([job]))).toBe("pamRotationFailureCauseUnknown");
+    });
+
+    it("explains an ambiguous account identity in plain language", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Failed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: "target_rejected: error kind: AmbiguousAccountIdentity",
+          }),
+        ],
+      });
+      expect(detailsOf(render([job]))).toBe("pamRotationFailureCauseAmbiguousAccountIdentity");
     });
 
     it("names a retrying job and the attempt that failed", () => {
@@ -963,7 +1018,7 @@ describe("RotationHistoryComponent rendering", () => {
       expect(document.activeElement).toBe(cellB);
     });
 
-    it("stands Source, Duration and Attempts down while the pane is beside the table", async () => {
+    it("stands Source, Duration, Attempts and Details down while the pane is beside the table", async () => {
       const fixture = render([retriedFailure()], { showCredential: true });
       const closed = openedDrawer();
       const hidden = () =>
@@ -981,6 +1036,7 @@ describe("RotationHistoryComponent rendering", () => {
         "pamRotationHistoryColumnSource",
         "pamRotationHistoryDurationLabel",
         "pamRotationHistoryColumnAttempts",
+        "details",
       ]);
 
       closed.next(undefined);

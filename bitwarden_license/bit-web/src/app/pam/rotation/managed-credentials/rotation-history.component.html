@@ -106,11 +106,7 @@
             >
               {{ "pamRotationHistoryColumnAttempts" | i18n }}
             </th>
-          } @else {
-            <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
-              {{ "pamRotationHistoryColumnRotationTrigger" | i18n }}
-            </th>
-            <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
+            <th bitCell scope="col" class="tw-text-start" [class.tw-hidden]="detailsOpen()">
               {{ "details" | i18n }}
             </th>
           }
@@ -200,15 +196,21 @@
               >
                 {{ job.attempts.length }}
               </td>
-            } @else {
-              <td bitCell class="tw-whitespace-nowrap tw-text-sm">
-                {{ job.sourceLabelKey | i18n }}
-              </td>
-              <td bitCell class="tw-text-sm" data-testid="rotation-history-job-details">
-                @if (job.retrySucceeded) {
-                  {{ "pamRotationHistoryRetrySucceeded" | i18n }}
-                } @else if (!job.failed) {
-                  {{ "pamRotationDetailNone" | i18n }}
+              <td
+                bitCell
+                class="tw-text-sm"
+                [class.tw-hidden]="detailsOpen()"
+                data-testid="rotation-history-job-details"
+              >
+                @if (job.details; as details) {
+                  @if (details.attemptOrdinal != null) {
+                    {{ details.key | i18n: details.attemptOrdinal }}
+                    @if (details.causeLabelKey; as causeKey) {
+                      {{ causeKey | i18n }}
+                    }
+                  } @else {
+                    {{ details.key | i18n }}
+                  }
                 }
               </td>
             }

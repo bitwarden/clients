@@ -21365,6 +21365,12 @@
   "pamRotationFailureCauseDirectoryRefused": {
     "message": "The target system refused to make the change. This commonly means the new password broke a password rule, or the connection to the target system was not encrypted."
   },
+  "pamRotationFailureCauseAmbiguousAccountIdentity": {
+    "message": "More than one account matches this account identity. Make it more specific, then rotate again."
+  },
+  "pamRotationFailureCauseUnknown": {
+    "message": "The rotation failed. Rotate again, or contact support if it keeps failing."
+  },
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
   },

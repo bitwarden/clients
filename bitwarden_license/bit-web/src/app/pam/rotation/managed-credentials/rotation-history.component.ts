@@ -47,6 +47,9 @@ import type {
   JobView,
 } from "./rotation-job-row";
 
+/** Shown for a failure with no reason, or one this client does not recognise. */
+const UNKNOWN_FAILURE_CAUSE_KEY = "pamRotationFailureCauseUnknown";
+
 const SOURCE_LABEL_KEYS: Partial<Record<RotationSource, string>> = {
   [RotationSource.Scheduled]: "pamRotationSourceScheduled",
   [RotationSource.OnDemand]: "pamRotationSourceOnDemand",
@@ -230,7 +233,11 @@ export class RotationHistoryComponent {
       duration,
       attempts: attemptViews,
       attemptsUniform: attemptsUniform && attempts.length > 1,
-      causeLabelKey: reportedReason ? this.failureCauseLabelKey(reportedReason) : null,
+      causeLabelKey: failed
+        ? reportedReason
+          ? this.failureCauseLabelKey(reportedReason)
+          : UNKNOWN_FAILURE_CAUSE_KEY
+        : null,
       reportedReason,
       details: this.jobDetails(
         job,
@@ -276,8 +283,7 @@ export class RotationHistoryComponent {
         if (job.status === RotationJobStatus.TimedOut && attempts.length === 0) {
           return { key: "pamRotationHistoryNoConnectorPickedUp" };
         }
-        const cause = attempts.at(-1)?.causeLabelKey;
-        return cause == null ? null : { key: cause };
+        return { key: attempts.at(-1)?.causeLabelKey ?? UNKNOWN_FAILURE_CAUSE_KEY };
       }
       case RotationJobStatus.Succeeded: {
         const termination = (job.attempts ?? [])
@@ -341,7 +347,7 @@ export class RotationHistoryComponent {
     if (unreachable || jobTimedOut) {
       return "pamRotationAttemptCauseTargetUnreachable";
     }
-    return reason ? this.failureCauseLabelKey(reason) : null;
+    return reason ? this.failureCauseLabelKey(reason) : UNKNOWN_FAILURE_CAUSE_KEY;
   }
 
   /** The latest end recorded across a job's attempts, or `null` while any of it is unfinished. */
@@ -394,8 +400,8 @@ export class RotationHistoryComponent {
     return SESSION_TERMINATION_LABEL_KEYS[state] ?? "pamRotationSessionTerminationUnknown";
   }
 
-  /** A plain-language i18n key for a recognised failure reason, else `null`. */
-  protected failureCauseLabelKey(failureReason: string): string | null {
+  /** A plain-language i18n key for a failure reason. An unrecognised reason gets a generic one. */
+  protected failureCauseLabelKey(failureReason: string): string {
     const ldapResultCode = /\bLDAP\s+(?:result\s+|error\s+)?code\s+(\d{1,3})\b/i.exec(
       failureReason,
     )?.[1];
@@ -417,6 +423,11 @@ export class RotationHistoryComponent {
       return "pamRotationFailureCauseTargetUnreachable";
     }
 
-    return null;
+    const connectorErrorKind = /\berror kind:\s*(\w+)/i.exec(failureReason)?.[1];
+    if (connectorErrorKind === "AmbiguousAccountIdentity") {
+      return "pamRotationFailureCauseAmbiguousAccountIdentity";
+    }
+
+    return UNKNOWN_FAILURE_CAUSE_KEY;
   }
 }
