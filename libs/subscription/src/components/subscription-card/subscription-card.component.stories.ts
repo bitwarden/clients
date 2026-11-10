@@ -12,7 +12,6 @@ import {
 import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitwardenSubscription } from "../../types/bitwarden-subscription";
 import { SubscriptionPreview } from "../../types/subscription-preview";
 
 import { SubscriptionCardComponent } from "./subscription-card.component";
@@ -124,7 +123,7 @@ export const Active: Story = {
         used: 234,
         readableUsed: "234 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -152,7 +151,7 @@ export const ActiveWithUpgrade: Story = {
         used: 234,
         readableUsed: "234 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -178,7 +177,7 @@ export const Trial: Story = {
         used: 50,
         readableUsed: "50 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -206,7 +205,7 @@ export const TrialWithUpgrade: Story = {
         used: 50,
         readableUsed: "50 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -233,7 +232,7 @@ export const Incomplete: Story = {
         used: 234,
         readableUsed: "234 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -260,7 +259,7 @@ export const IncompleteExpired: Story = {
         used: 234,
         readableUsed: "234 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -287,7 +286,7 @@ export const PastDue: Story = {
         used: 234,
         readableUsed: "234 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -335,7 +334,7 @@ export const PendingCancellation: Story = {
         used: 234,
         readableUsed: "234 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -362,7 +361,7 @@ export const Unpaid: Story = {
         used: 234,
         readableUsed: "234 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -414,7 +413,7 @@ export const Canceled: Story = {
         used: 234,
         readableUsed: "234 MB",
       },
-    } satisfies BitwardenSubscription,
+    } satisfies SubscriptionPreview,
   },
 };
 

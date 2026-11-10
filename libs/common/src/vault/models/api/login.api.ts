@@ -14,6 +14,7 @@ export class LoginApi extends BaseResponse {
   passwordRevisionDate: string;
   totp: string;
   autofillOnPageLoad: boolean;
+  httpAuthenticationEnabled?: boolean;
   fido2Credentials?: Fido2CredentialApi[];
 
   constructor(data: any = null) {
@@ -26,6 +27,7 @@ export class LoginApi extends BaseResponse {
     this.passwordRevisionDate = this.getResponseProperty("PasswordRevisionDate");
     this.totp = this.getResponseProperty("Totp");
     this.autofillOnPageLoad = this.getResponseProperty("AutofillOnPageLoad");
+    this.httpAuthenticationEnabled = this.getResponseProperty("HttpAuthenticationEnabled");
 
     const uris = this.getResponseProperty("Uris");
     if (uris != null) {

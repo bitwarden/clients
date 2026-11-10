@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, LOCALE_ID, inject } from "@angular/core";
 
+import { formatTimeOfDay } from "@bitwarden/bit-pam";
+import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import {
   BadgeModule,
   DIALOG_DATA,
@@ -10,13 +12,14 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { RotationDurationComponent } from "../rotation-duration.component";
-import { JobView } from "../rotation-job-row";
+import { EndingSessionsInfo, JobView } from "../rotation-job-row";
 
 export type RotationJobDrawerParams = {
   job: JobView;
   /** Whether to name the managed credential this job rotated. */
   showCredential: boolean;
+  /** The job's target system's session termination, or `null` to leave the field out. */
+  endingSessions?: EndingSessionsInfo | null;
 };
 
 /** One rotation job in full, in the side drawer. */
@@ -24,13 +27,24 @@ export type RotationJobDrawerParams = {
   selector: "pam-rotation-job-drawer",
   templateUrl: "./rotation-job-drawer.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, BadgeModule, DialogModule, I18nPipe, RotationDurationComponent],
+  imports: [CommonModule, BadgeModule, DialogModule, I18nPipe, TimestampPipe],
 })
 export class RotationJobDrawerComponent {
   protected readonly params = inject<RotationJobDrawerParams>(DIALOG_DATA);
 
   protected get job(): JobView {
     return this.params.job;
+  }
+
+  private readonly locale = inject(LOCALE_ID);
+
+  /** "7:06 PM", the time of day alone. */
+  protected formatTime(iso: string): string {
+    return formatTimeOfDay(this.locale, Date.parse(iso));
+  }
+
+  protected get endingSessions(): EndingSessionsInfo | null {
+    return this.params.endingSessions ?? null;
   }
 
   static open(dialogService: DialogService, config: DialogConfig<RotationJobDrawerParams>) {

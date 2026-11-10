@@ -25,6 +25,7 @@ import {
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { isAccessSendError } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../shared";
 
@@ -116,6 +117,10 @@ export class SendViewComponent implements OnInit {
         } else {
           this.error.set(true);
         }
+      } else if (isAccessSendError(e) && e.variant === "NotFound") {
+        // The SDK path (`pm-30110-sdk-sends-api`) reports a Send that is gone or can no longer be
+        // opened this way, rather than as a 404 ErrorResponse
+        this.unavailable.set(true);
       } else {
         this.error.set(true);
       }

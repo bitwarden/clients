@@ -174,6 +174,17 @@ export const USER_KEY_ENCRYPTED_PIN = new UserKeyDefinition<EncString>(
 );
 
 /**
+ * The number of characters in the PIN. Stored unencrypted, and on disk, so that it can be read
+ * while the account is locked - for instance by a lock screen wanting to try the PIN as soon as
+ * that many characters have been typed.
+ */
+export const PIN_LENGTH = new UserKeyDefinition<number>(PIN_DISK, "pinLength", {
+  deserializer: (jsonValue) => jsonValue,
+  clearOn: ["logout"],
+  cleanupDelayMs: 0, // Prevents the state from caching and rxjs observable becoming hot observable.
+});
+
+/**
  * Timestamp for delaying v2 encrypted migrations. Stored on disk, the timestamp
  * records the first time a user logs in while eligible for v2 encrypted migrations.
  * User prompts are only shown once a grace period has elapsed since the timestamp.

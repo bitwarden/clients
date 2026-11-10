@@ -212,6 +212,9 @@ export function mockMigrationHelper(
   storage.save.mockImplementation(async (key, value) => {
     (storageJson as any)[key] = value;
   });
+  storage.remove.mockImplementation(async (key) => {
+    delete (storageJson as any)[key];
+  });
   const helper = new MigrationHelper(stateVersion, storage, logService, type, clientType);
 
   const mockHelper = mock<MigrationHelper>();
@@ -233,6 +236,9 @@ export function mockMigrationHelper(
   mockHelper.getKnownUserIds.mockImplementation(() => helper.getKnownUserIds());
   mockHelper.removeFromGlobal.mockImplementation((keyDefinition) =>
     helper.removeFromGlobal(keyDefinition),
+  );
+  mockHelper.removeFromUser.mockImplementation((userId, keyDefinition) =>
+    helper.removeFromUser(userId, keyDefinition),
   );
   mockHelper.remove.mockImplementation((key) => helper.remove(key));
 
