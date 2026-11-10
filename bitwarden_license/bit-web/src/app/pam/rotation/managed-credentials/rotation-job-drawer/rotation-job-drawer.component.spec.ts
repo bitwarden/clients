@@ -129,42 +129,53 @@ describe("RotationJobDrawerComponent", () => {
     return fixture.debugElement.query(By.css(`[data-testid='${testId}']`));
   }
 
-  it("titles the drawer Rotation details and names the outcome on a badge", async () => {
+  it("titles the drawer Rotation details, with no badge", async () => {
     await render(retriedFailure());
 
     expect(text()).toContain("pamRotationDetailsDrawerTitle");
-    const badge = query("drawer-result").nativeElement;
-    expect(badge.textContent).toContain("pamRotationJobStatusFailed");
-    expect(badge.className).toContain("danger");
+    expect(fixture.nativeElement.querySelector("[bitBadge]")).toBeNull();
+    expect(query("drawer-result")).toBeNull();
   });
 
-  it("lists Started, Ending sessions, Result and Trigger in that order, with no Duration", async () => {
+  it("heads the body with the start, then lists Trigger and Ending sessions, with no Result or Duration", async () => {
     await render(succeeded(), false, { kind: "entra", supported: true });
 
+    const heading = fixture.nativeElement.querySelector("h2");
+    expect(heading.textContent.trim()).toBe(
+      formatTimestamp("en-US", Date.parse("2026-01-01T00:01:00Z")),
+    );
     const labels = fixture.debugElement
       .queryAll(By.css("dt"))
       .map((dt: any) => dt.nativeElement.textContent.trim());
     expect(labels).toEqual([
-      "pamRotationAttemptStarted",
-      "pamTargetSystemEndingSessions",
-      "pamRotationHistoryColumnResult",
       "pamRotationHistoryColumnRotationTrigger",
+      "pamTargetSystemEndingSessions",
     ]);
+    expect(text()).not.toContain("pamRotationAttemptStarted");
     expect(text()).not.toContain("pamRotationHistoryDurationLabel");
   });
 
-  it("formats the start the way the table does", async () => {
+  it("states the start without a separate Started field", async () => {
     await render(retriedFailure());
 
     expect(query("drawer-started").nativeElement.textContent.trim()).toBe(
       formatTimestamp("en-US", Date.parse("2026-01-01T00:01:00Z")),
     );
+    expect(text()).not.toContain("pamRotationAttemptStarted");
   });
 
-  it("states nothing for a job with no attempt to read a start from", async () => {
-    await render(succeeded({ startedAt: null, attempts: [] }));
+  it("falls back to when the job was created if no attempt ever started", async () => {
+    await render(
+      succeeded({
+        startedAt: null,
+        displayStartedAt: "2026-01-01T00:00:00Z",
+        attempts: [],
+      }),
+    );
 
-    expect(query("drawer-started")).toBeNull();
+    expect(query("drawer-started").nativeElement.textContent.trim()).toBe(
+      formatTimestamp("en-US", Date.parse("2026-01-01T00:00:00Z")),
+    );
   });
 
   describe("Ending sessions", () => {
@@ -176,20 +187,24 @@ describe("RotationJobDrawerComponent", () => {
       expect(field).toContain("pamTargetSystemEndingSessionsEntraHint");
     });
 
-    it("shows the badge alone for another kind that supports it", async () => {
+    it("shows plain text alone for another kind that supports it", async () => {
       await render(succeeded(), false, { kind: "mssql", supported: true });
 
-      const field = query("drawer-ending-sessions").nativeElement.textContent;
-      expect(field).toContain("pamTargetSystemSessionTerminationSupported");
-      expect(field).not.toContain("pamTargetSystemEndingSessionsEntraHint");
+      const field = query("drawer-ending-sessions").nativeElement;
+      expect(field.textContent).toContain("pamTargetSystemSessionTerminationSupported");
+      expect(field.textContent).not.toContain("pamTargetSystemEndingSessionsEntraHint");
+      expect(field.querySelector("[bitBadge]")).toBeNull();
     });
 
-    it("says not supported, with no helper, for a target that cannot", async () => {
-      await render(succeeded(), false, { kind: "entra", supported: false });
+    it("leaves the field out, with no badge, for a target that cannot", async () => {
+      await render(succeeded({ sessionTerminationLabelKey: "x" }), false, {
+        kind: "entra",
+        supported: false,
+      });
 
-      const field = query("drawer-ending-sessions").nativeElement.textContent;
-      expect(field).toContain("pamTargetSystemSessionTerminationNo");
-      expect(field).not.toContain("pamTargetSystemEndingSessionsEntraHint");
+      expect(query("drawer-ending-sessions")).toBeNull();
+      expect(query("drawer-session-termination")).toBeNull();
+      expect(text()).not.toContain("pamTargetSystemSessionTerminationNo");
     });
 
     it("is left out when there is no target to describe", async () => {
@@ -200,33 +215,37 @@ describe("RotationJobDrawerComponent", () => {
   });
 
   describe("the attempt table", () => {
-    it("heads the columns Attempt, Result and Access connector", async () => {
+    it("is a Table V2 headed Time, Result and Access connector", async () => {
       await render(retriedFailure());
 
       const headers = fixture.debugElement
-        .queryAll(By.css("[data-testid='drawer-attempts'] thead th"))
+        .queryAll(By.css("[data-testid='drawer-attempts'] bit-table-v2 [role='columnheader']"))
         .map((th: any) => th.nativeElement.textContent.trim());
       expect(headers).toEqual([
-        "pamRotationHistoryColumnAttempt",
+        "time",
         "pamRotationHistoryColumnResult",
         "pamTargetSystemAssignConnectorLabel",
       ]);
-      expect(
-        fixture.debugElement.query(By.css("[data-testid='drawer-attempts'] caption")).nativeElement
-          .textContent,
-      ).toContain("pamRotationHistoryAttemptsCaption");
+      expect(query("drawer-attempts").nativeElement.querySelector("table")).toBeNull();
     });
 
-    it("gives each attempt an ordinal row header over its time of day", async () => {
+    it("gives each attempt a row showing its time of day", async () => {
       await render(retriedFailure());
 
       expect(attemptRows()).toHaveLength(5);
-      const rowHeader = attemptRows()[0].query(By.css("th"));
-      expect(rowHeader.nativeElement.getAttribute("scope")).toBe("row");
-      expect(rowHeader.nativeElement.textContent).toContain("1");
-      expect(rowHeader.nativeElement.textContent).toContain(
+      const times = fixture.debugElement.queryAll(By.css("[data-testid='drawer-attempt-time']"));
+      expect(times[0].nativeElement.textContent.trim()).toBe(
         formatTimeOfDay("en-US", Date.parse("2026-01-01T00:01:00Z")),
       );
+    });
+
+    it("wraps a failure reason as secondary text instead of widening the table", async () => {
+      await render(retriedFailure({ attempts: [attempt(1)] }));
+
+      const raw = query("drawer-attempt-reason").nativeElement;
+      expect(raw.className).toContain("tw-break-words");
+      expect(raw.className).toContain("tw-text-muted");
+      expect(query("drawer-attempts").nativeElement.innerHTML).not.toContain("tw-table-auto");
     });
 
     it("names the access connector, and leaves the cell empty without one", async () => {
@@ -274,24 +293,20 @@ describe("RotationJobDrawerComponent", () => {
   });
 
   describe("the failed job", () => {
-    it("keeps the sync state line", async () => {
+    it("has no sync state line, whatever the sync state", async () => {
+      await render(retriedFailure());
+      expect(query("drawer-sync-state")).toBeNull();
+      expect(text()).not.toContain("pamRotationSyncStateTargetUnchanged");
+
+      await render(retriedFailure({ syncStateIndeterminate: true }));
+      expect(query("drawer-sync-state")).toBeNull();
+    });
+
+    it("has no separate Result field", async () => {
       await render(retriedFailure());
 
-      expect(query("drawer-sync-state").nativeElement.textContent).toContain(
-        "pamRotationSyncStateTargetUnchanged",
-      );
-    });
-
-    it("warns when the sync state is indeterminate", async () => {
-      await render(retriedFailure({ syncStateIndeterminate: true }));
-
-      expect(query("drawer-sync-state").nativeElement.className).toContain("tw-text-warning");
-    });
-
-    it("has no sync line for a succeeded job", async () => {
-      await render(succeeded());
-
-      expect(query("drawer-sync-state")).toBeNull();
+      expect(query("drawer-result-text")).toBeNull();
+      expect(text()).not.toContain("pamRotationJobStatusFailed");
     });
   });
 
@@ -327,6 +342,8 @@ describe("RotationJobDrawerComponent", () => {
           sessionTerminationLabelKey: "pamRotationSessionTerminationTermFailed",
           sessionTerminationFailed: true,
         }),
+        false,
+        { kind: "entra", supported: true },
       );
 
       const line = query("drawer-session-termination").nativeElement;
@@ -337,6 +354,8 @@ describe("RotationJobDrawerComponent", () => {
     it("reports an ordinary termination without a warning", async () => {
       await render(
         succeeded({ sessionTerminationLabelKey: "pamRotationSessionTerminationTerminated" }),
+        false,
+        { kind: "entra", supported: true },
       );
 
       const line = query("drawer-session-termination").nativeElement;

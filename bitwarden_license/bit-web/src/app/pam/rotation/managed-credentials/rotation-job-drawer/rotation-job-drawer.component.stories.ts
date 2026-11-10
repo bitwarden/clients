@@ -191,8 +191,12 @@ const LONG_REASON: JobView = {
 };
 
 /** Provided per story, since the drawer reads `DIALOG_DATA` once at construction. */
-function withParams(job: JobView, showCredential = true) {
-  const params: RotationJobDrawerParams = { job, showCredential };
+function withParams(
+  job: JobView,
+  showCredential = true,
+  endingSessions: RotationJobDrawerParams["endingSessions"] = null,
+) {
+  const params: RotationJobDrawerParams = { job, showCredential, endingSessions };
   return moduleMetadata({
     imports: [RotationJobDrawerComponent],
     providers: [{ provide: DIALOG_DATA, useValue: params }],
@@ -234,8 +238,18 @@ export const TimedOutUnclaimed: Story = { decorators: [withParams(TIMED_OUT)] };
 
 export const AccessEnd: Story = { decorators: [withParams(ACCESS_END)] };
 
+/** Ending sessions is on for the credential, so the field and the session result show. */
+export const EndingSessionsOn: Story = {
+  decorators: [withParams(SUCCEEDED, false, { kind: "entra", supported: true })],
+};
+
+/** Ending sessions is off, so the drawer carries no session field and no badge. */
+export const EndingSessionsOff: Story = {
+  decorators: [withParams(SUCCEEDED, false, { kind: "entra", supported: false })],
+};
+
 export const SessionTerminationFailed: Story = {
-  decorators: [withParams(SESSION_TERMINATION_FAILED)],
+  decorators: [withParams(SESSION_TERMINATION_FAILED, true, { kind: "entra", supported: true })],
 };
 
 export const LongUnbrokenReason: Story = { decorators: [withParams(LONG_REASON)] };

@@ -141,6 +141,9 @@ export class RotationHistoryComponent {
   /** Whether the pane is beside the table, which is what drops Source and Duration from it. */
   protected readonly detailsOpen = computed(() => this.detailsDrawer() != null);
 
+  /** The job whose drawer is open, so its row can stay highlighted until the drawer closes. */
+  protected readonly selectedJobId = signal<JobView["id"] | null>(null);
+
   protected readonly table = defineTable<JobView>(this.jobViews);
 
   protected readonly sortByStarted = (a: JobView, b: JobView): number =>
@@ -157,6 +160,7 @@ export class RotationHistoryComponent {
   private async showJob(job: JobView, trigger: HTMLElement): Promise<void> {
     const seq = this.openSeq() + 1;
     this.openSeq.set(seq);
+    this.selectedJobId.set(job.id);
     const drawer = await RotationJobDrawerComponent.open(this.dialogService, {
       closeOnNavigation: true,
       data: {
@@ -166,10 +170,16 @@ export class RotationHistoryComponent {
       },
     });
     if (drawer == null) {
+      if (this.openSeq() === seq) {
+        this.selectedJobId.set(null);
+      }
       return;
     }
     drawer.closed.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.detailsDrawer.update((open) => (open === drawer ? null : open));
+      if (this.openSeq() === seq) {
+        this.selectedJobId.set(null);
+      }
       if (this.openSeq() === seq) {
         trigger.focus();
       }

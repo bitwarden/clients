@@ -84,6 +84,8 @@ export class BitRowComponent {
             "has-[:focus-visible]:tw-ring-border-focus",
             // Outranks the hover and focus rules above on specificity.
             "has-[[data-selection-input]:checked]:tw-bg-bg-brand-soft",
+            // A cell marks its row as the one whose details are open beside the table.
+            "has-[[data-row-selected]]:tw-bg-bg-brand-soft",
           ]),
     ].join(" "),
   );

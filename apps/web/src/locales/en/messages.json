@@ -21223,7 +21223,16 @@
     "message": "Configuration"
   },
   "pamRotationConfigTabHistory": {
-    "message": "History"
+    "message": "Rotation history"
+  },
+  "pamRotationViewRotation": {
+    "message": "View rotation, $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Sept 12, 2026, 7 PM"
+      }
+    }
   },
   "pamRotationConfigTargetSystem": {
     "message": "Target system"
@@ -21362,9 +21371,6 @@
   },
   "pamRotationHistoryDurationLabel": {
     "message": "Duration"
-  },
-  "pamRotationHistoryColumnAttempt": {
-    "message": "Attempt"
   },
   "pamRotationHistoryColumnResult": {
     "message": "Result"
