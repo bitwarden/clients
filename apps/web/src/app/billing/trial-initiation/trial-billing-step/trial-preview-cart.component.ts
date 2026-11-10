@@ -35,10 +35,12 @@ type PreviewParams = {
   imports: [SharedModule, CartSummaryComponent, SpinnerComponent],
 })
 export class TrialPreviewCartComponent {
-  readonly trial = input.required<Trial>();
-  readonly cadence = input.required<Cadence>();
-  readonly billingAddress = input.required<BillingAddressControls>();
-  readonly eligibleDiscounts = input.required<SubscriptionDiscount[]>();
+  // Not required: the parent queries canSubmit() on the pass that creates this component, before
+  // Angular binds these. Unbound inputs yield no preview, so canSubmit() is false.
+  readonly trial = input<Trial>();
+  readonly cadence = input<Cadence>();
+  readonly billingAddress = input<BillingAddressControls>();
+  readonly eligibleDiscounts = input<SubscriptionDiscount[]>([]);
 
   private readonly i18nService = inject(I18nService);
   private readonly billingNotificationService = inject(BillingNotificationService);
@@ -48,12 +50,19 @@ export class TrialPreviewCartComponent {
     () => {
       const trial = this.trial();
       const billingAddress = this.billingAddress();
-      if (trial.length !== 0 || !billingAddress?.country || !billingAddress?.postalCode) {
+      const cadence = this.cadence();
+      if (
+        !trial ||
+        !cadence ||
+        trial.length !== 0 ||
+        !billingAddress?.country ||
+        !billingAddress?.postalCode
+      ) {
         return undefined;
       }
       return {
         trial,
-        cadence: this.cadence(),
+        cadence,
         billingAddress,
         coupons: this.eligibleDiscounts().map((d) => d.stripeCouponId),
       };

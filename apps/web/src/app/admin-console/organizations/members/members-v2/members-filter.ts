@@ -1,18 +1,53 @@
-import { RevocationReasonType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, RevocationReasonType } from "@bitwarden/common/admin-console/enums";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserView } from "../../core/views/organization-user.view";
 
-/** The membership columns a chip can filter by, each keyed by the column it filters. */
-export type MembershipKey = "groupNames" | "collectionNames";
-
 /** A Status filter value: a member status, or a revocation reason nested under Revoked. */
 export type StatusOption = OrganizationUserStatusType | `revoked-${RevocationReasonType}`;
 
-export type MemberFilters = Partial<Record<MembershipKey, string[]>> & {
+/** A Products filter value. Const object + type, as enums fail `@bitwarden/platform/no-enums`. */
+export const MemberProductFilter = Object.freeze({
+  SecretsManager: "sm",
+  PrivilegedControls: "pam",
+} as const);
+export type MemberProductFilter = (typeof MemberProductFilter)[keyof typeof MemberProductFilter];
+
+/** An Account recovery option in the Policies filter. */
+export const AccountRecoveryFilter = Object.freeze({
+  Enrolled: "enrolled",
+  NotEnrolled: "notEnrolled",
+} as const);
+export type AccountRecoveryFilter =
+  (typeof AccountRecoveryFilter)[keyof typeof AccountRecoveryFilter];
+
+/** A Two-step login option in the Policies filter. */
+export const TwoFactorFilter = Object.freeze({
+  Active: "active",
+  Inactive: "inactive",
+} as const);
+export type TwoFactorFilter = (typeof TwoFactorFilter)[keyof typeof TwoFactorFilter];
+
+/** A Policies filter value. Values are distinct across sections, so one array holds both. */
+export type PolicyOption = AccountRecoveryFilter | TwoFactorFilter;
+
+export type MemberFilters = {
   search?: string;
   status?: StatusOption[];
+  role?: OrganizationUserType[];
+  /** Group IDs, or collection IDs when the organization doesn't use groups. */
+  access?: string[];
+  product?: MemberProductFilter[];
+  policies?: PolicyOption[];
 };
+
+/** The roles offered in the Role filter, in display order. */
+export const ROLE_OPTIONS: readonly { value: OrganizationUserType; labelKey: string }[] = [
+  { value: OrganizationUserType.Owner, labelKey: "owner" },
+  { value: OrganizationUserType.Admin, labelKey: "admin" },
+  { value: OrganizationUserType.User, labelKey: "user" },
+  { value: OrganizationUserType.Custom, labelKey: "custom" },
+];
 
 /**
  * The label and display position of each revocation reason in the Status filter. Keyed by
@@ -57,4 +92,55 @@ export function matchesStatus(member: OrganizationUserView, status?: StatusOptio
     return status.includes(`revoked-${member.revocationReason ?? RevocationReasonType.Unknown}`);
   }
   return status.includes(member.status);
+}
+
+/** Whether a member has one of the checked roles. With nothing checked, every member matches. */
+export function matchesRole(member: OrganizationUserView, role?: OrganizationUserType[]): boolean {
+  return !role?.length || role.includes(member.type);
+}
+
+/**
+ * Whether a member is in any of the checked groups, or can access any of the checked collections
+ * when the organization doesn't use groups. Matches on IDs, so groups sharing a name stay apart.
+ */
+export function matchesAccess(
+  member: OrganizationUserView,
+  ids: string[] | undefined,
+  useGroups: boolean,
+): boolean {
+  if (!ids?.length) {
+    return true;
+  }
+  const memberIds = useGroups ? member.groups : member.collections.map((c) => c.id);
+  return memberIds.some((id) => ids.includes(id));
+}
+
+/** Whether a member has access to any of the checked products. */
+export function matchesProduct(
+  member: OrganizationUserView,
+  product?: MemberProductFilter[],
+): boolean {
+  return (
+    !product?.length ||
+    (product.includes(MemberProductFilter.SecretsManager) && member.accessSecretsManager) ||
+    (product.includes(MemberProductFilter.PrivilegedControls) && member.accessPam)
+  );
+}
+
+/**
+ * Whether a member matches the Policies filter. Options within a section combine with OR, and the
+ * Account recovery and Two-step login sections combine with AND.
+ */
+export function matchesPolicies(member: OrganizationUserView, policies?: PolicyOption[]): boolean {
+  const checked = new Set(policies);
+  // A section with neither or both options checked doesn't narrow the list.
+  const matchesSection = (yes: PolicyOption, no: PolicyOption, value: boolean) =>
+    checked.has(yes) === checked.has(no) || checked.has(value ? yes : no);
+  return (
+    matchesSection(
+      AccountRecoveryFilter.Enrolled,
+      AccountRecoveryFilter.NotEnrolled,
+      member.resetPasswordEnrolled,
+    ) && matchesSection(TwoFactorFilter.Active, TwoFactorFilter.Inactive, member.twoFactorEnabled)
+  );
 }

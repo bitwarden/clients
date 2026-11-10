@@ -1,5 +1,5 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -30,9 +30,8 @@ const DEFAULT_COLOR: Record<SimpleDialogType, string> = {
   danger: "tw-text-danger",
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./simple-configurable-dialog.component.html",
   imports: [
     ReactiveFormsModule,
@@ -45,30 +44,35 @@ const DEFAULT_COLOR: Record<SimpleDialogType, string> = {
   ],
 })
 export class SimpleConfigurableDialogComponent {
-  get iconClasses() {
-    return [
-      this.simpleDialogOpts.icon ?? DEFAULT_ICON[this.simpleDialogOpts.type],
-      DEFAULT_COLOR[this.simpleDialogOpts.type],
-    ];
-  }
+  readonly dialogRef = inject(DialogRef);
+  private readonly i18nService = inject(I18nService);
+  readonly simpleDialogOpts = inject<SimpleDialogOptions>(DIALOG_DATA);
 
-  protected title?: string;
-  protected content?: string;
-  protected acceptButtonText?: string;
-  protected cancelButtonText?: string;
-  protected formGroup = new FormGroup({});
+  protected readonly iconClasses = [
+    this.simpleDialogOpts.icon ?? DEFAULT_ICON[this.simpleDialogOpts.type],
+    DEFAULT_COLOR[this.simpleDialogOpts.type],
+  ];
 
-  protected showCancelButton = this.simpleDialogOpts.cancelButtonText !== null;
+  protected readonly formGroup = new FormGroup({});
 
-  constructor(
-    public dialogRef: DialogRef,
-    private i18nService: I18nService,
-    @Inject(DIALOG_DATA) public simpleDialogOpts: SimpleDialogOptions,
-  ) {
-    this.localizeText();
-  }
+  protected readonly showCancelButton = this.simpleDialogOpts.cancelButtonText !== null;
 
-  protected accept = async () => {
+  protected readonly title = this.translate(this.simpleDialogOpts.title);
+  protected readonly content = this.translate(this.simpleDialogOpts.content);
+  protected readonly acceptButtonText = this.translate(
+    this.simpleDialogOpts.acceptButtonText ?? { key: "yes" },
+  );
+  // If accept text is overridden, use cancel, otherwise no
+  protected readonly cancelButtonText = this.showCancelButton
+    ? this.translate(
+        this.simpleDialogOpts.cancelButtonText ??
+          (this.simpleDialogOpts.acceptButtonText !== undefined
+            ? { key: "cancel" }
+            : { key: "no" }),
+      )
+    : undefined;
+
+  protected readonly accept = async () => {
     if (this.simpleDialogOpts.acceptAction) {
       await this.simpleDialogOpts.acceptAction();
     }
@@ -77,24 +81,6 @@ export class SimpleConfigurableDialogComponent {
       this.dialogRef.close(true);
     }
   };
-
-  private localizeText() {
-    this.title = this.translate(this.simpleDialogOpts.title);
-    this.content = this.translate(this.simpleDialogOpts.content);
-    this.acceptButtonText = this.translate(
-      this.simpleDialogOpts.acceptButtonText ?? { key: "yes" },
-    );
-
-    if (this.showCancelButton) {
-      // If accept text is overridden, use cancel, otherwise no
-      this.cancelButtonText = this.translate(
-        this.simpleDialogOpts.cancelButtonText ??
-          (this.simpleDialogOpts.acceptButtonText !== undefined
-            ? { key: "cancel" }
-            : { key: "no" }),
-      );
-    }
-  }
 
   private translate(translation: string | Translation): string {
     // Object implies we must localize.

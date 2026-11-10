@@ -1,12 +1,24 @@
 <bit-form-field>
-  <bit-label>{{ "pamRotationScheduleLabel" | i18n }}</bit-label>
+  <bit-label>{{ labelKey() | i18n }}</bit-label>
   <bit-select
     id="rotation-schedule-input_select_preset"
     [formControl]="presetControl"
     [items]="modeOptions"
     (blur)="markTouched()"
   />
-  <bit-hint>{{ "pamRotationScheduleTimezoneHint" | i18n }}</bit-hint>
+  <bit-hint>
+    <span
+      id="rotation-schedule-input_status_echo"
+      role="status"
+      aria-live="polite"
+      data-testid="schedule-echo"
+    >
+      @if (scheduleEcho(); as echo) {
+        {{ echo.key | i18n: echo.p1 : echo.p2 }}
+      }
+    </span>
+    {{ "pamRotationScheduleTimezoneHint" | i18n }}
+  </bit-hint>
 </bit-form-field>
 
 @if (presetControl.value === ScheduleInterval) {
@@ -63,15 +75,3 @@
     <bit-hint>{{ "pamRotationScheduleCustomHint" | i18n }}</bit-hint>
   </bit-form-field>
 }
-
-<p
-  id="rotation-schedule-input_status_echo"
-  role="status"
-  aria-live="polite"
-  data-testid="schedule-echo"
-  class="tw-text-muted tw-font-normal tw-inline-block tw-mt-1 tw-text-xs"
->
-  @if (scheduleEcho(); as echo) {
-    {{ echo.key | i18n: echo.p1 : echo.p2 }}
-  }
-</p>

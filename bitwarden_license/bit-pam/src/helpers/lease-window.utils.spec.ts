@@ -2,33 +2,16 @@ import {
   ACCESS_RULE_DURATION_PRESETS,
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
+  extensionDurationOptions,
   pickDurationUnit,
   requestDurationOptions,
   snapToNearestAccessRuleDuration,
   snapToNearestDuration,
 } from "./lease-window.utils";
 
+const seconds = (options: { seconds: number }[]) => options.map((o) => o.seconds);
+
 describe("ACCESS_RULE_DURATION_PRESETS", () => {
-  it("labels the 24-hour preset to match what the list renders for the same value", () => {
-    // `pickDurationUnit` promotes 86400s to "1 day" in the list; the editor's label must match.
-    const preset = ACCESS_RULE_DURATION_PRESETS.find((p) => p.seconds === 24 * 60 * 60);
-
-    expect(preset?.labelKey).toBe("pamAccessRuleDuration1d");
-  });
-
-  it("labels every multi-day preset in the unit the list promotes it to", () => {
-    const dayPresets = ACCESS_RULE_DURATION_PRESETS.filter(
-      (p) => pickDurationUnit(p.seconds).unit === "day",
-    );
-
-    expect(dayPresets.map((p) => [p.seconds, p.labelKey])).toEqual([
-      [24 * 60 * 60, "pamAccessRuleDuration1d"],
-      [2 * 24 * 60 * 60, "pamAccessRuleDuration2d"],
-      [7 * 24 * 60 * 60, "pamAccessRuleDuration7d"],
-      [30 * 24 * 60 * 60, "pamAccessRuleDuration30d"],
-    ]);
-  });
-
   it("offers the presets in ascending order, so the pickers read low to high", () => {
     const seconds = ACCESS_RULE_DURATION_PRESETS.map((p) => p.seconds);
 
@@ -86,8 +69,6 @@ describe("snapToNearestAccessRuleDuration", () => {
 });
 
 describe("requestDurationOptions", () => {
-  const seconds = (options: { seconds: number }[]) => options.map((o) => o.seconds);
-
   it("drops presets above the rule's cap", () => {
     expect(seconds(requestDurationOptions(30 * 60, 15 * 60))).toEqual([15 * 60, 30 * 60]);
   });
@@ -104,17 +85,8 @@ describe("requestDurationOptions", () => {
     );
   });
 
-  it("keeps the i18n label of a preset-backed option", () => {
-    const [first] = requestDurationOptions(30 * 60, 15 * 60);
-
-    expect(first.labelKey).toBe("pamAccessRuleDuration15m");
-  });
-
-  it("offers the cap itself when no preset matches it, unlabelled for value formatting", () => {
-    const options = requestDurationOptions(45 * 60, 15 * 60);
-
-    expect(seconds(options)).toEqual([15 * 60, 30 * 60, 45 * 60]);
-    expect(options[2].labelKey).toBeUndefined();
+  it("offers the cap itself when no preset matches it", () => {
+    expect(seconds(requestDurationOptions(45 * 60, 15 * 60))).toEqual([15 * 60, 30 * 60, 45 * 60]);
   });
 
   it("stays non-empty for a cap below the smallest preset", () => {
@@ -135,5 +107,19 @@ describe("requestDurationOptions", () => {
   it("ignores a default above the cap rather than offering an over-cap option", () => {
     // The server clamps the default, so this only guards a malformed pair.
     expect(seconds(requestDurationOptions(30 * 60, 4 * 60 * 60))).toEqual([15 * 60, 30 * 60]);
+  });
+});
+
+describe("extensionDurationOptions", () => {
+  it("drops presets above the rule's cap", () => {
+    expect(seconds(extensionDurationOptions(60 * 60))).toEqual([30 * 60, 60 * 60]);
+  });
+
+  it("offers the cap itself when no preset matches it", () => {
+    expect(seconds(extensionDurationOptions(45 * 60))).toEqual([30 * 60, 45 * 60]);
+  });
+
+  it("stays non-empty for a cap below the smallest preset", () => {
+    expect(seconds(extensionDurationOptions(15 * 60))).toEqual([15 * 60]);
   });
 });

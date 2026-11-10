@@ -1,0 +1,13 @@
+<bit-card data-testid="cipher-view-banner-pending">
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <app-pam-banner-card-header [icon]="badgeLook.pending.icon" variant="warning">
+      <span slot="title">{{ "pamPendingRequestBannerHeading" | i18n }}</span>
+      @if (submittedLabel(); as submitted) {
+        <span slot="description" data-testid="cipher-view-banner-pending-submitted">
+          {{ submitted }}
+        </span>
+      }
+    </app-pam-banner-card-header>
+    <ng-content />
+  </div>
+</bit-card>
