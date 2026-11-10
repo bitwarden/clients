@@ -101,9 +101,6 @@ function accessState(overrides: Partial<CipherAccessStateView> = {}): CipherAcce
   return { ...state, badgeState: state.badgeState ?? badgeStateFor(state) };
 }
 
-/** SDK builds before 0.2.0-main.1224 leave `"unavailable"` out of `AccessBadgeState`. */
-const UNAVAILABLE = "unavailable" as unknown as CipherAccessStateView["badgeState"];
-
 function preCheck(overrides: Partial<AccessPreCheckView> = {}): AccessPreCheckView {
   return {
     cipherId: "cipher-1",
@@ -488,7 +485,9 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("shows the item as unavailable, with no Request access, when the rule refuses a request", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(accessState({ badgeState: UNAVAILABLE }));
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ badgeState: "unavailable" }),
+      );
 
       await create(gatedCipher());
 
@@ -501,7 +500,9 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("drops the full-width Request access button but keeps the section heading, in the popup", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(accessState({ badgeState: UNAVAILABLE }));
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ badgeState: "unavailable" }),
+      );
       usePopupLayout();
 
       await create(gatedCipher());
@@ -514,7 +515,9 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("offers Request access again once the rule allows a request", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(accessState({ badgeState: UNAVAILABLE }));
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ badgeState: "unavailable" }),
+      );
       await create(gatedCipher());
 
       await refreshTo(accessState());
@@ -922,7 +925,7 @@ describe("CipherViewBannerComponent", () => {
       },
       {
         name: "unavailable",
-        state: { badgeState: UNAVAILABLE },
+        state: { badgeState: "unavailable" },
         testId: "unavailable",
         glyph: ACCESS_BADGE_LOOK.unavailable.icon,
       },
