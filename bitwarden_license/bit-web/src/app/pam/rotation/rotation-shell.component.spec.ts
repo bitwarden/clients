@@ -32,7 +32,7 @@ const CREATE_BUTTON_ID = {
 
 describe("RotationShellComponent", () => {
   let fixture: ComponentFixture<RotationShellComponent>;
-  let awaitingManualCount$: BehaviorSubject<number>;
+  let totalCount$: BehaviorSubject<number>;
   let loadMock: jest.Mock;
   let stopPollingMock: jest.Mock;
   let accessConnectorsService: { registerCompleted: jest.Mock };
@@ -42,7 +42,7 @@ describe("RotationShellComponent", () => {
   const ORG_ID = "org-abc-123";
 
   beforeEach(async () => {
-    awaitingManualCount$ = new BehaviorSubject<number>(0);
+    totalCount$ = new BehaviorSubject<number>(0);
     loadMock = jest.fn().mockResolvedValue(undefined);
     stopPollingMock = jest.fn();
     accessConnectorsService = { registerCompleted: jest.fn().mockResolvedValue(undefined) };
@@ -64,7 +64,7 @@ describe("RotationShellComponent", () => {
         },
         {
           provide: RotationConfigsService,
-          useValue: { awaitingManualCount$, load: loadMock, stopPolling: stopPollingMock },
+          useValue: { totalCount$, load: loadMock, stopPolling: stopPollingMock },
         },
         { provide: AccessConnectorsService, useValue: accessConnectorsService },
         { provide: DialogService, useValue: dialogService },
@@ -117,12 +117,12 @@ describe("RotationShellComponent", () => {
     expect(stopPollingMock).toHaveBeenCalledTimes(1);
   });
 
-  it("passes the awaiting-manual count to the Managed credentials tab berry", async () => {
-    awaitingManualCount$.next(3);
+  it("passes the total managed credentials count to the Managed credentials tab berry", async () => {
+    totalCount$.next(3);
     await init();
     const count = (
-      fixture.componentInstance as unknown as { awaitingManualCount: () => number }
-    ).awaitingManualCount();
+      fixture.componentInstance as unknown as { managedCredentialsCount: () => number }
+    ).managedCredentialsCount();
     expect(count).toBe(3);
   });
 
@@ -213,7 +213,7 @@ describe("RotationShellComponent (real router)", () => {
         {
           provide: RotationConfigsService,
           useValue: {
-            awaitingManualCount$: new BehaviorSubject(0),
+            totalCount$: new BehaviorSubject(0),
             load: jest.fn(),
             stopPolling: jest.fn(),
           },

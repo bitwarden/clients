@@ -190,7 +190,7 @@ function rotationServices(
           loadError$: of(null),
           rows$: of(rows),
           configs$: of(rows.map((r) => r.config)),
-          awaitingManualCount$: of(rows.filter((r) => r.awaitingManualRotation).length),
+          totalCount$: of(rows.length),
           load: () => Promise.resolve(),
           pause: () => Promise.resolve(),
           resume: () => Promise.resolve(),
