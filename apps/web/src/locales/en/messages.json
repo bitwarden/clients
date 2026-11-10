@@ -19664,6 +19664,9 @@
   "pamAccessRuleDeleted": {
     "message": "Access rule deleted."
   },
+  "pamAccessRuleDeleteAccessRule": {
+    "message": "Delete access rule"
+  },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
   },
