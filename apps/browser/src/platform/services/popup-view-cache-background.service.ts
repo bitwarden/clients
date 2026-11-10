@@ -1,5 +1,6 @@
 import { switchMap, delay, filter, concatMap, map, first, of } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
   ScheduledTaskNames,
@@ -96,6 +97,7 @@ export class PopupViewCacheBackgroundService {
     private messageListener: MessageListener,
     private globalStateProvider: GlobalStateProvider,
     private readonly taskSchedulerService: TaskSchedulerService,
+    private readonly logService: LogService,
   ) {
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.clearPopupViewCache,
@@ -106,35 +108,45 @@ export class PopupViewCacheBackgroundService {
   }
 
   startObservingMessages() {
+    // Each update is caught individually so one failed write (for example an over-quota
+    // `chrome.storage.session.set`) does not terminate the stream and stop all later writes.
     this.messageListener
       .messages$(SAVE_VIEW_CACHE_COMMAND)
       .pipe(
-        concatMap(async ({ key, value, options }) =>
-          this.popupViewCacheState.update((state) => ({
-            ...state,
-            [key]: {
-              value,
-              options,
-            },
-          })),
-        ),
+        concatMap(async ({ key, value, options }) => {
+          try {
+            await this.popupViewCacheState.update((state) => ({
+              ...state,
+              [key]: {
+                value,
+                options,
+              },
+            }));
+          } catch (e) {
+            this.logService.error(`Failed to save popup view cache entry "${key}"`, e);
+          }
+        }),
       )
       .subscribe();
 
     this.messageListener
       .messages$(ClEAR_VIEW_CACHE_COMMAND)
       .pipe(
-        concatMap(({ routeChange }) =>
-          this.popupViewCacheState.update((state) => {
-            if (routeChange && state) {
-              // Only remove keys that are not marked with `persistNavigation`
-              return Object.fromEntries(
-                Object.entries(state).filter(([, { options }]) => options?.persistNavigation),
-              );
-            }
-            return null;
-          }),
-        ),
+        concatMap(async ({ routeChange }) => {
+          try {
+            await this.popupViewCacheState.update((state) => {
+              if (routeChange && state) {
+                // Only remove keys that are not marked with `persistNavigation`
+                return Object.fromEntries(
+                  Object.entries(state).filter(([, { options }]) => options?.persistNavigation),
+                );
+              }
+              return null;
+            });
+          } catch (e) {
+            this.logService.error("Failed to clear popup view cache", e);
+          }
+        }),
       )
       .subscribe();
 
