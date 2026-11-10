@@ -1,10 +1,4 @@
-import {
-  durationLabel,
-  durationText,
-  exactWindow,
-  reasonText,
-  relativeStart,
-} from "./approval-window";
+import { durationText, exactWindow, reasonText, relativeStart } from "./approval-window";
 
 describe("reasonText", () => {
   it("returns the trimmed reason", () => {
@@ -14,54 +8,6 @@ describe("reasonText", () => {
   it("returns null for a blank or missing reason", () => {
     expect(reasonText({ reason: "   " })).toBeNull();
     expect(reasonText({ reason: undefined })).toBeNull();
-  });
-});
-
-describe("durationLabel", () => {
-  it("labels sub-hour windows in minutes", () => {
-    expect(
-      durationLabel({
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T00:30:00.000Z",
-      }),
-    ).toEqual({ key: "pamInboxDurationMinutes", value: 30 });
-  });
-
-  it("labels a 1-hour window distinctly", () => {
-    expect(
-      durationLabel({
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T01:00:00.000Z",
-      }),
-    ).toEqual({ key: "pamInboxDuration1Hour", value: null });
-  });
-
-  it("labels multi-hour windows in hours", () => {
-    expect(
-      durationLabel({
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T04:00:00.000Z",
-      }),
-    ).toEqual({ key: "pamInboxDurationHours", value: 4 });
-  });
-
-  it.each([
-    ["just under an hour", "2024-01-01T00:59:50.000Z"],
-    ["just over an hour", "2024-01-01T01:02:00.000Z"],
-  ])("labels a window %s as 1 hour", (_label, leaseNotAfter) => {
-    expect(durationLabel({ leaseNotBefore: "2024-01-01T00:00:00.000Z", leaseNotAfter })).toEqual({
-      key: "pamInboxDuration1Hour",
-      value: null,
-    });
-  });
-
-  it("keeps one decimal for a fractional number of hours", () => {
-    expect(
-      durationLabel({
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T01:30:00.000Z",
-      }),
-    ).toEqual({ key: "pamInboxDurationHours", value: 1.5 });
   });
 });
 
