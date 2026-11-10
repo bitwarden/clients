@@ -8784,6 +8784,52 @@
     "message": "Your vault scan didn't complete due to an unexpected error.",
     "description": "Explains that the vault health scan did not complete."
   },
+  "healthRecommendations": {
+    "message": "Recommendations",
+    "description": "Section heading on the Health Overview above suggestions that are not risks, such as logins that can use a passkey."
+  },
+  "passkeyOpportunitiesNone": {
+    "message": "No passkey upgrades",
+    "description": "Title of the passkeys row on the Health Overview when no saved login's site supports passkeys."
+  },
+  "passkeyOpportunity": {
+    "message": "1 login can use a passkey",
+    "description": "Title of the passkeys row on the Health Overview when exactly one login's site supports passkeys."
+  },
+  "passkeyOpportunitiesPlural": {
+    "message": "$COUNT$ logins can use passkeys",
+    "description": "Title of the passkeys row on the Health Overview, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "passkeyOpportunitiesDesc": {
+    "message": "Their sites support passkeys",
+    "description": "Explains why a login is listed in the passkeys row on the Health Overview."
+  },
+  "passkeyOpportunitiesNoneDesc": {
+    "message": "None of your other saved sites support passkeys yet",
+    "description": "Description of the passkeys row on the Health Overview when no saved login's site supports passkeys."
+  },
+  "passkeyOpportunitiesChecking": {
+    "message": "Checking for passkey support...",
+    "description": "Shown in the passkeys row on the Health Overview while the list of sites that support passkeys loads."
+  },
+  "passkeyOpportunitiesFailed": {
+    "message": "Passkey support couldn't be checked",
+    "description": "Shown when the list of sites that support passkeys could not be loaded."
+  },
+  "passkeyOpportunitiesFailedDesc": {
+    "message": "An error occurred. Please try again.",
+    "description": "Explains the passkey support check failed and can be retried."
+  },
+  "passkeyOpportunitiesLocked": {
+    "message": "Logins that can use passkeys",
+    "description": "Title of the passkeys row on the Health Overview when it is locked behind Premium. Shows no count because free users are not checked."
+  },
   "exposedPasswordsTitle": {
     "message": "Exposed passwords"
   },
