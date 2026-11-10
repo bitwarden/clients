@@ -40,7 +40,7 @@ apps:
 parts:
   bw:
     plugin: dump
-    source: ./bw-linux-$SNAPCRAFT_PROJECT_VERSION.zip
+    source: ./bw-bit-linux-$SNAPCRAFT_PROJECT_VERSION.zip
     override-build: |
       chmod +x bw
       snapcraftctl build
