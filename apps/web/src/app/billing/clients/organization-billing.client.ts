@@ -118,4 +118,14 @@ export class OrganizationBillingClient {
       false,
     );
   };
+
+  removePrivilegedControls = async (organizationId: OrganizationId): Promise<void> => {
+    await this.apiService.send(
+      "DELETE",
+      `/organizations/${organizationId}/billing/subscription/privileged-controls`,
+      null,
+      true,
+      false,
+    );
+  };
 }

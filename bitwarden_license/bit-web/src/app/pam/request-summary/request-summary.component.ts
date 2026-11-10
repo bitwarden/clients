@@ -43,31 +43,28 @@ export class RequestSummaryComponent {
   readonly organizationName = input<string | null>(null);
   readonly collectionName = input<string | null>(null);
   readonly requesterName = input.required<string>();
-  readonly requesterEmail = input<string | null>(null);
-  readonly duration = input<LabelValue | null>(null);
+  readonly duration = input<string | null>(null);
   readonly relativeStart = input<LabelValue | null>(null);
-  /** The fully-formatted window, shown on hover behind the coarse "4 hours, tomorrow" label. */
+  /** The fully-formatted "from – to" window, shown as a second line under the coarse "4 hours, tomorrow" label. */
   readonly exactWindow = input<string>("");
   readonly reason = input<string | null>(null);
+
   /**
    * Render the item card alone. The withdraw confirmation reuses this component only to keep the
    * item on screen; repeating the request's fields there would bury the decision being asked for.
    */
   readonly hideDetails = input(false, { transform: booleanAttribute });
 
-  /** Hidden when `requesterName` already fell back to the email. */
-  protected readonly secondaryEmail = computed(() => {
-    const email = this.requesterEmail();
-    return email == null || email === this.requesterName() ? null : email;
-  });
-
   /** The window labels joined, e.g. "4 hours, starting tomorrow". */
-  protected readonly accessRequested = computed(() =>
-    [this.duration(), this.relativeStart()]
-      .filter((label): label is LabelValue => label != null)
-      .map((label) => this.i18nService.t(label.key, label.value ?? undefined))
-      .join(", "),
-  );
+  protected readonly accessRequested = computed(() => {
+    const start = this.relativeStart();
+    return [
+      this.duration(),
+      start == null ? null : this.i18nService.t(start.key, start.value ?? undefined),
+    ]
+      .filter((label): label is string => !!label)
+      .join(", ");
+  });
 
   protected readonly quotedReason = computed(() => {
     const reason = this.reason();

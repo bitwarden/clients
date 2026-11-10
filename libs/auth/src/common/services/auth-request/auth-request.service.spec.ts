@@ -3,6 +3,7 @@ import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DefaultAuthRequestApiService } from "@bitwarden/common/auth/login-via-auth-request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -22,7 +23,6 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
-import { DefaultAuthRequestApiService } from "./auth-request-api.service";
 import { AuthRequestService } from "./auth-request.service";
 
 describe("AuthRequestService", () => {
