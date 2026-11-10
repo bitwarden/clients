@@ -536,17 +536,24 @@ export class CollectionDialogComponent implements OnInit {
       : await this.collectionAdminService.create(collectionView, userId);
 
     const vfo1Enabled = this.vfo1TerminologyService.enabled();
-    const savedMessageKey = this.editMode
-      ? vfo1Enabled
-        ? "editedSharedFolderId"
-        : "editedCollectionId"
-      : vfo1Enabled
-        ? "createdSharedFolderId"
+    if (vfo1Enabled && !this.editMode) {
+      // Design puts the folder name on its own line, below the title.
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("createdSharedFolder"),
+        message: collectionView.name,
+      });
+    } else {
+      const savedMessageKey = this.editMode
+        ? vfo1Enabled
+          ? "editedSharedFolderId"
+          : "editedCollectionId"
         : "createdCollectionId";
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t(savedMessageKey, collectionView.name),
-    });
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t(savedMessageKey, collectionView.name),
+      });
+    }
 
     this.close(CollectionDialogAction.Saved, collectionResponse);
   };

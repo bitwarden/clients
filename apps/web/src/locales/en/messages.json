@@ -13924,6 +13924,10 @@
   "collectionEdited": {
     "message": "Collection edited"
   },
+  "createdSharedFolder": {
+    "message": "Created shared folder",
+    "description": "VFO1 terminology toast title after creating a shared folder; the folder name shows below it"
+  },
   "sharedFolderEdited": {
     "message": "Shared folder edited",
     "description": "VFO1 terminology feature flag variant of collectionEdited"
