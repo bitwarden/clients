@@ -16,7 +16,6 @@ import {
   switchMap,
 } from "rxjs";
 
-// Deep imports: the `pam` barrel pulls Angular components into the worker bundle.
 import { AccessLeaseSdkService, isLeaseLive } from "@bitwarden/bit-pam";
 import { BrowserTaskSchedulerService } from "@bitwarden/browser/platform/services/abstractions/browser-task-scheduler.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";

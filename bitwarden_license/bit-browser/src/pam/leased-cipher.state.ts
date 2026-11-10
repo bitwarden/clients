@@ -1,7 +1,6 @@
 import { concat, defer, distinctUntilChanged, Observable, of, switchMap, timer } from "rxjs";
 import { Jsonify } from "type-fest";
 
-// Deep import: the `pam` barrel pulls Angular components into the worker bundle.
 import { isLeaseLive } from "@bitwarden/bit-pam";
 import {
   PAM_LEASED_CIPHERS_MEMORY,
