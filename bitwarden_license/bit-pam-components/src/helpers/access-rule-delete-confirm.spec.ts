@@ -4,7 +4,7 @@ describe("accessRuleDeleteConfirmOptions", () => {
   it("asks the delete question with no placeholders", () => {
     expect(accessRuleDeleteConfirmOptions()).toEqual({
       title: { key: "pamAccessRuleDeleteConfirmTitle" },
-      content: { key: "pamAccessRuleDeleteConfirmDescription" },
+      content: { key: "pamAccessRuleDeleteConfirmDescriptionSharedFolder" },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
       type: "danger",

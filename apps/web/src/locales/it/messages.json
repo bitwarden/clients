@@ -12,13 +12,13 @@
     "message": "Attività"
   },
   "criticalAppsAtRisk": {
-    "message": "Critical apps at risk"
+    "message": "Applicazioni critiche a rischio"
   },
   "criticalApplicationsAtRisk": {
-    "message": "Critical applications at risk"
+    "message": "Applicazioni critiche a rischio"
   },
   "allCriticalApps": {
-    "message": "All critical apps"
+    "message": "Tutte le applicazioni critiche"
   },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
@@ -66,7 +66,7 @@
     "message": "Rischio nel tempo"
   },
   "filterRiskOverTime": {
-    "message": "Filter risk over time"
+    "message": "Filtra rischio nel tempo"
   },
   "passwordsAtRisk": {
     "message": "Password a rischio"
@@ -142,7 +142,7 @@
     "message": "Invia promemoria"
   },
   "noCriticalApplicationsMarkedYet": {
-    "message": "You haven't marked any critical applications yet. Review applications to get started."
+    "message": "Non hai segnato ancora alcuna applicazione come critica. Rivedi le applicazioni per iniziare."
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Le applicazioni contrassegnate come critiche saranno visualizzate qui."
@@ -239,7 +239,7 @@
     "message": "Members are automatically notified of at-risk passwords in their Bitwarden extension. No chasing required."
   },
   "importYourOrgDataToGetStarted": {
-    "message": "Import your org data to get started"
+    "message": "Importa i dati della tua organizzazione per iniziare"
   },
   "onceItHasTheVaultData": {
     "message": "Once it has the vault data, Access Intelligence will have everything it needs to report on your org's password health."
@@ -248,7 +248,7 @@
     "message": "Access Intelligence welcome tour"
   },
   "startTour": {
-    "message": "Start tour"
+    "message": "Inizia tour"
   },
   "noDataInOrgTitle": {
     "message": "Dati non trovati"
@@ -742,25 +742,25 @@
     "message": "Numero passaporto"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Sesso"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Copia Sesso"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Luogo di nascita"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Nazionalità"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Copia Nazionalità"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Tipo di passaporto"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "Numero di identificazione nazionale"
   },
   "licenseNumber": {
     "message": "Numero patente"
@@ -907,7 +907,7 @@
     "message": "Modifica cartella"
   },
   "editFolderNamed": {
-    "message": "Edit $NAME$",
+    "message": "Modifica $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -916,7 +916,7 @@
     }
   },
   "deleteFolderNamed": {
-    "message": "Delete $NAME$",
+    "message": "Cancella $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1008,7 +1008,7 @@
     "message": "Salva"
   },
   "saveAndContinue": {
-    "message": "Save and continue"
+    "message": "Salva e continua"
   },
   "cancel": {
     "message": "Annulla"
@@ -1023,7 +1023,7 @@
     "message": "Chiudi"
   },
   "done": {
-    "message": "Done"
+    "message": "Fatto"
   },
   "delete": {
     "message": "Elimina"
@@ -1121,10 +1121,10 @@
     "message": "Chiave SSH"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Patente"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Patente di guida o ID"
   },
   "typeLoginSubtitle": {
     "message": "Sito web o app"
@@ -1145,16 +1145,16 @@
     "message": "Dettagli bancari"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Passaporto"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "Dettagli passaporto"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "Passaporto aggiunto"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "Documento di viaggio"
   },
   "folderSubtitle": {
     "message": "Organizza i tuoi elementi"
@@ -1184,7 +1184,7 @@
     "message": "Raccolte"
   },
   "controlledAccess": {
-    "message": "Controlled access"
+    "message": "Accesso controllato"
   },
   "firstName": {
     "message": "Nome"
@@ -1226,10 +1226,10 @@
     "message": "Condiviso"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Cartella condivisa"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Cartelle condivise"
   },
   "sharedFoldersInParent": {
     "message": "Shared folders in $NAME$",
@@ -2645,6 +2645,9 @@
   "noItemsMatchSelectedFilters": {
     "message": "No items match selected filters"
   },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "No items match the selected filters"
+  },
   "noItemsMatchSearchTerm": {
     "message": "No items match \"$SEARCH_TERM$\"",
     "placeholders": {
@@ -3632,6 +3635,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Select vault",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Select location",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Select a vault"
+  },
+  "selectALocationTitle": {
+    "message": "Select a location"
+  },
+  "importDestinationDescription": {
+    "message": "Choose where to import these items."
+  },
+  "importMyItemsOption": {
+    "message": "My items",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible only to you"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organization vault"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "Family vault"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+  },
+  "importSharedFolderRequired": {
+    "message": "A shared folder is required."
+  },
+  "importIntoOrganization": {
+    "message": "Items will be imported into $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Move all items into a shared folder"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Import $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Import 1 item"
+  },
+  "importToOrganization": {
+    "message": "Import to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "secure notes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cards",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH keys",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bank accounts",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "licenses",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "passports",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "Seleziona file"
@@ -4908,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Mostra riepilogo prezzi"
-  },
-  "hidePricingSummary": {
-    "message": "Nascondi riepilogo prezzi"
-  },
   "summary": {
     "message": "Riepilogo"
   },
@@ -4992,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "Scadenza abbonamento"
-  },
-  "subscriptionCanceled": {
-    "message": "L'abbonamento è stato annullato."
   },
   "pendingCancellation": {
     "message": "In attesa di annullamento"
@@ -5215,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "through $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -6195,6 +6338,70 @@
       }
     }
   },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ disabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ enabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Created item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Edited item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Deleted item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Accessed item Send$SENDID$ created by $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
   "sendAccessExternal": {
     "message": "External"
   },
@@ -6678,6 +6885,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Declined item transfer to organization"
+  },
+  "revocationReasonByAdmin": {
+    "message": "By admin",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "No reason recorded",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
@@ -7531,10 +7746,6 @@
     "message": "Aggiorna piano",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Aggiorna il tuo account a un altro piano fornendo le informazioni qui sotto. Assicurati di avere un metodo di pagamento attivo aggiunto all'account.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Fattura #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7609,6 +7820,18 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "Imposta un limite di slot per il tuo abbonamento al Secrets Manager. Una volta raggiunto questo limite, non potrai invitare nuovi membri."
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
+  },
+  "maximumSeatsCount": {
+    "message": "Maximum $COUNT$ seats",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "Numero massimo di slot (facoltativo)",
@@ -8405,7 +8628,7 @@
     "message": "Ripristina selezionati"
   },
   "archivedItemRestored": {
-    "message": "Elemento estratto dall'archivio"
+    "message": "Elemento archiviato ripristinato"
   },
   "archivedItemsRestored": {
     "message": "Elementi archiviati ripristinati"
@@ -9228,6 +9451,15 @@
   "desktopAutotypePolicyDescVfo1": {
     "message": "Enable desktop autotype for members."
   },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Desktop app autofill"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Turn on desktop autofill by default for all members."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
+  },
   "disableSend": {
     "message": "Rimuovi Send"
   },
@@ -9377,6 +9609,9 @@
   },
   "estimatedTax": {
     "message": "Tasse stimate"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
   },
   "subtotal": {
     "message": "Subtotal"
@@ -11868,10 +12103,6 @@
     "message": "Account di servizio",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "Account di servizio",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "Segreti",
     "description": "The title for the section of the application that deals with secrets."
@@ -14097,9 +14328,6 @@
     "message": "Describe your reason for canceling",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Gratis per un anno"
-  },
   "newWebApp": {
     "message": "Benvenuto nel nuovo e migliorato sito web. Scopri cosa è cambiato."
   },
@@ -14902,15 +15130,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ Discount",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Get Secrets Manager"
   },
@@ -15130,9 +15349,6 @@
     "message": "contatta assistenza Bitwarden.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "Sponsorizzato"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "Dopo aver effettuato aggiornamenti nel server cloud Bitwarden, carica il file di licenza per applicare le modifiche più recenti."
   },
@@ -15343,9 +15559,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Accedi alle funzionalità Premium"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB di spazio aggiuntivo"
   },
   "sshKeyAlgorithm": {
     "message": "Algoritmo chiave"
@@ -16742,9 +16955,6 @@
   "familiesUpdated": {
     "message": "Hai fatto l'upgrade al piano Famiglia!"
   },
-  "taxCalculationError": {
-    "message": "Si è verificato un errore nel calcolo dell'imposta per la tua posizione. Riprova in un secondo momento."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Bitwarden ti dà il benvenuto"
   },
@@ -16766,8 +16976,8 @@
   "upgradeNow": {
     "message": "Effettua l'upgrade"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
-    "message": "Get advanced online security with Bitwarden premium."
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
+    "message": "Get advanced online security with Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Il completamento di questo modulo creerà una nuova organizzazione per le famiglie. Puoi fare l'upgrade della tua organizzazione gratuita dalla console di amministrazione."
@@ -18964,14 +19174,26 @@
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
   },
-  "pamInboxWithdrawApprovalConfirm": {
-    "message": "This withdraws the member's approval for $ITEM$. Access will not start, and they will need a new approval to get it.",
-    "placeholders": {
-      "item": {
-        "content": "$1",
-        "example": "Prod database"
-      }
-    }
+  "pamWithdrawApprovalWarningOne": {
+    "message": "This withdraws your approval for",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Access won't start, and",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "will need a new approval to get it.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Reason"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Keep it brief. The requester reads this directly."
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "Access rule"
