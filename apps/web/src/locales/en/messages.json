@@ -7849,6 +7849,18 @@
   "limitPrivilegedControlsSubscriptionDesc": {
     "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
   },
+  "removePrivilegedControls": {
+    "message": "Remove Privileged Controls",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Every user in your organization will lose access to Privileged Controls. Are you sure you want to continue?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls removed",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
   "maximumSeatsCount": {
     "message": "Maximum $COUNT$ seats",
     "placeholders": {
