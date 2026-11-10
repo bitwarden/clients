@@ -91,15 +91,15 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   private readonly autoSubmitInvalidatedReports$ = new Subject<AutoSubmitInvalidated>();
 
   /**
-   * Removed tab ids, fed from `chrome.tabs.onRemoved` in `init()`. `tabRemoved$`
-   * is the filtered view of this; there is no separate structure to keep in sync.
+   * Removed tab ids, fed from `chrome.tabs.onRemoved` / `onReplaced` in `init()`.
+   * `tabRemoved$` is the filtered view of this; there is no separate structure to keep in sync.
    */
   private readonly tabRemovedSubject$ = new Subject<number>();
 
   /**
    * Add/remove facts for open tabs, seeded once at `init()` and then fed from
-   * `chrome.tabs.onCreated` / `onRemoved`. The live-tab set is the fold of this
-   * stream — no separate structure is mutated alongside it.
+   * `chrome.tabs.onCreated` / `onUpdated` / `onRemoved` / `onReplaced`. The live-tab
+   * set is the fold of this stream — no separate structure is mutated alongside it.
    */
   private readonly tabEvent$ = new Subject<{ type: "add" | "remove"; tabId: number }>();
 
@@ -205,6 +205,8 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
     BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
     BrowserApi.addListener(chrome.tabs.onRemoved, this.handleTabRemoved);
     BrowserApi.addListener(chrome.tabs.onCreated, this.handleTabCreated);
+    BrowserApi.addListener(chrome.tabs.onUpdated, this.handleTabUpdated);
+    BrowserApi.addListener(chrome.tabs.onReplaced, this.handleTabReplaced);
 
     // Fold port events into the live port set. The accumulator is mutated in
     // place (no per-event allocation); reads go through `connectedPorts.value`.
@@ -520,6 +522,19 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
       return;
     }
     this.tabEvent$.next({ type: "add", tabId: tab.id });
+  };
+
+  private handleTabUpdated = (tabId: number) => {
+    // Discarding and restoring a tab can change its id without an onCreated or
+    // onReplaced event. An update is also evidence that the tab is open.
+    if (!this.liveTabs.value.has(tabId)) {
+      this.tabEvent$.next({ type: "add", tabId });
+    }
+  };
+
+  private handleTabReplaced = (addedTabId: number, removedTabId: number) => {
+    this.handleTabRemoved(removedTabId);
+    this.tabEvent$.next({ type: "add", tabId: addedTabId });
   };
 
   private async seedLiveTabs() {

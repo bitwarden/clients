@@ -2,6 +2,8 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, defer, filter, map, of, Subject, throwError } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -19,13 +21,14 @@ import {
   PageTransitionResolved,
 } from "../services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { DefaultAutofillLifecycleService } from "../services/autofill-lifecycle.service";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
   createChromeTabMock,
   createPageDetailMock,
 } from "../spec/autofill-mocks";
-import { flushPromises } from "../spec/testing-utils";
+import { flushPromises, triggerTabOnUpdatedEvent } from "../spec/testing-utils";
 import { FillResult } from "../types/fill-result";
 
 import {
@@ -117,9 +120,12 @@ describe("DefaultAutofillOrchestrator", () => {
   // A fixed clock (epoch ms) so last-launched-window selection is deterministic; overridable.
   const NOW = 1_700_000_000_000;
 
-  const construct = (now: () => number = () => NOW) =>
+  const construct = (
+    now: () => number = () => NOW,
+    lifecycle: AutofillLifecycleService = lifecycleService,
+  ) =>
     new DefaultAutofillOrchestrator(
-      lifecycleService,
+      lifecycle,
       autofillService,
       cipherService,
       autofillSettingsService,
@@ -819,6 +825,30 @@ describe("DefaultAutofillOrchestrator", () => {
     // The live-tab gate is a security control: it keeps a request naming a non-open tab id — a stale
     // or forged id — from opening a per-tab serialization group that nothing would later retire, and
     // never fails open.
+
+    it("fills a restored tab after its id changes without a created or replaced event", async () => {
+      const authService = mock<AuthService>();
+      authService.activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
+      jest.spyOn(BrowserApi, "addListener").mockImplementation((event, listener) => {
+        event.addListener(listener);
+      });
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([createChromeTabMock({ id: 1 })]);
+      const lifecycle = new DefaultAutofillLifecycleService(authService, logService);
+      lifecycle.init();
+      const orchestrator = construct(undefined, lifecycle);
+      orchestrator.init();
+      await flushPromises();
+
+      const pd = pageDetail(3, 0);
+      jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(pd.tab);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      triggerTabOnUpdatedEvent(3, { discarded: false, status: "loading" }, pd.tab);
+
+      orchestrator.autofillActiveTabFromCommand(pd.tab);
+      await flushPromises();
+
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
+    });
 
     it("drops a page-load fill whose tab id is not an open tab", async () => {
       // No tab is open, so the reported transition's tab id is not live: the request is dropped
