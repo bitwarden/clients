@@ -229,13 +229,19 @@ export class CompleteTrialInitiationComponent {
 
       this.orgId = response.id;
       this.billingSubLabel = response.name.toString();
-      this.showCompletionToast("trialStarted", "trialActive");
-      await this.navigateToOrganization();
     } catch (e: unknown) {
       this.validationService.showError(e);
+      return;
     } finally {
       this.loading = false;
     }
+
+    if (this.isSecretsManagerFree) {
+      this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    } else {
+      this.showCompletionToast("trialStarted", "trialActive");
+    }
+    await this.navigateToOrganization();
   }
 
   private async purchaseTrialWithoutPayment(activeUserId: UserId): Promise<OrganizationResponse> {
@@ -343,6 +349,20 @@ export class CompleteTrialInitiationComponent {
     return !this.paymentOptional && !this.isSecretsManagerFree;
   }
 
+  /**
+   * Label for the organization-info step's submit button: "Next" when a billing step follows,
+   * otherwise the terminal action ("Start trial" for a no-card trial, "Submit" for the free SM org).
+   */
+  get orgInfoSubmitLabel(): string {
+    if (this.isSecretsManagerFree) {
+      return "submit";
+    }
+    if (this.paymentOptional && this.trialLength > 0) {
+      return "startTrial";
+    }
+    return "next";
+  }
+
   /** Create an organization unless the trial is for secrets manager */
   async conditionallyCreateOrganization(activeUserId: UserId): Promise<void> {
     if (!this.isSecretsManagerFree) {
@@ -372,13 +392,15 @@ export class CompleteTrialInitiationComponent {
       );
 
       this.orgId = response.id;
-      this.showCompletionToast("organizationCreated", "organizationReadyToGo");
-      await this.navigateToOrganization();
     } catch (e: unknown) {
       this.validationService.showError(e);
+      return;
     } finally {
       this.loading = false;
     }
+
+    this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    await this.navigateToOrganization();
   }
 
   /**
