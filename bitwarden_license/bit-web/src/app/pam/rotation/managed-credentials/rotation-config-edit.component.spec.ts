@@ -1931,15 +1931,51 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
     it("does not rotate now when the sign-out confirmation is declined", async () => {
       const { component, fixture, rotationSdk, dialogService } = setup({
         configId: configId("cfg-1"),
+        existingConfig: loadedConfig({
+          sealed: rotationConfigSealedFields({
+            accountIdentity: "admin@example.com",
+            terminateSessions: true,
+          }),
+        }),
       });
       await fixture.whenStable();
-      component.accountForm.controls.terminateSessions.setValue(true);
       dialogService.openSimpleDialog.mockResolvedValueOnce(false);
       await component.rotateNow();
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({ content: { key: "pamRotationConfigRotateNowConfirmContent" } }),
       );
       expect(rotationSdk.rotateNow).not.toHaveBeenCalled();
+    });
+
+    it("asks before rotating now when the saved config ends sessions, despite an unsaved untick", async () => {
+      const { component, fixture, rotationSdk, dialogService } = setup({
+        configId: configId("cfg-1"),
+        existingConfig: loadedConfig({
+          sealed: rotationConfigSealedFields({
+            accountIdentity: "admin@example.com",
+            terminateSessions: true,
+          }),
+        }),
+      });
+      await fixture.whenStable();
+      component.accountForm.controls.terminateSessions.setValue(false);
+      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
+      await component.rotateNow();
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "pamRotationConfigRotateNowConfirmContent" } }),
+      );
+      expect(rotationSdk.rotateNow).not.toHaveBeenCalled();
+    });
+
+    it("rotates now without asking when the saved config keeps sessions, despite an unsaved tick", async () => {
+      const { component, fixture, rotationSdk, dialogService } = setup({
+        configId: configId("cfg-1"),
+      });
+      await fixture.whenStable();
+      component.accountForm.controls.terminateSessions.setValue(true);
+      await component.rotateNow();
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(rotationSdk.rotateNow).toHaveBeenCalledWith(ORG_ID, configId("cfg-1"));
     });
 
     it("records a manual rotation only once the confirmation is accepted", async () => {

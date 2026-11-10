@@ -32,6 +32,9 @@ export class RotationConfigsService implements OnDestroy {
 
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
 
+  /** Set by {@link load} and cleared by {@link stopPolling}; nothing restarts the timer while off. */
+  private pollingEnabled = false;
+
   private readonly _configs$ = new BehaviorSubject<RotationConfigView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
@@ -98,6 +101,7 @@ export class RotationConfigsService implements OnDestroy {
    */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
+    this.pollingEnabled = true;
     const generation = ++this.loadGeneration;
     this._loading$.next(true);
     this._loadError$.next(null);
@@ -193,6 +197,15 @@ export class RotationConfigsService implements OnDestroy {
     this.stopPolling();
   }
 
+  /**
+   * Stops re-reading the list until the next {@link load}. The shell calls this when it's
+   * destroyed, since the router keeps a route's providers alive after leaving it.
+   */
+  stopPolling(): void {
+    this.pollingEnabled = false;
+    this.clearPollTimer();
+  }
+
   private setConfigs(configs: RotationConfigView[]): void {
     this._configs$.next(configs);
     this.syncPolling();
@@ -203,14 +216,14 @@ export class RotationConfigsService implements OnDestroy {
    * on a timer for as long as any row has one.
    */
   private syncPolling(): void {
-    if (!this._configs$.value.some((c) => c.hasActiveJob)) {
-      this.stopPolling();
+    if (!this.pollingEnabled || !this._configs$.value.some((c) => c.hasActiveJob)) {
+      this.clearPollTimer();
       return;
     }
     this.pollTimer ??= setTimeout(() => void this.poll(), ACTIVE_JOB_POLL_MS);
   }
 
-  private stopPolling(): void {
+  private clearPollTimer(): void {
     if (this.pollTimer != null) {
       clearTimeout(this.pollTimer);
       this.pollTimer = null;

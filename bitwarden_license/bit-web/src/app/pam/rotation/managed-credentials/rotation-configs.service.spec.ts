@@ -292,6 +292,44 @@ describe("RotationConfigsService", () => {
 
       expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
     });
+
+    it("stops polling on stopPolling, even when a re-read was in flight", async () => {
+      let resolveReRead!: (configs: RotationConfigView[]) => void;
+      rotationSdk.listConfigs
+        .mockResolvedValueOnce([rotationConfig({ hasActiveJob: true })])
+        .mockReturnValueOnce(new Promise((resolve) => (resolveReRead = resolve)))
+        .mockResolvedValue([rotationConfig({ hasActiveJob: true })]);
+      await service.load(ORG_ID);
+      await jest.advanceTimersByTimeAsync(5000);
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(2);
+
+      service.stopPolling();
+      resolveReRead([rotationConfig({ hasActiveJob: true })]);
+      await jest.advanceTimersByTimeAsync(30000);
+
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not start polling from rotate now once stopped", async () => {
+      await service.load(ORG_ID);
+      service.stopPolling();
+
+      await service.rotateNow((await firstValueFrom(service.configs$))[0]);
+      await jest.advanceTimersByTimeAsync(30000);
+
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
+    });
+
+    it("resumes polling on the next load", async () => {
+      rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ hasActiveJob: true })]);
+      await service.load(ORG_ID);
+      service.stopPolling();
+
+      await service.load(ORG_ID);
+      await jest.advanceTimersByTimeAsync(5000);
+
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(3);
+    });
   });
 
   it("awaitingManualCount$ counts configs awaiting manual rotation", async () => {

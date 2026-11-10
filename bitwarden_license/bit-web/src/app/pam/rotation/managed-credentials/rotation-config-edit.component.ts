@@ -898,7 +898,8 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     );
 
   protected readonly rotateNow = async (): Promise<void> => {
-    const needsConfirm = this.accountForm.controls.terminateSessions.value;
+    // The server rotates with the saved setting, not the form's unsaved one.
+    const needsConfirm = this.config()?.sealed?.terminateSessions === true;
     if (needsConfirm && !(await this.openRotateNowDialog())) {
       return;
     }
