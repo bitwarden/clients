@@ -68,6 +68,8 @@ export interface SetInitialPasswordCredentials {
   resetPasswordAutoEnroll: boolean;
   newPassword: string;
   salt: MasterPasswordSalt;
+  /** See {@link InitializeJitPasswordCredentials.acceptOrganizationInvite} */
+  acceptOrganizationInvite?: boolean;
 }
 
 export interface SetInitialPasswordTdeUserWithPermissionCredentials {
@@ -103,6 +105,11 @@ export interface InitializeJitPasswordCredentials {
   newPassword: string;
   /** Master password salt (typically the user's email) */
   salt: MasterPasswordSalt;
+  /**
+   * Whether the server moves the organization membership from Invited to Accepted. `undefined`
+   * when the `pm-34429-invite-link-auto-confirm` flag is off, so the legacy flow runs.
+   */
+  acceptOrganizationInvite?: boolean;
 }
 
 /**

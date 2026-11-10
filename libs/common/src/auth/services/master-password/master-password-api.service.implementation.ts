@@ -3,6 +3,7 @@ import { LogService } from "../../../platform/abstractions/log.service";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "../../abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "../../models/request/password.request";
 import { SetPasswordRequest } from "../../models/request/set-password.request";
+import { SsoJitProvisionFinishPasswordRequest } from "../../models/request/sso-jit-provision-finish-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "../../models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "../../models/request/update-temp-password.request";
 
@@ -23,6 +24,23 @@ export class MasterPasswordApiService implements MasterPasswordApiServiceAbstrac
       );
 
       return response;
+    } catch (e: unknown) {
+      this.logService.error(e);
+      throw e;
+    }
+  }
+
+  async postSsoJitProvisionFinishPassword(
+    request: SsoJitProvisionFinishPasswordRequest,
+  ): Promise<void> {
+    try {
+      await this.apiService.send(
+        "POST",
+        "/sso-jit-provision-finish/password",
+        request,
+        true,
+        false,
+      );
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;
