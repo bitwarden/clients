@@ -7,9 +7,6 @@
     [current]="titleText()"
   />
 
-  <!-- Named-slot projection through control flow only works when the block has a single root
-       element; a multi-root block falls into bit-header's default (actions) slot. Keep the
-       title-suffix and tabs in their own single-root blocks, separate from the actions. -->
   @if (editing && detailStatus(); as status) {
     <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">
       <span class="tw-sr-only">{{ "status" | i18n }}:</span>
@@ -23,7 +20,6 @@
     </span>
   }
 
-  <!-- The Configuration tab carries the actions; the History tab's header has none. -->
   @if (editing && detailStatus() && activeTab() !== "history") {
     @if (isManual()) {
       <button
@@ -152,7 +148,6 @@
   }
 </bit-header>
 
-<!-- The add form's Save and Cancel, pinned to the layout's footer region once there is input. -->
 <ng-template #createFooter>
   <div
     class="tw-pointer-events-auto tw-absolute tw-inset-x-0 tw-bottom-0 tw-flex tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-bg-bg-primary tw-px-10 tw-py-4"
