@@ -231,15 +231,20 @@ export class CompleteTrialInitiationComponent {
       this.billingSubLabel = response.name.toString();
     } catch (e: unknown) {
       this.validationService.showError(e);
-      return;
-    } finally {
       this.loading = false;
+      return;
     }
 
+    // Keep the button disabled through navigation so a second click can't create a duplicate org.
     this.isSecretsManagerFree
       ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
       : this.showCompletionToast("trialStarted", "trialActive");
-    await this.navigateToOrganization();
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+      this.loading = false;
+    }
   }
 
   private async purchaseTrialWithoutPayment(activeUserId: UserId): Promise<OrganizationResponse> {
@@ -392,13 +397,18 @@ export class CompleteTrialInitiationComponent {
       this.orgId = response.id;
     } catch (e: unknown) {
       this.validationService.showError(e);
-      return;
-    } finally {
       this.loading = false;
+      return;
     }
 
+    // Keep the button disabled through navigation so a second click can't create a duplicate org.
     this.showCompletionToast("organizationCreated", "organizationReadyToGo");
-    await this.navigateToOrganization();
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+      this.loading = false;
+    }
   }
 
   /**

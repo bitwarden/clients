@@ -387,6 +387,12 @@ describe("CompleteTrialInitiationComponent", () => {
       );
     });
 
+    it("keeps loading through navigation on success so the button can't be clicked twice", async () => {
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(component.loading).toBe(true);
+    });
+
     it("shows the organization-created toast for a free Secrets Manager org (not a trial)", async () => {
       mockActivatedRoute.queryParams.next({
         product: ProductType.SecretsManager,
@@ -511,6 +517,19 @@ describe("CompleteTrialInitiationComponent", () => {
         expect.objectContaining({ variant: "success", title: "organizationCreated" }),
       );
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/sm", "sm-org-id"]);
+    });
+
+    it("keeps loading through navigation on success so the button can't be clicked twice", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.SecretsManager,
+        productTier: ProductTierType.Free,
+      });
+      component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
+      mockOrganizationBillingService.startFree.mockResolvedValue({ id: "sm-org-id" } as any);
+
+      await (component as any).conditionallyCreateOrganization("user-id-123" as UserId);
+
+      expect(component.loading).toBe(true);
     });
 
     it("shows the error, stops loading and does not toast or navigate when creation is rejected", async () => {
