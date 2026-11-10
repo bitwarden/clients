@@ -146,6 +146,12 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
    * terminology flag is enabled so it matches the name shown in the policies list.
    */
   protected showEditedPolicyToast(): void {
+    const customKey = this.policyComponent()?.submitToastKey();
+    if (customKey != null) {
+      this.toastService.showToast({ variant: "success", message: this.i18nService.t(customKey) });
+      return;
+    }
+
     const [legacy, next] = policyTitleKeys(this.policy);
     const policyName = this.i18nService.t(this.terminology.enabled() ? next : legacy);
     this.toastService.showToast({
@@ -380,6 +386,10 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
   };
 
   private async submitPolicy(policyComponent: BasePolicyEditComponent): Promise<void> {
+    if (!policyComponent.savesToServer) {
+      return;
+    }
+
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,

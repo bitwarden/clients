@@ -5,11 +5,11 @@ import { enabledFlags } from "@bitwarden/storybook";
 
 import { PolicyDrawerStoryArgs, policyDrawerMeta } from "../policy-drawer-story.helper";
 
-import { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
+import { ManageItemTypesPolicy } from "./restricted-item-types.component";
 
 export default {
-  ...policyDrawerMeta(new RestrictedItemTypesPolicy()),
-  title: "Admin Console/Organizations/Policies/Restricted Item Types",
+  ...policyDrawerMeta(new ManageItemTypesPolicy()),
+  title: "Admin Console/Organizations/Policies/Manage Item Types",
 } satisfies Meta<PolicyDrawerStoryArgs>;
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;
@@ -21,10 +21,9 @@ export const PolicyOn: Story = {
 };
 
 /**
- * The drawer with the VFO1 terminology flag on — the description renders "vault" terminology
- * per Figma.
+ * With the new item types flag on, bank account, license and passport are also manageable.
  */
-export const PolicyOnVfo1Enabled: Story = {
+export const PolicyOnNewItemTypesEnabled: Story = {
   args: { enabled: true },
-  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  globals: enabledFlags(FeatureFlag.PM32009NewItemTypes),
 };

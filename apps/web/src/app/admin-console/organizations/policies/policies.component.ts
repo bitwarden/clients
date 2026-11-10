@@ -3,6 +3,7 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
+  firstValueFrom,
   lastValueFrom,
   Observable,
   of,
@@ -189,12 +190,10 @@ export class PoliciesComponent {
             const policies = this.policyListService.getPolicies();
             for (const orgPolicy of orgPolicies) {
               if (orgPolicy.id === policyIdFromEvents) {
-                for (const policy of policies) {
-                  if (policy.type === orgPolicy.type) {
-                    void this.edit(policy, organization);
-                    break;
-                  }
-                }
+                void this.editDefinitionForType(
+                  policies.filter((p) => p.type === orgPolicy.type),
+                  organization,
+                );
                 break;
               }
             }
@@ -203,6 +202,30 @@ export class PoliciesComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
+  }
+
+  /**
+   * Opens the definition to edit for a policy type. Some policy types have several definitions
+   * of which only one is displayed at a time (e.g. behind a feature flag), so when there is more
+   * than one candidate the first displayed one is used.
+   */
+  private async editDefinitionForType(
+    candidates: BasePolicyEditDefinition[],
+    organization: Organization,
+  ) {
+    if (candidates.length <= 1) {
+      if (candidates.length === 1) {
+        await this.edit(candidates[0], organization);
+      }
+      return;
+    }
+
+    for (const candidate of candidates) {
+      if (await firstValueFrom(candidate.display$(organization, this.configService))) {
+        await this.edit(candidate, organization);
+        return;
+      }
+    }
   }
 
   async edit(policy: BasePolicyEditDefinition, organization: Organization) {

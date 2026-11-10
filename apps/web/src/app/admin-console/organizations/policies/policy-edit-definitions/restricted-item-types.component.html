@@ -1,0 +1,28 @@
+@if (!singleOrgEnabled()) {
+  <bit-callout type="info" [title]="'prerequisite' | i18n">
+    {{ "singleOrgPrerequisite" | vfo1I18n: "singleOrgPrerequisiteVfo1" }}
+  </bit-callout>
+}
+
+<bit-form-control>
+  <bit-switch [formControl]="enabled" id="restricted-item-types_switch_enabled"></bit-switch>
+  <bit-label>{{ "allowSelectedItemTypes" | i18n }}</bit-label>
+</bit-form-control>
+
+<fieldset class="tw-m-0 tw-border-0 tw-p-0">
+  <legend class="tw-mb-1 tw-p-0 tw-text-sm tw-text-muted">{{ "itemTypes" | i18n }}</legend>
+  @for (itemType of itemTypes(); track itemType.cipherType) {
+    <bit-form-control disableMargin class="tw-mb-2">
+      <input
+        type="checkbox"
+        bitCheckbox
+        [formControl]="itemType.control"
+        [id]="'restricted-item-types_checkbox_' + itemType.cipherType"
+      />
+      <bit-label>{{ itemType.labelKey | i18n }}</bit-label>
+      @if (itemType.hiddenItemCount > 0) {
+        <bit-hint>{{ itemType.hiddenItemsKey | i18n: itemType.hiddenItemCount }}</bit-hint>
+      }
+    </bit-form-control>
+  }
+</fieldset>

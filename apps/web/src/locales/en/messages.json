@@ -4424,6 +4424,108 @@
   "restrictedItemTypePolicyDescListVfo1": {
     "message": "Do not allow members to create and store card items. Existing cards will be hidden."
   },
+  "manageItemTypesPolicy": {
+    "message": "Manage item types"
+  },
+  "manageItemTypesPolicyDesc": {
+    "message": "Choose which item types members can create and store in their vaults. When you deselect an option below, any existing items of that type will be hidden from member vaults."
+  },
+  "allowSelectedItemTypes": {
+    "message": "Allow selected item types"
+  },
+  "itemTypes": {
+    "message": "Item types"
+  },
+  "existingCardWillBeHidden": {
+    "message": "$COUNT$ existing card will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingCardsWillBeHidden": {
+    "message": "$COUNT$ existing cards will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingBankAccountWillBeHidden": {
+    "message": "$COUNT$ existing bank account will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingBankAccountsWillBeHidden": {
+    "message": "$COUNT$ existing bank accounts will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingIdentityWillBeHidden": {
+    "message": "$COUNT$ existing identity will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingIdentitiesWillBeHidden": {
+    "message": "$COUNT$ existing identities will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingLicenseWillBeHidden": {
+    "message": "$COUNT$ existing license will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingLicensesWillBeHidden": {
+    "message": "$COUNT$ existing licenses will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingPassportWillBeHidden": {
+    "message": "$COUNT$ existing passport will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingPassportsWillBeHidden": {
+    "message": "$COUNT$ existing passports will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
   "restrictCardTypeImport": {
     "message": "Cannot import card item types"
   },
@@ -6846,6 +6948,15 @@
   },
   "keepEditing": {
     "message": "Keep editing"
+  },
+  "policyTurnedOn": {
+    "message": "Policy turned on"
+  },
+  "policyTurnedOff": {
+    "message": "Policy turned off"
+  },
+  "policyEdited": {
+    "message": "Policy edited"
   },
   "editedPolicyId": {
     "message": "Edited policy $ID$.",
