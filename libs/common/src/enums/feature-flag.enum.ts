@@ -55,6 +55,7 @@ export enum FeatureFlag {
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
   PamBillingSupport = "pm-39883-pam-billing-support",
+  PM42214_FeatureBasedUpgradePaths = "pm-42214-feature-based-upgrade-paths",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -190,6 +191,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
   [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
+  [FeatureFlag.PM42214_FeatureBasedUpgradePaths]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
