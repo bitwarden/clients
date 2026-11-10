@@ -166,7 +166,27 @@ module.exports.buildConfig = function buildConfig(params) {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/popup/index.ejs"),
       filename: "popup/index.html",
-      chunks: ["popup/polyfills", "popup/vendor-angular", "popup/vendor", "popup/main"],
+      chunks: [
+        "popup/loader",
+        "popup/polyfills",
+        "popup/vendor-angular",
+        "popup/vendor",
+        "popup/main",
+      ],
+      // The template places the scripts itself: only the loader runs before `load`, and it
+      // injects the rest afterwards (see src/popup/loader.ts).
+      inject: false,
+      templateParameters: (compilation, assets, assetTags, options) => {
+        const isLoader = (src) => src.endsWith("/loader.js");
+        return {
+          htmlWebpackPlugin: { options },
+          loaderSrc: assets.js.find(isLoader),
+          chunkSrcs: JSON.stringify(assets.js.filter((src) => !isLoader(src))),
+          stylesheetLinks: assets.css
+            .map((href) => `<link href="${href}" rel="stylesheet" />`)
+            .join("\n    "),
+        };
+      },
       browser: browser,
     }),
     new HtmlWebpackPlugin({
@@ -257,6 +277,7 @@ module.exports.buildConfig = function buildConfig(params) {
     devtool: false,
 
     entry: {
+      "popup/loader": path.resolve(__dirname, "src/popup/loader.ts"),
       "popup/polyfills": path.resolve(__dirname, "src/popup/polyfills.ts"),
       "popup/main": params.popup.entry,
       "content/trigger-autofill-script-injection": path.resolve(

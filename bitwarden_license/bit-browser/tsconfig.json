@@ -11,6 +11,7 @@
     "../../apps/browser/src/autofill/overlay/inline-menu/**/*.ts",
     "../../apps/browser/src/platform/ipc/content/*.ts",
     "../../apps/browser/src/platform/offscreen-document/offscreen-document.ts",
+    "../../apps/browser/src/popup/loader.ts",
     "../../apps/browser/src/popup/polyfills.ts",
     "../../apps/browser/src/vault/content/*.ts",
 

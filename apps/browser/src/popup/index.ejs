@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bitwarden</title>
     <base href="" />
+    <%= stylesheetLinks %>
+    <script defer src="<%= loaderSrc %>" data-chunks="<%- chunkSrcs %>"></script>
   </head>
   <body>
     <app-root>

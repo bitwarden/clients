@@ -4,22 +4,10 @@ import { filter, firstValueFrom, interval, of, switchMap, takeWhile, timeout } f
 
 import { ScrollOptions } from "./abstractions/browser-popup-utils.abstractions";
 import { BrowserApi } from "./browser-api";
+import { POPUP_WIDTH_STORAGE_KEY, PopupWidthOption, PopupWidthOptions } from "./popup-width";
 
-/**
- *
- * Value represents width in pixels
- */
-export const PopupWidthOptions = Object.freeze({
-  default: 480,
-  wide: 600,
-  narrow: 380,
-});
-
-type PopupWidthOptions = typeof PopupWidthOptions;
-export type PopupWidthOption = keyof PopupWidthOptions;
-
-/** localStorage key used to cache the user's configured popup width. */
-export const POPUP_WIDTH_STORAGE_KEY = "bw-popup-width";
+export { POPUP_WIDTH_STORAGE_KEY, PopupWidthOptions };
+export type { PopupWidthOption };
 
 export default class BrowserPopupUtils {
   /**
