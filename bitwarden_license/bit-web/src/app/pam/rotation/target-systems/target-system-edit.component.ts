@@ -258,6 +258,17 @@ function connectorDisplay(connector: AccessConnector): ConnectorDisplay {
       };
 }
 
+/** The text for leaving a target with no access connector, by how many credentials stop rotating. */
+function removeLastConnectorContentKey(count: number | null): string {
+  if (count == null || count === 0) {
+    return "pamTargetSystemRemoveLastConnectorContentNone";
+  }
+  if (count === 1) {
+    return "pamTargetSystemRemoveLastConnectorContentOne";
+  }
+  return "pamTargetSystemRemoveLastConnectorContent";
+}
+
 function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
   return new FormGroup<PolicyControls>(
     {
@@ -1199,16 +1210,10 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
       return true;
     }
     const count = this.managedCredentialCount();
-    const contentKey =
-      count == null || count === 0
-        ? "pamTargetSystemRemoveLastConnectorContentNone"
-        : count === 1
-          ? "pamTargetSystemRemoveLastConnectorContentOne"
-          : "pamTargetSystemRemoveLastConnectorContent";
     return await this.dialogService.openSimpleDialog({
       title: { key: "pamTargetSystemRemoveLastConnectorTitle" },
       content: {
-        key: contentKey,
+        key: removeLastConnectorContentKey(count),
         placeholders: count != null && count > 1 ? [String(count)] : [],
       },
       acceptButtonText: { key: "pamTargetSystemRemoveLastConnectorConfirm" },
