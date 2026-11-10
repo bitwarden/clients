@@ -3,7 +3,7 @@
 <p bitTypography="body1">{{ "pamAccessRulesSubheading" | i18n }}</p>
 
 @if (loading() || rules().length > 0) {
-  <bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter" [loading]="loading()">
+  <bit-table-v2 pamActivateRow [tableDef]="table" [filter]="rowMatchesFilter" [loading]="loading()">
     <bit-table-toolbar>
       <bit-search class="tw-flex-1" [placeholder]="'pamSearchRules' | i18n" />
       <button
@@ -65,7 +65,13 @@
     <bit-column sortable width="minmax(240px, 1fr)">
       <bit-header-cell>{{ "pamAccessRuleName" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.name; let r" [truncate]="false">
-        <button type="button" bitLink linkType="primary" (click)="openEdit(r)">
+        <button
+          data-pam-row-activator
+          type="button"
+          bitLink
+          linkType="primary"
+          (click)="openEdit(r)"
+        >
           {{ r.name }}
         </button>
         @if (r.description) {

@@ -43,6 +43,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { PamActivateRowDirective } from "../../row-activation/activate-row.directive";
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { assignableConnectors, eligibleConnectors } from "../assignable";
 import { TARGET_SYSTEM_QUERY_PARAM } from "../create-flow";
@@ -132,6 +133,7 @@ const FILTERABLE_KINDS: readonly TargetSystemKind[] = [
   templateUrl: "./target-systems-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PamActivateRowDirective,
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,

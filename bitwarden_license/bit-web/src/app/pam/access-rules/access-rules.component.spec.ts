@@ -805,6 +805,40 @@ describe("AccessRulesComponent: table", () => {
     expect(accessibleName(fixture, "access-rules_checkbox_rule-2")).toBe("SSH");
   });
 
+  /** The row whose name cell reads `name`. */
+  const rowFor = (fixture: ComponentFixture<AccessRulesComponent>, name: string) =>
+    Array.from(el(fixture).querySelectorAll("bit-row")).find(
+      (row) => text(row.querySelector("button[bitlink]")!) === name,
+    )!;
+
+  /** A cell of `row` owning no control of its own — what a click on the row's whitespace hits. */
+  const inertCell = (row: Element) =>
+    Array.from(row.querySelectorAll<HTMLElement>("[role=cell]")).find(
+      (cell) => cell.querySelector("a, button, input, label") == null,
+    )!;
+
+  it("opens the rule from anywhere in its row, not only from the name", async () => {
+    const fixture = await render();
+    const navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+    inertCell(rowFor(fixture, "VPN")).dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true }),
+    );
+
+    expect(navigate).toHaveBeenCalledWith(["rule-1"], { relativeTo: expect.anything() });
+  });
+
+  it("leaves a click on a row's own control to that control", async () => {
+    const fixture = await render();
+    const navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+    rowCheckboxes(fixture)[0].click();
+    fixture.detectChanges();
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(fixture.componentInstance["selectedCount"]()).toBe(1);
+  });
+
   it("offers the row actions with edit first", async () => {
     const fixture = await render();
 

@@ -52,6 +52,7 @@ import {
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { PamActivateRowDirective } from "../../row-activation/activate-row.directive";
 import { AccessConnectorRegisterDialogComponent } from "../access-connectors/access-connector-register-dialog.component";
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import {
@@ -94,6 +95,7 @@ import { RotationConfigsService } from "./rotation-configs.service";
   templateUrl: "./managed-credentials-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PamActivateRowDirective,
     ReactiveFormsModule,
     BadgeModule,
     ButtonModule,

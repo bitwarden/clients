@@ -63,6 +63,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
+import { PamActivateRowDirective } from "../row-activation/activate-row.directive";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
@@ -75,6 +76,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
+    PamActivateRowDirective,
     TimestampPipe,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,

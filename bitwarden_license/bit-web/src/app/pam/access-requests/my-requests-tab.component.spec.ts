@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
+import { Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
@@ -413,6 +413,19 @@ describe("MyRequestsTabComponent", () => {
         "my-access-request-req-grant",
         "my-access-request-req-pending",
       ]);
+    });
+
+    it("opens the request from anywhere in the row, not only from the item link", () => {
+      pendingRows$.next([requestRow({ id: "req-pending", status: "pending" })]);
+      create();
+      const navigate = jest.spyOn(TestBed.inject(Router), "navigateByUrl").mockResolvedValue(true);
+      // The Status cell: it carries a badge, never a control of its own.
+      const whitespace = queryAll(rows()[0], '[role="cell"]')[1];
+
+      whitespace.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate.mock.calls[0][0].toString()).toBe("/pam/requests/req-pending");
     });
 
     it("keeps a pending extension visible rather than dropping it with its section", () => {

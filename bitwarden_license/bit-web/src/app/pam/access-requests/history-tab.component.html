@@ -57,6 +57,7 @@
   </bit-status-lockup>
 } @else {
   <bit-table-v2
+    pamActivateRow
     [tableDef]="table"
     [filter]="rowMatchesFilter"
     [trackBy]="trackById"
@@ -107,6 +108,7 @@
         }
         <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
           <a
+            data-pam-row-activator
             class="tw-truncate"
             [routerLink]="['/pam/requests', row.id]"
             [id]="'pam-history-tab_link_item-' + row.id"

@@ -151,6 +151,13 @@ function rowNames(el: HTMLElement): string[] {
   return bodyRows(el).map((row) => text(row.querySelector("button[bitLink]")!));
 }
 
+/** A cell owning no control of its own — what a click on a row's whitespace lands on. */
+function inertCell(row: Element): HTMLElement {
+  return Array.from(row.querySelectorAll<HTMLElement>('[role="cell"]')).find(
+    (cell) => cell.querySelector("a, button, input, label") == null,
+  )!;
+}
+
 describe("ManagedCredentialsTabComponent", () => {
   let fixture: ComponentFixture<ManagedCredentialsTabComponent>;
   let component: any;
@@ -1141,6 +1148,21 @@ describe("ManagedCredentialsTabComponent table", () => {
           { id: "col-2", name: "Finance" } as CollectionAdminView,
         ],
       });
+
+    it("opens the credential from anywhere in its row, not only from the name", () => {
+      const el = render();
+      const row = bodyRows(el)[0];
+      const prefix = "managed-credentials-tab_button_name_";
+      const id = row.querySelector(`[id^="${prefix}"]`)!.id.slice(prefix.length);
+      const navigateSpy = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+      inertCell(row).dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+
+      expect(navigateSpy).toHaveBeenCalledWith(
+        expect.arrayContaining([id]),
+        expect.objectContaining({ relativeTo: expect.anything() }),
+      );
+    });
 
     it("names the credential in neutral text rather than link blue", () => {
       const link = render().querySelector<HTMLButtonElement>(
