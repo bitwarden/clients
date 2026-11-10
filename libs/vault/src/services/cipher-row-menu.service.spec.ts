@@ -25,7 +25,7 @@ import { CIPHER_SHARE_ACCESS, CipherShareAccess } from "../tokens/cipher-share-a
 import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
-import { CipherRowMenuService } from "./cipher-row-menu.service";
+import { CipherRowMenuService, uniqueContributedActions } from "./cipher-row-menu.service";
 
 const userId = "test-user-id" as UserId;
 
@@ -694,6 +694,17 @@ describe("CipherRowMenuService", () => {
 
       expect(show).toHaveBeenCalledWith(cipher);
       expect(run).toHaveBeenCalledWith(cipher);
+    });
+
+    it("checks a host's own built-in IDs when called directly", () => {
+      const kept = inProduction(() =>
+        uniqueContributedActions(
+          [contributed("view"), contributed("delete"), contributed("request")],
+          new Set(["view"]),
+        ),
+      );
+
+      expect(kept.map((a) => a.id)).toEqual(["delete", "request"]);
     });
 
     it("throws in dev mode when an ID matches a built-in action", () => {
