@@ -167,9 +167,10 @@ export const canAccessHealth: CanActivateFn = () => {
 };
 
 /**
- * Guards the Health risk-category detail routes, which are the Premium part of the
- * feature: the Health tab itself is open to everyone {@link canAccessHealth} lets
- * through, showing the gauge with the categories locked.
+ * Guards the Health detail routes (the risk categories and passkey
+ * opportunities), which are the Premium part of the feature: the Health tab itself is
+ * open to everyone {@link canAccessHealth} lets through, showing the gauge with the
+ * categories locked.
  *
  * The check cannot live in the Health Overview's locked state alone, because these
  * routes are reachable without passing through it: the popup restores the last route

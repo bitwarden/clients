@@ -11,11 +11,15 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
+import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import {
+  DefaultPasskeyOpportunityService,
   DefaultVaultHealthReportService,
+  PasskeyOpportunityService,
   VaultHealthReportService,
 } from "@bitwarden/common/dirt/vault-health/services";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import {
   DialogModule,
@@ -104,6 +108,11 @@ import "../platform/popup/locales";
       provide: VaultHealthReportService,
       useClass: DefaultVaultHealthReportService,
       deps: [CipherRiskService, LogService],
+    }),
+    safeProvider({
+      provide: PasskeyOpportunityService,
+      useClass: DefaultPasskeyOpportunityService,
+      deps: [PasskeyDirectoryApiService, SdkService, LogService],
     }),
   ],
   bootstrap: [AppComponent],

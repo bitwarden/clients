@@ -75,6 +75,7 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
+import { HealthPasskeyDetailComponent } from "../dirt/health/popup/health-passkey-detail.component";
 import { HealthRiskCategoryDetailComponent } from "../dirt/health/popup/health-risk-category-detail.component";
 import { HealthComponent } from "../dirt/health/popup/health.component";
 import {
@@ -891,6 +892,18 @@ const routes: Routes = [
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
+  },
+  {
+    // Declared before health/:category, which would otherwise match it first.
+    path: "health/passkeys",
+    component: HealthPasskeyDetailComponent,
+    canActivate: [
+      authGuard,
+      canAccessHealth,
+      canAccessHealthDetail,
+      canAccessFeature(FeatureFlag.PasskeyLoginReport, true, "/tabs/health", false),
+    ],
+    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "health/:category",

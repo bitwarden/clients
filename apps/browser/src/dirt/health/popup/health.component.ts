@@ -21,6 +21,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 
 import { HealthIntroComponent } from "./components/health-intro/health-intro.component";
 import { HealthOverviewComponent } from "./components/health-overview/health-overview.component";
+import { HealthPasskeySectionComponent } from "./components/health-passkey-section/health-passkey-section.component";
 import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
 import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthAccessService } from "./services/health-access.service";
@@ -38,6 +39,7 @@ import { HealthScanService } from "./services/health-scan.service";
     I18nPipe,
     HealthIntroComponent,
     HealthOverviewComponent,
+    HealthPasskeySectionComponent,
     HealthScanningComponent,
     HealthScanErrorComponent,
   ],
