@@ -34,6 +34,7 @@ describe("RotationShellComponent", () => {
   let fixture: ComponentFixture<RotationShellComponent>;
   let awaitingManualCount$: BehaviorSubject<number>;
   let loadMock: jest.Mock;
+  let stopPollingMock: jest.Mock;
   let accessConnectorsService: { registerCompleted: jest.Mock };
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -43,6 +44,7 @@ describe("RotationShellComponent", () => {
   beforeEach(async () => {
     awaitingManualCount$ = new BehaviorSubject<number>(0);
     loadMock = jest.fn().mockResolvedValue(undefined);
+    stopPollingMock = jest.fn();
     accessConnectorsService = { registerCompleted: jest.fn().mockResolvedValue(undefined) };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
@@ -62,7 +64,7 @@ describe("RotationShellComponent", () => {
         },
         {
           provide: RotationConfigsService,
-          useValue: { awaitingManualCount$, load: loadMock },
+          useValue: { awaitingManualCount$, load: loadMock, stopPolling: stopPollingMock },
         },
         { provide: AccessConnectorsService, useValue: accessConnectorsService },
         { provide: DialogService, useValue: dialogService },
@@ -106,6 +108,13 @@ describe("RotationShellComponent", () => {
   it("calls load on RotationConfigsService with the organization id on init", async () => {
     await init();
     expect(loadMock).toHaveBeenCalledWith(ORG_ID);
+  });
+
+  it("stops the configs service polling when destroyed", async () => {
+    await init();
+    expect(stopPollingMock).not.toHaveBeenCalled();
+    fixture.destroy();
+    expect(stopPollingMock).toHaveBeenCalledTimes(1);
   });
 
   it("passes the awaiting-manual count to the Managed credentials tab berry", async () => {
@@ -203,7 +212,11 @@ describe("RotationShellComponent (real router)", () => {
         provideRouter(routes),
         {
           provide: RotationConfigsService,
-          useValue: { awaitingManualCount$: new BehaviorSubject(0), load: jest.fn() },
+          useValue: {
+            awaitingManualCount$: new BehaviorSubject(0),
+            load: jest.fn(),
+            stopPolling: jest.fn(),
+          },
         },
         { provide: AccessConnectorsService, useValue: { registerCompleted: jest.fn() } },
         { provide: DialogService, useValue: mock<DialogService>() },
