@@ -556,7 +556,7 @@ jobs:
           if-no-files-found: error
 
   windows:
-    name: Windows Build [${{ matrix.variant }}, ${{ matrix.build_type }}]
+    name: Windows Build [${{ matrix.variant }}, ${{ matrix.cloud_env }}]
     strategy:
       fail-fast: false
       matrix:
@@ -564,19 +564,19 @@ jobs:
           - variant: oss
             license_type: oss
             artifact_prefix: ""
-            build_type: prod
+            cloud_env: prod
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
-            build_type: prod
+            cloud_env: prod
           - variant: oss
             license_type: oss
             artifact_prefix: ""
-            build_type: qa
+            cloud_env: qa
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
-            build_type: qa
+            cloud_env: qa
     runs-on: windows-2022
     needs:
       - setup
@@ -676,15 +676,15 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
-        if: ${{ (matrix.build_type == 'prod' || needs.setup.outputs.has_secrets == 'true') && steps.cache.outputs.cache-hit != 'true' }}
+        if: ${{ (matrix.cloud_env == 'prod' || needs.setup.outputs.has_secrets == 'true') && steps.cache.outputs.cache-hit != 'true' }}
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        if: ${{ matrix.build_type == 'prod' || needs.setup.outputs.has_secrets == 'true' }}
-        run: npm run build:${{ matrix.variant }}${{ matrix.build_type == 'qa' && ':qa' || '' }}
+        if: ${{ matrix.cloud_env == 'prod' || needs.setup.outputs.has_secrets == 'true' }}
+        run: npm run build:${{ matrix.variant }}${{ matrix.cloud_env == 'qa' && ':qa' || '' }}
 
       # Retrieve signing secrets and mint a signing access token only after dependencies are installed and the build has finished.
       - name: Log in to Azure for signing
@@ -733,7 +733,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Pack
-        if: ${{ needs.setup.outputs.has_secrets == 'false' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'false' && matrix.cloud_env == 'prod' }}
         run: |
           npm run pack:win
 
@@ -745,7 +745,7 @@ jobs:
           SIGNING_ACCESS_TOKEN: ${{ steps.signing-token.outputs.token }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.CODE-SIGNING-CERT-NAME }}
         run: |
-          npm run pack:win${{ matrix.build_type == 'qa' && ':qa' || '' }}
+          npm run pack:win${{ matrix.cloud_env == 'qa' && ':qa' || '' }}
 
       - name: Verify helper exe thumbprint matches hardcoded value
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -754,7 +754,7 @@ jobs:
       # The Appx built above keeps the Microsoft-assigned publisher and stays unsigned,
       # which is what the Store requires.
       - name: Rename appx files for store
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         run: |
           Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32.appx" `
             -NewName "Bitwarden-$env:_PACKAGE_VERSION-ia32-store.appx"
@@ -767,7 +767,7 @@ jobs:
       # subject, so read the subject from the signed binary.
       - name: Read signing certificate subject
         id: cert-subject
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         run: |
           $signature = Get-AuthenticodeSignature "./dist/win-unpacked/Bitwarden.exe"
           if ($null -eq $signature.SignerCertificate) {
@@ -783,7 +783,7 @@ jobs:
       # to swap out the manifest, recompress and sign.
       # Pack & Sign above can outlast an access token, so mint a fresh one.
       - name: Log in to Azure for appx signing
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -792,7 +792,7 @@ jobs:
 
       - name: Get appx signing access token
         id: appx-signing-token
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         run: |
           $token = az account get-access-token --resource https://vault.azure.net --query accessToken --output tsv
           if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($token)) {
@@ -803,11 +803,11 @@ jobs:
           "token=$token" >> $env:GITHUB_OUTPUT
 
       - name: Log out from Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Pack & sign appx for direct download
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         env:
           ELECTRON_BUILDER_SIGN: 1
           ELECTRON_BUILDER_SIGN_APPX: 1
@@ -821,13 +821,13 @@ jobs:
       # installs for nobody, so confirm each package ended up as intended before we
       # upload any of them.
       - name: Verify appx signing state and publishers
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         env:
           _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
         run: ./scripts/validate-appx-signatures.ps1 -Config electron-builder.json -SignedPublisher $env:_APPX_PUBLISHER
 
       - name: Package for Chocolatey
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         env:
           _ARTIFACT_PREFIX: ${{ matrix.artifact_prefix }}
         run: |
@@ -841,7 +841,7 @@ jobs:
           choco pack ./dist/chocolatey/bitwarden.nuspec --version "$env:_PACKAGE_VERSION" --out ./dist/chocolatey
 
       - name: Fix NSIS artifact names for auto-updater
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         run: |
           Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z `
             -NewName bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z
@@ -851,15 +851,15 @@ jobs:
             -NewName bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z
 
       - name: Upload portable exe artifact
-        if: ${{ matrix.build_type == 'prod' || needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ matrix.cloud_env == 'prod' || needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-Portable${{ matrix.build_type == 'qa' && '-QA' || '' }}-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Portable${{ matrix.cloud_env == 'qa' && '-QA' || '' }}-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload installer exe artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
@@ -867,7 +867,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
@@ -875,7 +875,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload store appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
@@ -883,7 +883,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload NSIS ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
@@ -891,7 +891,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload appx x64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
@@ -899,7 +899,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload store appx x64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
@@ -907,7 +907,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload NSIS x64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
@@ -915,7 +915,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload appx ARM64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
@@ -923,7 +923,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload store appx ARM64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
@@ -931,7 +931,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload NSIS ARM64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
@@ -939,7 +939,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload nupkg artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
@@ -947,7 +947,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type == 'prod' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}${{ needs.setup.outputs.release_channel }}.yml
@@ -1618,7 +1618,7 @@ jobs:
       id-token: write
 
   macos-package-github:
-    name: MacOS Package GitHub Release Assets [${{ matrix.variant }}, ${{ matrix.build_type }}]
+    name: MacOS Package GitHub Release Assets [${{ matrix.variant }}, ${{ matrix.cloud_env }}]
     strategy:
       fail-fast: false
       matrix:
@@ -1627,22 +1627,22 @@ jobs:
             license_type: oss
             artifact_prefix: ""
             browser_artifact_prefix: ""
-            build_type: prod
+            cloud_env: prod
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
             browser_artifact_prefix: "bit-"
-            build_type: prod
+            cloud_env: prod
           - variant: oss
             license_type: oss
             artifact_prefix: ""
             browser_artifact_prefix: ""
-            build_type: qa
+            cloud_env: qa
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
             browser_artifact_prefix: "bit-"
-            build_type: qa
+            cloud_env: qa
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -1699,7 +1699,7 @@ jobs:
           xcodebuild -showsdks
 
       - name: Get Build Cache
-        if: ${{ matrix.build_type == 'prod' }}
+        if: ${{ matrix.cloud_env == 'prod' }}
         id: build-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -1707,7 +1707,7 @@ jobs:
           key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-build
 
       - name: Setup Safari Cache
-        if: ${{ matrix.build_type == 'prod' }}
+        if: ${{ matrix.cloud_env == 'prod' }}
         id: safari-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -1729,7 +1729,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' && matrix.build_type == 'prod' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' && matrix.cloud_env == 'prod' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -1742,14 +1742,14 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' && matrix.build_type == 'prod' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' && matrix.cloud_env == 'prod' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
 
       - name: Download Commercial SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' && matrix.build_type == 'prod' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' && matrix.cloud_env == 'prod' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -1762,7 +1762,7 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override Commercial SDK
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' && matrix.build_type == 'prod' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' && matrix.cloud_env == 'prod' }}
         working-directory: ./
         run: |
           npm link ../commercial-sdk-internal
@@ -1785,10 +1785,10 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build:${{ matrix.variant }}${{ matrix.build_type == 'qa' && ':qa' || '' }}
+        run: npm run build:${{ matrix.variant }}${{ matrix.cloud_env == 'qa' && ':qa' || '' }}
 
       - name: Download Browser artifact
-        if: ${{ matrix.build_type == 'prod' }}
+        if: ${{ matrix.cloud_env == 'prod' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: ${{ matrix.browser_artifact_prefix }}dist-safari-*
@@ -1796,14 +1796,14 @@ jobs:
           path: ${{ github.workspace }}/browser-build-artifacts
 
       - name: Unzip Safari artifact
-        if: ${{ matrix.build_type == 'prod' }}
+        if: ${{ matrix.cloud_env == 'prod' }}
         env:
           _BROWSER_ARTIFACT_PREFIX: ${{ matrix.browser_artifact_prefix }}
         run: |
           unzip "$GITHUB_WORKSPACE/browser-build-artifacts/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for .dmg
-        if: ${{ matrix.build_type == 'prod' }}
+        if: ${{ matrix.cloud_env == 'prod' }}
         run: |
           mkdir PlugIns
           cp -r "$GITHUB_WORKSPACE/browser-build-artifacts/Safari/dmg/build/Release/safari.appex" PlugIns/safari.appex
@@ -1908,10 +1908,10 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac${{ matrix.build_type == 'qa' && ':qa' || '' }}
+        run: npm run pack:mac${{ matrix.cloud_env == 'qa' && ':qa' || '' }}
 
       - name: Upload .zip artifact
-        if: ${{ matrix.build_type == 'prod' }}
+        if: ${{ matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
@@ -1921,12 +1921,12 @@ jobs:
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden${{ matrix.build_type == 'qa' && '-QA' || '' }}-${{ env._PACKAGE_VERSION }}-universal.dmg
+          name: ${{ matrix.artifact_prefix }}Bitwarden${{ matrix.cloud_env == 'qa' && '-QA' || '' }}-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload .dmg blockmap artifact
-        if: ${{ matrix.build_type == 'prod' }}
+        if: ${{ matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
@@ -1934,7 +1934,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        if: ${{ matrix.build_type == 'prod' }}
+        if: ${{ matrix.cloud_env == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact_prefix }}${{ needs.setup.outputs.release_channel }}-mac.yml

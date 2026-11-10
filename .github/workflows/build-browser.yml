@@ -222,7 +222,7 @@ jobs:
 
 
   build:
-    name: Build ${{ matrix.browser.name }} - ${{ matrix.license_type.readable }} - ${{ matrix.build_type.readable }}
+    name: Build ${{ matrix.browser.name }} - ${{ matrix.license_type.readable }} - ${{ matrix.cloud_env.readable }}
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -251,7 +251,7 @@ jobs:
             npm_package_prefix: "package:bit:"
             readable: "commercial license"
             type: "commercial"
-        build_type:
+        cloud_env:
           - name: "prod"
             readable: "Production"
             command_qa_segment: ""
@@ -396,27 +396,27 @@ jobs:
       - name: Build extension
         env:
           BETA_NUMBER: ${{ needs.setup.outputs.beta_number }}
-        run: npm run ${{ matrix.license_type.npm_command_prefix }}${{ matrix.build_type.command_qa_segment }}${{ matrix.browser.npm_command_suffix }}
+        run: npm run ${{ matrix.license_type.npm_command_prefix }}${{ matrix.cloud_env.command_qa_segment }}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload extension artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name }}${{ matrix.build_type.archive_qa_segment }}-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}${{ matrix.build_type.archive_qa_segment }}.zip
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name }}${{ matrix.cloud_env.archive_qa_segment }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}${{ matrix.cloud_env.archive_qa_segment }}.zip
           if-no-files-found: error
 
       - name: Package dev extension
         if: ${{ matrix.browser.archive_name_dev != '' }}
-        run: npm run ${{ matrix.license_type.npm_package_prefix }}${{ matrix.build_type.command_qa_segment }}dev:${{ matrix.browser.npm_command_suffix }}
+        run: npm run ${{ matrix.license_type.npm_package_prefix }}${{ matrix.cloud_env.command_qa_segment }}dev:${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload dev extension artifact
         if: ${{ matrix.browser.archive_name_dev != '' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}${{ matrix.build_type.archive_qa_segment }}-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}${{ matrix.build_type.archive_qa_segment }}.zip
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}${{ matrix.cloud_env.archive_qa_segment }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}${{ matrix.cloud_env.archive_qa_segment }}.zip
           if-no-files-found: error
 
   build-safari:
