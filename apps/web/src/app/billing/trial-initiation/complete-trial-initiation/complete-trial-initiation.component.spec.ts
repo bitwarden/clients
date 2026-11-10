@@ -489,14 +489,13 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations", "org-id", "vault"]);
     });
 
-    it("shows the error when navigation after creation is rejected", async () => {
-      const validationService = TestBed.inject(ValidationService) as MockProxy<ValidationService>;
+    it("propagates a navigation failure so the billing step re-enables its button and surfaces it", async () => {
       const error = new Error("Rejected");
       mockRouter.navigate.mockRejectedValue(error);
 
-      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
-
-      expect(validationService.showError).toHaveBeenCalledWith(error);
+      await expect(
+        component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" }),
+      ).rejects.toThrow(error);
     });
   });
 

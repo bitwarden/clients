@@ -74,8 +74,8 @@
         <app-trial-billing-step
           *ngIf="stepper.selectedIndex === 2"
           [trial]="trial"
+          [organizationCreated]="createdOrganization"
           (steppedBack)="previousStep()"
-          (organizationCreated)="createdOrganization($event)"
         >
         </app-trial-billing-step>
       </app-vertical-step>

@@ -390,6 +390,7 @@ describe("TrialBillingStepComponent", () => {
   describe("submit — coupon error recovery", () => {
     const setupSubmit = (discounts: any[]) => {
       fixture.componentRef.setInput("trial", mockFamiliesTrial);
+      fixture.componentRef.setInput("organizationCreated", jest.fn().mockResolvedValue(undefined));
       fixture.detectChanges();
 
       // Mock the signal directly after detectChanges (avoids @ViewChild reset issues)
@@ -510,11 +511,12 @@ describe("TrialBillingStepComponent", () => {
 
       component["formGroup"].controls.cadence.setValue("monthly");
 
-      let emitted: OrganizationCreatedEvent | undefined;
-      component["organizationCreated"].subscribe((e) => (emitted = e));
+      const onCreated = jest.fn<Promise<void>, [OrganizationCreatedEvent]>().mockResolvedValue();
+      fixture.componentRef.setInput("organizationCreated", onCreated);
 
       await component["submit"]();
 
+      const emitted = onCreated.mock.calls[0]?.[0];
       expect(emitted?.planDescription).toContain("monthly");
       expect(emitted?.planDescription).not.toContain("annual");
     });

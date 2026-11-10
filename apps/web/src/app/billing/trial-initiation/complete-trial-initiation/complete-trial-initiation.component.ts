@@ -204,19 +204,15 @@ export class CompleteTrialInitiationComponent {
     }
   }
 
-  /** Finish the flow once the billing step has created the organization. */
-  async createdOrganization(event: OrganizationCreatedEvent) {
+  /** Awaited by the billing step: shows the success toast and navigates once the org is created. */
+  createdOrganization = async (event: OrganizationCreatedEvent): Promise<void> => {
     this.orgId = event.organizationId;
     this.billingSubLabel = event.planDescription;
     this.trialLength > 0
       ? this.showCompletionToast("trialStarted", "trialActive")
       : this.showCompletionToast("organizationCreated", "organizationReadyToGo");
-    try {
-      await this.navigateToOrganization();
-    } catch (e: unknown) {
-      this.validationService.showError(e);
-    }
-  }
+    await this.navigateToOrganization();
+  };
 
   /**
    * Create an organization on trial without a payment method. A rejected request shows the error and
