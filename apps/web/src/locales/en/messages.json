@@ -13668,9 +13668,6 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "Subscribe to Secrets Manager"
-  },
   "addSecretsManager": {
     "message": "Add Secrets Manager",
     "description": "'Secrets Manager' is a product name and should not be translated."
