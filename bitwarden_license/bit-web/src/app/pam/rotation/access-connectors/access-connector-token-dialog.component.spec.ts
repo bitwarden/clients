@@ -19,7 +19,6 @@ describe("AccessConnectorTokenDialogComponent", () => {
   let i18nService: jest.Mocked<I18nService>;
 
   const params: AccessConnectorTokenDialogParams = {
-    accessConnectorName: "Prod access connector",
     token: "0.access-connector.api-id.secret:keyb64==",
   };
 
@@ -49,13 +48,37 @@ describe("AccessConnectorTokenDialogComponent", () => {
     fixture.detectChanges();
   });
 
-  it("renders the token in a readonly input", () => {
-    const input = fixture.nativeElement.querySelector(
-      "#access-connector-token-dialog_input_token",
-    ) as HTMLInputElement;
-    expect(input).toBeTruthy();
-    expect(input.readOnly).toBe(true);
-    expect(input.value).toBe(params.token);
+  const el = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const closeButton = (): HTMLButtonElement =>
+    el().querySelector("#access-connector-token-dialog_button_close") as HTMLButtonElement;
+  const storedCheckbox = (): HTMLInputElement =>
+    el().querySelector("#access-connector-token-dialog_checkbox_stored") as HTMLInputElement;
+
+  function checkStored(checked = true): void {
+    storedCheckbox().checked = checked;
+    storedCheckbox().dispatchEvent(new Event("change"));
+    fixture.detectChanges();
+  }
+
+  it("renders the token as text", () => {
+    const token = el().querySelector("#access-connector-token-dialog_text_token");
+    expect(token?.textContent?.trim()).toBe(params.token);
+  });
+
+  it("starts with the stored checkbox unchecked and Close disabled", () => {
+    expect(storedCheckbox().checked).toBe(false);
+    expect(closeButton().getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("enables Close once the admin confirms they stored the token", () => {
+    checkStored();
+    expect(closeButton().getAttribute("aria-disabled")).not.toBe("true");
+  });
+
+  it("disables Close again when the box is unchecked", () => {
+    checkStored();
+    checkStored(false);
+    expect(closeButton().getAttribute("aria-disabled")).toBe("true");
   });
 
   it("copies the token to clipboard on copyToken", () => {
@@ -75,8 +98,14 @@ describe("AccessConnectorTokenDialogComponent", () => {
     expect(dialogRef.close).not.toHaveBeenCalled();
   });
 
-  it("closes the dialog on close()", () => {
+  it("does not close before the token is confirmed stored", () => {
     (component as any).close();
+    expect(dialogRef.close).not.toHaveBeenCalled();
+  });
+
+  it("closes the dialog on Close once the token is confirmed stored", () => {
+    checkStored();
+    closeButton().click();
     expect(dialogRef.close).toHaveBeenCalled();
   });
 

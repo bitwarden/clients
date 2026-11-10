@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -20565,20 +20566,17 @@
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
   },
-  "pamAccessConnectorSearch": {
-    "message": "Search access connectors"
-  },
-  "pamAccessConnectorNew": {
-    "message": "New access connector"
-  },
   "pamAccessConnectorRegister": {
     "message": "Register access connector"
   },
-  "pamAccessConnectorEmptyStateTitle": {
-    "message": "No access connectors registered"
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "No access connectors yet"
   },
-  "pamAccessConnectorEmptyStateDescription": {
-    "message": "Register an access connector to start rotating credentials."
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Access connectors run inside your network and change passwords on your target systems. Register one to get started."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Target systems"
   },
   "pamAccessConnectorConnection": {
     "message": "Connection"
@@ -20598,14 +20596,11 @@
   "pamAccessConnectorAssignTargetSystemsDisabled": {
     "message": "Activate this access connector to assign target systems."
   },
-  "pamAccessConnectorAssignTargetDisabled": {
-    "message": "Target systems can only be assigned while the access connector is active."
+  "pamAccessConnectorEdit": {
+    "message": "Edit access connector"
   },
-  "pamAccessConnectorViewDetails": {
-    "message": "View details"
-  },
-  "pamAccessConnectorAssignTargets": {
-    "message": "Assign targets"
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Assign target systems"
   },
   "pamAccessConnectorDeleteAccessConnector": {
     "message": "Delete access connector"
@@ -20621,9 +20616,6 @@
   },
   "pamAccessConnectorTargetSystemsHint": {
     "message": "Choose the target systems this access connector can rotate passwords on. Only target systems that use automatic rotation can be assigned."
-  },
-  "pamAccessConnectorAssignSelectHint": {
-    "message": "Only target systems set to automatic rotation can be assigned."
   },
   "pamAccessConnectorAssignNoOptions": {
     "message": "All automatic target systems are already assigned to this access connector."
@@ -20655,77 +20647,62 @@
       }
     }
   },
-  "pamAccessConnectorUnassignConfirmTitle": {
-    "message": "Remove assignment?"
-  },
-  "pamAccessConnectorUnassignConfirmContent": {
-    "message": "Remove $NAME$ from this access connector? Active rotation jobs claimed by this access connector will continue to completion.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
-  },
-  "pamAccessConnectorUnassigned": {
-    "message": "Target system removed."
-  },
   "pamAccessConnectorDeactivate": {
     "message": "Deactivate"
   },
   "pamAccessConnectorActivate": {
     "message": "Activate"
   },
-  "pamAccessConnectorDeactivateConfirmTitle": {
-    "message": "Deactivate access connector?"
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Deactivate access connector"
   },
-  "pamAccessConnectorDeactivateConfirmContent": {
-    "message": "Deactivate $NAME$? It stops claiming new rotation jobs and any jobs it is currently running are released. You can activate it again later.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "This access connector won't take new rotations. Rotations in progress are released."
   },
   "pamAccessConnectorDeactivated": {
     "message": "Access connector deactivated."
   },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
   "pamAccessConnectorActivated": {
     "message": "Access connector activated."
   },
-  "pamAccessConnectorDeleteConfirmTitle": {
-    "message": "Delete access connector?"
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Delete access connector"
   },
-  "pamAccessConnectorDeleteConfirmContent": {
-    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This access connector held the organization key in memory. If you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new access connector to resume rotation.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Its token stops working, and rotations in progress are released. This can't be undone."
   },
   "pamAccessConnectorDeleted": {
     "message": "Access connector deleted."
   },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Couldn't delete. Try again."
+  },
   "pamAccessConnectorSaved": {
     "message": "Access connector saved."
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Access connector wasn't saved. Try again."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Access connector wasn't saved. Check your connection, then select Save again."
   },
   "pamAccessConnectorRegisterTitle": {
     "message": "Register access connector"
   },
-  "pamAccessConnectorNamePlaceholder": {
-    "message": "e.g. On-prem production server"
+  "pamAccessConnectorRegisterDescription": {
+    "message": "You'll get a token to add to the access connector's configuration. It's shown only once."
   },
-  "pamAccessConnectorNameHint": {
-    "message": "A descriptive name to identify this access connector. Max 200 characters."
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Use a name your team will recognize, for example East datacenter."
   },
   "pamAccessConnectorRegistered": {
     "message": "Access connector registered."
   },
-  "pamAccessConnectorNoResults": {
-    "message": "No access connectors match your filters."
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Access connector wasn't registered. Try again."
   },
   "pamAccessConnectorDetailTitle": {
     "message": "Access connector"
@@ -20736,35 +20713,38 @@
   "pamAccessConnectorTabConfiguration": {
     "message": "Configuration"
   },
-  "pamAccessConnectorTabHistory": {
-    "message": "History"
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "Rotation history"
   },
-  "pamAccessConnectorActivityEmpty": {
-    "message": "No rotation activity yet."
+  "pamAccessConnectorRotationHeading": {
+    "message": "Rotation"
   },
-  "pamAccessConnectorActiveHint": {
-    "message": "When inactive, the access connector does not claim new rotation jobs and any jobs it is running are released."
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Choose target systems"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "This access connector isn't connected, so it can't rotate passwords. Check that it's running on its machine and can reach Bitwarden."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Finish setting up. Add the token and each target system's connection details to this access connector's configuration, then start it."
   },
   "pamAccessConnectorTokenTitle": {
     "message": "Access connector token"
   },
-  "pamAccessConnectorTokenWarningTitle": {
-    "message": "Save this token now"
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Copy this token now, since you can't see it again after you close this."
   },
-  "pamAccessConnectorTokenWarningBody": {
-    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator who will run this access connector, then paste it into the connector's configuration file. If the token is lost, delete this access connector and register a new one."
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Add it to the access connector's configuration to connect it."
   },
-  "pamAccessConnectorTokenLabel": {
-    "message": "Access connector token"
-  },
-  "pamAccessConnectorTokenHint": {
-    "message": "This token will not be shown again."
+  "pamAccessConnectorTokenStored": {
+    "message": "I stored this token securely"
   },
   "pamAccessConnectorTokenCopy": {
     "message": "Copy token"
   },
-  "pamAccessConnectorTokenCopied": {
-    "message": "Access connector token copied."
+  "pamTokenCopied": {
+    "message": "Token copied."
   },
   "pamRotationConfigSearch": {
     "message": "Search managed credentials"
@@ -21246,12 +21226,6 @@
   "pamRotationJobStatusUnknown": {
     "message": "Unknown"
   },
-  "pamRotationAssignmentPendingAssign": {
-    "message": "Pending assignment"
-  },
-  "pamRotationAssignmentPendingUnassign": {
-    "message": "Pending removal"
-  },
   "pamRotationAttemptStatusExecuting": {
     "message": "Executing"
   },
@@ -21467,9 +21441,9 @@
   "pamAuditAccessConnector": {
     "message": "Access connector"
   },
-  "pamAccessConnectorAssignmentCountSingular": {
-    "message": "$COUNT$ target",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ target system",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21477,9 +21451,9 @@
       }
     }
   },
-  "pamAccessConnectorAssignmentCount": {
-    "message": "$COUNT$ targets",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ target systems",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21489,7 +21463,7 @@
   },
   "pamAccessConnectorAssignmentsNone": {
     "message": "None",
-    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
   },
   "pamRotationConfigNoActiveTargetSystems": {
     "message": "No active target systems to choose from."

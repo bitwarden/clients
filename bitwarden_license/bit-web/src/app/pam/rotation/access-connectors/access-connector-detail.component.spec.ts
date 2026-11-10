@@ -1,4 +1,4 @@
-import { DatePipe } from "@angular/common";
+import { DomPortalOutlet, TemplatePortal } from "@angular/cdk/portal";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -6,24 +6,29 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from "@angul
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { formatTimestamp } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  LayoutFooterService,
+  SelectItemView,
+  ToastService,
+} from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
 import { OrgCiphersService } from "../org-ciphers.service";
-import { AccessConnectorStatus, TargetSystemKind } from "../rotation";
+import { AccessConnectorStatus, TargetSystemKind, TargetSystemStatus } from "../rotation";
 import type {
   AccessConnector,
   AccessConnectorDetail,
   RotationConfigView,
   TargetSystemView,
-  TargetSystemId,
 } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
@@ -42,6 +47,7 @@ import {
 
 import {
   AccessConnectorAssignment,
+  AccessConnectorCallout,
   AccessConnectorDetailComponent,
 } from "./access-connector-detail.component";
 
@@ -56,30 +62,31 @@ type DetailApi = {
   titleText: () => string;
   activeTab: () => string;
   enabled: () => boolean;
-  stagedActive: () => boolean;
-  formGroup: {
-    dirty: boolean;
-    controls: {
-      active: { setValue: (value: boolean) => void; markAsDirty: () => void; value: boolean };
-      assignedTargetSystemIds: { value: TargetSystemId[] };
-    };
-  };
+  statusBadge: () => { labelKey: string; variant: string; icon: string } | null;
+  callout: () => AccessConnectorCallout;
   assignments: () => AccessConnectorAssignment[];
-  assignOptions: () => SelectItemView[];
-  noEligibleTargetSystems: () => boolean;
-  assignTargets: (selected: SelectItemView[]) => Promise<readonly string[]>;
-  unassignTarget: (assignment: AccessConnectorAssignment) => Promise<boolean>;
+  selectOptions: () => SelectItemView[];
+  selectedItems: () => SelectItemView[];
+  pickerHintKey: () => string;
+  showFooter: () => boolean;
+  onSelectionChanged: (items: SelectItemView[] | null) => void;
+  unassignTarget: (assignment: AccessConnectorAssignment) => void;
+  discardEdits: () => void;
   submit: () => Promise<void>;
+  activate: () => Promise<void>;
+  deactivate: () => Promise<void>;
   deleteAccessConnector: () => Promise<void>;
   unsavedChanges: () => boolean;
   accessConnector: () => AccessConnectorDetail | null;
 };
 
+const CONNECTOR_ID = connectorId("access-connector-1");
+
 function makeAccessConnector(overrides: Partial<AccessConnector> = {}): AccessConnectorDetail {
   return accessConnectorDetail({
     connector: accessConnector({
-      id: connectorId("access-connector-1"),
-      name: "On-prem accessConnector",
+      id: CONNECTOR_ID,
+      name: "East datacenter",
       assignedTargetSystemIds: [sysId("ts-1")],
       ...overrides,
     }),
@@ -107,22 +114,22 @@ function makeSameNamedSystem(): TargetSystemView {
   });
 }
 
-function pick(system: TargetSystemView): SelectItemView {
+function item(system: TargetSystemView): SelectItemView {
   return { id: String(system.id), listName: system.name, labelName: system.name };
 }
 
-function accessConnectorProviders(
+function providers(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
-  accessConnectorId = connectorId("access-connector-1"),
-  dialogService: ReturnType<typeof mock<DialogService>> = mock<DialogService>(),
-  tab = "configuration",
+  dialogService: ReturnType<typeof mock<DialogService>>,
+  toastService: ReturnType<typeof mock<ToastService>>,
+  tab: string,
 ) {
-  const params = { organizationId: ORGANIZATION_ID, accessConnectorId, tab };
+  const params = { organizationId: ORGANIZATION_ID, accessConnectorId: CONNECTOR_ID, tab };
   return [
     provideRouter([]),
     { provide: RotationSdkService, useValue: rotationSdk },
     { provide: I18nService, useValue: i18nFake },
-    { provide: ToastService, useValue: mock<ToastService>() },
+    { provide: ToastService, useValue: toastService },
     { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
     { provide: DialogService, useValue: dialogService },
     { provide: AccountService, useValue: mock<AccountService>() },
@@ -135,62 +142,41 @@ function accessConnectorProviders(
   ];
 }
 
-async function setup(
-  rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
-  accessConnectorId = connectorId("access-connector-1"),
-  dialogService: ReturnType<typeof mock<DialogService>> = mock<DialogService>(),
-  {
-    renderTemplate = false,
-    tab = "configuration",
-    cipherNames,
-  }: {
-    renderTemplate?: boolean;
-    tab?: string;
-    cipherNames?: Map<CipherId, string>;
-  } = {},
-) {
-  if (!renderTemplate) {
-    TestBed.overrideComponent(AccessConnectorDetailComponent, {
-      set: { template: "", imports: [] },
-    });
-  }
-  if (cipherNames != null) {
-    TestBed.overrideProvider(OrgCiphersService, {
-      useValue: {
-        ciphers$: of([]),
-        cipherNameById$: of(cipherNames),
-        loading$: of(false),
-        load: jest.fn().mockResolvedValue(undefined),
-      },
-    });
-  }
-  await TestBed.configureTestingModule({
-    imports: [AccessConnectorDetailComponent, NoopAnimationsModule],
-    providers: accessConnectorProviders(rotationSdk, accessConnectorId, dialogService, tab),
-  }).compileComponents();
-}
-
-function fieldText(
-  rendered: ComponentFixture<AccessConnectorDetailComponent>,
-  testId: string,
-): string {
-  const el = (rendered.nativeElement as HTMLElement).querySelector(`[data-testid="${testId}"]`);
-  return el?.textContent?.trim() ?? "";
-}
-
-function pendingOf(comp: DetailApi, system: TargetSystemView): string | null | undefined {
-  return comp.assignments().find((a) => a.targetSystemId === system.id)?.pending;
-}
-
-/** Flips the Active checkbox and marks it dirty, as its value accessor does. */
-function stageActive(comp: DetailApi, active: boolean): void {
-  comp.formGroup.controls.active.setValue(active);
-  comp.formGroup.controls.active.markAsDirty();
-}
-
 describe("AccessConnectorDetailComponent", () => {
   let fixture: ComponentFixture<AccessConnectorDetailComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
+  let dialog: ReturnType<typeof mock<DialogService>>;
+  let toastService: ReturnType<typeof mock<ToastService>>;
+
+  const el = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const query = <T extends Element = HTMLElement>(selector: string): T | null =>
+    el().querySelector<T>(selector);
+
+  async function setup({
+    renderTemplate = false,
+    tab = "configuration",
+    cipherNames,
+  }: { renderTemplate?: boolean; tab?: string; cipherNames?: Map<CipherId, string> } = {}) {
+    if (!renderTemplate) {
+      TestBed.overrideComponent(AccessConnectorDetailComponent, {
+        set: { template: "", imports: [] },
+      });
+    }
+    if (cipherNames != null) {
+      TestBed.overrideProvider(OrgCiphersService, {
+        useValue: {
+          ciphers$: of([]),
+          cipherNameById$: of(cipherNames),
+          loading$: of(false),
+          load: jest.fn().mockResolvedValue(undefined),
+        },
+      });
+    }
+    await TestBed.configureTestingModule({
+      imports: [AccessConnectorDetailComponent, NoopAnimationsModule],
+      providers: providers(rotationSdk, dialog, toastService, tab),
+    }).compileComponents();
+  }
 
   /** Creates the component and settles the loads its constructor starts. */
   async function createComponent(): Promise<DetailApi> {
@@ -201,463 +187,639 @@ describe("AccessConnectorDetailComponent", () => {
     return fixture.componentInstance as unknown as DetailApi;
   }
 
+  async function mount(
+    detail = makeAccessConnector(),
+    options: { renderTemplate?: boolean; tab?: string; cipherNames?: Map<CipherId, string> } = {},
+  ): Promise<DetailApi> {
+    rotationSdk.getConnector.mockResolvedValue(detail);
+    await setup(options);
+    return await createComponent();
+  }
+
   beforeEach(() => {
     rotationSdk = mock<RotationSdkService>();
     rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
+    rotationSdk.listConnectors.mockResolvedValue([]);
+    dialog = mock<DialogService>();
+    dialog.openSimpleDialog.mockResolvedValue(true);
+    toastService = mock<ToastService>();
   });
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it("loads the accessConnector on init", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-    await setup(rotationSdk);
-    const comp = await createComponent();
+  it("loads the access connector on init", async () => {
+    const comp = await mount();
 
-    expect(rotationSdk.getConnector).toHaveBeenCalledWith(
-      ORGANIZATION_ID,
-      connectorId("access-connector-1"),
-    );
-    expect(comp.titleText()).toBe("On-prem accessConnector");
+    expect(rotationSdk.getConnector).toHaveBeenCalledWith(ORGANIZATION_ID, CONNECTOR_ID);
+    expect(comp.titleText()).toBe("East datacenter");
   });
 
-  it("seeds the form from the loaded connector, so nothing starts staged", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-    await setup(rotationSdk);
-    const comp = await createComponent();
+  it("stages the saved assignments, so nothing starts unsaved", async () => {
+    const comp = await mount();
 
-    expect(comp.stagedActive()).toBe(true);
-    expect(comp.formGroup.controls.assignedTargetSystemIds.value).toEqual([sysId("ts-1")]);
-    expect(comp.formGroup.dirty).toBe(false);
-    expect(pendingOf(comp, makeSystem())).toBeNull();
+    expect(comp.assignments().map((a) => a.targetSystemId)).toEqual([sysId("ts-1")]);
+    expect(comp.unsavedChanges()).toBe(false);
+    expect(comp.showFooter()).toBe(false);
   });
 
-  it("resolves assignment ids to target-system names", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-    await setup(rotationSdk);
-    const comp = await createComponent();
+  it("resolves assignment ids to target-system names, types and ids", async () => {
+    const comp = await mount();
 
     expect(comp.assignments()).toEqual([
       {
         id: String(sysId("ts-1")),
         targetSystemId: sysId("ts-1"),
+        idText: uuidAsString(sysId("ts-1")),
         name: "Prod Entra",
-        qualifierKey: "pamTargetSystemTypeEntra",
-        qualified: "Prod Entra (pamTargetSystemTypeEntra)",
         label: "Prod Entra (pamTargetSystemTypeEntra)",
-        pending: null,
+        typeKey: "pamTargetSystemTypeEntra",
+        statusBadge: expect.objectContaining({ labelKey: "pamTargetSystemStatusActive" }),
       },
     ]);
   });
 
   it("tells two same-named assignments apart by their integration", async () => {
-    rotationSdk.getConnector.mockResolvedValue(
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeSameNamedSystem()]);
+    const comp = await mount(
       makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
     );
-    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeSameNamedSystem()]);
-    await setup(rotationSdk);
-    const comp = await createComponent();
 
-    expect(comp.assignments().map((a) => a.qualified)).toEqual([
+    expect(comp.assignments().map((a) => a.label)).toEqual([
       "Prod Entra (pamTargetSystemTypeEntra)",
       "Prod Entra (pamTargetSystemTypeCustomScript)",
-    ]);
-  });
-
-  it("offers only the unassigned active automatic targets in the picker", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-    await setup(rotationSdk);
-    const comp = await createComponent();
-
-    expect(comp.assignOptions()).toEqual([
-      {
-        id: String(sysId("ts-2")),
-        listName: "Prod scripted host (pamTargetSystemTypeCustomScript)",
-        labelName: "Prod scripted host (pamTargetSystemTypeCustomScript)",
-      },
     ]);
   });
 
   describe("load error state", () => {
     it("stays on the page and reports the failure rather than bouncing to the list", async () => {
       rotationSdk.getConnector.mockRejectedValue(new Error("boom"));
-      await setup(rotationSdk, connectorId("missing"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
+      await setup({ renderTemplate: true });
       const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
 
       await createComponent();
 
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
-      expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
-      expect(el.querySelector('[data-testid="access-connector-detail-loading"]')).toBeNull();
+      expect(query("pam-rotation-load-error")).not.toBeNull();
+      expect(el().textContent).toContain("pamRotationListLoadErrorTitle");
+      expect(query('[data-testid="access-connector-detail-loading"]')).toBeNull();
       expect(nav).not.toHaveBeenCalled();
     });
 
     it("does not announce a failed read as loaded", async () => {
       rotationSdk.getConnector.mockRejectedValue(new Error("boom"));
-      await setup(rotationSdk, connectorId("missing"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
+      await setup({ renderTemplate: true });
 
       await createComponent();
 
-      expect(
-        (fixture.nativeElement as HTMLElement)
-          .querySelector('[data-testid="rotation-loading-status"]')!
-          .textContent?.trim(),
-      ).toBe("");
+      expect(query('[data-testid="rotation-loading-status"]')!.textContent?.trim()).toBe("");
     });
 
     it("re-reads the connector from the error state, and shows it once it lands", async () => {
       rotationSdk.getConnector.mockRejectedValueOnce(new Error("boom"));
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
+      await setup({ renderTemplate: true });
 
       await createComponent();
       rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
 
-      (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>("#rotation-load-error_button_retry")!
-        .click();
+      query<HTMLButtonElement>("#rotation-load-error_button_retry")!.click();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector("pam-rotation-load-error")).toBeNull();
-      expect(el.querySelector("#access-connector-detail_checkbox_active")).not.toBeNull();
+      expect(query("pam-rotation-load-error")).toBeNull();
+      expect(query("#access-connector-detail_multi-select_target-systems")).not.toBeNull();
     });
   });
 
-  describe("staging", () => {
-    async function mount(accessConnector = makeAccessConnector()): Promise<DetailApi> {
-      rotationSdk.getConnector.mockResolvedValue(accessConnector);
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await setup(rotationSdk);
-      return await createComponent();
+  describe("header status", () => {
+    it("says Connected for an active, connected connector", async () => {
+      const comp = await mount();
+
+      expect(comp.statusBadge()).toEqual(
+        expect.objectContaining({ labelKey: "pamAccessConnectorConnected", variant: "success" }),
+      );
+    });
+
+    it("says Disconnected for an active connector that isn't connected", async () => {
+      const comp = await mount(makeAccessConnector({ isConnected: false }));
+
+      expect(comp.statusBadge()).toEqual(
+        expect.objectContaining({ labelKey: "pamAccessConnectorDisconnected", variant: "warning" }),
+      );
+    });
+
+    it("says Inactive for a deactivated connector, even while it stays connected", async () => {
+      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
+
+      expect(comp.statusBadge()).toEqual(expect.objectContaining({ labelKey: "inactive" }));
+    });
+
+    it("renders the badge beside the title", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
+
+      expect(query("#access-connector-detail_badge_status")!.textContent?.trim()).toBe(
+        "pamAccessConnectorConnected",
+      );
+    });
+  });
+
+  describe("callouts", () => {
+    it("shows none while connected", async () => {
+      const comp = await mount(makeAccessConnector(), { renderTemplate: true });
+
+      expect(comp.callout()).toBeNull();
+      expect(query("bit-callout")).toBeNull();
+    });
+
+    it("says why a connector seen before has dropped off", async () => {
+      await mount(makeAccessConnector({ isConnected: false }), { renderTemplate: true });
+
+      expect(query("#access-connector-detail_callout_disconnected")!.textContent).toContain(
+        "pamAccessConnectorDisconnectedCallout",
+      );
+    });
+
+    it("asks to finish setting up a connector that has never connected", async () => {
+      await mount(makeAccessConnector({ isConnected: false, lastHeartbeatAt: undefined }), {
+        renderTemplate: true,
+      });
+
+      expect(query("#access-connector-detail_callout_never-connected")!.textContent).toContain(
+        "pamAccessConnectorNeverConnectedCallout",
+      );
+    });
+
+    it("shows none for an inactive connector, which the header already explains", async () => {
+      const comp = await mount(
+        makeAccessConnector({ status: AccessConnectorStatus.Disabled, isConnected: false }),
+      );
+
+      expect(comp.callout()).toBeNull();
+    });
+  });
+
+  describe("header actions", () => {
+    const menuItems = (): string[] =>
+      Array.from(document.querySelectorAll<HTMLElement>("[bitMenuItem]")).map(
+        (button) => button.id,
+      );
+
+    function openMenu(): void {
+      query<HTMLButtonElement>("#access-connector-detail_button_more")!.click();
+      fixture.detectChanges();
     }
 
-    it("stages an assignment instead of writing it", async () => {
-      const comp = await mount();
+    it("offers only the More menu for an active connector, with Deactivate and Delete", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
 
-      await comp.assignTargets([pick(makeOtherSystem())]);
-
-      expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
-      expect(pendingOf(comp, makeOtherSystem())).toBe("add");
-      expect(comp.formGroup.dirty).toBe(true);
-    });
-
-    it("empties the picker of everything it staged", async () => {
-      const comp = await mount();
-
-      await expect(comp.assignTargets([pick(makeOtherSystem())])).resolves.toEqual([
-        String(sysId("ts-2")),
+      expect(query("#access-connector-detail_button_activate")).toBeNull();
+      openMenu();
+      expect(menuItems()).toEqual([
+        "access-connector-detail_button_deactivate",
+        "access-connector-detail_button_delete",
       ]);
-      expect(comp.assignOptions()).toEqual([]);
     });
 
-    it("stages a removal instead of writing it, and keeps the row listed as pending", async () => {
+    it("offers Activate beside the More menu for an inactive connector, which holds Delete", async () => {
+      await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }), {
+        renderTemplate: true,
+      });
+
+      expect(query("#access-connector-detail_button_activate")).not.toBeNull();
+      openMenu();
+      expect(menuItems()).toEqual(["access-connector-detail_button_delete"]);
+    });
+
+    it("marks Delete as destructive", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
+      openMenu();
+
+      expect(document.querySelector("#access-connector-detail_button_delete")!.className).toContain(
+        "danger",
+      );
+    });
+
+    it("offers no actions on the Rotation history tab", async () => {
+      await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }), {
+        renderTemplate: true,
+        tab: "history",
+      });
+
+      expect(query("#access-connector-detail_button_activate")).toBeNull();
+      expect(query("#access-connector-detail_button_more")).toBeNull();
+    });
+  });
+
+  describe("activating and deactivating", () => {
+    it("activates at once and says so", async () => {
+      rotationSdk.enableConnector.mockResolvedValue(undefined);
+      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
+
+      await comp.activate();
+
+      expect(rotationSdk.enableConnector).toHaveBeenCalledWith(ORGANIZATION_ID, CONNECTOR_ID);
+      expect(comp.enabled()).toBe(true);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamAccessConnectorActivated",
+      });
+    });
+
+    it("deactivates once confirmed, and stays on the page", async () => {
+      rotationSdk.disableConnector.mockResolvedValue(undefined);
+      const comp = await mount();
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate");
+
+      await comp.deactivate();
+
+      expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "pamAccessConnectorDeactivateDialogTitle" } }),
+      );
+      expect(rotationSdk.disableConnector).toHaveBeenCalledWith(ORGANIZATION_ID, CONNECTOR_ID);
+      expect(comp.enabled()).toBe(false);
+      expect(comp.statusBadge()).toEqual(expect.objectContaining({ labelKey: "inactive" }));
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamAccessConnectorDeactivated",
+      });
+      expect(nav).not.toHaveBeenCalled();
+    });
+
+    it("leaves the connector active when the deactivation is declined", async () => {
+      dialog.openSimpleDialog.mockResolvedValue(false);
       const comp = await mount();
 
-      await expect(comp.unassignTarget(comp.assignments()[0])).resolves.toBe(true);
-
-      expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
-      expect(pendingOf(comp, makeSystem())).toBe("remove");
-      expect(comp.formGroup.dirty).toBe(true);
-    });
-
-    it("does not confirm a removal that has not been written yet", async () => {
-      const dialog = mock<DialogService>();
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      await setup(rotationSdk, connectorId("access-connector-1"), dialog);
-      const comp = await createComponent();
-
-      await comp.unassignTarget(comp.assignments()[0]);
-
-      expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
-    });
-
-    it("returns a target staged for removal to the picker, which is how the removal is undone", async () => {
-      const comp = await mount();
-      const row = comp.assignments()[0];
-
-      await comp.unassignTarget(row);
-      expect(comp.assignOptions().map((o) => o.id)).toContain(String(sysId("ts-1")));
-
-      await comp.assignTargets([pick(makeSystem())]);
-
-      expect(pendingOf(comp, makeSystem())).toBeNull();
-    });
-
-    it("reports no change for a target that is already staged for removal", async () => {
-      const comp = await mount();
-      const row = comp.assignments()[0];
-
-      await comp.unassignTarget(row);
-
-      await expect(comp.unassignTarget(row)).resolves.toBe(false);
-      expect(pendingOf(comp, makeSystem())).toBe("remove");
-    });
-
-    it("does not stage an assignment while the connector is staged inactive", async () => {
-      const comp = await mount();
-      stageActive(comp, false);
-
-      await expect(comp.assignTargets([pick(makeOtherSystem())])).resolves.toEqual([]);
-
-      expect(comp.assignments()).toHaveLength(1);
-    });
-
-    it("drops a staged assignment when the connector is staged inactive after it", async () => {
-      const comp = await mount();
-      await comp.assignTargets([pick(makeOtherSystem())]);
-
-      stageActive(comp, false);
-
-      expect(pendingOf(comp, makeOtherSystem())).toBeUndefined();
-      expect(comp.formGroup.controls.assignedTargetSystemIds.value).toEqual([sysId("ts-1")]);
-    });
-
-    it("keeps a staged removal when the connector is staged inactive after it", async () => {
-      const comp = await mount();
-      await comp.unassignTarget(comp.assignments()[0]);
-
-      stageActive(comp, false);
-
-      expect(pendingOf(comp, makeSystem())).toBe("remove");
-    });
-
-    it("stages a status change without writing it", async () => {
-      const comp = await mount();
-
-      stageActive(comp, false);
+      await comp.deactivate();
 
       expect(rotationSdk.disableConnector).not.toHaveBeenCalled();
       expect(comp.enabled()).toBe(true);
-      expect(comp.stagedActive()).toBe(false);
-      expect(comp.formGroup.dirty).toBe(true);
+    });
+
+    it("reports a failed deactivation and keeps the connector active", async () => {
+      rotationSdk.disableConnector.mockRejectedValue(new Error("boom"));
+      const comp = await mount();
+
+      await comp.deactivate();
+
+      expect(comp.enabled()).toBe(true);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamAccessConnectorDeactivateFailed",
+      });
+    });
+
+    it("drops staged additions on deactivating, since only an active connector takes them", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      rotationSdk.disableConnector.mockResolvedValue(undefined);
+      const comp = await mount();
+      comp.onSelectionChanged([item(makeSystem()), item(makeOtherSystem())]);
+
+      await comp.deactivate();
+
+      expect(comp.assignments().map((a) => a.targetSystemId)).toEqual([sysId("ts-1")]);
+      expect(comp.unsavedChanges()).toBe(false);
+    });
+
+    it("updates the assigned targets' status as the connector's own status changes", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        accessConnector({ id: CONNECTOR_ID, assignedTargetSystemIds: [sysId("ts-1")] }),
+      ]);
+      rotationSdk.disableConnector.mockResolvedValue(undefined);
+      const comp = await mount();
+      await fixture.whenStable();
+      expect(comp.assignments()[0].statusBadge?.labelKey).toBe("pamTargetSystemStatusActive");
+
+      await comp.deactivate();
+
+      expect(comp.assignments()[0].statusBadge?.labelKey).toBe("pamTargetSystemStatusNotConnected");
+    });
+  });
+
+  describe("deleting", () => {
+    it("deletes once confirmed and returns to the list", async () => {
+      rotationSdk.deleteConnector.mockResolvedValue(undefined);
+      const comp = await mount();
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+      await comp.deleteAccessConnector();
+
+      expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "pamAccessConnectorDeleteDialogTitle" } }),
+      );
+      expect(rotationSdk.deleteConnector).toHaveBeenCalledWith(ORGANIZATION_ID, CONNECTOR_ID);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamAccessConnectorDeleted",
+      });
+      expect(nav).toHaveBeenCalledWith([
+        "/organizations",
+        ORGANIZATION_ID,
+        "pam",
+        "rotation",
+        "access-connectors",
+      ]);
+    });
+
+    it("deletes nothing when declined", async () => {
+      dialog.openSimpleDialog.mockResolvedValue(false);
+      const comp = await mount();
+
+      await comp.deleteAccessConnector();
+
+      expect(rotationSdk.deleteConnector).not.toHaveBeenCalled();
+    });
+
+    it("reports a failed deletion and stays", async () => {
+      rotationSdk.deleteConnector.mockRejectedValue(new Error("boom"));
+      const comp = await mount();
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate");
+
+      await comp.deleteAccessConnector();
+
+      expect(nav).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamAccessConnectorDeleteFailed",
+      });
+    });
+  });
+
+  describe("target system picker", () => {
+    it("offers every automatic target system, with what is staged shown as chosen", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      const comp = await mount();
+
+      expect(comp.selectOptions().map((option) => option.id)).toEqual([
+        String(sysId("ts-1")),
+        String(sysId("ts-2")),
+      ]);
+      expect(comp.selectedItems().map((option) => option.id)).toEqual([String(sysId("ts-1"))]);
+    });
+
+    it("keeps an assigned target that is no longer automatic among the options", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([
+        targetSystem({ id: sysId("ts-1"), name: "Prod Entra", method: "manual" as never }),
+      ]);
+      const comp = await mount();
+
+      expect(comp.selectedItems().map((option) => option.id)).toEqual([String(sysId("ts-1"))]);
+    });
+
+    it("offers an inactive connector only what it holds, and says why", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
+
+      expect(comp.selectOptions().map((option) => option.id)).toEqual([String(sysId("ts-1"))]);
+      expect(comp.pickerHintKey()).toBe("pamAccessConnectorAssignTargetSystemsDisabled");
+    });
+
+    it("explains what can be assigned on an active connector", async () => {
+      const comp = await mount();
+
+      expect(comp.pickerHintKey()).toBe("pamAccessConnectorTargetSystemsHint");
+    });
+
+    it("reports a failed target system read in the hint", async () => {
+      rotationSdk.listTargetSystems.mockRejectedValue(new Error("boom"));
+      const comp = await mount();
+
+      expect(comp.pickerHintKey()).toBe("pamAccessConnectorTargetSystemsLoadError");
+    });
+
+    it("stages a pick without writing it, and shows Save and Cancel", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      const comp = await mount();
+
+      comp.onSelectionChanged([item(makeSystem()), item(makeOtherSystem())]);
+
+      expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+      expect(comp.assignments().map((a) => a.targetSystemId)).toEqual([
+        sysId("ts-1"),
+        sysId("ts-2"),
+      ]);
+      expect(comp.unsavedChanges()).toBe(true);
+      expect(comp.showFooter()).toBe(true);
+    });
+
+    it("stages a removal from the table without writing it", async () => {
+      const comp = await mount();
+
+      comp.unassignTarget(comp.assignments()[0]);
+
+      expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
+      expect(comp.assignments()).toEqual([]);
+      expect(comp.selectedItems()).toEqual([]);
+      expect(comp.unsavedChanges()).toBe(true);
+    });
+
+    it("treats removing and re-adding a target as no change", async () => {
+      const comp = await mount();
+
+      comp.onSelectionChanged([]);
+      comp.onSelectionChanged([item(makeSystem())]);
+
+      expect(comp.unsavedChanges()).toBe(false);
+    });
+
+    it("puts back what was saved on Cancel", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      const comp = await mount();
+      comp.onSelectionChanged([item(makeOtherSystem())]);
+
+      comp.discardEdits();
+
+      expect(comp.assignments().map((a) => a.targetSystemId)).toEqual([sysId("ts-1")]);
+      expect(comp.showFooter()).toBe(false);
+    });
+
+    it("never shows Save and Cancel on the Rotation history tab", async () => {
+      const comp = await mount(makeAccessConnector(), { tab: "history" });
+
+      comp.onSelectionChanged([]);
+
+      expect(comp.showFooter()).toBe(false);
+    });
+  });
+
+  describe("target system status", () => {
+    it("says Not connected for a target no connected, active connector serves", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        accessConnector({
+          id: CONNECTOR_ID,
+          isConnected: false,
+          assignedTargetSystemIds: [sysId("ts-1")],
+        }),
+      ]);
+      const comp = await mount(makeAccessConnector({ isConnected: false }));
+      await fixture.whenStable();
+
+      expect(comp.assignments()[0].statusBadge?.labelKey).toBe("pamTargetSystemStatusNotConnected");
+    });
+
+    it("says Active for a target another connected connector serves", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        accessConnector({
+          id: CONNECTOR_ID,
+          isConnected: false,
+          assignedTargetSystemIds: [sysId("ts-1")],
+        }),
+        accessConnector({
+          id: connectorId("other"),
+          assignedTargetSystemIds: [sysId("ts-1")],
+        }),
+      ]);
+      const comp = await mount(makeAccessConnector({ isConnected: false }));
+      await fixture.whenStable();
+
+      expect(comp.assignments()[0].statusBadge?.labelKey).toBe("pamTargetSystemStatusActive");
+    });
+
+    it("says Inactive for a deactivated target system", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([
+        targetSystem({ id: sysId("ts-1"), status: TargetSystemStatus.Disabled }),
+      ]);
+      const comp = await mount();
+
+      expect(comp.assignments()[0].statusBadge?.labelKey).toBe("pamTargetSystemStatusInactive");
+    });
+
+    it("never claims Not connected when the connector list could not be read", async () => {
+      rotationSdk.listConnectors.mockRejectedValue(new Error("boom"));
+      const comp = await mount(makeAccessConnector({ isConnected: false }));
+      await fixture.whenStable();
+
+      expect(comp.assignments()[0].statusBadge?.labelKey).toBe("pamTargetSystemStatusActive");
     });
   });
 
   describe("saving", () => {
-    let dialog: ReturnType<typeof mock<DialogService>>;
-
-    async function mount(accessConnector = makeAccessConnector()): Promise<DetailApi> {
-      dialog = mock<DialogService>();
-      dialog.openSimpleDialog.mockResolvedValue(true);
-      rotationSdk.getConnector.mockResolvedValue(accessConnector);
+    it("writes the assign and unassign calls the staged diff names, then returns to the list", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       rotationSdk.assignTarget.mockResolvedValue(undefined);
       rotationSdk.unassignTarget.mockResolvedValue(undefined);
-      rotationSdk.enableConnector.mockResolvedValue(undefined);
-      rotationSdk.disableConnector.mockResolvedValue(undefined);
-      await setup(rotationSdk, connectorId("access-connector-1"), dialog);
-      return await createComponent();
-    }
-
-    it("writes nothing while the page is untouched", async () => {
       const comp = await mount();
-
-      await comp.submit();
-
-      expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
-      expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
-      expect(rotationSdk.enableConnector).not.toHaveBeenCalled();
-      expect(rotationSdk.disableConnector).not.toHaveBeenCalled();
-    });
-
-    it("issues the assign and unassign calls the staged diff names", async () => {
-      const comp = await mount();
-      await comp.assignTargets([pick(makeOtherSystem())]);
-      await comp.unassignTarget(comp.assignments()[0]);
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      comp.onSelectionChanged([item(makeOtherSystem())]);
 
       await comp.submit();
 
       expect(rotationSdk.assignTarget).toHaveBeenCalledWith(
         ORGANIZATION_ID,
-        connectorId("access-connector-1"),
+        CONNECTOR_ID,
         sysId("ts-2"),
       );
       expect(rotationSdk.unassignTarget).toHaveBeenCalledWith(
         ORGANIZATION_ID,
-        connectorId("access-connector-1"),
+        CONNECTOR_ID,
         sysId("ts-1"),
       );
-      expect(comp.assignments().map((a) => a.id)).toEqual([sysId("ts-2")]);
-      expect(comp.assignments().every((a) => a.pending == null)).toBe(true);
-      expect(comp.formGroup.dirty).toBe(false);
-      expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "success" }),
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamAccessConnectorSaved",
+      });
+      expect(nav).toHaveBeenCalledWith([
+        "/organizations",
+        ORGANIZATION_ID,
+        "pam",
+        "rotation",
+        "access-connectors",
+      ]);
+      expect(comp.unsavedChanges()).toBe(false);
+    });
+
+    it("keeps what it could not write staged, keeps the writes that landed, and stays", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      rotationSdk.assignTarget.mockResolvedValue(undefined);
+      rotationSdk.unassignTarget.mockRejectedValue(new Error("boom"));
+      const comp = await mount();
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate");
+      comp.onSelectionChanged([item(makeOtherSystem())]);
+
+      await comp.submit();
+
+      expect(comp.accessConnector()!.connector.assignedTargetSystemIds).toEqual([
+        sysId("ts-1"),
+        sysId("ts-2"),
+      ]);
+      expect(comp.unsavedChanges()).toBe(true);
+      expect(nav).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamAccessConnectorSaveFailed",
+      });
+    });
+
+    it("states a failed save on the Configuration tab until the next attempt", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      rotationSdk.assignTarget.mockRejectedValueOnce(new Error("boom"));
+      const comp = await mount(makeAccessConnector(), { renderTemplate: true });
+      comp.onSelectionChanged([item(makeSystem()), item(makeOtherSystem())]);
+
+      await comp.submit();
+      fixture.detectChanges();
+
+      expect(query("#access-connector-detail_callout_save-failed")!.textContent).toContain(
+        "pamAccessConnectorSaveFailedCallout",
       );
-    });
 
-    it("activates before the assignment writes, so the server can accept them", async () => {
-      const calls: string[] = [];
-      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
-      rotationSdk.enableConnector.mockImplementation(async () => {
-        calls.push("enable");
-      });
-      rotationSdk.assignTarget.mockImplementation(async () => {
-        calls.push("assign");
-      });
-      stageActive(comp, true);
-      await comp.assignTargets([pick(makeOtherSystem())]);
+      rotationSdk.assignTarget.mockReturnValue(new Promise(() => {}));
+      void comp.submit();
+      fixture.detectChanges();
 
-      await comp.submit();
-
-      expect(calls).toEqual(["enable", "assign"]);
-    });
-
-    it("deactivates after the assignment writes, for the same reason", async () => {
-      const calls: string[] = [];
-      const comp = await mount();
-      rotationSdk.disableConnector.mockImplementation(async () => {
-        calls.push("disable");
-      });
-      rotationSdk.unassignTarget.mockImplementation(async () => {
-        calls.push("unassign");
-      });
-      await comp.unassignTarget(comp.assignments()[0]);
-      stageActive(comp, false);
-
-      await comp.submit();
-
-      expect(calls).toEqual(["unassign", "disable"]);
-    });
-
-    it("confirms a deactivation at save time rather than when the box is cleared", async () => {
-      const comp = await mount();
-
-      stageActive(comp, false);
-      expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
-
-      await comp.submit();
-
-      expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: expect.objectContaining({ key: "pamAccessConnectorDeactivateConfirmContent" }),
-        }),
-      );
-      expect(rotationSdk.disableConnector).toHaveBeenCalled();
-    });
-
-    it("leaves everything staged when the deactivation is declined", async () => {
-      const comp = await mount();
-      dialog.openSimpleDialog.mockResolvedValue(false);
-      await comp.unassignTarget(comp.assignments()[0]);
-      stageActive(comp, false);
-
-      await comp.submit();
-
-      expect(rotationSdk.disableConnector).not.toHaveBeenCalled();
-      expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
-      expect(comp.formGroup.dirty).toBe(true);
-      expect(pendingOf(comp, makeSystem())).toBe("remove");
-    });
-
-    it("does not confirm an activation", async () => {
-      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
-      stageActive(comp, true);
-
-      await comp.submit();
-
-      expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
-      expect(rotationSdk.enableConnector).toHaveBeenCalled();
-      expect(comp.enabled()).toBe(true);
-    });
-
-    it("keeps what it could not write staged, and reports the failure", async () => {
-      const comp = await mount();
-      rotationSdk.assignTarget.mockRejectedValue(new Error("boom"));
-      await comp.assignTargets([pick(makeOtherSystem())]);
-      await comp.unassignTarget(comp.assignments()[0]);
-
-      await comp.submit();
-
-      expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
-      expect(pendingOf(comp, makeOtherSystem())).toBe("add");
-      expect(pendingOf(comp, makeSystem())).toBe("remove");
-      expect(comp.formGroup.dirty).toBe(true);
-      expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error" }),
-      );
+      expect(query("#access-connector-detail_callout_save-failed")).toBeNull();
     });
 
     it("shows the server's reason when the SDK refuses a write", async () => {
-      const comp = await mount();
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       rotationSdk.assignTarget.mockRejectedValue(
         Object.assign(
           new Error(
             'error in response: status code 400 Bad Request: {"object":"error",' +
-              '"message":"The target system no longer exists."}',
+              '"message":"Target system is not automatic."}',
           ),
           { name: "RotationError", variant: "Api" },
         ),
       );
-      await comp.assignTargets([pick(makeOtherSystem())]);
+      const comp = await mount();
+      comp.onSelectionChanged([item(makeSystem()), item(makeOtherSystem())]);
 
       await comp.submit();
 
-      expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith({
+      expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
-        message: "The target system no longer exists.",
+        message: "Target system is not automatic.",
       });
     });
 
-    it("keeps the writes that did land, so a retry only carries the rest", async () => {
-      const comp = await mount(makeAccessConnector({ assignedTargetSystemIds: [] }));
-      rotationSdk.assignTarget
-        .mockResolvedValueOnce(undefined)
-        .mockRejectedValueOnce(new Error("boom"));
-      await comp.assignTargets([pick(makeSystem()), pick(makeOtherSystem())]);
+    it("pins Save and Cancel to the layout footer, and saves from there", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      rotationSdk.assignTarget.mockResolvedValue(undefined);
+      const comp = await mount(makeAccessConnector(), { renderTemplate: true });
+      jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const footerPortal = () => TestBed.inject(LayoutFooterService).portal();
+      expect(footerPortal()).toBeUndefined();
 
-      await comp.submit();
+      comp.onSelectionChanged([item(makeSystem()), item(makeOtherSystem())]);
+      fixture.detectChanges();
+      TestBed.flushEffects();
 
-      expect(pendingOf(comp, makeSystem())).toBeNull();
-      expect(pendingOf(comp, makeOtherSystem())).toBe("add");
-    });
+      const host = document.createElement("div");
+      document.body.appendChild(host);
+      const outlet = new DomPortalOutlet(host);
+      outlet.attach(footerPortal() as TemplatePortal);
+      expect(host.querySelector("#access-connector-detail_button_cancel")).toBeTruthy();
+      host.querySelector<HTMLButtonElement>("#access-connector-detail_button_save")!.click();
+      await fixture.whenStable();
+      outlet.dispose();
+      host.remove();
 
-    it("stops before the assignment writes when the activation fails", async () => {
-      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
-      rotationSdk.enableConnector.mockRejectedValue(new Error("offline"));
-      stageActive(comp, true);
-      await comp.assignTargets([pick(makeOtherSystem())]);
-
-      await comp.submit();
-
-      expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
-      expect(comp.enabled()).toBe(false);
-      expect(comp.formGroup.dirty).toBe(true);
-    });
-
-    it("keeps the connector's metadata when a status write rebuilds it", async () => {
-      const seeded = accessConnector().creationDate;
-      const comp = await mount();
-      stageActive(comp, false);
-
-      await comp.submit();
-
-      expect(comp.accessConnector()?.connector.creationDate).toBe(seeded);
-      expect(comp.accessConnector()?.connector.lastHeartbeatAt).toBe(seeded);
+      expect(rotationSdk.assignTarget).toHaveBeenCalledWith(
+        ORGANIZATION_ID,
+        CONNECTOR_ID,
+        sysId("ts-2"),
+      );
     });
   });
 
   describe("unsaved changes", () => {
-    let dialog: ReturnType<typeof mock<DialogService>>;
-
-    async function mount(): Promise<DetailApi> {
-      dialog = mock<DialogService>();
-      dialog.openSimpleDialog.mockResolvedValue(true);
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      rotationSdk.assignTarget.mockResolvedValue(undefined);
-      rotationSdk.deleteConnector.mockResolvedValue(undefined);
-      await setup(rotationSdk, connectorId("access-connector-1"), dialog);
-      return await createComponent();
-    }
-
     it("lets an untouched page go without asking", async () => {
       const comp = await mount();
 
@@ -665,9 +827,9 @@ describe("AccessConnectorDetailComponent", () => {
       expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
     });
 
-    it("asks before a staged assignment is thrown away", async () => {
+    it("asks before a staged change is thrown away", async () => {
       const comp = await mount();
-      await comp.assignTargets([pick(makeOtherSystem())]);
+      comp.unassignTarget(comp.assignments()[0]);
 
       await expect(leaveThroughGuard(comp)).resolves.toBe(true);
       expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
@@ -675,609 +837,237 @@ describe("AccessConnectorDetailComponent", () => {
       );
     });
 
-    it("asks before a staged removal is thrown away", async () => {
-      const comp = await mount();
-      await comp.unassignTarget(comp.assignments()[0]);
-
-      await leaveThroughGuard(comp);
-
-      expect(dialog.openSimpleDialog).toHaveBeenCalled();
-    });
-
-    it("asks before a staged status change is thrown away", async () => {
-      const comp = await mount();
-      stageActive(comp, false);
-
-      await leaveThroughGuard(comp);
-
-      expect(dialog.openSimpleDialog).toHaveBeenCalled();
-    });
-
     it("keeps the operator on the page when the discard is declined", async () => {
       const comp = await mount();
       dialog.openSimpleDialog.mockResolvedValue(false);
-      await comp.assignTargets([pick(makeOtherSystem())]);
+      comp.unassignTarget(comp.assignments()[0]);
 
       await expect(leaveThroughGuard(comp)).resolves.toBe(false);
     });
 
-    it("stops asking once the staged changes are saved", async () => {
-      const comp = await mount();
-      await comp.assignTargets([pick(makeOtherSystem())]);
-      await comp.submit();
-
-      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
-      expect(dialog.openSimpleDialog).not.toHaveBeenCalledWith(
-        expect.objectContaining({ title: { key: "discardEditsTitle" } }),
-      );
-    });
-
     it("does not ask a second time on the exit a deletion already agreed to", async () => {
+      rotationSdk.deleteConnector.mockResolvedValue(undefined);
       const comp = await mount();
       jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
-      await comp.assignTargets([pick(makeOtherSystem())]);
+      comp.unassignTarget(comp.assignments()[0]);
 
       await comp.deleteAccessConnector();
 
-      expect(rotationSdk.deleteConnector).toHaveBeenCalled();
-      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
+      expect(comp.unsavedChanges()).toBe(false);
     });
   });
 
-  it("deletes the accessConnector after confirmation and navigates back", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-    rotationSdk.deleteConnector.mockResolvedValue(undefined);
-    const dialog = mock<DialogService>();
-    dialog.openSimpleDialog.mockResolvedValue(true);
-    await setup(rotationSdk, connectorId("access-connector-1"), dialog);
-    const router = TestBed.inject(Router);
-    const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
-    const comp = await createComponent();
-
-    await comp.deleteAccessConnector();
-
-    expect(rotationSdk.deleteConnector).toHaveBeenCalledWith(
-      ORGANIZATION_ID,
-      connectorId("access-connector-1"),
-    );
-    expect(nav).toHaveBeenCalled();
-  });
-
-  describe("rendered assignment section", () => {
-    const query = (selector: string) => fixture.nativeElement.querySelector(selector);
+  describe("rendered configuration", () => {
     const bodyRows = (): HTMLElement[] => [
-      ...fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row"),
+      ...el().querySelectorAll<HTMLElement>('[data-testid="access-connector-assignments"] bit-row'),
     ];
     const columnTexts = (index: number): (string | undefined)[] =>
       bodyRows().map((row) => row.querySelectorAll("bit-cell")[index]?.textContent?.trim());
 
-    async function render(accessConnector = makeAccessConnector()): Promise<DetailApi> {
-      rotationSdk.getConnector.mockResolvedValue(accessConnector);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      return await createComponent();
-    }
+    it("shows last seen as a relative time", async () => {
+      const heartbeat = new Date(Date.now() - 5 * 60_000).toISOString();
+      await mount(makeAccessConnector({ lastHeartbeatAt: heartbeat }), { renderTemplate: true });
 
-    it("hands the section to the shared picker and lists each assignment as a row", async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await render();
-
-      expect(query("pam-assignment-picker")).toBeTruthy();
-      expect(query("#access-connector-detail_multi-select_options")).toBeTruthy();
-      const rows = bodyRows();
-      expect(rows).toHaveLength(1);
-      expect(rows[0].textContent).toContain("Prod Entra");
+      expect(query('[data-testid="connector-last-seen"]')!.textContent).toContain(
+        "pamRotationRelativeMinutesAgo",
+      );
     });
 
-    it("gives each remove control an accessible name that names the target system", async () => {
-      rotationSdk.getConnector.mockResolvedValue(
-        makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
-      );
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeSameNamedSystem()]);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
+    it("titles the sections Details and Rotation", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
 
-      expect(
-        query(`#access-connector-detail_button_unassign-${sysId("ts-1")}`).getAttribute(
-          "aria-label",
-        ),
-      ).toBe("pamAccessConnectorUnassign");
-      expect(columnTexts(1)).toEqual([
-        "pamTargetSystemTypeEntra",
-        "pamTargetSystemTypeCustomScript",
+      expect(Array.from(el().querySelectorAll("h2")).map((h) => h.textContent?.trim())).toEqual([
+        "pamAccessConnectorDetailsHeading",
+        "pamAccessConnectorRotationHeading",
       ]);
     });
 
-    it("states each assigned target's id and copies it whole", async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await render();
+    it("lists each assignment's name, type, status and id", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
 
-      expect(columnTexts(2)[0]).toContain(uuidAsString(sysId("ts-1")));
+      expect(bodyRows()).toHaveLength(1);
+      expect(columnTexts(0)).toEqual(["Prod Entra"]);
+      expect(columnTexts(1)).toEqual(["pamTargetSystemTypeEntra"]);
+      expect(columnTexts(2)).toEqual(["pamTargetSystemStatusActive"]);
+      expect(columnTexts(3)).toEqual([uuidAsString(sysId("ts-1"))]);
+    });
 
-      query(`#access-connector-detail_button_copy-target-id-${sysId("ts-1")}`).click();
+    it("copies a target's id whole", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
+
+      query<HTMLButtonElement>(
+        `#access-connector-detail_button_copy-target-id-${sysId("ts-1")}`,
+      )!.click();
 
       expect(TestBed.inject(PlatformUtilsService).copyToClipboard).toHaveBeenCalledWith(
         uuidAsString(sysId("ts-1")),
       );
     });
 
-    it("shows the empty row when nothing is assigned", async () => {
-      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
+    it("names the target system on its remove control, and stages the removal", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
+      const remove = query<HTMLButtonElement>(
+        `#access-connector-detail_button_unassign-${sysId("ts-1")}`,
+      )!;
 
-      expect(fixture.nativeElement.textContent).toContain("pamAccessConnectorAssignmentsEmpty");
-    });
-
-    it("marks a staged assignment as pending rather than as saved", async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      const comp = await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
-
-      await comp.assignTargets([pick(makeOtherSystem())]);
+      expect(remove.getAttribute("aria-label")).toBe("pamAccessConnectorUnassign");
+      remove.click();
       fixture.detectChanges();
 
-      const row = bodyRows()[0];
-      expect(row.textContent).toContain("pamRotationAssignmentPendingAssign");
-      expect(row.querySelector(".tw-line-through")).toBeNull();
+      expect(bodyRows()).toHaveLength(0);
+      expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
     });
 
-    it("strikes a staged removal through and says it is pending", async () => {
-      const comp = await render();
+    it("leaves the table out when nothing is assigned", async () => {
+      await mount(makeAccessConnector({ assignedTargetSystemIds: [] }), { renderTemplate: true });
 
-      await comp.unassignTarget(comp.assignments()[0]);
-      fixture.detectChanges();
-
-      const row = bodyRows()[0];
-      expect(row.textContent).toContain("pamRotationAssignmentPendingUnassign");
-      expect(row.querySelector(".tw-line-through")?.textContent?.trim()).toBe("Prod Entra");
-    });
-
-    it("keeps Assign aria-disabled with its tooltip while the connector is staged inactive", async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
-
-      const assign = query("#access-connector-detail_button_assign");
-      expect(assign).toBeTruthy();
-      expect(assign.getAttribute("aria-disabled")).toBe("true");
-      expect(assign.getAttribute("aria-describedby")).toBeTruthy();
-    });
-
-    it("links to Target systems when the org has none to assign", async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue([]);
-      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
-
-      expect(query("#access-connector-detail_anchor_go-to").getAttribute("href")).toBe(
-        `/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems`,
+      expect(query('[data-testid="access-connector-assignments"]')).toBeNull();
+      expect(query("#access-connector-detail_multi-select_target-systems")!.textContent).toContain(
+        "pamAccessConnectorTargetSystemsPlaceholder",
       );
-    });
-
-    it("leaves the Target systems link out while eligible targets exist", async () => {
-      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
-
-      expect(query("#access-connector-detail_anchor_go-to")).toBeNull();
-    });
-
-    it("draws each assignment's cells as bit-cell", async () => {
-      rotationSdk.getConnector.mockResolvedValue(
-        makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
-      );
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeSameNamedSystem()]);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
-
-      const rows = [...fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row")];
-      expect(rows).toHaveLength(2);
-      for (const bitRow of rows) {
-        expect(bitRow.querySelectorAll("bit-cell")).toHaveLength(4);
-        expect(bitRow.querySelectorAll("[role=cell]")).toHaveLength(4);
-        expect(bitRow.querySelectorAll("td")).toHaveLength(0);
-      }
-      expect(
-        rows[0].querySelector(
-          `bit-cell #access-connector-detail_button_copy-target-id-${sysId("ts-1")}`,
-        ),
-      ).not.toBeNull();
-    });
-
-    it("keeps the pending badge out of the name's truncating box", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      const comp = await createComponent();
-
-      await comp.unassignTarget(comp.assignments()[0]);
-      fixture.detectChanges();
-
-      const nameCell = fixture.nativeElement.querySelector("bit-table-v2 bit-row bit-cell");
-      const badge = [...nameCell.querySelectorAll("[bitBadge]")].find((b: Element) =>
-        b.textContent?.includes("pamRotationAssignmentPendingUnassign"),
-      ) as Element | undefined;
-      expect(badge).toBeDefined();
-      expect(badge!.closest(".tw-text-ellipsis")).toBeNull();
-      expect(nameCell.querySelector(".tw-text-ellipsis")?.textContent).toContain("Prod Entra");
-    });
-  });
-
-  describe("assignment hint", () => {
-    const hintText = () =>
-      (fixture.nativeElement as HTMLElement).querySelector("pam-assignment-picker bit-hint")
-        ?.textContent;
-
-    async function render(accessConnector: AccessConnectorDetail): Promise<void> {
-      rotationSdk.getConnector.mockResolvedValue(accessConnector);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
-    }
-
-    it("explains what can be assigned while eligible targets remain", async () => {
-      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
-
-      expect(hintText()).toContain("pamAccessConnectorAssignSelectHint");
-    });
-
-    it("keeps the standing hint when every eligible target is already assigned", async () => {
-      await render(makeAccessConnector());
-
-      expect(hintText()).toContain("pamAccessConnectorAssignSelectHint");
-    });
-
-    it("says none exist when the org has no active automatic target system", async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue([]);
-      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
-
-      expect(hintText()).toContain("pamAccessConnectorAssignNoTargetSystems");
-    });
-
-    it("reports the load failure rather than claiming the org has no target systems", async () => {
-      rotationSdk.listTargetSystems.mockRejectedValue(new Error("offline"));
-      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
-
-      expect(hintText()).toContain("pamAccessConnectorTargetSystemsLoadError");
     });
   });
 
   describe("tabs", () => {
-    const query = (selector: string) => fixture.nativeElement.querySelector(selector);
+    it("offers a Configuration tab and a Rotation history tab, each with a route", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
 
-    it("offers a Configuration tab and a History tab, each with a route of its own", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
-
-      const links = Array.from(
-        fixture.nativeElement.querySelectorAll("bit-tab-link"),
-      ) as HTMLElement[];
-      expect(links.map((el) => el.textContent?.trim())).toEqual([
+      const links = Array.from(el().querySelectorAll<HTMLElement>("bit-tab-link"));
+      expect(links.map((link) => link.textContent?.trim())).toEqual([
         "pamAccessConnectorTabConfiguration",
-        "pamAccessConnectorTabHistory",
+        "pamAccessConnectorTabRotationHistory",
       ]);
-      const base = `/organizations/${ORGANIZATION_ID}/pam/rotation/access-connectors/${connectorId("access-connector-1")}`;
-      expect(links.map((el) => el.querySelector("a")?.getAttribute("href"))).toEqual([
+      const base = `/organizations/${ORGANIZATION_ID}/pam/rotation/access-connectors/${CONNECTOR_ID}`;
+      expect(links.map((link) => link.querySelector("a")?.getAttribute("href"))).toEqual([
         `${base}/configuration`,
         `${base}/history`,
       ]);
     });
 
     it("reads the open tab from the route", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        tab: "history",
-      });
-      const comp = await createComponent();
+      const comp = await mount(makeAccessConnector(), { tab: "history" });
 
       expect(comp.activeTab()).toBe("history");
     });
 
     it("falls back to Configuration for a tab segment it does not know", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        tab: "nonsense",
-      });
-      const comp = await createComponent();
+      const comp = await mount(makeAccessConnector(), { tab: "nonsense" });
 
       expect(comp.activeTab()).toBe("configuration");
     });
 
-    it("keeps the details card and the assignment picker on the Configuration tab", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
-
-      expect(query('[data-testid="connector-last-seen"]')).toBeTruthy();
-      expect(query("pam-assignment-picker")).toBeTruthy();
-      expect(query("app-rotation-history")).toBeNull();
-    });
-
     it("renders the Configuration tab while the credential-name reads are still in flight", async () => {
       let settleConfigs!: (configs: RotationConfigView[]) => void;
-      rotationSdk.getConnector.mockResolvedValue(
-        accessConnectorDetail({
-          connector: accessConnector({ id: connectorId("access-connector-1") }),
-          jobs: [rotationJob()],
-        }),
-      );
       rotationSdk.listConfigs.mockReturnValue(
         new Promise<RotationConfigView[]>((resolve) => (settleConfigs = resolve)),
       );
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-        cipherNames: new Map(),
-      });
-      await createComponent();
+      await mount(
+        accessConnectorDetail({
+          connector: accessConnector({ id: CONNECTOR_ID }),
+          jobs: [rotationJob()],
+        }),
+        { renderTemplate: true, cipherNames: new Map() },
+      );
 
-      expect(query("pam-assignment-picker")).toBeTruthy();
+      expect(query("#access-connector-detail_multi-select_target-systems")).toBeTruthy();
       settleConfigs([]);
     });
 
-    it("puts the history table on the History tab, naming each job's managed credential", async () => {
-      rotationSdk.getConnector.mockResolvedValue(
+    it("puts only the history table on the Rotation history tab", async () => {
+      rotationSdk.listConfigs.mockResolvedValue([]);
+      await mount(
         accessConnectorDetail({
-          connector: accessConnector({ id: connectorId("access-connector-1") }),
+          connector: accessConnector({ id: CONNECTOR_ID }),
           jobs: [rotationJob()],
         }),
+        { renderTemplate: true, tab: "history" },
       );
-      rotationSdk.listConfigs.mockResolvedValue([]);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-        tab: "history",
-      });
-      await createComponent();
 
       expect(query("app-rotation-history")).toBeTruthy();
-      expect(query("pam-assignment-picker")).toBeNull();
-      expect(fixture.nativeElement.textContent).toContain("pamRotationConfigColumnCredential");
+      expect(query("#access-connector-detail_multi-select_target-systems")).toBeNull();
+      expect(query("h2")).toBeNull();
     });
 
     it("names each job by the credential it rotated", async () => {
-      rotationSdk.getConnector.mockResolvedValue(
-        accessConnectorDetail({
-          connector: accessConnector({ id: connectorId("access-connector-1") }),
-          jobs: [rotationJob({ rotationConfigId: configId("cfg-1") })],
-        }),
-      );
       rotationSdk.listConfigs.mockResolvedValue([
         rotationConfig({ id: configId("cfg-1"), cipherId: CIPHER_ID }),
       ]);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-        tab: "history",
-        cipherNames: new Map([[CIPHER_ID, "Prod service account"]]),
-      });
-      await createComponent();
+      await mount(
+        accessConnectorDetail({
+          connector: accessConnector({ id: CONNECTOR_ID }),
+          jobs: [rotationJob({ rotationConfigId: configId("cfg-1") })],
+        }),
+        {
+          renderTemplate: true,
+          tab: "history",
+          cipherNames: new Map([[CIPHER_ID, "Prod service account"]]),
+        },
+      );
 
-      expect(fixture.nativeElement.textContent).toContain("Prod service account");
+      expect(el().textContent).toContain("Prod service account");
     });
 
     it("falls back to the rotation config id when no name resolved", async () => {
-      rotationSdk.getConnector.mockResolvedValue(
-        accessConnectorDetail({
-          connector: accessConnector({ id: connectorId("access-connector-1") }),
-          jobs: [rotationJob({ rotationConfigId: configId("cfg-1") })],
-        }),
-      );
       rotationSdk.listConfigs.mockResolvedValue([
         rotationConfig({ id: configId("cfg-1"), cipherId: CIPHER_ID }),
       ]);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-        tab: "history",
-        cipherNames: new Map(),
-      });
-      await createComponent();
+      await mount(
+        accessConnectorDetail({
+          connector: accessConnector({ id: CONNECTOR_ID }),
+          jobs: [rotationJob({ rotationConfigId: configId("cfg-1") })],
+        }),
+        { renderTemplate: true, tab: "history", cipherNames: new Map() },
+      );
 
-      expect(fixture.nativeElement.textContent).toContain(String(configId("cfg-1")));
-    });
-
-    it("names the tab and the section it opens with the same word", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-        tab: "history",
-      });
-      await createComponent();
-
-      const tabLabel = (
-        Array.from(fixture.nativeElement.querySelectorAll("bit-tab-link")) as HTMLElement[]
-      )[1].textContent?.trim();
-      expect(query("h2").textContent.trim()).toBe(tabLabel);
+      expect(el().textContent).toContain(String(configId("cfg-1")));
     });
   });
 
-  describe("details card creation metadata", () => {
+  describe("details card", () => {
     /** The timestamp `rotation-builders` seeds both `creationDate` and `lastHeartbeatAt` with. */
     const seeded = accessConnector().creationDate;
 
-    /** Formatted through the same pipe the template uses. */
-    function expectedMedium(): string {
-      return new DatePipe(TestBed.inject(LOCALE_ID)).transform(seeded, "medium") ?? "";
-    }
-
-    async function renderDetail(accessConnector: AccessConnectorDetail) {
-      rotationSdk.getConnector.mockResolvedValue(accessConnector);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
-      return fixture;
-    }
+    const fieldText = (testId: string): string =>
+      query(`[data-testid="${testId}"]`)?.textContent?.trim() ?? "";
 
     it("renders the creation date", async () => {
-      const rendered = await renderDetail(makeAccessConnector());
+      await mount(makeAccessConnector(), { renderTemplate: true });
 
-      expect(fieldText(rendered, "connector-created")).toBe(expectedMedium());
+      expect(fieldText("connector-created")).toBe(
+        formatTimestamp(TestBed.inject(LOCALE_ID), Date.parse(seeded)),
+      );
     });
 
-    it("renders the last heartbeat as the last seen time", async () => {
-      const rendered = await renderDetail(makeAccessConnector());
+    it("falls back to the timestamp when the heartbeat is 400 days old", async () => {
+      const old = new Date(Date.now() - 400 * 24 * 60 * 60_000).toISOString();
+      await mount(makeAccessConnector({ lastHeartbeatAt: old }), { renderTemplate: true });
 
-      expect(fieldText(rendered, "connector-last-seen")).toBe(expectedMedium());
+      expect(fieldText("connector-last-seen")).toBe(
+        formatTimestamp(TestBed.inject(LOCALE_ID), Date.parse(old)),
+      );
+    });
+
+    it("renders 'Never' for an unparseable heartbeat", async () => {
+      await mount(makeAccessConnector({ lastHeartbeatAt: "not-a-date" }), {
+        renderTemplate: true,
+      });
+
+      expect(fieldText("connector-last-seen")).toBe("never");
     });
 
     it("renders 'Never' for a connector that has not checked in yet", async () => {
-      const rendered = await renderDetail(makeAccessConnector({ lastHeartbeatAt: undefined }));
+      await mount(makeAccessConnector({ lastHeartbeatAt: undefined }), { renderTemplate: true });
 
-      expect(fieldText(rendered, "connector-last-seen")).toBe("never");
-    });
-
-    it("still renders the creation date when the connector has never been seen", async () => {
-      const rendered = await renderDetail(makeAccessConnector({ lastHeartbeatAt: undefined }));
-
-      expect(fieldText(rendered, "connector-created")).toBe(expectedMedium());
-    });
-  });
-
-  describe("action row (rendered)", () => {
-    async function render(accessConnector: AccessConnectorDetail): Promise<HTMLElement> {
-      rotationSdk.getConnector.mockResolvedValue(accessConnector);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
-      return fixture.nativeElement as HTMLElement;
-    }
-
-    function actionRow(el: HTMLElement): HTMLElement {
-      return el.querySelector("#access-connector-detail_button_save")?.parentElement as HTMLElement;
-    }
-
-    it("leaves the page header with its title and breadcrumbs only", async () => {
-      const el = await render(makeAccessConnector());
-
-      const header = el.querySelector("bit-header") as HTMLElement;
-      expect(header).toBeTruthy();
-      expect(header.querySelector("#access-connector-detail_checkbox_active")).toBeNull();
-      expect(header.querySelector("#access-connector-detail_button_delete")).toBeNull();
-    });
-
-    it("puts Save and Delete in one row, Save first", async () => {
-      const el = await render(makeAccessConnector());
-
-      const row = actionRow(el);
-      expect(Array.from(row.querySelectorAll("button")).map((b) => b.id)).toEqual([
-        "access-connector-detail_button_save",
-        "access-connector-detail_button_delete",
-      ]);
-    });
-
-    it("submits the form from Save and pushes Delete to the far end", async () => {
-      const el = await render(makeAccessConnector());
-
-      expect(el.querySelector("#access-connector-detail_button_save")?.getAttribute("type")).toBe(
-        "submit",
-      );
-      expect(
-        el
-          .querySelector("#access-connector-detail_button_delete")
-          ?.classList.contains("tw-ms-auto"),
-      ).toBe(true);
-    });
-
-    it("is the only action row on the page, with no card of its own for the deletion", async () => {
-      const el = await render(makeAccessConnector());
-
-      expect(el.querySelectorAll("#access-connector-detail_button_delete")).toHaveLength(1);
-      expect(actionRow(el).closest("bit-card")).toBeNull();
-      expect(el.textContent).not.toContain("pamAccessConnectorDeleteConfirmContent");
-    });
-
-    it("states the status as a form field in a card rather than an action-row button", async () => {
-      const el = await render(makeAccessConnector());
-
-      expect(actionRow(el).querySelector("#access-connector-detail_checkbox_active")).toBeNull();
-      const checkbox = el.querySelector(
-        "#access-connector-detail_checkbox_active",
-      ) as HTMLInputElement;
-      expect(checkbox).toBeTruthy();
-      expect(checkbox.closest("bit-card")).toBeTruthy();
-      expect(el.textContent).toContain("pamAccessConnectorActiveHint");
-    });
-  });
-
-  describe("status card", () => {
-    async function renderCheckbox(
-      accessConnector: AccessConnectorDetail,
-    ): Promise<HTMLInputElement> {
-      rotationSdk.getConnector.mockResolvedValue(accessConnector);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
-      await fixture.whenStable();
-      fixture.detectChanges();
-      return (fixture.nativeElement as HTMLElement).querySelector(
-        "#access-connector-detail_checkbox_active",
-      ) as HTMLInputElement;
-    }
-
-    it("checks the box for an active connector", async () => {
-      const checkbox = await renderCheckbox(makeAccessConnector());
-
-      expect(checkbox.checked).toBe(true);
-    });
-
-    it("clears the box for an inactive connector", async () => {
-      const checkbox = await renderCheckbox(
-        makeAccessConnector({ status: AccessConnectorStatus.Disabled }),
-      );
-
-      expect(checkbox.checked).toBe(false);
-    });
-
-    it("stages the flip without writing it or moving the saved-status badge", async () => {
-      const checkbox = await renderCheckbox(makeAccessConnector());
-      const comp = fixture.componentInstance as unknown as DetailApi;
-
-      checkbox.click();
-      fixture.detectChanges();
-
-      expect(rotationSdk.disableConnector).not.toHaveBeenCalled();
-      expect(comp.stagedActive()).toBe(false);
-      expect(comp.formGroup.dirty).toBe(true);
-      expect(
-        (fixture.nativeElement as HTMLElement).querySelector(
-          "#access-connector-detail_badge_status",
-        )?.textContent,
-      ).toContain("active");
+      expect(fieldText("connector-last-seen")).toBe("never");
     });
   });
 
   describe("loading skeleton", () => {
-    const query = (selector: string) => fixture.nativeElement.querySelector(selector);
-
-    afterEach(() => jest.useRealTimers());
-
-    function advance(ms: number): void {
-      fixture.detectChanges();
-      jest.advanceTimersByTime(ms);
-      fixture.detectChanges();
-    }
-
     async function renderLoading(tab = "configuration") {
       rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-        tab,
-      });
+      await setup({ renderTemplate: true, tab });
       fixture = TestBed.createComponent(AccessConnectorDetailComponent);
       fixture.detectChanges();
-    }
-
-    async function renderSkeleton(tab = "configuration") {
-      await renderLoading(tab);
-      advance(1000);
     }
 
     async function settle() {
@@ -1287,101 +1077,46 @@ describe("AccessConnectorDetailComponent", () => {
       fixture.detectChanges();
     }
 
-    it("stands skeleton cards in for the configuration form, in real furniture", async () => {
-      await renderSkeleton();
-
-      const loading = query('[data-testid="access-connector-detail-loading"]');
-      expect(query("bit-spinner")).toBeNull();
-      expect(loading).not.toBeNull();
-      expect(loading.querySelector("bit-skeleton")).not.toBeNull();
-      expect(loading.textContent).toContain("pamAccessConnectorDetailsHeading");
-      expect(query("form")).toBeNull();
-    });
-
-    it("keeps the placeholder itself out of the accessibility tree", async () => {
+    it("stands skeleton cards in for the Details and Rotation sections", async () => {
       await renderLoading();
 
-      expect(
-        query('[data-testid="access-connector-detail-loading"]').getAttribute("aria-hidden"),
-      ).toBe("true");
+      const loading = query('[data-testid="access-connector-detail-loading"]')!;
+      expect(query("bit-spinner")).toBeNull();
+      expect(loading.querySelector("bit-skeleton")).not.toBeNull();
+      expect(loading.textContent).toContain("pamAccessConnectorDetailsHeading");
+      expect(loading.textContent).toContain("pamAccessConnectorRotationHeading");
+      expect(loading.getAttribute("aria-hidden")).toBe("true");
+      expect(query("pam-detail-breadcrumb")).not.toBeNull();
     });
 
     it("mirrors the history table instead when the history tab is the one loading", async () => {
-      await renderSkeleton("history");
+      await renderLoading("history");
 
-      const loading = query('[data-testid="access-connector-detail-loading"]');
+      const loading = query('[data-testid="access-connector-detail-loading"]')!;
       expect(loading.querySelector("app-rotation-history-skeleton")).not.toBeNull();
-      expect(loading.textContent).toContain("pamRotationHistoryColumnResult");
       expect(loading.textContent).not.toContain("pamAccessConnectorDetailsHeading");
     });
 
     it("announces the load from a live region, then the arrival", async () => {
-      await renderSkeleton();
+      await renderLoading();
 
-      const status = query('[data-testid="rotation-loading-status"]');
+      const status = query('[data-testid="rotation-loading-status"]')!;
       expect(status.getAttribute("role")).toBe("status");
-      expect(status.getAttribute("aria-live")).toBe("polite");
       expect(status.textContent).toContain("loading");
 
       await settle();
-      advance(1000);
 
-      expect(query('[data-testid="rotation-loading-status"]').textContent).toContain(
+      expect(query('[data-testid="rotation-loading-status"]')!.textContent).toContain(
         "pamRotationPageLoaded",
       );
     });
 
-    it("replaces the skeleton with the real form once the connector lands", async () => {
-      await renderSkeleton();
+    it("replaces the skeleton with the page once the connector lands", async () => {
+      await renderLoading();
       await settle();
-      advance(1000);
 
       expect(query('[data-testid="access-connector-detail-loading"]')).toBeNull();
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query("form")).not.toBeNull();
-      expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
-    });
-
-    it("renders the page's own chrome, not a blank area, before the delay is up", async () => {
-      await renderLoading();
-      advance(999);
-
-      expect(query('[data-testid="access-connector-detail-loading"]')).not.toBeNull();
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query("pam-detail-breadcrumb")).not.toBeNull();
-    });
-
-    it("never draws the placeholder for a connector that arrives inside the delay", async () => {
-      await renderLoading();
-      advance(500);
-      await settle();
-      advance(1000);
-
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query('[data-testid="access-connector-detail-loading"]')).toBeNull();
-      expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
-    });
-
-    it("holds the placeholder its minimum time once it is up, so it cannot blink", async () => {
-      await renderSkeleton();
-      expect(query("bit-skeleton")).not.toBeNull();
-
-      await settle();
-      advance(300);
-
-      expect(query("bit-skeleton")).not.toBeNull();
-
-      advance(700);
-
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
-    });
-
-    it("announces the load at once, not on the placeholder's clock", async () => {
-      await renderLoading();
-
-      expect(query('[data-testid="rotation-loading-status"]').textContent).toContain("loading");
-      expect(query("bit-skeleton")).toBeNull();
+      expect(query("#access-connector-detail_multi-select_target-systems")).not.toBeNull();
     });
   });
 });
