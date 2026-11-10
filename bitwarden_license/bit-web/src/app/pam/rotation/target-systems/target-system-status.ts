@@ -1,4 +1,9 @@
-import type { BadgeVariant, BitwardenIcon } from "@bitwarden/components";
+import type {
+  BadgeVariant,
+  BitwardenIcon,
+  IconTileOptions,
+  IconTileVariant,
+} from "@bitwarden/components";
 
 import { hasConnectedConnector } from "../managed-credentials/rotation-config-row";
 import {
@@ -99,4 +104,15 @@ export function resolveTargetSystemStatus(
 
 export function targetSystemStatusBadge(status: TargetSystemRowStatus): TargetSystemStatusBadge {
   return STATUS_BADGES[status];
+}
+
+const STATUS_TILE_VARIANTS: Partial<Record<BadgeVariant, IconTileVariant>> = {
+  success: "success",
+  warning: "warning",
+  subtle: "gray",
+};
+
+/** The icon tile a status draws in a filter or picker row: the badge's icon on its colour. */
+export function targetSystemStatusTile(badge: TargetSystemStatusBadge): IconTileOptions {
+  return { icon: badge.icon, variant: STATUS_TILE_VARIANTS[badge.variant] };
 }

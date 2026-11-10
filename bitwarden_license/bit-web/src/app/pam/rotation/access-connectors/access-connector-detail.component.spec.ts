@@ -559,6 +559,64 @@ describe("AccessConnectorDetailComponent", () => {
       expect(comp.selectedItems().map((option) => option.id)).toEqual([String(sysId("ts-1"))]);
     });
 
+    it("names each option by its system alone, with its status as the hint and a status tile", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      const comp = await mount();
+
+      const [first] = comp.selectOptions();
+      expect(first.listName).toBe("Prod Entra");
+      expect(first.labelName).toBe("Prod Entra (pamTargetSystemTypeEntra)");
+      expect(first.hint).toBe("pamTargetSystemStatusActive");
+      expect(first.iconTile).toEqual({ icon: "bwi-check-circle", variant: "success" });
+      expect(first.iconAfterTile).toBe("bwi-target-system");
+      expect(first.disabled).toBe(false);
+    });
+
+    it("disables an inactive target that is not staged, and lists it last", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([
+        targetSystem({
+          id: sysId("ts-3"),
+          name: "Retired",
+          status: TargetSystemStatus.Disabled,
+          sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
+        }),
+        makeSystem(),
+        makeOtherSystem(),
+      ]);
+      const comp = await mount();
+
+      const options = comp.selectOptions();
+      expect(options.map((option) => option.id)).toEqual([
+        String(sysId("ts-1")),
+        String(sysId("ts-2")),
+        String(sysId("ts-3")),
+      ]);
+      const inactive = options[2];
+      expect(inactive.disabled).toBe(true);
+      expect(inactive.hint).toBe("pamTargetSystemStatusInactive");
+      expect(inactive.iconTile).toEqual({ icon: "bwi-minus-circle", variant: "gray" });
+    });
+
+    it("keeps an inactive target that is already staged removable, still sorted last", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([
+        targetSystem({
+          id: sysId("ts-1"),
+          name: "Prod Entra",
+          status: TargetSystemStatus.Disabled,
+        }),
+        makeOtherSystem(),
+      ]);
+      const comp = await mount();
+
+      const options = comp.selectOptions();
+      expect(options.map((option) => option.id)).toEqual([
+        String(sysId("ts-2")),
+        String(sysId("ts-1")),
+      ]);
+      expect(options[1].disabled).toBe(false);
+      expect(comp.selectedItems().map((option) => option.id)).toEqual([String(sysId("ts-1"))]);
+    });
+
     it("keeps an assigned target that is no longer automatic among the options", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([
         targetSystem({ id: sysId("ts-1"), name: "Prod Entra", method: "manual" as never }),

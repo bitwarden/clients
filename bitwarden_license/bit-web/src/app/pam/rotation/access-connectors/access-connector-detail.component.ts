@@ -84,9 +84,11 @@ import { lastSeenText, relativeTimeLabel } from "../rotation-relative-time";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { targetSystemLabel } from "../target-systems/target-system-label";
 import {
+  TargetSystemRowStatus,
   TargetSystemStatusBadge,
   resolveTargetSystemStatus,
   targetSystemStatusBadge,
+  targetSystemStatusTile,
 } from "../target-systems/target-system-status";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -371,10 +373,19 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
       : this.automaticSystems().filter((system) => stagedSet.has(String(system.id)));
     const offeredSet = new Set<string>(offered.map((system) => String(system.id)));
     const extra = staged.filter((id) => !offeredSet.has(String(id)));
-    return [
-      ...offered.map((system) => this.selectItem(system.id, system)),
-      ...extra.map((id) => this.selectItem(id, systemById.get(id))),
-    ];
+    const isInactive = (system: TargetSystemView | undefined) =>
+      system != null &&
+      resolveTargetSystemStatus(system, this.connectorsForStatus()) ===
+        TargetSystemRowStatus.Inactive;
+    const entries = [
+      ...offered.map((system) => ({ system, id: system.id })),
+      ...extra.map((id) => ({ system: systemById.get(id), id })),
+    ].map(({ system, id }) => ({
+      inactive: isInactive(system),
+      item: this.selectItem(id, system, stagedSet),
+    }));
+    // Inactive last, staged or not; Array.sort is stable, so the rest keep their order.
+    return entries.sort((a, b) => Number(a.inactive) - Number(b.inactive)).map(({ item }) => item);
   });
 
   /** The staged assignments as picker items, which the multi-select shows as chips. */
@@ -548,9 +559,29 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     return !this.loading() && this.hasUnsavedChanges();
   }
 
-  private selectItem(id: TargetSystemId, system: TargetSystemView | undefined): SelectItemView {
-    const { qualified } = targetSystemLabel(this.i18nService, id, system);
-    return { id: String(id), listName: qualified, labelName: qualified };
+  /**
+   * An Inactive system is disabled in the list so it cannot be newly picked, unless it is already
+   * staged, so a held assignment is never locked in.
+   */
+  private selectItem(
+    id: TargetSystemId,
+    system: TargetSystemView | undefined,
+    stagedSet: ReadonlySet<string>,
+  ): SelectItemView {
+    const { name, qualified } = targetSystemLabel(this.i18nService, id, system);
+    const item: SelectItemView = { id: String(id), listName: name, labelName: qualified };
+    if (system == null) {
+      return item;
+    }
+    const status = resolveTargetSystemStatus(system, this.connectorsForStatus());
+    const badge = targetSystemStatusBadge(status);
+    return {
+      ...item,
+      hint: this.i18nService.t(badge.labelKey),
+      iconTile: targetSystemStatusTile(badge),
+      iconAfterTile: "bwi-target-system",
+      disabled: status === TargetSystemRowStatus.Inactive && !stagedSet.has(String(id)),
+    };
   }
 
   /**

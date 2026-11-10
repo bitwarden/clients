@@ -51,13 +51,22 @@
             [color]="item.iconTile.color"
             [emphasis]="item.iconTile.emphasis ?? 'subtle'"
             size="xs"
+            aria-hidden="true"
           />
         } @else if (item.icon != null) {
           <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
         }
       </div>
+      @if (item.iconTile && item.iconAfterTile != null) {
+        <div class="tw-me-2 tw-flex-initial">
+          <i class="bwi bwi-fw {{ item.iconAfterTile }}" aria-hidden="true"></i>
+        </div>
+      }
       <div class="tw-flex-1" [attr.title]="item.listName">
-        {{ item.listName }}
+        <div>{{ item.listName }}</div>
+        @if (item.hint) {
+          <div class="tw-text-sm tw-text-muted">{{ item.hint }}</div>
+        }
       </div>
     </div>
   </ng-template>

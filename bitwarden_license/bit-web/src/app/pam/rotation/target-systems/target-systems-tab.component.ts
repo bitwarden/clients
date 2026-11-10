@@ -19,7 +19,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
-  BadgeVariant,
   BitCellComponent,
   BitCellDefDirective,
   BitColumnComponent,
@@ -32,7 +31,6 @@ import {
   FilterMenuModule,
   IconButtonModule,
   IconModule,
-  IconTileVariant,
   LinkModule,
   MenuModule,
   SearchModule,
@@ -72,6 +70,7 @@ import {
   TargetSystemStatusBadge,
   resolveTargetSystemStatus,
   targetSystemStatusBadge,
+  targetSystemStatusTile,
 } from "./target-system-status";
 import {
   TargetSystemsEmptyStateComponent,
@@ -256,7 +255,7 @@ export class TargetSystemsTabComponent {
         this.rows().some((row) => row.status === TargetSystemRowStatus.PendingSeal),
     ).map((badge) => ({
       ...badge,
-      iconTile: { icon: badge.icon, variant: STATUS_TILE_VARIANTS[badge.variant] },
+      iconTile: targetSystemStatusTile(badge),
     })),
   );
 
@@ -522,12 +521,6 @@ export class TargetSystemsTabComponent {
     this.toastService.showToast({ variant: "error", message });
   }
 }
-
-const STATUS_TILE_VARIANTS: Partial<Record<BadgeVariant, IconTileVariant>> = {
-  success: "success",
-  warning: "warning",
-  subtle: "gray",
-};
 
 /** The toolbar's raw values by filter key, untyped because each chip reports its own shape. */
 type TargetSystemFilterValues = {
