@@ -1733,7 +1733,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' && matrix.cloud_env == 'prod' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -1746,14 +1746,14 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' && matrix.cloud_env == 'prod' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
 
       - name: Download Commercial SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' && matrix.cloud_env == 'prod' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -1766,7 +1766,7 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override Commercial SDK
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' && matrix.cloud_env == 'prod' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
         working-directory: ./
         run: |
           npm link ../commercial-sdk-internal

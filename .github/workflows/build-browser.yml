@@ -283,7 +283,7 @@ jobs:
             artifact_name: "dist-firefox"
           - name: "firefox-beta"
             npm_command_suffix: "beta:firefox"
-            archive_name: "dist-firefox.zip"
+            archive_name: "dist-firefox"
             artifact_name: "dist-firefox-beta"
           - name: "firefox-mv3"
             npm_command_suffix: "firefox:mv3"
