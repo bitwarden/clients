@@ -33,8 +33,7 @@ export default {
           useFactory: () =>
             new I18nMockService({
               pamAccessRuleCollectionsNone: "Unassigned",
-              pamAccessRuleSharedFolderCountSingular: "1 shared folder",
-              pamAccessRuleSharedFolderCount: (count) => `${count} shared folders`,
+              pamAccessRuleAppliesTo: "Applies to",
             }),
         },
       ],
@@ -56,12 +55,12 @@ export const Multiple: Story = {
   args: { collectionIds: ids("col-1", "col-2", "col-3") },
 };
 
-/** The count badge keeps the column width flat. */
+/** Only the first chip shows, with a +N chip that opens the full list. */
 export const Many: Story = {
   args: { collectionIds: ids("col-1", "col-2", "col-3", "col-4", "col-5") },
 };
 
-/** A muted placeholder replaces the badge. */
+/** A muted placeholder replaces the chips. */
 export const None: Story = {
   args: { collectionIds: ids() },
 };

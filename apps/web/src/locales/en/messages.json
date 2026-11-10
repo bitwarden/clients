@@ -19753,20 +19753,8 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
-  "pamAccessRuleSharedFolderCountSingular": {
-    "message": "1 shared folder"
-  },
-  "pamAccessRuleSharedFolderCount": {
-    "message": "$COUNT$ shared folders",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "pamSearchRules": {
-    "message": "Search rules"
+    "message": "Search access rules"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Applies to"
