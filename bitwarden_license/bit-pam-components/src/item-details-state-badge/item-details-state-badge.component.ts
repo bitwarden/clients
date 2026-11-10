@@ -86,7 +86,9 @@ export class ItemDetailsStateBadgeComponent {
    * `state`'s badge, withheld while the lease is live on this clock. Keying on the SDK's `active`
    * ranking instead would hide the pill for good when the server's clock trails. It re-reads
    * whenever the state lapses; only the held lease itself ending, with no live lease in the fresh
-   * state, lands on "Session ended".
+   * state, lands on "Session ended". A read that fails comes back as `null`, which says nothing
+   * about what was held, so the held state carries on being watched: `nextRereadMs` asks again
+   * within its grace period and otherwise falls back to the lease's own end.
    */
   private badgeWhileLeaseRuns$(
     state: CipherAccessStateView | null,
@@ -103,7 +105,7 @@ export class ItemDetailsStateBadgeComponent {
           liveActiveLease(state, Date.now()) == null &&
           liveActiveLease(fresh, Date.now()) == null
             ? of(badge)
-            : this.badgeWhileLeaseRuns$(fresh, read$),
+            : this.badgeWhileLeaseRuns$(fresh ?? state, read$),
         ),
       ),
     );
