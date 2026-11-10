@@ -11,26 +11,9 @@ export function reasonText(request: Pick<AccessRequestView, "reason">): string |
   return request.reason?.trim() || null;
 }
 
-/** A coarse label for the requested duration, e.g. "4 hours" or "30 min". */
-export function durationLabel(
-  request: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
-): LabelValue {
-  const seconds = requestedWindowSeconds(request);
-  // Rounded before picking the key, so a window just either side of an hour reads "1 hour".
-  const minutes = Math.max(1, Math.round(seconds / 60));
-  if (minutes < 60) {
-    return { key: "pamInboxDurationMinutes", value: minutes };
-  }
-  const hours = Math.round(seconds / 360) / 10;
-  if (hours === 1) {
-    return { key: "pamInboxDuration1Hour", value: null };
-  }
-  return { key: "pamInboxDurationHours", value: hours };
-}
-
 /**
  * The requested duration in words, e.g. "2 days, 2 hours". The same spelling the My requests
- * table uses through `durationCompound`.
+ * table uses through `durationCompound`, so the two tabs cannot describe one window differently.
  */
 export function durationText(
   window: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,

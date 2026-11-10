@@ -71,13 +71,7 @@ export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-ap
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
-export {
-  durationLabel,
-  durationText,
-  exactWindow,
-  reasonText,
-  relativeStart,
-} from "./helpers/approval-window";
+export { durationText, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
   ACCESS_RULE_DURATION_PRESETS,
