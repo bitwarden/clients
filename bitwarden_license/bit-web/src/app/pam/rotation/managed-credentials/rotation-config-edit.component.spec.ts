@@ -1435,6 +1435,32 @@ describe("RotationConfigEditComponent: unsaved changes", () => {
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
+  it("never asks on the History tab, even holding an edit", async () => {
+    const { component, fixture, dialogService } = setup({
+      configId: configId("cfg-1"),
+      tab: "history",
+    });
+    await fixture.whenStable();
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+
+    expect(component.unsavedChanges()).toBe(false);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
+  it("does not ask once an edit is reverted", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    const original = component.accountForm.controls.accountIdentity.value;
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+    expect(component.unsavedChanges()).toBe(true);
+    component.accountForm.controls.accountIdentity.setValue(original);
+
+    expect(component.unsavedChanges()).toBe(false);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
   it("asks about an abandoned new managed credential", async () => {
     const { component, fixture, dialogService } = setup();
     await fixture.whenStable();
