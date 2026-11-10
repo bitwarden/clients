@@ -1,10 +1,12 @@
 import { AbstractControl, ValidationErrors } from "@angular/forms";
 
 import {
+  formatDuration,
   type RequestWindowFormValue,
   type RequestWindowProblem,
   requestWindowProblem,
 } from "@bitwarden/bit-pam";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 export const REQUEST_WINDOW_ERROR_KEY = "requestWindow";
 
@@ -48,4 +50,24 @@ export function requestWindowEndValidator(
     const error: RequestWindowError = { problem, message: message(problem, max) };
     return { [REQUEST_WINDOW_ERROR_KEY]: error };
   };
+}
+
+/** The localized sentence for a window problem, shared by the End field and a refused submit. */
+export function requestWindowProblemMessage(
+  i18nService: I18nService,
+  locale: string,
+  problem: RequestWindowProblem,
+  maxWindowSeconds: number,
+): string {
+  switch (problem) {
+    case "endNotAfterStart":
+      return i18nService.t("requestAccessModalEndNotAfterStart");
+    case "endInPast":
+      return i18nService.t("requestAccessModalWindowInPast");
+    case "exceedsMaxWindow":
+      return i18nService.t(
+        "requestAccessModalWindowExceedsMax",
+        formatDuration(locale, maxWindowSeconds, "long"),
+      );
+  }
 }

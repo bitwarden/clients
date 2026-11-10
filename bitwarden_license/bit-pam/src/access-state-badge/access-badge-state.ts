@@ -3,8 +3,8 @@ import type { CipherAccessStateView } from "../abstractions/access-lease";
 /**
  * "Ending soon" derives from the live countdown, so `active` carries only `expiresAt`.
  * {@link cipherAccessBadgeState} never produces `expired`; the badge falls back to it when an
- * active lease lapses locally. `unavailable` comes from the SDK, off the server's
- * `heldByAnotherUser` flag; the holder is never named.
+ * active lease lapses locally. `unavailable` comes from the SDK, off the server's `canRequest`
+ * flag: the rule refuses a new request right now.
  */
 export type AccessBadgeState =
   | { readonly kind: "privileged" | "pending" | "unavailable" | "ready" | "expired" }

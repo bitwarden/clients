@@ -18495,12 +18495,25 @@
       }
     }
   },
-  "pamWindowUntil": {
-    "message": "Until $DATE$",
+  "pamLeaseExpires": {
+    "message": "Expires $DATE$ at $TIME$",
     "placeholders": {
       "date": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Expires today at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
       }
     }
   },
@@ -18621,9 +18634,6 @@
   },
   "pamExtendLeaseButtonV2": {
     "message": "Extend access"
-  },
-  "pamExtendLeaseButton": {
-    "message": "Extend"
   },
   "pamExtendLeaseDialogTitle": {
     "message": "Extend access"
@@ -18914,36 +18924,83 @@
   "pamAccessRequestLoadError": {
     "message": "Couldn't load this access request."
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "You have active access to this item — $DURATION$ remaining",
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Access active • $DURATION$ left",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "23m"
+        "example": "20 days"
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Access to this item is ending soon — $DURATION$ remaining",
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Ending soon • $DURATION$ left",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "4m"
+        "example": "4 minutes"
       }
     }
   },
   "pamPendingRequestBannerHeading": {
     "message": "Access request pending approval"
   },
-  "pamApprovedRequestBannerHeading": {
-    "message": "Access approved"
+  "pamPendingSubmittedJustNow": {
+    "message": "Submitted just now"
   },
-  "pamApprovedRequestBannerDuration": {
-    "message": "$DURATION$ of access",
+  "pamPendingSubmittedAgo": {
+    "message": "Submitted $WHEN$",
     "placeholders": {
-      "duration": {
+      "when": {
         "content": "$1",
-        "example": "1 hour"
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privileged credentials"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls license needed",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Request to use"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Your access has ended"
+  },
+  "pamEndedBannerBody": {
+    "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Ready to use"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "You can access this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
       }
     }
   },
@@ -18953,17 +19010,17 @@
   "pamRequestAccessBannerHeading": {
     "message": "You can request access"
   },
-  "pamUnlicensedBannerHeading": {
-    "message": "Privileged Controls license required",
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "You need a Privileged Controls license to use this item",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
-  },
-  "pamUnlicensedBannerBody": {
-    "message": "You need a Privileged Controls license to view this item. Ask your admin to activate your license.",
-    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
     "message": "Requesting access is not available while unlicensed.",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "The approved access window has not started yet."
@@ -19050,8 +19107,8 @@
   "pendingStateCancelError": {
     "message": "Couldn't cancel the request."
   },
-  "requestAccessModalSubmit": {
-    "message": "Request access"
+  "requestAccessModalSubmitV2": {
+    "message": "Send request"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Pick a duration. You'll get immediate access for that long."
@@ -19059,8 +19116,14 @@
   "requestAccessModalHumanDescription": {
     "message": "Pick a window and tell the approver why you need access. They'll review and decide."
   },
-  "requestAccessModalDuration": {
-    "message": "Duration"
+  "requestAccessModalDurationV2": {
+    "message": "How long do you need it?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Request details"
   },
   "requestAccessModalStartDate": {
     "message": "Start date"
@@ -19140,20 +19203,20 @@
       }
     }
   },
-  "requestAccessModalReasonRequired": {
-    "message": "Reason"
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Why do you need it?"
   },
-  "requestAccessModalReasonOptional": {
-    "message": "Reason (optional)"
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Why do you need it?"
   },
-  "requestAccessModalReasonPlaceholder": {
-    "message": "Why do you need this?"
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "e.g., Quarterly audit, need to run a few read-only queries"
   },
-  "requestAccessModalAutomaticReasonHint": {
-    "message": "This reason is saved with your access request."
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
   },
-  "requestAccessModalHumanReasonHint": {
-    "message": "Approvers will see this reason when reviewing your request."
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
   },
   "requestAccessModalGenericError": {
     "message": "Could not request access. Try again."
@@ -19161,11 +19224,11 @@
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
   },
-  "requestAccessModalApprovedSuccess": {
-    "message": "Access approved — select Start access to begin."
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "Request submitted — awaiting approval."
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Access requested"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
@@ -19465,24 +19528,6 @@
   },
   "pamAccessRuleMaxDurationLimitHint": {
     "message": "Access is limited to this length, whatever duration is requested."
-  },
-  "pamAccessRuleDuration15m": {
-    "message": "15 minutes"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 minutes"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 hour"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 hours"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 hours"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 day"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "Only 1 user can have active access at a time"
