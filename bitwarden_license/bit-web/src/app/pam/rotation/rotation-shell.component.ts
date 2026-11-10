@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule, ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
@@ -58,6 +58,7 @@ export class RotationShellComponent {
     effect(() => {
       void this.configsService.load(this.organizationId());
     });
+    inject(DestroyRef).onDestroy(() => this.configsService.stopPolling());
   }
 
   protected readonly createManagedCredential = (): Promise<boolean> =>
