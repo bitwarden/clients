@@ -1,18 +1,19 @@
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-
-import type { AccessRequestId, AccessRequestView } from "../abstractions/access-lease";
 import {
-  ResolvedNames,
-  organizationNameFor,
-} from "../access-requests/access-name-resolver.service";
-import { ElapsedLabel, elapsedLabel } from "../date/elapsed";
-import {
-  durationLabel,
+  ElapsedLabel,
+  elapsedLabel,
+  durationText,
   exactWindow,
   LabelValue,
   reasonText,
   relativeStart,
-} from "../helpers/approval-window";
+} from "@bitwarden/bit-pam";
+import type { AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+
+import {
+  ResolvedNames,
+  organizationNameFor,
+} from "../access-requests/access-name-resolver.service";
 
 /**
  * A row in the approver's inbox. Display values are precomputed because `bitSortable` sorts on
@@ -36,7 +37,7 @@ export type ApprovalRow = {
   /** How long the request has been waiting. */
   elapsed: ElapsedLabel;
   reason: string | null;
-  duration: LabelValue;
+  duration: string;
   relativeStart: LabelValue;
   exactWindow: string;
   /**
@@ -76,7 +77,7 @@ export function toApprovalRow(
     submittedAtMs: Date.parse(request.submittedAt),
     elapsed: elapsedLabel(request.submittedAt, now),
     reason: reasonText(request),
-    duration: durationLabel(request),
+    duration: durationText(request, locale),
     relativeStart: relativeStart(request, now),
     exactWindow: exactWindow(request, locale),
     canDecide,

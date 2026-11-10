@@ -1,3 +1,4 @@
+import { NgComponentOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,6 +7,7 @@ import {
   inject,
   OnInit,
   signal,
+  Type,
   untracked,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -42,6 +44,7 @@ import {
   PopoverModule,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
+import { importQueryParamsForVault } from "@bitwarden/importer-ui";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -76,6 +79,7 @@ import {
   collectionMenuTargetForScope,
   folderNameForScope,
   hasMultipleVaults,
+  importStartedFrom,
   organizationNameForScope,
   organizationInScope,
   organizationVaultPage,
@@ -113,6 +117,10 @@ import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/ite
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { CollectionWebDialogAdapter } from "./shared-folders/collection-web-dialog.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
+import {
+  VAULT_GATED_COLLECTION_BANNER,
+  VaultGatedCollectionBanner,
+} from "./vault-gated-collection-banner.token";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
 function selectionScopeDetail(scope: VaultScope): string {
@@ -161,6 +169,7 @@ function selectionScopeDetail(scope: VaultScope): string {
     VaultOrganizationUserNotificationsComponent,
     VaultRemountOnDirective,
     CardGridComponent,
+    NgComponentOutlet,
   ],
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
@@ -214,6 +223,16 @@ export class VaultNextComponent implements OnInit {
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
+  );
+
+  /**
+   * Host-provided notice naming the request requirement on a governed shared folder. Unprovided —
+   * every build without PAM — nothing renders. The component itself decides whether the folder it
+   * is handed warrants the notice, so this page only has to say which folder is open.
+   */
+  protected readonly gatedCollectionBanner: Type<VaultGatedCollectionBanner> | null = inject(
+    VAULT_GATED_COLLECTION_BANNER,
+    { optional: true },
   );
 
   /**
@@ -766,10 +785,14 @@ export class VaultNextComponent implements OnInit {
 
   protected async openImport(): Promise<void> {
     if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
-      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
-      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
-      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
-      await this.router.navigate(["/tools/import"]);
+      const queryParams = importQueryParamsForVault(
+        this.scopedOrganizationId(),
+        this.scopedCollectionId(),
+        importStartedFrom(this.parsedVaultScope(), this.vaultNav()),
+      );
+      await (queryParams == null
+        ? this.router.navigate(["/tools/import"])
+        : this.router.navigate(["/tools/import"], { queryParams }));
       return;
     }
 

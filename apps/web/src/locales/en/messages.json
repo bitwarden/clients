@@ -2645,6 +2645,9 @@
   "noItemsMatchSelectedFilters": {
     "message": "No items match selected filters"
   },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "No items match the selected filters"
+  },
   "noItemsMatchSearchTerm": {
     "message": "No items match \"$SEARCH_TERM$\"",
     "placeholders": {
@@ -3632,6 +3635,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Select vault",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Select location",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Select a vault"
+  },
+  "selectALocationTitle": {
+    "message": "Select a location"
+  },
+  "importDestinationDescription": {
+    "message": "Choose where to import these items."
+  },
+  "importMyItemsOption": {
+    "message": "My items",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible only to you"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organization vault"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "Family vault"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+  },
+  "importSharedFolderRequired": {
+    "message": "A shared folder is required."
+  },
+  "importIntoOrganization": {
+    "message": "Items will be imported into $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Move all items into a shared folder"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Import $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Import 1 item"
+  },
+  "importToOrganization": {
+    "message": "Import to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "secure notes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cards",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH keys",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bank accounts",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "licenses",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "passports",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "Choose File"
@@ -4908,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Show pricing summary"
-  },
-  "hidePricingSummary": {
-    "message": "Hide pricing summary"
-  },
   "summary": {
     "message": "Summary"
   },
@@ -4992,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "Subscription expiration"
-  },
-  "subscriptionCanceled": {
-    "message": "The subscription has been canceled."
   },
   "pendingCancellation": {
     "message": "Pending cancellation"
@@ -5215,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "through $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -5610,6 +5753,31 @@
   },
   "trialIncludesPrivilegedControls": {
     "message": "Your trial includes Privileged Controls."
+  },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included with this organization."
+  },
+  "contactSales": {
+    "message": "Contact sales"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team. Contact sales to add it to your organization."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "To change your Privileged Controls seats, contact sales."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$OCCUPIED$ of $TOTAL$ seats in use",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
   },
   "monthly": {
     "message": "Monthly"
@@ -6743,6 +6911,14 @@
   "revocationReasonDeclinedItemTransfer": {
     "message": "Declined item transfer to organization"
   },
+  "revocationReasonByAdmin": {
+    "message": "By admin",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "No reason recorded",
+    "description": "Status filter option for revoked members with no revocation reason on record."
+  },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
     "placeholders": {
@@ -7595,10 +7771,6 @@
     "message": "Upgrade plan",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Upgrade your account to another plan by providing the information below. Please ensure that you have an active payment method added to the account.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Invoice #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -8300,6 +8472,9 @@
   "viewApiKey": {
     "message": "View API key"
   },
+  "copyApiKey": {
+    "message": "Copy API key"
+  },
   "rotateApiKey": {
     "message": "Rotate API key"
   },
@@ -8831,14 +9006,34 @@
     "message": "Copy Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Remove password or email verification"
+  },
+  "removedAuth": {
+    "message": "Password or email verification removed"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "Remove password"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
   },
   "removedPassword": {
     "message": "Password removed"
   },
-  "removePasswordConfirmation": {
-    "message": "Are you sure you want to remove the password?"
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "All Sends"
@@ -9316,6 +9511,15 @@
   "desktopAutotypePolicyDescVfo1": {
     "message": "Enable desktop autotype for members."
   },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Desktop app autofill"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Turn on desktop autofill by default for all members."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
+  },
   "disableSend": {
     "message": "Remove Send"
   },
@@ -9465,6 +9669,9 @@
   },
   "estimatedTax": {
     "message": "Estimated tax"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
   },
   "subtotal": {
     "message": "Subtotal"
@@ -11956,10 +12163,6 @@
     "message": "Service account",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "Service accounts",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "Secrets",
     "description": "The title for the section of the application that deals with secrets."
@@ -12799,6 +13002,9 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "This user can access Secrets Manager"
+  },
+  "products": {
+    "message": "Products"
   },
   "privilegedControls": {
     "message": "Privileged Controls",
@@ -14185,9 +14391,6 @@
     "message": "Describe your reason for canceling",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Free for 1 year"
-  },
   "newWebApp": {
     "message": "Welcome to the new and improved web app. Learn more about what’s changed."
   },
@@ -14990,15 +15193,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ Discount",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Get Secrets Manager"
   },
@@ -15218,9 +15412,6 @@
     "message": "contact Bitwarden support.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "Sponsored"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   },
@@ -15431,9 +15622,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Access to Premium features"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB additional storage"
   },
   "sshKeyAlgorithm": {
     "message": "Key algorithm"
@@ -16830,9 +17018,6 @@
   "familiesUpdated": {
     "message": "You've upgraded to Families!"
   },
-  "taxCalculationError": {
-    "message": "There was an error calculating tax for your location. Please try again."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Welcome to Bitwarden"
   },
@@ -16854,8 +17039,8 @@
   "upgradeNow": {
     "message": "Upgrade now"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
-    "message": "Get advanced online security with Bitwarden premium."
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
+    "message": "Get advanced online security with Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
@@ -18230,29 +18415,26 @@
   "pamTabHistory": {
     "message": "History"
   },
-  "pamAccessRequestsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
+  "pamMyRequestsLoaded": {
+    "message": "Requests loaded"
   },
   "pamCollectionFilter": {
     "message": "Collection"
   },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Extension requests"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "No active access"
-  },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "Pending"
+  "pamStatusInUse": {
+    "message": "In use",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsPendingEmpty": {
-    "message": "No pending requests"
+  "pamStatusEndingSoon": {
+    "message": "Ending soon",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "No shared folders to filter by",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
   },
   "pamMyRequestsEmptyTitle": {
     "message": "You have no requests"
@@ -18287,12 +18469,63 @@
   "pamColumnActions": {
     "message": "Actions"
   },
-  "pamWindowUntil": {
-    "message": "Until $DATE$",
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ to $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "Until $END$",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "Expires $DATE$ at $TIME$",
     "placeholders": {
       "date": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Expires today at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
       }
     }
   },
@@ -18327,7 +18560,7 @@
   "pamResolverUnknown": {
     "message": "Unknown user"
   },
-  "pamInboxInCollection": {
+  "pamInboxInSharedFolder": {
     "message": "in $COLLECTION$",
     "placeholders": {
       "collection": {
@@ -18335,9 +18568,6 @@
         "example": "Production"
       }
     }
-  },
-  "pamInboxReason": {
-    "message": "Reason"
   },
   "pamInboxReasonMissing": {
     "message": "No reason provided"
@@ -18348,32 +18578,11 @@
   "pamInboxRequester": {
     "message": "Requester"
   },
-  "pamInboxDurationMinutes": {
-    "message": "$MINUTES$ min",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
-  },
   "pamStartLeaseButton": {
     "message": "Start access"
   },
   "pamStartLeaseSuccess": {
     "message": "Access started."
-  },
-  "pamInboxDuration1Hour": {
-    "message": "1 hour"
-  },
-  "pamInboxDurationHours": {
-    "message": "$HOURS$ hours",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "4"
-      }
-    }
   },
   "pamInboxStartAsap": {
     "message": "starting now"
@@ -18414,8 +18623,8 @@
   "pamEndLeaseSuccess": {
     "message": "Access ended."
   },
-  "pamExtendLeaseButton": {
-    "message": "Extend"
+  "pamExtendLeaseButtonV2": {
+    "message": "Extend access"
   },
   "pamExtendLeaseDialogTitle": {
     "message": "Extend access"
@@ -18529,6 +18738,40 @@
       }
     }
   },
+  "pamAuditCustomRange": {
+    "message": "$START$ – $END$",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "From $START$",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "Until $END$",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
   "pamAuditColumnEvent": {
     "message": "Event"
   },
@@ -18562,8 +18805,8 @@
   "pamAuditIncomplete": {
     "message": "Incomplete"
   },
-  "pamAuditIncompleteTooltip": {
-    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed. It may have failed or been interrupted."
   },
   "pamAuditKindRequestSubmitted": {
     "message": "Access requested"
@@ -18631,11 +18874,71 @@
   "pamAccessRequestDetailsTitle": {
     "message": "Request details"
   },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Details",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
   "pamAccessRequestLeaseTitle": {
     "message": "Access"
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "Decision log"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Decision",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Approved by",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Denied by",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Revoked by",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Ended by",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "Email",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Decision comment",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Start session",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "End session",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "System (automatic)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Submit new request",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Reason",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Keep it brief. The requester reads this directly.",
+    "description": "Hint under the withdrawal reason field."
   },
   "pamAccessRequestNotFound": {
     "message": "Access request not available"
@@ -18646,36 +18949,83 @@
   "pamAccessRequestLoadError": {
     "message": "Couldn't load this access request."
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "You have active access to this item — $DURATION$ remaining",
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Access active • $DURATION$ left",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "23m"
+        "example": "20 days"
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Access to this item is ending soon — $DURATION$ remaining",
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Ending soon • $DURATION$ left",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "4m"
+        "example": "4 minutes"
       }
     }
   },
   "pamPendingRequestBannerHeading": {
     "message": "Access request pending approval"
   },
-  "pamApprovedRequestBannerHeading": {
-    "message": "Access approved"
+  "pamPendingSubmittedJustNow": {
+    "message": "Submitted just now"
   },
-  "pamApprovedRequestBannerDuration": {
-    "message": "$DURATION$ of access",
+  "pamPendingSubmittedAgo": {
+    "message": "Submitted $WHEN$",
     "placeholders": {
-      "duration": {
+      "when": {
         "content": "$1",
-        "example": "1 hour"
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privileged credentials"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls license needed",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Request to use"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Your access has ended"
+  },
+  "pamEndedBannerBody": {
+    "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Ready to use"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "You can access this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
       }
     }
   },
@@ -18685,17 +19035,17 @@
   "pamRequestAccessBannerHeading": {
     "message": "You can request access"
   },
-  "pamUnlicensedBannerHeading": {
-    "message": "Privileged Controls license required",
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "You need a Privileged Controls license to use this item",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
-  },
-  "pamUnlicensedBannerBody": {
-    "message": "You need a Privileged Controls license to view this item. Ask your admin to activate your license.",
-    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
     "message": "Requesting access is not available while unlicensed.",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "The approved access window has not started yet."
@@ -18782,8 +19132,8 @@
   "pendingStateCancelError": {
     "message": "Couldn't cancel the request."
   },
-  "requestAccessModalSubmit": {
-    "message": "Request access"
+  "requestAccessModalSubmitV2": {
+    "message": "Send request"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Pick a duration. You'll get immediate access for that long."
@@ -18791,8 +19141,14 @@
   "requestAccessModalHumanDescription": {
     "message": "Pick a window and tell the approver why you need access. They'll review and decide."
   },
-  "requestAccessModalDuration": {
-    "message": "Duration"
+  "requestAccessModalDurationV2": {
+    "message": "How long do you need it?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Request details"
   },
   "requestAccessModalStartDate": {
     "message": "Start date"
@@ -18872,20 +19228,20 @@
       }
     }
   },
-  "requestAccessModalReasonRequired": {
-    "message": "Reason"
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Why do you need it?"
   },
-  "requestAccessModalReasonOptional": {
-    "message": "Reason (optional)"
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Why do you need it?"
   },
-  "requestAccessModalReasonPlaceholder": {
-    "message": "Why do you need this?"
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "e.g., Quarterly audit, need to run a few read-only queries"
   },
-  "requestAccessModalAutomaticReasonHint": {
-    "message": "This reason is saved with your access request."
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
   },
-  "requestAccessModalHumanReasonHint": {
-    "message": "Approvers will see this reason when reviewing your request."
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
   },
   "requestAccessModalGenericError": {
     "message": "Could not request access. Try again."
@@ -18893,32 +19249,23 @@
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
   },
-  "requestAccessModalApprovedSuccess": {
-    "message": "Access approved — select Start access to begin."
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "Request submitted — awaiting approval."
-  },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "No active access"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Collection"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "No requests waiting for your decision"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Pending approval"
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Access requested"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
+  "pamApprovalsApproveRequest": {
+    "message": "Approve request"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Deny request"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Revoke access"
   },
   "pamDecideAdditionalInformation": {
     "message": "Additional information"
@@ -18958,12 +19305,6 @@
   },
   "pamInboxCommentPlaceholder": {
     "message": "Add an optional comment"
-  },
-  "pamInboxConfirmApproveButton": {
-    "message": "Approve request"
-  },
-  "pamInboxConfirmDenyButton": {
-    "message": "Deny request"
   },
   "pamInboxDecisionFailed": {
     "message": "Could not record decision"
@@ -19031,10 +19372,7 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Could not withdraw approval"
   },
-  "pamInboxWindow": {
-    "message": "Requested window"
-  },
-  "pamApprovalsNoResults": {
+  "pamAccessRequestsNoResults": {
     "message": "No access requests match your filters."
   },
   "pamApprovalsLoaded": {
@@ -19052,14 +19390,40 @@
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
   },
-  "pamInboxWithdrawApprovalConfirm": {
-    "message": "This withdraws the member's approval for $ITEM$. Access will not start, and they will need a new approval to get it.",
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "This withdraws your approval for $ITEM$. Access won't start, and $REQUESTER$ will need a new approval to get it.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
     "placeholders": {
       "item": {
         "content": "$1",
         "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
       }
     }
+  },
+  "pamWithdrawApprovalWarningOne": {
+    "message": "This withdraws your approval for",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Access won't start, and",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "will need a new approval to get it.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Reason"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Keep it brief. The requester reads this directly."
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "Access rule"
@@ -19157,11 +19521,11 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "Optional conditions"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Select collections"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Select shared folders"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "This access rule will apply to all selected collections."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "This access rule will apply to all selected shared folders."
   },
   "pamAccessRuleEventLogNotice": {
     "message": "All requests and decisions are logged."
@@ -19169,8 +19533,8 @@
   "pamAccessRuleViewAuditLog": {
     "message": "View audit log"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Couldn't load collections. Refresh the page to try again."
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Couldn't load shared folders. Refresh the page to try again."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "This duration will be pre-filled in access requests."
@@ -19189,36 +19553,6 @@
   },
   "pamAccessRuleMaxDurationLimitHint": {
     "message": "Access is limited to this length, whatever duration is requested."
-  },
-  "pamAccessRuleDuration15m": {
-    "message": "15 minutes"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 minutes"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 hour"
-  },
-  "pamAccessRuleDuration2h": {
-    "message": "2 hours"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 hours"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 hours"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 day"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 days"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 days"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 days"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "Only 1 user can have active access at a time"
@@ -19247,8 +19581,8 @@
   "pamAccessRuleApprovers": {
     "message": "Approvers"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Collection managers"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Shared folder managers"
   },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (copy)",
@@ -19273,8 +19607,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Copy created. Choose the collections it applies to."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Copy created. Choose the shared folders it applies to."
   },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
@@ -19288,8 +19622,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
   },
-  "pamAccessRuleDeleteConfirmDescription": {
-    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "This will permanently remove this rule. Users in the shared folders it governs will regain normal access."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Deactivate access rule"
@@ -19306,11 +19640,11 @@
   "pamAccessRuleErrorNameTaken": {
     "message": "Another rule already uses this name. Enter a different name."
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Another access rule already covers one of these collections. Select different collections."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Another access rule already covers one of these shared folders. Select different shared folders."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different shared folders.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -19318,11 +19652,11 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "One of the collections you selected no longer exists. Select a different collection."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "One of the shared folders you selected no longer exists. Select a different shared folder."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "One of the shared folders you selected is not part of this organization. Select a different shared folder."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "Choose a maximum extension length, or turn off extensions."
@@ -19333,8 +19667,8 @@
   "pamNoAccessRulesYetTitle": {
     "message": "No access rules yet"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Create a rule to add extra protection to sensitive collections."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Create a rule to add extra protection to sensitive shared folders."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Create custom rule"
@@ -19372,17 +19706,17 @@
   "pamTemplateIpRestrictedName": {
     "message": "IP-restricted access"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Collections"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Shared folders"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 collection"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 shared folder"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ collections",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -19572,22 +19906,6 @@
   "oneTimeShare": {
     "message": "One time share",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
-  },
-  "viewSharedItem": {
-    "message": "View shared item",
-    "description": "Header for the drawer showing an item that was shared with a link"
-  },
-  "editSharedItem": {
-    "message": "Edit shared item",
-    "description": "Header for the drawer editing the link options of an item that was shared with a link"
-  },
-  "copyShareLink": {
-    "message": "Copy share link",
-    "description": "Button that copies the link for a shared item to the clipboard"
-  },
-  "linkExpiryAfterDeletionDate": {
-    "message": "The link can't expire after the deletion date.",
-    "description": "Error shown when a share link's expiry is set later than its deletion date"
   },
   "activeLinks": {
     "message": "Active links",
@@ -19783,9 +20101,6 @@
   "pamRotation": {
     "message": "Rotation"
   },
-  "pamRotationSubtitle": {
-    "message": "Add managed credentials and the target systems where those credentials live. Then, register access connectors to run inside your network and perform rotation. Once configured, credentials can be rotated on target systems automatically."
-  },
   "pamRotationTabManagedCredentials": {
     "message": "Managed credentials"
   },
@@ -19920,6 +20235,50 @@
       "cron": {
         "content": "$1",
         "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Every day at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "Every $COUNT$ days at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Every month at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "Every $COUNT$ months at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
       }
     }
   },
@@ -20267,6 +20626,9 @@
   "pamAccessConnectorDisconnected": {
     "message": "Disconnected"
   },
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Activate this access connector to assign target systems."
+  },
   "pamAccessConnectorAssignTargetDisabled": {
     "message": "Target systems can only be assigned while the access connector is active."
   },
@@ -20287,6 +20649,9 @@
   },
   "pamAccessConnectorAssignSelectLabel": {
     "message": "Assign target systems"
+  },
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Choose the target systems this access connector can rotate passwords on. Only target systems that use automatic rotation can be assigned."
   },
   "pamAccessConnectorAssignSelectHint": {
     "message": "Only target systems set to automatic rotation can be assigned."
@@ -20485,6 +20850,93 @@
   },
   "pamRotationConfigStatusPaused": {
     "message": "Paused"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "$COUNT$m ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "$COUNT$hr ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "$COUNT$d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "$COUNT$w ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "$COUNT$mo ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "Yesterday"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "In $COUNT$hr",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "In $COUNT$w",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "Due $COUNT$d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Manage credential rotation across target systems, using access connectors running inside your network."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Managed credential"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Access connector"
   },
   "pamRotationConfigRotatingBadge": {
     "message": "Rotating"
@@ -20952,6 +21404,9 @@
   },
   "pamTargetSystemConnectorAssignmentsLoadError": {
     "message": "The access connectors for this target system could not be loaded."
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Schedule"
   },
   "pamTargetSystemDeleteAssignedConnectorsContent": {
     "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first, and its access connector assignments are removed with it.",
