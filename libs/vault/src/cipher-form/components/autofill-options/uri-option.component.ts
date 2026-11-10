@@ -189,11 +189,12 @@ export class UriOptionComponent implements ControlValueAccessor {
   @Input({ required: true }) index: number;
 
   /**
-   * When true, URIs prefixed with the desktop app scheme are shown as desktop apps: a dropdown of
-   * desktop app names labeled "Desktop app", instead of a "Website (URI)" text input. Should
-   * only be true when the WindowsDesktopAutotypeGA feature flag is enabled.
+   * When true, URIs prefixed with the desktop app scheme are recognized as desktop apps: a dropdown
+   * of desktop app names labeled "Desktop app". When false, they're shown like any other URI, as a
+   * "Website (URI)" text input. Should only be true when the WindowsDesktopAutotypeGA feature flag
+   * is enabled.
    */
-  readonly showDesktopApps = input(false);
+  readonly recognizeDesktopApps = input(false);
 
   /**
    * How this row was created, when it's a desktop app row. The parent sets it when it creates the
@@ -231,7 +232,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   /** Returns true if this URI is a desktop app pairing */
   protected get isAppUri(): boolean {
     return (
-      this.showDesktopApps() &&
+      this.recognizeDesktopApps() &&
       this.desktopAppRow() != null &&
       (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false)
     );

@@ -400,7 +400,7 @@ describe("AutofillOptionsComponent", () => {
   });
 
   // Autotype App Tests
-  describe("showDesktopApps", () => {
+  describe("recognizeDesktopApps", () => {
     function createComponent(deviceType: DeviceType) {
       platformUtilsService.getDevice.mockReturnValue(deviceType);
       const localFixture = TestBed.createComponent(AutofillOptionsComponent);
@@ -411,7 +411,7 @@ describe("AutofillOptionsComponent", () => {
     it("is false when the windows-desktop-autotype-ga feature flag is off", () => {
       const localFixture = createComponent(DeviceType.WindowsDesktop);
 
-      expect(localFixture.componentInstance["showDesktopApps"]()).toBe(false);
+      expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
     });
 
     it.each([
@@ -428,7 +428,7 @@ describe("AutofillOptionsComponent", () => {
 
         const localFixture = createComponent(deviceType);
 
-        expect(localFixture.componentInstance["showDesktopApps"]()).toBe(true);
+        expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(true);
       },
     );
 
@@ -438,16 +438,16 @@ describe("AutofillOptionsComponent", () => {
 
       const localFixture = createComponent(DeviceType.WindowsDesktop);
 
-      expect(localFixture.componentInstance["showDesktopApps"]()).toBe(false);
+      expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
     });
 
-    it("is passed to the URI options so they show desktop apps on any client", () => {
+    it("is passed to the URI options so they recognize desktop apps on any client", () => {
       gaFeatureFlagSubject.next(true);
 
       const localFixture = createComponent(DeviceType.MacOsDesktop);
 
       const uriOption = localFixture.debugElement.query(By.directive(UriOptionComponent));
-      expect(uriOption.componentInstance.showDesktopApps()).toBe(true);
+      expect(uriOption.componentInstance.recognizeDesktopApps()).toBe(true);
     });
   });
 
@@ -680,7 +680,7 @@ describe("AutofillOptionsComponent", () => {
       const localFixture = createComponent(false, createCipher([pairingUri, null]));
 
       expect(getDesktopAppRows(localFixture)).toEqual([DesktopAppRow.Saved]);
-      expect(localFixture.componentInstance["showDesktopApps"]()).toBe(false);
+      expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
     });
 
     it("adds a desktop app requested by the user as a new desktop app row", async () => {
@@ -747,25 +747,25 @@ describe("AutofillOptionsComponent", () => {
     });
 
     describe("feature flag", () => {
-      it("keeps showing desktop apps when the feature flag turns off while the form is open", () => {
+      it("keeps recognizing desktop apps when the feature flag turns off while the form is open", () => {
         platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
         const localFixture = createComponent(true);
 
         gaFeatureFlagSubject.next(false);
         localFixture.detectChanges();
 
-        expect(localFixture.componentInstance["showDesktopApps"]()).toBe(true);
+        expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(true);
         expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(true);
       });
 
-      it("keeps not showing desktop apps when the feature flag turns on while the form is open", () => {
+      it("keeps not recognizing desktop apps when the feature flag turns on while the form is open", () => {
         platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
         const localFixture = createComponent(false);
 
         gaFeatureFlagSubject.next(true);
         localFixture.detectChanges();
 
-        expect(localFixture.componentInstance["showDesktopApps"]()).toBe(false);
+        expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
         expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(false);
       });
     });

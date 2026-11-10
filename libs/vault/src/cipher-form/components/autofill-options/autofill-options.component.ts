@@ -126,12 +126,17 @@ export class AutofillOptionsComponent implements OnInit {
     shareReplay({ bufferSize: 1, refCount: false }),
   );
 
-  /** Whether desktop app URIs are shown as desktop apps. Desktop apps can be viewed on any client. */
-  protected readonly showDesktopApps = toSignal(this.autotypeGaEnabled$, { initialValue: false });
+  /**
+   * Whether desktop app URIs are recognized as desktop apps, rather than shown as website URIs.
+   * Desktop apps can be viewed on any client.
+   */
+  protected readonly recognizeDesktopApps = toSignal(this.autotypeGaEnabled$, {
+    initialValue: false,
+  });
 
   /** Whether desktop apps can be added. Desktop apps can only be added on Windows desktop. */
   protected readonly showAddAppDropdown = computed(
-    () => this.isWindowsDesktop && this.showDesktopApps(),
+    () => this.isWindowsDesktop && this.recognizeDesktopApps(),
   );
 
   /**
@@ -366,12 +371,12 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   /**
-   * Returns the match strategy a URI is saved with. While desktop apps are shown, desktop app URIs
-   * are saved with the Never match strategy, including ones typed into a website row, because they
-   * load as desktop apps.
+   * Returns the match strategy a URI is saved with. While desktop apps are recognized, desktop app
+   * URIs are saved with the Never match strategy, including ones typed into a website row, because
+   * they load as desktop apps.
    */
   private savedMatchDetection(uri: UriField): UriMatchStrategySetting {
-    return this.showDesktopApps() && uri?.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
+    return this.recognizeDesktopApps() && uri?.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
       ? UriMatchStrategy.Never
       : uri?.matchDetection;
   }
