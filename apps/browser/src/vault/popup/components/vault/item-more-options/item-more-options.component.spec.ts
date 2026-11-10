@@ -24,10 +24,15 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { RestrictedCipherAction } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { ShareLinkService } from "@bitwarden/tools-share";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import {
+  PasswordRepromptService,
+  VAULT_ROW_ACTIONS,
+  type VaultItemsTableRowAction,
+} from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
@@ -35,7 +40,6 @@ import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
 } from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
-import { VAULT_ROW_ACCESS, VaultRowAccessStatus } from "../vault-row-access/vault-row-access.token";
 
 import { ItemMoreOptionsComponent } from "./item-more-options.component";
 
@@ -73,14 +77,8 @@ describe("ItemMoreOptionsComponent", () => {
 
   const revealedCipherService = mock<RevealedCipherService>();
   let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
-  let rowStatus$: BehaviorSubject<VaultRowAccessStatus | null>;
-  const rowAccess = {
-    status$: jest.fn(),
-    requestAccess: jest.fn(),
-    startAccess: jest.fn(),
-    extendAccess: jest.fn(),
-    endAccess: jest.fn(),
-  };
+  /** Contributed menu actions (`VAULT_ROW_ACTIONS`), read when the component is created. */
+  let rowActions: VaultItemsTableRowAction<CipherViewLike>[];
 
   const baseCipher = {
     id: "cipher-1",
@@ -102,10 +100,14 @@ describe("ItemMoreOptionsComponent", () => {
 
   beforeEach(waitForAsync(async () => {
     jest.clearAllMocks();
+    rowActions = [];
+    await setup();
+  }));
+
+  /** Builds the testing module and the component. Call again after a reset to change its inputs. */
+  async function setup() {
     revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
     revealedCipherService.revealed$.mockReturnValue(revealed$);
-    rowStatus$ = new BehaviorSubject<VaultRowAccessStatus | null>(null);
-    rowAccess.status$.mockReturnValue(rowStatus$);
 
     cipherService.getFullCipherView.mockImplementation(async (c) => ({ ...baseCipher, ...c }));
 
@@ -113,7 +115,7 @@ describe("ItemMoreOptionsComponent", () => {
       imports: [ItemMoreOptionsComponent, NoopAnimationsModule],
       providers: [
         { provide: RevealedCipherService, useValue: revealedCipherService },
-        { provide: VAULT_ROW_ACCESS, useValue: rowAccess },
+        { provide: VAULT_ROW_ACTIONS, useFactory: () => rowActions },
         { provide: CipherService, useValue: cipherService },
         { provide: VaultPopupAutofillService, useValue: autofillSvc },
 
@@ -157,7 +159,7 @@ describe("ItemMoreOptionsComponent", () => {
     fixture = TestBed.createComponent(ItemMoreOptionsComponent);
     component = fixture.componentInstance;
     component.cipher = baseCipher;
-  }));
+  }
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -432,7 +434,7 @@ describe("ItemMoreOptionsComponent", () => {
       expect(component["allows"](RestrictedCipherAction.UserFields)).toBe(true);
     });
 
-    it("withholds edit, clone and delete while a reveal of its restricted cipher is live", () => {
+    it("allows edit, but not clone or delete, while a reveal of its restricted cipher is live", () => {
       const restricted = { ...baseCipher, partial: true } as CipherView;
       component.cipher = restricted;
       expect(component["isLocked"]).toBe(true);
@@ -442,8 +444,7 @@ describe("ItemMoreOptionsComponent", () => {
       );
 
       expect(component["isLocked"]).toBe(false);
-      expect(component["accessActive"]).toBe(true);
-      expect(component.canEdit).toBe(false);
+      expect(component.canEdit).toBe(true);
       expect(component["allows"](RestrictedCipherAction.Delete)).toBe(false);
       expect(component["allows"](RestrictedCipherAction.Clone)).toBe(false);
     });
@@ -498,45 +499,31 @@ describe("ItemMoreOptionsComponent", () => {
     });
   });
 
-  describe("PAM-gated (partial) ciphers", () => {
-    it("offers Autofill and Edit on a full login", () => {
-      component.cipher = { ...baseCipher };
-
-      expect(component.canAutofill).toBe(true);
-      expect(component.canEdit).toBe(true);
-    });
-
-    it("offers neither Autofill nor Edit on a partial cipher", () => {
-      component.cipher = { ...baseCipher, partial: true };
-
-      expect(component.canAutofill).toBe(false);
-      expect(component.canEdit).toBe(false);
-    });
-  });
-
-  describe("gated (partial) cipher menu", () => {
+  describe("restricted cipher menu", () => {
     let overlayContainer: OverlayContainer;
 
-    const partialCipher = { ...baseCipher, partial: true, favorite: false };
+    const restrictedCipher = { ...baseCipher, partial: true, favorite: false };
 
     function menuTrigger(): HTMLButtonElement | null {
       return fixture.nativeElement.querySelector('button[biticonbutton="bwi-ellipsis-v"]');
     }
 
-    function openMenuAndGetContent(): string {
+    function openMenu(): HTMLElement {
       fixture.detectChanges();
-      const trigger = menuTrigger();
-      expect(trigger).toBeTruthy();
-
-      trigger!.click();
+      menuTrigger()!.click();
       fixture.detectChanges();
+      return overlayContainer.getContainerElement();
+    }
 
-      return overlayContainer.getContainerElement().innerHTML;
+    function menuItems(): string[] {
+      return Array.from(
+        openMenu().querySelectorAll<HTMLElement>("[bitmenuitem]"),
+        (item) => item.textContent?.trim() ?? "",
+      );
     }
 
     beforeEach(() => {
       overlayContainer = TestBed.inject(OverlayContainer);
-      component.cipher = partialCipher;
       fixture.componentRef.setInput("showAutofill", true);
     });
 
@@ -544,127 +531,122 @@ describe("ItemMoreOptionsComponent", () => {
       overlayContainer.ngOnDestroy();
     });
 
-    it("isPartial reflects the cipher's partial flag", () => {
-      component.cipher = partialCipher;
-      expect(component["isPartial"]).toBe(true);
+    it("offers Favorite and Archive, but not Autofill, Edit, Clone or Delete, without a reveal", () => {
+      component.cipher = restrictedCipher;
 
-      component.cipher = baseCipher;
-      expect(component["isPartial"]).toBe(false);
+      expect(menuItems()).toEqual(["favorite", "archiveVerb"]);
     });
 
-    it("offers Request access, Favorite and Archive on a requestable gated row", () => {
-      rowStatus$.next({ kind: "request", label: "Request to use", canExtend: false });
+    it("offers Edit, but not Clone or Delete, on a revealed row", () => {
+      const revealed = { ...baseCipher, partial: false } as CipherView;
+      revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
+      component.cipher = revealed;
 
-      const content = openMenuAndGetContent();
+      const items = menuItems();
 
-      expect(content).toContain("pamRequestAccessButton");
-      expect(content).toContain("favorite");
-      expect(content).toContain("archiveVerb");
-      expect(content).not.toContain("autofillVerb");
-      expect(content).not.toContain("pamExtendAccessMenuItem");
-      expect(content).not.toContain("pamEndLeaseButton");
-      expect(content).not.toContain(">edit<");
-      expect(content).not.toContain("clone");
-      expect(content).not.toContain(">delete<");
+      expect(items).toContain("edit");
+      expect(items).not.toContain("clone");
+      expect(items).not.toContain("delete");
     });
 
-    it.each(["pending", "unavailable"] as const)(
-      "disables Request access on a %s gated row",
-      (kind) => {
-        rowStatus$.next({ kind, label: kind, canExtend: false });
-
-        openMenuAndGetContent();
-        const item = overlayContainer
-          .getContainerElement()
-          .querySelector<HTMLButtonElement>("button[bitmenuitem]");
-
-        expect(item?.textContent).toContain("pamRequestAccessButton");
-        expect(item?.disabled).toBe(true);
-      },
-    );
-
-    it("offers Start access instead of Request access once the request is ready", () => {
-      rowStatus$.next({ kind: "ready", label: "Ready to use", canExtend: false });
-
-      const content = openMenuAndGetContent();
-
-      expect(content).toContain("pamStartLeaseButton");
-      expect(content).not.toContain("pamRequestAccessButton");
-    });
-
-    it("requests access from the menu item", () => {
-      rowStatus$.next({ kind: "request", label: "Request to use", canExtend: false });
-      openMenuAndGetContent();
-
-      overlayContainer
-        .getContainerElement()
-        .querySelector<HTMLButtonElement>("button[bitmenuitem]")!
-        .click();
-
-      expect(rowAccess.requestAccess).toHaveBeenCalledWith(partialCipher);
-    });
-
-    it("offers Autofill, Extend access, End access, Favorite and Archive while access is active", () => {
-      revealed$.next(
-        new Map([["cipher-1" as CipherId, { ...baseCipher, partial: false } as CipherView]]),
-      );
-      rowStatus$.next({ kind: "active", label: "8h left", canExtend: true });
-
-      const content = openMenuAndGetContent();
-
-      const order = [
-        "autofillVerb",
-        "pamExtendAccessMenuItem",
-        "pamEndLeaseButton",
-        "favorite",
-        "archiveVerb",
-      ].map((text) => content.indexOf(text));
-      expect(order.every((i) => i >= 0)).toBe(true);
-      expect([...order].sort((a, b) => a - b)).toEqual(order);
-      expect(content).not.toContain(">edit<");
-      expect(content).not.toContain("clone");
-      expect(content).not.toContain(">delete<");
-      expect(content).not.toContain("pamRequestAccessButton");
-    });
-
-    it("omits Extend access when the lease cannot be extended", () => {
-      revealed$.next(
-        new Map([["cipher-1" as CipherId, { ...baseCipher, partial: false } as CipherView]]),
-      );
-      rowStatus$.next({ kind: "active", label: "8h left", canExtend: false });
-
-      const content = openMenuAndGetContent();
-
-      expect(content).not.toContain("pamExtendAccessMenuItem");
-      expect(content).toContain("pamEndLeaseButton");
-    });
-
-    it("withholds edit and delete from an ungated item held through an active lease", () => {
-      component.cipher = baseCipher;
-      rowStatus$.next({ kind: "active", label: "8h left", canExtend: true });
-
-      expect(component.canEdit).toBe(false);
-      expect(component["accessActive"]).toBe(true);
-    });
-
-    it("returns edit once the item is not privileged", () => {
-      component.cipher = baseCipher;
-
-      expect(component.canEdit).toBe(true);
-      expect(component["accessActive"]).toBe(false);
-    });
-
-    it("keeps the overflow trigger for a gated row", () => {
+    it("keeps the overflow trigger for a restricted row", () => {
+      component.cipher = restrictedCipher;
       fixture.detectChanges();
 
       expect(menuTrigger()).not.toBeNull();
     });
+  });
 
-    it("keeps the overflow trigger for a normal row", () => {
-      component.cipher = baseCipher;
+  describe("contributed actions", () => {
+    let overlayContainer: OverlayContainer;
+
+    const action = (
+      id: string,
+      overrides: Partial<VaultItemsTableRowAction<CipherViewLike>> = {},
+    ): VaultItemsTableRowAction<CipherViewLike> => ({
+      id,
+      label: id,
+      icon: "bwi-lock",
+      run: jest.fn(),
+      ...overrides,
+    });
+
+    async function provideActions(actions: VaultItemsTableRowAction<CipherViewLike>[]) {
+      TestBed.resetTestingModule();
+      rowActions = actions;
+      await setup();
+      overlayContainer = TestBed.inject(OverlayContainer);
+    }
+
+    function openMenu(): HTMLElement {
       fixture.detectChanges();
+      fixture.nativeElement.querySelector('button[biticonbutton="bwi-ellipsis-v"]')!.click();
+      fixture.detectChanges();
+      return overlayContainer.getContainerElement();
+    }
 
-      expect(menuTrigger()).not.toBeNull();
+    function menuItem(label: string): HTMLButtonElement | undefined {
+      return Array.from(openMenu().querySelectorAll<HTMLButtonElement>("[bitmenuitem]")).find(
+        (item) => item.textContent?.trim() === label,
+      );
+    }
+
+    afterEach(() => {
+      overlayContainer?.ngOnDestroy();
+    });
+
+    it("shows contributed actions after View and before Favorite, in order", async () => {
+      await provideActions([action("first"), action("second")]);
+      fixture.componentRef.setInput("showViewOption", true);
+
+      const labels = Array.from(openMenu().querySelectorAll<HTMLElement>("[bitmenuitem]"), (item) =>
+        item.textContent?.trim(),
+      );
+
+      expect(labels.slice(0, 4)).toEqual(["view", "first", "second", "favorite"]);
+    });
+
+    it("hides an action whose show returns false for the row", async () => {
+      const show = jest.fn().mockReturnValue(false);
+      await provideActions([action("hidden", { show })]);
+
+      expect(menuItem("hidden")).toBeUndefined();
+      expect(show).toHaveBeenCalledWith(baseCipher);
+    });
+
+    it("disables an action whose disabled returns true for the row", async () => {
+      await provideActions([action("disabled", { disabled: () => true }), action("enabled")]);
+
+      const items = Array.from(openMenu().querySelectorAll<HTMLButtonElement>("[bitmenuitem]"));
+      const item = (label: string) => items.find((i) => i.textContent?.trim() === label);
+
+      expect(item("disabled")?.disabled).toBe(true);
+      expect(item("enabled")?.disabled).toBe(false);
+    });
+
+    it("runs the action with the row's cipher", async () => {
+      const run = jest.fn();
+      await provideActions([action("run", { run })]);
+
+      menuItem("run")!.click();
+
+      expect(run).toHaveBeenCalledWith(baseCipher);
+    });
+
+    it("shows contributed actions on a restricted row", async () => {
+      await provideActions([action("request")]);
+      component.cipher = { ...baseCipher, partial: true };
+
+      expect(menuItem("request")).toBeDefined();
+    });
+
+    it("throws in dev mode when an action ID matches a built-in action", async () => {
+      TestBed.resetTestingModule();
+      rowActions = [action("edit")];
+
+      await expect(setup()).rejects.toThrow(
+        'VAULT_ROW_ACTIONS action ID "edit" is already in use.',
+      );
     });
   });
 });

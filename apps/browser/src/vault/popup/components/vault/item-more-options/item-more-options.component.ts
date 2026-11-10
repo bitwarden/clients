@@ -47,7 +47,12 @@ import {
   IconModule,
 } from "@bitwarden/components";
 import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
-import { PasswordRepromptService, Vfo1I18nPipe } from "@bitwarden/vault";
+import {
+  PasswordRepromptService,
+  uniqueContributedActions,
+  VAULT_ROW_ACTIONS,
+  Vfo1I18nPipe,
+} from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
@@ -55,11 +60,20 @@ import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
 } from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
-import {
-  VAULT_ROW_ACCESS,
-  VaultRowAccess,
-  VaultRowAccessStatus,
-} from "../vault-row-access/vault-row-access.token";
+
+/** IDs of the menu's own actions. Contributed action IDs must differ. */
+const BUILT_IN_ACTION_IDS: ReadonlySet<string> = new Set([
+  "autofill",
+  "view",
+  "addFavorite",
+  "removeFavorite",
+  "edit",
+  "clone",
+  "addToSharedFolder",
+  "shareViaLink",
+  "archive",
+  "delete",
+]);
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -116,16 +130,10 @@ export class ItemMoreOptionsComponent {
   protected readonly RestrictedCipherAction = RestrictedCipherAction;
   private readonly revealedCipherService = inject(RevealedCipherService);
 
-  private readonly rowAccess: VaultRowAccess | null = inject(VAULT_ROW_ACCESS, { optional: true });
-
-  /** The privileged-control status of this row's cipher, `null` when it is not governed. */
-  protected readonly accessStatus = toSignal(
-    this._cipher$.pipe(
-      switchMap((cipher) =>
-        cipher?.id == null || this.rowAccess == null ? of(null) : this.rowAccess.status$(cipher),
-      ),
-    ),
-    { initialValue: null as VaultRowAccessStatus | null },
+  /** Actions another feature adds (`VAULT_ROW_ACTIONS`), shown after View. */
+  protected readonly contributedActions = uniqueContributedActions(
+    inject(VAULT_ROW_ACTIONS, { optional: true }) ?? [],
+    BUILT_IN_ACTION_IDS,
   );
 
   /** The live revealed view of this row's restricted cipher, if any. */
@@ -206,8 +214,8 @@ export class ItemMoreOptionsComponent {
   ) {}
 
   /**
-   * A PAM-gated item arrives as a reduced partial envelope: there is nothing to edit or fill until
-   * access is active, and the form and autofill paths do not exclude partials themselves.
+   * A restricted item arrives as a reduced partial envelope: there is nothing to edit or fill until
+   * it is revealed, and the form and autofill paths do not exclude partials themselves.
    */
   get isPartial() {
     return RestrictedCipherPolicy.isRestricted(this.cipher);
@@ -221,32 +229,8 @@ export class ItemMoreOptionsComponent {
     return this.isPartial && this.revealedView() == null;
   }
 
-  /**
-   * True while the member holds the item through privileged control: a live lease, or a restricted
-   * item with a live reveal. Edit, clone and delete stay out of the menu until access ends.
-   */
-  protected get accessActive() {
-    return this.accessStatus()?.kind === "active" || (this.isPartial && !this.isLocked);
-  }
-
   get canEdit() {
-    return this.cipher.edit && this.allows(RestrictedCipherAction.Edit) && !this.accessActive;
-  }
-
-  protected requestAccess() {
-    return this.rowAccess?.requestAccess(this.cipher);
-  }
-
-  protected startAccess() {
-    return this.rowAccess?.startAccess(this.cipher);
-  }
-
-  protected extendAccess() {
-    return this.rowAccess?.extendAccess(this.cipher);
-  }
-
-  protected endAccess() {
-    return this.rowAccess?.endAccess(this.cipher);
+    return this.cipher.edit && this.allows(RestrictedCipherAction.Edit);
   }
 
   /** False when the restricted-cipher rule blocks the action. */
