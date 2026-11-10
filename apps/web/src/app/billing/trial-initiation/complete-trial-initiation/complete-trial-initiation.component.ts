@@ -236,11 +236,9 @@ export class CompleteTrialInitiationComponent {
       this.loading = false;
     }
 
-    if (this.isSecretsManagerFree) {
-      this.showCompletionToast("organizationCreated", "organizationReadyToGo");
-    } else {
-      this.showCompletionToast("trialStarted", "trialActive");
-    }
+    this.isSecretsManagerFree
+      ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
+      : this.showCompletionToast("trialStarted", "trialActive");
     await this.navigateToOrganization();
   }
 
@@ -350,10 +348,10 @@ export class CompleteTrialInitiationComponent {
   }
 
   /**
-   * Label for the organization-info step's submit button: "Next" when a billing step follows,
+   * Label for the button on the organization-info step: "Next" when a billing step follows,
    * otherwise the terminal action ("Start trial" for a no-card trial, "Submit" for the free SM org).
    */
-  get orgInfoSubmitLabel(): string {
+  get orgInfoButtonLabel(): string {
     if (this.isSecretsManagerFree) {
       return "submit";
     }

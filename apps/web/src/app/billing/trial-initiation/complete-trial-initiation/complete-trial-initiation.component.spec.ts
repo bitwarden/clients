@@ -416,14 +416,14 @@ describe("CompleteTrialInitiationComponent", () => {
     });
   });
 
-  describe("orgInfoSubmitLabel", () => {
+  describe("orgInfoButtonLabel", () => {
     it("is 'next' when a billing step follows (not payment-optional, not SM-free)", () => {
       mockActivatedRoute.queryParams.next({
         product: ProductType.PasswordManager,
         productTier: ProductTierType.Enterprise,
       });
 
-      expect(component.orgInfoSubmitLabel).toBe("next");
+      expect(component.orgInfoButtonLabel).toBe("next");
     });
 
     it("is 'startTrial' for a no-card trial (payment-optional with a trial length)", () => {
@@ -434,7 +434,7 @@ describe("CompleteTrialInitiationComponent", () => {
         trialLength: "7",
       });
 
-      expect(component.orgInfoSubmitLabel).toBe("startTrial");
+      expect(component.orgInfoButtonLabel).toBe("startTrial");
     });
 
     it("is 'submit' for the free Secrets Manager org (terminal, no next step)", () => {
@@ -444,7 +444,7 @@ describe("CompleteTrialInitiationComponent", () => {
         paymentOptional: "true",
       });
 
-      expect(component.orgInfoSubmitLabel).toBe("submit");
+      expect(component.orgInfoButtonLabel).toBe("submit");
     });
   });
 
