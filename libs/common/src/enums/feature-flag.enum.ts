@@ -16,6 +16,7 @@ export enum FeatureFlag {
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
   GroupsComponentRefactor = "pm-43419-groups-table-v2",
   MembersTableV2 = "pm-37463-members-table-v2",
+  OrganizationMembershipSdk = "pm-41568-org-memberships-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -130,6 +131,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
   [FeatureFlag.GroupsComponentRefactor]: FALSE,
   [FeatureFlag.MembersTableV2]: FALSE,
+  [FeatureFlag.OrganizationMembershipSdk]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
