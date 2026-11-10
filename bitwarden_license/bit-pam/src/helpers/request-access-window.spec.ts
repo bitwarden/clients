@@ -133,7 +133,7 @@ describe("requestWindowProblem", () => {
     expect(problemAt(sameDay("2026-08-09", "07:00", "08:00"))).toBe("endInPast");
   });
 
-  it("rejects a past window on today's date too — the date alone is not the test", () => {
+  it("rejects a past window on today's date too, the date alone is not the test", () => {
     expect(problemAt(sameDay("2026-08-17", "06:00", "07:00"))).toBe("endInPast");
   });
 

@@ -46,7 +46,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { DurationShortPipe } from "../../date/duration-short.pipe";
+import { DurationLongPipe } from "../../date/duration-long.pipe";
 import { TimestampPipe } from "../../date/timestamp.pipe";
 import { requestTerms } from "../request-terms";
 import { requestWindowProblemMessage } from "../request-window-fields/request-access-window.validators";
@@ -71,7 +71,7 @@ import { RequestWindowFieldsComponent } from "../request-window-fields/request-w
     SkeletonComponent,
     SkeletonTextComponent,
     TypographyModule,
-    DurationShortPipe,
+    DurationLongPipe,
     I18nPipe,
     RequestWindowFieldsComponent,
     TimestampPipe,
