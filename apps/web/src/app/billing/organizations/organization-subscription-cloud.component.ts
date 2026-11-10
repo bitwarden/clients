@@ -367,6 +367,7 @@ export class OrganizationSubscriptionCloudComponent {
     }
     return (
       org.usePam &&
+      !org.hasProvider &&
       this.privilegedControlsOptions() != null &&
       sub.isOnPamSalesInitiatedTrial !== true &&
       !this.isSubscriptionCanceledOrPendingCancellation()

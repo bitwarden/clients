@@ -1,4 +1,3 @@
-import { DatePipe } from "@angular/common";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -11,6 +10,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserUserMiniResponse,
 } from "@bitwarden/admin-console/common";
+import { formatTimestamp } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -139,6 +139,9 @@ describe("AccessAuditComponent", () => {
             recentlyActivePast7Days: "Past 7 days",
             recentlyActivePast30Days: "Past 30 days",
             custom: "Custom",
+            pamAuditCustomRange: "__$1__ – __$2__",
+            pamAuditCustomRangeFrom: "From __$1__",
+            pamAuditCustomRangeUntil: "Until __$1__",
             edit: "Edit",
             clearAll: "Clear all",
             // Rendered by `bit-table-toolbar` itself, not by this template.
@@ -154,12 +157,9 @@ describe("AccessAuditComponent", () => {
             pamAuditColumnDuration: "Duration",
             pamAuditColumnDetail: "Detail",
             pamAuditDurationExtendedTo: "Extended to __$1__",
-            pamInboxDurationMinutes: "__$1__ min",
-            pamInboxDuration1Hour: "1 hour",
-            pamInboxDurationHours: "__$1__ hours",
             pamAuditSystem: "System",
             pamAuditIncomplete: "Incomplete",
-            pamAuditIncompleteTooltip: "Outcome never confirmed.",
+            pamAuditOutcomeUnconfirmedTooltip: "Outcome never confirmed.",
             pamAuditKindRequestSubmitted: "Access requested",
             pamAuditKindRequestApproved: "Request approved",
             pamAuditKindRequestDenied: "Request denied",
@@ -807,7 +807,7 @@ describe("AccessAuditComponent", () => {
       };
 
       const chooseCustom = async () => {
-        selectFilter("timePeriod", "custom");
+        selectFilter("timePeriod", "chooseCustomRange");
         await fixture.whenStable();
         fixture.detectChanges();
       };
@@ -857,7 +857,6 @@ describe("AccessAuditComponent", () => {
         });
       });
 
-      // Reselecting "Custom" doesn't change the chip's value, so only Edit can reopen the dialog.
       it("reopens the dialog from Edit without dropping the range in force", async () => {
         await renderTrail([new Date(2026, 7, 18, 12, 0)]);
         closesWith({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
@@ -879,6 +878,89 @@ describe("AccessAuditComponent", () => {
           from: new Date("2026-08-18T10:00"),
           to: new Date("2026-08-18T16:00:59.999"),
         });
+      });
+
+      /** The time period menu renders into a CDK overlay on the document. */
+      const openTimePeriodMenu = () => {
+        const triggers = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
+          "bit-filter-menu button[aria-haspopup]",
+        );
+        triggers[triggers.length - 1].click();
+        fixture.detectChanges();
+        return Array.from(document.querySelectorAll<HTMLElement>("[data-filter-option-row]")).map(
+          (row) => ({
+            label: row.textContent!.trim(),
+            radio: row.querySelector<HTMLInputElement>("input[type='radio']")!,
+          }),
+        );
+      };
+
+      it("shows the range in force as its own checked row, leaving Custom to open the dialog", async () => {
+        await renderTrail([new Date(2026, 7, 18, 12, 0)]);
+        closesWith({ action: "apply", from: "2026-08-17T09:00", to: "2026-08-18T17:00" });
+        await chooseCustom();
+
+        const rows = openTimePeriodMenu();
+
+        expect(rows.map((row) => row.label)).toEqual([
+          "All time",
+          "Today",
+          "Past 7 days",
+          "Past 30 days",
+          "Aug 17, 2026 – Aug 18, 2026",
+          "Custom",
+        ]);
+        expect(rows.filter((row) => row.radio.checked).map((row) => row.label)).toEqual([
+          "Aug 17, 2026 – Aug 18, 2026",
+        ]);
+      });
+
+      // A checked radio fires no change event, so Custom must not be the checked row.
+      it("reopens the dialog from Custom while a custom range is in force", async () => {
+        await renderTrail([new Date(2026, 7, 18, 12, 0)]);
+        closesWith({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
+        await chooseCustom();
+        dialogService.open.mockClear();
+        closesWith({ action: "apply", from: "2026-08-18T10:00", to: "2026-08-18T16:00" });
+
+        openTimePeriodMenu()
+          .find((row) => row.label === "Custom")!
+          .radio.click();
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(dialogService.open).toHaveBeenCalledWith(expect.anything(), {
+          data: { from: "2026-08-18T09:00", to: "2026-08-18T17:00" },
+        });
+        expect(component().selectedPeriod()).toBe("custom");
+        expect(component().range()).toEqual({
+          from: new Date("2026-08-18T10:00"),
+          to: new Date("2026-08-18T16:00:59.999"),
+        });
+      });
+
+      it.each([
+        ["2026-08-18T09:00", "2026-08-18T17:00", "Aug 18, 2026"],
+        ["2026-08-17T09:00", "", "From Aug 17, 2026"],
+        ["", "2026-08-18T17:00", "Until Aug 18, 2026"],
+      ])("labels the range %p to %p as %p", async (from, to, label) => {
+        await renderTrail([new Date(2026, 7, 18, 12, 0)]);
+        closesWith({ action: "apply", from, to });
+
+        await chooseCustom();
+
+        expect(component().customRangeLabel()).toBe(label);
+      });
+
+      it("drops the range row once another period is chosen", async () => {
+        await renderTrail([new Date(2026, 7, 18, 12, 0)]);
+        closesWith({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
+        await chooseCustom();
+
+        selectFilter("timePeriod", "past7Days");
+
+        expect(component().customRangeLabel()).toBeNull();
       });
 
       it("offers Edit only while a custom range is the period in force", async () => {
@@ -1288,7 +1370,7 @@ describe("AccessAuditComponent", () => {
         closed: of({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" }),
       } as any);
 
-      selectFilter("timePeriod", "custom");
+      selectFilter("timePeriod", "chooseCustomRange");
       await fixture.whenStable();
       fixture.detectChanges();
 
@@ -2138,8 +2220,7 @@ describe("AccessAuditComponent", () => {
     it("renders the whole timestamp rather than an abbreviated one", async () => {
       await renderRow();
 
-      const medium = new DatePipe("en-US").transform(new Date(OCCURRED_AT), "medium")!;
-      expect(text(0)).toBe(medium);
+      expect(text(0)).toBe(formatTimestamp("en-US", Date.parse(OCCURRED_AT), "second"));
     });
 
     // The cell renders the whole timestamp, so a hover has nothing left to reveal.
@@ -2278,8 +2359,8 @@ describe("AccessAuditComponent", () => {
     ]);
 
     expect(bodyRows()).toHaveLength(3);
-    const medium = (iso: string) => new DatePipe("en-US").transform(new Date(iso), "medium")!;
-    expect(text(0, 0)).toBe(medium("2026-08-18T09:00:00.000Z"));
-    expect(text(0, 2)).toBe(medium("2026-08-18T07:00:00.000Z"));
+    const timestamp = (iso: string) => formatTimestamp("en-US", Date.parse(iso), "second");
+    expect(text(0, 0)).toBe(timestamp("2026-08-18T09:00:00.000Z"));
+    expect(text(0, 2)).toBe(timestamp("2026-08-18T07:00:00.000Z"));
   });
 });

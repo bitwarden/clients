@@ -61,7 +61,7 @@ export {
   accessRuleMatchesFilter,
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
-export { formatRemaining } from "./date/format-remaining";
+export { formatRemaining, formatRemainingLong } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
@@ -71,7 +71,7 @@ export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-ap
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
-export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
+export { durationText, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
   ACCESS_RULE_DURATION_PRESETS,
@@ -80,6 +80,7 @@ export {
   DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
   DurationUnit,
   EXTENSION_DURATION_OPTIONS,
+  extensionDurationOptions,
   REQUEST_ACCESS_DURATION_PRESETS,
   snapToNearestDuration,
   snapToNearestAccessRuleDuration,
@@ -113,13 +114,16 @@ export {
 } from "./helpers/decide-access-error";
 export { selectedFilterStrings } from "./helpers/selected-filter-strings";
 export {
+  ACCESS_BADGE_LOOK,
   cipherAccessBadgeState,
   ENDING_SOON_THRESHOLD_MS,
 } from "./access-state-badge/access-badge-state";
 export type { AccessBadgeState } from "./access-state-badge/access-badge-state";
 export { formatCompoundDuration, formatDuration } from "./date/format-duration";
+export { formatRequestedWindow } from "./date/format-window";
 export { formatCalendarDate, formatTimeOfDay, formatTimestamp } from "./date/format-date";
 export { isGovernedCipher } from "./helpers/governed-cipher";
+export { isLeaseLive } from "./helpers/lease-liveness";
 export { isUnlicensedError } from "./helpers/pam-license-error";
 export { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 export { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
