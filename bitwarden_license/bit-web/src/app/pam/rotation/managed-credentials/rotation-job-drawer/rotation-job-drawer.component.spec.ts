@@ -242,9 +242,10 @@ describe("RotationJobDrawerComponent", () => {
     it("wraps a failure reason as secondary text instead of widening the table", async () => {
       await render(retriedFailure({ attempts: [attempt(1)] }));
 
-      const raw = query("drawer-attempt-reason").nativeElement;
-      expect(raw.className).toContain("tw-break-words");
-      expect(raw.className).toContain("tw-text-muted");
+      const cause = fixture.debugElement.query(
+        By.css("[data-testid='drawer-attempt-row'] .tw-text-muted"),
+      ).nativeElement;
+      expect(cause.className).toContain("tw-break-words");
       expect(query("drawer-attempts").nativeElement.innerHTML).not.toContain("tw-table-auto");
     });
 
@@ -258,15 +259,14 @@ describe("RotationJobDrawerComponent", () => {
       expect(cells[1].nativeElement.textContent.trim()).toBe("");
     });
 
-    it("says why a failed attempt failed, with the raw reason in monospace", async () => {
+    it("says why a failed attempt failed in plain language, without the raw reason", async () => {
       await render(retriedFailure({ attempts: [attempt(1)] }));
 
       const row = attemptRows()[0].nativeElement;
       expect(row.textContent).toContain("pamRotationAttemptResultFailed");
       expect(row.textContent).toContain("pamRotationAttemptCauseTargetUnreachable");
-      const raw = row.querySelector("[data-testid='drawer-attempt-reason']");
-      expect(raw.textContent.trim()).toBe(CONNECTION_REFUSED);
-      expect(raw.className).toContain("tw-font-mono");
+      expect(row.textContent).not.toContain(CONNECTION_REFUSED);
+      expect(row.querySelector(".tw-font-mono")).toBeNull();
     });
 
     it("shows a succeeded attempt with no cause", async () => {
@@ -274,7 +274,7 @@ describe("RotationJobDrawerComponent", () => {
 
       const row = attemptRows()[0].nativeElement;
       expect(row.textContent).toContain("pamRotationAttemptResultSucceeded");
-      expect(row.querySelector("[data-testid='drawer-attempt-reason']")).toBeNull();
+      expect(row.querySelector(".tw-text-muted")).toBeNull();
     });
 
     it("carries no duration column", async () => {

@@ -93,13 +93,6 @@
                     attempt.causeLabelKey | i18n
                   }}</span>
                 }
-                @if (attempt.failureReason; as reason) {
-                  <span
-                    class="tw-block tw-break-words tw-font-mono tw-text-xs tw-text-muted"
-                    data-testid="drawer-attempt-reason"
-                    >{{ reason }}</span
-                  >
-                }
               </div>
             </bit-cell>
           </bit-column>
