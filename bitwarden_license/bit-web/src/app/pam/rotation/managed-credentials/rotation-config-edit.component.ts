@@ -224,14 +224,6 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     initialValue: new Map<CipherId, string>(),
   });
 
-  /** The vault item's name, or its id when the item isn't among the org's loaded ciphers. */
-  protected readonly cipherName = computed(() => {
-    const config = this.config();
-    return config == null
-      ? ""
-      : (this.cipherNameById().get(config.cipherId) ?? String(config.cipherId));
-  });
-
   /** `true` once loaded if the blob failed to verify, a config always has one, unlike a target. */
   protected readonly configSealUnverified = computed(
     () => this.config() != null && this.config()?.sealed == null,
@@ -250,13 +242,18 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       : (this.allCiphers().find((c) => asUuid<CipherId>(c.id) === cipherId) ?? null);
   });
 
-  /** Empty until the vault item resolves, so the page never titles itself with an id. */
-  /** The org's name for the item when known, else the loaded item's; empty while unresolved. */
+  /**
+   * The vault item's name. Empty only while loading, so the page never flashes an id; once loaded
+   * it falls back to the cipher id when the item is unknown or has no name, so it is never blank.
+   */
   protected readonly vaultItemName = computed(() => {
     const config = this.config();
-    return config == null
-      ? ""
-      : (this.cipherNameById().get(config.cipherId) ?? this.cipher()?.name ?? "");
+    if (config == null || this.loading()) {
+      return "";
+    }
+    return (
+      this.cipherNameById().get(config.cipherId) || this.cipher()?.name || String(config.cipherId)
+    );
   });
 
   protected readonly titleText = computed(() =>

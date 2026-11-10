@@ -24,6 +24,7 @@ export class OrgCiphersService {
 
   private readonly _ciphers$ = new BehaviorSubject<CipherView[]>([]);
   private readonly _editableCiphers$ = new BehaviorSubject<CipherView[]>([]);
+  private readonly _names$ = new BehaviorSubject<Map<CipherId, string>>(new Map());
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
 
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
@@ -34,9 +35,11 @@ export class OrgCiphersService {
   /** The ciphers the user can edit with the password visible, which managing rotation requires. */
   readonly editableCiphers$: Observable<CipherView[]> = this._editableCiphers$.asObservable();
 
-  readonly cipherNameById$: Observable<Map<CipherId, string>> = this._ciphers$.pipe(
-    map((ciphers) => new Map(ciphers.map((c) => [asUuid<CipherId>(c.id), c.name]))),
-  );
+  /**
+   * Names every cipher the read returned, including non-login and deleted ones that
+   * {@link ciphers$} omits, so a credential's name resolves wherever its vault item lives.
+   */
+  readonly cipherNameById$: Observable<Map<CipherId, string>> = this._names$.asObservable();
 
   /** Picks the API read by `canEditAllCiphers`, as the Admin Console org-vault page does. */
   async load(organizationId: OrganizationId): Promise<void> {
@@ -59,6 +62,7 @@ export class OrgCiphersService {
       // Rotation manages login credentials only.
       const filtered = ciphers.filter((c) => c.type === CipherType.Login && !c.isDeleted);
 
+      this._names$.next(new Map(ciphers.map((c) => [asUuid<CipherId>(c.id), c.name])));
       this._ciphers$.next(filtered);
       // The admin read carries no per-cipher permissions, and those users can edit every cipher.
       this._editableCiphers$.next(

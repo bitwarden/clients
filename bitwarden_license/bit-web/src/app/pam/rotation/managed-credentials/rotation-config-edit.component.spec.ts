@@ -1831,11 +1831,28 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       expect(component.titleText()).toBe("Splunk forwarder account");
     });
 
-    it("stays empty rather than showing the cipher id while the item is unresolved", async () => {
+    it("stays empty rather than showing the cipher id while loading", async () => {
+      const { component } = setup({ configId: configId("cfg-1"), ciphers: [] });
+      expect(component.titleText()).toBe("");
+    });
+  });
+
+  describe("a vault item the org list cannot name", () => {
+    it("falls back to the cipher id once loaded, so the title is never blank", async () => {
       const { component, fixture } = setup({ configId: configId("cfg-1"), ciphers: [] });
       await fixture.whenStable();
-      expect(component.titleText()).toBe("");
-      expect(component.titleText()).not.toContain(CIPHER_ID);
+      expect(component.vaultItemName()).toBe(String(CIPHER_ID));
+      expect(component.titleText()).toBe(String(CIPHER_ID));
+    });
+
+    it("falls through an empty name", async () => {
+      const { component, fixture, orgCiphersService } = setup({
+        configId: configId("cfg-1"),
+        ciphers: [],
+      });
+      orgCiphersService.cipherNameById$.next(new Map([[CIPHER_ID, ""]]));
+      await fixture.whenStable();
+      expect(component.vaultItemName()).toBe(String(CIPHER_ID));
     });
   });
 

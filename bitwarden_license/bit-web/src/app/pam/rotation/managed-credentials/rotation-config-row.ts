@@ -231,7 +231,7 @@ export function buildRotationConfigRow(
   return {
     id: config.id,
     config,
-    cipherName: cipherName ?? String(config.cipherId),
+    cipherName: cipherName || String(config.cipherId),
     targetSystemName: targetSystem?.name ?? config.targetSystemName,
     methodLabelKey:
       targetSystemMethodLabelKey(config.targetSystemMethod) ?? "pamTargetSystemMethodManual",

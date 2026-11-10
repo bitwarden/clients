@@ -165,6 +165,21 @@ describe("OrgCiphersService", () => {
       expect(nameById.get(asUuid<CipherId>(id("c-b")))).toBe("Bravo");
     });
 
+    it("names non-Login and deleted ciphers in cipherNameById$, though ciphers$ omits them", async () => {
+      organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(false)]));
+      cipherService.getManyFromApiForOrganization.mockResolvedValue([
+        makeCipher(id("c-note"), "Note", CipherType.SecureNote),
+        makeCipher(id("c-deleted"), "Gone", CipherType.Login, "2024-01-01T00:00:00Z"),
+      ]);
+
+      await service.load(ORG_ID);
+
+      expect(await firstValueFrom(service.ciphers$)).toHaveLength(0);
+      const nameById = await firstValueFrom(service.cipherNameById$);
+      expect(nameById.get(asUuid<CipherId>(id("c-note")))).toBe("Note");
+      expect(nameById.get(asUuid<CipherId>(id("c-deleted")))).toBe("Gone");
+    });
+
     it("sets loading$ to false after load completes", async () => {
       organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(false)]));
       cipherService.getManyFromApiForOrganization.mockResolvedValue([]);
