@@ -285,6 +285,11 @@
                 [description]="option.description"
               ></bit-option>
             }
+            <bit-option
+              id="rotation-config-edit_option_new-target-system"
+              [value]="addTargetSystemOption"
+              [label]="'pamRotationConfigAddTargetSystemOption' | i18n"
+            ></bit-option>
           </bit-select>
           <bit-hint>
             @if (!hasActiveTargetSystems()) {
@@ -304,18 +309,6 @@
             {{ "pamRotationConfigCalloutTargetNotConnected" | i18n }}
           </bit-callout>
         }
-
-        <div class="tw-mb-4">
-          <button
-            type="button"
-            bitLink
-            startIcon="bwi-plus"
-            id="rotation-config-edit_button_new-target-system"
-            (click)="createTargetSystem()"
-          >
-            {{ "pamTargetSystemCreateTitle" | i18n }}
-          </button>
-        </div>
 
         <bit-form-field disableMargin>
           <bit-label>{{ "pamRotationConfigAccountId" | i18n }}</bit-label>

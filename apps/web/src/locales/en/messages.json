@@ -20205,6 +20205,9 @@
   "pamRotationConfigEditTitle": {
     "message": "Edit managed credential"
   },
+  "pamRotationConfigAddTargetSystemOption": {
+    "message": "+ Add target system"
+  },
   "pamTargetSystemCreateTitle": {
     "message": "Add target system"
   },
