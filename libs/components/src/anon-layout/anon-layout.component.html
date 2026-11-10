@@ -3,7 +3,10 @@
     <ng-content select="[slot=header-actions]"></ng-content>
   </bit-landing-header>
 
-  <bit-landing-content [maxWidth]="maxWidth()" [contentVerticalPadding]="contentVerticalPadding()">
+  <bit-landing-content
+    [maxWidth]="resolvedMaxWidth()"
+    [contentVerticalPadding]="contentVerticalPadding()"
+  >
     <bit-landing-hero
       [icon]="hidePageIcon() ? null : icon()"
       [title]="title()"
@@ -33,7 +36,7 @@
         <ng-content select="[slot=footer-secondary]"></ng-content>
 
         @if (showReadonlyHostname()) {
-          <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
+          <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname() }}</div>
         } @else {
           <ng-content select="[slot=environment-selector]"></ng-content>
         }
@@ -41,7 +44,7 @@
 
       @if (!hideYearAndVersion) {
         <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
-        <div bitTypography="body2">{{ version }}</div>
+        <div bitTypography="body2">{{ version() }}</div>
       }
     </bit-landing-footer>
   }

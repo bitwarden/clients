@@ -1,22 +1,22 @@
 <auth-anon-layout
-  [title]="pageTitle"
-  [subtitle]="pageSubtitle"
-  [icon]="pageIcon"
-  [showReadonlyHostname]="showReadonlyHostname"
-  [maxWidth]="maxWidth"
-  [hideCardWrapper]="hideCardWrapper"
-  [hideBackgroundIllustration]="hideBackgroundIllustration"
-  [hidePageIcon]="hidePageIcon"
-  [contentVerticalPadding]="contentVerticalPadding"
-  [footerVerticalPadding]="footerVerticalPadding"
-  [heroTextAlignment]="heroTextAlignment"
-  [secondaryContentLocation]="secondaryContentLocation"
+  [title]="state().pageTitle"
+  [subtitle]="state().pageSubtitle"
+  [icon]="state().pageIcon"
+  [showReadonlyHostname]="state().showReadonlyHostname"
+  [maxWidth]="state().maxWidth"
+  [hideCardWrapper]="state().hideCardWrapper"
+  [hideBackgroundIllustration]="state().hideBackgroundIllustration"
+  [hidePageIcon]="state().hidePageIcon"
+  [contentVerticalPadding]="state().contentVerticalPadding"
+  [footerVerticalPadding]="state().footerVerticalPadding"
+  [heroTextAlignment]="state().heroTextAlignment"
+  [secondaryContentLocation]="state().secondaryContentLocation"
 >
   <router-outlet slot="header-actions" name="header-actions"></router-outlet>
   <router-outlet></router-outlet>
   <!-- The shared layout exposes two distinct slot selectors. We pick which one -->
   <!-- to project into based on the route-level secondaryContentLocation flag. -->
-  @if (secondaryContentLocation === "footer") {
+  @if (state().secondaryContentLocation === "footer") {
     <router-outlet slot="footer-secondary" name="secondary"></router-outlet>
   } @else {
     <router-outlet slot="secondary" name="secondary"></router-outlet>

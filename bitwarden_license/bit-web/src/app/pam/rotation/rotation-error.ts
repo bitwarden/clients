@@ -23,8 +23,17 @@ export function rotationErrorMessage(e: unknown): string | undefined {
 }
 
 /**
+ * The server's reason for refusing a row action (Rotate now, Pause, Mark as rotated, Remove), or
+ * `undefined` so the caller shows that action's own failure copy. SDK-local variants are left
+ * out, since their text is internal detail rather than a reason.
+ */
+export function rotationActionErrorMessage(e: unknown): string | undefined {
+  return isRotationError(e) && e.variant === "Api" ? apiErrorBodyMessage(e.message) : undefined;
+}
+
+/**
  * Unlike `RotationError`, this crosses the FFI boundary as a plain object (`bitwarden-error`'s
- * `full` mode), not an `Error` subclass — there's no `.name`/`.variant` to key on, so this checks
+ * `full` mode), not an `Error` subclass, there's no `.name`/`.variant` to key on, so this checks
  * shape instead.
  */
 function isTargetSystemCreateError(e: unknown): e is TargetSystemCreateError {
@@ -48,7 +57,7 @@ export function targetSystemCreateErrorMessage(e: unknown): string | undefined {
 
 /**
  * `RotationValidationError`'s refusals, verbatim from its `Display` (`bitwarden-pam`'s
- * `rotation/validate.rs`) — must stay in sync. Matched with `includes`, since an undecoded
+ * `rotation/validate.rs`), must stay in sync. Matched with `includes`, since an undecoded
  * message keeps the SDK's transport prefix.
  */
 export const ROTATION_VALIDATION_ERRORS = Object.freeze({
@@ -107,7 +116,7 @@ export type RotationErrorOutcome =
   | { readonly kind: "i18n"; readonly key: string }
   /** A `RotationError` this client doesn't special-case; its own message is informative enough. */
   | { readonly kind: "message"; readonly message: string }
-  /** Not a `RotationError` (or an unparsable `Api` body) — the caller falls back to its own logic. */
+  /** Not a `RotationError` (or an unparsable `Api` body), the caller falls back to its own logic. */
   | { readonly kind: "generic" };
 
 /** Classifies a `createTargetSystem`/`updateTargetSystem`/`createConfig`/`updateConfig` failure. */
