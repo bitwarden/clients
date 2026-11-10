@@ -33,9 +33,9 @@ export class ImportConfirmationSummaryComponent implements OnInit {
     if (file == null) {
       return undefined;
     }
-    return file.name == null
-      ? this.i18nService.t("importDeleteFileTipGeneric")
-      : this.i18nService.t("importDeleteFileTip", file.name);
+    return file.name
+      ? this.i18nService.t("importDeleteFileTip", file.name)
+      : this.i18nService.t("importDeleteFileTipGeneric");
   });
 
   ngOnInit(): void {

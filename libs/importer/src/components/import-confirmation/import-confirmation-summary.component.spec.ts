@@ -92,6 +92,13 @@ describe("ImportConfirmationSummaryComponent", () => {
     expect(text()).not.toContain("importDeleteFileTip:");
   });
 
+  it("shows the generic tip when the file name is empty", async () => {
+    await create({ importedFile: { name: "" } });
+
+    expect(text()).toContain("importDeleteFileTipGeneric");
+    expect(text()).not.toContain("importDeleteFileTip:");
+  });
+
   it("shows no tip when no file was picked", async () => {
     await create();
 

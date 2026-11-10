@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
-import { ButtonModule, DIALOG_DATA, DialogModule } from "@bitwarden/components";
+import { AutofocusDirective, ButtonModule, DIALOG_DATA, DialogModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ImportedFile } from "../../models";
@@ -18,7 +18,13 @@ export interface ImportConfirmationDialogData {
 @Component({
   templateUrl: "./import-confirmation-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, DialogModule, I18nPipe, ImportConfirmationSummaryComponent],
+  imports: [
+    AutofocusDirective,
+    ButtonModule,
+    DialogModule,
+    I18nPipe,
+    ImportConfirmationSummaryComponent,
+  ],
 })
 export class ImportConfirmationDialogComponent {
   protected readonly data = inject<ImportConfirmationDialogData>(DIALOG_DATA);

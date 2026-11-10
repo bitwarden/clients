@@ -51,6 +51,13 @@ describe("ImportConfirmationDialogComponent", () => {
     );
   });
 
+  it("focuses the Ok button when it opens", async () => {
+    await create({ summary: { total: 1, rows: [] } });
+
+    const ok = fixture.debugElement.query(By.css("#import-confirmation-dialog_button_ok"));
+    expect(document.activeElement).toBe(ok.nativeElement);
+  });
+
   it("gives the summary the imported file, for the tip", async () => {
     await create({ summary: { total: 3, rows: [] }, importedFile: { name: "export.csv" } });
 
