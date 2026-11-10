@@ -549,8 +549,8 @@ export default class MainBackground {
   // an erased annotation would leave the channel ambient
   readonly #intraprocessMessageSender: IntraprocessMessageSender;
   // Retained because `OverlayBackground` is constructed lazily, outside this constructor's scope.
-  // `private` suffices here: a listener only reads, so reaching it grants no way to publish.
-  private messageListener: MessageListener;
+  // Public, unlike the sender: a listener only reads, so reaching it grants no way to publish.
+  readonly messageListener: MessageListener;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -626,6 +626,14 @@ export default class MainBackground {
 
   /** @param overrides Services the commercial build supplies in place of the OSS defaults. */
   constructor(overrides?: {
+    revealedCipherService?: (deps: {
+      stateProvider: StateProvider;
+      accountService: AccountServiceAbstraction;
+      authService: AuthServiceAbstraction;
+      cipherService: CipherServiceAbstraction;
+      messageSender: MessageSender;
+      logService: LogServiceAbstraction;
+    }) => RevealedCipherService;
     fillCipherPolicy?: (deps: {
       cipherService: CipherServiceAbstraction;
       revealedCipherService: RevealedCipherService;
@@ -990,7 +998,6 @@ export default class MainBackground {
       this.stateService,
       this.tokenService,
     );
-    this.revealedCipherService = new NoopRevealedCipherService();
 
     this.configApiService = new ConfigApiService(this.apiService);
 
@@ -1229,6 +1236,15 @@ export default class MainBackground {
       this.messagingService,
       this.cipherSdkService,
     );
+    this.revealedCipherService =
+      overrides?.revealedCipherService?.({
+        stateProvider: this.stateProvider,
+        accountService: this.accountService,
+        authService: this.authService,
+        cipherService: this.cipherService,
+        messageSender: this.messagingService,
+        logService: this.logService,
+      }) ?? new NoopRevealedCipherService();
     this.fillCipherPolicy =
       overrides?.fillCipherPolicy?.({
         cipherService: this.cipherService,
