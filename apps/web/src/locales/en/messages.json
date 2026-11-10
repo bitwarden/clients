@@ -18403,29 +18403,26 @@
   "pamTabHistory": {
     "message": "History"
   },
-  "pamAccessRequestsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
+  "pamMyRequestsLoaded": {
+    "message": "Requests loaded"
   },
   "pamCollectionFilter": {
     "message": "Collection"
   },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Extension requests"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "No active access"
-  },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "Pending"
+  "pamStatusInUse": {
+    "message": "In use",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsPendingEmpty": {
-    "message": "No pending requests"
+  "pamStatusEndingSoon": {
+    "message": "Ending soon",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "No shared folders to filter by",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
   },
   "pamMyRequestsEmptyTitle": {
     "message": "You have no requests"
@@ -18459,6 +18456,44 @@
   },
   "pamColumnActions": {
     "message": "Actions"
+  },
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ to $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "Until $END$",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
   },
   "pamWindowUntil": {
     "message": "Until $DATE$",
@@ -18500,7 +18535,7 @@
   "pamResolverUnknown": {
     "message": "Unknown user"
   },
-  "pamInboxInCollection": {
+  "pamInboxInSharedFolder": {
     "message": "in $COLLECTION$",
     "placeholders": {
       "collection": {
@@ -18508,9 +18543,6 @@
         "example": "Production"
       }
     }
-  },
-  "pamInboxReason": {
-    "message": "Reason"
   },
   "pamInboxReasonMissing": {
     "message": "No reason provided"
@@ -18586,6 +18618,9 @@
   },
   "pamEndLeaseSuccess": {
     "message": "Access ended."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Extend access"
   },
   "pamExtendLeaseButton": {
     "message": "Extend"
@@ -18804,11 +18839,71 @@
   "pamAccessRequestDetailsTitle": {
     "message": "Request details"
   },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Details",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
   "pamAccessRequestLeaseTitle": {
     "message": "Access"
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "Decision log"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Decision",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Approved by",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Denied by",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Revoked by",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Ended by",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "Email",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Decision comment",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Start session",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "End session",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "System (automatic)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Submit new request",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Reason",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Keep it brief. The requester reads this directly.",
+    "description": "Hint under the withdrawal reason field."
   },
   "pamAccessRequestNotFound": {
     "message": "Access request not available"
@@ -19072,26 +19167,17 @@
   "requestAccessModalRequestCreatedSuccess": {
     "message": "Request submitted — awaiting approval."
   },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "No active access"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Collection"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "No requests waiting for your decision"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Pending approval"
-  },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
+  "pamApprovalsApproveRequest": {
+    "message": "Approve request"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Deny request"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Revoke access"
   },
   "pamDecideAdditionalInformation": {
     "message": "Additional information"
@@ -19131,12 +19217,6 @@
   },
   "pamInboxCommentPlaceholder": {
     "message": "Add an optional comment"
-  },
-  "pamInboxConfirmApproveButton": {
-    "message": "Approve request"
-  },
-  "pamInboxConfirmDenyButton": {
-    "message": "Deny request"
   },
   "pamInboxDecisionFailed": {
     "message": "Could not record decision"
@@ -19204,10 +19284,7 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Could not withdraw approval"
   },
-  "pamInboxWindow": {
-    "message": "Requested window"
-  },
-  "pamApprovalsNoResults": {
+  "pamAccessRequestsNoResults": {
     "message": "No access requests match your filters."
   },
   "pamApprovalsLoaded": {
@@ -19224,6 +19301,20 @@
   },
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
+  },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "This withdraws your approval for $ITEM$. Access won't start, and $REQUESTER$ will need a new approval to get it.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
   },
   "pamWithdrawApprovalWarningOne": {
     "message": "This withdraws your approval for",
@@ -19384,9 +19475,6 @@
   "pamAccessRuleDuration1h": {
     "message": "1 hour"
   },
-  "pamAccessRuleDuration2h": {
-    "message": "2 hours"
-  },
   "pamAccessRuleDuration4h": {
     "message": "4 hours"
   },
@@ -19395,15 +19483,6 @@
   },
   "pamAccessRuleDuration1d": {
     "message": "1 day"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 days"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 days"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 days"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "Only 1 user can have active access at a time"

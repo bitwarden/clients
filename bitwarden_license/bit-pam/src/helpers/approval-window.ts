@@ -1,4 +1,6 @@
 import type { AccessRequestView } from "../abstractions/access-lease";
+import { formatTimestamp } from "../date/format-date";
+import { formatCompoundDuration } from "../date/format-duration";
 
 import { requestedWindowSeconds } from "./requested-window";
 
@@ -27,6 +29,17 @@ export function durationLabel(
 }
 
 /**
+ * The requested duration in words, e.g. "2 days, 2 hours". The same spelling the My requests
+ * table uses through `durationCompound`.
+ */
+export function durationText(
+  window: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
+  locale: string,
+): string {
+  return formatCompoundDuration(locale, requestedWindowSeconds(window), "long");
+}
+
+/**
  * When the window opens, e.g. "tomorrow". The server always resolves the start, so "starting now"
  * means it has passed rather than that it is missing.
  */
@@ -38,9 +51,7 @@ export function relativeStart(
   if (start.getTime() <= now.getTime()) {
     return { key: "pamInboxStartAsap", value: null };
   }
-  const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const diffDays = Math.round((startDay - today) / 86_400_000);
+  const diffDays = calendarDaysBetween(now, start);
   if (diffDays <= 0) {
     return { key: "pamInboxStartToday", value: null };
   }
@@ -50,22 +61,17 @@ export function relativeStart(
   return { key: "pamInboxStartInDays", value: diffDays };
 }
 
-const windowFormats = new Map<string, Intl.DateTimeFormat>();
-
 /** The exact window, for the tooltip, in the user's chosen locale rather than the browser's. */
 export function exactWindow(
   request: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
   locale: string,
 ): string {
-  const format = windowFormatFor(locale);
-  return `${format.format(new Date(request.leaseNotBefore))} – ${format.format(new Date(request.leaseNotAfter))}`;
+  return `${formatTimestamp(locale, Date.parse(request.leaseNotBefore))} – ${formatTimestamp(locale, Date.parse(request.leaseNotAfter))}`;
 }
 
-function windowFormatFor(locale: string): Intl.DateTimeFormat {
-  let format = windowFormats.get(locale);
-  if (!format) {
-    format = new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" });
-    windowFormats.set(locale, format);
-  }
-  return format;
+/** Whole local calendar days from `from` to `to`, ignoring the time of day. */
+function calendarDaysBetween(from: Date, to: Date): number {
+  const fromDay = new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime();
+  const toDay = new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime();
+  return Math.round((toDay - fromDay) / 86_400_000);
 }

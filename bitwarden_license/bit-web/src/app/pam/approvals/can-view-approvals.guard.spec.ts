@@ -9,6 +9,7 @@ import {
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, isObservable } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 
 import { ApprovalPrivilegeService } from "./approval-privilege.service";
@@ -48,6 +49,7 @@ describe("canViewApprovalsGuard", () => {
       providers: [
         { provide: ApprovalPrivilegeService, useValue: { canApprove$ } },
         { provide: SyncService, useValue: syncService },
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: Router,
           useValue: { createUrlTree: jest.fn((commands: unknown[]) => commands as never) },
@@ -85,6 +87,31 @@ describe("canViewApprovalsGuard", () => {
     canApprove$.next(false);
 
     expect(await run()).not.toBe(false);
+  });
+
+  // `/pam` redirects every caller through this guard, so a throw here would take the whole PAM
+  // section down, not just the Approvals tab.
+  describe("when the lookup it depends on fails", () => {
+    it("falls back to My requests when the privilege read throws", async () => {
+      canApprove$.error(new Error("collections failed to decrypt"));
+
+      await expect(run()).resolves.toEqual(["/", "pam", "my-requests"]);
+    });
+
+    it("falls back to My requests when reading the last sync throws", async () => {
+      syncService.getLastSync.mockRejectedValue(new Error("state unavailable"));
+      canApprove$.next(false);
+
+      await expect(run()).resolves.toEqual(["/", "pam", "my-requests"]);
+    });
+
+    it("still lets an approver through when only the sync failed", async () => {
+      // The sync is not the answer; cached collections may still say they can approve.
+      syncService.getLastSync.mockResolvedValue(null);
+      syncService.fullSync.mockRejectedValue(new Error("offline"));
+
+      expect(await run()).toBe(true);
+    });
   });
 
   it("rebuilds the redirect from the matched path, so it survives being mounted elsewhere", async () => {

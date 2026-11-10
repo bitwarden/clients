@@ -1,57 +1,57 @@
-<bit-card class="tw-mb-4" data-testid="request-summary-item">
-  <div class="tw-flex tw-items-center tw-gap-3">
-    @if (cipher(); as itemCipher) {
-      <app-vault-icon [cipher]="itemCipher" [size]="32" />
-    } @else {
-      <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
-    }
-    <span bitTypography="body1" class="tw-font-bold">{{ itemName() }}</span>
-  </div>
-
-  @if (organizationName() || collectionName()) {
-    <div class="tw-mt-3 tw-flex tw-flex-wrap tw-items-center tw-gap-x-6 tw-gap-y-1 tw-text-sm">
-      @if (organizationName(); as organization) {
-        <span class="tw-flex tw-items-center tw-gap-2">
-          <bit-icon
-            name="bwi-business"
-            class="tw-text-muted"
-            [ariaLabel]="'organization' | i18n"
-            [fixedWidth]="true"
-          ></bit-icon>
-          {{ organization }}
-        </span>
+<bit-card class="tw-mb-6" data-testid="request-summary-item">
+  <div class="tw-flex tw-items-start tw-gap-2">
+    <span class="tw-flex tw-size-10 tw-shrink-0 tw-items-center tw-justify-center">
+      @if (cipher(); as itemCipher) {
+        <app-vault-icon [cipher]="itemCipher" [coloredIcon]="true" />
+      } @else {
+        <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
       }
-      @if (collectionName(); as collection) {
-        <span class="tw-flex tw-items-center tw-gap-2">
-          <bit-icon
-            name="bwi-collection"
-            class="tw-text-muted"
-            [ariaLabel]="'collection' | i18n"
-            [fixedWidth]="true"
-          ></bit-icon>
-          {{ collection }}
+    </span>
+
+    <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-2">
+      <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3">
+        <span class="tw-min-w-0 tw-text-xl tw-font-medium tw-text-main">{{ itemName() }}</span>
+        <span class="tw-flex tw-shrink-0 tw-items-center tw-gap-2 empty:tw-hidden">
+          <ng-content select="[slot=badge]"></ng-content>
         </span>
+      </div>
+
+      @if (organizationName() || collectionName()) {
+        <div class="tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-2 tw-text-sm tw-text-muted">
+          @if (organizationName(); as organization) {
+            <span class="tw-inline-flex tw-items-center tw-gap-1.5">
+              <bit-icon name="bwi-business" [ariaLabel]="'organization' | i18n"></bit-icon>
+              {{ organization }}
+            </span>
+          }
+          @if (collectionName(); as collection) {
+            <span class="tw-inline-flex tw-items-center tw-gap-1.5">
+              <bit-icon name="bwi-shared-folder" [ariaLabel]="'sharedFolder' | i18n"></bit-icon>
+              {{ collection }}
+            </span>
+          }
+        </div>
       }
     </div>
-  }
+  </div>
 </bit-card>
 
 @if (!hideDetails()) {
-  <h2 bitTypography="h6" class="tw-mb-2">{{ "pamAccessRequestDetailsTitle" | i18n }}</h2>
+  <h2 bitTypography="h6" class="tw-mb-2">{{ "pamAccessRequestDetailsHeading" | i18n }}</h2>
 
-  <bit-card class="tw-mb-4" data-testid="request-summary-details">
-    <div class="tw-flex tw-flex-col tw-gap-4">
+  <bit-card class="tw-mb-6" data-testid="request-summary-details">
+    <div class="tw-flex tw-flex-col tw-gap-6">
       <pam-summary-field [label]="'pamInboxRequester' | i18n">
         {{ requesterName() }}
-        @if (secondaryEmail(); as email) {
-          <span class="tw-text-fg-body-subtle">&lt;{{ email }}&gt;</span>
-        }
       </pam-summary-field>
 
       <pam-summary-field [label]="'pamAccessRequestedLabel' | i18n">
-        <span id="pam-request-summary_value_access-requested" [title]="exactWindow()">{{
-          accessRequested()
-        }}</span>
+        <span id="pam-request-summary_value_access-requested">{{ accessRequested() }}</span>
+        @if (exactWindow(); as window) {
+          <span id="pam-request-summary_value_exact-window" class="tw-block tw-text-fg-body-subtle">
+            {{ window }}
+          </span>
+        }
       </pam-summary-field>
 
       <pam-summary-field [label]="'pamInboxRequestReasonLabel' | i18n">
