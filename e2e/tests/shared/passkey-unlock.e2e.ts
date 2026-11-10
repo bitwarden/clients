@@ -1,11 +1,11 @@
 import { lockNow } from "../../src/browser/account-switcher";
 import {
   expect,
-  extensionShutdown,
   popupUrl,
   reachLoginPage,
   reopenPopup,
   test,
+  watchShutdown,
 } from "../../src/browser/fixtures";
 import { account } from "../../src/credentials";
 import { LockScreen } from "../../src/lock-screen";
@@ -58,9 +58,9 @@ test("unlocks the extension with a passkey registered on the web vault", async (
   await extensionLogin.waitForVault(EXTENSION_VAULT_URL);
 
   // 3. Lock. That restarts the extension and closes its views; the web tab and its authenticator survive.
-  const shutdown = extensionShutdown(context);
+  const shutdown = await watchShutdown(context);
   await lockNow(extension);
-  await shutdown;
+  await shutdown();
 
   // 4. Reopen the popup in the authenticator's tab and unlock with the passkey.
   await reopenPopup(context, popup, tab);

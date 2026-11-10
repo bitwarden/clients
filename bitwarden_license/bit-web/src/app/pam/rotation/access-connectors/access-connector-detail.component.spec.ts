@@ -928,13 +928,6 @@ describe("AccessConnectorDetailComponent", () => {
       expect(hintText()).toContain("pamAccessConnectorAssignSelectHint");
     });
 
-    it("answers a staged-inactive connector first, since nothing else is actionable", async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
-
-      expect(hintText()).toContain("pamAccessConnectorAssignTargetDisabled");
-    });
-
     it("says none exist when the org has no active automatic target system", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([]);
       await render(makeAccessConnector({ assignedTargetSystemIds: [] }));

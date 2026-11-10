@@ -30,10 +30,7 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   readonly loading = input.required<boolean>();
   readonly backToEmail = output<void>();
 
-  ngOnInit() {
-    this.formGroup().addControl("email", this.email);
-    this.formGroup().addControl("otp", this.otp);
-
+  constructor() {
     effect(() => {
       const isOtpMode = this.enterOtp();
       if (isOtpMode) {
@@ -43,6 +40,11 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
       }
       this.email.updateValueAndValidity();
     });
+  }
+
+  ngOnInit() {
+    this.formGroup().addControl("email", this.email);
+    this.formGroup().addControl("otp", this.otp);
   }
 
   ngOnDestroy() {
