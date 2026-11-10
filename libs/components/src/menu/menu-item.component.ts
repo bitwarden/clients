@@ -1,12 +1,13 @@
 import { FocusableOption } from "@angular/cdk/a11y";
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import {
-  Component,
-  ElementRef,
-  Input,
-  input,
-  computed,
+  booleanAttribute,
   ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  linkedSignal,
 } from "@angular/core";
 
 import { MenuCloseDirective } from "./menu-close.directive";
@@ -89,14 +90,20 @@ export class MenuItemComponent implements FocusableOption {
     ...this.computedStyles(),
   ]);
 
-  // TODO: Skipped for signal migration because:
-  //  This input overrides a field from a superclass, while the superclass field
-  //  is not migrated.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
+  readonly elementRef = inject<ElementRef<HTMLButtonElement>>(ElementRef);
 
-  constructor(readonly elementRef: ElementRef<HTMLButtonElement>) {}
+  readonly disabledInput = input(false, { alias: "disabled", transform: booleanAttribute });
+
+  // Follows the input but stays writable: consumers (e.g. copy-cipher-field) set it imperatively.
+  private readonly disabledState = linkedSignal(() => this.disabledInput());
+
+  /** `FocusableOption` reads this as a plain property to skip disabled items. */
+  get disabled(): boolean {
+    return this.disabledState();
+  }
+  set disabled(value: boolean) {
+    this.disabledState.set(value);
+  }
 
   focus() {
     this.elementRef.nativeElement.focus();

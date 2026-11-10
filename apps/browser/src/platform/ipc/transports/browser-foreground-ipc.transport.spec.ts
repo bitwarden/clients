@@ -6,7 +6,7 @@ import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { BrowserForegroundIpcTransport } from "./browser-foreground-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import { IPC_FOREGROUND_PORT_NAME } from "./ipc-foreground-port-name";
+import { IPC_FOREGROUND_PORT_NAME, IPC_FOREGROUND_WAKE_COMMAND } from "./ipc-foreground-port-name";
 
 function createPort(name = IPC_FOREGROUND_PORT_NAME, origin = "chrome-extension://id") {
   const messageListeners: ((message: unknown) => void)[] = [];
@@ -49,6 +49,35 @@ describe("BrowserForegroundIpcTransport", () => {
     jest.clearAllMocks();
     transport = new BrowserForegroundIpcTransport(logService, receive);
     transport.init();
+  });
+
+  it("asks open extension pages to connect on init", () => {
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledTimes(1);
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+      { command: IPC_FOREGROUND_WAKE_COMMAND },
+      expect.any(Function),
+    );
+    expect(chrome.runtime.connect).not.toHaveBeenCalled();
+  });
+
+  it("tolerates no page being open to receive the wake message", () => {
+    const callback = (chrome.runtime.sendMessage as jest.Mock).mock.calls[0][1];
+
+    expect(() => callback()).not.toThrow();
+  });
+
+  it("logs and continues accepting ports when the wake message cannot be sent", () => {
+    jest.clearAllMocks();
+    (chrome.runtime.sendMessage as jest.Mock).mockImplementationOnce(() => {
+      throw new Error("sendMessage failed");
+    });
+    transport = new BrowserForegroundIpcTransport(logService, receive);
+
+    transport.init();
+    connect(createPort().port);
+
+    expect(logService.warning).toHaveBeenCalled();
+    expect(transport.connectedEndpoints()).toEqual([{ BrowserForeground: { id: 1 } }]);
   });
 
   it("assigns each port a new id and stamps it as the source", () => {
@@ -126,6 +155,30 @@ describe("BrowserForegroundIpcTransport", () => {
         payload: new Uint8Array(),
       } as OutgoingMessage),
     ).rejects.toThrow(DESTINATION_UNREACHABLE_ERROR);
+  });
+
+  it("reports the endpoints of connected ports", () => {
+    connect(createPort().port);
+    connect(createPort().port);
+
+    expect(transport.connectedEndpoints()).toEqual([
+      { BrowserForeground: { id: 1 } },
+      { BrowserForeground: { id: 2 } },
+    ]);
+  });
+
+  it("stops reporting the endpoint of a disconnected port", () => {
+    const first = createPort();
+    connect(first.port);
+    connect(createPort().port);
+
+    first.disconnect();
+
+    expect(transport.connectedEndpoints()).toEqual([{ BrowserForeground: { id: 2 } }]);
+  });
+
+  it("reports no endpoints before any port connects", () => {
+    expect(transport.connectedEndpoints()).toEqual([]);
   });
 
   it("removes the port on disconnect", async () => {

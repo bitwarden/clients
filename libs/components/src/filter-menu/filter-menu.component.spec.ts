@@ -460,6 +460,26 @@ describe("FilterMenuComponent row tooltips", () => {
     ]);
   });
 
+  it("opens a tree row's label tooltip on keyboard focus and closes it on blur", async () => {
+    const fixture = await setUp(TreeTooltipHostComponent);
+    const rowEl = fixture.debugElement.query(By.css('[role="treeitem"]'));
+    const tooltip = rowEl.query(By.directive(TooltipDirective)).injector.get(TooltipDirective);
+    const show = jest.spyOn(tooltip, "showTooltip");
+    const hide = jest.spyOn(tooltip, "hideTooltip");
+    const row = rowEl.nativeElement as HTMLElement;
+
+    // Mouse focus isn't `:focus-visible`, so it leaves the tooltip closed.
+    row.dispatchEvent(new FocusEvent("focus"));
+    expect(show).not.toHaveBeenCalled();
+
+    jest.spyOn(row, "matches").mockImplementation((selector) => selector === ":focus-visible");
+    row.dispatchEvent(new FocusEvent("focus"));
+    expect(show).toHaveBeenCalled();
+
+    row.dispatchEvent(new FocusEvent("blur"));
+    expect(hide).toHaveBeenCalled();
+  });
+
   it("tooltips a row with the full label it truncates, not some other row's", async () => {
     const fixture = await setUp(TreeTooltipHostComponent);
 
