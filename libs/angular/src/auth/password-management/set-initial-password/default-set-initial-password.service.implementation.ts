@@ -14,6 +14,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { SsoJitProvisionFinishPasswordRequest } from "@bitwarden/common/auth/models/request/sso-jit-provision-finish-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -88,9 +89,14 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       resetPasswordAutoEnroll,
       newPassword,
       salt,
+      acceptOrganizationInvite,
     } = credentials;
 
     for (const [key, value] of Object.entries(credentials)) {
+      // Optional: undefined means the legacy set-password flow runs
+      if (key === "acceptOrganizationInvite") {
+        continue;
+      }
       if (value == null) {
         throw new Error(`${key} not found. Could not set password.`);
       }
@@ -188,7 +194,22 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       kdfConfig,
     );
 
-    await this.masterPasswordApiService.setPassword(request);
+    if (
+      acceptOrganizationInvite != null &&
+      userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER
+    ) {
+      // The pm-34429-invite-link-auto-confirm flag is on. The new endpoint lets the caller choose
+      // whether the organization invite is accepted. Only servers that serve the flag have this
+      // endpoint, so it does not need the legacy request shape above.
+      await this.postSsoJitProvisionFinishPassword(
+        credentials,
+        masterKeyEncryptedUserKey[0],
+        keysRequest,
+        acceptOrganizationInvite,
+      );
+    } else {
+      await this.masterPasswordApiService.setPassword(request);
+    }
 
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
@@ -233,7 +254,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     // out of state, so it has to run after this.
     await this.unlockService.unlockWithDecryptedUserKey(userId, masterKeyEncryptedUserKey[0]);
 
-    if (resetPasswordAutoEnroll) {
+    // Enrollment accepts the organization invite, so skip it when the invite must stay Invited.
+    if (resetPasswordAutoEnroll && acceptOrganizationInvite !== false) {
       await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
     }
   }
@@ -296,6 +318,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     for (const [key, value] of Object.entries(credentials)) {
+      // Optional: undefined means the legacy SDK flow runs
+      if (key === "acceptOrganizationInvite") {
+        continue;
+      }
       if (value == null) {
         throw new Error(`${key} is required.`);
       }
@@ -329,6 +355,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
               organization_sso_identifier: orgSsoIdentifier,
               user_id: asUuid<SdkUserId>(userId),
               reset_password_enroll: resetPasswordAutoEnroll,
+              // TODO PM-45010: pass credentials.acceptOrganizationInvite as accept_organization_invite
+              // after the sdk-internal bump.
             });
         }),
       ),
@@ -535,6 +563,50 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
 
     await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
+  }
+
+  /**
+   * @deprecated along with `setInitialPassword()` deprecation
+   *
+   * Finishes SSO JIT provisioning for a V1 encryption user through
+   * `sso-jit-provision-finish/password`. Unlike `accounts/set-password`, this endpoint lets the
+   * caller choose whether the organization invite is accepted.
+   */
+  private async postSsoJitProvisionFinishPassword(
+    credentials: SetInitialPasswordCredentials,
+    userKey: UserKey,
+    keysRequest: KeysRequest | null,
+    acceptOrganizationInvite: boolean,
+  ): Promise<void> {
+    assertNonNullish(keysRequest, "keysRequest", "Could not finish SSO JIT provisioning.");
+
+    const { newPassword, kdfConfig, salt, newPasswordHint, orgSsoIdentifier } = credentials;
+
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newPassword,
+        kdfConfig,
+        salt,
+      );
+
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        newPassword,
+        kdfConfig,
+        salt,
+        userKey,
+      );
+
+    const request = new SsoJitProvisionFinishPasswordRequest(
+      authenticationData,
+      unlockData,
+      newPasswordHint,
+      orgSsoIdentifier,
+      keysRequest,
+      acceptOrganizationInvite,
+    );
+
+    await this.masterPasswordApiService.postSsoJitProvisionFinishPassword(request);
   }
 
   /**

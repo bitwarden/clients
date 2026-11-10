@@ -19,6 +19,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -98,6 +99,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private toastService: ToastService,
     private validationService: ValidationService,
     private configService: ConfigService,
+    private organizationInviteService: OrganizationInviteService,
   ) {}
 
   async ngOnInit() {
@@ -291,6 +293,8 @@ export class SetInitialPasswordComponent implements OnInit {
     assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
     try {
+      const acceptOrganizationInvite = await this.getAcceptOrganizationInvite();
+
       const credentials: InitializeJitPasswordCredentials = {
         newPasswordHint: passwordInputResult.newPasswordHint,
         orgSsoIdentifier: this.orgSsoIdentifier,
@@ -298,6 +302,7 @@ export class SetInitialPasswordComponent implements OnInit {
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
         newPassword: passwordInputResult.newPassword,
         salt: passwordInputResult.salt,
+        acceptOrganizationInvite,
       };
 
       await this.setInitialPasswordService.initializePasswordJitPasswordUserV2Encryption(
@@ -305,7 +310,7 @@ export class SetInitialPasswordComponent implements OnInit {
         this.userId,
       );
 
-      this.showSuccessToastByUserType();
+      this.showSuccessToastByUserType(acceptOrganizationInvite);
 
       this.submitting = false;
       await this.router.navigate(["vault"]);
@@ -334,6 +339,8 @@ export class SetInitialPasswordComponent implements OnInit {
     assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
     try {
+      const acceptOrganizationInvite = await this.getAcceptOrganizationInvite();
+
       const credentials: SetInitialPasswordCredentials = {
         newMasterKey: passwordInputResult.newMasterKey,
         newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
@@ -344,6 +351,7 @@ export class SetInitialPasswordComponent implements OnInit {
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
         newPassword: passwordInputResult.newPassword,
         salt: passwordInputResult.salt,
+        acceptOrganizationInvite,
       };
 
       await this.setInitialPasswordService.setInitialPassword(
@@ -352,7 +360,7 @@ export class SetInitialPasswordComponent implements OnInit {
         this.userId,
       );
 
-      this.showSuccessToastByUserType();
+      this.showSuccessToastByUserType(acceptOrganizationInvite);
 
       this.submitting = false;
       await this.router.navigate(["vault"]);
@@ -438,7 +446,25 @@ export class SetInitialPasswordComponent implements OnInit {
     }
   }
 
-  private showSuccessToastByUserType() {
+  /**
+   * Decides whether the SSO JIT finish accepts the organization invite.
+   * - `undefined` when the `pm-34429-invite-link-auto-confirm` flag is off, so the legacy flow runs.
+   * - `false` for a stored open invite, so the membership stays Invited for the Admin Console
+   *   checks that run when the open invite link is replayed.
+   * - `true` for a stored direct invite, or no stored invite.
+   */
+  private async getAcceptOrganizationInvite(): Promise<boolean | undefined> {
+    const inviteLinkAutoConfirm = await this.configService.getFeatureFlag(
+      FeatureFlag.InviteLinkAutoConfirm,
+    );
+    if (!inviteLinkAutoConfirm) {
+      return undefined;
+    }
+
+    return (await this.organizationInviteService.getOpenOrgInvite()) == null;
+  }
+
+  private showSuccessToastByUserType(acceptOrganizationInvite?: boolean) {
     if (this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
       this.toastService.showToast({
         variant: "success",
@@ -446,11 +472,14 @@ export class SetInitialPasswordComponent implements OnInit {
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
 
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("inviteAccepted"),
-      });
+      // An open invite stays Invited, so the invite was not accepted yet.
+      if (acceptOrganizationInvite !== false) {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("inviteAccepted"),
+        });
+      }
     } else {
       this.toastService.showToast({
         variant: "success",
