@@ -2,7 +2,7 @@ export interface PremiumUpgradeNudgeOptions {
   titleKey: string;
   descriptionKey: string;
   unlockedFeatureKeys?: string[];
-  imagePath?: string; // bundled UI screenshot; TOTP only
+  imagePath?: string; // bundled UI screenshot;
   checkoutFeatureNameKey?: string; // read only by the external-checkout service; web ignores it
 }
 
