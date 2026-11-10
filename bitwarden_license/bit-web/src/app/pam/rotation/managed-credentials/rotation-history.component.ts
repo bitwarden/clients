@@ -147,7 +147,7 @@ export class RotationHistoryComponent {
   /** The job whose drawer is open, so its row can stay highlighted until the drawer closes. */
   protected readonly selectedJobId = signal<JobView["id"] | null>(null);
 
-  protected readonly table = defineTable<JobView>(this.jobViews);
+  protected readonly table = defineTable<JobView, "targetSystem">(this.jobViews);
 
   protected readonly sortByStarted = (a: JobView, b: JobView): number =>
     Date.parse(a.displayStartedAt) - Date.parse(b.displayStartedAt);
