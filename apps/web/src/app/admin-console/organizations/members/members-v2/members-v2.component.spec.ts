@@ -922,6 +922,17 @@ describe("MembersV2Component", () => {
       expect(component.selection()).toBeUndefined();
     });
 
+    it("opens the member dialog, which the dialog manager makes read-only", async () => {
+      await component.edit(notEnrolled, organization);
+
+      expect(memberDialogManager.openEditDialog).toHaveBeenCalledWith(
+        notEnrolled,
+        organization,
+        billingMetadata,
+        MemberDialogTab.Details,
+      );
+    });
+
     it("opens the account recovery dialog and reloads when it succeeds", async () => {
       memberDialogManager.openAccountRecoveryDialog.mockResolvedValue(
         AccountRecoveryDialogResultType.Ok,

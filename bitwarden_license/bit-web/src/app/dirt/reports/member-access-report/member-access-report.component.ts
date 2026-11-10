@@ -180,7 +180,6 @@ export class MemberAccessReportComponent implements OnInit {
   edit = async (user: MemberAccessReportView): Promise<void> => {
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
-        kind: "Edit",
         name: this.userNamePipe.transform(user),
         organizationId: this.organizationId,
         organizationUserId: user.userGuid,

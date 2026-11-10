@@ -5980,6 +5980,9 @@
   "editMember": {
     "message": "Edit member"
   },
+  "viewMember": {
+    "message": "View member"
+  },
   "fieldOnTabRequiresAttention": {
     "message": "A field on the '$TAB$' tab requires your attention.",
     "placeholders": {

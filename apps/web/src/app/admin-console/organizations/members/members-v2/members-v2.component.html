@@ -158,7 +158,8 @@
         [color]="row.avatarColor"
       ></bit-avatar>
       <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
-        @if (canManage && organization) {
+        <!-- Admins who can't manage users open the member dialog read-only. -->
+        @if (organization) {
           <button
             type="button"
             bitLink

@@ -23,14 +23,7 @@ interface CommonMemberDialogParams {
   organizationId: OrganizationId;
 }
 
-export interface AddMemberDialogParams extends CommonMemberDialogParams {
-  kind: "Add";
-  occupiedSeatCount: number;
-  allOrganizationUsers: OrganizationUserView[];
-}
-
 export interface EditMemberDialogParams extends CommonMemberDialogParams {
-  kind: "Edit";
   name: string;
   profileName?: string;
   email?: string;
@@ -40,6 +33,11 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
   claimedByOrganization?: boolean;
   hasMasterPassword?: boolean;
   initialTab: MemberDialogTab;
+  /** Disables the form and hides Save, Remove and Revoke. Defaults to false. */
+  readonly?: boolean;
+  /**
+   * The member's row from the members list. A readonly dialog reads the member from here, since
+   * reading a single member requires the Manage users permission.
+   */
+  member?: OrganizationUserView;
 }
-
-export type MemberDialogParams = EditMemberDialogParams | AddMemberDialogParams;

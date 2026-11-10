@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog dialogSize="large">
   <span bitDialogTitle>
-    {{ "editMember" | i18n }}
+    {{ (readonly ? "viewMember" : "editMember") | i18n }}
     @if (!loading()) {
       <span class="tw-text-sm tw-normal-case tw-text-muted">{{ params.name }}</span>
     }
@@ -25,19 +25,21 @@
           <bit-form-field>
             <bit-label>{{ "name" | i18n }}</bit-label>
             <input bitInput type="text" formControlName="name" />
-            @if (!nameEditable()) {
+            @if (!readonly && !nameEditable()) {
               <bit-hint>{{ "nameNotClaimedHint" | i18n }}</bit-hint>
             }
           </bit-form-field>
           <bit-form-field>
             <bit-label>{{ "email" | i18n }}</bit-label>
             <input bitInput type="email" formControlName="email" />
-            @if (emailEditable()) {
-              <bit-hint>{{ "emailUpdateOnSave" | i18n }}</bit-hint>
-            } @else if (!params.claimedByOrganization) {
-              <bit-hint>{{ "emailNotClaimedHint" | i18n }}</bit-hint>
-            } @else {
-              <bit-hint>{{ "emailHasMasterPasswordHint" | i18n }}</bit-hint>
+            @if (!readonly) {
+              @if (emailEditable()) {
+                <bit-hint>{{ "emailUpdateOnSave" | i18n }}</bit-hint>
+              } @else if (!params.claimedByOrganization) {
+                <bit-hint>{{ "emailNotClaimedHint" | i18n }}</bit-hint>
+              } @else {
+                <bit-hint>{{ "emailHasMasterPasswordHint" | i18n }}</bit-hint>
+              }
             }
           </bit-form-field>
           <bit-form-field>
@@ -81,7 +83,7 @@
             <bit-form-control>
               <input
                 type="checkbox"
-                [disabled]="params.isOnSecretsManagerStandalone || null"
+                [disabled]="params.isOnSecretsManagerStandalone || readonly || null"
                 bitCheckbox
                 formControlName="accessSecretsManager"
               />
@@ -255,7 +257,7 @@
               [columnHeader]="'groups' | i18n"
               [selectorLabelText]="'selectGroups' | i18n"
               [emptySelectionText]="'noGroupsAdded' | i18n"
-              [hideMultiSelect]="restrictEditingSelf$ | async"
+              [hideMultiSelect]="readonly || (restrictEditingSelf$ | async)"
             ></bit-access-selector>
           </bit-tab>
         }
@@ -293,63 +295,80 @@
             [columnHeader]="'collection' | vfo1I18n: 'sharedFolder'"
             [selectorLabelText]="'selectCollections' | vfo1I18n: 'selectSharedFolders'"
             [emptySelectionText]="'noCollectionsAdded' | vfo1I18n: 'noSharedFoldersAdded'"
-            [hideMultiSelect]="restrictEditingSelf$ | async"
+            [hideMultiSelect]="readonly || (restrictEditingSelf$ | async)"
           ></bit-access-selector>
         </bit-tab>
       </bit-tab-group>
     }
   </div>
   <ng-container bitDialogFooter>
-    <bit-menu #actionsMenu>
-      @if (isRevoked()) {
-        <button
-          type="button"
-          bitMenuItem
-          [disabled]="loading()"
-          (click)="handleMenuAction(restore)"
-        >
-          {{ "restoreMember" | i18n }}
-        </button>
-      } @else {
-        <button type="button" bitMenuItem [disabled]="loading()" (click)="handleMenuAction(revoke)">
-          {{ "revokeMember" | i18n }}
-        </button>
-      }
-      @if (!params.claimedByOrganization) {
-        <button
-          type="button"
-          bitMenuItem
-          variant="danger"
-          [disabled]="loading()"
-          (click)="handleMenuAction(remove)"
-        >
-          {{ "removeMember" | i18n }}
-        </button>
-      }
-      @if (params.claimedByOrganization) {
-        <button
-          type="button"
-          bitMenuItem
-          variant="danger"
-          [disabled]="loading()"
-          (click)="handleMenuAction(delete)"
-        >
-          {{ "deleteMember" | i18n }}
-        </button>
-      }
-    </bit-menu>
-    <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading()">
-      {{ "save" | i18n }}
-    </button>
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      [bitMenuTriggerFor]="actionsMenu"
-      [disabled]="loading()"
-    >
-      {{ "moreActions" | i18n }}
-      <bit-icon name="bwi-angle-down" class="tw-ml-1"></bit-icon>
-    </button>
+    @if (readonly) {
+      <button
+        id="edit-member_button_close"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        (click)="cancel()"
+      >
+        {{ "close" | i18n }}
+      </button>
+    } @else {
+      <bit-menu #actionsMenu>
+        @if (isRevoked()) {
+          <button
+            type="button"
+            bitMenuItem
+            [disabled]="loading()"
+            (click)="handleMenuAction(restore)"
+          >
+            {{ "restoreMember" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitMenuItem
+            [disabled]="loading()"
+            (click)="handleMenuAction(revoke)"
+          >
+            {{ "revokeMember" | i18n }}
+          </button>
+        }
+        @if (!params.claimedByOrganization) {
+          <button
+            type="button"
+            bitMenuItem
+            variant="danger"
+            [disabled]="loading()"
+            (click)="handleMenuAction(remove)"
+          >
+            {{ "removeMember" | i18n }}
+          </button>
+        }
+        @if (params.claimedByOrganization) {
+          <button
+            type="button"
+            bitMenuItem
+            variant="danger"
+            [disabled]="loading()"
+            (click)="handleMenuAction(delete)"
+          >
+            {{ "deleteMember" | i18n }}
+          </button>
+        }
+      </bit-menu>
+      <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading()">
+        {{ "save" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [bitMenuTriggerFor]="actionsMenu"
+        [disabled]="loading()"
+      >
+        {{ "moreActions" | i18n }}
+        <bit-icon name="bwi-angle-down" class="tw-ml-1"></bit-icon>
+      </button>
+    }
   </ng-container>
 </form>

@@ -75,7 +75,8 @@ export class MemberDialogManagerService {
   ): Promise<MemberDialogResult> {
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
-        kind: "Edit",
+        readonly: !organization.canManageUsers,
+        member: user,
         name: this.userNamePipe.transform(user),
         profileName: user.name,
         email: user.email,

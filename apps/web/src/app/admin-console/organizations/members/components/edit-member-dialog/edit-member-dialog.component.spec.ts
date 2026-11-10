@@ -22,6 +22,10 @@ import {
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
@@ -37,7 +41,13 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
-import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
+import {
+  GroupApiService,
+  GroupView,
+  OrganizationUserAdminView,
+  UserAdminService,
+} from "../../../core";
+import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
 import {
@@ -102,7 +112,6 @@ function buildUserDetails(
 
 function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMemberDialogParams {
   return {
-    kind: "Edit",
     organizationId: ORG_ID,
     organizationUserId: USER_ID,
     name: "Test User",
@@ -122,6 +131,8 @@ async function createComponent(
     vfo1FoundationEnabled?: boolean;
     pamEnabled?: boolean;
     rotationEnabled?: boolean;
+    collections?: CollectionAdminView[];
+    groups?: GroupView[];
   } = {},
 ): Promise<{
   fixture: ComponentFixture<EditMemberDialogComponent>;
@@ -168,10 +179,14 @@ async function createComponent(
   organizationService.organizations$ = jest
     .fn()
     .mockReturnValue(of([buildOrg(overrides.orgOverrides)]));
-  collectionAdminService.collectionAdminViews$ = jest.fn().mockReturnValue(of([]));
+  collectionAdminService.collectionAdminViews$ = jest
+    .fn()
+    .mockReturnValue(of(overrides.collections ?? []));
+  groupApiService.getAll.mockResolvedValue(overrides.groups ?? []);
   userAdminService.get = jest.fn().mockResolvedValue(overrides.userDetails ?? buildUserDetails());
   userAdminService.saveV2 = jest.fn().mockResolvedValue(undefined);
   i18nService.t = jest.fn().mockReturnValue("translated");
+  (i18nService as any).collator = new Intl.Collator("en");
   organizationMetadataService.getOrganizationMetadata$ = jest
     .fn()
     .mockReturnValue(of({ organizationOccupiedSeats: 0 } as OrganizationBillingMetadataResponse));
@@ -956,6 +971,177 @@ describe("EditMemberDialogComponent", () => {
       expect(mocks.platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
         "sso-external-id-value",
       );
+    });
+  });
+
+  describe("readonly", () => {
+    const GROUP_ID = "group-1";
+
+    function buildMember(
+      overrides: Partial<{
+        groups: string[];
+        type: OrganizationUserType;
+        permissions: PermissionsApi;
+      }> = {},
+    ): OrganizationUserView {
+      const member = new OrganizationUserView({
+        id: USER_ID,
+        userId: "other-account-id" as any,
+        email: "member@example.com",
+        type: overrides.type ?? OrganizationUserType.Admin,
+        revocationReason: undefined as any,
+        status: OrganizationUserStatusType.Confirmed,
+        permissions: overrides.permissions ?? new PermissionsApi(),
+        avatarColor: "",
+        name: "Member",
+        claimedByOrganization: true,
+      });
+      member.groups = overrides.groups ?? [];
+      member.hasMasterPassword = false;
+      return member;
+    }
+
+    function buildCollection(
+      id: string,
+      access: { users?: string[]; groups?: string[] } = {},
+    ): CollectionAdminView {
+      const selection = (accessId: string) =>
+        new CollectionAccessSelectionView({
+          id: accessId,
+          readOnly: true,
+          hidePasswords: false,
+          manage: false,
+        });
+      return {
+        id,
+        name: id,
+        canEditUserAccess: () => false,
+        users: (access.users ?? []).map(selection),
+        groups: (access.groups ?? []).map(selection),
+      } as unknown as CollectionAdminView;
+    }
+
+    async function createReadonly(
+      member: OrganizationUserView = buildMember(),
+      collections: CollectionAdminView[] = [],
+      orgOverrides: Partial<Organization> = {},
+    ) {
+      const result = await createComponent(
+        defaultParams({
+          readonly: true,
+          member,
+          claimedByOrganization: true,
+          hasMasterPassword: false,
+        }),
+        {
+          orgOverrides: {
+            permissions: { manageUsers: false, manageResetPassword: true } as PermissionsApi,
+            ...orgOverrides,
+          },
+          collections,
+          groups: [new GroupView({ id: GROUP_ID, organizationId: ORG_ID, name: "Engineering" })],
+        },
+      );
+      // Echo keys so the footer's buttons can be told apart.
+      result.mocks.i18nService.t.mockImplementation((key: string) => key);
+      result.fixture.detectChanges();
+      await result.fixture.whenStable();
+      result.fixture.detectChanges();
+      return result;
+    }
+
+    it("reads the member from the members list instead of requesting them", async () => {
+      const { component, mocks } = await createReadonly();
+
+      expect(mocks.userAdminService.get).not.toHaveBeenCalled();
+      expect(component.loading()).toBe(false);
+      expect((component as any).formGroup.controls.type.value).toBe(OrganizationUserType.Admin);
+    });
+
+    it("reads group names instead of group details", async () => {
+      const { mocks } = await createReadonly(buildMember({ groups: [GROUP_ID] }), [], {
+        useGroups: true,
+      });
+
+      expect(mocks.groupApiService.getAll).toHaveBeenCalledWith(ORG_ID);
+      expect(mocks.groupApiService.getAllDetails).not.toHaveBeenCalled();
+    });
+
+    it("shows the member's groups", async () => {
+      const { component } = await createReadonly(buildMember({ groups: [GROUP_ID] }), [], {
+        useGroups: true,
+      });
+
+      expect((component as any).groupAccessItems()).toEqual([
+        expect.objectContaining({ id: GROUP_ID, labelName: "Engineering" }),
+      ]);
+      expect((component as any).formGroup.controls.groups.value).toEqual([
+        expect.objectContaining({ id: GROUP_ID }),
+      ]);
+    });
+
+    it("shows the member's direct collection access and access through their groups", async () => {
+      const { component } = await createReadonly(
+        buildMember({ groups: [GROUP_ID] }),
+        [
+          buildCollection("direct", { users: [USER_ID] }),
+          buildCollection("via-group", { groups: [GROUP_ID] }),
+          buildCollection("no-access"),
+        ],
+        { useGroups: true },
+      );
+
+      const items = (component as any).collectionAccessItems();
+      expect(items.map((item: { id: string }) => item.id)).toEqual([
+        "direct",
+        `via-group-${GROUP_ID}`,
+      ]);
+      expect(items[1]).toEqual(expect.objectContaining({ viaGroupName: "Engineering" }));
+    });
+
+    it("disables every field", async () => {
+      const { component } = await createReadonly(
+        buildMember({
+          type: OrganizationUserType.Custom,
+          permissions: { manageResetPassword: true } as PermissionsApi,
+        }),
+      );
+
+      expect((component as any).formGroup.disabled).toBe(true);
+      expect((component as any).permissionsGroup.disabled).toBe(true);
+    });
+
+    it("keeps the name and email from being editable", async () => {
+      const { component } = await createReadonly();
+
+      expect((component as any).nameEditable()).toBe(false);
+      expect((component as any).emailEditable()).toBe(false);
+    });
+
+    it("shows Close instead of Save and the Remove and Revoke actions", async () => {
+      const { fixture } = await createReadonly();
+      const element: HTMLElement = fixture.nativeElement;
+
+      expect(element.querySelector("#edit-member_button_close")).not.toBeNull();
+      expect(element.querySelector("button[type='submit']")).toBeNull();
+      expect(element.textContent).not.toContain("save");
+      expect(element.textContent).not.toContain("moreActions");
+    });
+
+    it("closes as canceled from Close", async () => {
+      const { fixture, mocks } = await createReadonly();
+
+      fixture.nativeElement.querySelector("#edit-member_button_close").click();
+
+      expect(mocks.dialogRef.close).toHaveBeenCalledWith(MemberDialogResult.Canceled);
+    });
+
+    it("never saves", async () => {
+      const { component, mocks } = await createReadonly();
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).not.toHaveBeenCalled();
     });
   });
 });
