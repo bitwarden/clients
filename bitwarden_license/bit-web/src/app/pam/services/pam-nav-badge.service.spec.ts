@@ -119,6 +119,35 @@ describe("DefaultPamNavBadgeService", () => {
     expect(seen.at(-1)).toBe(2);
   });
 
+  it("drops to zero once an extended access is ended (PAM-408)", async () => {
+    // The original request was activated; the applied extension mints no lease of its own, so it
+    // never gains a `producedLeaseId` and must not read as an approval still to start.
+    const original = {
+      ...request("approved", "original"),
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "active",
+    } as unknown as AccessRequestView;
+    const extension = {
+      ...request("approved", "extension"),
+      extensionOfLeaseId: "lease-1",
+    } as unknown as AccessRequestView;
+    requestsApi.listMyAccessRequests.mockResolvedValue([original, extension]);
+    approvalsApi.listInbox.mockResolvedValue([]);
+
+    const seen = watch();
+    await settle();
+    expect(seen.at(-1)).toBe(0);
+
+    requestsApi.listMyAccessRequests.mockResolvedValue([
+      { ...original, producedLeaseStatus: "canceled" } as unknown as AccessRequestView,
+      extension,
+    ]);
+    accessRefresh.notifyAccessChanged();
+    await settle();
+
+    expect(seen.at(-1)).toBe(0);
+  });
+
   it("adds the requests awaiting the caller's decision", async () => {
     requestsApi.listMyAccessRequests.mockResolvedValue([request("pending")]);
     approvalsApi.listInbox.mockResolvedValue([request("pending"), request("pending")]);
