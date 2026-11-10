@@ -313,7 +313,7 @@ describe("UriOptionComponent", () => {
   });
 
   describe("desktop app URIs", () => {
-    const brokenPairingUri = "desktopapp://autotype?version=1.0.0&data=invalid";
+    const invalidPairingUri = "desktopapp://autotype?version=1.0.0&data=invalid";
 
     const getUriInput = () =>
       fixture.nativeElement.querySelector("input[formControlName='uri']") as HTMLInputElement;
@@ -387,13 +387,13 @@ describe("UriOptionComponent", () => {
       expect(component["appSelect"]().selectedOption()?.label).toBe("Notepad");
     });
 
-    it("selects a broken pairing in the dropdown for a saved URI that isn't a valid pairing URI", () => {
+    it("selects an invalid pairing in the dropdown for a saved URI that isn't a valid pairing URI", () => {
       fixture.autoDetectChanges();
-      renderUri(brokenPairingUri, true);
+      renderUri(invalidPairingUri, true);
       // bit-select reads its options in an after render effect, which needs an application tick
       TestBed.tick();
 
-      expect(component["appSelect"]().selectedOption()?.label).toBe("brokenDesktopPairing");
+      expect(component["appSelect"]().selectedOption()?.label).toBe("invalidAppPairing");
     });
 
     it("hides the match detection toggle for a desktop app row", () => {
@@ -456,14 +456,14 @@ describe("UriOptionComponent", () => {
       expect(component["appOptions"]()).toHaveLength(1);
     });
 
-    it.each([brokenPairingUri, DESKTOP_APP_URI_PREFIX])(
-      "adds a broken pairing to the options for the saved URI %p, which isn't a valid pairing URI",
+    it.each([invalidPairingUri, DESKTOP_APP_URI_PREFIX])(
+      "adds an invalid pairing to the options for the saved URI %p, which isn't a valid pairing URI",
       (uri) => {
         fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
 
         component.writeValue({ uri, matchDetection: null });
 
-        expect(component["appOptions"]()).toEqual([{ label: "brokenDesktopPairing", value: uri }]);
+        expect(component["appOptions"]()).toEqual([{ label: "invalidAppPairing", value: uri }]);
       },
     );
 
@@ -475,7 +475,7 @@ describe("UriOptionComponent", () => {
       expect(component["appOptions"]()).toEqual([]);
     });
 
-    it.each([DESKTOP_APP_URI_PREFIX, brokenPairingUri, "https://example.com", ""])(
+    it.each([DESKTOP_APP_URI_PREFIX, invalidPairingUri, "https://example.com", ""])(
       "does not add an option for the URI %p in a website row",
       (uri) => {
         component.writeValue({ uri, matchDetection: null });

@@ -103,7 +103,7 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   /**
    * The desktop app saved on the cipher, so the dropdown shows the paired app's name. A saved URI
-   * that isn't a valid pairing URI is labeled as a broken pairing.
+   * that isn't a valid pairing URI is labeled as an invalid pairing.
    */
   private readonly savedAppOption = computed(() => {
     const uri = this.writtenUri();
@@ -114,7 +114,7 @@ export class UriOptionComponent implements ControlValueAccessor {
     // The saved string is the option's value, so the selection matches it exactly and it is saved
     // unchanged
     const appName = DesktopAutotypePairingUri.fromString(uri)?.data.appData.name;
-    return { label: appName ?? this.i18nService.t("brokenDesktopPairing"), value: uri };
+    return { label: appName ?? this.i18nService.t("invalidAppPairing"), value: uri };
   });
 
   /**

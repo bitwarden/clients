@@ -7092,9 +7092,9 @@
       }
     }
   },
-  "brokenDesktopPairing": {
-    "message": "Broken desktop pairing",
-    "description": "Shown instead of an application name when the saved pairing of an item with an application installed on the computer can't be read."
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved pairing of an item with an application installed on the computer isn't valid."
   },
   "websiteAdded": {
     "message": "Website added"
