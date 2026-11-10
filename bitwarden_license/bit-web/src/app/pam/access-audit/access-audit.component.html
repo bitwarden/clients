@@ -1,5 +1,7 @@
 <app-header [title]="'pamAuditLog' | i18n"></app-header>
 
+<p bitTypography="body1">{{ "pamAuditSubheading" | i18n }}</p>
+
 <div class="tw-sr-only" role="status" aria-live="polite">
   @if (loading()) {
     {{ "loading" | i18n }}
@@ -68,22 +70,21 @@
           <button
             type="button"
             bitButton
+            buttonType="secondary"
+            id="access-audit_button_export"
+            [bitAction]="exportCsv"
+            [disabled]="rows().length === 0"
+          >
+            {{ "exportVerb" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitButton
             buttonType="primary"
             id="access-audit_button_refresh"
             [bitAction]="load"
           >
             {{ "update" | i18n }}
-          </button>
-          <button
-            type="button"
-            bitButton
-            buttonType="secondary"
-            id="access-audit_button_export"
-            endIcon="bwi-import"
-            [bitAction]="exportCsv"
-            [disabled]="rows().length === 0"
-          >
-            {{ "exportVerb" | i18n }}
           </button>
         </div>
       </ng-container>
@@ -93,6 +94,22 @@
         is bound, throwing NG0950. The chips are disabled while loading, since the filter effect
         skips any change made then.
       -->
+      <bit-filter-menu
+        #timePeriodFilter
+        [disabled]="loading()"
+        [key]="filterKeys.timePeriod"
+        [placeholderText]="'date' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (preset of timePresets; track preset.value) {
+          <bit-filter-option [value]="preset.value">{{ preset.label }}</bit-filter-option>
+        }
+        @if (customRangeLabel(); as label) {
+          <bit-filter-option value="custom">{{ label }}</bit-filter-option>
+        }
+        <bit-filter-option [value]="chooseCustomRange">{{ customPeriodLabel }}</bit-filter-option>
+      </bit-filter-menu>
+      <bit-filter-divider />
       <bit-filter-menu
         #kindFilter
         [disabled]="loading()"
@@ -144,21 +161,6 @@
             <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
           }
         }
-      </bit-filter-menu>
-      <bit-filter-menu
-        #timePeriodFilter
-        [disabled]="loading()"
-        [key]="filterKeys.timePeriod"
-        [placeholderText]="'timePeriod' | i18n"
-        [unsetLabel]="'allTime' | i18n"
-      >
-        @for (preset of timePresets; track preset.value) {
-          <bit-filter-option [value]="preset.value">{{ preset.label }}</bit-filter-option>
-        }
-        @if (customRangeLabel(); as label) {
-          <bit-filter-option value="custom">{{ label }}</bit-filter-option>
-        }
-        <bit-filter-option [value]="chooseCustomRange">{{ customPeriodLabel }}</bit-filter-option>
       </bit-filter-menu>
     </bit-table-toolbar>
     <ng-container slot="empty">
@@ -258,9 +260,8 @@
             email; `anywhere` can, which keeps it inside the column.
           -->
           <a
-            bitLink
-            class="[overflow-wrap:anywhere]"
             href="#"
+            class="tw-text-main [overflow-wrap:anywhere]"
             id="access-audit_link_actor-{{ rowIndex().get(row) }}"
             [title]="member.email"
             (click)="openMemberEvents($event, member)"
@@ -283,9 +284,8 @@
       >
         @if (linkedMember(row.requesterId, row.requester); as member) {
           <a
-            bitLink
-            class="[overflow-wrap:anywhere]"
             href="#"
+            class="tw-text-main [overflow-wrap:anywhere]"
             id="access-audit_link_requester-{{ rowIndex().get(row) }}"
             [title]="member.email"
             (click)="openMemberEvents($event, member)"
@@ -308,9 +308,8 @@
       >
         @if (row.cipherName && row.cipherId) {
           <a
-            bitLink
-            class="[overflow-wrap:anywhere]"
             href="#"
+            class="tw-text-main [overflow-wrap:anywhere]"
             id="access-audit_link_item-{{ rowIndex().get(row) }}"
             [bitTooltip]="row.collectionName"
             (click)="openCipherEvents($event, row)"

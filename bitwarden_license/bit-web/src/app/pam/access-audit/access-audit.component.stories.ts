@@ -411,7 +411,7 @@ const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
-/** Spread out in time, so each Time period preset keeps a different subset. */
+/** Spread out in time, so each Date preset keeps a different subset. */
 function presetEvents(): AccessAuditEventResponse[] {
   return [
     event({ kind: AccessAuditEventKind.CredentialAccessed, occurredAt: fromNow(-HOUR) }),
@@ -611,15 +611,15 @@ export const EmptyFields: Story = {
 export const NoMatches: Story = {
   decorators: [audit()],
   play: async ({ canvasElement }) => {
-    await selectChipOption(canvasElement, "Time period", "Today");
+    await selectChipOption(canvasElement, "Date", "Today");
   },
 };
 
-/** A preset in force; the Time period chip shows its selection like the other chips. */
+/** A preset in force; the Date chip shows its selection like the other chips. */
 export const TimePeriodFiltered: Story = {
   decorators: [audit({ events: presetEvents() })],
   play: async ({ canvasElement }) => {
-    await selectChipOption(canvasElement, "Time period", "Past 7 days");
+    await selectChipOption(canvasElement, "Date", "Past 7 days");
   },
 };
 
@@ -630,7 +630,7 @@ export const TimePeriodFiltered: Story = {
 export const FiltersActive: Story = {
   decorators: [audit({ events: presetEvents() })],
   play: async ({ canvasElement }) => {
-    await selectChipOption(canvasElement, "Time period", "Past 30 days");
+    await selectChipOption(canvasElement, "Date", "Past 30 days");
     await selectChipOption(canvasElement, "Event", "Request approved");
   },
 };
