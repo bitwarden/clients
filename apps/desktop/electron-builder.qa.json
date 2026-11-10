@@ -1,12 +1,20 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "extends": "electron-builder.json",
-  "appId": "com.bitwarden.desktop.qa",
+  "appId": "com.bitwarden.qa.desktop",
   "productName": "Bitwarden QA",
   "extraMetadata": {
-    "name": "bitwarden-qa"
+    "name": "bitwarden-qa",
+    "productName": "Bitwarden QA"
   },
   "publish": null,
+  "mac": {
+    "entitlements": "resources/entitlements.mac.qa.plist",
+    "extendInfo": {
+      "BitwardenAppGroupIdentifier": "LTZ2PFU5D6.com.bitwarden.qa.desktop"
+    },
+    "provisioningProfile": "bitwarden_qa_desktop_developer_id.provisionprofile"
+  },
   "dmg": {
     "artifactName": "Bitwarden-${version}-${arch}.${ext}"
   },
