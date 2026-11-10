@@ -271,6 +271,41 @@ describe("UpgradePaymentComponent", () => {
         expect.objectContaining({ variant: "error" }),
       );
     }));
+    it("shows the server's message when the purchase is refused", fakeAsync(async () => {
+      fixture.detectChanges();
+
+      const error = new ErrorResponse(
+        {
+          Message:
+            "You have an unpaid Premium subscription. Update your payment method to restore Premium.",
+        },
+        400,
+      );
+      jest.spyOn(component as any, "processUpgrade").mockRejectedValue(error);
+
+      await component["submit"]();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message:
+          "You have an unpaid Premium subscription. Update your payment method to restore Premium.",
+      });
+    }));
+
+    it("shows the generic message when the purchase fails unexpectedly", fakeAsync(async () => {
+      fixture.detectChanges();
+
+      jest
+        .spyOn(component as any, "processUpgrade")
+        .mockRejectedValue(new ErrorResponse({ Message: "Internal error" }, 500));
+
+      await component["submit"]();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "upgradeErrorMessage",
+      });
+    }));
   });
 
   describe("previewRefresh$ — reactive refresh", () => {
