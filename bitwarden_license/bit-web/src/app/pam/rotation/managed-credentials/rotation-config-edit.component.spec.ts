@@ -320,6 +320,11 @@ async function renderPage(
   return fixture;
 }
 
+/** The page's protected forms, which the tests drive directly. */
+function pageOf(fixture: ComponentFixture<RotationConfigEditComponent>): any {
+  return fixture.componentInstance;
+}
+
 function actionButton(
   fixture: ComponentFixture<RotationConfigEditComponent>,
   name: "save" | "delete",
@@ -1638,6 +1643,8 @@ describe("RotationConfigEditComponent: tab routes", () => {
 describe("RotationConfigEditComponent: action row", () => {
   it("leaves Remove from rotation out of the form, to the header menu", async () => {
     const fixture = await renderPage();
+    pageOf(fixture).settingsForm.controls.rotateOnAccessEnd.setValue(true);
+    fixture.detectChanges();
 
     expect(actionButton(fixture, "save")).not.toBeNull();
     expect(
@@ -1653,18 +1660,57 @@ describe("RotationConfigEditComponent: action row", () => {
     expect(actionButton(fixture, "delete")).toBeNull();
   });
 
-  it("disables Save while a rotation job is in flight, since the server refuses the update", async () => {
+  it("keeps Save live while a rotation job is in flight, once something has changed", async () => {
     const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
+    pageOf(fixture).settingsForm.controls.rotateOnAccessEnd.setValue(true);
+    fixture.detectChanges();
 
     const save = fixture.debugElement.query(By.css("#rotation-config-edit_button_save"));
-    expect(save.componentInstance.disabled()).toBe(true);
+    expect(save.componentInstance.disabled()).toBe(false);
   });
 
   it("keeps Save live while no job is running", async () => {
     const fixture = await renderPage();
+    pageOf(fixture).settingsForm.controls.rotateOnAccessEnd.setValue(true);
+    fixture.detectChanges();
 
     const save = fixture.debugElement.query(By.css("#rotation-config-edit_button_save"));
     expect(save.componentInstance.disabled()).toBe(false);
+  });
+
+  it("hides Save and Cancel until something changes", async () => {
+    const fixture = await renderPage();
+    const { settingsForm } = pageOf(fixture);
+    expect(actionButton(fixture, "save")).toBeNull();
+
+    settingsForm.controls.rotateOnAccessEnd.setValue(true);
+    fixture.detectChanges();
+    expect(actionButton(fixture, "save")).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("#rotation-config-edit_button_cancel"),
+    ).not.toBeNull();
+
+    settingsForm.controls.rotateOnAccessEnd.setValue(false);
+    fixture.detectChanges();
+    expect(actionButton(fixture, "save")).toBeNull();
+  });
+
+  it("explains why Username waits for the running attempt, and keeps the schedule editable", async () => {
+    const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
+    const component = pageOf(fixture);
+
+    expect(component.accountForm.controls.accountIdentity.disabled).toBe(true);
+    expect(component.settingsForm.controls.scheduleCron.disabled).toBe(false);
+    expect(component.settingsForm.controls.rotateOnAccessEnd.disabled).toBe(false);
+    expect(component.usernameHintKey()).toBe("pamRotationConfigChangeAfterAttempt");
+  });
+
+  it("does not blame the running job for End active sessions on a manual credential", async () => {
+    const fixture = await renderPage({
+      existingConfig: loadedConfig({ hasActiveJob: true, targetSystemMethod: "manual" }),
+    });
+
+    expect(pageOf(fixture).terminateSessionsWaitsForJob()).toBe(false);
   });
 });
 
@@ -2332,6 +2378,8 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
   describe("the footer", () => {
     it("holds Save and Cancel, in that order", async () => {
       const fixture = await renderPage();
+      pageOf(fixture).settingsForm.controls.rotateOnAccessEnd.setValue(true);
+      fixture.detectChanges();
       const row = actionButton(fixture, "save")!.parentElement!;
       expect(Array.from(row.querySelectorAll("button")).map((b) => b.id)).toEqual([
         "rotation-config-edit_button_save",

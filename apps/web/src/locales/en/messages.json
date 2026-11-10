@@ -21072,6 +21072,9 @@
   "pamRotationConfigRotateNowNotConnected": {
     "message": "No access connector is connected"
   },
+  "pamRotationConfigChangeAfterAttempt": {
+    "message": "Can be changed once the current attempt finishes."
+  },
   "pamRotationConfigRemoveLockedReason": {
     "message": "Available when the rotation finishes."
   },

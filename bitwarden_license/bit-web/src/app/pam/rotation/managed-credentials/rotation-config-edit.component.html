@@ -657,33 +657,39 @@
                     formControlName="terminateSessions"
                   />
                   <bit-label>{{ "pamRotationConfigEndSessions" | i18n }}</bit-label>
-                  <bit-hint>{{ "pamRotationConfigEndSessionsHint" | i18n }}</bit-hint>
+                  <bit-hint>{{
+                    (terminateSessionsWaitsForJob()
+                      ? "pamRotationConfigChangeAfterAttempt"
+                      : "pamRotationConfigEndSessionsHint"
+                    ) | i18n
+                  }}</bit-hint>
                 </bit-form-control>
               </bit-card>
             </bit-section>
 
-            <div class="tw-flex tw-items-center tw-gap-2">
-              <button
-                type="submit"
-                bitButton
-                buttonType="primary"
-                bitFormButton
-                [disabled]="detail.config.hasActiveJob"
-                id="rotation-config-edit_button_save"
-              >
-                {{ "save" | i18n }}
-              </button>
-              <button
-                type="button"
-                bitButton
-                buttonType="secondary"
-                bitFormButton
-                id="rotation-config-edit_button_cancel"
-                (click)="cancel()"
-              >
-                {{ "cancel" | i18n }}
-              </button>
-            </div>
+            @if (editDirty()) {
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <button
+                  type="submit"
+                  bitButton
+                  buttonType="primary"
+                  bitFormButton
+                  id="rotation-config-edit_button_save"
+                >
+                  {{ "save" | i18n }}
+                </button>
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="secondary"
+                  bitFormButton
+                  id="rotation-config-edit_button_cancel"
+                  (click)="cancel()"
+                >
+                  {{ "cancel" | i18n }}
+                </button>
+              </div>
+            }
           </form>
         }
       }
