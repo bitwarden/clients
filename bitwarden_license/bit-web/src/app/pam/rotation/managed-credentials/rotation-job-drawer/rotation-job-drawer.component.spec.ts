@@ -43,6 +43,7 @@ function retriedFailure(overrides: Partial<JobView> = {}): JobView {
     id: jobId("1"),
     credentialName: "Prod service account",
     credentialResolved: true,
+    targetSystemName: null,
     sourceLabelKey: "pamRotationSourceScheduled",
     statusLabelKey: "pamRotationJobStatusFailed",
     statusVariant: "danger",

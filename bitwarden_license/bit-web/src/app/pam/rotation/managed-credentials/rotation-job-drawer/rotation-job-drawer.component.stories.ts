@@ -33,6 +33,7 @@ const SUCCEEDED: JobView = {
   id: jobId("j1"),
   credentialName: "Production database credential",
   credentialResolved: true,
+  targetSystemName: null,
   sourceLabelKey: "pamRotationSourceScheduled",
   statusLabelKey: "pamRotationJobStatusSucceeded",
   statusVariant: "success",
@@ -181,6 +182,7 @@ const UNRESOLVED_CREDENTIAL: JobView = {
   id: jobId("j10"),
   credentialName: String(configId("c1")),
   credentialResolved: false,
+  targetSystemName: null,
 };
 
 /** A reason with no break opportunity wraps, since the dialog's size fixes the width. */

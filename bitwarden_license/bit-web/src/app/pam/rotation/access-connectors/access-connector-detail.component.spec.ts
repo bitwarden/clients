@@ -1012,6 +1012,25 @@ describe("AccessConnectorDetailComponent", () => {
       expect(el().textContent).toContain("Prod service account");
     });
 
+    it("names the target system each job rotated on", async () => {
+      rotationSdk.listConfigs.mockResolvedValue([
+        rotationConfig({
+          id: configId("cfg-1"),
+          cipherId: CIPHER_ID,
+          targetSystemName: "Corp Active Directory",
+        }),
+      ]);
+      await mount(
+        accessConnectorDetail({
+          connector: accessConnector({ id: CONNECTOR_ID }),
+          jobs: [rotationJob({ rotationConfigId: configId("cfg-1") })],
+        }),
+        { renderTemplate: true, tab: "history", cipherNames: new Map() },
+      );
+
+      expect(el().textContent).toContain("Corp Active Directory");
+    });
+
     it("falls back to the rotation config id when no name resolved", async () => {
       rotationSdk.listConfigs.mockResolvedValue([
         rotationConfig({ id: configId("cfg-1"), cipherId: CIPHER_ID }),

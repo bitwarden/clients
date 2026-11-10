@@ -3,7 +3,6 @@ import { By } from "@angular/platform-browser";
 import { MockProxy, mock } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
-import { formatTimestamp } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -578,9 +577,6 @@ describe("RotationHistoryComponent rendering", () => {
 
   const CONNECTION_REFUSED = "target_unreachable: error kind: ConnectionRefused";
 
-  /** A job queued at this instant and never claimed, so nothing about it ever started. */
-  const QUEUED_AT = "2026-03-04T09:15:00Z";
-
   let dialogService: MockProxy<DialogService>;
 
   function render(jobs: RotationJob[], inputs: Record<string, unknown> = {}) {
@@ -634,7 +630,7 @@ describe("RotationHistoryComponent rendering", () => {
 
   function jobHeaders(fixture: any) {
     return fixture.debugElement
-      .queryAll(By.css("[data-testid='rotation-history-columns'] th"))
+      .queryAll(By.css('bit-table-v2 [role="columnheader"]'))
       .map((th: any) => th.nativeElement.textContent.trim());
   }
 
@@ -679,18 +675,49 @@ describe("RotationHistoryComponent rendering", () => {
     expect(empty.nativeElement.textContent).not.toContain("pamRotationConfigHistoryEmptyState");
   });
 
-  it("keeps the connector page's columns and adds Details when it names the credential", () => {
+  it("renders the connector page's table with the five design columns and no Details", () => {
     const fixture = render([rotationJob()], { showCredential: true });
+    const headers = fixture.debugElement
+      .queryAll(By.css('bit-table-v2 [role="columnheader"]'))
+      .map((h: any) => h.nativeElement.textContent.trim());
 
-    expect(jobHeaders(fixture)).toEqual([
-      "pamRotationAttemptStarted",
-      "pamRotationConfigColumnCredential",
-      "pamRotationHistoryColumnSource",
-      "pamRotationHistoryColumnResult",
-      "pamRotationHistoryDurationLabel",
-      "pamRotationHistoryColumnAttempts",
-      "details",
+    expect(headers).toEqual([
+      "pamRotationHistoryColumnRotationStarted",
+      "pamRotationConfigColumnManagedCredential",
+      "pamRotationConfigColumnTargetSystem",
+      "pamRotationHistoryColumnFinalResult",
+      "pamRotationHistoryColumnRotationTrigger",
     ]);
+  });
+
+  it("names the target system and shows an unresolved credential as an id in code font", () => {
+    const job = rotationJob();
+    const fixture = render([job], {
+      showCredential: true,
+      targetSystemNames: new Map([[job.rotationConfigId, "Corp AD"]]),
+    });
+    const credential = fixture.debugElement.query(
+      By.css("[data-testid='rotation-history-job-credential']"),
+    ).nativeElement;
+
+    expect(fixture.nativeElement.textContent).toContain("Corp AD");
+    expect(credential.textContent.trim()).toBe(String(job.rotationConfigId));
+    expect(credential.classList).toContain("tw-font-mono");
+    expect(credential.getAttribute("title")).toBe(String(job.rotationConfigId));
+  });
+
+  it("shows a resolved credential name in the regular font", () => {
+    const job = rotationJob();
+    const fixture = render([job], {
+      showCredential: true,
+      credentialNames: new Map([[job.rotationConfigId, "Svc account"]]),
+    });
+    const credential = fixture.debugElement.query(
+      By.css("[data-testid='rotation-history-job-credential']"),
+    ).nativeElement;
+
+    expect(credential.textContent.trim()).toBe("Svc account");
+    expect(credential.classList).not.toContain("tw-font-mono");
   });
 
   describe("the job table", () => {
@@ -710,28 +737,12 @@ describe("RotationHistoryComponent rendering", () => {
       ]);
     });
 
-    it("leaves the connector page on its own table", () => {
+    it("shows the connector page's result as plain text, not a badge", () => {
       const fixture = render([rotationJob()], { showCredential: true });
-      expect(fixture.debugElement.query(By.css("bit-table-v2"))).toBeNull();
-    });
-
-    it("gives a failed row on the connector page a plain-language reason", () => {
-      const job = rotationJob({
-        status: RotationJobStatus.Failed,
-        attempts: [
-          rotationAttempt({
-            id: attemptId("1"),
-            status: RotationAttemptStatus.Errored,
-            failureReason: "target_rejected: error kind: AmbiguousAccountIdentity",
-          }),
-        ],
-      });
-      const fixture = render([job], { showCredential: true });
+      expect(fixture.debugElement.query(By.css("[bitBadge]"))).toBeNull();
       expect(
-        fixture.debugElement
-          .query(By.css("[data-testid='rotation-history-job-details']"))
-          .nativeElement.textContent.trim(),
-      ).toBe("pamRotationFailureCauseAmbiguousAccountIdentity");
+        fixture.debugElement.query(By.css("[data-testid='rotation-history-job-details']")),
+      ).toBeNull();
     });
   });
 
@@ -866,27 +877,6 @@ describe("RotationHistoryComponent rendering", () => {
     });
   });
 
-  describe("the started column", () => {
-    it("leaves a never-started job undated", () => {
-      const fixture = render(
-        [rotationJob({ status: RotationJobStatus.Pending, attempts: [], createdAt: QUEUED_AT })],
-        { showCredential: true },
-      );
-      expect(jobRows(fixture)[0].query(By.css("th")).nativeElement.textContent.trim()).toBe("");
-      expect(fixture.nativeElement.textContent).not.toContain(
-        formatTimestamp("en-US", Date.parse(QUEUED_AT)),
-      );
-    });
-  });
-
-  it("shows the job duration rather than a second raw timestamp", () => {
-    const fixture = render([retriedFailure()], { showCredential: true });
-
-    expect(jobRows(fixture)[0].nativeElement.textContent).toContain(
-      "pamRotationDurationMinutes 4 16",
-    );
-  });
-
   it("keeps the connector's raw reason and the drawer's explanations off the table", () => {
     const recognised = render([retriedFailure()]);
     expect(recognised.nativeElement.textContent).not.toContain(
@@ -933,7 +923,7 @@ describe("RotationHistoryComponent rendering", () => {
   describe("the credential column", () => {
     it("is absent by default", () => {
       const fixture = render([rotationJob()]);
-      expect(jobHeaders(fixture)).not.toContain("pamRotationConfigColumnCredential");
+      expect(jobHeaders(fixture)).not.toContain("pamRotationConfigColumnManagedCredential");
       expect(
         fixture.debugElement.queryAll(By.css("[data-testid='rotation-history-job-credential']")),
       ).toHaveLength(0);
@@ -945,13 +935,11 @@ describe("RotationHistoryComponent rendering", () => {
         credentialNames: new Map([[configId("7"), "Prod service account"]]),
       });
 
-      expect(jobHeaders(fixture)[1]).toBe("pamRotationConfigColumnCredential");
       const cell = fixture.debugElement.query(
         By.css("[data-testid='rotation-history-job-credential']"),
       ).nativeElement;
       expect(cell.textContent.trim()).toBe("Prod service account");
-      expect(cell.querySelector("span").className).not.toContain("tw-truncate");
-      expect(cell.querySelector("[title]")).toBeNull();
+      expect(cell.className).not.toContain("tw-font-mono");
     });
 
     it("falls back to the config id when no name resolved", () => {
@@ -963,21 +951,11 @@ describe("RotationHistoryComponent rendering", () => {
         By.css("[data-testid='rotation-history-job-credential']"),
       );
       expect(cell.nativeElement.textContent.trim()).toBe(String(configId("7")));
-      expect(cell.nativeElement.querySelector("span").className).toContain("tw-font-mono");
-      expect(cell.nativeElement.querySelector("span").className).not.toContain("tw-truncate");
+      expect(cell.nativeElement.className).toContain("tw-font-mono");
     });
   });
 
   describe("attempts", () => {
-    it("counts a job's attempts in the ledger without listing them", () => {
-      const fixture = render([retriedFailure()], { showCredential: true });
-
-      const cell = fixture.debugElement.query(
-        By.css("[data-testid='rotation-history-job-attempts']"),
-      );
-      expect(cell.nativeElement.textContent.trim()).toBe("5");
-    });
-
     it("renders no attempt value in the job table", () => {
       const fixture = render([retriedFailure()]);
 
@@ -993,6 +971,13 @@ describe("RotationHistoryComponent rendering", () => {
       const button = resultCell(fixture).nativeElement as HTMLElement;
       expect(button.tagName).toBe("BUTTON");
       expect(button.getAttribute("aria-label")).toContain("pamRotationViewRotation");
+    });
+
+    it("keeps the rotation start on one line so the time doesn't wrap under the date", () => {
+      const fixture = render([retriedFailure()]);
+
+      const button = resultCell(fixture).nativeElement as HTMLElement;
+      expect(button.classList.contains("tw-whitespace-nowrap")).toBe(true);
     });
 
     it("keeps the row selected while its drawer is open, and clears it on close", async () => {
@@ -1052,32 +1037,6 @@ describe("RotationHistoryComponent rendering", () => {
       await settle(fixture);
       closedB.next(undefined);
       expect(document.activeElement).toBe(cellB);
-    });
-
-    it("stands Source, Duration, Attempts and Details down while the pane is beside the table", async () => {
-      const fixture = render([retriedFailure()], { showCredential: true });
-      const closed = openedDrawer();
-      const hidden = () =>
-        fixture.debugElement
-          .queryAll(By.css("[data-testid='rotation-history-columns'] th"))
-          .filter((th: any) => th.nativeElement.className.includes("tw-hidden"))
-          .map((th: any) => th.nativeElement.textContent.trim());
-
-      expect(hidden()).toEqual([]);
-
-      jobRows(fixture)[0].nativeElement.click();
-      await settle(fixture);
-
-      expect(hidden()).toEqual([
-        "pamRotationHistoryColumnSource",
-        "pamRotationHistoryDurationLabel",
-        "pamRotationHistoryColumnAttempts",
-        "details",
-      ]);
-
-      closed.next(undefined);
-      fixture.detectChanges();
-      expect(hidden()).toEqual([]);
     });
   });
 });

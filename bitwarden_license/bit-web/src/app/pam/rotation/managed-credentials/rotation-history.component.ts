@@ -12,7 +12,6 @@ import { take } from "rxjs";
 
 import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import {
-  BadgeModule,
   BadgeVariant,
   BitCellComponent,
   BitCellDefDirective,
@@ -37,7 +36,6 @@ import {
   SessionTerminationOutcome,
 } from "../rotation";
 
-import { RotationDurationComponent } from "./rotation-duration.component";
 import { RotationJobDrawerComponent } from "./rotation-job-drawer/rotation-job-drawer.component";
 import type {
   AttemptView,
@@ -96,7 +94,6 @@ const SESSION_TERMINATION_LABEL_KEYS: Partial<Record<SessionTerminationOutcome, 
   templateUrl: "./rotation-history.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    BadgeModule,
     BitCellComponent,
     BitCellDefDirective,
     BitColumnComponent,
@@ -107,7 +104,6 @@ const SESSION_TERMINATION_LABEL_KEYS: Partial<Record<SessionTerminationOutcome, 
     TableModule,
     I18nPipe,
     TimestampPipe,
-    RotationDurationComponent,
   ],
 })
 export class RotationHistoryComponent {
@@ -121,6 +117,9 @@ export class RotationHistoryComponent {
 
   /** Managed-credential display names by rotation config id, for {@link showCredential}. */
   readonly credentialNames = input<ReadonlyMap<RotationConfigId, string>>(new Map());
+
+  /** Target system names by rotation config id, for {@link showCredential}. */
+  readonly targetSystemNames = input<ReadonlyMap<RotationConfigId, string>>(new Map());
 
   /** Access connector names by id, for the drawer's attempts. */
   readonly connectorNames = input<ReadonlyMap<string, string>>(new Map());
@@ -141,13 +140,10 @@ export class RotationHistoryComponent {
     null,
   );
 
-  /** Whether the pane is beside the table, which is what drops Source and Duration from it. */
-  protected readonly detailsOpen = computed(() => this.detailsDrawer() != null);
-
   /** The job whose drawer is open, so its row can stay highlighted until the drawer closes. */
   protected readonly selectedJobId = signal<JobView["id"] | null>(null);
 
-  protected readonly table = defineTable<JobView, "targetSystem">(this.jobViews);
+  protected readonly table = defineTable<JobView>(this.jobViews);
 
   protected readonly sortByStarted = (a: JobView, b: JobView): number =>
     Date.parse(a.displayStartedAt) - Date.parse(b.displayStartedAt);
@@ -229,6 +225,7 @@ export class RotationHistoryComponent {
       id: job.id,
       credentialName: credentialName ?? String(job.rotationConfigId),
       credentialResolved: credentialName != null,
+      targetSystemName: this.targetSystemNames().get(job.rotationConfigId) ?? null,
       sourceLabelKey: this.sourceLabelKey(job.source),
       statusLabelKey: retrying
         ? "pamRotationJobStatusRetrying"

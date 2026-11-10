@@ -247,6 +247,11 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     return resolved;
   });
 
+  /** Target system names by rotation config id, for the history table's Target system column. */
+  protected readonly targetSystemNames = computed<ReadonlyMap<RotationConfigId, string>>(
+    () => new Map(this.rotationConfigs().map((config) => [config.id, config.targetSystemName])),
+  );
+
   private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
     initialValue: [] as TargetSystemView[],
   });
