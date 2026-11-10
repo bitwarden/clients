@@ -360,6 +360,9 @@ export class EditMemberDialogComponent {
                 : c.users.find((access) => access.id === userDetails.id),
             ),
           )
+          // Read only, every row is muted like one the admin can't edit, and only the member's
+          // collections are kept.
+          .map((item) => (this.readonly ? { ...item, readonly: true } : item))
           .filter(
             (item) =>
               !item.readonly || userDetails?.collections.some((access) => access.id == item.id),

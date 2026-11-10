@@ -1004,6 +1004,7 @@ describe("EditMemberDialogComponent", () => {
     function buildCollection(
       id: string,
       access: { users?: string[]; groups?: string[] } = {},
+      editable = false,
     ): CollectionAdminView {
       const selection = (accessId: string) =>
         new CollectionAccessSelectionView({
@@ -1015,7 +1016,7 @@ describe("EditMemberDialogComponent", () => {
       return {
         id,
         name: id,
-        canEditUserAccess: () => false,
+        canEditUserAccess: () => editable,
         users: (access.users ?? []).map(selection),
         groups: (access.groups ?? []).map(selection),
       } as unknown as CollectionAdminView;
@@ -1097,6 +1098,17 @@ describe("EditMemberDialogComponent", () => {
         `via-group-${GROUP_ID}`,
       ]);
       expect(items[1]).toEqual(expect.objectContaining({ viaGroupName: "Engineering" }));
+    });
+
+    it("shows collections the admin can edit as read only, and only the member's", async () => {
+      const { component } = await createReadonly(buildMember(), [
+        buildCollection("assigned", { users: [USER_ID] }, true),
+        buildCollection("unassigned", {}, true),
+      ]);
+
+      expect((component as any).collectionAccessItems()).toEqual([
+        expect.objectContaining({ id: "assigned", readonly: true }),
+      ]);
     });
 
     it("disables every field", async () => {
