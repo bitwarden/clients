@@ -1,0 +1,102 @@
+<popup-page>
+  <popup-header
+    slot="header"
+    pageTitle="{{ 'passkeyOpportunitiesTitle' | i18n }}"
+    showBackButton="true"
+  >
+    <ng-container slot="end">
+      <app-pop-out />
+      <app-current-account />
+    </ng-container>
+  </popup-header>
+  @if (failed()) {
+    <div
+      class="tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-center tw-px-6 tw-text-center"
+      role="alert"
+    >
+      <bit-status-lockup class="tw-text-main">
+        <bit-svg slot="graphic" [content]="errorIcon"></bit-svg>
+        <ng-container slot="title">{{ "passkeyOpportunitiesFailed" | i18n }}</ng-container>
+        <ng-container slot="description">{{
+          "passkeyOpportunitiesFailedDesc" | i18n
+        }}</ng-container>
+        <button
+          slot="button"
+          bitButton
+          type="button"
+          buttonType="primary"
+          id="health-passkey-detail_button_retry"
+          (click)="handleRetry()"
+        >
+          {{ "tryAgain" | i18n }}
+        </button>
+      </bit-status-lockup>
+    </div>
+  } @else if (opportunities() == null) {
+    <!-- no result yet: a check is running or about to start; an empty state here would read as "none" -->
+    <dirt-health-scanning />
+  } @else if (rows().length > 0) {
+    <p>{{ "passkeyOpportunitiesDescription" | i18n }}</p>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h5">{{ "items" | i18n }}</h2>
+        <span slot="end">{{ rows().length }}</span>
+      </bit-section-header>
+
+      <cdk-virtual-scroll-viewport [itemSize]="rowSize()" bitScrollLayout>
+        <bit-item
+          *cdkVirtualFor="let row of rows(); trackBy: trackById"
+          class="tw-flex tw-gap-2 tw-items-center"
+        >
+          @let cipher = row.cipher;
+          @let opportunity = row.opportunity;
+
+          <button bit-item-content type="button" (click)="onItemClick(cipher)" class="tw-h-[52px]">
+            <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
+              <app-vault-icon [cipher]="cipher"></app-vault-icon>
+            </div>
+            <span bitTypography="body1">{{ cipher.name }}</span>
+            <div slot="secondary" class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
+              <span bitTypography="body2" class="tw-text-muted tw-truncate">
+                {{ cipher.login.username }}
+              </span>
+              <span class="tw-sr-only">{{ "passkeySupportedFor" | i18n }}</span>
+              @if (opportunity.supportsPasskeyLogin) {
+                <span bitBadge size="small" variant="subtle">{{ "logIn" | i18n }}</span>
+              }
+              @if (opportunity.supportsPasskeyMfa) {
+                <span bitBadge size="small" variant="subtle">{{ "twoStepLogin" | i18n }}</span>
+              }
+            </div>
+          </button>
+          <ng-container slot="end">
+            @if (opportunity.instructions) {
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="secondary"
+                  size="small"
+                  block
+                  endIcon="bwi-external-link"
+                  [attr.aria-label]="'setUpPasskeyFor' | i18n: cipher.name"
+                  (click)="onOpenInstructions(opportunity)"
+                >
+                  {{ "setUpPasskey" | i18n }}
+                </button>
+              </bit-item-action>
+            }
+          </ng-container>
+        </bit-item>
+      </cdk-virtual-scroll-viewport>
+    </bit-section>
+  } @else {
+    <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
+      <bit-status-lockup class="tw-text-main">
+        <bit-svg slot="graphic" [content]="emptyIcon"></bit-svg>
+        <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "passkeyOpportunitiesEmpty" | i18n }}</ng-container>
+      </bit-status-lockup>
+    </div>
+  }
+</popup-page>

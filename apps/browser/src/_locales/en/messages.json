@@ -8830,6 +8830,36 @@
     "message": "Logins that can use passkeys",
     "description": "Title of the passkeys row on the Health Overview when it is locked behind Premium. Shows no count because free users are not checked."
   },
+  "passkeyOpportunitiesTitle": {
+    "message": "Passkeys available",
+    "description": "Page title for the list of logins whose sites support passkeys."
+  },
+  "passkeyOpportunitiesDescription": {
+    "message": "These sites let you log in with a passkey, or use one for two-step login. Passkeys can't be guessed or phished. Follow a site's setup steps and Bitwarden will save the passkey to your login.",
+    "description": "Intro on the page listing logins whose sites support passkeys."
+  },
+  "passkeyOpportunitiesEmpty": {
+    "message": "None of your other saved sites support passkeys yet.",
+    "description": "Empty state on the page listing logins whose sites support passkeys."
+  },
+  "passkeySupportedFor": {
+    "message": "Passkeys supported for:",
+    "description": "Screen reader text read before the badges that say what a site supports passkeys for, such as log in or two-step login."
+  },
+  "setUpPasskey": {
+    "message": "Set up",
+    "description": "Button that opens a site's instructions for adding a passkey."
+  },
+  "setUpPasskeyFor": {
+    "message": "Set up a passkey for $NAME$, opens in a new window",
+    "description": "Accessible label for the button that opens a site's passkey setup instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
   "exposedPasswordsTitle": {
     "message": "Exposed passwords"
   },
