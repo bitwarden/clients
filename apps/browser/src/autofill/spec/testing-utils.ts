@@ -1,6 +1,15 @@
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
+
+import { Message } from "@bitwarden/common/platform/messaging";
+// eslint-disable-next-line no-restricted-imports -- applies the tag an ingest boundary applies
+import { tagAsExternal } from "@bitwarden/common/platform/messaging/internal";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import {
+  LockedVaultPendingNotificationsData,
+  RETRY_SENDER,
+} from "../background/abstractions/notification.background";
 
 export function triggerTestFailure() {
   expect(true).toBe("Test has failed.");
@@ -11,6 +20,44 @@ export function flushPromises() {
   return new Promise(function (resolve) {
     scheduler(resolve);
   });
+}
+
+/**
+ * Applies the tag that `fromChromeRuntimeMessaging` stamps on a message as it crosses into this
+ * context, so a test can hand a consumer something indistinguishable from a foreign message.
+ */
+export function tagAsExternalMessage<T extends Message<Record<string, unknown>>>(message: T): T {
+  // `tagAsExternal` is an rxjs operator, so it is applied through a synchronous stream. It tags in
+  // place, which is why the original object comes back tagged.
+  of(message).pipe(tagAsExternal()).subscribe();
+  return message;
+}
+
+/**
+ * Returns the retry a consumer would receive from another context: the same payload minus its
+ * {@link RETRY_SENDER}, which no serializer copies.
+ *
+ * Asserts that everything else made the trip, so a consumer that then does nothing did so
+ * because the sender is missing rather than because the payload arrived empty. Keep fixtures
+ * JSON-safe — `jest-mock-extended` proxies serialize to nothing.
+ *
+ * Pairs with {@link tagAsExternalMessage}: a genuinely foreign retry is both tagged at ingest
+ * and stripped of its sender. Use whichever guard is under test, or both.
+ */
+export function crossContextBoundary(
+  retry: LockedVaultPendingNotificationsData,
+): LockedVaultPendingNotificationsData {
+  // JSON stands in for the real boundary because `structuredClone` is absent from this Jest
+  // environment. It is strictly more destructive, so it can only under-report a surviving
+  // property.
+  // FIXME: Once the environment includes `structuredClone`, replace the JSON processing with it.
+  const crossed = JSON.parse(JSON.stringify(retry)) as LockedVaultPendingNotificationsData;
+
+  expect(crossed.target).toBe(retry.target);
+  expect(crossed.commandToRetry.message).toEqual(retry.commandToRetry.message);
+  expect(crossed.commandToRetry[RETRY_SENDER]).toBeUndefined();
+
+  return crossed;
 }
 
 export function postWindowMessage(

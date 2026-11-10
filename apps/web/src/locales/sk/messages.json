@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Resetovať vyhľadávanie"
   },
+  "clearSearchTooltip": {
+    "message": "Na vymazanie kliknite sem alebo stlačte kláves Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Všetky položky"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Zbierky"
   },
+  "controlledAccess": {
+    "message": "Riadený prístup"
+  },
   "firstName": {
     "message": "Krstné meno"
   },
@@ -1225,7 +1232,7 @@
     "message": "Zdieľané priečinky"
   },
   "sharedFoldersInParent": {
-    "message": "Shared folders in $NAME$",
+    "message": "Zdieľané priečinky v $NAME$",
     "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
     "placeholders": {
       "name": {
@@ -1235,7 +1242,7 @@
     }
   },
   "sharedFolderCount": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ zdieľaných priečinkov",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1244,7 +1251,7 @@
     }
   },
   "sharedFolderSingular": {
-    "message": "$COUNT$ shared folder",
+    "message": "$COUNT$ zdieľaný priečinok",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1252,19 +1259,61 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+  "foldersInParent": {
+    "message": "Folders in $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
     "placeholders": {
-      "count": {
+      "name": {
         "content": "$1",
-        "example": "3"
+        "example": "Banking"
       }
     }
   },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  "folderCount": {
+    "message": "$COUNT$ folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "nestedSharedFolderCount": {
+    "message": "Vnorené zdieľané priečinky: $COUNT$",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 vnorený zdieľaný priečinok",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ nested folders",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 nested folder",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Môj priečinok"
@@ -1275,14 +1324,14 @@
   "foldersFilterTooltip": {
     "message": "Pridajte priečinky k položkám a filtrujte ich tu."
   },
+  "myItemsFilterTooltip": {
+    "message": "Pridajte položky do Moje položky a filtrujte ich tu."
+  },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "Ak tu chcete filtrovať, pridajte položky do zdieľaného priečinka."
   },
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
-  },
-  "newSharedFolder": {
-    "message": "Nový zdieľaný priečinok"
   },
   "searchSharedFolder": {
     "message": "Hľadať v zdieľanom priečinku"
@@ -1475,42 +1524,6 @@
     "message": "Add passport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nové prihlásenie",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "New secure note",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový kľúč SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankový účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nový text",
     "description": "Header for new text send"
@@ -1518,22 +1531,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nový súbor",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upraviť prihlásenie",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upraviť kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upraviť identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upraviť poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Edit secure note",
@@ -1700,6 +1697,14 @@
     "message": "Kopírovať používateľské meno",
     "description": "Copy username to clipboard"
   },
+  "copyExternalId": {
+    "message": "Kopírovať externé ID",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Kopírovať externé ID SSO",
+    "description": "Copy SSO external ID to clipboard"
+  },
   "copyNumber": {
     "message": "Kopírovať číslo",
     "description": "Copy credit card number"
@@ -1801,7 +1806,7 @@
     "message": "Moje položky"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Moje položky"
   },
   "myVault": {
     "message": "Môj trezor"
@@ -1908,7 +1913,7 @@
     "message": "Žiadne zodpovedajúce položky"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Žiadny filter nezodpovedá výrazu „$SEARCH$“",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -1917,11 +1922,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 výsledok",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "Výsledky: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1931,7 +1936,7 @@
     "description": "Shown above a filter menu's option list when a search matches more than one option."
   },
   "noFiltersMatchTerm": {
-    "message": "No filters match “$SEARCH$”",
+    "message": "Žiadny filter nezodpovedá výrazu \"$SEARCH$\"",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -1941,7 +1946,7 @@
     "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Vymazať vyhľadávanie"
   },
   "deselectAll": {
     "message": "Zrušiť celý výber"
@@ -1994,6 +1999,27 @@
   },
   "selectFile": {
     "message": "Vybrať súbor."
+  },
+  "selectFileUnsupportedType": {
+    "message": "Tento typ súboru nie je pre tento zdroj povolený. Vyberte iný súbor."
+  },
+  "pasteContentRequired": {
+    "message": "Vložte exportovaný obsah."
+  },
+  "fileTypeNotSupported": {
+    "message": "Tento typ súboru nie je podporovaný. Vyberte súbor typu $TYPES$.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Vložený obsah nezodpovedá zvolenému formátu."
+  },
+  "errorReadingFile": {
+    "message": "Vybraný súbor sa nepodarilo prečítať."
   },
   "maxFileSize": {
     "message": "Maximálna veľkosť súboru je 500 MB."
@@ -2106,6 +2132,12 @@
   },
   "deletedItem": {
     "message": "Položka odstránená"
+  },
+  "deleteItemError": {
+    "message": "Položku sa nepodarilo odstrániť."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Táto položka je obmedzená. Vaša zmena nebola uložená."
   },
   "deletedItems": {
     "message": "Položky odstránené"
@@ -2564,16 +2596,16 @@
     "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo"
   },
   "noItemsInTrashDescription": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+    "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo."
   },
   "noItemsInVault": {
     "message": "V trezore nie sú žiadne položky"
   },
   "noItemsInMyVault": {
-    "message": "No items in My vault"
+    "message": "Môj trezor je prázdny"
   },
   "noItemsInOrganizationVault": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "Trezor $VAULT_NAME$ je prázdny",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -2582,7 +2614,7 @@
     }
   },
   "noItemsInSharedFolder": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "Trezor $VAULT_NAME$ je prázdny",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -2590,17 +2622,34 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "No items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
-    "message": "No items in My items"
+    "message": "Moje položky sú prázdne"
   },
   "noItemsInVaults": {
-    "message": "Your vaults are empty"
+    "message": "Vaše trezory sú prázdne"
   },
   "noItemsMatchSelectedFilters": {
-    "message": "No items match selected filters"
+    "message": "Žiadne položky nezodpovedajú zvoleným filtrom"
+  },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "No items match the selected filters"
   },
   "noItemsMatchSearchTerm": {
-    "message": "No items match \"$SEARCH_TERM$\"",
+    "message": "Žiadny filter nezodpovedá výrazu \"$SEARCH_TERM$\"",
     "placeholders": {
       "search_term": {
         "content": "$1",
@@ -2612,7 +2661,7 @@
     "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
   },
   "emptySharedFolderDescription": {
-    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "message": "Pridajte položky do tohto zdieľaného priečinka a potom poskytnite prístup ďalším členom $VAULT_NAME$.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -2621,7 +2670,7 @@
     }
   },
   "emptyMyItemsDescription": {
-    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "message": "Moje položky je váš súkromný priestor na ukladanie položiek, ktoré zostávajú vo vlastníctve $VAULT_NAME$, ale nie sú viditeľné pre ostatných členov.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -2629,14 +2678,14 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "Nemáte žiadne priečinky"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Použite priečinky na usporiadanie položiek trezoru. Sú len pre vás. Nikto iný ich neuvidí ani nepoužije."
   },
   "emptyVaultsDescription": {
-    "message": "Add logins, IDs, cards, and other items to get started."
+    "message": "Ak chcete začať, pridajte prihlasovacie údaje, preukazy, karty a ďalšie položky."
   },
   "emptyFavorites": {
     "message": "Neoznačili ste žiadnu položku za obľúbenú"
@@ -2672,6 +2721,38 @@
   "noMembersInList": {
     "message": "Neexistujú žiadni členovia na zobrazenie."
   },
+  "noMembersInvitedToOrg": {
+    "message": "No members have been invited to your organization"
+  },
+  "memberCount": {
+    "message": "$COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "memberCountSingular": {
+    "message": "1 member"
+  },
+  "memberRangeOfTotal": {
+    "message": "$START$–$END$ of $TOTAL$ members",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "150"
+      }
+    }
+  },
   "noMembersToExport": {
     "message": "Neexistujú žiadni členovia na export."
   },
@@ -2688,7 +2769,7 @@
     "message": "Add plan"
   },
   "addPlanDesc": {
-    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
+    "message": "Zadarmo môžete vytvoriť novy trezor zdieľaný s 1 ďalšou osobou. Ak chcete ukladať, spravovať a zdieľať položky s viacerými ľuďmi, musíte najskôr pridať predplatné. Niektoré možnosti predplatného môžu vyžadovať zmenu účtovania."
   },
   "noOrganizationsList": {
     "message": "Nie ste členom žiadnej organizácie. Organizácie umožňujú bezpečne zdieľať položky s ostatnými používateľmi."
@@ -2969,11 +3050,44 @@
   "keePassMasterPassword": {
     "message": "Hlavné heslo pre KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Heslo $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "filePasswordRequired": {
+    "message": "Vyžaduje sa heslo súboru"
+  },
+  "filePasswordInvalid": {
+    "message": "Zadajte platné heslo k súboru."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Nahraný súbor je chránený heslom. Zadajte heslo na pokračovanie."
+  },
+  "selectProfile": {
+    "message": "Vyberte profil"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Zadajte platné heslo"
+  },
+  "importAccountMismatchError": {
+    "message": "Tento súbor je možné importovať iba do účtu, z ktorého bol exportovaný."
+  },
   "addKeyFile": {
     "message": "Pridať súbor s kľúčom"
   },
   "keyFileUpload": {
     "message": "Nahrať súbor s kľúčom"
+  },
+  "keyFileUploadV2": {
+    "message": "Súbor s kľúčom"
   },
   "kdbxFileUpload": {
     "message": "Nahrať súbor KDBX"
@@ -3022,6 +3136,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "Pri exporte bola preskočená 1 poškodená príloha. Všetky ostatné údaje trezora a prílohy boli úspešne exportované."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "Pri exporte boli preskočené poškodené prílohy – $COUNT$. Všetky ostatné údaje trezora a prílohy boli úspešne exportované.",
@@ -3377,6 +3503,9 @@
   "importFormatError": {
     "message": "Dáta nie sú správne formátované. Prosím overte importovaný súbor a skúste znova."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Tento súbor používa nepodporované nastavenia šifrovania a nie je možné ho importovať."
+  },
   "importNothingError": {
     "message": "Nič na importovanie."
   },
@@ -3455,17 +3584,14 @@
   "learnAboutImportOptions": {
     "message": "Zistiť viac o možnostiach importu"
   },
-  "selectImportFolder": {
-    "message": "Vyberte priečinok"
-  },
-  "selectImportCollection": {
-    "message": "Vyberte zbierku"
-  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
   "importTargetHintFolder": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Túto možnosť vyberte, ak chcete obsah importovaného súboru presunúť do zdieľaného priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepridelené položky."
@@ -3475,6 +3601,198 @@
   },
   "selectImportFile": {
     "message": "Vybrať súbor na import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Vybrať zdroj"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte váš zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správcu hesiel alebo prehliadač, z ktorého chcete importovať."
+  },
+  "importSourceBrowsers": {
+    "message": "Prehliadače"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správcovia hesiel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobraziť všetko"
+  },
+  "importSourceShowLess": {
+    "message": "Zobraziť menej"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "selectVault": {
+    "message": "Select vault",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Select location",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Select a vault"
+  },
+  "selectALocationTitle": {
+    "message": "Select a location"
+  },
+  "importDestinationDescription": {
+    "message": "Choose where to import these items."
+  },
+  "importMyItemsOption": {
+    "message": "My items",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible only to you"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organization vault"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "Family vault"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+  },
+  "importSharedFolderRequired": {
+    "message": "A shared folder is required."
+  },
+  "importIntoOrganization": {
+    "message": "Items will be imported into $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Move all items into a shared folder"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Import $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Import 1 item"
+  },
+  "importToOrganization": {
+    "message": "Import to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "secure notes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cards",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH keys",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bank accounts",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "licenses",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "passports",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "Vybrať súbor"
@@ -3583,6 +3901,173 @@
   },
   "importHelpCenterLinkText": {
     "message": "Help Center"
+  },
+  "uploadFile": {
+    "message": "Nahrať súbor"
+  },
+  "pasteAsPlainText": {
+    "message": "Vložiť ako obyčajný text"
+  },
+  "plainText": {
+    "message": "Obyčajný text"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "lastPassEmail": {
+    "message": "E-mail LastPass"
+  },
+  "lastPassLoginEmailRequired": {
+    "message": "E-mailová adresa je povinná."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Zadajte platnú e-mailovú adresu."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Zadajte platné heslo"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Zadajte platný overovací kód."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Zadajte hlavné heslo pre LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Zadajte overovací kód nižšie."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Čaká sa na overenie SSO"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Po prihlásení automaticky pokračujeme v importe."
+  },
+  "includeSharedFolders": {
+    "message": "Zahrnúť zdieľané priečinky"
+  },
+  "importManuallyInstead": {
+    "message": "Namiesto toho importovať ručne"
+  },
+  "directlyImportInstead": {
+    "message": "Namiesto toho importovať priamo"
+  },
+  "fastest": {
+    "message": "Najrýchlejšie"
+  },
+  "importDataTitle": {
+    "message": "Importovať svoje údaje"
+  },
+  "importDataDirectTitle": {
+    "message": "Importujte svoje údaje za pár minút"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importujte svoje položky priamo z",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "a získajte všetky svoje údaje.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importujte z $VENDOR$ alebo skopírujte a vložte obsah exportu.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Vyberte profil, z ktorého chcete importovať heslá."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Nenašli sa žiadne profily prehliadača"
+  },
+  "importDataLoginTitle": {
+    "message": "Prihláste sa do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Vaše prihlasovacie údaje sú počas prenosu šifrované a nikdy sa neukladajú."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Bezpečnosť už v návrhu"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Odovzdávanie údajov je šifrované end-to-end. Bitwarden nikdy nevidí vaše prihlasovacie údaje z $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Požiadame vás o prihlasovacie údaje"
+  },
+  "importDataLoginInfoBody": {
+    "message": "V ďalšom kroku sa prihláste do svojho účtu $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Prenesie sa všetko"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Prihlasovacie údaje, karty, identity, zabezpečené poznámky a TOTP kódy so zachovanou štruktúrou priečinkov."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Rýchlo a bezpečne"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Tento proces je kompletne šifrovaný. Nie je potrebný žiadny exportný súbor."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Všetko, čo potrebujete, sú vaše prihlasovacie údaje"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "V ďalšom kroku zadáte svoje prihlasovacie údaje pre $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Čo sa prenesie"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Vaše prihlasovacie údaje, ostatné položky a priečinky sa prenesú. Prístupové kľúče a prílohy môžu byť vylúčené."
+  },
+  "importAcceptedFormats": {
+    "message": "Podporované: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Typ súboru $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -3841,9 +4326,6 @@
   "customize": {
     "message": "Prispôsobiť"
   },
-  "newCustomDomain": {
-    "message": "Vlastná doména"
-  },
   "addCustomDomain": {
     "message": "Add custom domain"
   },
@@ -3901,7 +4383,7 @@
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictedItemTypePolicyDescListVfo1": {
-    "message": "Do not allow members to create and store card items. Existing cards will be hidden."
+    "message": "Nepovoliť členom vytvárať a ukladať údaje o platobných kartách. Existujúce karty budu skryté."
   },
   "restrictCardTypeImport": {
     "message": "Položky typu karta sa nedajú importovať"
@@ -4269,10 +4751,10 @@
     "message": "Logins that support passkeys"
   },
   "passkeyLoginFoundInfoPrefix": {
-    "message": "Great news! We found "
+    "message": "Dobrá správa! Našli sme "
   },
   "loginsCount": {
-    "message": "$COUNT$ login(s)",
+    "message": "$COUNT$ prihlásení",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4281,10 +4763,10 @@
     }
   },
   "passkeyLoginFoundInfoSuffixSingular": {
-    "message": " in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+    "message": " vo vašom trezore, ktoré podporujú prístupové kľúče. Pre dodatočné zabezpečenie týchto účtov, zvážte nastavenie prístupových kľúčov tam kde je to možné. Na základe passkeys.2fa.directory"
   },
   "passkeyLoginFoundInfoSuffixPlural": {
-    "message": " in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+    "message": " vo vašich trezoroch, ktoré podporujú prístupové kľúče. Pre dodatočné zabezpečenie týchto účtov, zvážte nastavenie prístupových kľúčov tam kde je to možné. Na základe passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "No accounts were found in your vault that support passkeys without one configured."
@@ -4469,6 +4951,14 @@
     "message": "Kredit na konte",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
+  "appliedBalance": {
+    "message": "Použitý zostatok",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Čiastka k zaplateniu",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
+  },
   "accountBalance": {
     "message": "Zostatok na účte",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
@@ -4579,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Zobraziť prehľad cien"
-  },
-  "hidePricingSummary": {
-    "message": "Skryť prehľad cien"
-  },
   "summary": {
     "message": "Súhrn"
   },
@@ -4664,9 +5148,6 @@
   "subscriptionExpiration": {
     "message": "Exspirácia predplatného"
   },
-  "subscriptionCanceled": {
-    "message": "Predplatné bolo zrušené."
-  },
   "pendingCancellation": {
     "message": "Prebieha rušenie"
   },
@@ -4684,6 +5165,15 @@
   },
   "reinstateSubscription": {
     "message": "Obnoviť predplatné"
+  },
+  "keepSubscription": {
+    "message": "Ponechať predplatné"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Vaše predplatné je po splatnosti a bude čoskoro pozastavené."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Vaše predplatné je po splatnosti a bolo pozastavené."
   },
   "reinstateConfirmation": {
     "message": "Naozaj chcete zrušiť požiadavku na ukončenie predplatného a obnoviť predplatné?"
@@ -4880,15 +5370,6 @@
       }
     }
   },
-  "discountThroughDate": {
-    "message": "through $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
-      }
-    }
-  },
   "discountExpiredOnPurchase": {
     "message": "Zľava vypršala. Overte prosím súhrn vášho nákupného košíka a skúste to znova."
   },
@@ -5064,7 +5545,7 @@
     "message": "Vyberte váš plán"
   },
   "choosePlan": {
-    "message": "Choose plan"
+    "message": "Vybrať plán"
   },
   "users": {
     "message": "Používatelia"
@@ -5270,6 +5751,9 @@
   "trialConfirmationEmail": {
     "message": "Poslali sme potvrdzujúci e-mail na fakturačný e-mail vášho tímu na adresu "
   },
+  "trialIncludesPrivilegedControls": {
+    "message": "Your trial includes Privileged Controls."
+  },
   "monthly": {
     "message": "Mesačne"
   },
@@ -5342,9 +5826,6 @@
   "groups": {
     "message": "Skupiny"
   },
-  "newGroup": {
-    "message": "Nová skupina"
-  },
   "addGroup": {
     "message": "Pridať skupinu"
   },
@@ -5360,6 +5841,54 @@
       "quantity": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "deleteGroup": {
+    "message": "Delete group"
+  },
+  "deleteGroups": {
+    "message": "Delete $QUANTITY$ groups",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteGroupWarningDesc": {
+    "message": "Once you delete this group, members assigned to the group could lose access to associated shared folders. The members themselves won't be deleted."
+  },
+  "deleteGroupsWarningDesc": {
+    "message": "Once you delete these groups, members assigned to the groups could lose access to associated shared folders. The members themselves won't be deleted."
+  },
+  "groupCreated": {
+    "message": "Group created"
+  },
+  "groupDeleted": {
+    "message": "Group deleted"
+  },
+  "groupsDeleted": {
+    "message": "$QUANTITY$ groups deleted",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "groupEdited": {
+    "message": "Group edited"
+  },
+  "noGroupsYet": {
+    "message": "No groups yet"
+  },
+  "noGroupsYetDesc": {
+    "message": "Groups will help organize $ORGANIZATIONNAME$ members and give them access to shared folders.",
+    "placeholders": {
+      "organizationname": {
+        "content": "$1",
+        "example": "My Organization"
       }
     }
   },
@@ -5400,9 +5929,6 @@
   "readOnly": {
     "message": "Iba na čítanie"
   },
-  "newCollection": {
-    "message": "Nová zbierka"
-  },
   "addCollection": {
     "message": "Pridať zbierku"
   },
@@ -5418,10 +5944,6 @@
   },
   "collectionInfo": {
     "message": "Informácie o zbierke"
-  },
-  "sharedFolderInfo": {
-    "message": "Informácie o zdieľanom priečinku",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Naozaj chcete odstrániť túto zbierku?"
@@ -5816,6 +6338,70 @@
       }
     }
   },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ disabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ enabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Created item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Edited item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Deleted item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Accessed item Send$SENDID$ created by $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
   "sendAccessExternal": {
     "message": "Externý"
   },
@@ -6101,6 +6687,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Odpovedané na požiadavku o autentifikáciu položkou $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Zbierka $ID$ vytvorená.",
     "placeholders": {
@@ -6290,6 +6885,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Zamietnutý prenos položky do organizácie"
+  },
+  "revocationReasonByAdmin": {
+    "message": "By admin",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "No reason recorded",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "$ID$ bol odvolaný prístup do organizácie z dôvodu nesúladu s pravidlom dvojstupňového prihlasovania.",
@@ -6720,11 +7323,26 @@
   "resendInvitation": {
     "message": "Znovu poslať pozvánku"
   },
+  "sendInvite": {
+    "message": "Poslať pozvánku"
+  },
+  "sendInvites": {
+    "message": "Poslať pozvánky"
+  },
   "resendEmail": {
     "message": "Znovu poslať e-mail"
   },
   "hasBeenReinvited": {
     "message": "$USER$ bol znovu pozvaný",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ bol pozvaný",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -6886,6 +7504,9 @@
   "clickHereToAddPaymentMethod": {
     "message": "Kliknutím tu pridajte platobnú metódu."
   },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Pre nastavenie zúčtovania, kontaktujte vášho obchodného zástupcu Bitwarden."
+  },
   "joinOrganization": {
     "message": "Pripojte sa k organizácii"
   },
@@ -6947,7 +7568,7 @@
     "message": "Prijatie pozvánky zlyhalo. Požiadajte administrátora organizácie, aby vám poslal novú pozvánku."
   },
   "cannotAcceptInvitation": {
-    "message": "Cannot accept invitation"
+    "message": "Nedá sa prijať pozvánku"
   },
   "openOrgInviteAcceptAlreadyMember": {
     "message": "Už ste členom tejto organizácie."
@@ -6977,10 +7598,10 @@
     "message": "Organizácia ktorej ste už členom povoľuje členstvo len v jednej organizácii."
   },
   "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
-    "message": "The organization you are already a member of only allows its members to access one shared vault."
+    "message": "Organizácia ktorej ste členom povoľuje členom prístup len k jednému zdieľanému trezoru."
   },
   "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
-    "message": "The organization you are trying to join only allows its members to access one shared vault."
+    "message": "Organizácia ku ktorej sa snažíte pridať povoľuje členom prístup len k jednému zdieľanému trezoru."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "Organizácia ku ktorej sa snažíte pripojiť povoľuje členstvo len v jednej organizácii."
@@ -6993,6 +7614,15 @@
   },
   "openOrgInviteAcceptUnexpected": {
     "message": "Niečo sa pokazilo, obnovte stránku a skúste to znova."
+  },
+  "verify": {
+    "message": "Verify"
+  },
+  "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
+    "message": "To join this organization, enter the code sent to your email."
+  },
+  "failedToSendVerificationEmail": {
+    "message": "Failed to send verification email. Please try again."
   },
   "openOrgInviteNoSeatsMessage": {
     "message": "Vaša pozvánka nemohla byť prijatá pretože nie je dostupne voľné sedenie."
@@ -7116,10 +7746,6 @@
     "message": "Navýšiť plán",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Upgrade your account to another plan be providing the information below. Please ensure that you have an active payment method added to the account.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Faktúra #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7194,6 +7820,18 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "Nastavte limit počtu používateľov predplatného pre Secrets Manager. Po jeho dosiahnutí nebudete môcť pozvať nových používateľov."
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
+  },
+  "maximumSeatsCount": {
+    "message": "Maximum $COUNT$ seats",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "Maximálny počet miest (voliteľné)",
@@ -7480,6 +8118,9 @@
   "inviteLinkRegenerated": {
     "message": "Pozývací odkaz obnovený"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Pozývací odkaz aktualizovaný"
+  },
   "regenerateInviteLink": {
     "message": "Obnoviť pozývací odkaz"
   },
@@ -7502,43 +8143,37 @@
     "message": "Deaktivovať odkaz"
   },
   "requireAdminConfirmation": {
-    "message": "Require admin confirmation"
+    "message": "Požadovať potvrdenie správcu"
   },
   "requireAdminConfirmationHint": {
-    "message": "An admin must manually approve new members before they’re added to the organization vault."
+    "message": "Správca musí manuálne potvrdiť nových členov predtým nez sú pridaní do trezora organizácie."
   },
   "setYourAllowedDomains": {
-    "message": "Set your allowed domains"
+    "message": "Nastavte vaše povolené domény"
   },
   "setYourAllowedDomainsCoachMarkBody": {
-    "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
+    "message": "Nastavte povolené emailové domény (napr. firma.com) aby tento pozývací odkaz mohli použiť iba používatelia s odpovedajúcim emailom. Toto nastavenie môžete kedykoľvek zmeniť."
+  },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Ste v prehliadke, takže tieto domény sú len na ukážku."
   },
   "adjustTheLink": {
-    "message": "Adjust the link"
+    "message": "Upraviť odkaz"
   },
   "adjustTheLinkCoachMarkBody": {
-    "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Your needs change, and the link can change with you."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
+    "message": "Vaše požiadavky sa môžu časom meniť a odkaz sa môže prispôsobiť vaším potrebám. Pre vytvorenie nového odkazu <strong>vygenerujte novy odkaz</strong> a zrušte tak ten pôvodný."
   },
   "shareTheLinkAnywhere": {
-    "message": "Share the link anywhere"
+    "message": "Zdieľajte odkaz kdekoľvek"
   },
   "shareTheLinkAnywhereCoachMarkBody": {
-    "message": "Copy and paste the link where your team will find it: your onboarding checklist, a Slack #new-joiners channel, Notion docs, or an email template."
+    "message": "Skopírujte a vložte odkaz tam, kde ho váš tím nájde: váš zoznam úloh pre zaškolenie nového člena, kanál #novi-kolegovia v Slacku, dokumenty v Notion alebo šablóna e-mailu."
   },
   "viewBitwardenOnboardingGuide": {
-    "message": "View Bitwarden onboarding guide"
+    "message": "Zobraziť Bitwarden príručku pre pridávanie nových členov"
   },
   "coachMarkStepOfTotal": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$ z $TOTAL$",
     "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
     "placeholders": {
       "current": {
@@ -7550,10 +8185,13 @@
     }
   },
   "finish": {
-    "message": "Finish"
+    "message": "Dokončiť"
   },
   "inviteByLinkDesc": {
     "message": "Pozvite členov do vašej organizácie prostredníctvom odkazu. Ak nebola špecifikovaná rola, budu pridaní ako štandardní používatelia."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Použitie pozývacieho odkazu môže byt rizikové v prostredí vášho vlastného hostingu, keďže používatelia nemusia overiť svoje emailové adresy."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Pokračovaním súhlasíte s"
@@ -7574,7 +8212,7 @@
     }
   },
   "ssoStagedOrgUserDirectInviteEmailSent": {
-    "message": "Check your email to finish joining $ORGANIZATION_NAME$.",
+    "message": "Pre dokončenie pridania sa k $ORGANIZATION_NAME$, pozrite váš e-mail.",
     "placeholders": {
       "organization_name": {
         "content": "$1",
@@ -7583,10 +8221,10 @@
     }
   },
   "ssoNoSeatsAvailableMessage": {
-    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+    "message": "Táto organizácia momentálne nemôže prijímať nových členov. Pre pomoc kontaktujte správcu."
   },
   "inviteSentToEmail": {
-    "message": "Invite sent to email"
+    "message": "Pozvánka odoslaná prostredníctvom e-mailu"
   },
   "acceptPolicies": {
     "message": "Označením tohto políčka súhlasíte s nasledovným:"
@@ -7867,7 +8505,7 @@
     "message": "Vyberte kombináciu minimálnych požiadaviek pre akékoľvek heslo, ktoré členovia generujú."
   },
   "passwordGeneratorPolicyDescListVfo1": {
-    "message": "Set minimum requirements for any member-generated passwords."
+    "message": "Vyberte kombináciu minimálnych požiadaviek pre akékoľvek heslo, ktoré členovia generujú."
   },
   "generatedPassword": {
     "message": "Vygenerované heslo"
@@ -7921,7 +8559,7 @@
     "message": "Minimálny počet slov"
   },
   "overridePasswordTypePolicyV2": {
-    "message": "Password type",
+    "message": "Typ hesla",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -8125,7 +8763,7 @@
     "message": "Zakázať používateľom stať sa členmi inej organizácie."
   },
   "singleOrgPolicyDescListVfo1": {
-    "message": "Members cannot join other organization vaults."
+    "message": "Členovia sa nemôžu pridať do trezora inej organizácie."
   },
   "singleOrgPolicyDescV2": {
     "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
@@ -8148,7 +8786,7 @@
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
   "requireSsoPolicyDescListV2Vfo1": {
-    "message": "Require members to log in using SSO.",
+    "message": "Požadovať aby sa členovia prihlásili prostredníctvom SSO.",
     "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
@@ -8168,10 +8806,10 @@
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
   },
   "requireSingleOrganizationPolicy": {
-    "message": "You must enable the single organization policy before enabling this one."
+    "message": "Musíte zapnúť pravidlo jedinej organizácie pred tým než budete môcť zapnúť toto pravidlo."
   },
   "requireSingleOrganizationPolicyVfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Musíte zapnúť pravidlo členstva jedinej organizácie pred tým než budete môcť zapnúť toto pravidlo.",
     "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
@@ -8408,6 +9046,10 @@
     "message": "Súbor asociovaný s funkciou Send sa nenašiel.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "Tento súbor sa nedá stiahnuť pretože odkaz na stiahnutie neprešiel bezpečnostnou kontrolou.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Neexistujú žiadne Sendy na zobrazenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8568,7 +9210,7 @@
     "message": "Všetky položky členov budu vlastnené a spravované organizáciou. Správcovia a vlastníci majú výnimku. "
   },
   "centralizeDataOwnershipDescListVfo1": {
-    "message": "All member items will be owned and managed by the organization."
+    "message": "Všetky položky členov budú vlastnené a spravované organizáciou."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Dozvedieť sa viac o centralizovanom vlastníctve",
@@ -8807,7 +9449,16 @@
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
   "desktopAutotypePolicyDescVfo1": {
-    "message": "Enable desktop autotype for members."
+    "message": "Povoliť členom automatické vpisovanie pre desktop."
+  },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Desktop app autofill"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Turn on desktop autofill by default for all members."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
   },
   "disableSend": {
     "message": "Zakázať Send"
@@ -8853,20 +9504,20 @@
   "sendControls": {
     "message": "Nastavenia Send"
   },
-  "manageSend": {
-    "message": "Spravovať Send",
+  "manageSendV2": {
+    "message": "Spravovať Send a zdieľanie",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Nastavte predvolby pre vytvaranie a upravu Sendov vratane opravnenia vymazat Sendy.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Spravujte ako členovia používajú Send. Pravidlá sa uplatňujú na Sendy, ktoré vytvoríte po zapnutí pravidiel. Správcovia a vlastníci majú výnimku.",
+  "sendControlsPolicyDescV5": {
+    "message": "Spravujte ako budú členovia používať Send a zdielať položky trezora. Toto pravidlo nebude uplatnené na vlastníkov a správcov.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
-    "message": "Manage how members use Send.",
+    "message": "Spravovať ako môžu členovia používať Send.",
     "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
@@ -8902,20 +9553,46 @@
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "fillAssistPolicy": {
-    "message": "Activate fill assist",
+    "message": "Aktivovať pomoc pri vypĺňaní",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyV2": {
+    "message": "Povoliť pomoc pri vypĺňaní",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
   "fillAssistPolicyDesc": {
-    "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+    "message": "Zapnite funkciu pomoci pri vypĺňaní ako predvolené nastavenie pre všetkých členov. Táto funkcia využíva overené pokyny špecifické pre danú stránku, aby zvýšila presnosť automatického vypĺňania na webových stránkach, o ktorých je známe, že je na nich automatické vypĺňanie náročné."
+  },
+  "fillAssistRuleSource": {
+    "message": "Pravidlá pre automatické vypĺňanie"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Predvolené"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Pre automatické vypĺňanie použiť pravidla pod správou Bitwarden."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Vlastné"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Zadajte svoje vlastné pravidlá."
   },
   "fillAssistRulesUrl": {
-    "message": "Custom autofill rule set"
+    "message": "Vlastný set pravidiel pre automatické vypĺňanie"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  "fillAssistRulesUrlV2": {
+    "message": "Vlastné pravidlá"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Viac informácií o vlastných pravidlách"
   },
   "invalidFillAssistRulesUrl": {
-    "message": "Enter a valid URL",
+    "message": "Zadajte platnú URL adresu",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Zadajte platnú adresu URL vlastných pravidiel.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -8933,8 +9610,11 @@
   "estimatedTax": {
     "message": "Odhadovaná daň"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+  },
   "subtotal": {
-    "message": "Subtotal"
+    "message": "Medzisúčet"
   },
   "custom": {
     "message": "Vlastné"
@@ -9001,6 +9681,12 @@
   },
   "manageAccountRecovery": {
     "message": "Spravovať obnovu konta"
+  },
+  "manageAccessRules": {
+    "message": "Spravovať pravidlá prístupu"
+  },
+  "manageRotation": {
+    "message": "Spravovať rotáciu"
   },
   "disableRequiredError": {
     "message": "Pred zakázaním tejto zásady musíte ručne vypnúť zásadu $POLICYNAME$.",
@@ -9325,7 +10011,7 @@
     "message": "Správa obnovy konta"
   },
   "accountRecoveryPolicyDescListVfo1": {
-    "message": "Allow admins to help members regain access to their accounts."
+    "message": "Povoliť správcom aby mohli pomôcť členom obnoviť prístup k ich kontám."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
@@ -9533,16 +10219,25 @@
   "decryptionError": {
     "message": "Chyba dešifrovania"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky trezoru."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedenú položku v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položky, aby sa zistilo, či je možné ju obnoviť."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktujte zákaznícku podporu,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položiek, aby sa zistilo, či je možné ich obnoviť."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "aby ste predišli ďalším stratám údajov.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID položky",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID položiek",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Kopírovať ID"
+  },
+  "copyAllIds": {
+    "message": "Kopírovať všetky ID"
   },
   "accountRecoveryManageUsers": {
     "message": "Manage users must also be granted with the manage account recovery permission"
@@ -9725,7 +10420,7 @@
     "message": "Nastaviť maximálny časový limit relácie pre všetkých členov okrem vlastníkov."
   },
   "sessionTimeoutPolicyDescriptionListVfo1": {
-    "message": "Set a maximum session timeout for members."
+    "message": "Nastaviť maximálny časový limit prihlásenia pre všetkých používateľov."
   },
   "maximumAllowedTimeout": {
     "message": "Maximálny povolený časový limit"
@@ -9860,10 +10555,13 @@
     "message": "Aktivujte nastavenie automatického vypĺňania pri načítaní stránky v rozšírení pre prehliadač pre všetkých súčasných a nových členov."
   },
   "activateAutofillPolicyDescriptionListVfo1": {
-    "message": "Enable autofill on page load setting in the browser extension for all members."
+    "message": "Aktivujte nastavenie automatického vypĺňania pri načítaní stránky v rozšírení pre prehliadač pre všetkých členov."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
+  },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
   },
   "exploitAutofillOnPageLoad": {
     "message": "exploit autofill on page load"
@@ -10081,6 +10779,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Select the organization you would like sponsored"
   },
+  "selectAFamilyVault": {
+    "message": "Vybrať rodinný trezor"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Which Free Families offer would you like to redeem?"
   },
@@ -10092,6 +10793,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Accept offer for an existing organization or create a new Families organization."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ vám sponzoruje predplatné pre rodiny! Bezplatné predplatné môžete pripojiť k existujúcemu rodinnému trezoru alebo vytvoriť novy.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Mate sponzorované predplatné pre rodiny! Bezplatné predplatné môžete pripojiť k existujúcemu rodinnému trezoru alebo vytvoriť novy.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "You've been offered a free Bitwarden Families plan organization. To continue, you need to log in to the account that received the offer."
@@ -10110,6 +10825,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Accept Free Bitwarden Families"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Prijať sponzorované predplatné pre rodiny"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Detaily sponzorovaného predplatného"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Free Bitwarden Families offer successfully redeemed"
@@ -10279,14 +11000,24 @@
   "paymentSponsored": {
     "message": "Please provide a payment method to associate with the organization. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Vyberte platobnú metódu ktorú chcete priradiť k vášmu rodinnému trezoru. Buďte bez obáv, nebudeme účtovať žiadne poplatky pokiaľ nepridáte dodatočné funkcie alebo neskončí vaše sponzorstvo.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "The sponsorship offer has expired. You may delete the organization you created to avoid a charge at the end of your 7 day trial. Otherwise you may close this prompt to keep the organization and assume billing responsibility."
   },
   "newFamiliesOrganization": {
     "message": "New Families organization"
   },
+  "createVault": {
+    "message": "Vytvoriť trezor"
+  },
   "acceptOffer": {
     "message": "Prijať ponuku"
+  },
+  "applySponsorship": {
+    "message": "Použiť sponzorstvo"
   },
   "sponsoringOrg": {
     "message": "Sponsoring organization"
@@ -10631,7 +11362,7 @@
     "description": "Generates domain-based username using random letters"
   },
   "websiteName": {
-    "message": "Website name",
+    "message": "Názov stránky",
     "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
@@ -10845,6 +11576,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Táto URL adresa nie je povolená. Musí používať protokol https a nesmie smerovať na adresu v lokálnej alebo súkromnej sieti.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Zadajte platnú URL adresu",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Zistená nebezpečná URL adresa",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Táto URL adresa môže byť nezabezpečená alebo smerovať do súkromnej siete. Jej použitie môže viesť k úniku súkromných údajov. Pokračujte len vtedy, ak tomuto serveru dôverujete.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Dôveryhodná URL adresa",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Táto URL adresa bola označená ako dôveryhodná. Môžete ju kedykoľvek upraviť.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Unknown $SERVICENAME$ error occurred.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -10918,18 +11673,6 @@
   },
   "scimLearnMore": {
     "message": "Zistite viac o SCIM"
-  },
-  "scimIntegrationDescription": {
-    "message": "Automaticky vytvárajte používateľov a skupiny prostredníctvom SCIM s preferovaným poskytovateľom identít. Zistite podporované integrácie",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "Povoliť SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Nastavte vášho preferovaného poskytovateľa identít konfiguráciou URL a kľúča API",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
     "message": "Tento kľúč API ma prístup k správe používateľov vo vašej organizácii. Mal by byť bezpečne uchovaný."
@@ -11095,7 +11838,7 @@
     }
   },
   "tooManyEmailsForRemainingSeats": {
-    "message": "Only $COUNT$ seats remain. Remove an email address, or upgrade your plan.",
+    "message": "Zostáva už iba $COUNT$ sedení. Odstráňte emailové adresy alebo navýšte vaše predplatné.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11278,6 +12021,48 @@
   "hardDeleteSecrets": {
     "message": "Natrvalo odstrániť položky"
   },
+  "currentVersion": {
+    "message": "Sučasná verzia",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Zmenil: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Tajná hodnota kopírovaná",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Tajomstvo obnovené vo vybranej verzii",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Obnoviť verziu tajomstva",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Naozaj chcete obnoviť toto tajomstvo vo vybranej verzii? Súčasná hodnota bude nahradená.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Predchádzajúce verzie",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "História verzií",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Žiadna história verzií",
+    "description": "Empty state shown when a secret has no previous versions."
+  },
   "secretProjectAssociationDescription": {
     "message": "Vyberte projekty ku ktorým bude heslo patriť. Iba tí používatelia organizácie, ktorí majú prístup k zvoleným projektom budú môcť vidieť heslo.",
     "description": "A prompt explaining how secrets can be associated with projects."
@@ -11317,10 +12102,6 @@
   "serviceAccount": {
     "message": "Service account",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
-  },
-  "serviceAccounts": {
-    "message": "Service accounts",
-    "description": "The title for the section that deals with service accounts."
   },
   "secrets": {
     "message": "Secrets",
@@ -11726,6 +12507,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Add a shared folder to securely share vault items with other members."
   },
+  "pinned": {
+    "message": "Pripnuté",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pripnúť na bočný panel",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Odopnúť z bočného panela",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pripnuté na bočnom paneli",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ odopnuté z bočného panela",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Nájdite zdieľaný priečinok v tomto trezore a vyberte ho",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "z ponuky Možnosti.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pripnite zdieľané priečinky na bočný panel a filtrujte ich tu."
+  },
   "noMembersAdded": {
     "message": "Žiadni pridaní členovia"
   },
@@ -11737,9 +12561,6 @@
   },
   "domainVerification": {
     "message": "Overenie domény"
-  },
-  "newDomain": {
-    "message": "Nová doména"
   },
   "addDomain": {
     "message": "Add domain"
@@ -11934,7 +12755,7 @@
     "message": "Prepnúť produkty"
   },
   "seatLimitReachedContactOwner": {
-    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your organization owner to upgrade the plan.",
+    "message": "Bol dosiahnutý limit počtu sedení - $SEATCOUNT$. Pre navýšenie predplatného kontaktujte vlastníka vašej organizácie.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12109,9 +12930,6 @@
   },
   "groupSlashUser": {
     "message": "Skupina/Používateľ"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
   "secretsManager": {
     "message": "Secrets Manager"
@@ -12457,6 +13275,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Naozaj chcete obnoviť tieto položky?"
+  },
+  "restoreThisVersion": {
+    "message": "Obnoviť túto verziu"
   },
   "secretRestoredSuccessToast": {
     "message": "Položka obnovená"
@@ -13011,6 +13832,10 @@
   "secretsManagerPlanPrice": {
     "message": "Cena plánu Secrets Manager"
   },
+  "privilegedControlsPlanPrice": {
+    "message": "Cena predplatného Privilegované Nastavenia",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "passwordManager": {
     "message": "Správca hesiel"
   },
@@ -13271,7 +14096,7 @@
     "message": "Nastal neočakávaný problém pri načítavaní tohto Sendu. Skúste to neskôr."
   },
   "seatLimitReachedContactProvider": {
-    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your provider to purchase additional seats.",
+    "message": "Bol dosiahnutý limit počtu sedení - $SEATCOUNT$. Kontaktujte vášho poskytovateľa pre zakúpenie dodatočných licencií.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13503,9 +14328,6 @@
     "message": "Opíšte svoje dôvody pre zrušenie predplatného",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Free for 1 year"
-  },
   "newWebApp": {
     "message": "Welcome to the new and improved web app. Learn more about what’s changed."
   },
@@ -13725,10 +14547,6 @@
   "machineAccounts": {
     "message": "Machine accounts",
     "description": "The title for the section that deals with machine accounts."
-  },
-  "newMachineAccount": {
-    "message": "New machine account",
-    "description": "Title for creating a new machine account."
   },
   "addMachineAccount": {
     "message": "Add machine account",
@@ -14199,6 +15017,9 @@
   "organizationOptionsMenu": {
     "message": "Prepnúť menu organizácie"
   },
+  "vaultOptions": {
+    "message": "Možnosti trezoru"
+  },
   "vaultItemSelect": {
     "message": "Vyberte položku z trezora"
   },
@@ -14309,17 +15130,8 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ Discount",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
-    "message": "Get Secrets Manager"
+    "message": "Ziskať Secrets Manager"
   },
   "secureYourInfrastructure": {
     "message": "Zabezpečte si infraštruktúru"
@@ -14359,6 +15171,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Pri vytváraní náhľadu faktúry nastala chyba. Prosím skúste to neskor."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Prosím skontrolujte detaily vášho zúčtovania a skúste to znova."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Toto navýšenie zahŕňa skúšobnú dobu $DAYS$ dní. Suma vyššie bude zaúčtovaná po skončení skúšobnej doby.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Zo skúšobnej doby vám zostáva 1 deň. Dňa $DATE$ vám bude zaúčtovaná suma vyššie.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Zo skúšobnej doby vám zostáva $DAYS$ dní. Dňa $DATE$ vám bude zaúčtovaná suma vyššie.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Neoverený"
@@ -14502,9 +15348,6 @@
   "contactBitwardenSupport": {
     "message": "kontaktujte podporu spoločnosti Bitwarden.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
-  },
-  "sponsored": {
-    "message": "Sponzorované"
   },
   "licenseAndBillingManagementDesc": {
     "message": "Po vykonaní aktualizácií na cloudovom serveri Bitwarden nahrajte svoj licenčný súbor, aby ste aplikovali najnovšie zmeny."
@@ -14716,9 +15559,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Access to Premium features"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB additional storage"
   },
   "sshKeyAlgorithm": {
     "message": "Algoritmus kľúča"
@@ -15025,7 +15865,7 @@
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "freeFamiliesSponsorshipDescV2Vfo1": {
-    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
+    "message": "Neumožnite členom používať plán pre rodiny sponzorovaný vašou organizáciou."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Platba prostredníctvom bankového účtu je dostupná len pre zákazníkov v Spojených Štátoch. Budete musieť overiť svoj bankový účet. V priebehu nasledujúcich 1-2 pracovných dní vykonáme mikro vklad. Na overenie bankového účtu zadajte kód popisu výpisu z tohto vkladu na fakturačnej stránke organizácie. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
@@ -15374,6 +16214,9 @@
   "restartSubscription": {
     "message": "Restart your subscription"
   },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "Nepodarilo sa nám načítať vaše fakturačné údaje. Zatvorte toto dialógové okno a skúste to znova."
+  },
   "suspendedManagedOrgMessage": {
     "message": "Contact $PROVIDER$ for assistance.",
     "placeholders": {
@@ -15459,26 +16302,17 @@
   "atRiskPassword": {
     "message": "Ohrozené heslá"
   },
-  "changeAtRiskPassword": {
-    "message": "Zmeniť ohrozené heslo"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
-  },
   "vulnerablePassword": {
     "message": "Zraniteľné heslo."
   },
   "changeNow": {
     "message": "Zmeniť teraz"
   },
-  "missingWebsite": {
-    "message": "Chýbajúca webová stránka"
-  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odstrániť odomknutie PIN kódom"
   },
   "removeUnlockWithPinPolicyTitleVfo1": {
-    "message": "Remove unlock with PIN"
+    "message": "Odstrániť odomknutie PIN kódom"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."
@@ -15868,13 +16702,13 @@
     "message": "Ak chcete obnoviť predplatné, kontaktujte zákaznícku podporu Bitwarden."
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Zobraziť všetky"
   },
   "showMore": {
     "message": "Zobraziť viac"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Zobraziť ďalšie: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15927,7 +16761,7 @@
     "message": "Skontrolujte formát vstupu na preklepy."
   },
   "taxIdFormatExample": {
-    "message": "Example tax ID format: $EXAMPLE$",
+    "message": "Príklad formátu pre daňové identifikačné číslo: $EXAMPLE$",
     "placeholders": {
       "example": {
         "content": "$1",
@@ -15936,7 +16770,7 @@
     }
   },
   "recognizedTaxIdFormat": {
-    "message": "Recognized format: $TYPE$",
+    "message": "Rozpoznaný formát: $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -16121,9 +16955,6 @@
   "familiesUpdated": {
     "message": "Povýšili ste na verziu Rodiny!"
   },
-  "taxCalculationError": {
-    "message": "Pri výpočte dane pre vašu lokalitu došlo k chybe. Prosím skúste to znova."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Vítajte v Bitwardene"
   },
@@ -16145,8 +16976,8 @@
   "upgradeNow": {
     "message": "Navýšiť teraz"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
-    "message": "Get advanced online security with Bitwarden premium."
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
+    "message": "Get advanced online security with Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Vyplnením tohto formulára sa vytvorí organizácia Rodiny. Povýšiť vašu organizáciu Zdarma môžete v konzole správcu."
@@ -16493,7 +17324,7 @@
     "message": "Otvorte stránku predplatného vo vašom Bitwarden konte a stiahnite váš licenčný súbor. Potom sa vráťte na tuto obrazovku a nahrajte ho nižšie."
   },
   "alreadyHaveSubscriptionSelfHostedMessageV3": {
-    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
+    "message": "Prihláste sa do vášho cloud Bitwarden účtu, prejdite na stránku predplatného a stiahnite licenčný súbor. Potom sa vráťte na tuto stránku a súbor nahrajte."
   },
   "viewAllPlans": {
     "message": "Zobraziť všetky druhy predplatného"
@@ -16679,8 +17510,8 @@
   "premiumSubscriptionCredit": {
     "message": "Kredit prémiového predplatného"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Applied subscription credits"
+  "appliedProrationCredits": {
+    "message": "Aplikovaný pomerný kredit"
   },
   "enterpriseMembership": {
     "message": "Členstvo Spoločnosť"
@@ -16845,6 +17676,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Kontrolou reportov o zraniteľnostiach udržujte vysokú bezpečnosť položiek vo vašom trezore."
   },
+  "whatsNew": {
+    "message": "Čo je nové"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Vďaka vylepšenej navigácii a dizajnu nájdete, čo potrebujete, jednoduchšie ako kedykoľvek predtým."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Prepínajte medzi produktmi"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Kliknutím zobrazte iné produkty Bitwarden ku ktorým mate prístup, alebo objavte nové produkty a predplatné."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Všetky vaše trezory na jednom mieste"
+  },
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Quickly see personal items or items in a vault you share with others."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Zbierky a priečinky majú nové názvy"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Rovnaké funkcie, jasnejšie názvy. Zbierky sa teraz nazývajú zdieľané priečinky. Priečinky sú teraz Moje priečinky."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Monitor security activity"
   },
@@ -16875,6 +17730,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ z $TOTAL$",
     "placeholders": {
@@ -16900,6 +17761,72 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
+  },
+  "secretKey": {
+    "message": "Tajný kľúč"
+  },
+  "secretKeyAndPassword": {
+    "message": "Tajný kľúč a heslo"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -17102,6 +18029,63 @@
   "importingYourAccount": {
     "message": "Importovanie vášho účtu..."
   },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "E-mailová adresa je povinná."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Zadajte platnú e-mailovú adresu."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Nepodporovaná metóda dvojstupňového overenia. Zmeňte metódu alebo importujte manuálne."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Spôsob schválenia zariadenia"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Zadajte platný overovací kód."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Znova odoslať overovací kód"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Upozornenie Keeper Push odoslané na schválené zariadenie."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Schváľte toto zariadenie výberom jednej z metód."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Skontrolujte e-mail a zadajte overovací kód nižšie."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Zadajte kód z overovacej aplikácie."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Zadajte kód zaslaný cez SMS správu."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Zadajte hlavné heslo pre Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Výzva Keeper DNA bola odoslaná"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Schváľte oznámenie aplikácie Keeper DNA na vašom zariadení."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Vaša žiadosť o schválenie bude zrušená. Naozaj chcete pokračovať?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Poslali sme žiadosť o schválenie správcom vášmu správcovi."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Zadajte platné heslo."
+  },
   "passcode": {
     "message": "Prístupový kód"
   },
@@ -17152,7 +18136,7 @@
     "message": "The single organization policy must be turned on before activating this policy."
   },
   "singleOrgPrerequisiteVfo1": {
-    "message": "The single organization membership policy must be turned on before activating this policy."
+    "message": "Pravidlá spoločnosti o jednej organizácii musia byť povolené pred aktivovaním tohto pravidla."
   },
   "enableBanner": {
     "message": "Enable banner"
@@ -17237,10 +18221,10 @@
     "message": "Password set by member"
   },
   "enforceDeletionDate": {
-    "message": "Enforce deletion date"
+    "message": "Vynútiť termín odstránenia"
   },
   "sendDeletionDate": {
-    "message": "Deletion date"
+    "message": "Termín odstránenia"
   },
   "hideMyEmail": {
     "message": "Skryť moju e-mailovú adresu pred príjemcami."
@@ -17353,29 +18337,926 @@
   "copy": {
     "message": "Kopírovať"
   },
-  "pam": {
-    "message": "PAM"
+  "pamAccessRequestsTitle": {
+    "message": "Žiadosť o prístup"
+  },
+  "pamAccessRequestsSubtitle": {
+    "message": "Approve, monitor, and audit time-limited access to your credentials."
+  },
+  "pamTabApprovals": {
+    "message": "Approvals"
+  },
+  "pamTabMyRequests": {
+    "message": "My requests"
+  },
+  "pamTabHistory": {
+    "message": "History"
+  },
+  "pamAccessRequestsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamMyRequestsGroupExtensions": {
+    "message": "Extension requests"
+  },
+  "pamMyRequestsActiveAccessSection": {
+    "message": "Active access"
+  },
+  "pamMyRequestsActiveAccessEmpty": {
+    "message": "No active access"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Could not load your requests"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Pending"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "No pending requests"
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "You have no requests"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "You have no requests for access to sensitive credentials at the moment."
+  },
+  "pamColumnItem": {
+    "message": "Item"
+  },
+  "pamColumnWindow": {
+    "message": "Window"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Requested window"
+  },
+  "pamColumnSubmitted": {
+    "message": "Submitted"
+  },
+  "pamColumnStatus": {
+    "message": "Status"
+  },
+  "pamColumnResolvedBy": {
+    "message": "Resolved by"
+  },
+  "pamColumnResolved": {
+    "message": "Resolved"
+  },
+  "pamColumnRemaining": {
+    "message": "Remaining"
+  },
+  "pamColumnActions": {
+    "message": "Actions"
+  },
+  "pamWindowUntil": {
+    "message": "Until $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2025-06-15 14:00"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Extended +$DURATION$ · until $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Activate within $REMAINING$",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Access rule"
+  },
+  "pamResolverRequester": {
+    "message": "Requester"
+  },
+  "pamResolverUnknown": {
+    "message": "Unknown user"
+  },
+  "pamInboxInCollection": {
+    "message": "in $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReason": {
+    "message": "Reason"
+  },
+  "pamInboxReasonMissing": {
+    "message": "No reason provided"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "Access requested"
+  },
+  "pamInboxRequester": {
+    "message": "Requester"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Start access"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Access started."
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 hour"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "starting now"
+  },
+  "pamInboxStartToday": {
+    "message": "today"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "tomorrow"
+  },
+  "pamInboxStartInDays": {
+    "message": "in $DAYS$ days",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamMyRequestsCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Could not cancel request"
+  },
+  "pamEndLeaseButton": {
+    "message": "End access"
+  },
+  "pamEndLeaseTitle": {
+    "message": "End access?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "This immediately revokes your access. This action cannot be undone."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Access ended."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Extend"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Extension length"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Reason"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Access extended."
+  },
+  "pamExtendLeaseError": {
+    "message": "Couldn't extend access."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Your access ended before it could be extended. The request is in your history."
+  },
+  "pamStatusApproved": {
+    "message": "Approved"
+  },
+  "pamStatusActivated": {
+    "message": "Active"
+  },
+  "pamStatusDenied": {
+    "message": "Denied"
+  },
+  "pamStatusCanceled": {
+    "message": "Canceled"
+  },
+  "pamStatusExpired": {
+    "message": "Expired"
+  },
+  "pamStatusRevoked": {
+    "message": "Revoked"
+  },
+  "pamStatusSessionEnded": {
+    "message": "Session ended"
+  },
+  "pamStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Privileged controls: access requires a request"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamAccessBadgePending": {
+    "message": "Pending approval"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Unavailable"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Ready to use"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Session ended"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Active",
+    "description": "Controlled access filter option in the vault table: items with an active access session."
+  },
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "Access ended by requester"
+  },
+  "pamAuditKindAccessRevoked": {
+    "message": "Access revoked"
+  },
+  "pamAuditLoadError": {
+    "message": "Could not load the audit trail"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "No audit activity"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "Privileged-access activity in this organization will appear here."
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "No matching events"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "No events match the current filters."
+  },
+  "pamAuditRangeOutsideHistory": {
+    "message": "Choose a date within the last $DAYS$ days.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "90"
+      }
+    }
+  },
+  "pamAuditColumnEvent": {
+    "message": "Event"
+  },
+  "pamAuditColumnActor": {
+    "message": "Actor"
+  },
+  "pamAuditColumnRequester": {
+    "message": "Requester"
+  },
+  "pamAuditColumnItem": {
+    "message": "Item"
+  },
+  "pamAuditColumnDuration": {
+    "message": "Duration"
+  },
+  "pamAuditColumnDetail": {
+    "message": "Detail"
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "Extended to $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
+  },
+  "pamAuditSystem": {
+    "message": "System"
+  },
+  "pamAuditIncomplete": {
+    "message": "Incomplete"
+  },
+  "pamAuditIncompleteTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "Access requested"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "Request approved"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "Request denied"
+  },
+  "pamAuditKindRequestCanceled": {
+    "message": "Request canceled"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "Request expired without a decision"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "Approval expired unused"
+  },
+  "pamAuditKindAccessActivated": {
+    "message": "Access activated"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "Activation rejected"
+  },
+  "pamAuditKindAccessExtended": {
+    "message": "Access extended"
+  },
+  "pamAuditKindAccessExpired": {
+    "message": "Access expired"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "Credential accessed"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "Credential access denied"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "Access rule created"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "Access rule updated"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "Access rule deleted"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "Kill switch triggered"
+  },
+  "pamAuditKindAccessFreezeEnabled": {
+    "message": "Access freeze enabled"
+  },
+  "pamAuditKindAccessFreezeLifted": {
+    "message": "Access freeze lifted"
+  },
+  "pamAuditKindUnknown": {
+    "message": "Unknown event"
+  },
+  "pamAuditLog": {
+    "message": "Audit log"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Access request"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Request details"
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Access"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Decision log"
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Access request not available"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "This access request isn't available to you, or it no longer exists."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Couldn't load this access request."
+  },
+  "pamActiveLeaseBannerTitle": {
+    "message": "You have active access to this item — $DURATION$ remaining",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "23m"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitle": {
+    "message": "Access to this item is ending soon — $DURATION$ remaining",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Access request pending approval"
+  },
+  "pamApprovedRequestBannerHeading": {
+    "message": "Access approved"
+  },
+  "pamApprovedRequestBannerDuration": {
+    "message": "$DURATION$ of access",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 hour"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Credentials are masked until access is granted."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "You can request access"
+  },
+  "pamUnlicensedBannerHeading": {
+    "message": "Privileged Controls license required",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerBody": {
+    "message": "You need a Privileged Controls license to view this item. Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Requesting access is not available while unlicensed.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Access up to $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "requestAccessModalSubmit": {
+    "message": "Request access"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Pick a duration. You'll get immediate access for that long."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Pick a window and tell the approver why you need access. They'll review and decide."
+  },
+  "requestAccessModalDuration": {
+    "message": "Duration"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Start date"
+  },
+  "requestAccessModalStart": {
+    "message": "Start time"
+  },
+  "requestAccessModalEndDate": {
+    "message": "End date"
+  },
+  "requestAccessModalEnd": {
+    "message": "End time"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "End must be after the start."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (now)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Custom time…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Custom end date and time…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Show suggested start times"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Back to suggested durations"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, until $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Requesting $DURATION$ of access: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "The requested window has already ended. Pick a later date or time."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "The window can't exceed $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequired": {
+    "message": "Reason"
+  },
+  "requestAccessModalReasonOptional": {
+    "message": "Reason (optional)"
+  },
+  "requestAccessModalReasonPlaceholder": {
+    "message": "Why do you need this?"
+  },
+  "requestAccessModalAutomaticReasonHint": {
+    "message": "This reason is saved with your access request."
+  },
+  "requestAccessModalHumanReasonHint": {
+    "message": "Approvers will see this reason when reviewing your request."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Could not request access. Try again."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalApprovedSuccess": {
+    "message": "Access approved — select Start access to begin."
+  },
+  "requestAccessModalRequestCreatedSuccess": {
+    "message": "Request submitted — awaiting approval."
+  },
+  "pamApprovalsActiveAccessEmpty": {
+    "message": "No active access"
+  },
+  "pamApprovalsActiveAccessSection": {
+    "message": "Active access"
+  },
+  "pamApprovalsCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamApprovalsPendingEmpty": {
+    "message": "No requests waiting for your decision"
+  },
+  "pamApprovalsPendingSection": {
+    "message": "Pending approval"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Requester"
+  },
+  "pamApprovalsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "Additional information"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Optional, saved to the audit log"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Approve access request"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Deny access request"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Reason for denial"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "e.g. Access no longer needed"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "A reason is required to deny this request."
+  },
+  "pamInboxApprove": {
+    "message": "Approve"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Request approved"
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "Withdraw approval"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "You cannot approve your own request."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Comment"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Add an optional comment"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Approve request"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Deny request"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Could not record decision"
+  },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "This request is no longer pending. It was withdrawn or already decided."
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "This request's window has ended and can no longer be decided."
+  },
+  "pamInboxDeny": {
+    "message": "Deny"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Request denied"
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$d ago",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedWeeks": {
+    "message": "$WEEKS$w ago",
+    "placeholders": {
+      "weeks": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "There are no requests waiting for your decision."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Inbox zero"
+  },
+  "pamInboxLoadFailed": {
+    "message": "Could not load inbox"
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Request reason"
+  },
+  "pamInboxRevoke": {
+    "message": "Revoke"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Could not revoke access"
+  },
+  "pamInboxRevokedToast": {
+    "message": "Access revoked"
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Approval withdrawn"
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Could not withdraw approval"
+  },
+  "pamInboxWindow": {
+    "message": "Requested window"
+  },
+  "pamApprovalsNoResults": {
+    "message": "No access requests match your filters."
+  },
+  "pamApprovalsLoaded": {
+    "message": "Access requests loaded"
+  },
+  "pamHistoryLoaded": {
+    "message": "Request history loaded"
+  },
+  "pamHistoryEmptyTitle": {
+    "message": "Nothing to show yet"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "Activity around requests and approvals will display here once actions are taken."
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "This immediately revokes the member's access. They will need a new approval to regain it."
+  },
+  "pamWithdrawApprovalWarningOne": {
+    "message": "This withdraws your approval for",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Access won't start, and",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "will need a new approval to get it.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Reason"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Keep it brief. The requester reads this directly."
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "Access rule"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "Access to items here is controlled by"
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$h ago",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Just now"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$m ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Pravidlá prístupu"
   },
-  "pamAccessRuleEnabled": {
-    "message": "Zapnuté"
+  "pamCollectionRequiresRequest": {
+    "message": "Items in this collection require a request.",
+    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
   },
-  "pamAccessRuleEnabledHint": {
-    "message": "Ak je vypnuté, pravidlo je neaktívne a neobmedzuje prístup."
+  "pamGatedCollectionBannerName": {
+    "message": "Privileged access",
+    "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
   },
-  "pamAccessRuleEnable": {
-    "message": "Zapnúť pravidlo"
+  "pamNoAccessRule": {
+    "message": "No access rule",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
   },
-  "pamAccessRuleDisable": {
-    "message": "Vypnúť pravidlo"
+  "pamAccessRuleActive": {
+    "message": "Aktívne"
   },
-  "pamAccessRuleEnableSuccess": {
-    "message": "Pravidlo prístupu zapnuté."
+  "pamAccessRuleInactive": {
+    "message": "Neaktívne"
   },
-  "pamAccessRuleDisableSuccess": {
-    "message": "Pravidlo prístupu vypnuté."
+  "pamAccessRuleActiveHint": {
+    "message": "Keď je neaktívne, pravidlo neobmedzuje prístup."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Aktivovať pravidlo"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deaktivovať pravidlo"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Pravidlo prístupu aktivované."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Pravidlo prístupu deaktivované."
   },
   "pamAccessRuleNotFound": {
     "message": "Pravidlo prístupu nenájdené."
@@ -17383,8 +19264,8 @@
   "pamAccessRulesSubheading": {
     "message": "Nastavte pravidla pre to, kto môže požadovať prístup k citlivým položkám, za akých okolností a na ako dlho."
   },
-  "pamAccessRuleNew": {
-    "message": "Nové pravidlo"
+  "pamAccessRuleCreate": {
+    "message": "Vytvoriť pravidlo pre prístup"
   },
   "pamAccessRuleCreateTitle": {
     "message": "Nové pravidlo pre prístup"
@@ -17401,6 +19282,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Všeobecné informácie"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Stav"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Trvanie prístupu"
   },
@@ -17413,6 +19297,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Toto pravidlo prístupu bude platiť pre všetky vybrané zbierky."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Všetky požiadavky a rozhodnutia sa uložia do protokolu auditu."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Zobraziť protokol auditu"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Nepodarilo sa načítať zbierky. Obnovte stránku a skúste to znova."
   },
@@ -17422,17 +19312,17 @@
   "pamAccessRuleDescription": {
     "message": "Popis"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Predvolené trvanie prístupu"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Predvolené trvanie"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximálne trvanie prístupu"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximálne trvanie"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Bez limitu"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Každá jednotlivá pôžička bude trvať maximálne takto dlho bez ohľadu na to co požiadal žiadateľ."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Prístup je obmedzený na tuto dobu bez ohľadu na to aká doba bola požiadaná."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minút"
@@ -17452,23 +19342,29 @@
   "pamAccessRuleDuration8h": {
     "message": "8 hodín"
   },
-  "pamAccessRuleDuration24h": {
-    "message": "24 hodín"
+  "pamAccessRuleDuration1d": {
+    "message": "1 deň"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 dni"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 dní"
   },
-  "pamAccessRuleSingleActiveLease": {
-    "message": "Aktívnu pôžičku nemôže mat naraz viac používateľov"
+  "pamAccessRuleDuration30d": {
+    "message": "30 dní"
   },
-  "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "Nové požiadavky budu čakať v poradí dokiaľ aktívna pôžička neskonči alebo nie je odvolaná."
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Aktívny prístup nemôže mat naraz viac používateľov"
   },
-  "pamAccessRuleAllowExtensions": {
-    "message": "Povoliť predĺženie pôžičky"
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Ostatní môžu so schváleným prístupom začať ich pristúp po tom ako bude súčasný prístup ukončený alebo zrušený."
   },
-  "pamAccessRuleAllowExtensionsHint": {
-    "message": "Členovia môžu raz predlžiť aktívnu pôžičku bez nového povolenia, maximálne po dobu nižšie."
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Povoliť predĺženie prístupu"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Členovia môžu raz predlžiť aktívny prístup bez nového povolenia, maximálne po dobu nižšie."
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "Maximálne predĺženie"
@@ -17488,23 +19384,85 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Správcovia zbierky"
   },
-  "pamAccessRuleCreated": {
-    "message": "Pravidlo prístupu vytvorené."
-  },
-  "pamAccessRuleUpdated": {
-    "message": "Pravidlo prístupu aktualizované."
-  },
-  "pamAccessRuleDeleteConfirmTitle": {
-    "message": "Vymazať pravidlo prístupu?"
-  },
-  "pamAccessRuleDeleteConfirmContent": {
-    "message": "Vymazať \"$NAME$\"? Akákoľvek zbierka používajúca toto pravidlo bude mať vypnuté požičiavanie.",
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (kópia)",
     "placeholders": {
       "name": {
         "content": "$1",
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (kópia $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Kopia vytvorená. Vyberte zbierky pre ktoré bude platiť."
+  },
+  "pamAccessRuleCreated": {
+    "message": "Pravidlo prístupu vytvorené."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Pravidlo prístupu aktualizované."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Pravidlo prístupu vymazané."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Vymazať pravidlo prístupu?"
+  },
+  "pamAccessRuleDeleteConfirmDescription": {
+    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deaktivovať pravidlo prístupu"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Toto pravidlo prestane platiť pre nové požiadavky o prístup."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Niečo sa nepodarilo. Vaše pravidlo nebolo uložené, ale informácie zostali zachované."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Zadajte názov."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Iné pravidlo už ma rovnaký názov. Zadajte iný."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Iné pravidlo prístupu už zahŕňa jednu z týchto zbierok. Vyberte iné zbierky."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Iné pravidlo prístupu už zahŕňa $COLLECTIONS$. Vyberte iné zbierky.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Jedná zo zbierok ktoré ste vybrali už neexistuje. Vyberte inú zbierku."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Jedná zo zbierok ktoré ste vybrali nie je súčasťou tejto organizácie. Vyberte inú zbierku."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Vyberte maximálne predĺženie, alebo predĺženie vypnite."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Toto pravidlo už neexistuje. Možno bolo odstránené iným správcom."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Žiadne pravidlá prístupu"
@@ -17524,8 +19482,8 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Automaticky povolené • Vyprší po 1h • Zaznamenané v audite"
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Automaticky schválené"
   },
   "pamTemplateJustInTimeName": {
     "message": "Just-in-time access"
@@ -17533,8 +19491,8 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Vyžaduje sa povolenie"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Schválenie osobou • Potrebný 1 schvaľovateľ • Zaznamenané v audite"
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Schválenie osobou • Potrebný 1 schvaľovateľ"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Vyžaduje sa povolenie"
@@ -17542,8 +19500,8 @@
   "pamTemplateIpRestrictedTitle": {
     "message": "Obmedzenie IP"
   },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Automaticky povolené • Zoznam povolených IP • Zaznamenané v audite"
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Automaticky schválené • Zoznam povolených IP"
   },
   "pamTemplateIpRestrictedName": {
     "message": "Prístup obmedzený podľa IP"
@@ -17554,17 +19512,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Nepriradené"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 zbierka"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ zbierok",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Hľadať v pravidlách"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Platí pre"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Podmienky"
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Metóda schvaľovania"
   },
-  "pamAccessWindow": {
-    "message": "Okno prístupu"
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximálne trvanie"
   },
   "pamAccessRuleLastModified": {
     "message": "Naposledy upravené"
@@ -17581,11 +19551,11 @@
   "pamAccessRulesNoResults": {
     "message": "Žiadne pravidlá nespĺňajú filtre."
   },
-  "pamAccessRuleBulkEnable": {
-    "message": "Zapnúť"
+  "pamAccessRuleBulkActivate": {
+    "message": "Aktivovať"
   },
-  "pamAccessRuleBulkDisable": {
-    "message": "Vypnúť"
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deaktivovať"
   },
   "pamAccessRulesUpdated": {
     "message": "Pravidlá prístupu aktualizované."
@@ -17598,6 +19568,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ prístupových pravidiel bude natrvalo vymazaných. Tato akcia sa nedá vrátiť späť.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deaktivovať pravidlo prístupu"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ pravidiel prestane platiť pre nové požiadavky o prístup.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17657,7 +19639,7 @@
     "message": "Items cannot have multiple attachments with the same file name"
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "Organizácia $ORGNAME$ určila tento termín odstránenia",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -17684,6 +19666,1561 @@
       "orgname": {
         "content": "$1",
         "example": "Unknown organization"
+      }
+    }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Pozvať cely tím s jedným odkazom"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Ktokoľvek s firemným emailom môže použiť pozývací odkaz pre pripojenie sa k organizácii. Uložte ho k dokumentom pre prijímanie nových členov, aby sa noví zamestnanci mohli pridať, keď budu potrebovať."
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "Prehliadka používa ukážkové dáta. Vo vašej organizácii sa nič nezmení."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Náhľad dialógového okna „Pozvať členov“, v ktorom je zobrazená nová záložka „Pomocou odkazu“"
+  },
+  "showMeHow": {
+    "message": "Ukázať ako"
+  },
+  "shareVerb": {
+    "message": "Zdieľať"
+  },
+  "peopleWhoCanView": {
+    "message": "Ľudia, ktorí môžu zobraziť položky",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Po zdieľaní tohto odkazu budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tejto položky.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Tento odkaz exspiruje po tomto dátume, príjemcovia si však môžu ponechať informácie, ktoré im boli predtým zdieľané. Ak chcete zrušiť prístup, vygenerujte nové prihlasovacie údaje.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Odkaz exspiruje po",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Jednorazové zdieľanie",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktívne odkazy",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Odkaz bol skopírovaný do schránky",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nepodarilo sa vytvoriť odkaz na zdieľanie",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Odkaz bol uložený a skopírovaný do schránky",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nepodarilo sa skopírovať odkaz na zdieľanie do schránky",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Odkaz na zdieľanie bol odstránený",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Nepodarilo sa odstrániť odkaz na zdieľanie",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Zdieľať prostredníctvom odkazu",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Zdieľať položku v trezore $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Exspiruje",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ s vami zdieľal nasledujúcu položku.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "dodatočné služobné kontá"
+  },
+  "additionalStorageGbLower": {
+    "message": "dodatočné úložisko GB"
+  },
+  "membersLower": {
+    "message": "členovia"
+  },
+  "memberLower": {
+    "message": "člen"
+  },
+  "annualLower": {
+    "message": "ročné"
+  },
+  "monthlyLower": {
+    "message": "mesačné"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ predplatné",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Ponechať a znovu aktivovať"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Predplatné je aktívne"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Týmto zrušíte vašu požiadavku na ukončenie a znovu aktivujete predplatné."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Detailu predplatného sa nenačítali"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Naša fakturačná služba je nedostupná, takže vám teraz nevieme zobraziť predplatné a cenník. Na vaše predplatné to nemá vplyv."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Pomerný poplatok za správcu hesiel"
+  },
+  "storageProratedCharge": {
+    "message": "Pomerný poplatok za úložisko"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Pomerný poplatok za Secrets Manager"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Pomerný poplatok pre Privilegované Nastavenia",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Pomerný poplatok za služobné kontá"
+  },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden má nový vzhľad",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Lepší používateľský zážitok, rovnaká spoľahlivá bezpečnosť. Trezor Bitwarden bol na základe vašich pripomienok prepracovaný, takže v ňom ľahšie nájdete, čo hľadáte, a všetko funguje tak, ako by ste očakávali.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Ukážka prepracovaného trezoru Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Preskúmať nový trezor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Prispôsobte si zobrazenie"
+  },
+  "showColumns": {
+    "message": "Zobraziť stĺpce"
+  },
+  "resetToDefault": {
+    "message": "Obnoviť na predvolené"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  },
+  "pamRotation": {
+    "message": "Rotácia"
+  },
+  "pamRotationSubtitle": {
+    "message": "Pridajte spravované prístupové údaje a cieľový systém kde sa tieto údaje nachádzajú. Potom zaregistrujte prepojenie prístupu ktoré bude bežať vo vašej sieti a vykonávať výmenu. Po nastavení môžu byt prístupové údaje na cieľových systémoch automaticky rotované."
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Managed credentials"
+  },
+  "pamRotationTabTargetSystems": {
+    "message": "Target systems"
+  },
+  "pamRotationTabAccessConnectors": {
+    "message": "Access connectors"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "Managed credentials loaded"
+  },
+  "pamAccessConnectorsLoaded": {
+    "message": "Access connectors loaded"
+  },
+  "pamTargetSystemsLoaded": {
+    "message": "Target systems loaded"
+  },
+  "pamRotationPageLoaded": {
+    "message": "Page loaded"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Add managed credential"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Edit managed credential"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Add target system"
+  },
+  "pamTargetSystemEditTitle": {
+    "message": "Edit target system"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Rozvrh rotácie"
+  },
+  "pamRotationScheduleNone": {
+    "message": "Žiadne"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Každú hodinu"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "Každých 6 hodín"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Každý deň"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Týždenne"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Mesačne"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Vlastné"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Vlastný cronový výraz"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Zadajte 6 miestny Quartz cron výraz (napr. 0 0 */4 **?). Server vyžaduje minimálne 15-minutovy interval."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Prosím zadajte platný Quartz cron výraz (6 alebo 7 polí oddelených medzerou)."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "Žiadna plánovaná rotácia. Tieto prístupové údaje sa obnovia iba ak ju spustíte, alebo ak je to tak nastavené pri ukončení prístupu."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Obnovuje raz za hodinu, presne na celú hodinu."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Obnovuje raz za 6 hodín, presne na celú hodinu."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Obnovuje denne o polnoci."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Obnovuje raz za týždeň v nedeľu o polnoci."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Obnovuje mesačne prvý deň v mesiaci o polnoci."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Obnovuje každý deň o $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Obnovuje každých $COUNT$ dní o $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Obnovuje každý mesiac o $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Obnovuje každých $COUNT$ mesiacov o $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Vlastný Quartz rozvrh: $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Rozvrh beží podla UTC, nie vašej lokálnej časovej zóny."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Interval"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Opakuj každý"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Jednotka"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Dni"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Mesiace"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Čas (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Intervaly sú ukotvené v kalendári. Denne intervaly reštartujú prvý deň v mesiaci, mesačné intervaly bežia prvý deň a reštartujú v Januári."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Nastavte ako často sa opakuje rotácia a jej čas."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Zadajte celé číslo."
+  },
+  "pamTargetSystemNew": {
+    "message": "New target system"
+  },
+  "pamTargetSystemSearch": {
+    "message": "Search target systems"
+  },
+  "pamTargetSystemMethodColumn": {
+    "message": "Method"
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Typ"
+  },
+  "pamTargetSystemSessionTerminationColumn": {
+    "message": "Session termination"
+  },
+  "pamTargetSystemSessionTerminationYes": {
+    "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationNo": {
+    "message": "Not supported"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "No target systems yet"
+  },
+  "pamNoTargetSystemsYetDescription": {
+    "message": "Add the system whose credentials Bitwarden should rotate."
+  },
+  "pamTargetSystemsStartFromTemplate": {
+    "message": "Start from a template"
+  },
+  "pamTargetSystemUseTemplate": {
+    "message": "Use template"
+  },
+  "pamTargetSystemTemplateManualSummary": {
+    "message": "You rotate the credential yourself; Bitwarden tracks the schedule and logs each rotation."
+  },
+  "pamTargetSystemTemplateEntraSummary": {
+    "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
+  },
+  "pamTargetSystemTemplateCustomScriptSummaryConnector": {
+    "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
+  },
+  "pamTargetSystemNoFilterResults": {
+    "message": "No target systems match your filters."
+  },
+  "pamTargetSystemEditTarget": {
+    "message": "Edit target system"
+  },
+  "pamTargetSystemDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamTargetSystemActivate": {
+    "message": "Activate"
+  },
+  "pamTargetSystemActivationBlockedPendingSeal": {
+    "message": "Finish setting up this target system before activating or deactivating it."
+  },
+  "pamTargetSystemDeleteTarget": {
+    "message": "Delete target system"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Prideliť prepojenie prístupu"
+  },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "Assign access connector"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "Access connector"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "All active access connectors are already assigned to this target system."
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Prepojenie prístupu môže byt pridelene len cieľovým systémom nastaveným pre automatickú rotáciu."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Iba aktívne prepojenia prístupu môžu byť pridelené k tomuto cieľovému systému."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "Žiadne aktívne prepojenia prístupu na pridelenie. Zaregistrujte nejaké na záložke Prepojenia prístupu alebo aktivujte existujúce."
+  },
+  "pamTargetSystemAssignGoToConnectors": {
+    "message": "Go to Access connectors"
+  },
+  "pamTargetSystemDeactivateTitle": {
+    "message": "Deactivate target system?"
+  },
+  "pamTargetSystemDeactivateContent": {
+    "message": "Deactivating this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+  },
+  "pamTargetSystemDeactivateConfirm": {
+    "message": "Deactivate"
+  },
+  "pamTargetSystemDeactivateSuccess": {
+    "message": "Target system deactivated."
+  },
+  "pamTargetSystemActivateSuccess": {
+    "message": "Target system activated."
+  },
+  "pamTargetSystemDeleteTitle": {
+    "message": "Delete target system?"
+  },
+  "pamTargetSystemDeleteContent": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteContentDeactivateInstead": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, deactivate it instead. Deactivating holds pending jobs and can be undone.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteSuccess": {
+    "message": "Target system deleted."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Automatický"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Manuálny"
+  },
+  "pamTargetSystemMethodAutomaticHint": {
+    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
+  },
+  "pamTargetSystemMethodManualHint": {
+    "message": "No rotation job is created. You rotate the credential by hand, then mark it as rotated."
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Vlastný skript"
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemStatusActive": {
+    "message": "Active"
+  },
+  "pamTargetSystemStatusInactive": {
+    "message": "Inactive"
+  },
+  "pamTargetSystemStatusPendingSeal": {
+    "message": "Setup incomplete"
+  },
+  "pamTargetSystemGeneralInfoHeading": {
+    "message": "General information"
+  },
+  "pamTargetSystemIdLabel": {
+    "message": "System ID"
+  },
+  "pamTargetSystemCopyId": {
+    "message": "Copy system ID"
+  },
+  "pamTargetSystemNamePlaceholder": {
+    "message": "Enter a name"
+  },
+  "pamTargetSystemMethodLabel": {
+    "message": "Rotation method"
+  },
+  "pamTargetSystemTypeHeading": {
+    "message": "Type"
+  },
+  "pamTargetSystemTypeLabel": {
+    "message": "Type"
+  },
+  "pamTargetSystemTypeUnverifiedHint": {
+    "message": "This target's integration could not be confirmed. Choose it again to finish setup."
+  },
+  "pamTargetSystemPolicyManualHint": {
+    "message": "These are the rules to follow when you rotate this credential by hand."
+  },
+  "pamTargetSystemPolicyHeading": {
+    "message": "Password policy"
+  },
+  "pamTargetSystemPolicyMinLength": {
+    "message": "Minimum length"
+  },
+  "pamTargetSystemPolicyMaxLength": {
+    "message": "Maximum length"
+  },
+  "pamTargetSystemPolicyMinExceedsMax": {
+    "message": "Minimum length must be less than or equal to maximum length."
+  },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "Include at least one character type."
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "Toto pravidlo je príliš slabé. Nastavte väčšiu dĺžku, alebo zahrňte viac druhov znakov."
+  },
+  "pamTargetSystemPolicyUppercase": {
+    "message": "Include uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercase": {
+    "message": "Include lowercase letters"
+  },
+  "pamTargetSystemPolicyDigits": {
+    "message": "Include digits"
+  },
+  "pamTargetSystemPolicySymbols": {
+    "message": "Include symbols"
+  },
+  "pamTargetSystemSupportsSessionTermination": {
+    "message": "Supports session termination"
+  },
+  "pamTargetSystemSupportsSessionTerminationHintConnector": {
+    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
+  },
+  "pamTargetSystemSessionTerminationSupported": {
+    "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationNativeHint": {
+    "message": "Native integrations always terminate active sessions after a credential is rotated."
+  },
+  "pamTargetSystemSessionTerminationUnknown": {
+    "message": "Unknown"
+  },
+  "pamTargetSystemSessionTerminationUnknownTooltip": {
+    "message": "This target system's settings could not be verified, so its session-termination support is unknown."
+  },
+  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
+    "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
+  },
+  "pamTargetSystemCreated": {
+    "message": "Target system created."
+  },
+  "pamTargetSystemSaved": {
+    "message": "Target system saved."
+  },
+  "pamTargetSystemSavedNotReread": {
+    "message": "Target system saved. The saved values could not be read back, so this page may be out of date."
+  },
+  "pamTargetSystemCreatePartialFailure": {
+    "message": "The target system was created, but setup could not finish. Save again to finish securing it."
+  },
+  "pamTargetSystemSetupGuidanceTitle": {
+    "message": "Finish setting up rotation"
+  },
+  "pamTargetSystemSetupGuidanceAutomaticConnector": {
+    "message": "Assign an access connector in the Assigned access connectors section below."
+  },
+  "pamTargetSystemSetupGuidanceCredential": {
+    "message": "Add a managed credential on the Managed credentials tab."
+  },
+  "pamTargetSystemSetupIncompleteTitle": {
+    "message": "Setup incomplete"
+  },
+  "pamTargetSystemSetupIncompleteContent": {
+    "message": "This target system was created but never finished securing its settings. Save to finish, or delete it."
+  },
+  "pamTargetSystemIntegrityCheckFailedTitle": {
+    "message": "Integrity check failed"
+  },
+  "pamTargetSystemIntegrityCheckFailedContent": {
+    "message": "This target system's settings could not be verified. Save to re-secure it, or delete it."
+  },
+  "pamTargetSystemIntegrityCheckFailedTooltip": {
+    "message": "This target system's settings could not be verified."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "Nepodarilo sa overiť zhodu technológie tohto cieľa. Obnovte stránku a skúste to znova."
+  },
+  "pamTargetSystemNotFound": {
+    "message": "Target system not found."
+  },
+  "pamAccessConnectorSearch": {
+    "message": "Search access connectors"
+  },
+  "pamAccessConnectorNew": {
+    "message": "New access connector"
+  },
+  "pamAccessConnectorRegister": {
+    "message": "Register access connector"
+  },
+  "pamAccessConnectorEmptyStateTitle": {
+    "message": "No access connectors registered"
+  },
+  "pamAccessConnectorEmptyStateDescription": {
+    "message": "Register an access connector to start rotating credentials."
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Pripojenie"
+  },
+  "pamAccessConnectorLastSeen": {
+    "message": "Last seen"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Pridelené ciele"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Pripojené"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Odpojené"
+  },
+  "pamAccessConnectorAssignTargetDisabled": {
+    "message": "Target systems can only be assigned while the access connector is active."
+  },
+  "pamAccessConnectorViewDetails": {
+    "message": "View details"
+  },
+  "pamAccessConnectorAssignTargets": {
+    "message": "Assign targets"
+  },
+  "pamAccessConnectorDeleteAccessConnector": {
+    "message": "Delete access connector"
+  },
+  "pamAccessConnectorAssignTargetTitle": {
+    "message": "Assign target system"
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Target system"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Assign target systems"
+  },
+  "pamAccessConnectorAssignSelectHint": {
+    "message": "Only target systems set to automatic rotation can be assigned."
+  },
+  "pamAccessConnectorAssignNoOptions": {
+    "message": "All automatic target systems are already assigned to this access connector."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "There are no automatic target systems to assign. Create one on the Target systems tab."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Go to Target systems"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Couldn't load target systems. Refresh the page to try again."
+  },
+  "pamAccessConnectorAssigned": {
+    "message": "Target system assigned."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "No target systems assigned."
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Access connector assigned."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Remove $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorUnassignConfirmTitle": {
+    "message": "Remove assignment?"
+  },
+  "pamAccessConnectorUnassignConfirmContent": {
+    "message": "Remove $NAME$ from this access connector? Active rotation jobs claimed by this access connector will continue to completion.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorUnassigned": {
+    "message": "Target system removed."
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamAccessConnectorActivate": {
+    "message": "Activate"
+  },
+  "pamAccessConnectorDeactivateConfirmTitle": {
+    "message": "Deactivate access connector?"
+  },
+  "pamAccessConnectorDeactivateConfirmContent": {
+    "message": "Deactivate $NAME$? It stops claiming new rotation jobs and any jobs it is currently running are released. You can activate it again later.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivated": {
+    "message": "Access connector deactivated."
+  },
+  "pamAccessConnectorActivated": {
+    "message": "Access connector activated."
+  },
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Delete access connector?"
+  },
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This access connector held the organization key in memory. If you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new access connector to resume rotation.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeleted": {
+    "message": "Access connector deleted."
+  },
+  "pamAccessConnectorSaved": {
+    "message": "Access connector saved."
+  },
+  "pamAccessConnectorRegisterTitle": {
+    "message": "Register access connector"
+  },
+  "pamAccessConnectorNamePlaceholder": {
+    "message": "e.g. On-prem production server"
+  },
+  "pamAccessConnectorNameHint": {
+    "message": "A descriptive name to identify this access connector. Max 200 characters."
+  },
+  "pamAccessConnectorRegistered": {
+    "message": "Access connector registered."
+  },
+  "pamAccessConnectorNoResults": {
+    "message": "No access connectors match your filters."
+  },
+  "pamAccessConnectorDetailTitle": {
+    "message": "Access connector"
+  },
+  "pamAccessConnectorDetailsHeading": {
+    "message": "Details"
+  },
+  "pamAccessConnectorTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamAccessConnectorTabHistory": {
+    "message": "History"
+  },
+  "pamAccessConnectorActivityEmpty": {
+    "message": "No rotation activity yet."
+  },
+  "pamAccessConnectorActiveHint": {
+    "message": "When inactive, the access connector does not claim new rotation jobs and any jobs it is running are released."
+  },
+  "pamAccessConnectorTokenTitle": {
+    "message": "Access connector token"
+  },
+  "pamAccessConnectorTokenWarningTitle": {
+    "message": "Save this token now"
+  },
+  "pamAccessConnectorTokenWarningBody": {
+    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator who will run this access connector, then paste it into the connector's configuration file. If the token is lost, delete this access connector and register a new one."
+  },
+  "pamAccessConnectorTokenLabel": {
+    "message": "Access connector token"
+  },
+  "pamAccessConnectorTokenHint": {
+    "message": "This token will not be shown again."
+  },
+  "pamAccessConnectorTokenCopy": {
+    "message": "Copy token"
+  },
+  "pamAccessConnectorTokenCopied": {
+    "message": "Access connector token copied."
+  },
+  "pamRotationConfigNew": {
+    "message": "New managed credential"
+  },
+  "pamRotationConfigSearch": {
+    "message": "Search managed credentials"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "No managed credentials configured"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Add a managed credential to start rotating it automatically."
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Unable to load"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Check your connection and try again. If the problem continues, refresh the page."
+  },
+  "pamRotationConfigNoTargetSystems": {
+    "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Set up a target system"
+  },
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "No managed credentials match your filters."
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Credential"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Item"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "Schedule"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Rotate on access end"
+  },
+  "pamRotationConfigColumnLastRotation": {
+    "message": "Last rotation"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Last rotated"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Next rotation"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "Paused"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Rotating"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Rotation due"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Rotate now"
+  },
+  "pamRotationConfigRotateNowUnavailableTitle": {
+    "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
+  },
+  "pamRotationConfigRotateNowSuccess": {
+    "message": "Rotation dispatched."
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "Mark as rotated"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Nothing to mark yet. This becomes available when the next manual rotation is due."
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "Mark as rotated"
+  },
+  "pamRotationConfigRecordManualContent": {
+    "message": "This records that the credential was rotated outside Bitwarden and resets the schedule. The audit log will reflect the manual rotation."
+  },
+  "pamRotationConfigRecordManualConfirm": {
+    "message": "Record rotation"
+  },
+  "pamRotationConfigRecordManualSuccess": {
+    "message": "Manual rotation recorded."
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "Edit credential"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Remove from rotation"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "Pause rotation"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "Rotation paused."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "Resume rotation"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "Rotation resumed."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Remove managed credential"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "This removes rotation management for this credential. The item stays in your vault and the rotation history remains in the audit log."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Can't remove while a rotation is in progress. It clears when the current job finishes or times out."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "Managed credential removed."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Never"
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "No rotations have run yet."
+  },
+  "pamRotationConfigRemoveLockedContentConnector": {
+    "message": "A rotation job is currently in progress. You can remove this credential from rotation once the access connector finishes it, or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Credential details"
+  },
+  "pamRotationConfigDetailsHeading": {
+    "message": "Details"
+  },
+  "pamRotationConfigSettingsHeading": {
+    "message": "Rotation settings"
+  },
+  "pamRotationConfigAccountHeading": {
+    "message": "Account"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "History"
+  },
+  "pamRotationConfigCipher": {
+    "message": "Credential"
+  },
+  "pamRotationConfigCipherPlaceholder": {
+    "message": "Select a credential"
+  },
+  "pamRotationConfigCipherHint": {
+    "message": "Select the vault item whose password will be rotated."
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Select a target system"
+  },
+  "pamRotationConfigAccountIdentity": {
+    "message": "Account identity"
+  },
+  "pamRotationConfigAccountIdentityHintConnector": {
+    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the access connector as-is."
+  },
+  "pamRotationConfigTerminateSessions": {
+    "message": "Terminate active sessions after rotation"
+  },
+  "pamRotationConfigTerminateSessionsHint": {
+    "message": "Requires the target system to support session termination."
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "This target system's support for session termination could not be verified."
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Rotate when access ends"
+  },
+  "pamRotationConfigRotateWhenAccessEndsHint": {
+    "message": "Automatically rotate this credential when PAM access to it ends."
+  },
+  "pamRotationConfigCreated": {
+    "message": "Managed credential created."
+  },
+  "pamRotationConfigSaved": {
+    "message": "Managed credential saved."
+  },
+  "pamRotationConfigAccountLockedTitle": {
+    "message": "Settings unavailable"
+  },
+  "pamRotationConfigAccountLockedContent": {
+    "message": "Changes can't be saved while a rotation job is in progress. You can save again once the job finishes or times out."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "Integrity check failed"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "This managed credential's settings could not be verified. Save to re-secure it."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "This target system does not confirm it supports terminating sessions. Clear the session-termination option, or update the target system first."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "The selected target system's settings could not be verified. Fix the target system before saving."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "This managed credential's item or target system could not be confirmed to match. Reload the page and try again."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "No rotation jobs recorded yet."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Source"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Attempts"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Scheduled"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "On demand"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "Access ended"
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "Pending"
+  },
+  "pamRotationJobStatusClaimed": {
+    "message": "Claimed"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Succeeded"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Failed"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Timed out"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationAssignmentPendingAssign": {
+    "message": "Pending assignment"
+  },
+  "pamRotationAssignmentPendingUnassign": {
+    "message": "Pending removal"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Executing"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Rotated"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Errored"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Abandoned"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "In progress"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "Started"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "Target unchanged"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "Target updated"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Indeterminate"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "Session termination not requested"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "Sessions terminated"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "Session termination failed"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "The access connector's account is not allowed to change this password. Grant it permission to reset the target account's password, then rotate again."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "The target system rejected the access connector's sign in. Check the credentials the connector uses for this target system, then rotate again."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "The target system rejected the new password. Check that this credential's password policy meets the target system's own password rules, then rotate again."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "The target system could not find the account to rotate. Check the account identity on this managed credential, then rotate again."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "The target system refused to make the change. This commonly means the new password broke a password rule, or the connection to the target system was not encrypted."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
+  },
+  "pamRotationFailureReportedDetail": {
+    "message": "Reported by the access connector: $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "target_rejected: LDAP result code 50"
+      }
+    }
+  },
+  "pamRotationHistoryCaption": {
+    "message": "Rotation jobs, newest first"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Duration"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Attempt"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Result"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Attempts, oldest first"
+  },
+  "pamRotationHistoryAttemptsAllAlike": {
+    "message": "Every attempt ended the same way."
+  },
+  "pamRotationJobDrawerTitle": {
+    "message": "Rotation job"
+  },
+  "pamRotationHistoryFailureHeading": {
+    "message": "Why it failed"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$s",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$m $SECONDS$s",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$h $MINUTES$m",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "pamAuditKindRotationConfigCreated": {
+    "message": "Rotation config created"
+  },
+  "pamAuditKindRotationSettingsUpdated": {
+    "message": "Rotation settings updated"
+  },
+  "pamAuditKindRotationAccountUpdated": {
+    "message": "Rotation account updated"
+  },
+  "pamAuditKindRotationPaused": {
+    "message": "Rotation paused"
+  },
+  "pamAuditKindRotationResumed": {
+    "message": "Rotation resumed"
+  },
+  "pamAuditKindRotationConfigDeleted": {
+    "message": "Rotation config deleted"
+  },
+  "pamAuditKindRotationConfigUpdated": {
+    "message": "Rotation config updated"
+  },
+  "pamAuditKindRotationOfferedToConnector": {
+    "message": "Rotation offered to access connector"
+  },
+  "pamAuditKindRotationDispatched": {
+    "message": "Rotation dispatched"
+  },
+  "pamAuditKindRotationSucceeded": {
+    "message": "Credential rotated"
+  },
+  "pamAuditKindRotationAttemptFailed": {
+    "message": "Rotation attempt failed"
+  },
+  "pamAuditKindRotationFailed": {
+    "message": "Rotation failed"
+  },
+  "pamAuditKindRotationReleased": {
+    "message": "Rotation released"
+  },
+  "pamAuditKindRotationTimedOut": {
+    "message": "Rotation timed out"
+  },
+  "pamAuditKindRotationWriteRejected": {
+    "message": "Vault write rejected"
+  },
+  "pamAuditKindRotationReportRejected": {
+    "message": "Rotation report rejected"
+  },
+  "pamAuditKindManualRotationDue": {
+    "message": "Manual rotation due"
+  },
+  "pamAuditKindManualRotationRecorded": {
+    "message": "Manual rotation recorded"
+  },
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "Access connector registered"
+  },
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "Access connector revoked"
+  },
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "Access connector deactivated"
+  },
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "Access connector activated"
+  },
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "Access connector deleted"
+  },
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "Access connector assigned to target"
+  },
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "Access connector unassigned from target"
+  },
+  "pamAuditKindTargetRegistered": {
+    "message": "Target system registered"
+  },
+  "pamAuditKindTargetDeactivated": {
+    "message": "Target system deactivated"
+  },
+  "pamAuditKindTargetActivated": {
+    "message": "Target system activated"
+  },
+  "pamAuditKindTargetRenamed": {
+    "message": "Target system renamed"
+  },
+  "pamAuditKindTargetPolicyUpdated": {
+    "message": "Target system settings updated"
+  },
+  "pamAuditKindTargetDeleted": {
+    "message": "Target system deleted"
+  },
+  "pamAuditKindTargetUpdated": {
+    "message": "Target system updated"
+  },
+  "pamAuditTargetSystem": {
+    "message": "Target system"
+  },
+  "pamAuditAccessConnector": {
+    "message": "Access connector"
+  },
+  "pamAccessConnectorAssignmentCountSingular": {
+    "message": "$COUNT$ target",
+    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentCount": {
+    "message": "$COUNT$ targets",
+    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentsNone": {
+    "message": "None",
+    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "No active target systems to choose from."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Assigned access connectors"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "No access connectors are assigned to this target system."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "The access connectors for this target system could not be loaded."
+  },
+  "pamTargetSystemDeleteAssignedConnectorsContent": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first, and its access connector assignments are removed with it.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamEventRequestedAccess": {
+    "message": "Requested privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventApprovedAccessRequest": {
+    "message": "Approved privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventDeniedAccessRequest": {
+    "message": "Denied privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventActivatedAccess": {
+    "message": "Activated privileged access to item $ITEM$ (access $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRevokedAccess": {
+    "message": "Revoked privileged access to item $ITEM$ (access $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventCancelledAccessRequest": {
+    "message": "Cancelled the privileged access request for item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventExtendedAccess": {
+    "message": "Extended privileged access to item $ITEM$ (access $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventExpiredAccess": {
+    "message": "Privileged access to item $ITEM$ expired (access $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRejectedAccessLeaseActivation": {
+    "message": "Could not activate privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventCreatedAccessRule": {
+    "message": "Created a privileged access rule."
+  },
+  "pamEventUpdatedAccessRule": {
+    "message": "Edited a privileged access rule."
+  },
+  "pamEventDeletedAccessRule": {
+    "message": "Deleted a privileged access rule."
+  },
+  "pamEventRotatedCredential": {
+    "message": "Rotated the credential for item $ITEM$.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "pamEventFailedCredentialRotation": {
+    "message": "Could not rotate the credential for item $ITEM$.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
   }

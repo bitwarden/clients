@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, fromEvent, Subscription } from "rxjs";
 
-import { ScrollLayoutService } from "@bitwarden/components";
+import { ScrollCollapseService, ScrollLayoutService } from "@bitwarden/components";
 import { VAULT_BASE_ROUTE } from "@bitwarden/vault";
 
 @Injectable({
@@ -12,6 +12,7 @@ import { VAULT_BASE_ROUTE } from "@bitwarden/vault";
 export class VaultPopupScrollPositionService {
   private router = inject(Router);
   private readonly scrollLayout = inject(ScrollLayoutService);
+  private readonly scrollCollapse = inject(ScrollCollapseService);
 
   /** Path of the vault screen */
   private readonly vaultPath = inject(VAULT_BASE_ROUTE);
@@ -26,6 +27,12 @@ export class VaultPopupScrollPositionService {
    * Where a restore left the element, or `null`. An event finding it still there is the restore's.
    */
   private restoredTo: number | null = null;
+
+  /** The element currently being tracked, so a deferred jump knows whether it is still wanted. */
+  private attached: HTMLElement | null = null;
+
+  /** Whether the collapsing regions were collapsed when the user left the vault. */
+  private collapsed = false;
 
   constructor() {
     this.router.events
@@ -44,20 +51,29 @@ export class VaultPopupScrollPositionService {
     const target = this.scrollPosition;
 
     if (restoring) {
-      // Before the jump paints, so collapsing chrome arrives collapsed rather than animating.
-      this.scrollLayout.restoredScrolled.set(target! > 0);
+      const collapse = this.restoresCollapse();
+
+      // Before the jump paints, so the collapsing regions arrive collapsed rather than animating.
+      this.scrollLayout.restoredScrolled.set(collapse);
 
       // Use `setTimeout` to scroll after rendering is complete
       setTimeout(() => {
+        // A later attach, or a `stop()`, may have landed in the meantime — this jump belongs to
+        // neither, and applying it would raise the restore state with nothing left to clear it.
+        if (this.attached !== scrollElement) {
+          return;
+        }
+
         scrollElement.scrollTo({ top: target!, behavior: "instant" });
         // From where the jump landed: the vault attaches twice and the first never scrolls.
         this.restoredTo = scrollElement.scrollTop;
-        this.scrollLayout.restoredScrolled.set(scrollElement.scrollTop > 0);
+        this.scrollLayout.restoredScrolled.set(scrollElement.scrollTop > 0 && collapse);
       });
     }
 
     this.scrollSubscription?.unsubscribe();
 
+    this.attached = scrollElement;
     this.restoredTo = restoring ? target : null;
 
     this.scrollSubscription = fromEvent(scrollElement, "scroll").subscribe(() => {
@@ -76,7 +92,10 @@ export class VaultPopupScrollPositionService {
   stop(reset?: true) {
     this.scrollSubscription?.unsubscribe();
     this.scrollSubscription = null;
+    this.attached = null;
     this.restoredTo = null;
+    // Read before clearing: `direction` reports `"down"` while a restore holds.
+    this.collapsed = this.scrollCollapse.direction() === "down";
     this.scrollLayout.restoredScrolled.set(false);
 
     if (reset) {
@@ -89,10 +108,21 @@ export class VaultPopupScrollPositionService {
     return this.scrollPosition !== null;
   }
 
+  /**
+   * Whether the vault returns collapsed: only if the user left it so, which was afforded then and
+   * can't clamp the offset (CL-1318).
+   */
+  restoresCollapse() {
+    return (this.scrollPosition ?? 0) > 0 && this.collapsed;
+  }
+
   /** Conditionally resets the scroll listeners based on the ending path of the navigation */
   private resetListenerForNavigation(event: NavigationEnd): void {
-    // The vault page is the target of the scroll listener, return early
     if (this.isVaultUrl(event.url)) {
+      // Only on arrival, so the regions paint collapsed while the list loads; `start()` confirms.
+      if (this.attached == null) {
+        this.scrollLayout.restoredScrolled.set(this.restoresCollapse());
+      }
       return;
     }
 

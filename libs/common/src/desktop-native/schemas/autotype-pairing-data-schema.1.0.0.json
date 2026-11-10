@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/bitwarden/clients/refs/heads/main/libs/common/src/desktop-native/schemas/autotype-pairing-data-schema.1.0.0.json",
+  "title": "Autotype Pairing Data Schema",
+  "description": "The app pairing data saved for Bitwarden's Autotype implementation must adhere to this schema.",
+  "$comment": "Every 1.x.y version must stay compatible with 1.0.0. A minor version may only add optional properties or new packagingType values, and a patch version may only change descriptions. Removing, renaming, or retyping a property, making a property required, or narrowing its allowed values requires a new major version. Readers must ignore properties they don't recognize.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "object",
+          "properties": {
+            "major": {
+              "description": "The SemVer major version of the schema this data adheres to.",
+              "type": "integer",
+              "const": 1
+            },
+            "minor": {
+              "description": "The SemVer minor version of the schema this data adheres to.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "patch": {
+              "description": "The SemVer patch version of the schema this data adheres to.",
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": ["major", "minor", "patch"]
+        },
+        "pairingTimestamp": {
+          "description": "When this pairing was created, stored as a unix timestamp in seconds since the epoch.",
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["schemaVersion", "pairingTimestamp"]
+    },
+    "appData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the application paired.",
+          "type": "string",
+          "minLength": 1
+        },
+        "normalizedPath": {
+          "description": "The normalized absolute path of the application paired, including the file name.",
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["name", "normalizedPath"]
+    },
+    "clientData": {
+      "type": "object",
+      "properties": {
+        "packagingType": {
+          "description": "The type of packaging of the Bitwarden client this pairing was made on. Informs the operating system and potential sandboxing requirements. Later 1.x versions may add values, so readers must handle values they don't recognize.",
+          "anyOf": [
+            { "enum": ["windows-msix", "windows-exe"] },
+            { "type": "string", "minLength": 1 }
+          ]
+        }
+      },
+      "required": ["packagingType"]
+    }
+  },
+  "required": ["metadata", "appData", "clientData"]
+}

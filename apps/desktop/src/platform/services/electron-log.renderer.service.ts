@@ -2,38 +2,26 @@
 // @ts-strict-ignore
 import { LogLevelType } from "@bitwarden/common/platform/enums/log-level-type.enum";
 import { ConsoleLogService as BaseLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { LogRecorder } from "@bitwarden/logging";
 
 export class ElectronLogRendererService extends BaseLogService {
-  constructor(protected filter: (level: LogLevelType) => boolean = null) {
-    super(ipc.platform.isDev, filter);
+  constructor(
+    protected filter: (level: LogLevelType) => boolean = null,
+    recorder: LogRecorder = null,
+  ) {
+    super(ipc.platform.isDev, filter, recorder);
   }
 
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
+    super.write(level, message, ...optionalParams);
+
     if (this.filter != null && this.filter(level)) {
       return;
     }
 
-    /* eslint-disable no-console */
     ipc.platform
       .log(level, message, ...optionalParams)
+      // eslint-disable-next-line no-console
       .catch((e) => console.log("Error logging", e));
-
-    /* eslint-disable no-console */
-    switch (level) {
-      case LogLevelType.Debug:
-        console.debug(message, ...optionalParams);
-        break;
-      case LogLevelType.Info:
-        console.info(message, ...optionalParams);
-        break;
-      case LogLevelType.Warning:
-        console.warn(message, ...optionalParams);
-        break;
-      case LogLevelType.Error:
-        console.error(message, ...optionalParams);
-        break;
-      default:
-        break;
-    }
   }
 }

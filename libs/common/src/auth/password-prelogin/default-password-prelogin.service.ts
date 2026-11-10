@@ -7,7 +7,6 @@ import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwar
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 
 import { PasswordPreloginApiService } from "./password-prelogin-api.service";
@@ -22,7 +21,6 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
   constructor(
     private passwordPreloginApiService: PasswordPreloginApiService,
     private sdkService: SdkService,
-    private environmentService: EnvironmentService,
     private configService: ConfigService,
   ) {}
 
@@ -71,8 +69,7 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
 
   private async fetchPreloginDataFromSdk(email: string): Promise<PasswordPreloginData> {
     const client = await firstValueFrom(this.sdkService.client$);
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const loginClient = client.auth().login({ identityUrl: env.getIdentityUrl() });
+    const loginClient = client.auth().login();
     const sdkResponse: SdkPasswordPreloginResponse = await loginClient.get_password_prelogin(email);
     const kdfConfig = fromSdkKdfConfig(sdkResponse.kdf);
     kdfConfig.validateKdfConfigForPrelogin();

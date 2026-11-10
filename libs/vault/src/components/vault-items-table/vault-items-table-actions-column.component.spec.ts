@@ -239,6 +239,32 @@ describe("VaultItemsTableActionsColumnComponent", () => {
     });
   });
 
+  describe("an action whose show reads a signal snapshot", () => {
+    it("appears once the signal changes, with no manual change detection", async () => {
+      const allowed = signal(false);
+      host.ciphers.set([loginCipher()]);
+      host.rowActions.set([
+        {
+          id: "cancelRequest",
+          label: "Cancel request",
+          icon: "bwi-close",
+          run: jest.fn(),
+          show: () => allowed(),
+        },
+      ]);
+      // Ticks as the app does: only when Angular schedules change detection.
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      expect(menuTriggers()).toHaveLength(0);
+
+      allowed.set(true);
+      await fixture.whenStable();
+
+      expect(menuTriggers()).toHaveLength(1);
+      expect(openMenu(0).map((item) => item.textContent?.trim())).toEqual(["Cancel request"]);
+    });
+  });
+
   describe("premium-gated actions", () => {
     it("prompts for premium instead of running the action", async () => {
       const run = jest.fn();
@@ -308,6 +334,32 @@ describe("VaultItemsTableActionsColumnComponent", () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector("[bitIconButton='bwi-external-link']")).toBeNull();
+    });
+  });
+
+  describe("a cipher that failed to decrypt", () => {
+    it("offers neither Launch nor Copy", () => {
+      // The healthy row offers both, so a count of one means the failed row offers neither.
+      host.ciphers.set([
+        withUri("https://example.com"),
+        loginCipher({ id: "failed", decryptionFailure: true }),
+      ]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelectorAll("vault-item-copy-actions")).toHaveLength(1);
+      expect(
+        fixture.nativeElement.querySelectorAll("[bitIconButton='bwi-external-link']"),
+      ).toHaveLength(1);
+    });
+
+    it("still offers the overflow menu", () => {
+      host.ciphers.set([loginCipher({ decryptionFailure: true })]);
+      host.rowActions.set([
+        { id: "delete", label: "Delete", icon: "bwi-trash", run: jest.fn(), variant: "danger" },
+      ]);
+      fixture.detectChanges();
+
+      expect(menuTriggers()).toHaveLength(1);
     });
   });
 

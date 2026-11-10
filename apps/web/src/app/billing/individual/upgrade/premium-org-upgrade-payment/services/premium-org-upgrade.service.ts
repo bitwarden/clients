@@ -23,18 +23,16 @@ import {
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { Cart } from "@bitwarden/pricing";
 import { UserId } from "@bitwarden/user-core";
 
-import {
-  AccountBillingClient,
-  PreviewInvoiceClient,
-  SubscriberBillingClient,
-} from "../../../../clients";
+import { AccountBillingClient, SubscriberBillingClient } from "../../../../clients";
 import {
   BillingAddress,
   MaskedPaymentMethod,
   TokenizablePaymentMethods,
 } from "../../../../payment/types";
+import { InvoicePreviewService } from "../../../../services/invoice-preview.service";
 
 export const UNVERIFIED_BANK_ACCOUNT_MESSAGE =
   "Unverified bank account payment method is not supported for this upgrade";
@@ -54,43 +52,31 @@ export type PaymentFormValues = {
   };
 };
 
-export interface InvoicePreview {
-  tax: number;
-  total: number;
-  credit: number;
-  newPlanProratedMonths: number;
-  newPlanProratedAmount?: number;
-}
-
 @Injectable({ providedIn: "root" })
 export class PremiumOrgUpgradeService {
   constructor(
     private accountBillingClient: AccountBillingClient,
-    private previewInvoiceClient: PreviewInvoiceClient,
     private subscriberBillingClient: SubscriberBillingClient,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
     private syncService: SyncService,
     private configService: ConfigService,
+    private invoicePreviewService: InvoicePreviewService,
   ) {}
 
-  async previewProratedInvoice(
+  /** Returns the server-built cart for the upgrade. */
+  async previewInvoiceCart(
     planDetails: PremiumOrgUpgradePlanDetails,
     billingAddress: BillingAddress,
-  ): Promise<InvoicePreview> {
-    const tier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(planDetails.tier);
-
-    const invoicePreviewResponse =
-      await this.previewInvoiceClient.previewProrationForPremiumUpgrade(tier, billingAddress);
-
-    return {
-      tax: invoicePreviewResponse.tax,
-      total: invoicePreviewResponse.total,
-      credit: invoicePreviewResponse.credit,
-      newPlanProratedMonths: invoicePreviewResponse.newPlanProratedMonths,
-      newPlanProratedAmount: invoicePreviewResponse.newPlanProratedAmount,
-    };
+  ): Promise<Cart> {
+    return this.invoicePreviewService.previewPremiumOrgUpgradeCart(
+      {
+        targetProductTierType: this.ProductTierTypeFromSubscriptionTierId(planDetails.tier),
+        billingAddress: { country: billingAddress.country, postalCode: billingAddress.postalCode },
+      },
+      planDetails.details.name,
+    );
   }
 
   async upgradeToOrganization(

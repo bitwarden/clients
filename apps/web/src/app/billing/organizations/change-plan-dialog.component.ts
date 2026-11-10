@@ -8,6 +8,8 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  resource,
+  signal,
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
@@ -42,16 +44,18 @@ import {
   DialogConfig,
   DialogRef,
   DialogService,
+  SpinnerComponent,
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { CartSummaryComponent } from "@bitwarden/pricing";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
-  OrganizationSubscriptionPlan,
+  OrganizationPlanChangePreviewRequest,
+  OrganizationRestartPreviewRequest,
   SubscriberBillingClient,
-  PreviewInvoiceClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
@@ -64,10 +68,15 @@ import {
   getCardBrandIcon,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import {
+  BitwardenSubscriber,
+  OrganizationSubscriptionPlan,
+} from "@bitwarden/web-vault/app/billing/types";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
+import { invoicePreviewErrorMessageKey } from "../shared/invoice-preview-error-message-key";
 
 type ChangePlanDialogParams = {
   organizationId: string;
@@ -117,6 +126,8 @@ interface OnSuccessArgs {
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     CardComponent,
+    CartSummaryComponent,
+    SpinnerComponent,
     Vfo1I18nPipe,
   ],
 })
@@ -150,8 +161,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.formGroup?.controls?.productTier?.setValue(product);
   }
 
-  protected estimatedTax: number = 0;
-  protected estimatedTotal?: number;
   private _productTier = ProductTierType.Free;
   private _familyPlan: PlanType;
 
@@ -190,7 +199,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   formPromise: Promise<string>;
   singleOrgPolicyAppliesToActiveUser = false;
   isInTrialFlow = false;
-  discount = 0;
 
   formGroup = this.formBuilder.group({
     name: [""],
@@ -219,18 +227,98 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   dialogHeaderName: string;
   currentPlanName: string;
   showPayment: boolean = false;
-  totalOpened: boolean = false;
   currentPlan: PlanResponse;
   isCardStateDisabled = false;
   focusedIndex: number | null = null;
   plans: ListResponse<PlanResponse>;
   isSubscriptionCanceled: boolean = false;
-  secretsManagerTotal: number;
 
   paymentMethod: MaskedPaymentMethod | null;
   billingAddress: BillingAddress | null;
 
   private destroy$ = new Subject<void>();
+
+  /**
+   * Signal holding the current preview request: a plan change, or for a canceled subscription a
+   * restart, which carries only the billing address.
+   */
+  private readonly planChangeRequest = signal<
+    OrganizationPlanChangePreviewRequest | OrganizationRestartPreviewRequest | undefined
+  >(undefined, {
+    equal: (a, b) =>
+      (a != null && "tier" in a ? a.tier : undefined) ===
+        (b != null && "tier" in b ? b.tier : undefined) &&
+      (a != null && "cadence" in a ? a.cadence : undefined) ===
+        (b != null && "cadence" in b ? b.cadence : undefined) &&
+      a?.billingAddress.country === b?.billingAddress.country &&
+      a?.billingAddress.postalCode === b?.billingAddress.postalCode &&
+      a?.billingAddress.taxId?.code === b?.billingAddress.taxId?.code &&
+      a?.billingAddress.taxId?.value === b?.billingAddress.taxId?.value,
+  });
+
+  protected planChangeCart = resource({
+    params: () => this.planChangeRequest(),
+    loader: async ({ params }) => {
+      try {
+        // A canceled subscription restarts on its current tier and cadence, which the server
+        // resolves itself, so its request carries only the billing address.
+        return "tier" in params
+          ? await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params)
+          : await this.invoicePreviewService.previewRestartCart(this.organizationId, params);
+      } catch (error) {
+        this.billingNotificationService.showError(
+          this.i18nService.t(invoicePreviewErrorMessageKey(error)),
+        );
+        throw error;
+      }
+    },
+  });
+
+  // Message shown in the error callout, from the resource's returned error object.
+  protected get previewErrorMessageKey(): string {
+    return invoicePreviewErrorMessageKey(this.planChangeCart.error());
+  }
+
+  // Block submission until the cost preview has loaded so a plan change can't be committed
+  // without its cost shown.
+  protected get isSubmitDisabled(): boolean {
+    return !this.planChangeCart.hasValue();
+  }
+
+  protected get trialLengthDays(): number {
+    return this.selectedPlan?.trialPeriodDays ?? 0;
+  }
+
+  // A free org upgrading to a paid plan that carries a trial: the total is charged when the trial ends.
+  protected get isFreeUpgradeWithTrial(): boolean {
+    return this.currentPlan?.productTier === ProductTierType.Free && this.trialLengthDays > 0;
+  }
+
+  protected get isTrialing(): boolean {
+    return this.sub?.subscription?.status === "trialing";
+  }
+
+  // When the current trial ends and the total is charged.
+  protected get trialEndDate(): string | undefined {
+    return this.sub?.subscription?.trialEndDate;
+  }
+
+  // Whole days left in the current trial, or 0 when the subscription is not trialing.
+  protected get remainingTrialDays(): number {
+    if (!this.isTrialing || !this.trialEndDate) {
+      return 0;
+    }
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const remaining = new Date(this.trialEndDate).getTime() - Date.now();
+    return Math.max(0, Math.ceil(remaining / msPerDay));
+  }
+
+  // The chrome i18n format has no plural support, so pick the singular key on the trial's last day.
+  protected get trialRemainingMessageKey(): string {
+    return this.remainingTrialDays === 1
+      ? "planChangeTrialRemaining"
+      : "planChangeTrialRemainingPlural";
+  }
 
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: ChangePlanDialogParams,
@@ -250,9 +338,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private billingNotificationService: BillingNotificationService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
     private vfo1TerminologyService: Vfo1TerminologyService,
+    private invoicePreviewService: InvoicePreviewService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -342,7 +430,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
-      await this.refreshSalesTax();
+      this.refreshCostSummary();
     }
 
     combineLatest([
@@ -352,7 +440,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     ])
       .pipe(
         debounceTime(1000),
-        switchMap(async () => await this.refreshSalesTax()),
+        map(() => this.refreshCostSummary()),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -520,17 +608,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedPlan = plan;
-    // Clear the previous plan's server total so the summary falls back to the client
-    // estimate for the newly selected plan until refreshSalesTax() resolves.
-    this.estimatedTotal = undefined;
     this.formGroup.patchValue({ productTier: plan.productTier });
 
-    try {
-      await this.refreshSalesTax();
-    } catch {
-      this.estimatedTax = 0;
-      this.estimatedTotal = undefined;
-    }
+    this.refreshCostSummary();
   }
 
   ngOnDestroy() {
@@ -579,7 +659,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     if (this.acceptingSponsorship) {
       const familyPlan = this.passwordManagerPlans.find((plan) => plan.type === this._familyPlan);
-      this.discount = familyPlan.PasswordManager.basePrice;
       return [familyPlan];
     }
 
@@ -641,109 +720,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
     return result;
-  }
-
-  get storageGb() {
-    return Math.max(
-      0,
-      (this.sub?.maxStorageGb ?? 0) - this.selectedPlan.PasswordManager.baseStorageGb,
-    );
-  }
-
-  passwordManagerSeatTotal(plan: PlanResponse): number {
-    if (!plan.PasswordManager.hasAdditionalSeatsOption || this.isSecretsManagerTrial()) {
-      return 0;
-    }
-
-    return plan.PasswordManager.seatPrice * Math.abs(this.sub?.seats || 0);
-  }
-
-  secretsManagerSeatTotal(plan: PlanResponse, seats: number): number {
-    if (!plan.SecretsManager.hasAdditionalSeatsOption) {
-      return 0;
-    }
-
-    return plan.SecretsManager.seatPrice * Math.abs(seats || 0);
-  }
-
-  additionalStorageTotal(plan: PlanResponse): number {
-    if (!plan.PasswordManager.hasAdditionalStorageOption) {
-      return 0;
-    }
-
-    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb;
-  }
-
-  additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
-    return selectedPlan.PasswordManager.additionalStoragePricePerGb;
-  }
-
-  additionalServiceAccountTotal(plan: PlanResponse): number {
-    if (
-      !plan.SecretsManager.hasAdditionalServiceAccountOption ||
-      this.additionalServiceAccount == 0
-    ) {
-      return 0;
-    }
-
-    return plan.SecretsManager.additionalPricePerServiceAccount * this.additionalServiceAccount;
-  }
-
-  get passwordManagerSubtotal() {
-    if (!this.selectedPlan || !this.selectedPlan.PasswordManager) {
-      return 0;
-    }
-
-    let subTotal = this.selectedPlan.PasswordManager.basePrice;
-    if (this.selectedPlan.PasswordManager.hasAdditionalSeatsOption) {
-      subTotal += this.passwordManagerSeatTotal(this.selectedPlan);
-    }
-    if (this.selectedPlan.PasswordManager.hasPremiumAccessOption) {
-      subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
-    }
-    if (this.selectedPlan.PasswordManager.hasAdditionalStorageOption) {
-      subTotal += this.additionalStorageTotal(this.selectedPlan);
-    }
-    return subTotal - this.discount;
-  }
-
-  secretsManagerSubtotal() {
-    const plan = this.selectedPlan;
-    if (!plan || !plan.SecretsManager) {
-      return this.secretsManagerTotal || 0;
-    }
-
-    if (this.secretsManagerTotal) {
-      return this.secretsManagerTotal;
-    }
-
-    this.secretsManagerTotal =
-      plan.SecretsManager.basePrice +
-      this.secretsManagerSeatTotal(plan, this.sub?.smSeats) +
-      this.additionalServiceAccountTotal(plan);
-    return this.secretsManagerTotal;
-  }
-
-  get passwordManagerSeats() {
-    if (!this.selectedPlan) {
-      return 0;
-    }
-
-    if (this.selectedPlan.productTier === ProductTierType.Families) {
-      return this.selectedPlan.PasswordManager.baseSeats;
-    }
-    return this.sub?.seats;
-  }
-
-  get total() {
-    if (!this.organization || !this.selectedPlan) {
-      return 0;
-    }
-
-    if (this.organization.useSecretsManager) {
-      return this.passwordManagerSubtotal + this.secretsManagerSubtotal() + this.estimatedTax;
-    }
-    return this.passwordManagerSubtotal + this.estimatedTax;
   }
 
   get teamsStarterPlanIsAvailable() {
@@ -808,12 +784,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string;
-      const sub = this.sub?.subscription;
-      const isCanceled = sub?.status === "canceled";
-      const isCancelledDowngradedToFreeOrg =
-        sub?.cancelled && this.organization.productTierType === ProductTierType.Free;
-
-      if (isCanceled || isCancelledDowngradedToFreeOrg) {
+      if (this.willRestart) {
         await this.restartSubscription();
         orgId = this.organizationId;
       } else {
@@ -985,10 +956,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.showPayment = true;
   }
 
-  toggleTotalOpened() {
-    this.totalOpened = !this.totalOpened;
-  }
-
   resolvePlanName(productTier: ProductTierType) {
     switch (productTier) {
       case ProductTierType.Enterprise:
@@ -1041,40 +1008,79 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  private async refreshSalesTax(): Promise<void> {
-    if (this.billingFormGroup.controls.billingAddress.invalid && !this.billingAddress) {
-      return;
-    }
+  /** Whether submitting restarts the subscription rather than changing its plan. */
+  private get willRestart(): boolean {
+    const sub = this.sub?.subscription;
+    return (
+      sub?.status === "canceled" ||
+      (!!sub?.cancelled && this.organization.productTierType === ProductTierType.Free)
+    );
+  }
 
-    const getPlanFromLegacyEnum = (planType: PlanType): OrganizationSubscriptionPlan => {
-      switch (planType) {
-        case PlanType.FamiliesAnnually:
-        case PlanType.FamiliesAnnually2025:
-          return { tier: "families", cadence: "annually" };
-        case PlanType.TeamsMonthly:
-          return { tier: "teams", cadence: "monthly" };
-        case PlanType.TeamsAnnually:
-          return { tier: "teams", cadence: "annually" };
-        case PlanType.EnterpriseMonthly:
-          return { tier: "enterprise", cadence: "monthly" };
-        case PlanType.EnterpriseAnnually:
-          return { tier: "enterprise", cadence: "annually" };
-      }
-    };
+  private refreshCostSummary(): void {
+    const request = this.willRestart
+      ? this.buildRestartPreviewRequest()
+      : this.buildPlanChangePreviewRequest();
+    this.planChangeRequest.set(request);
+  }
 
+  private buildRestartPreviewRequest(): OrganizationRestartPreviewRequest | undefined {
+    const billingAddress = this.getPreviewBillingAddress();
+    return billingAddress == null ? undefined : { billingAddress };
+  }
+
+  private getPreviewBillingAddress():
+    OrganizationRestartPreviewRequest["billingAddress"] | undefined {
     const billingAddress = this.billingFormGroup.controls.billingAddress.valid
       ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
       : this.billingAddress;
 
-    const taxAmounts =
-      await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
-        this.organizationId,
-        getPlanFromLegacyEnum(this.selectedPlan.type),
-        billingAddress,
-      );
+    if (billingAddress == null) {
+      return undefined;
+    }
 
-    this.estimatedTax = taxAmounts.tax;
-    this.estimatedTotal = taxAmounts.total;
+    return {
+      country: billingAddress.country,
+      postalCode: billingAddress.postalCode,
+      taxId: billingAddress.taxId,
+    };
+  }
+
+  /**
+   * Builds the request object for previewing an organization plan change.
+   * @returns The request object for previewing an organization plan change, or undefined if no valid billing address is available.
+   */
+  private buildPlanChangePreviewRequest(): OrganizationPlanChangePreviewRequest | undefined {
+    const billingAddress = this.getPreviewBillingAddress();
+    if (billingAddress == null) {
+      return undefined;
+    }
+
+    const plan = this.getPlanFromLegacyEnum(this.selectedPlan.type);
+    if (plan == null) {
+      return undefined;
+    }
+
+    return { tier: plan.tier, cadence: plan.cadence, billingAddress };
+  }
+
+  /**
+   * Converts a legacy PlanType enum value to an OrganizationSubscriptionPlan object.
+   */
+  private getPlanFromLegacyEnum(planType: PlanType): OrganizationSubscriptionPlan {
+    switch (planType) {
+      case PlanType.FamiliesAnnually:
+      case PlanType.FamiliesAnnually2025:
+        return { tier: "families", cadence: "annually" };
+      case PlanType.TeamsMonthly:
+        return { tier: "teams", cadence: "monthly" };
+      case PlanType.TeamsAnnually:
+        return { tier: "teams", cadence: "annually" };
+      case PlanType.EnterpriseMonthly:
+        return { tier: "enterprise", cadence: "monthly" };
+      case PlanType.EnterpriseAnnually:
+        return { tier: "enterprise", cadence: "annually" };
+    }
   }
 
   protected canUpdatePaymentInformation(): boolean {

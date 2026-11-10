@@ -57,6 +57,7 @@ export type ApplicationHealthReportDetail = {
   memberCount: number; // could be removed (= Object.keys(memberRefs).length)
   atRiskMemberCount: number; // could be removed (= count of true values in memberRefs)
   memberRefs: Record<OrganizationUserId, boolean>; // true = at-risk, false = not at-risk (combines memberDetails + atRiskMemberDetails)
+  iconUri: string; // used for loading icons in the UI, the uri is taken from one of the application's ciphers
 };
 ```
 
@@ -579,7 +580,8 @@ class RiskInsightsView {
       passwordCount: 100,
       atRiskPasswordCount: 50,
       memberCount: 5000,
-      atRiskMemberCount: 3000
+      atRiskMemberCount: 3000,
+      iconUri: "https://www.google.com/login"
     },
     // ... 400 applications
   ],

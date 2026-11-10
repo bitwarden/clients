@@ -1,4 +1,4 @@
-import { EMPTY, firstValueFrom, switchMap, map, of } from "rxjs";
+import { EMPTY, filter, firstValueFrom, switchMap, map, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -20,13 +20,17 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import {
+  IntraprocessMessageSender,
+  isExternalMessage,
+  MessageListener,
+} from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -69,9 +73,12 @@ import {
   AddLoginMessageData,
   AtRiskPasswordQueueMessage,
   NotificationQueueMessageItem,
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
 } from "./abstractions/notification.background";
 import {
   LoginSecurityTaskInfo,
@@ -148,7 +155,6 @@ export default class NotificationBackground {
     collectPageDetailsResponse: ({ message }) =>
       this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
-    unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
     showLoginSavedNotification: ({ message }) => this.handleShowLoginSavedNotification(message),
   };
 
@@ -171,6 +177,8 @@ export default class NotificationBackground {
     private changeLoginPasswordService: ChangeLoginPasswordService,
     protected messagingService: MessagingService,
     private fido2Background: Fido2Background,
+    private intraprocessMessageSender: IntraprocessMessageSender,
+    private messageListener: MessageListener,
   ) {}
 
   init() {
@@ -179,6 +187,7 @@ export default class NotificationBackground {
     }
 
     this.setupExtensionMessageListener();
+    this.setupUnlockCompletedListener();
     this.setupUnlockPopoutCloseListener();
 
     this.cleanupNotificationQueue();
@@ -195,10 +204,6 @@ export default class NotificationBackground {
     }
     await action(sender.tab);
   }
-
-  useUndeterminedCipherScenarioTriggeringLogic$ = this.configService.getFeatureFlag$(
-    FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic,
-  );
 
   /**
    * Gets the enableChangedPasswordPrompt setting from the user notification settings service.
@@ -627,68 +632,6 @@ export default class NotificationBackground {
     await this.triggerLoginSavedNotification(itemName ?? "", cipherId ?? "", tab);
   }
 
-  /**
-   * Adds a login message to the notification queue, prompting the user to save
-   * the login if it does not already exist in the vault. If the cipher exists
-   * but the password has changed, the user will be prompted to update the password.
-   *
-   * @param message - The message to add to the queue
-   * @param sender - The contextual sender of the message
-   */
-  async triggerAddLoginNotification(
-    data: ModifyLoginCipherFormData,
-    tab: chrome.tabs.Tab,
-  ): Promise<boolean> {
-    const username = data?.username;
-    if (username == null) {
-      return false;
-    }
-    const login: AddLoginMessageData = {
-      username,
-      url: data.uri,
-      password: data.password || data.newPassword,
-    };
-
-    const authStatus = await this.getAuthStatus();
-    if (authStatus === AuthenticationStatus.LoggedOut) {
-      return false;
-    }
-
-    const normalizedUsername = login.username ? login.username.toLowerCase() : "";
-    const loginDomain = Utils.getDomain(login.url);
-    if (loginDomain == null) {
-      return false;
-    }
-
-    const addLoginIsEnabled = await this.getEnableAddedLoginPrompt();
-
-    if (authStatus === AuthenticationStatus.Locked) {
-      if (addLoginIsEnabled) {
-        await this.pushAddLoginToQueue(loginDomain, login, tab, true);
-      }
-
-      return false;
-    }
-
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-    if (activeUserId == null) {
-      return false;
-    }
-
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(login.url, activeUserId);
-    const usernameMatches = ciphers.filter(
-      (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
-    );
-    if (addLoginIsEnabled && usernameMatches.length === 0) {
-      await this.pushAddLoginToQueue(loginDomain, login, tab);
-      return true;
-    }
-
-    return false;
-  }
-
   private async pushAddLoginToQueue(
     loginDomain: string,
     loginInfo: AddLoginMessageData,
@@ -928,124 +871,6 @@ export default class NotificationBackground {
         changePasswordNotificationIsEnabled,
         newLoginNotificationIsEnabled,
       });
-    }
-
-    return false;
-  }
-
-  /**
-   * Adds a change password message to the notification queue, prompting the user
-   * to update the password for a login that has changed.
-   *
-   * @param message - The message to add to the queue
-   * @param sender - The contextual sender of the message
-   */
-  async triggerChangedPasswordNotification(
-    data: ModifyLoginCipherFormData,
-    tab: chrome.tabs.Tab,
-  ): Promise<boolean> {
-    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
-    if (!changePasswordIsEnabled) {
-      return false;
-    }
-    const authStatus = await this.getAuthStatus();
-    if (authStatus === AuthenticationStatus.LoggedOut) {
-      return false;
-    }
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-    if (activeUserId === null) {
-      return false;
-    }
-    const loginDomain = Utils.getDomain(data.uri);
-    if (loginDomain === null) {
-      return false;
-    }
-
-    const username: string | null = data.username || null;
-    const currentPasswordFieldValue = data.password || null;
-    const newPasswordFieldValue = data.newPassword || null;
-
-    if (authStatus === AuthenticationStatus.Locked && newPasswordFieldValue !== null) {
-      await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
-      return true;
-    }
-
-    let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
-      data.uri,
-      activeUserId,
-    );
-
-    const normalizedUsername: string = username ? username.toLowerCase() : "";
-
-    const shouldMatchUsername = typeof username === "string" && username.length > 0;
-
-    if (shouldMatchUsername) {
-      // Presence of a username should filter ciphers further.
-      ciphers = ciphers.filter(
-        (cipher) => cipher.login?.username?.toLowerCase() === normalizedUsername,
-      );
-    }
-
-    if (ciphers.length === 1) {
-      const [cipher] = ciphers;
-      const loginUsername = cipher.login?.username;
-      const loginPassword = cipher.login?.password;
-      if (
-        username !== null &&
-        newPasswordFieldValue === null &&
-        loginUsername != null &&
-        loginUsername.toLowerCase() === normalizedUsername &&
-        loginPassword === currentPasswordFieldValue
-      ) {
-        // Assumed to be a login
-        return false;
-      }
-    }
-
-    if (
-      ciphers.length > 0 &&
-      (currentPasswordFieldValue?.length || 0) > 0 &&
-      // Only use current password for change if no new password present.
-      !newPasswordFieldValue
-    ) {
-      const currentPasswordMatchesAnExistingValue = ciphers.some(
-        (cipher) =>
-          (cipher.login?.password?.length || 0) > 0 &&
-          cipher.login?.password === currentPasswordFieldValue,
-      );
-
-      // The password entered matched a stored cipher value with
-      // the same username (no change)
-      if (currentPasswordMatchesAnExistingValue) {
-        return false;
-      }
-
-      if (currentPasswordFieldValue != null) {
-        await this.pushChangePasswordToQueue(
-          ciphers.map((cipher) => cipher.id),
-          loginDomain,
-          currentPasswordFieldValue,
-          tab,
-        );
-      }
-
-      return true;
-    }
-
-    if (newPasswordFieldValue) {
-      // Otherwise include all known ciphers.
-      if (ciphers.length > 0) {
-        await this.pushChangePasswordToQueue(
-          ciphers.map((cipher) => cipher.id),
-          loginDomain,
-          newPasswordFieldValue,
-          tab,
-        );
-
-        return true;
-      }
     }
 
     return false;
@@ -1362,17 +1187,21 @@ export default class NotificationBackground {
     }
     const tab = sender.tab;
     if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await this.openUnlockPopout(tab, {
-        commandToRetry: {
-          message: {
-            command: message.command,
-            edit: message.edit,
-            folder: message.folder,
+      await this.openUnlockPopout(tab, () =>
+        this.intraprocessMessageSender.send(ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS, {
+          data: {
+            commandToRetry: {
+              message: {
+                command: message.command,
+                edit: message.edit,
+                folder: message.folder,
+              },
+              [RETRY_SENDER]: sender,
+            },
+            target: "notification.background",
           },
-          sender: sender,
-        },
-        target: "notification.background",
-      });
+        }),
+      );
       return;
     }
 
@@ -1690,7 +1519,9 @@ export default class NotificationBackground {
   }
 
   /**
-   * Saves the current tab's domain to the never save list.
+   * Saves the hostname of the frame the login was submitted from to the never save list. The
+   * submitting frame's hostname is used rather than the tab's because exclusions are checked
+   * against the origin of the frame reporting the submission.
    *
    * @param tab - The tab that sent the neverSave message
    */
@@ -1708,7 +1539,7 @@ export default class NotificationBackground {
       this.notificationQueue.splice(i, 1);
       await BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
-      const hostname = Utils.getHostname(tab.url ?? "") ?? "";
+      const hostname = Utils.getHostname(queueMessage.data.uri ?? "") ?? "";
       if (hostname) {
         await this.cipherService.saveNeverDomain(hostname);
       }
@@ -1795,34 +1626,46 @@ export default class NotificationBackground {
   }
 
   /**
-   * Handles the unlockCompleted extension message. Will close the notification bar
-   * after an attempted autofill action, and retry the autofill action if the message
-   * contains a follow-up command.
-   *
-   * @param message - The extension message
-   * @param sender - The contextual sender of the message
+   * @see {@link RETRY_WHEN_UNLOCK_COMPLETED}
    */
-  private async handleUnlockCompleted(
-    message: NotificationBackgroundExtensionMessage,
-    sender: chrome.runtime.MessageSender,
-  ): Promise<void> {
+  private setupUnlockCompletedListener() {
+    this.messageListener
+      .messages$(RETRY_WHEN_UNLOCK_COMPLETED)
+      .pipe(filter((message) => !isExternalMessage(message)))
+      .subscribe(({ data }) => {
+        this.handleUnlockCompleted(data).catch((error) => this.logService.error(error));
+      });
+  }
+
+  /**
+   * Closes the notification bar after an attempted autofill action, and retries the autofill
+   * action if the retained command carries a follow-up command.
+   *
+   * A retry whose {@link RETRY_SENDER} names no tab is dropped: both the bar it closes and the
+   * handlers it dispatches to act on that tab.
+   *
+   * @param data - The command the background retained when it opened the unlock popout
+   */
+  private async handleUnlockCompleted(data: LockedVaultPendingNotificationsData): Promise<void> {
     this.unlockPopoutTabId = undefined;
-    const messageData = message.data as LockedVaultPendingNotificationsData;
-    const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
+
+    const sender = data?.commandToRetry?.[RETRY_SENDER];
+    if (!sender?.tab) {
+      return;
+    }
+
+    const retryCommand = data.commandToRetry.message.command as ExtensionCommandType;
     if (this.allowedRetryCommands.has(retryCommand) && sender.tab != null) {
       await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
     }
 
-    if (messageData.target !== "notification.background") {
+    if (data.target !== "notification.background") {
       return;
     }
 
     const retryHandler: CallableFunction | undefined = this.extensionMessageHandlers[retryCommand];
     if (retryHandler) {
-      retryHandler({
-        message: messageData.commandToRetry.message,
-        sender: messageData.commandToRetry.sender,
-      });
+      retryHandler({ message: data.commandToRetry.message, sender });
     }
   }
 

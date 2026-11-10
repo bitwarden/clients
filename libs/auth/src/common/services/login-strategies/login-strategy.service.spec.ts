@@ -1,5 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -25,6 +25,7 @@ import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -32,7 +33,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   FakeAccountService,
   FakeGlobalStateProvider,
@@ -57,7 +57,11 @@ import {
 } from "../../abstractions";
 import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
 import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
-import { PasswordLoginCredentials } from "../../models";
+import {
+  AuthRequestLoginCredentials,
+  PasswordLoginCredentials,
+  SsoLoginCredentials,
+} from "../../models";
 import { UserDecryptionOptionsService } from "../user-decryption-options/user-decryption-options.service";
 
 import { LoginStrategyService } from "./login-strategy.service";
@@ -81,7 +85,6 @@ describe("LoginStrategyService", () => {
   let keyConnectorService: MockProxy<KeyConnectorService>;
   let unlockService: MockProxy<UnlockService>;
   let environmentService: MockProxy<EnvironmentService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let i18nService: MockProxy<I18nService>;
   let encryptService: MockProxy<EncryptService>;
@@ -118,7 +121,6 @@ describe("LoginStrategyService", () => {
     keyConnectorService = mock<KeyConnectorService>();
     unlockService = mock<UnlockService>();
     environmentService = mock<EnvironmentService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     i18nService = mock<I18nService>();
     encryptService = mock<EncryptService>();
@@ -177,7 +179,6 @@ describe("LoginStrategyService", () => {
       logService,
       keyConnectorService,
       environmentService,
-      stateService,
       twoFactorService,
       i18nService,
       encryptService,
@@ -346,7 +347,6 @@ describe("LoginStrategyService", () => {
       logService,
       keyConnectorService,
       environmentService,
-      stateService,
       twoFactorService,
       i18nService,
       encryptService,
@@ -563,5 +563,53 @@ describe("LoginStrategyService", () => {
     await sut.logIn(credentials);
 
     expect(loginStrategySessionTimeoutService.cancelSessionTimeout).toHaveBeenCalled();
+  });
+
+  describe("given a login attempt whose token request was rejected", () => {
+    beforeEach(() => {
+      apiService.postIdentityToken.mockRejectedValue(
+        new ErrorResponse({ message: "Username or password is incorrect." }, 400, true),
+      );
+    });
+
+    it("clears the login session so no auth type remains", async () => {
+      passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+      await expect(
+        sut.logIn(new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD")),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await firstValueFrom(sut.currentAuthType$)).toBeNull();
+    });
+
+    it("returns undefined from the password accessors", async () => {
+      passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+      await expect(
+        sut.logIn(new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD")),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await sut.getEmail()).toBeUndefined();
+      expect(await sut.getMasterPasswordHash()).toBeUndefined();
+    });
+
+    it("returns undefined from the SSO accessors", async () => {
+      await expect(
+        sut.logIn(
+          new SsoLoginCredentials("CODE", "CODE_VERIFIER", "REDIRECT_URL", "ORG_ID", "EMAIL"),
+        ),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await sut.getEmail()).toBeUndefined();
+      expect(await sut.getSsoEmail2FaSessionToken()).toBeUndefined();
+    });
+
+    it("returns undefined from the auth request accessors", async () => {
+      await expect(
+        sut.logIn(new AuthRequestLoginCredentials("EMAIL", "ACCESS_CODE", "AUTH_REQUEST_ID", null)),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await sut.getEmail()).toBeUndefined();
+      expect(await sut.getAccessCode()).toBeUndefined();
+      expect(await sut.getAuthRequestId()).toBeUndefined();
+    });
   });
 });

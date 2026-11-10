@@ -13,16 +13,15 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { Observable, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   FormFieldModule,
@@ -64,9 +63,7 @@ export class LoginCredentialsViewComponent implements OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() activeUserId: UserId;
+  protected readonly activeUserId = input<UserId | null>(null);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showChangePasswordLink: boolean;
@@ -78,11 +75,23 @@ export class LoginCredentialsViewComponent implements OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("passwordInput")
   private passwordInput!: ElementRef<HTMLInputElement>;
+  /**
+   * Optional input for manually specifying whether the user can be considered
+   * premium in anonymous environments where the userId is not available
+   */
+  readonly hasAnonymousPremium = input<boolean>(false);
+  readonly hasAnonymousPremium$ = toObservable(this.hasAnonymousPremium);
 
-  isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    switchMap((account) =>
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-    ),
+  readonly activeUserId$ = toObservable(this.activeUserId);
+
+  isPremium$: Observable<boolean> = this.activeUserId$.pipe(
+    switchMap((userId) => {
+      if (userId) {
+        return this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId);
+      } else {
+        return this.hasAnonymousPremium$;
+      }
+    }),
   );
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
@@ -93,9 +102,7 @@ export class LoginCredentialsViewComponent implements OnChanges {
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private i18nService: I18nService,
-    private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
-    private accountService: AccountService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {

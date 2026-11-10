@@ -7,8 +7,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -24,6 +22,7 @@ import {
   LinkModule,
   IconModule,
 } from "@bitwarden/components";
+import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   GetOrgNameFromIdPipe,
@@ -57,6 +56,7 @@ import { VaultItemEvent } from "./vault-item-event";
     CheckboxModule,
     Vfo1I18nPipe,
     Vfo1IconPipe,
+    ShareLinkMenuItemDirective,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
@@ -89,7 +89,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
-  protected readonly showBatchBar = input<boolean>(false);
   protected readonly selected = input<boolean>(false);
   protected readonly checkboxChange = output<void>();
   protected readonly onEvent = output<VaultItemEvent<C>>();
@@ -97,21 +96,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   private platformUtilsService = inject(PlatformUtilsService);
   private i18nService = inject(I18nService);
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
-  private configService = inject(ConfigService);
-
-  private readonly quickCopyActionsSetting = toSignal(
-    this.vaultCopyButtonsService.showQuickCopyActions$,
-    { initialValue: false },
-  );
-
-  private readonly quickCopyIconFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
-    { initialValue: false },
-  );
 
   /** Whether copy actions render as individual quick-copy icons rather than a single menu. */
-  protected readonly showQuickCopyActions = computed(
-    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
+  protected readonly showQuickCopyActions = toSignal(
+    this.vaultCopyButtonsService.showQuickCopyActions$,
+    { initialValue: false },
   );
 
   protected readonly showArchiveButton = computed(() => {

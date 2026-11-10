@@ -1,6 +1,6 @@
-import { NgModule, inject } from "@angular/core";
-import { Route, Router, RouterModule, Routes } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { inject, NgModule } from "@angular/core";
+import { LoadChildrenCallback, Route, Router, RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -55,7 +55,15 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
+import {
+  FOLDER_ID_PARAM,
+  FOLDERS_ROUTE,
+  vaultFilterRestoreGuard,
+  vaultScopeGuard,
+  type VaultScopeRouteData,
+} from "@bitwarden/vault";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
@@ -63,6 +71,7 @@ import { flagEnabled, Flags } from "../utils/flags";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
+import { sponsoredFamiliesTitleResolver } from "./admin-console/organizations/sponsorships/sponsored-families-title.resolver";
 import { addPlanRedirectGuard } from "./admin-console/settings/add-plan-redirect.guard";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
@@ -90,12 +99,14 @@ import { DataRecoveryComponent } from "./key-management/data-recovery/data-recov
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
+import { PAM_ROUTES } from "./pam/pam-routes.token";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
+import { ImportShellWebComponent } from "./tools/import/import-shell-web.component";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -436,7 +447,7 @@ const routes: Routes = [
       },
       {
         path: "lock",
-        canActivate: [deepLinkGuard(), lockGuard()],
+        canActivate: [lockGuard()],
         children: [
           {
             path: "",
@@ -623,6 +634,18 @@ const routes: Routes = [
         } satisfies AnonLayoutWrapperData,
       },
       {
+        path: "privileged-controls-trial-initiation",
+        canActivate: [unauthGuardFn()],
+        component: CompleteTrialInitiationComponent,
+        resolve: {
+          pageTitle: freeTrialTextResolver,
+        },
+        data: {
+          maxWidth: "3xl",
+          pageIcon: BusinessWelcome,
+        } satisfies AnonLayoutWrapperData,
+      },
+      {
         path: "browser-extension-prompt",
         data: {
           pageIcon: BrowserExtensionIcon,
@@ -684,26 +707,23 @@ const routes: Routes = [
         loadChildren: () => VaultModule,
       },
       {
+        // A child of the shared user shell, since a second layout instance would re-base the side
+        // nav's relative routerLinks.
+        path: "pam",
+        canMatch: [() => inject(PAM_ROUTES, { optional: true }) != null],
+        canActivate: [canAccessFeature(FeatureFlag.Pam)],
+        // inject() infers `unknown` from a SafeInjectionToken, hence the explicit type argument.
+        loadChildren: () => inject<LoadChildrenCallback>(PAM_ROUTES)(),
+      },
+      {
         path: "sends",
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
         canActivate: [
-          organizationPolicyGuard((userId, policyService, configService) =>
-            configService
-              .getFeatureFlag$(FeatureFlag.SendControls)
-              .pipe(
-                switchMap((sendControlsEnabled) =>
-                  sendControlsEnabled
-                    ? policyService
-                        .policiesByType$(PolicyType.SendControls, userId)
-                        .pipe(
-                          map((policies) => !policies?.some((p) => p.data?.disableSend === true)),
-                        )
-                    : policyService
-                        .policyAppliesToUser$(PolicyType.DisableSend, userId)
-                        .pipe(map((policyApplies) => !policyApplies)),
-                ),
-              ),
+          organizationPolicyGuard((userId, policyService, _configService) =>
+            policyService
+              .policiesByType$(PolicyType.SendControls, userId)
+              .pipe(map((policies) => !policies?.some((p) => p.data?.disableSend === true))),
           ),
         ],
         canDeactivate: [unsavedSendEditsGuard],
@@ -713,6 +733,21 @@ const routes: Routes = [
         component: MyFoldersComponent,
         canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
         data: { titleId: "myFolders" } satisfies RouteDataProperties,
+      },
+      // One of the user's folders.
+      {
+        path: `${FOLDERS_ROUTE}/:${FOLDER_ID_PARAM}`,
+        loadComponent: () =>
+          import("./vault/individual-vault/vault-next.component").then(
+            (mod) => mod.VaultNextComponent,
+          ),
+        canActivate: [
+          canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
+          vaultScopeGuard,
+          vaultFilterRestoreGuard,
+        ],
+        data: { titleId: "vaults", vaultFilterScope: true } satisfies RouteDataProperties &
+          VaultScopeRouteData,
       },
       {
         path: "sm-landing",
@@ -812,6 +847,55 @@ const routes: Routes = [
           { path: "", pathMatch: "full", redirectTo: "generator" },
           {
             path: "import",
+            canMatch: [
+              () =>
+                inject(ConfigService)
+                  .getFeatureFlag$(FeatureFlag.ImportUpgrade)
+                  .pipe(map((flagValue) => flagValue === true)),
+            ],
+            component: ImportShellWebComponent,
+            data: {
+              titleId: "importNoun",
+            } satisfies RouteDataProperties,
+            children: [
+              {
+                path: "",
+                pathMatch: "full",
+                // Lazy load vendor icon set
+                loadComponent: () =>
+                  import("./tools/import/import-source-select-web.component").then(
+                    (mod) => mod.ImportSourceSelectWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+              {
+                path: ":importType",
+                canActivate: [canActivateImportType("/tools/import")],
+                loadComponent: () =>
+                  import("./tools/import/import-controls-web.component").then(
+                    (mod) => mod.ImportControlsWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+              {
+                path: IMPORT_DESTINATION_ROUTE_PATH,
+                canActivate: [canActivateImportType("/tools/import")],
+                loadComponent: () =>
+                  import("./tools/import/import-destination-web.component").then(
+                    (mod) => mod.ImportDestinationWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+            ],
+          },
+          {
+            path: "import",
             loadComponent: () =>
               import("./tools/import/import-web.component").then((mod) => mod.ImportWebComponent),
             data: {
@@ -840,7 +924,12 @@ const routes: Routes = [
         path: "reports",
         loadChildren: () => ReportsModule,
       },
-      { path: "setup/families-for-enterprise", component: FamiliesForEnterpriseSetupComponent },
+      {
+        path: "setup/families-for-enterprise",
+        component: FamiliesForEnterpriseSetupComponent,
+        // Tab title is VFO1-gated: the legacy page keeps the default title until the switch.
+        resolve: { title: sponsoredFamiliesTitleResolver },
+      },
     ],
   },
   {

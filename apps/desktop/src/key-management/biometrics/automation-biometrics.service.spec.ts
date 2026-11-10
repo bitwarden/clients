@@ -131,4 +131,31 @@ describe("AutomationBiometricsService", () => {
       await expect(result).resolves.toBeNull();
     });
   });
+
+  describe("request notifications", () => {
+    it("emits a request when it starts awaiting approval", () => {
+      const emitted: unknown[] = [];
+      sut.requests$.subscribe((request) => emitted.push(request));
+
+      void sut.getBiometricKey(userId);
+
+      expect(emitted).toEqual([{ id: "1", type: "unlock", userId }]);
+    });
+
+    it("returns the requests it approved", async () => {
+      void sut.authenticateBiometric();
+
+      expect(sut.approveRequest()).toEqual([{ id: "1", type: "authenticate" }]);
+    });
+
+    it("returns the requests it denied", async () => {
+      void sut.authenticateBiometric();
+
+      expect(sut.denyRequest("1")).toEqual([{ id: "1", type: "authenticate" }]);
+    });
+
+    it("returns no requests when none match", () => {
+      expect(sut.approveRequest("unknown")).toEqual([]);
+    });
+  });
 });

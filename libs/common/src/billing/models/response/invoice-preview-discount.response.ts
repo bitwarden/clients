@@ -16,6 +16,7 @@ export class InvoicePreviewDiscountResponse extends BaseResponse implements Invo
   value: number;
   amount: number;
   label?: string;
+  durationInMonths?: number;
 
   constructor(response: any) {
     super(response);
@@ -38,6 +39,11 @@ export class InvoicePreviewDiscountResponse extends BaseResponse implements Invo
     const label = this.getResponseProperty("Label");
     if (label != null) {
       this.label = label;
+    }
+
+    const durationInMonths = this.getResponseProperty("DurationInMonths");
+    if (durationInMonths != null) {
+      this.durationInMonths = durationInMonths;
     }
   }
 }

@@ -1,4 +1,8 @@
-import { componentWrapperDecorator } from "@storybook/angular";
+import { inject, provideAppInitializer } from "@angular/core";
+import { applicationConfig, componentWrapperDecorator } from "@storybook/angular";
+
+// Imported off the barrel to keep this story helper from pulling in NavigationModule.
+import { SideNavService } from "../navigation/side-nav.service";
 
 /**
  * Render a story that uses `position: fixed`
@@ -28,3 +32,19 @@ export const positionFixedWrapperDecorator = (
       </div>`,
   );
 };
+
+/**
+ * Render a story with the side nav collapsed to its icon rail.
+ *
+ * `LayoutComponent` pushes the nav open from its constructor at Storybook's viewport width unless
+ * the user has explicitly closed it, so setting `open` to `false` is not enough — `"closed"` is the
+ * only value that branch defers to. An app initializer sets it before the layout is constructed; a
+ * `play` function would run after first paint and the nav would flash open on the way.
+ */
+export const collapsedSideNavDecorator = applicationConfig({
+  providers: [
+    provideAppInitializer(() => {
+      inject(SideNavService).userCollapsePreference.set("closed");
+    }),
+  ],
+});

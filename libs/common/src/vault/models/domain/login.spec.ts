@@ -1,14 +1,11 @@
-import { MockProxy, mock } from "jest-mock-extended";
-
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
 
-import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockFromJson } from "../../../../spec";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
-import { LoginUriView } from "../../models/view/login-uri.view";
 import { Fido2CredentialApi } from "../api/fido2-credential.api";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 import { Fido2CredentialView } from "../view/fido2-credential.view";
@@ -37,6 +34,7 @@ describe("Login DTO", () => {
     expect(data.passwordRevisionDate).toBeUndefined();
     expect(data.totp).toBeUndefined();
     expect(data.autofillOnPageLoad).toBeUndefined();
+    expect(data.httpAuthenticationEnabled).toBeUndefined();
     expect(data.uris).toBeUndefined();
     expect(data.fido2Credentials).toBeUndefined();
   });
@@ -50,6 +48,7 @@ describe("Login DTO", () => {
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
       totp: "123",
       autofillOnPageLoad: false,
+      httpAuthenticationEnabled: true,
       fido2Credentials: [fido2CredentialData],
     };
     const login = new Login(data);
@@ -57,6 +56,7 @@ describe("Login DTO", () => {
     expect(login).toEqual({
       passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
       autofillOnPageLoad: false,
+      httpAuthenticationEnabled: true,
       username: { encryptedString: "username", encryptionType: 0 },
       password: { encryptedString: "password", encryptionType: 0 },
       totp: { encryptedString: "123", encryptionType: 0 },
@@ -77,59 +77,6 @@ describe("Login DTO", () => {
     expect(login).toEqual({});
   });
 
-  describe("decrypt", () => {
-    let loginUri: MockProxy<LoginUri>;
-    const loginUriView = new LoginUriView();
-    const decryptedFido2Credential = Symbol();
-    const login = Object.assign(new Login(), {
-      username: mockEnc("encrypted username"),
-      password: mockEnc("encrypted password"),
-      passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
-      totp: mockEnc("encrypted totp"),
-      autofillOnPageLoad: true,
-      fido2Credentials: [{ decrypt: jest.fn().mockReturnValue(decryptedFido2Credential) } as any],
-    });
-    const expectedView = {
-      username: "encrypted username",
-      password: "encrypted password",
-      passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
-      totp: "encrypted totp",
-      uris: [
-        {
-          _uri: "decrypted uri",
-        },
-      ],
-      autofillOnPageLoad: true,
-      fido2Credentials: [decryptedFido2Credential],
-    };
-
-    beforeEach(() => {
-      loginUri = mock();
-      loginUriView.uri = "decrypted uri";
-    });
-
-    it("should decrypt to a view", async () => {
-      loginUri.decrypt.mockResolvedValue(loginUriView);
-      loginUri.validateChecksum.mockResolvedValue(true);
-      login.uris = [loginUri];
-
-      const loginView = await login.decrypt(true, null);
-      expect(loginView).toEqual(expectedView);
-    });
-
-    it("should ignore uris that fail checksum", async () => {
-      loginUri.decrypt.mockResolvedValue(loginUriView);
-      loginUri.validateChecksum
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(true);
-      login.uris = [loginUri, loginUri, loginUri];
-
-      const loginView = await login.decrypt(false, null);
-      expect(loginView).toEqual(expectedView);
-    });
-  });
-
   it("Converts from LoginData and back", () => {
     const data: LoginData = {
       uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
@@ -138,6 +85,7 @@ describe("Login DTO", () => {
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
       totp: "123",
       autofillOnPageLoad: false,
+      httpAuthenticationEnabled: true,
       fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
     };
     const login = new Login(data);
@@ -210,6 +158,24 @@ describe("Login DTO", () => {
     it("returns undefined if object is null", () => {
       expect(Login.fromJSON(null)).toBeUndefined();
     });
+
+    it("keeps the HTTP authentication setting", () => {
+      expect(Login.fromJSON({ httpAuthenticationEnabled: true }).httpAuthenticationEnabled).toBe(
+        true,
+      );
+    });
+  });
+
+  describe("fromSdkLogin", () => {
+    it("keeps the HTTP authentication setting", () => {
+      expect(
+        Login.fromSdkLogin({ httpAuthenticationEnabled: true }).httpAuthenticationEnabled,
+      ).toBe(true);
+    });
+
+    it("leaves the HTTP authentication setting unset when the SDK login has none", () => {
+      expect(Login.fromSdkLogin({}).httpAuthenticationEnabled).toBeUndefined();
+    });
   });
 
   describe("toSdkLogin", () => {
@@ -221,6 +187,7 @@ describe("Login DTO", () => {
         passwordRevisionDate: "2022-01-31T12:00:00.000Z",
         totp: "123",
         autofillOnPageLoad: false,
+        httpAuthenticationEnabled: true,
         fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
       };
       const login = new Login(data);
@@ -239,6 +206,7 @@ describe("Login DTO", () => {
         ],
         totp: "123",
         autofillOnPageLoad: false,
+        httpAuthenticationEnabled: true,
         fido2Credentials: [
           {
             credentialId: "credentialId",

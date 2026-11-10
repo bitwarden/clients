@@ -4,6 +4,9 @@ export function isDev() {
   return BIT_ENVIRONMENT === "development";
 }
 
+/** Dock/window icon carrying a "DEV" badge, shipped only in development builds. */
+export const DEV_ICON_FILE = "icon_dev.png";
+
 /**
  * Sanitize user agent so external resources used by the app can't built data on our users.
  */

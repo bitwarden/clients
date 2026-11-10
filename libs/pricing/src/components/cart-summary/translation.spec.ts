@@ -5,7 +5,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlanTier, PurchasableReference } from "../../types/invoice-preview";
 
 import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
-import { getCartItemTranslationKey, getCreditTranslationKey } from "./translation";
+import {
+  getCartItemTranslationKey,
+  getCreditTranslationKey,
+  getProrationChargeTranslationKey,
+  getProratedSeatTranslationKey,
+} from "./translation";
 
 describe("getCartItemTranslationKey", () => {
   let logService: LogService;
@@ -48,19 +53,14 @@ describe("getCartItemTranslationKey", () => {
       "families",
       "passwordManagerPlanPrice",
     ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
-      "teams",
-      "passwordManagerPlanPrice",
-    ],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "teams", "membersLower"],
     [
       "pm-seat",
       InvoicePreviewFlowContext.OrganizationSubscriptionPage,
       "enterprise",
-      "passwordManagerPlanPrice",
+      "membersLower",
     ],
-    // Plan-change follows the other org-scoped surfaces; rationale in translation.ts.
+    // Plan-change follows checkout (per-seat plan price), not the subscription page.
     [
       "pm-seat",
       InvoicePreviewFlowContext.OrganizationPlanChange,
@@ -79,6 +79,57 @@ describe("getCartItemTranslationKey", () => {
       "enterprise",
       "passwordManagerPlanPrice",
     ],
+    ["pm-seat", InvoicePreviewFlowContext.RestartSubscription, "teams", "passwordManagerPlanPrice"],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.RestartSubscription,
+      "families",
+      "passwordManagerPlanPrice",
+    ],
+    [
+      "sm-seat",
+      InvoicePreviewFlowContext.RestartSubscription,
+      "enterprise",
+      "secretsManagerPlanPrice",
+    ],
+    ["sm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "teams", "secretsManagerPlanPrice"],
+    [
+      "sm-seat",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "enterprise",
+      "secretsManagerPlanPrice",
+    ],
+    ["sm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "teams", "membersLower"],
+    [
+      "sm-service-account",
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+      "teams",
+      "additionalServiceAccountsLower",
+    ],
+    [
+      "sm-service-account",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "teams",
+      "additionalServiceAccountsLower",
+    ],
+    [
+      "pam-seat",
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+      "enterprise",
+      "membersLower",
+    ],
+    [
+      "pam-seat",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "enterprise",
+      "privilegedControlsPlanPrice",
+    ],
+    [
+      "pam-seat",
+      InvoicePreviewFlowContext.OrganizationCheckout,
+      "enterprise",
+      "privilegedControlsPlanPrice",
+    ],
   ];
 
   it.each(fanOut)(
@@ -91,13 +142,24 @@ describe("getCartItemTranslationKey", () => {
     },
   );
 
+  it("should resolve a single privileged controls seat on the subscription page to memberLower", () => {
+    expect(
+      getCartItemTranslationKey(
+        "pam-seat",
+        "enterprise",
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+        1,
+      ),
+    ).toBe("memberLower");
+    expect(logService.error).not.toHaveBeenCalled();
+  });
+
   const allFlowContexts = Object.values(InvoicePreviewFlowContext);
   const allTiers: PlanTier[] = ["families", "teams", "enterprise", "premium"];
 
   const tierAgnostic: Array<[PurchasableReference, string]> = [
-    ["pm-storage", "additionalStorageGb"],
-    ["sm-seat", "secretsManagerPlanPrice"],
-    ["sm-service-account", "additionalServiceAccounts"],
+    ["pm-storage", "additionalStorageGbLower"],
   ];
 
   describe.each(tierAgnostic)("%s", (reference, expected) => {
@@ -169,9 +231,15 @@ describe("getCreditTranslationKey", () => {
     );
   });
 
-  it("should map organization-plan-change to appliedSubscriptionCredits", () => {
+  it("should map organization-plan-change to appliedProrationCredits", () => {
     expect(getCreditTranslationKey(InvoicePreviewFlowContext.OrganizationPlanChange)).toBe(
-      "appliedSubscriptionCredits",
+      "appliedProrationCredits",
+    );
+  });
+
+  it("should map organization-subscription-page to appliedProrationCredits", () => {
+    expect(getCreditTranslationKey(InvoicePreviewFlowContext.OrganizationSubscriptionPage)).toBe(
+      "appliedProrationCredits",
     );
   });
 
@@ -179,11 +247,88 @@ describe("getCreditTranslationKey", () => {
     InvoicePreviewFlowContext.PremiumSubscriptionPage,
     InvoicePreviewFlowContext.PersonalCheckout,
     InvoicePreviewFlowContext.OrganizationCheckout,
-    InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+    InvoicePreviewFlowContext.RestartSubscription,
   ];
 
   it.each(noCreditContexts)("should return undefined for %s", (flowContext) => {
     expect(getCreditTranslationKey(flowContext)).toBeUndefined();
+  });
+});
+
+describe("getProrationChargeTranslationKey", () => {
+  let logService: LogService;
+
+  beforeEach(() => {
+    logService = mock<LogService>();
+  });
+
+  it("should resolve each purchasable reference to its product charge label", () => {
+    expect(getProrationChargeTranslationKey("pm-seat", "pm-seat", logService)).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("pm-storage", "pm-seat", logService)).toBe(
+      "storageProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("sm-seat", "sm-seat", logService)).toBe(
+      "secretsManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("sm-service-account", "sm-seat", logService)).toBe(
+      "serviceAccountsProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("pam-seat", "pam-seat", logService)).toBe(
+      "privilegedControlsProratedCharge",
+    );
+    expect(logService.error).not.toHaveBeenCalled();
+  });
+
+  it("should fall back to the group's seat reference when the reference is absent", () => {
+    expect(getProrationChargeTranslationKey(undefined, "pm-seat", logService)).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey(undefined, "sm-seat", logService)).toBe(
+      "secretsManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey(undefined, "pam-seat", logService)).toBe(
+      "privilegedControlsProratedCharge",
+    );
+    expect(logService.error).not.toHaveBeenCalled();
+  });
+
+  it("should log and fall back to the group's charge key for a reference outside the union", () => {
+    // The response parser deliberately tolerates unknown purchasable references, so an unknown
+    // value can reach this resolver at runtime.
+    const unknown = "unknown-ref" as PurchasableReference;
+
+    expect(getProrationChargeTranslationKey(unknown, "pm-seat", logService)).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey(unknown, "sm-seat", logService)).toBe(
+      "secretsManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey(unknown, "pam-seat", logService)).toBe(
+      "privilegedControlsProratedCharge",
+    );
+    expect(logService.error).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe("getProratedSeatTranslationKey", () => {
+  it("should map premium-org-upgrade to planProratedMembershipInMonths", () => {
+    expect(getProratedSeatTranslationKey(InvoicePreviewFlowContext.PremiumOrgUpgrade)).toBe(
+      "planProratedMembershipInMonths",
+    );
+  });
+
+  const plainSeatContexts = [
+    InvoicePreviewFlowContext.PremiumSubscriptionPage,
+    InvoicePreviewFlowContext.PersonalCheckout,
+    InvoicePreviewFlowContext.OrganizationCheckout,
+    InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+    InvoicePreviewFlowContext.OrganizationPlanChange,
+  ];
+
+  it.each(plainSeatContexts)("should return undefined for %s", (flowContext) => {
+    expect(getProratedSeatTranslationKey(flowContext)).toBeUndefined();
   });
 });
 

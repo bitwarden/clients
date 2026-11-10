@@ -61,6 +61,7 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.Cipher_ClientToggledIbanVisible,
     EventType.Cipher_ClientCopiedSwiftCode,
     EventType.Cipher_ClientToggledSwiftCodeVisible,
+    EventType.Cipher_ClientHttpAuthReleased,
   ],
   [EventCategory.CollectionEvents]: [
     EventType.Collection_Created,

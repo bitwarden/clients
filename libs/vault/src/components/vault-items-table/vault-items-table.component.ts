@@ -1,3 +1,4 @@
+import { NgComponentOutlet } from "@angular/common";
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -6,29 +7,40 @@ import {
   effect,
   inject,
   input,
+  isDevMode,
   output,
   signal,
+  Signal,
+  TrackByFunction,
   untracked,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { map, of, switchMap } from "rxjs";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { Router } from "@angular/router";
+import { asapScheduler, catchError, map, observeOn, of, Subject, switchMap, take } from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DIALOG_CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import {
   BitwardenIcon,
   BitCellComponent,
@@ -44,11 +56,12 @@ import {
   defineTable,
   FilterControl,
   FilterMenuModule,
+  FilterOptionNode,
   getAvatarDefaultColor,
   IconModule,
   IconTileComponent,
   IconTileOptions,
-  LinkModule,
+  PopoverService,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
@@ -57,9 +70,28 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { TableRowNameDirective } from "../../directives/table-row-name.directive";
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
-import { VaultScope, VaultScopeType } from "../../models/vault-scope";
+import {
+  ALL_ITEMS_SCOPE,
+  VaultScope,
+  VaultScopeType,
+  vaultScopeCommands,
+} from "../../models/vault-scope";
+import { VAULT_BASE_ROUTE } from "../../routing/vault-base-route";
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import {
+  VAULT_ITEM_COLUMN,
+  VaultItemColumn,
+  VaultItemColumnScope,
+} from "../../tokens/vault-item-column.token";
+import {
+  VAULT_ITEM_FILTER,
+  VaultItemFilter,
+  VaultItemFilterOption,
+} from "../../tokens/vault-item-filter.token";
+import { isRowActivationClick } from "../../utils/row-activation";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
   matchesFavorite,
@@ -71,15 +103,26 @@ import {
   MY_VAULT,
   NO_FOLDER,
 } from "../../utils/vault-filter-predicates";
+import { CoachmarkComponent } from "../coachmark/coachmark.component";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 import { EmptyVaultComponent } from "../empty-vault/empty-vault.component";
 import { VaultItem } from "../vault-item";
+import {
+  BULK_BAR_CLEARANCE,
+  VAULT_TABLE_MIN_HEIGHT,
+  VAULT_TABLE_ROW_HEIGHT,
+} from "../vault-table-sizing";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
   DEFAULT_COPY_PRESENTATION,
   VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";
-import { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
+import {
+  VAULT_FILTER_KEYS,
+  VAULT_RESERVED_FILTER_KEYS,
+  type VaultItemsTableFilters,
+} from "./vault-items-table-filter-keys";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { cipherSearchMatches } from "./vault-items-table-search";
 
@@ -92,18 +135,17 @@ export const VAULT_FILTER_NAMESPACE = "vault";
  */
 export const MAX_SELECTION_COUNT = 500;
 
-/**
- * Bottom margin (px) held while the bulk-actions bar shows — its height (53). The bar is
- * `position: fixed`, so without this the last row sits underneath it and is unreachable.
- */
-const BULK_BAR_CLEARANCE = 53;
-
-export { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
+export {
+  VAULT_FILTER_KEYS,
+  VAULT_RESERVED_FILTER_KEYS,
+  type VaultItemsTableFilters,
+} from "./vault-items-table-filter-keys";
 
 /**
- * Every column the table declares, in display order. Doubles as the default column set — which of
- * them actually render is narrowed from here per the rows on hand, see {@link
- * VaultItemsTableComponent.visibleColumns}.
+ * Every built-in column, in display order. Doubles as the default column set — which of them
+ * actually render is narrowed from here per the rows on hand, see {@link
+ * VaultItemsTableComponent.visibleColumns}. A host-provided column (`VAULT_ITEM_COLUMN`) is not
+ * listed; it renders before `actions`.
  */
 export const VAULT_COLUMNS = Object.freeze([
   "name",
@@ -115,6 +157,39 @@ export const VAULT_COLUMNS = Object.freeze([
 
 /** Passed as `defineTable`'s second type parameter. */
 export type VaultItemsTableColumn = (typeof VAULT_COLUMNS)[number];
+
+/**
+ * The host-provided column's ID, or `undefined` when no host provides one. Throws in dev mode when
+ * the ID matches a built-in column.
+ */
+function itemColumnKey(column: VaultItemColumn | null): VaultItemsTableColumn | undefined {
+  if (column == null) {
+    return undefined;
+  }
+  if (isDevMode() && (VAULT_COLUMNS as readonly string[]).includes(column.key)) {
+    throw new Error(`VAULT_ITEM_COLUMN key "${column.key}" matches a built-in vault table column.`);
+  }
+  // The one cast that admits the provider's ID: `VaultItemsTableColumn` stays a closed union of
+  // the built-in IDs, so a typo in one of them still fails to compile.
+  return column.key as VaultItemsTableColumn;
+}
+
+/**
+ * The contributed filter's selection key, or `null` when no host provides one. A key the table uses
+ * itself is also `null` (no chip, no filtering), and throws in dev mode.
+ */
+function contributedFilterKey(filter: VaultItemFilter | null): string | null {
+  if (filter == null) {
+    return null;
+  }
+  if (VAULT_RESERVED_FILTER_KEYS.has(filter.key)) {
+    if (isDevMode()) {
+      throw new Error(`VAULT_ITEM_FILTER key "${filter.key}" is reserved by the vault table.`);
+    }
+    return null;
+  }
+  return filter.key;
+}
 
 /**
  * The `filterValues` key `bit-table-v2` reserves for a projected `bit-search` (its module-private
@@ -196,6 +271,9 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    // Inline rather than a `tw-min-h-*` utility: it has to beat the `tw-min-h-0` above, which
+    // otherwise lets the flex parent shrink the table to nothing.
+    "[style.minHeight.px]": "minTableHeight",
     "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
@@ -208,14 +286,16 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     BitTableV2Component,
     ButtonModule,
     ChipGroupComponent,
+    CoachmarkComponent,
     EmptyVaultComponent,
     FilterMenuModule,
     I18nPipe,
     IconModule,
     IconTileComponent,
-    LinkModule,
+    NgComponentOutlet,
     SearchModule,
     SkeletonTextComponent,
+    TableRowNameDirective,
     VaultIconComponent,
     VaultItemsTableActionsColumnComponent,
   ],
@@ -224,6 +304,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly avatarService = inject(AvatarService);
+  private readonly router = inject(Router);
+  private readonly vaultBaseRoute = inject(VAULT_BASE_ROUTE);
 
   /**
    * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav.
@@ -251,6 +333,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
+  protected readonly rowHeight = VAULT_TABLE_ROW_HEIGHT;
+  protected readonly minTableHeight = VAULT_TABLE_MIN_HEIGHT;
 
   /** Bottom margin held while the bulk-actions bar is up. */
   protected readonly bulkBarClearance = computed(() =>
@@ -312,8 +396,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly orgRequiresDataOwnership = input<boolean>(false);
 
   /**
-   * The vault scope — relayed to the empty state untouched; see {@link EmptyVaultComponent}.
-   * The table has no notion of vault scope itself.
+   * The vault scope — relayed to the empty state untouched; see {@link EmptyVaultComponent}. Also
+   * handed, with {@link organizations}, to the host-provided column's `visible$` as
+   * {@link VaultItemColumnScope}. The table has no notion of vault scope itself.
    */
   readonly scope = input<VaultScope>();
 
@@ -329,24 +414,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** The shared folder the current vault scope has drilled into — relayed to the empty state untouched. */
   readonly sharedFolderName = input<string>();
 
+  /** The account's active My vault items, which an org page's rows leave out. */
+  readonly myVaultItemCount = input(0);
+
+  /** The user's own folder the current vault scope names. */
+  readonly folderName = input<string>();
+
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
-
-  /**
-   * Elements that own their own click behaviour. A click originating inside one of these must not
-   * also trigger the cell-level item action.
-   */
-  private static readonly InteractiveSelector = [
-    "a[href]",
-    "button",
-    "input",
-    "label",
-    "select",
-    "textarea",
-    "[role='button']",
-    "[role='menuitem']",
-    "[role='checkbox']",
-  ].join(",");
 
   /**
    * Makes a whole data cell a click target for {@link itemAction}. Pointer-only — the keyboard and
@@ -354,24 +429,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected onCellActivate(row: C, event: MouseEvent) {
     const action = this.itemAction();
-    if (action == null) {
-      return;
-    }
-
-    // Plain primary click only — modifier clicks stay available for selection and browser gestures.
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
-      return;
-    }
-
-    // Let interactive descendants (name button, filter chips, quick actions, menu) win.
-    const target = event.target as HTMLElement | null;
-    if (target?.closest(VaultItemsTableComponent.InteractiveSelector) != null) {
-      return;
-    }
-
-    // Don't hijack a click that is finishing a text selection.
-    const selection = window.getSelection();
-    if (selection != null && !selection.isCollapsed && selection.toString().trim().length > 0) {
+    if (action == null || !isRowActivationClick(event)) {
       return;
     }
 
@@ -395,15 +453,58 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly selection: SelectionConfig<C> = {
     multiple: true,
     max: MAX_SELECTION_COUNT,
+    // No bulk action can operate on an item that failed to decrypt or on a restricted item.
+    // `TableSelectionModel` enforces this on `select`, so select-all skips them too.
+    canSelect: (row) =>
+      !CipherViewLikeUtils.decryptionFailure(row) &&
+      RestrictedCipherPolicy.allows(row, RestrictedCipherAction.BulkSelect),
   };
 
-  /** The configured column set to display */
-  protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([...VAULT_COLUMNS]);
+  /**
+   * Keys rows by cipher id rather than object identity. `cipherListViews$` rebuilds every row
+   * on each emission (see {@link reconcileSelection}), so without this `bit-table-v2` would treat
+   * every unrelated row as new on any sync or edit and tear down and recreate its cells —
+   * including `app-vault-icon`, which is what actually caused the icon flicker.
+   */
+  protected readonly trackByCipherId: TrackByFunction<C> = (_, row) => String(row.id);
+
+  /** Host contribution of one extra column. Unprovided, the table has only its built-in columns. */
+  protected readonly itemColumn: VaultItemColumn | null = inject(VAULT_ITEM_COLUMN, {
+    optional: true,
+  });
+
+  /** The host-provided column's ID, checked against the built-in IDs. */
+  protected readonly itemColumnKey = itemColumnKey(this.itemColumn);
+
+  /** The configured column set to display. A host-provided column sits before `actions`. */
+  protected readonly displayedColumns = signal<VaultItemsTableColumn[]>(
+    this.itemColumnKey == null
+      ? [...VAULT_COLUMNS]
+      : [...VAULT_COLUMNS.slice(0, -1), this.itemColumnKey, "actions"],
+  );
+
+  /** What the host-provided column's `visible$` decides from. */
+  private readonly itemColumnScope = computed<VaultItemColumnScope>(() => ({
+    vault: this.scope(),
+    organizations: this.organizations(),
+  }));
+
+  /** Whether the host-provided column shows. A failed read hides it until the scope changes. */
+  private readonly itemColumnVisible = toSignal(
+    toObservable(this.itemColumnScope).pipe(
+      switchMap((scope) =>
+        (this.itemColumn?.visible$(scope) ?? of(false)).pipe(catchError(() => of(false))),
+      ),
+    ),
+    { initialValue: false },
+  );
 
   /**
    * The relevant columns to be displayed based on the current ciphers provided.
    *  - Vault is omitted if all ciphers belong to the same Vault
    *  - Shared Folders is omitted if all ciphers are individually owned
+   *  - My folders is omitted on a folder's own page, where it would only repeat the folder
+   *  - The host-provided column is omitted while its `visible$` is false
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
@@ -413,12 +514,17 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     if (!this.showSharedFolders()) {
       hidden.add("sharedFolders");
     }
+    if (!this.showMyFolders()) {
+      hidden.add("myFolders");
+    }
+    if (this.itemColumnKey != null && !this.itemColumnVisible()) {
+      hidden.add(this.itemColumnKey);
+    }
     return this.displayedColumns().filter((column) => !hidden.has(column));
   });
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly MY_VAULT = MY_VAULT;
-  protected readonly NO_FOLDER = NO_FOLDER;
 
   protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS.get(type) ?? "";
 
@@ -446,6 +552,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly favoritesDisabledTooltip = computed(() =>
     this.noFavorites() ? this.i18nService.t("favoritesFilterTooltip") : "",
   );
+
+  protected readonly showMyFolders = computed(() => this.scope()?.type !== VaultScopeType.Folder);
 
   /** Whether the My folders chip has nothing to offer — see {@link noFavorites}. */
   protected readonly noFolders = computed(() => this.folders().length === 0);
@@ -489,7 +597,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
-  private readonly collectionNames = computed(() => this.nameMap(this.collections()));
+  /** Each collection's own name, without its parent path — see {@link sharedFolderName}. */
+  private readonly collectionNames = computed(() =>
+    this.nameMap(
+      this.collections().map((collection) => ({
+        id: collection.id,
+        name: sharedFolderName(collection),
+      })),
+    ),
+  );
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
@@ -532,10 +648,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.ciphers().some((cipher) => !idString(cipher.organizationId)),
   );
 
-  /**
-   * Whether the Vault chip offers "My vault".
-   */
-  protected readonly showMyVaultOption = computed(() => {
+  /** Whether the rows can include My vault items. */
+  private readonly myVaultInRows = computed(() => {
     const canHaveEmptyPersonalVault =
       !this.ciphers().filter((cipher) => !cipher.organizationId).length &&
       !this.scopedOrganizationId() &&
@@ -544,12 +658,35 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
+   * Under data ownership the nav drops My vault, so on an org page the Vault chip is the only way
+   * back to its items.
+   */
+  private readonly myVaultOutsideScope = computed(
+    () =>
+      this.scope()?.type === VaultScopeType.Organization &&
+      this.orgRequiresDataOwnership() &&
+      this.myVaultItemCount() > 0,
+  );
+
+  /**
+   * Whether the Vault chip offers "My vault".
+   */
+  protected readonly showMyVaultOption = computed(
+    () => this.myVaultInRows() || this.myVaultOutsideScope(),
+  );
+
+  /** Overrides the chip's row count, which can't see My vault items outside the rows. */
+  protected readonly myVaultOptionCount = computed(() =>
+    this.myVaultOutsideScope() ? this.myVaultItemCount() : undefined,
+  );
+
+  /**
    * Whether the user's items can span more than one vault:
    * - multiple organizations are present, or
-   * - exactly one organization is present alongside a personal vault option.
+   * - exactly one organization is present alongside a personal vault.
    */
-  private spansMultipleVaults(organizations: Organization[]): boolean {
-    return organizations.length > 1 || (this.showMyVaultOption() && organizations.length === 1);
+  private spansMultipleVaults(organizations: Organization[], includesMyVault: boolean): boolean {
+    return organizations.length > 1 || (includesMyVault && organizations.length === 1);
   }
 
   /**
@@ -557,16 +694,17 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * only appears when the user can filter between the vaults it actually offers.
    */
   protected readonly showVaults = computed(() =>
-    this.spansMultipleVaults(this.sortedOrganizations()),
+    this.spansMultipleVaults(this.sortedOrganizations(), this.showMyVaultOption()),
   );
 
   /**
    * Whether the Vault column should be shown. Driven by the unfiltered `organizations` input
    * rather than {@link sortedOrganizations}: a disabled organization still owns rows in the table,
    * so the column has to label them even though the chip doesn't offer the organization.
+   * Ignores {@link myVaultOutsideScope}, whose items never appear as rows here.
    */
   protected readonly showVaultColumn = computed(() =>
-    this.spansMultipleVaults(this.organizations()),
+    this.spansMultipleVaults(this.organizations(), this.myVaultInRows()),
   );
 
   /**
@@ -588,9 +726,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly showSharedFolders = computed(() => this.organizations().length > 0);
 
-  /** The Shared folders chip's options, sorted for a stable menu, when it isn't grouped. */
-  protected readonly sortedCollections = computed(() =>
-    [...this.collections()].sort((a, b) => a.name.localeCompare(b.name)),
+  /** The Shared folders chip's nested options, when it isn't grouped by organization. */
+  protected readonly nestedSharedFolders = computed(() =>
+    this.buildNestedSharedFolders(this.collections()),
   );
 
   /**
@@ -630,15 +768,20 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     return [...groups.values()]
       .map((group) => ({
         ...group,
-        collections: [...group.collections].sort((a, b) => a.name.localeCompare(b.name)),
+        collections: this.buildNestedSharedFolders(group.collections),
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
-  /** The My folders chip's options, sorted for a stable menu; {@link NO_FOLDER} stays pinned first. */
-  protected readonly sortedFolders = computed(() =>
-    [...this.folders()].sort((a, b) => a.name.localeCompare(b.name)),
-  );
+  /**
+   * The My folders chip's nested options, {@link NO_FOLDER} pinned first. A chip can only take
+   * `options` as an array input or as projected content, never both, so the pinned row has to be
+   * part of the tree rather than projected `bit-filter-option` markup alongside it.
+   */
+  protected readonly nestedFolders = computed<FilterOptionNode<string>[]>(() => [
+    { value: NO_FOLDER, label: this.i18nService.t("noneFolder"), options: [] },
+    ...this.buildNestedFolders(this.folders()),
+  ]);
 
   /** The owning vault's display name: the organization's name, or "My vault". */
   protected vaultName(cipher: C): string {
@@ -753,6 +896,28 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   private readonly tableComponent = viewChild(BitTableV2Component<C>);
 
+  private readonly coachmark = inject(CoachmarkService);
+  private readonly popoverService = inject(PopoverService);
+  private readonly toolbar = viewChild(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild<CoachmarkComponent>("filtersCoachmark");
+
+  /** Spotlights the filter chips, or the filter button when collapsed, during the walkthrough's filters step. */
+  private readonly showFiltersCoachmark = effect((onCleanup) => {
+    const popover = this.filtersCoachmark()?.popover();
+    const toolbar = this.toolbar();
+    if (!popover || !toolbar || !this.coachmark.isStepActive("filters")) {
+      return;
+    }
+
+    const anchor = computed(() => toolbar.filterChips() ?? toolbar.filterButton());
+    const ref = this.popoverService.open(popover, anchor, {
+      spotlight: true,
+      closeOnBackdropClick: false,
+      position: this.coachmark.getStepPosition("filters"),
+    });
+    onCleanup(() => ref.close());
+  });
+
   /**
    * Registers the table's `TableSelectionModel<C>` as the batch bar's selection source, so checking
    * rows drives its `can*` signals. Deferred to an effect: `selectionModel()` is a view query.
@@ -769,13 +934,46 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
 
     const teardown = batchBar.registerSelection({
-      selected: computed(() => model.selected().map((cipher): VaultItem<C> => ({ cipher }))),
+      selected: computed(() => {
+        const visibleIds = new Set(model.selectable().map((c) => String(c.id)));
+        return model
+          .selected()
+          .filter((cipher) => visibleIds.has(String(cipher.id)))
+          .map((cipher): VaultItem<C> => ({ cipher }));
+      }),
       clear: () => model.clear(),
     });
 
     // The service is provided above this table, so without this its selection would outlive the
     // component that owns it.
     onCleanup(teardown);
+  });
+
+  /**
+   * Sends a "My vault" pick to All items when this page can't show it. Cleared from the chip before
+   * the table mirrors it to the URL, so the page never records it in its filter memory.
+   */
+  private readonly redirectMyVaultPick = effect(() => {
+    const control = this.tableComponent()
+      ?.filterControls()
+      .find((filterControl) => filterControl.key() === VAULT_FILTER_KEYS.vault);
+    const value = control?.value();
+    if (
+      control == null ||
+      !this.myVaultOutsideScope() ||
+      !Array.isArray(value) ||
+      !value.includes(MY_VAULT)
+    ) {
+      return;
+    }
+
+    untracked(() => {
+      const rest = value.filter((vault) => vault !== MY_VAULT);
+      control.setValue(rest.length > 0 ? rest : undefined);
+      void this.router.navigate(vaultScopeCommands(ALL_ITEMS_SCOPE, this.vaultBaseRoute), {
+        queryParams: { [`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.vault}`]: MY_VAULT },
+      });
+    });
   });
 
   /** Carries the selection onto each new set of rows — see {@link reconcileSelection}. */
@@ -827,6 +1025,83 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.scopedOrganizationId,
   );
 
+  /** Host contribution of one filter chip. Unprovided, the table has only its built-in chips. */
+  protected readonly itemFilter: VaultItemFilter | null = inject(VAULT_ITEM_FILTER, {
+    optional: true,
+  });
+
+  /** The contributed chip's selection key, checked against the keys the table uses itself. */
+  protected readonly contributedFilterKey = contributedFilterKey(this.itemFilter);
+
+  /** The contributed chip's options, already localized by the host. Empty hides the chip. */
+  protected readonly contributedOptions = toSignal(
+    this.contributedFilterKey == null || this.itemFilter == null
+      ? of<readonly VaultItemFilterOption[]>([])
+      : this.itemFilter.options$,
+    { initialValue: [] as readonly VaultItemFilterOption[] },
+  );
+
+  /**
+   * Icon tile per contributed option, so each option's binding keeps a stable identity across
+   * change detection.
+   */
+  protected readonly contributedTiles = computed(() => {
+    const tiles = new Map<string, IconTileOptions>();
+    for (const option of this.contributedOptions()) {
+      tiles.set(option.id, { icon: option.icon, variant: option.tileVariant });
+    }
+    return tiles;
+  });
+
+  /**
+   * Turns true the first time the predicate sees a selection for the contributed chip, from the
+   * user or restored from the URL, so a vault that never uses the chip makes no `matches$` call.
+   * Delivered on a microtask, since writing a signal inside `bit-table-v2`'s computeds throws.
+   */
+  private readonly contributedRequests = new Subject<void>();
+  private readonly contributedRequested = toSignal(
+    this.contributedRequests.pipe(
+      take(1),
+      observeOn(asapScheduler),
+      map(() => true),
+    ),
+    { initialValue: false },
+  );
+
+  /**
+   * Row IDs each option admits, from one live `matches$` call per row list. A change keeps the old
+   * map until the new one lands, so the table stays filtered meanwhile. A failed read lets every
+   * row pass: an error reaching the signal would rethrow inside `bit-table-v2`'s filter.
+   *
+   * PAM's implementation reads one access state per restricted row. A batch `cipher_access_state`
+   * in the SDK would make that one call per list.
+   */
+  private readonly contributedMatches: Signal<
+    ReadonlyMap<string, ReadonlySet<CipherId>> | undefined
+  > = toSignal(
+    toObservable(
+      computed(() => ({
+        requested: this.contributedRequested(),
+        options: this.contributedOptions(),
+        ciphers: this.ciphers(),
+      })),
+    ).pipe(
+      switchMap(({ requested, options, ciphers }) => {
+        const provider = this.itemFilter;
+        if (!requested || provider == null || options.length === 0) {
+          return of<ReadonlyMap<string, ReadonlySet<CipherId>> | undefined>(undefined);
+        }
+        // Called on the provider, not detached: an implementation may read `this`.
+        return provider
+          .matches$(ciphers)
+          .pipe(
+            catchError(() => of<ReadonlyMap<string, ReadonlySet<CipherId>> | undefined>(undefined)),
+          );
+      }),
+    ),
+    { initialValue: undefined },
+  );
+
   /**
    * The single client-side predicate `bit-table-v2` derives everything from: the visible rows,
    * the toolbar's item count, the select-all scope, each chip option's faceted count, and the
@@ -846,7 +1121,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     matchesVault(cipher, values.vault) &&
     matchesMyItems(cipher, values.myItems, this.defaultCollectionId()) &&
     matchesSharedFolder(cipher, values.sharedFolder) &&
-    matchesFolder(cipher, values.folder);
+    matchesFolder(cipher, values.folder) &&
+    this.matchesContributed(cipher, values);
 
   /**
    * Whether the cipher is among the active search's matches. `undefined` matches means no
@@ -855,6 +1131,102 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private matchesSearch(cipher: C): boolean {
     const matches = this.searchMatches();
     return matches === undefined || matches.has(String(cipher.id));
+  }
+
+  /**
+   * Whether the cipher is among any selected contributed option's matches: OR within the chip, AND
+   * with the other chips. Unresolved matches let every row pass, as in {@link matchesSearch}, and so
+   * does an option ID the host does not offer (an old link). Also accepts a lone ID, which a URL
+   * with one value carries.
+   */
+  private matchesContributed(cipher: C, values: VaultItemsTableFilters): boolean {
+    if (this.contributedFilterKey == null) {
+      return true;
+    }
+    const value = (values as Record<string, unknown>)[this.contributedFilterKey];
+    const selected =
+      value == null ? [] : Array.isArray(value) ? value.map(String) : [String(value)];
+    if (selected.length === 0) {
+      return true;
+    }
+    this.contributedRequests.next();
+    const byOption = this.contributedMatches();
+    if (byOption === undefined) {
+      return true;
+    }
+    const id = String(cipher.id) as CipherId;
+    return selected.some((optionId) => {
+      const matches = byOption.get(optionId);
+      return matches === undefined || matches.has(id);
+    });
+  }
+
+  /**
+   * Turns true the first time the host-provided column is sorted, so a vault that never sorts it
+   * makes no `sortRanks$` calls. Delivered on a microtask, as {@link contributedRequested}.
+   */
+  private readonly contributedSortRequests = new Subject<void>();
+  private readonly contributedSortRequested = toSignal(
+    this.contributedSortRequests.pipe(
+      take(1),
+      observeOn(asapScheduler),
+      map(() => true),
+    ),
+    { initialValue: false },
+  );
+
+  /**
+   * Each row's sort rank in the host-provided column, by cipher id. A change keeps the old map
+   * until the new one lands, so the order holds steady meanwhile. A failed read falls back to name
+   * order: an error reaching the signal would rethrow inside `bit-table-v2`'s sort and blank the
+   * table.
+   */
+  private readonly contributedRanks: Signal<ReadonlyMap<CipherId, number> | undefined> = toSignal(
+    toObservable(
+      computed(() => ({
+        requested: this.contributedSortRequested(),
+        ciphers: this.ciphers(),
+      })),
+    ).pipe(
+      switchMap(({ requested, ciphers }) => {
+        const provider = this.itemColumn;
+        if (!requested || provider?.sortRanks$ == null) {
+          return of<ReadonlyMap<CipherId, number> | undefined>(undefined);
+        }
+        // Called on the provider, not detached: an implementation may read `this`.
+        return provider
+          .sortRanks$(ciphers)
+          .pipe(catchError(() => of<ReadonlyMap<CipherId, number> | undefined>(undefined)));
+      }),
+    ),
+    { initialValue: undefined },
+  );
+
+  /**
+   * Orders the host-provided column by its {@link contributedRanks}, unranked rows last ascending.
+   * Until the ranks resolve every row ties, leaving them in name order.
+   */
+  protected readonly sortByContributed: SortFn = (a: C, b: C) => {
+    this.contributedSortRequests.next();
+    const ranks = this.contributedRanks();
+    if (ranks === undefined) {
+      return 0;
+    }
+    return this.compareRanks(ranks.get(a.id as CipherId), ranks.get(b.id as CipherId));
+  };
+
+  /** Like {@link compareChips}: a missing rank sorts after a present one, and ties return `0`. */
+  private compareRanks(a: number | undefined, b: number | undefined): number {
+    if (a === undefined && b === undefined) {
+      return 0;
+    }
+    if (a === undefined) {
+      return 1;
+    }
+    if (b === undefined) {
+      return -1;
+    }
+    return a - b;
   }
 
   /**
@@ -896,5 +1268,45 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
       .filterControls()
       .find((control) => control.key() === SEARCH_FILTER_KEY)
       ?.setValue("");
+  }
+
+  /**
+   * Builds the shared folder tree via {@link getNestedCollectionTree}, the same name-delimited
+   * nesting used for the collections sidebar — so a collection whose parent path is missing
+   * (or belongs to a different organization) nests and sorts identically here and there, rather
+   * than diverging with bespoke logic. That helper buckets its return by organization, so the
+   * top level is re-sorted by label here to restore one global alphabetical list — safe to call
+   * with collections spanning more than one org (see {@link nestedSharedFolders}), where the
+   * per-org clusters would otherwise stay grouped with no section header to explain why.
+   *
+   * Shaped as {@link FilterOptionNode} so it binds directly to `bit-filter-menu`'s `options`
+   * input — the collection tree is data-driven and can nest arbitrarily deep, which is exactly
+   * what that input is for.
+   */
+  private buildNestedSharedFolders(
+    sharedFolders: CollectionView[],
+  ): FilterOptionNode<CollectionId>[] {
+    const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
+      value: node.node.id,
+      label: sharedFolderName(node.node),
+      options: node.children.map(toNode),
+    });
+    return getNestedCollectionTree([...sharedFolders])
+      .map(toNode)
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  /**
+   * Builds the My folders tree via {@link getNestedFolderTree}, the same name-delimited nesting
+   * {@link buildNestedSharedFolders} uses for collections — so a folder whose parent path is
+   * missing nests and sorts the same way a collection in that situation would.
+   */
+  private buildNestedFolders(folders: FolderView[]): FilterOptionNode<string>[] {
+    const toNode = (node: TreeNode<FolderView>): FilterOptionNode<string> => ({
+      value: node.node.id,
+      label: node.node.name,
+      options: node.children.map(toNode),
+    });
+    return getNestedFolderTree([...folders]).map(toNode);
   }
 }

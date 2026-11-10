@@ -1,0 +1,647 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChild,
+  viewChildren,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Params, Router } from "@angular/router";
+import {
+  combineLatest,
+  concatMap,
+  filter,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+  take,
+} from "rxjs";
+
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { RegistrationUserAddIcon, SearchFolder } from "@bitwarden/assets/svg";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { getById } from "@bitwarden/common/platform/misc";
+import {
+  BitCellComponent,
+  BitCellDefDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTablePaginatorComponent,
+  BitTableToolbarComponent,
+  BitTableV2Component,
+  type BitwardenIcon,
+  ChipGroupComponent,
+  type ChipGroupItem,
+  defineTable,
+  FilterMenuComponent,
+  FilterMenuModule,
+  IconModule,
+  type SelectionConfig,
+  StatusLockupComponent,
+  SvgComponent,
+  type TableRowRange,
+  ToastService,
+  TooltipDirective,
+} from "@bitwarden/components";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
+import {
+  BillingConstraintService,
+  SeatLimitAction,
+} from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
+
+import { HeaderModule } from "../../../../layouts/header/header.module";
+import { MaxCheckedCount } from "../../../common/people-table-data-source";
+import { OrganizationUserView } from "../../core/views/organization-user.view";
+import { SharedOrganizationModule } from "../../shared";
+import { AccountRecoveryDialogResultType } from "../components/account-recovery";
+import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
+import { AvatarIdPipe } from "../pipes";
+import {
+  MemberDialogManagerService,
+  MemberExportService,
+  OrganizationMembersService,
+} from "../services";
+import { MemberActionsService } from "../services/member-actions/member-actions.service";
+import { MemberActionResult } from "../services/member-actions/member-actions.types";
+
+import {
+  AccountRecoveryFilter,
+  matchesAccess,
+  matchesPolicies,
+  matchesProduct,
+  matchesRole,
+  matchesStatus,
+  MemberFilters,
+  MemberProductFilter,
+  REVOCATION_REASON_OPTIONS,
+  ROLE_OPTIONS,
+  TwoFactorFilter,
+} from "./members-filter";
+
+/** Badge text and variant per status, listed in the order the Status column sorts. */
+const STATUS_BADGES = [
+  { status: OrganizationUserStatusType.Staged, labelKey: "staged", variant: "secondary" },
+  { status: OrganizationUserStatusType.Invited, labelKey: "invited", variant: "secondary" },
+  {
+    status: OrganizationUserStatusType.Accepted,
+    labelKey: "needsConfirmation",
+    variant: "warning",
+  },
+  { status: OrganizationUserStatusType.Confirmed, labelKey: "active", variant: "success" },
+  { status: OrganizationUserStatusType.Revoked, labelKey: "revoked", variant: "secondary" },
+] as const;
+
+type StatusBadge = (typeof STATUS_BADGES)[number];
+
+@Component({
+  templateUrl: "members-v2.component.html",
+  imports: [
+    AvatarIdPipe,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitTablePaginatorComponent,
+    BitTableToolbarComponent,
+    BitTableV2Component,
+    ChipGroupComponent,
+    FilterMenuModule,
+    HeaderModule,
+    IconModule,
+    SharedOrganizationModule,
+    StatusLockupComponent,
+    SvgComponent,
+    TooltipDirective,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class MembersV2Component {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly i18nService = inject(I18nService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly accountService = inject(AccountService);
+  private readonly memberService = inject(OrganizationMembersService);
+  private readonly memberActionsService = inject(MemberActionsService);
+  private readonly memberDialogManager = inject(MemberDialogManagerService);
+  private readonly billingConstraint = inject(BillingConstraintService);
+  private readonly organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
+  private readonly policyService = inject(PolicyService);
+  private readonly policyApiService = inject(PolicyApiServiceAbstraction);
+  private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
+  private readonly validationService = inject(ValidationService);
+  private readonly memberExportService = inject(MemberExportService);
+  private readonly userNamePipe = inject(UserNamePipe);
+  private readonly configService = inject(ConfigService);
+
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+
+  protected readonly emptyIcon = RegistrationUserAddIcon;
+  protected readonly noMatchesIcon = SearchFolder;
+  protected readonly revocationReasons = REVOCATION_REASON_OPTIONS;
+  protected readonly roleOptions = ROLE_OPTIONS;
+  protected readonly productFilter = MemberProductFilter;
+  protected readonly accountRecoveryFilter = AccountRecoveryFilter;
+  protected readonly twoFactorFilter = TwoFactorFilter;
+  protected readonly memberTab = MemberDialogTab;
+  protected readonly userStatusType = OrganizationUserStatusType;
+
+  private readonly organization$ = this.route.params.pipe(
+    concatMap((params) =>
+      this.userId$.pipe(
+        switchMap((userId) =>
+          this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+        ),
+        filter((organization): organization is Organization => organization != null),
+      ),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly organization = toSignal(this.organization$);
+
+  protected readonly members = signal<OrganizationUserView[]>([]);
+  /** The name of every group in the organization by ID, or of every collection without groups. */
+  private readonly accessNames = signal<Map<string, string>>(new Map());
+  protected readonly firstLoaded = signal(false);
+  protected readonly isProcessing = this.memberActionsService.isProcessing;
+  protected readonly table = defineTable<OrganizationUserView, "options">(this.members);
+
+  /**
+   * Whether an empty table means the search or filters hide every member, rather than the
+   * organization having none (e.g. one a provider just created).
+   */
+  protected readonly noMatches = computed(() => this.members().length > 0);
+
+  protected readonly showUserManagementControls = computed(
+    () => this.organization()?.canManageUsers ?? false,
+  );
+
+  /** Custom users with only "Manage account recovery" still need the menu for Recover account. */
+  protected readonly showOptionsColumn = computed(
+    () =>
+      this.showUserManagementControls() || (this.organization()?.canManageUsersPassword ?? false),
+  );
+
+  /** Select all stops at {@link MaxCheckedCount}, the most members a bulk action accepts. */
+  protected readonly selection = computed<SelectionConfig<OrganizationUserView> | undefined>(() =>
+    this.showUserManagementControls() ? { multiple: true, max: MaxCheckedCount } : undefined,
+  );
+
+  /**
+   * Groups for organizations that use them, otherwise collections, as in v1. Options only for
+   * admins who can manage users or recover accounts.
+   */
+  protected readonly displayedColumns = computed(() => [
+    "name" as const,
+    "status" as const,
+    "type" as const,
+    this.organization()?.useGroups ? ("groupNames" as const) : ("collectionNames" as const),
+    ...(this.showOptionsColumn() ? ["options" as const] : []),
+  ]);
+
+  private readonly policies$ = combineLatest([this.userId$, this.organization$]).pipe(
+    switchMap(([userId, organization]) =>
+      organization.isProviderUser
+        ? from(this.policyApiService.getPolicies(organization.id)).pipe(
+            map((response) => Policy.fromListResponse(response)),
+          )
+        : this.policyService.policies$(userId),
+    ),
+  );
+
+  protected readonly resetPasswordPolicyEnabled = toSignal(
+    combineLatest([this.organization$, this.policies$]).pipe(
+      map(
+        ([organization, policies]) =>
+          policies.find(
+            (p) => p.type === PolicyType.ResetPassword && p.organizationId === organization.id,
+          )?.enabled ?? false,
+      ),
+    ),
+    { initialValue: false },
+  );
+
+  /**
+   * The Account recovery section of the Policies filter shows when the organization uses account
+   * recovery and its policy is on: the same check as the v1 page's `showEnrolledStatus`. Admins
+   * without manage users permission still get it, though the server only returns enrolled members.
+   */
+  protected readonly showAccountRecoverySection = computed(
+    () => !!this.organization()?.useResetPassword && this.resetPasswordPolicyEnabled(),
+  );
+
+  private readonly billingMetadata$: Observable<OrganizationBillingMetadataResponse> =
+    this.organization$.pipe(
+      switchMap((organization) =>
+        this.organizationMetadataService.getOrganizationMetadata$(organization.id),
+      ),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+
+  /**
+   * The organization's groups, or its collections without groups, as options in the Groups or
+   * Collections filter, sorted by name. Keyed by ID, so two groups sharing a name stay separate.
+   */
+  protected readonly accessOptions = computed(() =>
+    [...this.accessNames()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => this.compareText(a.name, b.name) || this.compareText(a.id, b.id)),
+  );
+
+  /**
+   * Each member's groups, or collections without groups, as action chips sorted by name. Built
+   * once per load, so chip groups don't remeasure.
+   */
+  protected readonly accessChips = computed(() => {
+    const useGroups = this.organization()?.useGroups ?? false;
+    const startIcon: BitwardenIcon = useGroups ? "bwi-users" : "bwi-collection-shared";
+    const names = this.accessNames();
+    return new Map<OrganizationUserView, ChipGroupItem[]>(
+      this.members().map((member) => [
+        member,
+        (useGroups ? member.groups : member.collections.map((c) => c.id))
+          .flatMap((id) => {
+            const label = names.get(id);
+            return label == null ? [] : [{ id, label, startIcon }];
+          })
+          .sort((a, b) => this.compareText(a.label, b.label)),
+      ]),
+    );
+  });
+
+  private readonly privilegedControlsFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    { initialValue: false },
+  );
+
+  protected readonly canUseSecretsManager = computed(
+    () => this.organization()?.useSecretsManager ?? false,
+  );
+
+  protected readonly canUsePrivilegedControls = computed(
+    () => (this.organization()?.usePam ?? false) && this.privilegedControlsFlag(),
+  );
+
+  /** The Staged option only shows for organizations with staged members. */
+  protected readonly hasStagedMembers = computed(() =>
+    this.members().some((member) => member.status === OrganizationUserStatusType.Staged),
+  );
+
+  private readonly membersTable = viewChild(BitTableV2Component);
+  private readonly filterMenus = viewChildren(FilterMenuComponent);
+
+  /**
+   * The plain `?search=` and `?viewEvents=` keys that Event Logs links here with. Read once, since
+   * the table only syncs its own `members.*` keys and these are dropped after the first load.
+   */
+  private readonly deepLink: Params = this.route.snapshot.queryParams;
+
+  /** Seeds the table's search from `?search=`. The table prefers `members.search` when present. */
+  protected readonly initialFilters: MemberFilters = this.deepLink.search
+    ? { search: this.deepLink.search }
+    : {};
+
+  /**
+   * Members matching the search on name, email or id and every filter: Status, Role, in any of
+   * the checked groups or collections, with any of the checked products, and matching Policies.
+   */
+  protected readonly filter = (row: OrganizationUserView, filters: MemberFilters) =>
+    this.matchesSearch(row, filters.search) &&
+    matchesStatus(row, filters.status) &&
+    matchesRole(row, filters.role) &&
+    matchesAccess(row, filters.access, this.organization()?.useGroups ?? false) &&
+    matchesProduct(row, filters.product) &&
+    matchesPolicies(row, filters.policies);
+
+  constructor() {
+    this.organization$
+      .pipe(
+        switchMap((organization, index) =>
+          index === 0 ? this.loadFromDeepLink(organization) : this.load(organization),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+
+    // Stripe is slow, so kick this off in the background but without blocking page load.
+    // Anyone who needs it will still await the first emission.
+    this.billingMetadata$.pipe(take(1), takeUntilDestroyed()).subscribe();
+  }
+
+  /**
+   * Orders members by name before they reach the table, so the page opens alphabetized without
+   * an active column sort. This keeps the sort out of the URL until the user picks one.
+   */
+  async load(organization: Organization) {
+    const { users, accessNames } = await this.memberService.loadMembers(organization);
+    this.accessNames.set(accessNames);
+    this.members.set([...users].sort(this.sortByName));
+    this.firstLoaded.set(true);
+  }
+
+  /**
+   * Loads, opens the event log for a confirmed member named by `?viewEvents=`, then drops the
+   * plain deep link keys without a history entry so a reload or Back doesn't reopen the dialog.
+   */
+  private async loadFromDeepLink(organization: Organization) {
+    await this.load(organization);
+
+    const { search, viewEvents } = this.deepLink;
+    if (search == null && viewEvents == null) {
+      return;
+    }
+
+    const member = this.members().find((m) => m.id === viewEvents);
+    if (member?.status === OrganizationUserStatusType.Confirmed) {
+      this.openEventsDialog(member, organization);
+    }
+
+    await this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { search: null, viewEvents: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  }
+
+  async invite(organization: Organization) {
+    if (await this.seatLimitBlocks(organization)) {
+      return;
+    }
+
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const result = await this.memberDialogManager.openInviteDialog(
+      organization,
+      billingMetadata,
+      this.members(),
+    );
+
+    if (result === MemberDialogResult.Saved) {
+      await this.load(organization);
+      this.organizationMetadataService.refreshMetadataCache();
+    }
+  }
+
+  /** Exports every member, regardless of the search and filters, as on the v1 page. */
+  exportMembers() {
+    const result = this.memberExportService.getMemberExport(this.members());
+    if (result.success) {
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("dataExportSuccess"),
+      });
+    }
+
+    if (result.error != null) {
+      this.validationService.showError(result.error.message);
+    }
+  }
+
+  async edit(
+    user: OrganizationUserView,
+    organization: Organization,
+    initialTab: MemberDialogTab = MemberDialogTab.Details,
+  ) {
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const result = await this.memberDialogManager.openEditDialog(
+      user,
+      organization,
+      billingMetadata,
+      initialTab,
+    );
+
+    switch (result) {
+      case MemberDialogResult.Deleted:
+      case MemberDialogResult.Saved:
+      case MemberDialogResult.Revoked:
+      case MemberDialogResult.Restored:
+        await this.load(organization);
+        break;
+    }
+  }
+
+  async sendInvite(user: OrganizationUserView, organization: Organization) {
+    if (await this.seatLimitBlocks(organization)) {
+      return;
+    }
+
+    const result = await firstValueFrom(
+      this.memberActionsService.sendInvite(organization, user.id),
+    );
+    await this.handleMemberActionResult(result, "hasBeenInvited", user, organization);
+  }
+
+  async reinvite(user: OrganizationUserView, organization: Organization) {
+    const result = await firstValueFrom(
+      this.memberActionsService.reinviteUser(organization, user.id),
+    );
+    await this.handleMemberActionResult(result, "hasBeenReinvited", user, organization);
+  }
+
+  async confirm(user: OrganizationUserView, organization: Organization) {
+    const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
+
+    if (publicKeyResult == null) {
+      this.logService.warning("Public key not found");
+      return;
+    }
+
+    const result = await this.memberActionsService.confirmUser(user, publicKeyResult, organization);
+    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, organization);
+  }
+
+  openEventsDialog(user: OrganizationUserView, organization: Organization) {
+    this.memberDialogManager.openEventsDialog(user, organization);
+  }
+
+  /** Whether the key icon follows a member's name, as in the v1 page's Policies column. */
+  protected showEnrolledStatus(user: OrganizationUserView): boolean {
+    return this.showAccountRecoverySection() && user.resetPasswordEnrolled;
+  }
+
+  allowResetPassword(user: OrganizationUserView, organization: Organization): boolean {
+    return this.memberActionsService.allowResetPassword(
+      user,
+      organization,
+      this.resetPasswordPolicyEnabled(),
+    );
+  }
+
+  async resetPassword(user: OrganizationUserView, organization: Organization) {
+    if (!user || !user.email || !user.id) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("orgUserDetailsNotFound"),
+      });
+      this.logService.error("Org user details not found when attempting account recovery");
+      return;
+    }
+
+    const result = await this.memberDialogManager.openAccountRecoveryDialog(user, organization);
+    if (result === AccountRecoveryDialogResultType.Ok) {
+      await this.load(organization);
+    }
+  }
+
+  async restore(user: OrganizationUserView, organization: Organization) {
+    if (await this.seatLimitBlocks(organization, "restore")) {
+      return;
+    }
+
+    const result = await this.memberActionsService.restoreUser(organization, user.id);
+    await this.handleMemberActionResult(result, "restoredUserId", user, organization);
+  }
+
+  async revoke(user: OrganizationUserView, organization: Organization) {
+    if (!(await this.memberDialogManager.openRevokeUserConfirmationDialog(user))) {
+      return;
+    }
+
+    const result = await this.memberActionsService.revokeUser(organization, user.id);
+    await this.handleMemberActionResult(result, "revokedUserId", user, organization);
+  }
+
+  async remove(user: OrganizationUserView, organization: Organization) {
+    if (!(await this.memberDialogManager.openRemoveUserConfirmationDialog(user))) {
+      return;
+    }
+
+    const result = await this.memberActionsService.removeUser(organization, user.id);
+    await this.handleMemberActionResult(result, "removedUserId", user, organization);
+  }
+
+  async deleteUser(user: OrganizationUserView, organization: Organization) {
+    if (!(await this.memberDialogManager.openDeleteUserConfirmationDialog(user, organization))) {
+      return;
+    }
+
+    const result = await this.memberActionsService.deleteUser(organization, user.id);
+    await this.handleMemberActionResult(result, "organizationUserDeleted", user, organization);
+  }
+
+  /** Toasts the outcome of a row action and, when it succeeded, reloads the members. */
+  private async handleMemberActionResult(
+    result: MemberActionResult,
+    successKey: string,
+    user: OrganizationUserView,
+    organization: Organization,
+  ) {
+    if (result.success === false) {
+      this.toastService.showToast({ variant: "error", message: result.error });
+      this.logService.error(result.error);
+      return;
+    }
+
+    if (result.success) {
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t(successKey, this.userNamePipe.transform(user)),
+      });
+      await this.load(organization);
+    }
+  }
+
+  /**
+   * Prompts to upgrade when the organization has no seat available and its plan cannot autoscale.
+   * Gates inviting a staged member and restoring a revoked one, as on the v1 page.
+   */
+  private async seatLimitBlocks(
+    organization: Organization,
+    action: SeatLimitAction = "invite",
+  ): Promise<boolean> {
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    return await this.billingConstraint.seatLimitReached(seatLimitResult, organization, action);
+  }
+
+  /** Narrows the table to members of the chip's group or collection, replacing any prior choice. */
+  protected filterByAccess(id: string) {
+    this.filterMenus()
+      .find((menu) => menu.key() === "access")
+      ?.setValue([id]);
+  }
+
+  /** Resets the search and every filter, so Status returns to its default. */
+  protected clearAllFilters() {
+    this.membersTable()
+      ?.filterControls()
+      .forEach((control) => control.setValue(control.clearedValue()));
+  }
+
+  protected statusBadge(status: OrganizationUserStatusType): StatusBadge | undefined {
+    return STATUS_BADGES.find((badge) => badge.status === status);
+  }
+
+  protected readonly sortByName = (a: OrganizationUserView, b: OrganizationUserView) =>
+    this.compareText(a.name ?? a.email, b.name ?? b.email);
+
+  protected readonly sortByStatus = (a: OrganizationUserView, b: OrganizationUserView) =>
+    statusOrder(a.status) - statusOrder(b.status);
+
+  /** Orders by the first name shown in the badge, then by how many more there are. */
+  protected readonly sortByFirstName = (a: string[], b: string[]) =>
+    this.compareText(a[0] ?? "", b[0] ?? "") || a.length - b.length;
+
+  protected readonly sortByGroups = (a: OrganizationUserView, b: OrganizationUserView) =>
+    this.sortByFirstName(a.groupNames, b.groupNames);
+
+  protected readonly sortByCollections = (a: OrganizationUserView, b: OrganizationUserView) =>
+    this.sortByFirstName(a.collectionNames, b.collectionNames);
+
+  protected readonly rangeLabel = ({ start, end, total }: TableRowRange) => {
+    if (total === 0) {
+      return this.i18nService.t("memberCount", "0");
+    }
+    if (total === 1) {
+      return this.i18nService.t("memberCountSingular");
+    }
+    return this.i18nService.t(
+      "memberRangeOfTotal",
+      start.toString(),
+      end.toString(),
+      total.toString(),
+    );
+  };
+
+  private matchesSearch(row: OrganizationUserView, search: string | undefined): boolean {
+    const text = search?.toLowerCase();
+    return (
+      !text || [row.name, row.email, row.id].some((value) => value?.toLowerCase().includes(text))
+    );
+  }
+
+  private compareText(a: string, b: string): number {
+    return this.i18nService.collator?.compare(a, b) ?? a.localeCompare(b);
+  }
+}
+
+function statusOrder(status: OrganizationUserStatusType): number {
+  const index = STATUS_BADGES.findIndex((badge) => badge.status === status);
+  return index === -1 ? STATUS_BADGES.length : index;
+}

@@ -1,3 +1,4 @@
+import { NgComponentOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,11 +7,12 @@ import {
   inject,
   OnInit,
   signal,
+  Type,
   untracked,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, RouterLink } from "@angular/router";
-import { combineLatest, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { combineLatest, filter, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -21,9 +23,11 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -40,6 +44,7 @@ import {
   PopoverModule,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
+import { importQueryParamsForVault } from "@bitwarden/importer-ui";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -50,11 +55,16 @@ import {
   BULK_DELETE_DIALOG,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  COLLECTION_DIALOG,
+  CollectionOptionsMenuComponent,
   copyPresentation$,
+  DecryptionFailureDialogComponent,
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
+  MyFolderBreadcrumbsComponent,
+  MyFolderMenuComponent,
   NewCipherMenuComponent,
-  SharedFolderCardGridComponent,
+  CardGridComponent,
   VaultBreadcrumbsComponent,
   VaultItemsTableComponent,
   VaultItemsTableRowAction,
@@ -62,24 +72,35 @@ import {
   VaultOrganizationUserNotificationsComponent,
   VaultBatchActionComponent,
   VaultBatchBarService,
+  VaultRemountOnDirective,
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  collectionMenuTargetForScope,
+  folderNameForScope,
   hasMultipleVaults,
+  importStartedFrom,
   organizationNameForScope,
   organizationInScope,
   organizationVaultPage,
   OrganizationVaultPage,
   resolveVaultScope,
-  scopedCollectionSegment,
+  routeVaultScope,
+  scopedFolderId,
+  sharedFoldersCommands,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   scopedSharedFolderId,
+  scopeKey,
+  MY_ITEMS_ROUTE,
   sharedFolderNameForScope,
+  VaultScope,
   VaultScopeType,
   defaultUserCollectionId,
   DefaultVaultItemsTransferService,
   VaultItemsTransferService,
+  CoachmarkComponent,
+  CoachmarkService,
 } from "@bitwarden/vault";
 
 import {
@@ -89,13 +110,28 @@ import {
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
-import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
+import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
 
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { CollectionWebDialogAdapter } from "./shared-folders/collection-web-dialog.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
+import {
+  VAULT_GATED_COLLECTION_BANNER,
+  VaultGatedCollectionBanner,
+} from "./vault-gated-collection-banner.token";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
+
+function selectionScopeDetail(scope: VaultScope): string {
+  if (scope.type === VaultScopeType.Organization) {
+    return scope.organizationId;
+  }
+  if (scope.type === VaultScopeType.Folder) {
+    return scope.folderId;
+  }
+  return "";
+}
 
 /**
  * The web individual vault built on the shared {@link VaultItemsTableComponent}, which owns its own
@@ -103,8 +139,6 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  *
  * Every side-nav destination renders this one component, scoped by the `:vaultId` route segment —
  * see `VaultScope`.
- *
- * Not yet wired: the `?itemId=&action=` deep link that opens an item on load.
  */
 @Component({
   selector: "app-vault-next",
@@ -126,11 +160,16 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultBannersComponent,
     VaultBatchActionComponent,
     VaultBreadcrumbsComponent,
+    MyFolderBreadcrumbsComponent,
+    MyFolderMenuComponent,
+    CollectionOptionsMenuComponent,
     IconTileComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
-    SharedFolderCardGridComponent,
+    VaultRemountOnDirective,
+    CardGridComponent,
+    NgComponentOutlet,
   ],
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
@@ -142,8 +181,21 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
       useAngularDecorators: true,
     }),
     VaultBatchBarService,
-    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
-    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
+    safeProvider({
+      provide: ASSIGN_COLLECTIONS_DIALOG,
+      useClass: AssignCollectionsWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: BULK_DELETE_DIALOG,
+      useClass: BulkDeleteDialogWebAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: COLLECTION_DIALOG,
+      useClass: CollectionWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
   ],
 })
 export class VaultNextComponent implements OnInit {
@@ -151,6 +203,7 @@ export class VaultNextComponent implements OnInit {
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+  private readonly configService = inject(ConfigService);
   private readonly dialogService = inject(DialogService);
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
@@ -161,7 +214,7 @@ export class VaultNextComponent implements OnInit {
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly i18nService = inject(I18nService);
   private readonly batchBarService = inject(VaultBatchBarService);
-
+  private readonly router = inject(Router);
   private readonly policyService = inject(PolicyService);
   private readonly webVaultPromptService = inject(WebVaultPromptService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -172,8 +225,14 @@ export class VaultNextComponent implements OnInit {
     () => this.coachmarkService.activeStepId() === "importData",
   );
 
-  protected readonly addItemCoachmarkOpen = computed(
-    () => this.coachmarkService.activeStepId() === "addItem",
+  /**
+   * Host-provided notice naming the request requirement on a governed shared folder. Unprovided —
+   * every build without PAM — nothing renders. The component itself decides whether the folder it
+   * is handed warrants the notice, so this page only has to say which folder is open.
+   */
+  protected readonly gatedCollectionBanner: Type<VaultGatedCollectionBanner> | null = inject(
+    VAULT_GATED_COLLECTION_BANNER,
+    { optional: true },
   );
 
   /**
@@ -188,10 +247,8 @@ export class VaultNextComponent implements OnInit {
 
   private readonly routeData = toSignal(this.activatedRoute.data);
 
-  private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
-
-  private readonly collectionSegment = computed(() =>
-    scopedCollectionSegment(this.routeParams(), this.routeData()),
+  private readonly routeScope = computed(() =>
+    routeVaultScope(this.routeParams(), this.routeData()),
   );
 
   private readonly vaultNav = toSignal(
@@ -204,9 +261,7 @@ export class VaultNextComponent implements OnInit {
    * unresolvable one here means the guard was bypassed — show everything rather than an empty page.
    */
   protected readonly vaultScope = computed(
-    () =>
-      resolveVaultScope(this.vaultIdParam(), this.collectionSegment(), this.vaultNav()) ??
-      ALL_ITEMS_SCOPE,
+    () => resolveVaultScope(this.routeScope(), this.vaultNav()) ?? ALL_ITEMS_SCOPE,
   );
 
   protected readonly defaultCollectionId = computed(() => {
@@ -228,6 +283,19 @@ export class VaultNextComponent implements OnInit {
     vaultScopeHeaderTile(this.vaultScope(), this.vaultNav()),
   );
 
+  protected readonly parsedVaultScope = computed(() => this.routeScope() ?? ALL_ITEMS_SCOPE);
+
+  /**
+   * The scope key the vault table's filter state belongs to. Keyed off the parsed scope rather
+   * than {@link vaultScope}, which resolves a second time as the nav loads.
+   */
+  protected readonly filterScopeKey = computed(() => scopeKey(this.parsedVaultScope()));
+
+  protected readonly collectionSelected = computed(() => {
+    const seg = scopedSharedFolderId(this.parsedVaultScope());
+    return seg != null && seg !== MY_ITEMS_ROUTE;
+  });
+
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a
    * page shows is the scope's call — see {@link cipherInScope} — so this narrows by nothing but
@@ -236,8 +304,9 @@ export class VaultNextComponent implements OnInit {
   private readonly allCiphers$ = this.userId$.pipe(
     switchMap((userId) =>
       combineLatest([
-        // Emits null until the first decrypt completes.
-        this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+        // Emits null until the first decrypt completes. Reads the with-partials stream so
+        // PAM-gated rows stay listed — a member has to see the item to request access to it.
+        this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(filterOutNullish()),
         this.restrictedItemTypesService.restricted$,
       ]),
     ),
@@ -249,10 +318,42 @@ export class VaultNextComponent implements OnInit {
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
+  /**
+   * The items that could not be decrypted. `cipherListViews$` drops them, so they reach the page
+   * only through here — see {@link ciphers} and {@link showDecryptionFailureDialog}.
+   */
+  private readonly failedCiphers$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherService.failedToDecryptCiphers$(userId)),
+    filterOutNullish(),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
   /** `undefined` until the ciphers stream first emits, which is what drives {@link loading}. */
   private readonly loadedCiphers = toSignal(this.allCiphers$);
 
   private readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
+
+  private readonly failedCiphers = toSignal(this.failedCiphers$, { initialValue: [] });
+
+  /**
+   * Opens once per visit, and names only the failures the page in view can show — the same
+   * `cipherInScope` narrowing {@link ciphers} applies.
+   */
+  private readonly showDecryptionFailureDialog = combineLatest([
+    this.failedCiphers$,
+    toObservable(this.vaultScope),
+  ])
+    .pipe(
+      map(([ciphers, scope]) => ciphers.filter((cipher) => cipherInScope(cipher, scope))),
+      filter((ciphers) => ciphers.length > 0),
+      take(1),
+      takeUntilDestroyed(),
+    )
+    .subscribe((ciphers) =>
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: ciphers.map((cipher) => cipher.id as CipherId),
+      }),
+    );
 
   /**
    * Every item in the account's active vaults. The banners and onboarding speak to the account as
@@ -263,10 +364,18 @@ export class VaultNextComponent implements OnInit {
     this.allCiphers().filter((cipher) => cipherInScope(cipher, ALL_ITEMS_SCOPE)),
   );
 
-  /** The rows for the table: {@link allCiphers} narrowed to the scope. */
+  /**
+   * The rows for the table: {@link allCiphers} plus {@link failedCiphers}, narrowed to the scope.
+   *
+   * A failed item still carries its organization, collections, and deleted date — none of which
+   * needed decrypting — so `cipherInScope` places it without any special case. It is left out of
+   * {@link activeCiphers}, which the banners and onboarding read.
+   */
   protected readonly ciphers = computed<CipherViewLike[]>(() => {
     const scope = this.vaultScope();
-    return this.allCiphers().filter((cipher) => cipherInScope(cipher, scope));
+    return [...this.failedCiphers(), ...this.allCiphers()].filter((cipher) =>
+      cipherInScope(cipher, scope),
+    );
   });
 
   protected readonly loading = computed(() => this.loadedCiphers() === undefined);
@@ -335,6 +444,16 @@ export class VaultNextComponent implements OnInit {
       : undefined;
   });
 
+  private readonly collectionMenuTarget = computed(() =>
+    collectionMenuTargetForScope(this.vaultScope(), this.scopedCollections(), this.organizations()),
+  );
+
+  protected readonly currentCollection = computed(() => this.collectionMenuTarget()?.collection);
+
+  protected readonly currentOrganization = computed(
+    () => this.collectionMenuTarget()?.organization,
+  );
+
   /**
    * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
    * through `vault-items-table` untouched — the table itself has no notion of vault scope.
@@ -357,6 +476,12 @@ export class VaultNextComponent implements OnInit {
       ? sharedFolderNameForScope(this.vaultScope(), this.scopedCollections())
       : undefined,
   );
+
+  protected readonly emptyFolderName = computed(() =>
+    this.showItemCreation() ? folderNameForScope(this.vaultScope(), this.folders()) : undefined,
+  );
+
+  protected readonly scopedFolderId = computed(() => scopedFolderId(this.vaultScope()));
 
   protected readonly canCreateCollections = computed(() => {
     const scope = this.vaultScope();
@@ -390,8 +515,10 @@ export class VaultNextComponent implements OnInit {
     () => this.vaultScope().type === VaultScopeType.Archive && this.subscriptionEndedMessaging(),
   );
 
-  protected readonly title = computed(() =>
-    vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()),
+  protected readonly title = computed(
+    () =>
+      vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()) ??
+      folderNameForScope(this.vaultScope(), this.folders()),
   );
 
   private readonly configureBatchBar = effect(() => {
@@ -419,7 +546,7 @@ export class VaultNextComponent implements OnInit {
   private readonly clearSelectionOnScopeChange = effect(() => {
     // `resolveVaultScope` builds a fresh object each run, so compare by value, not reference.
     const scope = this.vaultScope();
-    const key = `${scope.type}:${scope.type === VaultScopeType.Organization ? scope.organizationId : ""}`;
+    const key = `${scope.type}:${selectionScopeDetail(scope)}`;
     untracked(() => {
       if (this.lastScopeKey() !== undefined && this.lastScopeKey() !== key) {
         this.batchBarService.clearSelection();
@@ -455,6 +582,11 @@ export class VaultNextComponent implements OnInit {
     { initialValue: false },
   );
 
+  /** The account's active My vault items, for the Vault chip's My vault count on an org page. */
+  protected readonly myVaultItemCount = computed(
+    () => this.activeCiphers().filter((cipher) => cipher.organizationId == null).length,
+  );
+
   /**
    * Clicking an item's name opens the read-only view, matching the legacy vault — the dialog offers
    * its own Edit toggle from there, while the `edit` row action goes straight to the form.
@@ -465,11 +597,77 @@ export class VaultNextComponent implements OnInit {
   protected readonly itemAction = (item: CipherViewLike): Promise<void> =>
     this.itemActions.view(item);
 
+  private readonly queryParams = toSignal(this.activatedRoute.queryParamMap);
+
+  /** The item the URL asks the page to open, if any — see {@link itemDeepLinkFrom}. */
+  private readonly itemDeepLink = computed(() => itemDeepLinkFrom(this.queryParams()));
+
+  /** The `<cipherId>:<action>` of the deep link last dispatched, so it is dispatched only once. */
+  private readonly dispatchedDeepLink = signal<string | undefined>(undefined);
+
+  /**
+   * Opens the item named by the deep link on the URL — see {@link itemDeepLinkFrom}.
+   *
+   * The dispatch waits for the items to decrypt: `WebVaultItemActionsService` reads the item from
+   * storage, and an item that has not loaded yet reads the same as one that does not exist.
+   *
+   * It also holds while a dialog is open, because `VaultItemDialogComponent` writes these same
+   * params each time the user toggles view and edit — and it dispatches each link once, because
+   * the params the dialog leaves behind would otherwise reopen it.
+   */
+  private readonly openDeepLinkedItem = effect(() => {
+    const link = this.itemDeepLink();
+    const loading = this.loading();
+    const dialogOpen = this.itemActions.itemDialogOpen();
+
+    untracked(() => {
+      if (link == null) {
+        this.dispatchedDeepLink.set(undefined);
+        return;
+      }
+
+      if (loading || dialogOpen) {
+        return;
+      }
+
+      const dispatched = `${link.cipherId}:${link.action}`;
+      if (this.dispatchedDeepLink() === dispatched) {
+        return;
+      }
+      this.dispatchedDeepLink.set(dispatched);
+
+      void this.dispatchDeepLink(link);
+    });
+  });
+
+  private async dispatchDeepLink(link: ItemDeepLink): Promise<void> {
+    if (this.failedCiphers().some((cipher) => cipher.id === link.cipherId)) {
+      await this.itemActions.showDecryptionFailure(link.cipherId);
+      return;
+    }
+
+    switch (link.action) {
+      case ItemDeepLinkAction.Edit:
+        await this.itemActions.editById(link.cipherId);
+        break;
+      case ItemDeepLinkAction.Clone:
+        await this.itemActions.cloneById(link.cipherId);
+        break;
+      case ItemDeepLinkAction.ShowFailedToDecrypt:
+        await this.itemActions.showDecryptionFailure(link.cipherId);
+        break;
+      case ItemDeepLinkAction.View:
+        await this.itemActions.viewById(link.cipherId);
+        break;
+    }
+  }
+
   /** Handles `vault-new-cipher-menu`'s `cipherAdded`, emitted by its legacy per-type dropdown. */
   protected async addCipher(cipherType: CipherType): Promise<void> {
     await this.itemActions.add(cipherType, {
       organizationId: this.scopedOrganizationId(),
       collectionId: this.scopedCollectionId(),
+      folderId: this.scopedFolderId(),
     });
   }
 
@@ -505,6 +703,7 @@ export class VaultNextComponent implements OnInit {
       await this.itemActions.add(result.cipherType, {
         organizationId: this.scopedOrganizationId(),
         collectionId: this.scopedCollectionId(),
+        folderId: this.scopedFolderId(),
       });
     } else if (result.result === AddItemDialogResult.Folder) {
       this.addFolder();
@@ -553,7 +752,54 @@ export class VaultNextComponent implements OnInit {
     }
   }
 
-  protected openImportDialog(): void {
-    ImportDialogComponent.open(this.dialogService);
+  private readonly lastViewedFolder = signal<
+    { organizationId: OrganizationId; collectionId: CollectionId } | undefined
+  >(undefined);
+
+  private readonly navigateAwayIfFolderVanishes = effect(() => {
+    const collection = this.currentCollection();
+    const organizationId = this.scopedOrganizationId();
+    const collectionId = this.scopedCollectionId();
+
+    untracked(() => {
+      if (collection != null) {
+        this.lastViewedFolder.set(
+          organizationId != null && collectionId != null
+            ? { organizationId, collectionId }
+            : undefined,
+        );
+        return;
+      }
+
+      const last = this.lastViewedFolder();
+      if (
+        last != null &&
+        last.organizationId === organizationId &&
+        last.collectionId === collectionId
+      ) {
+        this.lastViewedFolder.set(undefined);
+        void this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
+      }
+    });
+  });
+
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      const queryParams = importQueryParamsForVault(
+        this.scopedOrganizationId(),
+        this.scopedCollectionId(),
+        importStartedFrom(this.parsedVaultScope(), this.vaultNav()),
+      );
+      await (queryParams == null
+        ? this.router.navigate(["/tools/import"])
+        : this.router.navigate(["/tools/import"], { queryParams }));
+      return;
+    }
+
+    ImportDialogComponent.open(
+      this.dialogService,
+      this.scopedOrganizationId(),
+      this.scopedCollectionId(),
+    );
   }
 }

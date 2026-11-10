@@ -4,7 +4,6 @@
 import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
-import { ConfigService } from "../../abstractions/config/config.service";
 import {
   FileUploadApiMethods,
   FileUploadService as FileUploadServiceAbstraction,
@@ -23,9 +22,8 @@ export class FileUploadService implements FileUploadServiceAbstraction {
   constructor(
     protected logService: LogService,
     apiService: ApiService,
-    configService: ConfigService,
   ) {
-    this.azureFileUploadService = new AzureFileUploadService(logService, apiService, configService);
+    this.azureFileUploadService = new AzureFileUploadService(logService, apiService);
     this.bitwardenFileUploadService = new BitwardenFileUploadService();
   }
 

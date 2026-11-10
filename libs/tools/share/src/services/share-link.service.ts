@@ -1,10 +1,18 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { ClientType } from "@bitwarden/client-type";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -13,27 +21,27 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { PolicyType } from "@bitwarden/sdk-internal";
-import { PasswordRepromptService } from "@bitwarden/vault";
-
-import { ShareItemDrawerComponent } from "../components/share-item-drawer/share-item-drawer.component";
 
 /**
  * Represents an active share link created for a vault item.
@@ -55,32 +63,31 @@ export class ShareLinkService {
   private sendService = inject(SendService);
   private environmentService = inject(EnvironmentService);
   private accountService = inject(AccountService);
-  private sendSdkApiService = inject(SendSdkApiService);
+  // Concrete class: `mutateSend`/`refreshAfterMutation` aren't on the abstraction.
+  private sendApiService = inject(SendApiService);
   private i18nService = inject(I18nService);
   private configService = inject(ConfigService);
   private collectionService = inject(CollectionService);
   private policyService = inject(PolicyService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
-  private readonly platformService = inject(PlatformUtilsService);
-  private readonly router = inject(Router);
-  private readonly passwordRepromptService = inject(PasswordRepromptService);
-  private readonly cipherService = inject(CipherService);
-  private readonly toastService = inject(ToastService);
-  private readonly dialogService = inject(DialogService);
+  private organizationService = inject(OrganizationService);
+  private folderService = inject(FolderService);
+  private revealedCipherService = inject(RevealedCipherService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
-  private links = new BehaviorSubject<ShareLink[]>([]);
-
   /** Observable of all active share links. */
-  links$ = this.links.asObservable();
-
-  constructor() {
-    combineLatest([this.cipherId, this.sendService.sendViews$])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([cipherId, sendViews]) => {
-        void this.getLinksForCipher(cipherId, sendViews);
-      });
-  }
+  links$ = this.cipherId.pipe(
+    switchMap((cipherId) => {
+      if (!cipherId) {
+        return of([] as ShareLink[]);
+      }
+      return this.sendService.sendViews$.pipe(
+        switchMap((sendViews) => this.getLinksForCipher(cipherId, sendViews)),
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+    takeUntilDestroyed(),
+  );
 
   /**
    * Creates a new share link
@@ -112,17 +119,46 @@ export class ShareLinkService {
       throw new Error(this.i18nService.t("linkSaveFailed"));
     }
 
+    // Fetch cipher metadata
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let folderName: string | undefined = undefined;
+    if (sharedCipherView.folderId) {
+      const folder = await firstValueFrom(
+        this.folderService.getDecrypted$(sharedCipherView.folderId, userId),
+      );
+      folderName = folder?.name;
+    }
+    let collectionNames: string[] | undefined = undefined;
+    if (sharedCipherView.collectionIds.length > 0) {
+      const collections = await firstValueFrom(
+        this.collectionService.decryptedCollections$(userId),
+      );
+      collectionNames = sharedCipherView.collectionIds.flatMap((id) => {
+        const collectionWithId = collections.find((c) => c.id === id);
+        return collectionWithId ? [collectionWithId.name] : [];
+      });
+    }
+    let organizationName: string | undefined = undefined;
+    if (sharedCipherView.organizationId) {
+      const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
+      const orgWithId = organizations.find((o) => o.id === sharedCipherView.organizationId);
+      organizationName = orgWithId?.name;
+    }
+
     sendView.data = {
       data: sharedCipherView,
+      metadata: {
+        itemId: sharedCipherView.id,
+        creationDate: sharedCipherView.creationDate.toISOString(),
+        revisionDate: sharedCipherView.revisionDate.toISOString(),
+        folderName,
+        collectionNames,
+        organizationName,
+      },
     };
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const createdSdkSendView = await this.sendSdkApiService.mutateSend(
-      sendView,
-      userId,
-      null as any,
-    );
-    await this.sendSdkApiService.refreshAfterMutation(createdSdkSendView.id as any);
+    const createdSdkSendView = await this.sendApiService.mutateSend(sendView, userId, null as any);
+    await this.sendApiService.refreshAfterMutation(createdSdkSendView.id as any);
     const env = await firstValueFrom(this.environmentService.environment$);
     if (!createdSdkSendView.key) {
       return;
@@ -150,6 +186,8 @@ export class ShareLinkService {
     }
     sharedCipherView.passwordHistory = [];
     delete sharedCipherView.key;
+    // The viewer shouldn't have to reprompt for a password
+    sharedCipherView.reprompt = CipherRepromptType.None;
 
     return sharedCipherView;
   }
@@ -159,15 +197,8 @@ export class ShareLinkService {
   }
 
   /** Recalculates active share links for a given cipher. */
-  private async getLinksForCipher(
-    cipherId: CipherId | undefined,
-    sendViews: SendView[],
-  ): Promise<void> {
+  private async getLinksForCipher(cipherId: CipherId, sendViews: SendView[]): Promise<ShareLink[]> {
     const newLinks: ShareLink[] = [];
-    if (!cipherId) {
-      this.links.next(newLinks);
-      return;
-    }
     const env = await firstValueFrom(this.environmentService.environment$);
     for (const send of sendViews) {
       if (send.type === SendType.Item && (send.data?.data?.id as any) === cipherId && send.key) {
@@ -182,14 +213,14 @@ export class ShareLinkService {
         });
       }
     }
-    this.links.next(newLinks);
+    return newLinks;
   }
 
   /** Deletes a share link by Send id. */
   async deleteLink(sendId: string): Promise<void> {
-    const link = this.links.getValue().find((l) => l.sendId === sendId);
+    const link = (await firstValueFrom(this.links$)).find((l) => l.sendId === sendId);
     if (link) {
-      await this.sendSdkApiService.delete(link.sendId);
+      await this.sendApiService.delete(link.sendId);
     }
   }
 
@@ -205,24 +236,37 @@ export class ShareLinkService {
       ),
       this.accountService.activeAccount$.pipe(
         getUserId,
+        switchMap((userId) => this.organizationService.organizations$(userId)),
+      ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
         switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendControls, userId)),
       ),
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
       ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+      ),
     ]).pipe(
-      map(([ffEnabled, hasPremium, sendControlsPolicies, collections]) => {
+      map(([ffEnabled, hasPremium, organizations, sendControlsPolicies, collections, revealed]) => {
         // Sharing feature must be enabled and, as a premium feature, accessible
         if (!ffEnabled || !hasPremium) {
           return false;
         }
-        // Cannot be shared if the cipher is undefined, archived, deleted, or an SSH key
+        // Cannot be shared if the cipher is undefined, archived, deleted, an SSH key, or restricted
         if (
           !c ||
           c.archivedDate ||
           c.deletedDate ||
-          CipherViewLikeUtils.getType(c) === CipherType.SshKey
+          CipherViewLikeUtils.getType(c) === CipherType.SshKey ||
+          !RestrictedCipherPolicy.allows(
+            c,
+            RestrictedCipherAction.Share,
+            c.id == null ? undefined : revealed.get(c.id as CipherId),
+          )
         ) {
           return false;
         }
@@ -237,6 +281,18 @@ export class ShareLinkService {
         if (policyDisablingItemSends) {
           return false;
         }
+        // If the cipher belongs to an organization that allows admins/owners to access all collection items
+        // and the user is an admin/owner then they'll be able to see the item via the Admin Console but they
+        // won't have the permissions we look for below. Owners and admins are exempt from the Send Controls
+        // policy but custom users aren't, so we do this check after the policy check.
+        if (c.organizationId) {
+          const canEditAllOrgCiphers = organizations.some(
+            (org) => org.id === c.organizationId && org.canEditAllCiphers,
+          );
+          if (canEditAllOrgCiphers) {
+            return true;
+          }
+        }
         // Lastly check that, if a cipher belongs to any collections,
         // the user has edit-level access to at least one of them.
         return (
@@ -246,59 +302,6 @@ export class ShareLinkService {
           )
         );
       }),
-    );
-  }
-
-  async openShareForm(cipher: CipherViewLike, hostDialog: DialogRef | null): Promise<void> {
-    const clientType = this.platformService.getClientType();
-    if (clientType === ClientType.Cli) {
-      return;
-    }
-    const cipherView = await this.resolveCipherView(cipher);
-    if (!cipherView || !cipherView.id) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("unknownCipher"),
-      });
-      return;
-    }
-    this.setCipher(cipherView.id as CipherId);
-    if (clientType === ClientType.Browser) {
-      await this.router.navigate(["/share-item"], { queryParams: { cipherId: cipherView.id } });
-    } else {
-      // Web/Desktop
-      if (hostDialog == null && cipher.reprompt === CipherRepromptType.Password) {
-        const pwdEntered = await this.passwordRepromptService.showPasswordPrompt();
-        if (!pwdEntered) {
-          return;
-        }
-      }
-      await this.dialogService.openDrawer(ShareItemDrawerComponent, {
-        data: { cipher: cipherView },
-      });
-      await hostDialog?.close();
-    }
-  }
-
-  /**
-   * The drawer needs a full {@link CipherView}. Lists that render `CipherListView` rows have to
-   * look one up; callers that already hold a decrypted view — the Admin Console, whose items are
-   * not necessarily in the acting user's own vault — pass it straight through, because looking it
-   * up by id would come back empty for them.
-   */
-  private async resolveCipherView(cipher: CipherViewLike): Promise<CipherView | undefined> {
-    if (!CipherViewLikeUtils.isCipherListView(cipher)) {
-      return cipher;
-    }
-
-    if (cipher.id == null) {
-      return undefined;
-    }
-
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    // The SDK and `common` tag cipher ids separately, so the two do not overlap structurally.
-    return await firstValueFrom(
-      this.cipherService.cipherView$(userId, cipher.id as unknown as CipherId),
     );
   }
 }

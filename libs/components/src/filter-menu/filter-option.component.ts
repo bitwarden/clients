@@ -13,10 +13,30 @@ import {
 
 import { IconTileOptions } from "../icon-tile";
 
-import { FILTER_ENTRY, FilterRow } from "./filter-tokens";
+import { FILTER_ENTRY, FilterOptionRow } from "./filter-tokens";
 
 /** Icon tile configuration for a `bit-filter-option` row. */
 export type FilterOptionIconTile = IconTileOptions;
+
+/**
+ * A node in a data-driven option tree passed to {@link FilterMenuComponent.options} or
+ * {@link FilterSectionComponent.options} — the shape of an arbitrarily deep tree whose depth
+ * isn't known ahead of time.
+ */
+export type FilterOptionNode<T = unknown> = {
+  value: T;
+  label: string;
+  /** Overrides the host's automatic count — see {@link FilterOptionComponent.count}. */
+  count?: number;
+  options?: readonly FilterOptionNode<T>[];
+  /**
+   * Draws a divider immediately before this node. Only meaningful at the top level of
+   * {@link FilterMenuComponent.options} — mirrors `bit-filter-option-divider`, which a
+   * data-driven tree can't project directly since a non-empty `options` input takes
+   * precedence over projected content.
+   */
+  dividerBefore?: boolean;
+};
 
 /**
  * A selectable option inside a `bit-filter-menu`. Nesting requires `multiple`.
@@ -28,6 +48,9 @@ export type FilterOptionIconTile = IconTileOptions;
  *   <bit-filter-option [value]="'monitoring'">Monitoring</bit-filter-option>
  * </bit-filter-option>
  * ```
+ *
+ * For a data-driven tree of unknown depth, pass {@link FilterMenuComponent.options} instead —
+ * the menu renders the full tree without any `bit-filter-option` markup in the consumer's template.
  */
 @Component({
   selector: "bit-filter-option",
@@ -37,7 +60,7 @@ export type FilterOptionIconTile = IconTileOptions;
   host: { class: "tw-hidden" },
   providers: [{ provide: FILTER_ENTRY, useExisting: forwardRef(() => FilterOptionComponent) }],
 })
-export class FilterOptionComponent<T = unknown> implements FilterRow {
+export class FilterOptionComponent<T = unknown> implements FilterOptionRow {
   readonly kind = "option" as const;
 
   /** The value contributed to the chip's selection when chosen. */

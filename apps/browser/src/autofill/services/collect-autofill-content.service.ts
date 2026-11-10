@@ -87,7 +87,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly overlaySetupDelayMs = 100;
   // Constructed in the constructor body, not here: it closes over a field declared further down.
   private readonly shadowTracker: ShadowHostHydrationTracker;
-  private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly shadowDomCheckDebounceMs = 300;
   private lastMutationTimestamp = 0;
@@ -217,6 +216,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       childList: true,
       subtree: true,
     });
+    document.addEventListener("transitionend", this.handleOpacityTransitionEnd, true);
   }
 
   /**
@@ -232,11 +232,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
     this.mutationObserver.disconnect();
-    this.intersectionObserver.disconnect();
-    this._autofillFormElements.clear();
-    this.autofillFieldElements.clear();
-    this.autofillFieldsByOpid.clear();
-    this.elementInitializingIntersectionObserver.clear();
+    document.removeEventListener("transitionend", this.handleOpacityTransitionEnd, true);
+    this.clearFieldCache();
     // Shadow-host tracking is monitoring-scoped; clear it so restart drops stale deadlines.
     this.shadowTracker.reset();
     this.noFieldsFound = false;
@@ -257,6 +254,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.domRecentlyMutated = true;
     }
   };
+
+  /** Clears the field cache. */
+  private clearFieldCache() {
+    this.intersectionObserver.disconnect();
+    this._autofillFormElements.clear();
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    this.elementInitializingIntersectionObserver.clear();
+  }
 
   /**
    * Builds the data for all forms and fields found within the page DOM.
@@ -293,7 +299,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.domRecentlyMutated && this.autofillFieldElements.size) {
-      this.updateCachedAutofillFieldVisibility();
+      await this.updateCachedAutofillFieldVisibility();
 
       return this.getFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
@@ -639,15 +645,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    *
    * @private
    */
-  private updateCachedAutofillFieldVisibility() {
-    this.autofillFieldElements.forEach(async (autofillField, element) => {
-      const previouslyViewable = autofillField.viewable;
-      autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
+  private async updateCachedAutofillFieldVisibility() {
+    await Promise.all(
+      Array.from(this.autofillFieldElements, async ([element, autofillField]) => {
+        const previouslyViewable = autofillField.viewable;
+        autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
 
-      if (!previouslyViewable && autofillField.viewable) {
-        this.setupOverlayOnField(element, autofillField);
-      }
-    });
+        if (!previouslyViewable && autofillField.viewable) {
+          this.setupOverlayOnField(element, autofillField);
+        }
+      }),
+    );
   }
 
   /**
@@ -861,6 +869,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (index >= 0 && existingAutofillField) {
       existingAutofillField.opid = element.opid;
       existingAutofillField.elementNumber = index;
+      // A cached field may have been shown or hidden since it was first collected.
+      existingAutofillField.viewable =
+        await this.domElementVisibilityService.isElementViewable(element);
       this.autofillFieldElements.set(element, existingAutofillField);
 
       return existingAutofillField;
@@ -1566,6 +1577,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           if (this.shouldListenToTopLayerCandidate(node)) {
             this.pendingTopLayerTargets.add(node);
           }
+          // A popover or dialog nested under a non-candidate added node is still promoted to
+          // the top layer, so it can obscure the inline menu. The added node itself is the only
+          // thing checked above, so walk its descendants to register nested candidates too.
+          for (const descendant of node.querySelectorAll("[popover], dialog")) {
+            if (this.shouldListenToTopLayerCandidate(descendant)) {
+              this.pendingTopLayerTargets.add(descendant);
+            }
+          }
         }
       }
     }
@@ -1595,9 +1614,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // time; the new URL must re-fetch to pick up rule and gate changes.
     this.pageTargetingRules = undefined;
 
-    this._autofillFormElements.clear();
-    this.autofillFieldElements.clear();
-    this.autofillFieldsByOpid.clear();
+    this.clearFieldCache();
 
     // Reset shadow root tracking on navigation
     this.domQueryService.resetObservedShadowRoots();
@@ -1741,10 +1758,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupTopLayerCandidateListener = (element: Element) => {
     const overlayService = this.autofillOverlayContentService;
     if (overlayService !== undefined) {
-      const ownedTags = overlayService.getOwnedInlineMenuTagNames() || [];
-      this.ownedExperienceTagNames = ownedTags;
-
-      if (!ownedTags.includes(element.tagName)) {
+      if (!overlayService.isElementInlineMenu(element)) {
         if (!this.topLayerListenedElements.has(element)) {
           this.topLayerListenedElements.add(element);
           const toggleListener = (event: Event) => {
@@ -1771,7 +1785,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   private shouldListenToTopLayerCandidate = (element: Element) => {
     return (
-      !this.ownedExperienceTagNames.includes(element.tagName) &&
+      // Excluded by element identity, since Firefox renders the inline menu as plain `div`s
+      !this.autofillOverlayContentService?.isElementInlineMenu(element) &&
       (element.tagName === "DIALOG" ||
         Array.from(element.attributes || []).some((attribute) =>
           this.isPopoverAttribute(attribute.name),
@@ -1984,6 +1999,35 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.setupOverlayOnField(formFieldElement, cachedAutofillFieldElement);
 
       this.intersectionObserver.unobserve(entry.target);
+    }
+  };
+
+  /**
+   * Handles the end of an opacity transition. Re-evaluates the visibility of non-viewable
+   * fields within the transitioned element, as a field collected while fading in will not
+   * trigger the IntersectionObserver once it becomes visible.
+   *
+   * @param event - The transitionend event
+   */
+  private handleOpacityTransitionEnd = async (event: TransitionEvent) => {
+    const target = event.target;
+    if (event.propertyName !== "opacity" || !(target instanceof Element)) {
+      return;
+    }
+
+    for (const [formFieldElement, autofillField] of this.autofillFieldElements) {
+      if (
+        autofillField.viewable ||
+        !target.contains(formFieldElement) ||
+        !(await this.domElementVisibilityService.isElementViewable(formFieldElement))
+      ) {
+        continue;
+      }
+
+      autofillField.viewable = true;
+      this.setupOverlayOnField(formFieldElement, autofillField);
+
+      this.intersectionObserver.unobserve(formFieldElement);
     }
   };
 

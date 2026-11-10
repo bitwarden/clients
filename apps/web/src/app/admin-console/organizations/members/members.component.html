@@ -3,7 +3,6 @@
 @let bulkActions = bulkMenuOptions$ | async;
 @let showConfirmBanner = showConfirmBanner$ | async;
 @let isProcessing = this.isProcessing();
-@let isSingleInvite = isSingleInvite$ | async;
 
 @if (organization && dataSource) {
   <app-organization-free-trial-warning
@@ -155,69 +154,71 @@
                     </button>
                     <bit-menu-divider />
                   }
-                  @if (bulkActions.showBulkReinviteUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkReinvite(organization)"
-                    >
-                      <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
-                      {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkConfirmUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkConfirm(organization)"
-                    >
-                      <span class="tw-text-success">
-                        <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                        {{ "confirmSelected" | i18n }}
-                      </span>
-                    </button>
-                  }
-                  @if (bulkActions.showBulkRestoreUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkRevokeOrRestore(false, organization)"
-                    >
-                      <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
-                      {{ "restoreAccess" | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkRevokeUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkRevokeOrRestore(true, organization)"
-                    >
-                      <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
-                      {{ "revokeAccess" | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkRemoveUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      variant="danger"
-                      (click)="isProcessing ? null : bulkRemove(organization)"
-                    >
-                      <bit-icon name="bwi-close" slot="start" />
-                      {{ "remove" | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkDeleteUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      variant="danger"
-                      (click)="isProcessing ? null : bulkDelete(organization)"
-                    >
-                      <bit-icon fixedWidth name="bwi-trash" slot="start" />
-                      {{ "delete" | i18n }}
-                    </button>
+                  @if (bulkActions) {
+                    @if (bulkActions.showBulkSendInvite) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : bulkSendInvite(organization)"
+                      >
+                        <bit-icon fixedWidth name="bwi-envelope" slot="start" />
+                        {{ bulkActions.bulkSendInviteLabel | i18n }}
+                      </button>
+                    }
+                    @if (bulkActions.showBulkConfirmUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : bulkConfirm(organization)"
+                      >
+                        <span class="tw-text-success">
+                          <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                          {{ "confirmSelected" | i18n }}
+                        </span>
+                      </button>
+                    }
+                    @if (bulkActions.showBulkRestoreUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : bulkRevokeOrRestore(false, organization)"
+                      >
+                        <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
+                        {{ "restoreAccess" | i18n }}
+                      </button>
+                    }
+                    @if (bulkActions.showBulkRevokeUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : bulkRevokeOrRestore(true, organization)"
+                      >
+                        <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
+                        {{ "revokeAccess" | i18n }}
+                      </button>
+                    }
+                    @if (bulkActions.showBulkRemoveUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        variant="danger"
+                        (click)="isProcessing ? null : bulkRemove(organization)"
+                      >
+                        <bit-icon name="bwi-close" slot="start" />
+                        {{ "remove" | i18n }}
+                      </button>
+                    }
+                    @if (bulkActions.showBulkDeleteUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        variant="danger"
+                        (click)="isProcessing ? null : bulkDelete(organization)"
+                      >
+                        <bit-icon fixedWidth name="bwi-trash" slot="start" />
+                        {{ "delete" | i18n }}
+                      </button>
+                    }
                   }
                 </bit-menu>
               </th>
@@ -428,6 +429,16 @@
 
                 <bit-menu #rowMenu>
                   @if (showUserManagementControls()) {
+                    @if (u.canSendInvite) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : sendInvite(u, organization)"
+                      >
+                        <bit-icon name="bwi-envelope" slot="start" />
+                        {{ "sendInvite" | i18n }}
+                      </button>
+                    }
                     @if (u.canReinvite) {
                       <button
                         type="button"
@@ -449,36 +460,34 @@
                         </span>
                       </button>
                     }
-                    @if (u.canConfirm || u.canReinvite) {
+                    @if (u.canConfirm || u.canReinvite || u.canSendInvite) {
                       <bit-menu-divider></bit-menu-divider>
                     }
-                    @if (u.canManageMember) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : edit(u, organization, memberTab.Details)"
+                    >
+                      <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
+                    </button>
+                    @if (organization.useGroups) {
                       <button
                         type="button"
                         bitMenuItem
-                        (click)="isProcessing ? null : edit(u, organization, memberTab.Details)"
+                        (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
+                        <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
                       </button>
-                      @if (organization.useGroups) {
-                        <button
-                          type="button"
-                          bitMenuItem
-                          (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
-                        >
-                          <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
-                        </button>
-                      }
-                      <button
-                        type="button"
-                        bitMenuItem
-                        (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
-                      >
-                        <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
-                        {{ "collections" | vfo1I18n: "sharedFolders" }}
-                      </button>
-                      <bit-menu-divider></bit-menu-divider>
                     }
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
+                    >
+                      <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+                      {{ "collections" | vfo1I18n: "sharedFolders" }}
+                    </button>
+                    <bit-menu-divider></bit-menu-divider>
                     @if (organization.useEvents && u.status === userStatusType.Confirmed) {
                       <button
                         type="button"

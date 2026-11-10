@@ -46,6 +46,7 @@ describe("VaultPopupScrollPositionService", () => {
 
     // set up dummy values
     service["scrollPosition"] = 234;
+    service["collapsed"] = true;
     service["scrollSubscription"] = { unsubscribe } as unknown as Subscription;
   });
 
@@ -87,6 +88,31 @@ describe("VaultPopupScrollPositionService", () => {
       expect(service["scrollPosition"]).toBe(234);
     }));
 
+    it("declares the restored collapse on arriving at the vault", fakeAsync(() => {
+      events$.next(new NavigationEnd(22, "/tabs/vault", ""));
+      tick();
+
+      expect(TestBed.inject(ScrollLayoutService).restoredScrolled()).toBe(true);
+    }));
+
+    it("does not declare the collapse when the regions were expanded on leaving", fakeAsync(() => {
+      service["collapsed"] = false;
+
+      events$.next(new NavigationEnd(22, "/tabs/vault", ""));
+      tick();
+
+      expect(TestBed.inject(ScrollLayoutService).restoredScrolled()).toBe(false);
+    }));
+
+    it("does not declare the collapse on a navigation within the attached vault", fakeAsync(() => {
+      service["attached"] = document.createElement("div");
+
+      events$.next(new NavigationEnd(22, "/tabs/vault?search=foo", ""));
+      tick();
+
+      expect(TestBed.inject(ScrollLayoutService).restoredScrolled()).toBe(false);
+    }));
+
     it("resets values on a tab page that merely shares the vault prefix", fakeAsync(() => {
       const event = new NavigationEnd(23, "/tabs/vault-settings", "");
       events$.next(event);
@@ -121,6 +147,20 @@ describe("VaultPopupScrollPositionService", () => {
       service.stop(true);
 
       expect(service["scrollPosition"]).toBeNull();
+    });
+
+    it("remembers the regions were collapsed on leaving", () => {
+      TestBed.inject(ScrollLayoutService).restoredScrolled.set(true);
+
+      service.stop();
+
+      expect(service["collapsed"]).toBe(true);
+    });
+
+    it("remembers the regions were expanded on leaving", () => {
+      service.stop();
+
+      expect(service["collapsed"]).toBe(false);
     });
   });
 
@@ -267,6 +307,18 @@ describe("VaultPopupScrollPositionService", () => {
         expect(scrollLayout.restoredScrolled()).toBe(false);
       }));
 
+      it("does not declare the state when the regions were expanded on leaving", fakeAsync(() => {
+        // A list too short to afford the collapse never collapsed, so it isn't restored (CL-1318).
+        const scrollLayout = TestBed.inject(ScrollLayoutService);
+        service["scrollPosition"] = 100;
+        service["collapsed"] = false;
+
+        service.start(scrollElement);
+        tick();
+
+        expect(scrollLayout.restoredScrolled()).toBe(false);
+      }));
+
       it("does not declare the state when there is nothing to restore", fakeAsync(() => {
         const scrollLayout = TestBed.inject(ScrollLayoutService);
         service["scrollPosition"] = null;
@@ -304,6 +356,8 @@ describe("VaultPopupScrollPositionService", () => {
           service["scrollPosition"] = 234;
 
           service.start(region());
+          expect(scrollLayout.restoredScrolled()).toBe(true);
+
           service.start(live);
           tick();
 
@@ -353,6 +407,19 @@ describe("VaultPopupScrollPositionService", () => {
 
         expect(scrollLayout.restoredScrolled()).toBe(false);
         expect(service["scrollPosition"]).toBe(300);
+      }));
+
+      it("does not leave the restored state declared after stop", fakeAsync(() => {
+        // The deferred jump belongs to the attach that scheduled it. Applied after a stop, it
+        // would raise the state with no listener and no later attach left to clear it.
+        const scrollLayout = TestBed.inject(ScrollLayoutService);
+        service["scrollPosition"] = 234;
+
+        service.start(scrollElement);
+        service.stop(true);
+        tick();
+
+        expect(scrollLayout.restoredScrolled()).toBe(false);
       }));
 
       it("does not leave the restore guard raised after stop", fakeAsync(() => {

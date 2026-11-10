@@ -43,11 +43,13 @@ import {
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
+import { VaultFilterSharedModule } from "../../../../vault/individual-vault/vault-filter/shared/vault-filter-shared.module";
+
 @Component({
   selector: "app-organization-vault-filter",
   templateUrl: "./vault-filter.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [VaultFilterSharedModule],
 })
 export class VaultFilterComponent {
   private readonly vaultFilterService = inject(VaultFilterServiceAbstraction);

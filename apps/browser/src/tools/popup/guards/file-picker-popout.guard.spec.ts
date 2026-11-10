@@ -1,7 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
+import { mock, MockProxy } from "jest-mock-extended";
 
 import { DeviceType } from "@bitwarden/common/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -15,11 +17,19 @@ describe("filePickerPopoutGuard", () => {
   let inSidebarSpy: jest.SpyInstance;
   let openPopoutSpy: jest.SpyInstance;
   let closePopupSpy: jest.SpyInstance;
+  let configService: MockProxy<ConfigService>;
 
   const mockRoute = {} as ActivatedRouteSnapshot;
   const mockState: RouterStateSnapshot = {
     url: "/add-send?type=1",
   } as RouterStateSnapshot;
+
+  // The Send popout is tagged so the created-Send view can tell a popout the extension opened for
+  // the user apart from one the user popped out themselves. Every other route stays untagged.
+  const fileSendPopoutOptions = {
+    singleActionKey: "send_AddFileSend",
+    forceCloseExistingWindows: true,
+  };
 
   beforeEach(() => {
     getDeviceSpy = jest.spyOn(BrowserPlatformUtilsService, "getDevice");
@@ -28,7 +38,14 @@ describe("filePickerPopoutGuard", () => {
     openPopoutSpy = jest.spyOn(BrowserPopupUtils, "openPopout").mockImplementation();
     closePopupSpy = jest.spyOn(BrowserApi, "closePopup").mockImplementation();
 
-    TestBed.configureTestingModule({});
+    // Off by default so every pre-existing test below (all written against the legacy /import
+    // behavior) is unaffected; the ImportUpgrade-on behavior is covered separately below.
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: ConfigService, useValue: configService }],
+    });
   });
 
   afterEach(() => {
@@ -49,7 +66,10 @@ describe("filePickerPopoutGuard", () => {
       expect(getDeviceSpy).toHaveBeenCalledWith(window);
       expect(inPopoutSpy).toHaveBeenCalledWith(window);
       expect(inSidebarSpy).toHaveBeenCalledWith(window);
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/add-send?type=1",
+        fileSendPopoutOptions,
+      );
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
@@ -90,7 +110,10 @@ describe("filePickerPopoutGuard", () => {
 
       expect(getDeviceSpy).toHaveBeenCalledWith(window);
       expect(inPopoutSpy).toHaveBeenCalledWith(window);
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/add-send?type=1",
+        fileSendPopoutOptions,
+      );
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
@@ -114,7 +137,10 @@ describe("filePickerPopoutGuard", () => {
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
       // Safari requires popout, sidebar is not sufficient
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/add-send?type=1",
+        fileSendPopoutOptions,
+      );
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
@@ -147,7 +173,10 @@ describe("filePickerPopoutGuard", () => {
         const guard = filePickerPopoutGuard();
         const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
-        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+        expect(openPopoutSpy).toHaveBeenCalledWith(
+          "popup/index.html#/add-send?type=1",
+          fileSendPopoutOptions,
+        );
         expect(closePopupSpy).toHaveBeenCalledWith(window);
         expect(result).toBe(false);
       },
@@ -205,7 +234,10 @@ describe("filePickerPopoutGuard", () => {
         const guard = filePickerPopoutGuard();
         const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
-        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+        expect(openPopoutSpy).toHaveBeenCalledWith(
+          "popup/index.html#/add-send?type=1",
+          fileSendPopoutOptions,
+        );
         expect(closePopupSpy).toHaveBeenCalledWith(window);
         expect(result).toBe(false);
       },
@@ -269,13 +301,29 @@ describe("filePickerPopoutGuard", () => {
       const guard = filePickerPopoutGuard();
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import");
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import", {});
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
 
     it("should allow import route navigation when already in a persistent context", async () => {
       inPopoutSpy.mockReturnValue(true);
+      const importState: RouterStateSnapshot = {
+        url: "/import",
+      } as RouterStateSnapshot;
+
+      const guard = filePickerPopoutGuard();
+      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
+
+      expect(openPopoutSpy).not.toHaveBeenCalled();
+      expect(closePopupSpy).not.toHaveBeenCalled();
+      expect(result).toBe(true);
+    });
+
+    it("does not open a popout for the import route when ImportUpgrade is enabled", async () => {
+      // importUpgradeRedirectGuard is redirecting away from /import in this case; this guard
+      // must not race it with its own popout + close-popup side effects.
+      configService.getFeatureFlag.mockResolvedValue(true);
       const importState: RouterStateSnapshot = {
         url: "/import",
       } as RouterStateSnapshot;
@@ -306,7 +354,10 @@ describe("filePickerPopoutGuard", () => {
         const guard = filePickerPopoutGuard();
         const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
 
-        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#" + route);
+        expect(openPopoutSpy).toHaveBeenCalledWith(
+          "popup/index.html#" + route,
+          route === "/add-send" ? fileSendPopoutOptions : {},
+        );
         expect(closePopupSpy).toHaveBeenCalledWith(window);
         expect(result).toBe(false);
       },
@@ -328,7 +379,7 @@ describe("filePickerPopoutGuard", () => {
       const guard = filePickerPopoutGuard();
       await TestBed.runInInjectionContext(() => guard(mockRoute, stateWithQuery));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import?foo=bar&baz=qux");
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import?foo=bar&baz=qux", {});
       expect(closePopupSpy).toHaveBeenCalledWith(window);
     });
 
@@ -340,7 +391,7 @@ describe("filePickerPopoutGuard", () => {
       const guard = filePickerPopoutGuard();
       await TestBed.runInInjectionContext(() => guard(mockRoute, stateWithoutQuery));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/simple-path");
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/simple-path", {});
       expect(closePopupSpy).toHaveBeenCalledWith(window);
     });
 
@@ -348,7 +399,10 @@ describe("filePickerPopoutGuard", () => {
       const guard = filePickerPopoutGuard();
       await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/add-send?type=1",
+        fileSendPopoutOptions,
+      );
       expect(openPopoutSpy).not.toHaveBeenCalledWith(expect.stringContaining("autoClosePopout"));
     });
   });
@@ -482,6 +536,7 @@ describe("filePickerPopoutGuard", () => {
           } else {
             expect(openPopoutSpy).toHaveBeenCalledWith(
               "popup/index.html#/add-send?type=1&isNew=true",
+              fileSendPopoutOptions,
             );
             expect(closePopupSpy).toHaveBeenCalledWith(window);
             expect(result).toBe(false);
@@ -585,7 +640,10 @@ describe("filePickerPopoutGuard", () => {
             expect(closePopupSpy).not.toHaveBeenCalled();
             expect(result).toBe(true);
           } else {
-            expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send");
+            expect(openPopoutSpy).toHaveBeenCalledWith(
+              "popup/index.html#/add-send",
+              fileSendPopoutOptions,
+            );
             expect(closePopupSpy).toHaveBeenCalledWith(window);
             expect(result).toBe(false);
           }
@@ -688,7 +746,10 @@ describe("filePickerPopoutGuard", () => {
             expect(closePopupSpy).not.toHaveBeenCalled();
             expect(result).toBe(true);
           } else {
-            expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=invalid");
+            expect(openPopoutSpy).toHaveBeenCalledWith(
+              "popup/index.html#/add-send?type=invalid",
+              fileSendPopoutOptions,
+            );
             expect(closePopupSpy).toHaveBeenCalledWith(window);
             expect(result).toBe(false);
           }
@@ -716,7 +777,7 @@ describe("filePickerPopoutGuard", () => {
           const guard = filePickerPopoutGuard();
           const result = await TestBed.runInInjectionContext(() => guard(mockRoute, routeState));
 
-          expect(openPopoutSpy).toHaveBeenCalledWith(`popup/index.html#${route}?type=0`);
+          expect(openPopoutSpy).toHaveBeenCalledWith(`popup/index.html#${route}?type=0`, {});
           expect(closePopupSpy).toHaveBeenCalledWith(window);
           expect(result).toBe(false);
         },

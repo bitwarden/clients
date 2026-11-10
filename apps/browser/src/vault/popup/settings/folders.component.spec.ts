@@ -130,8 +130,8 @@ describe("FoldersComponent", () => {
     folderViews$.next([{ id: "", name: "No Folder" }] as FolderView[]);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain("youHaveNoFolders");
-    expect(fixture.nativeElement.textContent).toContain("emptyFoldersDescription");
+    expect(fixture.nativeElement.textContent).toContain("youHaveNoFoldersV2");
+    expect(fixture.nativeElement.textContent).toContain("emptyFoldersDescriptionV2");
     expect(
       fixture.debugElement.query(By.css('[data-testid="empty-new-folder-button"]')),
     ).toBeFalsy();

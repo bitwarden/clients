@@ -1,14 +1,12 @@
-@if (showBatchBar()) {
-  <td bitCell [ngClass]="RowHeightClass" class="tw-w-10">
-    <input
-      type="checkbox"
-      bitCheckbox
-      [checked]="selected()"
-      (change)="checkboxChange.emit()"
-      [attr.aria-label]="cipher().name"
-    />
-  </td>
-}
+<td bitCell [ngClass]="RowHeightClass" class="tw-w-10">
+  <input
+    type="checkbox"
+    bitCheckbox
+    [checked]="selected()"
+    (change)="checkboxChange.emit()"
+    [attr.aria-label]="cipher().name"
+  />
+</td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-flex tw-items-center tw-gap-2">
   <app-vault-icon [cipher]="cipher()"></app-vault-icon>
   <div class="tw-truncate">
@@ -132,6 +130,15 @@
           {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
         </button>
       }
+      <button
+        bitMenuItem
+        type="button"
+        *appShareLinkMenuItem="cipher(); let share = share"
+        (click)="share()"
+      >
+        <bit-icon name="bwi-share-link" fixedWidth />
+        {{ "shareViaLink" | i18n }}
+      </button>
       @if (showArchiveButton()) {
         @if (userCanArchive()) {
           <button bitMenuItem (click)="archive()" type="button">

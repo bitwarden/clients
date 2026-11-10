@@ -62,9 +62,18 @@ export abstract class SendFormService {
 
   /**
    * Submits the Send form. This will return `undefined` if the Send form had errors preventing
-   * its submission, and throw any errors it receives from encryption, decryption, or the API call
+   * its submission, and throw any errors it receives from encryption, decryption, or the API call.
+   *
+   * If `abortPendingSubmission()` is called after a file Send's content has already been
+   * uploaded, the created Send is rolled back and this resolves to `undefined` rather than
+   * throwing.
    */
   abstract submitSendForm(): Promise<SendView>;
+
+  /**
+   * Aborts an in-flight `submitSendForm()` call, if any. A no-op if no submission is in progress.
+   */
+  abstract abortPendingSubmission(): void;
 
   /** Returns whether the Send form currently has edits */
   abstract sendFormHasEdits(): boolean;
@@ -78,9 +87,11 @@ export abstract class SendFormService {
    */
   abstract promptForUnsavedEdits(): Promise<boolean>;
 
-  /** A function that removes the password from a Send, or returns immediately if
-   * the Send is not protected by password. Returns a boolean indicating whether
-   * the password was removed successfully or not
+  /** A function that removes all authentication from a Send — a password or an
+   * email-verification requirement — or returns immediately if the Send is not
+   * protected. The confirmation dialog and success toast name the Send's auth
+   * type (password or email verification). Returns a boolean indicating whether
+   * the authentication was removed successfully or not
    */
-  abstract removeSendPassword(): Promise<boolean>;
+  abstract removeSendAuth(): Promise<boolean>;
 }

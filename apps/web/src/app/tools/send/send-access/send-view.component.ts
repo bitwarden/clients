@@ -25,16 +25,24 @@ import {
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { isAccessSendError } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../shared";
 
 import { SendAccessFileComponent } from "./send-access-file.component";
+import { SendAccessItemComponent } from "./send-access-item.component";
 import { SendAccessTextComponent } from "./send-access-text.component";
 
 @Component({
   selector: "app-send-view",
   templateUrl: "send-view.component.html",
-  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule, SpinnerComponent],
+  imports: [
+    SendAccessFileComponent,
+    SendAccessItemComponent,
+    SendAccessTextComponent,
+    SharedModule,
+    SpinnerComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendViewComponent implements OnInit {
@@ -109,6 +117,10 @@ export class SendViewComponent implements OnInit {
         } else {
           this.error.set(true);
         }
+      } else if (isAccessSendError(e) && e.variant === "NotFound") {
+        // The SDK path (`pm-30110-sdk-sends-api`) reports a Send that is gone or can no longer be
+        // opened this way, rather than as a 404 ErrorResponse
+        this.unavailable.set(true);
       } else {
         this.error.set(true);
       }
@@ -116,11 +128,22 @@ export class SendViewComponent implements OnInit {
       this.loading.set(false);
     }
 
+    const decSendAfterLoad = this.send();
+    if (decSendAfterLoad?.type === SendType.Item) {
+      this.layoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "viewSharedItem" },
+      });
+    }
+
     const creatorIdentifier = this.creatorIdentifier();
     if (creatorIdentifier != null) {
+      const subtitleKey =
+        decSendAfterLoad?.type === SendType.Item
+          ? "sendAccessItemSubtitle"
+          : "sendAccessCreatorIdentifier";
       this.layoutWrapperDataService.setAnonLayoutWrapperData({
         pageSubtitle: {
-          key: "sendAccessCreatorIdentifier",
+          key: subtitleKey,
           placeholders: [creatorIdentifier],
         },
       });

@@ -30,6 +30,8 @@ use super::{AppRegistry, RunningApp, APPLICATION_FRAME_HOST_EXE, PKEY_APP_USER_M
 mod packaged_source;
 mod window_source;
 
+pub(super) use window_source::resolve_window;
+
 /// Prefix for the dedupe key of an AUMID-identified app. Shared contract between [`identity`]
 /// (window-derived entries) and [`merge_packaged`] (windowless packaged entries) so the two
 /// sources dedupe against each other.
@@ -82,22 +84,8 @@ fn collect_windows(
     let mut has_visible_representative: HashSet<String> = HashSet::new();
 
     for w in windows {
-        let (display_name, key, registered) = identity(
-            w.aumid.as_deref(),
-            &w.exe_path,
-            &w.name,
-            w.product_name.as_deref(),
-            registry,
-        );
-
-        let entry = by_key.entry(key.clone()).or_insert_with(|| RunningApp {
-            pid: w.pid,
-            filename: w.name.clone(),
-            exe_path: w.exe_path.clone(),
-            display_name: display_name.clone(),
-            has_window: true,
-            registered,
-        });
+        let (key, app) = window_to_running_app(&w, registry);
+        let entry = by_key.entry(key.clone()).or_insert(app);
 
         // Prefer a pid that owns a visible window as the representative. `insert` returns true
         // only for the first visible window seen for this key, so we upgrade at most once. Adopt
@@ -110,6 +98,29 @@ fn collect_windows(
             entry.filename = w.name.clone();
         }
     }
+}
+
+/// Resolve a single window's identity against the registry and build its [`RunningApp`].
+pub(super) fn window_to_running_app(w: &RawWindow, registry: &AppRegistry) -> (String, RunningApp) {
+    let (display_name, key, registered) = identity(
+        w.aumid.as_deref(),
+        &w.exe_path,
+        &w.name,
+        w.product_name.as_deref(),
+        registry,
+    );
+
+    (
+        key,
+        RunningApp {
+            pid: w.pid,
+            filename: w.name.clone(),
+            exe_path: w.exe_path.clone(),
+            display_name,
+            has_window: true,
+            registered,
+        },
+    )
 }
 
 /// Fold running packaged apps into the window-derived set. Each is tagged `registered` (present in

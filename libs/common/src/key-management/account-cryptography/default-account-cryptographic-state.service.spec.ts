@@ -81,6 +81,25 @@ describe("DefaultAccountCryptographicStateService", () => {
     });
   });
 
+  describe("accountCryptographicState$ deduplication", () => {
+    it("does not re-emit when identical state is written again", async () => {
+      // Sync rewrites unchanged state; each emission makes consumers decrypt the whole vault.
+      const state = (): WrappedAccountCryptographicState => ({
+        V1: { private_key: "test-state" as any },
+      });
+      await stateProvider.setUserState(ACCOUNT_CRYPTOGRAPHIC_STATE, state(), mockUserId);
+
+      const results: (WrappedAccountCryptographicState | null)[] = [];
+      const subscription = service
+        .accountCryptographicState$(mockUserId)
+        .subscribe((s) => results.push(s));
+      await stateProvider.setUserState(ACCOUNT_CRYPTOGRAPHIC_STATE, state(), mockUserId);
+
+      subscription.unsubscribe();
+      expect(results).toHaveLength(1);
+    });
+  });
+
   describe("setAccountCryptographicState", () => {
     it("sets the account cryptographic state", async () => {
       const mockState: WrappedAccountCryptographicState = {

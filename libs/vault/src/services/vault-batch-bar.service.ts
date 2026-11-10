@@ -18,8 +18,6 @@ import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/mode
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -33,6 +31,10 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
@@ -122,7 +124,6 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService, { optional: true });
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
-  private readonly configService = inject(ConfigService);
   private readonly assignCollectionsDialog =
     inject<AssignCollectionsDialogRef>(ASSIGN_COLLECTIONS_DIALOG);
   private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG);
@@ -235,20 +236,19 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     this.selection.clear();
   }
 
-  private readonly batchBarFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-    { initialValue: false },
-  );
+  readonly barVisible = computed(() => this.selectedCount() > 0);
 
-  /** True when the batch bar feature flag is enabled. */
-  readonly enabled = computed(() => this.batchBarFlag());
-
-  readonly barVisible = computed(() => this.enabled() && this.selectedCount() > 0);
-
-  /** Selected items that are ciphers. */
+  /**
+   * Selected items that are ciphers, excluding restricted ciphers. The list already makes them
+   * unselectable; this guards bulk actions if one reaches the selection another way.
+   */
   readonly selectedCiphers = computed(() =>
     this.selected()
-      .filter((i) => i.cipher !== undefined)
+      .filter(
+        (i) =>
+          i.cipher !== undefined &&
+          RestrictedCipherPolicy.allows(i.cipher, RestrictedCipherAction.BulkSelect),
+      )
       .map((i) => i.cipher as C),
   );
 
@@ -627,7 +627,12 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     const { isOrgVault, organization: org } = this.config();
     const selected = this.selected();
     const ciphers = selected
-      .filter((i) => i.collection === undefined && i.cipher !== undefined)
+      .filter(
+        (i) =>
+          i.collection === undefined &&
+          i.cipher !== undefined &&
+          RestrictedCipherPolicy.allows(i.cipher, RestrictedCipherAction.BulkSelect),
+      )
       .map((i) => i.cipher as C);
     const collections = selected
       .filter((i) => i.collection !== undefined)

@@ -4,11 +4,14 @@ use std::{
 };
 
 use autofill_provider::{
-    CallbackError, PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback,
-    UserVerification, WindowDetails,
+    BitwardenError, CallbackError, PasskeyAssertionRequest, PasskeyAssertionResponse, Position,
+    TimedCallback, UserVerification, WindowDetails,
 };
 use desktop_core::autofill::create_context_string;
-use win_webauthn::{plugin::PluginGetAssertionRequest, CborWriter};
+use win_webauthn::{
+    plugin::{PluginError, PluginGetAssertionRequest},
+    CborWriter,
+};
 
 use crate::{ipc::IpcClient, util::HwndExt};
 
@@ -68,8 +71,7 @@ pub fn get_assertion(
         context,
     };
     let passkey_response =
-        send_assertion_request(ipc_client, assertion_request, cancellation_token)
-            .map_err(|err| format!("Failed to get assertion response from IPC channel: {err}"))?;
+        send_assertion_request(ipc_client, assertion_request, cancellation_token)?;
     tracing::debug!("Assertion response received: {:?}", passkey_response);
 
     // Create proper WebAuthn response from passkey_response
@@ -89,7 +91,7 @@ fn send_assertion_request(
     ipc_client: &dyn IpcClient,
     request: PasskeyAssertionRequest,
     cancellation_token: Receiver<()>,
-) -> Result<PasskeyAssertionResponse, String> {
+) -> Result<PasskeyAssertionResponse, Box<dyn std::error::Error>> {
     tracing::debug!(
         "Assertion request data - RP ID: {}, Client data hash: {} bytes, Allowed credentials: {:?}",
         request.rp_id,
@@ -106,7 +108,12 @@ fn send_assertion_request(
             CallbackError::Timeout => "Assertion request timed out".to_string(),
             CallbackError::Cancelled => "Assertion request cancelled".to_string(),
         })?
-        .map_err(|err| err.to_string())
+        .map_err(|err| -> Box<dyn std::error::Error> {
+            match err {
+                BitwardenError::CredentialNotFound => Box::new(PluginError::CredentialNotFound),
+                err => format!("Failed to get assertion response from IPC channel: {err}").into(),
+            }
+        })
 }
 
 /// Creates a WebAuthn get assertion response from Bitwarden's assertion response
@@ -161,9 +168,50 @@ fn create_get_assertion_response(
 
 #[cfg(test)]
 mod tests {
+    use std::sync::mpsc;
+
     use win_webauthn::{CborParser, CborValue};
 
-    use super::create_get_assertion_response;
+    use super::*;
+    use crate::ipc::test_util::FailingIpcClient;
+
+    fn assertion_request() -> PasskeyAssertionRequest {
+        PasskeyAssertionRequest {
+            rp_id: "example.com".to_string(),
+            client_data_hash: vec![0; 32],
+            allowed_credentials: vec![vec![4, 5, 6]],
+            user_verification: UserVerification::Preferred,
+            client_window: WindowDetails {
+                position: Position { x: 0, y: 0 },
+                handle: None,
+            },
+            context: "context".to_string(),
+        }
+    }
+
+    fn send_failing_assertion(error: fn() -> BitwardenError) -> Box<dyn std::error::Error> {
+        let (_cancel_tx, cancel_rx) = mpsc::channel();
+        send_assertion_request(&FailingIpcClient { error }, assertion_request(), cancel_rx)
+            .expect_err("assertion should fail")
+    }
+
+    #[test]
+    fn reports_a_missing_credential_as_a_plugin_error() {
+        let err = send_failing_assertion(|| BitwardenError::CredentialNotFound);
+
+        assert!(matches!(
+            err.downcast_ref::<PluginError>(),
+            Some(PluginError::CredentialNotFound)
+        ));
+    }
+
+    #[test]
+    fn reports_other_assertion_failures_as_generic_errors() {
+        let err = send_failing_assertion(|| BitwardenError::Internal("boom".to_string()));
+
+        assert!(err.downcast_ref::<PluginError>().is_none());
+        assert!(err.to_string().contains("boom"));
+    }
 
     #[test]
     fn test_create_native_assertion_response() {

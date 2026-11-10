@@ -1,6 +1,14 @@
-import { ComponentRef, signal, WritableSignal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ComponentRef,
+  input,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -12,10 +20,22 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { LogService } from "@bitwarden/logging";
 
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
+import { ITEM_DETAILS_BADGE } from "../../tokens/item-details-badge.token";
 
 import { ItemDetailsV2Component } from "./item-details-v2.component";
+
+@Component({
+  selector: "app-stub-state-badge",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span data-testid="stub-state-badge">{{ cipher().name }}</span>`,
+})
+class StubStateBadgeComponent {
+  readonly cipher = input.required<CipherView>();
+  readonly isAdminConsole = input(false);
+}
 
 describe("ItemDetailsV2Component", () => {
   let component: ItemDetailsV2Component;
@@ -56,6 +76,7 @@ describe("ItemDetailsV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
           useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
@@ -183,5 +204,71 @@ describe("ItemDetailsV2Component", () => {
 
       expect(personalVaultChip).toBeUndefined();
     });
+  });
+});
+
+describe("ItemDetailsV2Component badge seam (ITEM_DETAILS_BADGE)", () => {
+  const cipher = { id: "cipher1", name: "cipher name", collectionIds: [] } as unknown as CipherView;
+
+  async function render(badge: typeof StubStateBadgeComponent | null, isAdminConsole = false) {
+    await TestBed.configureTestingModule({
+      imports: [ItemDetailsV2Component],
+      providers: [
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
+        },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: Vfo1TerminologyService, useFactory: () => ({ enabled: signal(false) }) },
+        ...(badge == null ? [] : [{ provide: ITEM_DETAILS_BADGE, useValue: badge }]),
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ItemDetailsV2Component);
+    fixture.componentRef.setInput("cipher", cipher);
+    fixture.componentRef.setInput("isAdminConsole", isAdminConsole);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  function nameRow(fixture: ComponentFixture<ItemDetailsV2Component>): HTMLElement {
+    return fixture.debugElement.query(By.css('[data-testid="item-name"]')).nativeElement
+      .parentElement;
+  }
+
+  it("adds nothing to the name row when no host provides the token", async () => {
+    const fixture = await render(null);
+
+    const row = nameRow(fixture);
+    expect(fixture.debugElement.query(By.css("app-stub-state-badge"))).toBeNull();
+    expect(row.lastElementChild).toBe(row.querySelector('[data-testid="item-name"]'));
+  });
+
+  it("renders the provided badge on the name row, after the item name", async () => {
+    const fixture = await render(StubStateBadgeComponent);
+
+    const badge = fixture.debugElement.query(By.css('[data-testid="stub-state-badge"]'));
+    expect(badge).not.toBeNull();
+    expect(badge.nativeElement.textContent.trim()).toBe(cipher.name);
+
+    const row = nameRow(fixture);
+    expect(row.lastElementChild?.contains(badge.nativeElement)).toBe(true);
+  });
+
+  it("hands the badge the cipher and isAdminConsole", async () => {
+    const fixture = await render(StubStateBadgeComponent, true);
+
+    const badge = fixture.debugElement.query(By.directive(StubStateBadgeComponent))
+      .componentInstance as StubStateBadgeComponent;
+    expect(badge.cipher()).toBe(cipher);
+    expect(badge.isAdminConsole()).toBe(true);
   });
 });

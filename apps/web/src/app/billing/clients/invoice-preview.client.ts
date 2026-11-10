@@ -1,69 +1,61 @@
-// NOTE: `InvoicePreviewClient` (this file) is the preview-driven cart client and is NOT the legacy
-// `PreviewInvoiceClient` in `preview-invoice.client.ts`, which returns only (Tax, Total). The two
-// coexist until the PM-40422 cleanup — check which one you mean before importing.
 import { inject, Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { InvoicePreviewResponse } from "@bitwarden/common/billing/models/response/invoice-preview.response";
 import type { PlanTier } from "@bitwarden/pricing";
 
-/**
- * Request shapes are owned by the per-screen tickets that consume each route. They are kept
- * minimal and narrowly typed here rather than `any`, and will be filled out as those land.
- */
-// TODO(PM-40222): finalize the premium purchase request shape.
+import type { BillingAddress } from "../payment/types";
+import type { OrganizationSubscriptionPurchase } from "../types";
+
 export type PremiumPurchasePreviewRequest = {
   additionalStorage: number;
+  coupons?: string[];
+  billingAddress: Pick<BillingAddress, "country" | "postalCode">;
 };
 
-// TODO(PM-40223): finalize the premium organization upgrade request shape.
 export type PremiumOrgUpgradePreviewRequest = {
-  planTier: PlanTier;
-  cadence: string;
+  targetProductTierType: ProductTierType;
+  billingAddress: Pick<BillingAddress, "country" | "postalCode">;
 };
 
-// TODO(PM-40222 / PM-40231): finalize the shared organization purchase request shape.
 export type OrganizationPurchasePreviewRequest = {
-  planTier: PlanTier;
-  cadence: string;
-  passwordManager: {
-    seats: number;
-    additionalStorage: number;
-    sponsored: boolean;
-  };
-  secretsManager?: {
-    seats: number;
-    additionalServiceAccounts: number;
-    standalone: boolean;
-  };
+  purchase: OrganizationSubscriptionPurchase & { coupons?: string[] };
+  billingAddress: BillingAddress;
 };
 
-// TODO(PM-40224): finalize the organization plan change request shape.
 export type OrganizationPlanChangePreviewRequest = {
-  planTier: PlanTier;
+  tier: PlanTier;
   cadence: string;
+  billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
+};
+
+export type OrganizationRestartPreviewRequest = {
+  billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
 };
 
 /**
  * Raw HTTP access to the cart preview endpoints. No adaptation and no flow context — callers go
  * through `InvoicePreviewService`, which owns both.
- *
- * Every route below is gated server-side by the `PM36631_PreviewDrivenCart` flag and returns 404
- * until the corresponding server ticket lands. 404s deliberately propagate: while the routes do
- * not exist, "route missing" must stay distinguishable from "no subscription".
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewClient {
   private apiService = inject(ApiService);
 
-  /** Consumed by PM-40222. */
   previewPremiumPurchase = async (
     request: PremiumPurchasePreviewRequest,
   ): Promise<InvoicePreviewResponse> => {
+    const params = new URLSearchParams({
+      additionalStorage: request.additionalStorage.toString(),
+      country: request.billingAddress.country,
+      postalCode: request.billingAddress.postalCode,
+    });
+    request.coupons?.forEach((coupon) => params.append("coupons", coupon));
+
     const json = await this.apiService.send(
-      "POST",
-      "/account/billing/subscriptions/premium/invoice/preview",
-      request,
+      "GET",
+      `/account/billing/subscription/purchase/preview?${params.toString()}`,
+      null,
       true,
       true,
     );
@@ -75,10 +67,16 @@ export class InvoicePreviewClient {
   previewPremiumOrgUpgrade = async (
     request: PremiumOrgUpgradePreviewRequest,
   ): Promise<InvoicePreviewResponse> => {
+    const params = new URLSearchParams({
+      targetProductTierType: request.targetProductTierType.toString(),
+      country: request.billingAddress.country,
+      postalCode: request.billingAddress.postalCode,
+    });
+
     const json = await this.apiService.send(
-      "POST",
-      "/account/billing/subscriptions/premium/upgrade/invoice/preview",
-      request,
+      "GET",
+      `/account/billing/subscription/upgrade/preview?${params.toString()}`,
+      null,
       true,
       true,
     );
@@ -92,7 +90,7 @@ export class InvoicePreviewClient {
   ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
-      "/account/billing/subscriptions/organizations/invoice/preview",
+      "/organizations/billing/subscription/purchase/preview",
       request,
       true,
       true,
@@ -101,14 +99,40 @@ export class InvoicePreviewClient {
     return new InvoicePreviewResponse(json);
   };
 
-  /** Consumed by PM-40224. */
+  /**
+   * Previews the invoice for an organization plan change.
+   * @param organizationId The ID of the organization for which to preview the plan change.
+   * @param request The details of the plan change to preview.
+   * @returns A promise that resolves to the invoice preview response.
+   */
   previewOrganizationPlanChange = async (
     organizationId: string,
     request: OrganizationPlanChangePreviewRequest,
   ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
-      `/organizations/${organizationId}/billing/subscription/plan-change/invoice/preview`,
+      `/organizations/${organizationId}/billing/subscription/plan-change/preview`,
+      request,
+      true,
+      true,
+    );
+
+    return new InvoicePreviewResponse(json);
+  };
+
+  /**
+   * Previews the invoice for restarting an organization's ended subscription.
+   * @param organizationId The ID of the organization whose subscription would be restarted.
+   * @param request The billing address the restart would be taxed against.
+   * @returns A promise that resolves to the invoice preview response.
+   */
+  previewOrganizationRestart = async (
+    organizationId: string,
+    request: OrganizationRestartPreviewRequest,
+  ): Promise<InvoicePreviewResponse> => {
+    const json = await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/billing/subscription/restart/preview`,
       request,
       true,
       true,

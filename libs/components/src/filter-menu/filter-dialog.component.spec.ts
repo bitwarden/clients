@@ -18,10 +18,12 @@ function presenter(label: string, summaryLabels: string[]): FilterPresenter {
     label: signal(label),
     icon: signal(undefined),
     active: signal(summaryLabels.length > 0),
+    multiple: signal(summaryLabels.length > 1),
     summary: signal(summaryLabels.join(", ")),
-    summaryLabels: signal(summaryLabels),
+    selections: signal(summaryLabels.map((label) => ({ value: label, label }))),
     optionsTemplate: signal(undefined),
     flip: () => undefined,
+    deselect: () => undefined,
     clear: () => undefined,
   };
 }
@@ -44,7 +46,10 @@ describe("FilterDialogComponent", () => {
               filtersSelected: (count?: string) => `${count} selected`,
             }),
         },
-        { provide: DIALOG_DATA, useValue: { filters } satisfies FilterDialogParams },
+        {
+          provide: DIALOG_DATA,
+          useValue: { filters: signal(filters) } satisfies FilterDialogParams,
+        },
       ],
     }).compileComponents();
 
@@ -74,5 +79,13 @@ describe("FilterDialogComponent", () => {
       "Shared folders: A long collection name, Another long collection name",
       "My folders",
     ]);
+  });
+
+  it("exposes each row by filter key", async () => {
+    const fixture = await setUp([presenter("Type", []), presenter("Vault", [])]);
+    const row = (key: string) => fixture.componentInstance.row(key);
+
+    expect(row("Vault")?.nativeElement.textContent).toContain("Vault");
+    expect(row("Missing")).toBeUndefined();
   });
 });

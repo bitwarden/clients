@@ -1,5 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -8,7 +8,6 @@ import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwar
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { Environment, EnvironmentService } from "../../platform/abstractions/environment.service";
 import { MockSdkService } from "../../platform/spec/mock-sdk.service";
 
 import { DefaultPasswordPreloginService } from "./default-password-prelogin.service";
@@ -27,14 +26,12 @@ function flushPromises() {
 describe("DefaultPasswordPreloginService", () => {
   let apiService: MockProxy<PasswordPreloginApiService>;
   let sdkService: MockSdkService;
-  let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let sut: DefaultPasswordPreloginService;
 
   const email = "user@example.com";
   const emailA = "a@example.com";
   const emailB = "b@example.com";
-  const identityUrl = "https://identity.bitwarden.com";
 
   // The API and SDK paths return different salts so tests can prove which source was used.
   const apiSalt = "api-salt";
@@ -68,20 +65,10 @@ describe("DefaultPasswordPreloginService", () => {
       .login.mockDeep()
       .get_password_prelogin.mockResolvedValue(sdkResponse);
 
-    environmentService = mock<EnvironmentService>();
-    const mockEnv = mock<Environment>();
-    mockEnv.getIdentityUrl.mockReturnValue(identityUrl);
-    environmentService.environment$ = new BehaviorSubject(mockEnv).asObservable();
-
     configService = mock<ConfigService>();
     configService.getFeatureFlag.mockResolvedValue(false);
 
-    sut = new DefaultPasswordPreloginService(
-      apiService,
-      sdkService,
-      environmentService,
-      configService,
-    );
+    sut = new DefaultPasswordPreloginService(apiService, sdkService, configService);
   });
 
   afterEach(() => {

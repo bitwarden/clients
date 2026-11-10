@@ -11,6 +11,10 @@ import { PolicyCategory } from "../pipes/policy-category";
 
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
+/**
+ * Autotype MVP only: this policy must only be used within the Autotype MVP scope
+ * (`AutotypeFeatureFlagState.Mvp`, MVP feature flag on and GA feature flag off).
+ */
 export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinition {
   name = "desktopAutotypePolicyTitleV2";
   description = "desktopAutotypePolicyDescV2";
@@ -23,7 +27,7 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
 
   display$(organization: Organization, configService: ConfigService) {
     return autotypeFeatureFlagState$(configService).pipe(
-      map((state) => state !== AutotypeFeatureFlagState.Off),
+      map((state) => state === AutotypeFeatureFlagState.Mvp),
     );
   }
 }

@@ -5,6 +5,8 @@ import {
   InvoicePreviewFlowContext,
   getCartItemTranslationKey,
   getCreditTranslationKey,
+  getProratedSeatTranslationKey,
+  getProrationChargeTranslationKey,
   PlanTier,
   PurchasableReference,
 } from "@bitwarden/pricing";
@@ -30,24 +32,40 @@ describe("cart preview translation keys", () => {
     "pm-storage",
     "sm-seat",
     "sm-service-account",
+    "pam-seat",
   ];
 
   const lineItemKeys = Object.values(InvoicePreviewFlowContext).flatMap((flowContext) =>
     allTiers.flatMap((planTier) =>
-      allReferences.map((reference) =>
+      allReferences.flatMap((reference) => [
         getCartItemTranslationKey(reference, planTier, flowContext, logService),
-      ),
+        // A single seat resolves the singular unit.
+        getCartItemTranslationKey(reference, planTier, flowContext, logService, 1),
+      ]),
     ),
   );
+
+  const prorationChargeKeys = allReferences.flatMap((reference) => [
+    getProrationChargeTranslationKey(reference, "pm-seat", logService),
+    getProrationChargeTranslationKey(reference, "sm-seat", logService),
+    getProrationChargeTranslationKey(reference, "pam-seat", logService),
+    getProrationChargeTranslationKey(undefined, "pm-seat", logService),
+    getProrationChargeTranslationKey(undefined, "sm-seat", logService),
+    getProrationChargeTranslationKey(undefined, "pam-seat", logService),
+  ]);
 
   const creditKeys = Object.values(InvoicePreviewFlowContext).map((flowContext) =>
     getCreditTranslationKey(flowContext),
   );
 
-  // Unmapped combinations intentionally return "" and emit no row, so they carry no copy.
-  const resolvedKeys = [...new Set([...lineItemKeys, ...creditKeys])].filter(
-    (key): key is string => !!key,
+  const proratedSeatKeys = Object.values(InvoicePreviewFlowContext).map((flowContext) =>
+    getProratedSeatTranslationKey(flowContext),
   );
+
+  // Unmapped combinations intentionally return "" and emit no row, so they carry no copy.
+  const resolvedKeys = [
+    ...new Set([...lineItemKeys, ...creditKeys, ...prorationChargeKeys, ...proratedSeatKeys]),
+  ].filter((key): key is string => !!key);
 
   const localeMessages = messages as Record<string, { message: string } | undefined>;
 
@@ -62,12 +80,21 @@ describe("cart preview translation keys", () => {
         "familiesMembership",
         "teamsMembership",
         "enterpriseMembership",
+        "membersLower",
         "passwordManagerPlanPrice",
-        "additionalStorageGb",
         "secretsManagerPlanPrice",
-        "additionalServiceAccounts",
+        "additionalStorageGbLower",
+        "additionalServiceAccountsLower",
         "premiumSubscriptionCredit",
-        "appliedSubscriptionCredits",
+        "appliedProrationCredits",
+        "passwordManagerProratedCharge",
+        "storageProratedCharge",
+        "secretsManagerProratedCharge",
+        "serviceAccountsProratedCharge",
+        "memberLower",
+        "planProratedMembershipInMonths",
+        "privilegedControlsPlanPrice",
+        "privilegedControlsProratedCharge",
       ].sort(),
     );
   });

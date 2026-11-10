@@ -11,6 +11,7 @@ import {
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
+import { CipherId } from "../../types/guid";
 import { BankAccountType, BankAccountTypeI18nKeys, CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { BankAccountView } from "../models/view/bank-account.view";
@@ -117,6 +118,16 @@ export class CipherViewLikeUtils {
   };
 
   /**
+   * `CipherListView.id` is the SDK's `CipherId` and `CipherView.id` is a plain string, so this
+   * returns `libs/common`'s {@link CipherId} for either.
+   */
+  static getId = (cipher: CipherViewLike | Cipher): CipherId | undefined => {
+    const id = cipher.id as unknown as string | undefined;
+
+    return id ? (id as CipherId) : undefined;
+  };
+
+  /**
    * Returns the type of the cipher.
    * For consistency, when the given cipher is a {@link CipherListView} the {@link CipherType} equivalent will be returned.
    */
@@ -167,7 +178,7 @@ export class CipherViewLikeUtils {
     switch (this.getType(cipher)) {
       case CipherType.BankAccount: {
         const bankAccountSubtitle = this.bankAccountSubtitle(cipher, i18nService);
-        return bankAccountSubtitle ?? baseSubtitle;
+        return bankAccountSubtitle ?? "";
       }
       default:
         return baseSubtitle;
@@ -404,6 +415,18 @@ export class CipherViewLikeUtils {
   static decryptionFailure = (cipher: CipherViewLike): boolean => {
     return "decryptionFailure" in cipher ? cipher.decryptionFailure : false;
   };
+
+  /**
+   * @returns `true` for a restricted cipher: the server withheld its secrets, so the view has only
+   *   the name, login URIs and metadata. Default cipher streams exclude these; see
+   *   `cipherListViewsIncludingRestricted$`.
+   */
+  static isRestricted = (cipher: CipherViewLike): boolean => {
+    return "partial" in cipher ? !!cipher.partial : false;
+  };
+
+  /** @deprecated Use {@link isRestricted}. */
+  static isPartial = CipherViewLikeUtils.isRestricted;
 
   /**
    * Returns the notes from the cipher.

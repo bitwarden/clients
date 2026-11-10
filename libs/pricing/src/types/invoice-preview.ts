@@ -6,11 +6,6 @@ import { DiscountType } from "./discount";
  *
  * These types are the wire contract. They are converted into the render-ready `Cart` view model by
  * `adaptInvoicePreviewToCart`; components never consume them directly.
- *
- * Not to be confused with the unrelated, screen-local `InvoicePreview` interface in
- * `apps/web/src/app/billing/individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service.ts`,
- * which is a flat prorated-total summary for the premium-to-organization upgrade screen. That
- * legacy shape is superseded by this envelope and is removed at PM-40422.
  */
 
 /**
@@ -27,7 +22,10 @@ export type PlanTier = "families" | "teams" | "enterprise" | "premium";
  * Typing `reference` as this union rather than a raw string makes a stray value a compile error
  * and lets `getCartItemTranslationKey` switch exhaustively without a verbatim fallback.
  */
-export type PurchasableReference = "pm-seat" | "pm-storage" | "sm-seat" | "sm-service-account";
+export type PurchasableReference =
+  "pm-seat" | "pm-storage" | "sm-seat" | "sm-service-account" | "pam-seat";
+
+export type SeatReference = Extract<PurchasableReference, "pm-seat" | "sm-seat" | "pam-seat">;
 
 /**
  * Mirrors the server's `InvoicePreviewDiscount` record — a type deliberately separate from the
@@ -48,6 +46,8 @@ export type InvoicePreviewDiscount = {
   amount: number;
   /** The coupon name. */
   label?: string;
+  /** Number of months the coupon repeats for; absent for perpetual or once-only coupons. */
+  durationInMonths?: number;
 };
 
 export type InvoicePreviewItem = {
@@ -58,11 +58,13 @@ export type InvoicePreviewItem = {
 };
 
 /**
- * A single proration entry. Retained in full for parity with the server contract; the client
- * currently renders only the summed `credit` as one collapsed credit row, so `months`, `charge`,
- * `tax` and `total` are unused client-side.
+ * A single proration entry. Retained in full for parity with the server contract. The cart adapter
+ * renders the summed `credit` as one collapsed credit row and the `charge` either as its own line
+ * or, when the group carries no seats line, as the seat line; `months` labels the prorated seat
+ * line on the Premium-to-organization upgrade. `tax` and `total` are unused client-side.
  */
 export type PurchasableProration = {
+  reference?: PurchasableReference;
   credit: number;
   charge: number;
   tax: number;
@@ -72,13 +74,18 @@ export type PurchasableProration = {
 
 export type InvoicePreview = {
   passwordManager: {
-    seats: InvoicePreviewItem;
+    /** Absent on a transition invoice whose only lines are prorations. */
+    seats?: InvoicePreviewItem;
     additionalStorage?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   secretsManager?: {
     seats?: InvoicePreviewItem;
     additionalServiceAccounts?: InvoicePreviewItem;
+    prorations?: PurchasableProration[];
+  };
+  privilegedControls?: {
+    seats?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   cadence: "annually" | "monthly";

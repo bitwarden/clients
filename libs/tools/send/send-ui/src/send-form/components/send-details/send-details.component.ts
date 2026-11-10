@@ -10,6 +10,7 @@ import {
   PipeTransform,
   Pipe,
   inject,
+  computed,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -55,6 +56,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendPolicyService } from "../../..";
+import { removeSendAuthI18nKeys } from "../../../send-auth/remove-send-auth-i18n";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendOptionsComponent } from "../options/send-options.component";
 
@@ -126,6 +128,11 @@ export class SendDetailsComponent implements OnInit {
     { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
   ];
   passwordRemoved = false;
+
+  /** Label for the "remove authentication" button, specific to the Send's current auth type. */
+  protected readonly removeAuthLabelKey = computed(
+    () => removeSendAuthI18nKeys(this.sendFormService.originalSendView()?.authType).label,
+  );
   policyAllowedDomains: string[] | null = null;
   policyDeletionHoursOrgName: string | null = null;
 
@@ -157,15 +164,22 @@ export class SendDetailsComponent implements OnInit {
       /** Show the password auth type if EITHER
        * 1. There is an enterprise policy that mandates the password auth type
        * 2. There are no policies dictating required auth types
-       * 3. The Send currently uses the password auth type */
+       * 3. The Send currently uses the password auth type
+       * AND
+       * The Send is not of type Item */
       const includePassword =
-        whoCanAccess === WhoCanAccessType.PasswordProtected ||
-        anyAuthTypeAllowed ||
-        originalSendView?.authType === AuthType.Password;
+        (whoCanAccess === WhoCanAccessType.PasswordProtected ||
+          anyAuthTypeAllowed ||
+          originalSendView?.authType === AuthType.Password) &&
+        originalSendView?.type !== SendType.Item;
       /** Show the "Anyone with the link" auth type if EITHER
        * 1. There are no enterprise policies that dictate required auth types
-       * 2. The Send currently uses the "Anyone with the link" auth type */
-      const includeAny = anyAuthTypeAllowed || originalSendView?.authType === AuthType.None;
+       * 2. The Send currently uses the "Anyone with the link" auth type
+       * AND
+       * The Send is not of type Item */
+      const includeAny =
+        (anyAuthTypeAllowed || originalSendView?.authType === AuthType.None) &&
+        originalSendView?.type !== SendType.Item;
       return sendAuthTypes.filter(
         (at) =>
           (includeEmail && at.value === AuthType.Email) ||
@@ -450,8 +464,8 @@ export class SendDetailsComponent implements OnInit {
     });
   }
 
-  removePassword = async () => {
-    const removed = await this.sendFormService.removeSendPassword();
+  removeAuth = async () => {
+    const removed = await this.sendFormService.removeSendAuth();
     if (removed) {
       this.passwordRemoved = true;
       this.sendDetailsForm.patchValue({

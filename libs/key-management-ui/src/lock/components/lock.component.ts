@@ -16,10 +16,10 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
@@ -52,6 +52,7 @@ import {
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -82,6 +83,9 @@ type AfterUnlockActions = {
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 
+const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
+const PERF_TRACK = "Lock Component";
+
 const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
   BiometricsStatus.HardwareUnavailable,
   BiometricsStatus.DesktopDisconnected,
@@ -93,6 +97,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
+  host: { "data-testid": "lock-screen" },
   imports: [
     CommonModule,
     JslibModule,
@@ -287,7 +292,7 @@ export class LockComponent implements OnInit, OnDestroy {
       if (!canUseBiometrics) {
         // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
         this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
-        await this.logoutService.logout(activeAccount.id);
+        await this.logoutService.logout(activeAccount.id, "noUnlockOptionsAvailable");
         return;
       }
     }
@@ -421,7 +426,7 @@ export class LockComponent implements OnInit, OnDestroy {
     });
 
     if (confirmed && this.activeAccount != null) {
-      await this.logoutService.logout(this.activeAccount.id);
+      await this.logoutService.logout(this.activeAccount.id, "userInitiated");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     }
@@ -505,7 +510,7 @@ export class LockComponent implements OnInit, OnDestroy {
           variant: "error",
           message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
         });
-        this.messagingService.send("logout");
+        await this.logoutService.logout(this.activeAccount.id, "tooManyInvalidPinAttempts");
         return;
       }
 
@@ -540,6 +545,7 @@ export class LockComponent implements OnInit, OnDestroy {
    * {@link UnlockService.unlocked$} rather than called by each unlock method, so that an unlock
    * performed elsewhere continues the same way as one performed here.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   protected async continueAfterSettingUserKey(
     afterUnlockActions: AfterUnlockActions = {},
   ): Promise<void> {
@@ -564,13 +570,15 @@ export class LockComponent implements OnInit, OnDestroy {
 
     await this.biometricStateService.resetUserPromptCancelled(this.activeAccount.id);
 
-    try {
-      await this.encryptedMigrator.runMigrations(
-        this.activeAccount.id,
-        afterUnlockActions.passwordEvaluation?.masterPassword ?? null,
-      );
-    } catch {
-      // Don't block login success on migration failure
+    const masterPassword = afterUnlockActions.passwordEvaluation?.masterPassword ?? null;
+    // Don't block login success on migration failure
+    const migrations = this.encryptedMigrator
+      .runMigrations(this.activeAccount.id, masterPassword)
+      .catch(() => {});
+    // Migrations that run without the master password can wait on the server. If the server is
+    // unreachable, waiting for them leaves the user on the lock screen until the requests time out.
+    if (masterPassword != null) {
+      await migrations;
     }
 
     this.messagingService.send("unlocked");
@@ -605,23 +613,15 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     if (this.platformUtilsService.getClientType() == ClientType.Web) {
-      const startSync = performance.now();
-
       // Web does not cache vault data and would be in a unusable state when unlocked.
       await this.syncService.fullSync(true);
-
-      this.logService.measure(startSync, "KeyManagement", "LockComponent", "sync complete");
     } else {
       // On non-web clients, we start a sync in the background, but to not block by it
       void this.syncService.fullSync(false);
     }
 
-    const startRegeneration = new Date().getTime();
     // TODO: This should probably not be blocking
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(this.activeAccount.id);
-    this.logService.info(
-      `[LockComponent] Private key regeneration took ${new Date().getTime() - startRegeneration}ms`,
-    );
 
     if (this.clientType === "browser") {
       const previousUrl = this.lockComponentService.getPreviousUrl();

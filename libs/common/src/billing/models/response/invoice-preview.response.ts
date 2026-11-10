@@ -37,6 +37,7 @@ export class InvoicePreviewItemResponse extends BaseResponse implements InvoiceP
 }
 
 export class PurchasableProrationResponse extends BaseResponse implements PurchasableProration {
+  reference?: PurchasableReference;
   credit: number;
   charge: number;
   tax: number;
@@ -45,6 +46,11 @@ export class PurchasableProrationResponse extends BaseResponse implements Purcha
 
   constructor(response: any) {
     super(response);
+
+    const reference = this.getResponseProperty("Reference");
+    if (reference != null) {
+      this.reference = reference;
+    }
 
     this.credit = this.getResponseProperty("Credit");
     this.charge = this.getResponseProperty("Charge");
@@ -55,14 +61,17 @@ export class PurchasableProrationResponse extends BaseResponse implements Purcha
 }
 
 class PasswordManagerInvoicePreviewResponse extends BaseResponse {
-  seats: InvoicePreviewItem;
+  seats?: InvoicePreviewItem;
   additionalStorage?: InvoicePreviewItem;
   prorations?: PurchasableProration[];
 
   constructor(response: any) {
     super(response);
 
-    this.seats = new InvoicePreviewItemResponse(this.getResponseProperty("Seats"));
+    const seats = this.getResponseProperty("Seats");
+    if (seats) {
+      this.seats = new InvoicePreviewItemResponse(seats);
+    }
 
     const additionalStorage = this.getResponseProperty("AdditionalStorage");
     if (additionalStorage) {
@@ -105,15 +114,40 @@ class SecretsManagerInvoicePreviewResponse extends BaseResponse {
   }
 }
 
+class PrivilegedControlsInvoicePreviewResponse extends BaseResponse {
+  seats?: InvoicePreviewItem;
+  prorations?: PurchasableProration[];
+
+  constructor(response: any) {
+    super(response);
+
+    const seats = this.getResponseProperty("Seats");
+    if (seats) {
+      this.seats = new InvoicePreviewItemResponse(seats);
+    }
+
+    const prorations = this.getResponseProperty("Prorations");
+    if (prorations) {
+      this.prorations = prorations.map(
+        (proration: any) => new PurchasableProrationResponse(proration),
+      );
+    }
+  }
+}
+
 export class InvoicePreviewResponse extends BaseResponse implements InvoicePreview {
   passwordManager: {
-    seats: InvoicePreviewItem;
+    seats?: InvoicePreviewItem;
     additionalStorage?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   secretsManager?: {
     seats?: InvoicePreviewItem;
     additionalServiceAccounts?: InvoicePreviewItem;
+    prorations?: PurchasableProration[];
+  };
+  privilegedControls?: {
+    seats?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   cadence: SubscriptionCadence;
@@ -135,6 +169,11 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
     const secretsManager = this.getResponseProperty("SecretsManager");
     if (secretsManager) {
       this.secretsManager = new SecretsManagerInvoicePreviewResponse(secretsManager);
+    }
+
+    const privilegedControls = this.getResponseProperty("PrivilegedControls");
+    if (privilegedControls) {
+      this.privilegedControls = new PrivilegedControlsInvoicePreviewResponse(privilegedControls);
     }
 
     const cadence = this.getResponseProperty("Cadence");

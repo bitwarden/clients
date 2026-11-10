@@ -91,7 +91,6 @@ const isApplicationHealthData = createValidator<ApplicationHealthData>({
   memberCount: isBoundedPositiveNumber,
   atRiskMemberCount: isBoundedPositiveNumber,
   iconUri: isBoundedStringOrUndefined,
-  iconCipherId: isBoundedStringOrUndefined,
 });
 
 /**

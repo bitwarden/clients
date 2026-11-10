@@ -18,6 +18,7 @@ import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
+import { removeSendAuthI18nKeys } from "../../send-auth/remove-send-auth-i18n";
 import { SendPolicyService } from "../../services/send-policy.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
@@ -51,6 +52,7 @@ export class DefaultSendFormService implements SendFormService {
   private readonly _updatedSendView = signal<SendView | null>(null);
   readonly updatedSendView = this._updatedSendView.asReadonly();
   private file: File | null = null;
+  private abortController: AbortController | null = null;
 
   async decryptSend(send: Send): Promise<SendView> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -103,6 +105,8 @@ export class DefaultSendFormService implements SendFormService {
 
   async submitSendForm() {
     this._submitting.set(true);
+    const abortController = new AbortController();
+    this.abortController = abortController;
     if (this._sendForm.invalid) {
       this._sendForm.markAllAsTouched();
       this._submitting.set(false);
@@ -126,16 +130,14 @@ export class DefaultSendFormService implements SendFormService {
 
     try {
       const plaintextPassword = this._updatedSendView().password;
-      // Hand over the plaintext view and let the API service encrypt: both paths generate their
-      // own send key and encrypt in-process, but the legacy path does so in this TypeScript code
-      // (SendService.encrypt), while the SDK path does it inside the SDK's own WASM boundary,
-      // where this code never sees the key or the ciphertext-generation step.
+      // The SDK owns the send key and encryption, so it takes the plaintext view.
       // Forward the plaintext password (null when preserving an existing password) so the SDK
-      // path can derive the send password over that same key; the legacy path ignores it.
+      // can derive the send password over its key.
       const newSend = await this.sendApiService.saveView(
         this._updatedSendView(),
         this.file,
         plaintextPassword,
+        abortController.signal,
       );
       const sendView = await this.decryptSend(newSend);
       this._originalSendView.set(null);
@@ -146,8 +148,22 @@ export class DefaultSendFormService implements SendFormService {
       // We surface any errors but make sure that the submitting
       // status signal is set to false before we do
       this._submitting.set(false);
+      // The Send was already rolled back by the API service when the abort was noticed; treat
+      // this the same as "nothing to submit" rather than surfacing an error toast for a cancel
+      // the user asked for.
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return undefined;
+      }
       throw err;
+    } finally {
+      if (this.abortController === abortController) {
+        this.abortController = null;
+      }
     }
+  }
+
+  abortPendingSubmission(): void {
+    this.abortController?.abort();
   }
 
   sendFormHasEdits() {
@@ -194,14 +210,16 @@ export class DefaultSendFormService implements SendFormService {
     return true;
   }
 
-  async removeSendPassword(): Promise<boolean> {
-    const originalSendViewId = this.originalSendView()?.id;
+  async removeSendAuth(): Promise<boolean> {
+    const originalSendView = this.originalSendView();
+    const originalSendViewId = originalSendView?.id;
     if (!originalSendViewId) {
       return false;
     }
+    const i18nKeys = removeSendAuthI18nKeys(originalSendView.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -209,12 +227,12 @@ export class DefaultSendFormService implements SendFormService {
       return false;
     }
 
-    await this.sendApiService.removePassword(originalSendViewId);
+    await this.sendApiService.removeAuth(originalSendViewId);
 
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("removedPassword"),
+      message: this.i18nService.t(i18nKeys.removed),
     });
 
     const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));

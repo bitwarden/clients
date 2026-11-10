@@ -25,6 +25,30 @@ describe("CipherViewLikeUtils", () => {
     return cipherView;
   };
 
+  describe("getId", () => {
+    const id = "cccc1111-dddd-4eee-8fff-000011112222";
+
+    it("returns the id of a CipherView", () => {
+      const cipherView = createCipherView();
+      cipherView.id = id;
+
+      expect(CipherViewLikeUtils.getId(cipherView)).toBe(id);
+    });
+
+    it("returns the id of a CipherListView", () => {
+      const cipherListView = { id, type: "identity" } as unknown as CipherListView;
+
+      expect(CipherViewLikeUtils.getId(cipherListView)).toBe(id);
+    });
+
+    it("returns undefined when the cipher has no id", () => {
+      const cipherListView = { id: undefined, type: "identity" } as CipherListView;
+
+      expect(CipherViewLikeUtils.getId(createCipherView())).toBeUndefined();
+      expect(CipherViewLikeUtils.getId(cipherListView)).toBeUndefined();
+    });
+  });
+
   describe("isCipherListView", () => {
     it("returns true when the cipher is a CipherListView", () => {
       const cipherListViewLogin = {
@@ -342,13 +366,13 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe("*1234");
       });
 
-      it("falls back to the view's subTitle when both accountType and accountNumber are missing", () => {
+      it("falls back to empty string when both accountType and accountNumber are missing", () => {
         const bankAccount = new BankAccountView();
         bankAccount.bankName = "Bank of America";
 
         const cipher = createBankAccountCipher(bankAccount);
 
-        expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe("Bank of America");
+        expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe("");
       });
 
       it("falls back to the view's subTitle when i18nService is not provided", () => {
@@ -363,15 +387,13 @@ describe("CipherViewLikeUtils", () => {
         expect(i18nService.t).not.toHaveBeenCalled();
       });
 
-      it("falls back to the SDK-provided subtitle for a CipherListView bank account without inline data", () => {
+      it("falls back to the empty subtitle for a CipherListView bank account without inline data", () => {
         const cipherListView = {
           type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
           subtitle: "SDK-provided fallback",
         } as CipherListView;
 
-        expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe(
-          "SDK-provided fallback",
-        );
+        expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe("");
       });
 
       it("computes a translated subtitle from the inline data of a CipherListView bank account", () => {
@@ -926,6 +948,38 @@ describe("CipherViewLikeUtils", () => {
       const cipherListView = { type: "secureNote" } as CipherListView;
 
       expect(CipherViewLikeUtils.decryptionFailure(cipherListView)).toBe(false);
+    });
+  });
+
+  describe("isRestricted", () => {
+    it("returns true when a CipherView is restricted", () => {
+      const cipherView = createCipherView();
+      cipherView.partial = true;
+
+      expect(CipherViewLikeUtils.isRestricted(cipherView)).toBe(true);
+    });
+
+    it("returns false when a CipherView is not restricted", () => {
+      const cipherView = createCipherView();
+      cipherView.partial = false;
+
+      expect(CipherViewLikeUtils.isRestricted(cipherView)).toBe(false);
+    });
+
+    it("reads the partial flag off a CipherListView when present", () => {
+      const cipherListView = { type: "secureNote", partial: true } as unknown as CipherListView;
+
+      expect(CipherViewLikeUtils.isRestricted(cipherListView)).toBe(true);
+    });
+
+    it("returns false when the cipher is a CipherListView without a partial flag", () => {
+      const cipherListView = { type: "secureNote" } as CipherListView;
+
+      expect(CipherViewLikeUtils.isRestricted(cipherListView)).toBe(false);
+    });
+
+    it("is aliased by the deprecated isPartial", () => {
+      expect(CipherViewLikeUtils.isPartial).toBe(CipherViewLikeUtils.isRestricted);
     });
   });
 

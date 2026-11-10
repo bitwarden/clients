@@ -86,6 +86,7 @@ export class OssServeConfigurator {
       this.serviceContainer.keyService,
       this.serviceContainer.cliRestrictedItemTypesService,
       this.serviceContainer.cipherArchiveService,
+      this.serviceContainer.configService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,
@@ -112,6 +113,7 @@ export class OssServeConfigurator {
       this.serviceContainer.policyService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.cipherAuthorizationService,
+      this.serviceContainer.configService,
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,
@@ -177,6 +179,7 @@ export class OssServeConfigurator {
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
       this.serviceContainer.unlockService,
+      this.serviceContainer.biometricsService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
@@ -326,7 +329,14 @@ export class OssServeConfigurator {
       await next();
     });
 
-    router.post("/attachment", koaMulter().single("file"), async (ctx, next) => {
+    // Multer parses every text field into ctx.request.body before this handler runs, and an
+    // unbounded array index in a field name blocks the event loop (CVE-2026-82333).
+    // @types/koa__multer does not declare fieldArrayIndexLimit yet.
+    const attachmentLimits: koaMulter.Options["limits"] & { fieldArrayIndexLimit: number } = {
+      fieldArrayIndexLimit: 0,
+    };
+    const attachmentUpload = koaMulter({ limits: attachmentLimits }).single("file");
+    router.post("/attachment", attachmentUpload, async (ctx, next) => {
       if (await this.errorIfLocked(ctx.response)) {
         await next();
         return;

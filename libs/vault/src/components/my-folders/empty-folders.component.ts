@@ -71,8 +71,8 @@ export class EmptyFoldersComponent {
         return {
           key: EMPTY_FOLDERS_STATE.emptyFolders,
           icon: VaultIcon,
-          title: this.i18nService.t("youHaveNoFolders"),
-          description: this.i18nService.t("emptyFoldersDescription"),
+          title: this.i18nService.t("youHaveNoFoldersV2"),
+          description: this.i18nService.t("emptyFoldersDescriptionV2"),
         };
     }
   });

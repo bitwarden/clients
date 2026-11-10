@@ -52,6 +52,21 @@ describe("OrganizationUserView", () => {
     });
   });
 
+  describe("canSendInvite", () => {
+    it("is true for staged members", () => {
+      expect(createMember(OrganizationUserStatusType.Staged).canSendInvite).toBe(true);
+    });
+
+    it.each([
+      ["invited", OrganizationUserStatusType.Invited],
+      ["accepted", OrganizationUserStatusType.Accepted],
+      ["confirmed", OrganizationUserStatusType.Confirmed],
+      ["revoked", OrganizationUserStatusType.Revoked],
+    ])("is false for %s members", (_, status) => {
+      expect(createMember(status).canSendInvite).toBe(false);
+    });
+  });
+
   describe("canRestore", () => {
     it("is true for revoked members", () => {
       expect(createMember(OrganizationUserStatusType.Revoked).canRestore).toBe(true);
@@ -84,21 +99,6 @@ describe("OrganizationUserView", () => {
 
     it("is false for members claimed by the organization", () => {
       expect(createMember(OrganizationUserStatusType.Confirmed, true).canRemove).toBe(false);
-    });
-  });
-
-  describe("canManageMember", () => {
-    it("is false for staged members so only Revoke and Remove remain", () => {
-      expect(createMember(OrganizationUserStatusType.Staged).canManageMember).toBe(false);
-    });
-
-    it.each([
-      ["invited", OrganizationUserStatusType.Invited],
-      ["accepted", OrganizationUserStatusType.Accepted],
-      ["confirmed", OrganizationUserStatusType.Confirmed],
-      ["revoked", OrganizationUserStatusType.Revoked],
-    ])("is true for %s members", (_, status) => {
-      expect(createMember(status).canManageMember).toBe(true);
     });
   });
 });

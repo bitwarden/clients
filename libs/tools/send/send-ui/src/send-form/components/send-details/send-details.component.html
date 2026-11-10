@@ -4,10 +4,12 @@
   </bit-section-header>
 
   <bit-card>
-    <bit-form-field>
-      <bit-label>Send {{ "name" | i18n | lowercase }}</bit-label>
-      <input bitInput type="text" formControlName="name" [readonly]="!editing()" />
-    </bit-form-field>
+    @if (sendFormService.sendFormConfig.sendType !== SendType.Item) {
+      <bit-form-field>
+        <bit-label>Send {{ "name" | i18n | lowercase }}</bit-label>
+        <input bitInput type="text" formControlName="name" [readonly]="!editing()" />
+      </bit-form-field>
+    }
 
     @if (sendFormService.sendFormConfig.sendType === SendType.Text) {
       <tools-send-text-details [editing]="editing()"></tools-send-text-details>
@@ -23,6 +25,7 @@
           bitInput
           type="text"
           [value]="sendFormService.originalSendView()?.deletionDate | date: 'short'"
+          required
           readonly
         />
       } @else {
@@ -119,8 +122,8 @@
                 buttonType="dangerGhost"
                 bitIconButton="bwi-minus-circle"
                 size="small"
-                [label]="'removePassword' | i18n"
-                [bitAction]="removePassword"
+                [label]="removeAuthLabelKey() | i18n"
+                [bitAction]="removeAuth"
                 showToast
                 [disabled]="!sendFormService.sendFormConfig.areSendsAllowed"
               ></button>
@@ -136,7 +139,7 @@
         <textarea
           bitInput
           formControlName="emails"
-          rows="3"
+          rows="1"
           maxlength="2500"
           [placeholder]="'emailPlaceholderMultiple' | i18n"
           [readonly]="!editing()"

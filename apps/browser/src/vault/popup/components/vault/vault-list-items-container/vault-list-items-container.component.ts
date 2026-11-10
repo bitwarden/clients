@@ -3,14 +3,12 @@
 import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
-  AfterViewInit,
   booleanAttribute,
   Component,
   EventEmitter,
   inject,
   Output,
   Signal,
-  signal,
   ViewChild,
   computed,
   ChangeDetectionStrategy,
@@ -23,10 +21,7 @@ import { firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -47,7 +42,6 @@ import {
   SectionHeaderComponent,
   TypographyModule,
   ScrollLayoutDirective,
-  ChipActionComponent,
   IconComponent,
 } from "@bitwarden/components";
 import {
@@ -84,24 +78,16 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     DisclosureComponent,
     DisclosureTriggerForDirective,
     ScrollLayoutDirective,
-    ChipActionComponent,
     IconComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultListItemsContainerComponent implements AfterViewInit {
+export class VaultListItemsContainerComponent {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
-  private configService = inject(ConfigService);
   protected CipherViewLikeUtils = CipherViewLikeUtils;
-
-  /** Signal for the feature flag that controls simplified item action behavior */
-  protected readonly simplifiedItemActionEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
-    { initialValue: false },
-  );
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -252,98 +238,34 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   });
 
   /**
-   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Option to show the autofill button for each item.
-   * Used when feature flag is disabled.
-   */
-  readonly showAutofillButton = input(false, { transform: booleanAttribute });
-
-  /**
-   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Whether to show the autofill badge button (old behavior).
-   * Only shown when feature flag is disabled AND conditions are met.
-   */
-  readonly showAutofillBadge = computed(
-    () => !this.simplifiedItemActionEnabled() && !this.hideAutofillButton(),
-  );
-
-  /**
-   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Flag indicating whether the cipher item autofill menu options should be shown or not.
-   * Used when feature flag is disabled.
-   */
-  readonly hideAutofillMenuOptions = computed(
-    () => this.currentUriIsBlocked() || this.showAutofillButton(),
-  );
-
-  /**
-   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Option to perform autofill operation as the primary action for autofill suggestions.
-   * Used when feature flag is disabled.
-   */
-  readonly primaryActionAutofill = input(false, { transform: booleanAttribute });
-
-  /**
-   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Flag indicating whether the suggested cipher item autofill button should be shown or not.
-   * Used when feature flag is disabled.
-   */
-  readonly hideAutofillButton = computed(
-    () => !this.showAutofillButton() || this.currentUriIsBlocked() || this.primaryActionAutofill(),
-  );
-
-  /**
    * Option to mark this container as an autofill list.
    */
   readonly isAutofillList = input(false, { transform: booleanAttribute });
 
   /**
    * Computed property whether the cipher action may perform autofill.
-   * When feature flag is enabled, uses isAutofillList.
-   * When feature flag is disabled, uses primaryActionAutofill.
    */
-  readonly canAutofill = computed(() => {
-    if (this.currentUriIsBlocked()) {
-      return false;
-    }
-
-    return this.simplifiedItemActionEnabled()
-      ? this.isAutofillList()
-      : this.primaryActionAutofill();
-  });
+  readonly canAutofill = computed(() => !this.currentUriIsBlocked() && this.isAutofillList());
 
   /**
    * Whether to show the "Fill" text on hover.
-   * Only shown when feature flag is enabled AND this is an autofill list.
    */
-  readonly showFillTextOnHover = computed(
-    () => this.simplifiedItemActionEnabled() && this.canAutofill(),
-  );
+  readonly showFillTextOnHover = computed(() => this.canAutofill());
 
   /**
    * Whether to show the launch button.
    */
-  readonly showLaunchButton = computed(() =>
-    this.simplifiedItemActionEnabled() ? !this.isAutofillList() : !this.showAutofillButton(),
-  );
+  readonly showLaunchButton = computed(() => !this.isAutofillList());
 
   /**
    * Whether to show the "Autofill" option in the more options menu.
-   * New behavior: show for non-autofill list items.
-   * Old behavior: show when not hidden by hideAutofillMenuOptions.
    */
-  readonly showAutofillInMenu = computed(() =>
-    this.simplifiedItemActionEnabled() ? !this.canAutofill() : !this.hideAutofillMenuOptions(),
-  );
+  readonly showAutofillInMenu = computed(() => !this.canAutofill());
 
   /**
-   * Whether to show the "View" option in the more options menu.
-   * New behavior: show for autofill list items (since click = autofill).
-   * Old behavior: show when primary action is autofill.
+   * Whether to show the "View" option in the more options menu (since click = autofill).
    */
-  readonly showViewInMenu = computed(() =>
-    this.simplifiedItemActionEnabled() ? this.isAutofillList() : this.primaryActionAutofill(),
-  );
+  readonly showViewInMenu = computed(() => this.isAutofillList());
 
   /**
    * Remove the bottom margin from the bit-section in this component
@@ -368,30 +290,15 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     return collections[0]?.name;
   }
 
-  protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
-
   constructor(
     protected i18nService: I18nService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private passwordRepromptService: PasswordRepromptService,
     private cipherService: CipherService,
     private router: Router,
-    private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
     private accountService: AccountService,
   ) {}
-
-  async ngAfterViewInit() {
-    const autofillShortcut = await this.platformUtilsService.getAutofillKeyboardShortcut();
-
-    if (autofillShortcut === "") {
-      this.autofillShortcutTooltip.set(undefined);
-    } else {
-      const autofillTitle = this.i18nService.t("autofillVerb");
-
-      this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
-    }
-  }
 
   onCipherSelect(cipher: PopupCipherViewLike) {
     return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);

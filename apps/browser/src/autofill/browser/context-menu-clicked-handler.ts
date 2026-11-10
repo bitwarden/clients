@@ -22,6 +22,7 @@ import {
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -40,6 +41,10 @@ import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
+import {
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
+  RETRY_SENDER,
+} from "../background/abstractions/notification.background";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
 import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillCipherTypeId } from "../types";
@@ -68,6 +73,15 @@ export type AutofillAction = (tab: chrome.tabs.Tab, cipher: CipherView) => Promi
 
 export type GeneratePasswordToClipboardAction = (tab: chrome.tabs.Tab) => Promise<void>;
 
+/**
+ * Collects autofill-triage analysis for a tab. Wired to the orchestrator so the send is
+ * dispatched from the single collection owner rather than sent directly.
+ */
+export type CollectAutofillTriageAction = (
+  tabId: number,
+  frameId?: number,
+) => Promise<AutofillTriageResponse | undefined>;
+
 export class ContextMenuClickedHandler {
   private _triageResult: AutofillTriagePageResult | undefined;
 
@@ -94,6 +108,7 @@ export class ContextMenuClickedHandler {
     private copyToClipboard: CopyToClipboardAction,
     private generatePasswordToClipboard: GeneratePasswordToClipboardAction,
     private autofillAction: AutofillAction,
+    private collectAutofillTriage: CollectAutofillTriageAction,
     private authService: AuthService,
     private cipherService: CipherService,
     private totpService: TotpService,
@@ -102,6 +117,7 @@ export class ContextMenuClickedHandler {
     private accountService: AccountService,
     private triageService: AutofillTriageService,
     private webmapperDrafts: WebmapperDraftService,
+    private intraprocessMessageSender: IntraprocessMessageSender,
   ) {}
 
   async run(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
@@ -140,13 +156,17 @@ export class ContextMenuClickedHandler {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await openUnlockPopout(tab, {
-        commandToRetry: {
-          message: { command: ExtensionCommand.NoopCommand, contextMenuOnClickData: info },
-          sender: { tab: tab },
-        },
-        target: "contextmenus.background",
-      });
+      await openUnlockPopout(tab, () =>
+        this.intraprocessMessageSender.send(ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS, {
+          data: {
+            commandToRetry: {
+              message: { command: ExtensionCommand.NoopCommand, contextMenuOnClickData: info },
+              [RETRY_SENDER]: { tab: tab },
+            },
+            target: "contextmenus.background",
+          },
+        }),
+      );
       return;
     }
 
@@ -314,7 +334,7 @@ export class ContextMenuClickedHandler {
       });
     }
 
-    const response = await this.collectPageDetailsForTriage(tab, info);
+    const response = await this.collectAutofillTriage(tab.id!, info.frameId);
     if (!response) {
       await BrowserApi.sendMessage("triageResultReady", { tabId: tab.id });
       return;
@@ -342,26 +362,6 @@ export class ContextMenuClickedHandler {
     };
 
     await BrowserApi.sendMessage("triageResultReady", { tabId: tab.id });
-  }
-
-  private collectPageDetailsForTriage(
-    tab: chrome.tabs.Tab,
-    info: chrome.contextMenus.OnClickData,
-  ): Promise<AutofillTriageResponse | null> {
-    return new Promise<AutofillTriageResponse | null>((resolve) => {
-      BrowserApi.sendTabsMessage<AutofillTriageResponse>(
-        tab.id!,
-        { command: "collectAutofillTriage" },
-        { frameId: info.frameId },
-        (response) => {
-          if (chrome.runtime.lastError) {
-            resolve(null);
-            return;
-          }
-          resolve(response ?? null);
-        },
-      );
-    });
   }
 
   // ---------- webmapper ----------

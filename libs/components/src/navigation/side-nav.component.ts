@@ -1,10 +1,12 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
-import { DragDropModule, CdkDragMove } from "@angular/cdk/drag-drop";
-import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
+import { DragDropModule, CdkDragEnd, CdkDragMove } from "@angular/cdk/drag-drop";
+import { CdkScrollable } from "@angular/cdk/scrolling";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   input,
   viewChild,
   inject,
@@ -17,11 +19,15 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
+import { SIDERAIL_WIDTH_REM } from "../shared";
+import { hasScrolledFrom } from "../utils/has-scrolled-from";
 
 import { NavDividerComponent } from "./nav-divider.component";
-import { SideNavService } from "./side-nav.service";
+import { resizeHandlePercent } from "./side-nav-resize";
+import { media, SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
+export type SideNavHeaderBorder = "always" | "scrolled";
 
 /**
  * Side navigation component that provides a collapsible navigation menu.
@@ -31,20 +37,23 @@ export type SideNavVariant = "primary" | "secondary";
   templateUrl: "side-nav.component.html",
   imports: [
     CdkTrapFocus,
+    CdkScrollable,
     NavDividerComponent,
     BitIconButtonComponent,
     I18nPipe,
     DragDropModule,
-    AsyncPipe,
     NgTemplateOutlet,
   ],
   host: {
     // Grid placement: always col 1.  In overlay mode the element is also
     // switched to position:fixed so it escapes the grid's stacking context
     // and renders above the scrim (z-40) and the drawer.
+    // The 90% cap is a percentage, not 90vw, so it measures the fixed element's
+    // containing block: the viewport in the app, the wrapper under Storybook's transform.
     class: "tw-block tw-h-full tw-col-start-1 tw-row-start-1",
     "[class]":
-      "sideNavService.isOverlay() ? 'tw-fixed tw-top-0 tw-bottom-0 tw-left-0 tw-z-50' : ''",
+      "sideNavService.isOverlay() ? 'tw-fixed tw-top-0 tw-bottom-0 tw-left-0 tw-z-50 tw-max-w-[90%]' : ''",
+    "(document:keydown.escape)": "handleEscape($event)",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -57,6 +66,16 @@ export class SideNavComponent {
    * @default "primary"
    */
   readonly variant = input<SideNavVariant>("primary");
+
+  /**
+   * When to show the line under the vfo1 header's switchers: always, or once rows scroll beneath it.
+   *
+   * @default "scrolled"
+   */
+  readonly headerBorder = input<SideNavHeaderBorder>("scrolled");
+
+  private readonly scrollable = viewChild(CdkScrollable);
+  protected readonly scrolled = hasScrolledFrom(this.scrollable);
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
@@ -72,15 +91,42 @@ export class SideNavComponent {
     { initialValue: false },
   );
 
-  protected readonly handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      this.sideNavService.open.set(false);
-      this.toggleButton()?.nativeElement.focus();
-      return false;
+  /** Width of the collapsed nav (icon strip / side rail), bound in the template. */
+  protected readonly closedWidthRem = SIDERAIL_WIDTH_REM;
+
+  protected readonly isTouchDevice = toSignal(media("(pointer: coarse)"), { initialValue: false });
+
+  private readonly reducedMotion = toSignal(media("(prefers-reduced-motion: reduce)"), {
+    initialValue: false,
+  });
+
+  /** Handle position announced to assistive tech. The collapsed rail is the low end of the travel. */
+  protected readonly widthPercent = computed(() =>
+    resizeHandlePercent(
+      this.sideNavService.open() ? this.sideNavService.widthRem() : SIDERAIL_WIDTH_REM,
+    ),
+  );
+
+  /** True when it is safe to animate the nav's width. */
+  protected readonly animateWidth = computed(
+    () =>
+      this.sideNavService.transitionsEnabled() &&
+      !this.sideNavService.isDragging() &&
+      !this.reducedMotion(),
+  );
+
+  // Overlay focus can sit outside the nav (e.g. on <main> after a drag), so Escape is handled at
+  // the document. Skip ones a menu or popover already handled.
+  protected handleEscape(event: Event) {
+    const focusInNav = event.composedPath().includes(this.elementRef.nativeElement);
+    if (event.defaultPrevented || !(this.sideNavService.isOverlay() || focusInNav)) {
+      return;
     }
 
-    return true;
-  };
+    event.preventDefault();
+    this.sideNavService.open.set(false);
+    this.toggleButton()?.nativeElement.focus();
+  }
 
   protected onDragMoved(event: CdkDragMove) {
     const rectX = this.elementRef.nativeElement.getBoundingClientRect().x;
@@ -88,9 +134,17 @@ export class SideNavComponent {
 
     this.sideNavService.setWidthFromDrag(eventXPointer, rectX);
 
-    // Fix for CDK applying a transform that can cause visual drifting
-    const element = event.source.element.nativeElement;
-    element.style.transform = "none";
+    // Neutralize CDK's accumulated transform to prevent the handle from drifting
+    // away from the nav's right edge as the nav width changes.
+    event.source.element.nativeElement.style.transform = "none";
+  }
+
+  protected onDragEnded(event: CdkDragEnd) {
+    this.sideNavService.onDragEnd();
+    // Reset CDK's accumulated position so the next drag starts clean,
+    // then clear the inline transform so the handle returns to its CSS position.
+    event.source.reset();
+    event.source.element.nativeElement.style.transform = "none";
   }
 
   protected onKeydown(event: KeyboardEvent) {

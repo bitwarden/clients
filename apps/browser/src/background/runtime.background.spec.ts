@@ -1,119 +1,461 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  Environment,
+  Region,
+  RegionConfig,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { Message, IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
-import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
+import {
+  openSsoAuthResultPopout,
+  openTwoFactorAuthWebAuthnPopout,
+} from "../auth/popup/utils/auth-popout-window";
+import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
+import {
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
+  LockedVaultPendingNotificationsData,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
+} from "../autofill/background/abstractions/notification.background";
+import {
+  FillAssistEvent,
+  FillAssistEventReceiver,
+} from "../autofill/background/fill-assist-event-receiver";
+import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
+import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
+import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
+import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
+import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
+import { BrowserApi } from "../platform/browser/browser-api";
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
+import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import MainBackground from "./main.background";
 import RuntimeBackground from "./runtime.background";
 
-// The `collectPageDetailsResponse` handler is the seam Step 5 rewired: the
-// page-load ("autofiller") sender no longer routes here, and the user-initiated
-// senders now forward to `AutofillOrchestrator`. These regressions guard against the
-// shared switch block being deleted wholesale (RISKS §1.3 / IMPACT F13).
-describe("RuntimeBackground collectPageDetailsResponse routing", () => {
+jest.mock("../auth/popup/utils/auth-popout-window");
+
+type RuntimeBackgroundOverrides = {
+  main?: MockProxy<MainBackground>;
+  logService?: MockProxy<LogService>;
+  /**
+   * Left unset rather than mocked, because a bare `mock<AccountService>()` gives
+   * `activeAccount$` a jest fn instead of an observable, which fails further from the cause than
+   * the missing collaborator does. Supply one in the describes that reach `fillCipherForPopup`.
+   */
+  accountService?: MockProxy<AccountService>;
+  environmentService?: MockProxy<BrowserEnvironmentService>;
+  messagingService?: MockProxy<MessagingService>;
+  autofillLifecycleService?: MockProxy<AutofillLifecycleService>;
+  autofillOrchestrator?: MockProxy<AutofillOrchestrator>;
+  intraprocessMessageSender?: MockProxy<IntraprocessMessageSender>;
+  fillAssistEventReceiver?: MockProxy<FillAssistEventReceiver>;
+};
+
+function createRuntimeBackground({
+  main = mock<MainBackground>(),
+  logService = mock<LogService>(),
+  accountService = undefined as any,
+  environmentService,
+  messagingService,
+  autofillLifecycleService,
+  autofillOrchestrator = mock<AutofillOrchestrator>(),
+  intraprocessMessageSender = mock<IntraprocessMessageSender>(),
+  fillAssistEventReceiver = mock<FillAssistEventReceiver>(),
+}: RuntimeBackgroundOverrides = {}) {
+  // The `undefined` slots are collaborators no covered path reaches.
+  // Give one a mock as soon as a test needs it.
+  return new RuntimeBackground(
+    main,
+    mock<AutofillService>(),
+    mock<BrowserPlatformUtilsService>(),
+    undefined as any, // autofillSettingsService
+    environmentService as any,
+    messagingService as any,
+    logService,
+    undefined as any, // configService
+    undefined as any, // messageListener
+    accountService,
+    undefined as any, // lockService
+    undefined as any, // billingAccountProfileStateService
+    undefined as any, // browserInitialInstallService
+    autofillLifecycleService as any,
+    undefined as any, // defaultPasswordManagerPromptStateAccessor
+    autofillOrchestrator,
+    intraprocessMessageSender,
+    fillAssistEventReceiver,
+  );
+}
+
+// The popup round-trips its collect and fill through the background, and
+// collectPageDetailsResponse is not routed to the orchestrator (it sends its own collects and
+// consumes the responses internally).
+describe("RuntimeBackground collection dispatch", () => {
   let runtimeBackground: RuntimeBackground;
   let autofillOrchestrator: MockProxy<AutofillOrchestrator>;
+  let main: MockProxy<MainBackground>;
+  let accountService: MockProxy<AccountService>;
+  let logService: MockProxy<LogService>;
 
   const tab = createChromeTabMock({ id: 1 });
-  const details = { foo: "bar" } as any;
   const sender = { frameId: 0, tab } as chrome.runtime.MessageSender;
-  const message = (msgSender: string) => ({
-    command: "collectPageDetailsResponse",
-    sender: msgSender,
-    tab,
-    details,
-  });
-  const expectedPageDetail = { frameId: 0, tab, details };
+  const extensionUrl = "chrome-extension://abc/";
+  // The popup identifies itself as internal by its extension origin (top-level frame, no frameId).
+  const popupSender = { origin: "chrome-extension://abc" } as chrome.runtime.MessageSender;
+  // A content script: carries a tab and a web-page origin, so the internal-sender guard rejects it on
+  // the origin mismatch. Shared by the security tests as the canonical untrusted sender.
+  const contentScriptSender = {
+    ...sender,
+    origin: "https://evil.example.com",
+  } as chrome.runtime.MessageSender;
 
   beforeEach(() => {
     // The ctor wires an onInstalled listener that the shared chrome mock omits.
     (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+    jest.spyOn(BrowserApi, "getRuntimeURL").mockReturnValue(extensionUrl);
 
     autofillOrchestrator = mock<AutofillOrchestrator>();
+    main = mock<MainBackground>();
+    accountService = mock<AccountService>();
+    accountService.activeAccount$ = of({ id: "user-1" } as any);
+    logService = mock<LogService>();
 
-    runtimeBackground = new RuntimeBackground(
-      mock<MainBackground>(),
-      mock<AutofillService>(),
-      mock<BrowserPlatformUtilsService>(),
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      mock<LogService>(),
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
+    runtimeBackground = createRuntimeBackground({
+      main,
+      logService,
+      accountService,
       autofillOrchestrator,
+    });
+  });
+
+  afterEach(() => {
+    // BrowserApi statics are spied per-test; restore so a spy's call history never leaks into the
+    // next test (these tests build identically-shaped senders, which would otherwise alias).
+    jest.restoreAllMocks();
+  });
+
+  describe("collectPageDetailsForPopup", () => {
+    it("collects the requested tab's page details through the orchestrator", async () => {
+      const pageDetails: PageDetail[] = [{ frameId: 0, tab, details: {} as any }];
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
+      autofillOrchestrator.collectPageDetails.mockResolvedValue(pageDetails);
+
+      const result = await runtimeBackground.processMessageWithSender(
+        { command: "collectPageDetailsForPopup", tabId: 1 },
+        popupSender,
+      );
+
+      expect(BrowserApi.getTab).toHaveBeenCalledWith(1);
+      expect(autofillOrchestrator.collectPageDetails).toHaveBeenCalledWith(tab);
+      expect(result).toBe(pageDetails);
+    });
+
+    it("security: rejects a request from a content-script sender (not an extension page)", async () => {
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
+      autofillOrchestrator.collectPageDetails.mockResolvedValue([]);
+      // Assert the handler consults `BrowserApi.senderIsInternal`, so that the boundary cannot be silently
+      // removed without this failing. The spy calls through to detect regressions inside the guard.
+      const senderIsInternalSpy = jest.spyOn(BrowserApi, "senderIsInternal");
+
+      await runtimeBackground.processMessageWithSender(
+        { command: "collectPageDetailsForPopup", tabId: 1 },
+        contentScriptSender,
+      );
+
+      expect(senderIsInternalSpy).toHaveBeenCalledWith(contentScriptSender, logService);
+      // Logging the rejection is part of the security requirement, not incidental: the warning is the
+      // observable record that the boundary fired on this sender.
+      expect(logService.warning).toHaveBeenCalled();
+      expect(autofillOrchestrator.collectPageDetails).not.toHaveBeenCalled();
+    });
+
+    // Functional contract for a rejected sender, kept separate from the security invariant above: the
+    // return shape may change without weakening the boundary. Rejection is forced here so the shape is
+    // pinned independently of how a sender is judged internal.
+    it("returns an empty array when the sender is rejected", async () => {
+      jest.spyOn(BrowserApi, "senderIsInternal").mockReturnValue(false);
+
+      const result = await runtimeBackground.processMessageWithSender(
+        { command: "collectPageDetailsForPopup", tabId: 1 },
+        contentScriptSender,
+      );
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns an empty array without collecting when the tab is gone", async () => {
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue(null);
+
+      const result = await runtimeBackground.processMessageWithSender(
+        { command: "collectPageDetailsForPopup", tabId: 99 },
+        popupSender,
+      );
+
+      expect(autofillOrchestrator.collectPageDetails).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("fillCipherForPopup", () => {
+    const cipher = Object.assign(new CipherView(), { id: "cipher-1" });
+    let cipherService: MockProxy<CipherService>;
+
+    beforeEach(() => {
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
+      cipherService = mock<CipherService>();
+      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+      (main as any).cipherService = cipherService;
+      autofillOrchestrator.unsafeAutofillTabWithCipher.mockResolvedValue({
+        outcome: AutofillOutcome.Filled,
+        totp: "totp-123",
+      });
+    });
+
+    it("fetches the cipher by id and fills it through the orchestrator", async () => {
+      const result = await runtimeBackground.processMessageWithSender(
+        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "cipher-1" },
+        popupSender,
+      );
+
+      expect(autofillOrchestrator.unsafeAutofillTabWithCipher).toHaveBeenCalledWith(tab, cipher);
+      expect(result).toEqual({ outcome: AutofillOutcome.Filled, totp: "totp-123" });
+    });
+
+    it("security: rejects a content-script sender without fetching or filling", async () => {
+      // Assert the handler consults `BrowserApi.senderIsInternal`, so that the boundary cannot be silently
+      // removed without this failing. The spy calls through to detect regressions inside the guard.
+      const senderIsInternalSpy = jest.spyOn(BrowserApi, "senderIsInternal");
+
+      await runtimeBackground.processMessageWithSender(
+        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "cipher-1" },
+        contentScriptSender,
+      );
+
+      expect(senderIsInternalSpy).toHaveBeenCalledWith(contentScriptSender, logService);
+      // Logging the rejection is part of the security requirement: the warning is the
+      // observable record that the boundary fired on this sender.
+      expect(logService.warning).toHaveBeenCalled();
+      expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
+      expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+    });
+
+    // Safeguard `unsafeAutofillTabWithCipher` from being used as an oracle. Every early
+    // exit reports the same outcome, so a caller cannot use the reply to learn which check turned
+    // it away.
+    describe("security: emit a denied outcome when processing early exits", () => {
+      const fillMessage = { command: "fillCipherForPopup", tabId: 1, cipherId: "cipher-1" };
+
+      it("denies a rejected sender", async () => {
+        jest.spyOn(BrowserApi, "senderIsInternal").mockReturnValue(false);
+
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: tab.url },
+          contentScriptSender,
+        );
+
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
+
+      it("denies a tab that is gone", async () => {
+        jest.spyOn(BrowserApi, "getTab").mockResolvedValue(null);
+
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: tab.url },
+          popupSender,
+        );
+
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
+
+      it("denies a tab that navigated after the popup captured its url", async () => {
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: "https://before-nav.example/login" },
+          popupSender,
+        );
+
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
+
+      it("denies a request with no active user", async () => {
+        accountService.activeAccount$ = of(null as any);
+
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: tab.url },
+          popupSender,
+        );
+
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
+
+      it("denies an unknown cipher", async () => {
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: tab.url, cipherId: "missing" },
+          popupSender,
+        );
+
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
+    });
+  });
+
+  describe("bgCollectPageDetails", () => {
+    it("routes the content-initiated refresh through the orchestrator", async () => {
+      autofillOrchestrator.collectPageDetails.mockResolvedValue([]);
+
+      await runtimeBackground.processMessageWithSender(
+        { command: "bgCollectPageDetails", sender: "autofillInit" },
+        sender,
+      );
+
+      expect(autofillOrchestrator.collectPageDetails).toHaveBeenCalledWith(tab, sender.frameId);
+    });
+  });
+
+  // Test-only affordance: a command-issued collect, echoed back by the
+  // content script tagged with the command's sender, is diverted to the orchestrator so that autofill
+  // can be exercised independently of any input method.
+  describe("collectPageDetailsResponse command routing", () => {
+    // A tab the message body names but the sender is not. Present in every case below so the
+    // assertions fail if the body is ever read back as the fill target.
+    const bodyTab = createChromeTabMock({ id: 42 });
+
+    it("routes the AutofillCommand sender to a tab-wide login fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        {
+          command: "collectPageDetailsResponse",
+          sender: ExtensionCommand.AutofillCommand,
+          tab: bodyTab,
+          details: {} as any,
+        },
+        sender,
+      );
+
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).toHaveBeenCalledWith(tab);
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
+    });
+
+    it("routes the AutofillCard sender to a card fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        {
+          command: "collectPageDetailsResponse",
+          sender: ExtensionCommand.AutofillCard,
+          tab: bodyTab,
+          details: {} as any,
+        },
+        sender,
+      );
+
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
+        tab,
+        CipherType.Card,
+      );
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
+    });
+
+    it("routes the AutofillIdentity sender to an identity fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        {
+          command: "collectPageDetailsResponse",
+          sender: ExtensionCommand.AutofillIdentity,
+          tab: bodyTab,
+          details: {} as any,
+        },
+        sender,
+      );
+
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
+        tab,
+        CipherType.Identity,
+      );
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
+    });
+
+    // The fill target is the tab the browser attests the message came from. A sender with no tab
+    // names no target, and the body must not be allowed to supply one in its place.
+    it("security: routes nothing when the sender carries no tab", async () => {
+      await runtimeBackground.processMessageWithSender(
+        {
+          command: "collectPageDetailsResponse",
+          sender: ExtensionCommand.AutofillCommand,
+          tab: bodyTab,
+          details: {} as any,
+        },
+        { frameId: 0 } as chrome.runtime.MessageSender,
+      );
+
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
+    });
+
+    // The orchestrator sends its own collects (`collectPageDetailsFromTabObservable`) and consumes
+    // those responses internally; other senders carry no command intent and must not trigger a fill.
+    it.each(["contextMenuHandler", "autofiller", "collectPageDetailsFromTabObservable", undefined])(
+      "does not route the %s sender to the orchestrator",
+      async (msgSender) => {
+        await runtimeBackground.processMessageWithSender(
+          { command: "collectPageDetailsResponse", sender: msgSender, tab, details: {} as any },
+          sender,
+        );
+
+        expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
+        expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
+      },
     );
   });
 
-  it("forwards a keyboard-shortcut collection to AutofillOrchestrator", async () => {
-    await runtimeBackground.processMessageWithSender(
-      message(ExtensionCommand.AutofillCommand),
-      sender,
-    );
+  describe("checkIfBWExtensionInstalled", () => {
+    beforeEach(() => {
+      const environmentService = mock<BrowserEnvironmentService>();
+      environmentService.availableRegions.mockReturnValue([
+        { urls: { webVault: "https://vault.bitwarden.com" } } as any,
+      ]);
+      environmentService.environment$ = of({
+        getWebVaultUrl: () => "https://vault.bitwarden.com",
+      } as any);
 
-    expect(autofillOrchestrator.autofillActiveTabFromCommand).toHaveBeenCalledWith(
-      expectedPageDetail,
-    );
-  });
+      runtimeBackground = createRuntimeBackground({
+        main,
+        logService,
+        accountService,
+        autofillOrchestrator,
+        environmentService,
+      });
+    });
 
-  it("forwards a card collection to AutofillOrchestrator with the card cipher type", async () => {
-    await runtimeBackground.processMessageWithSender(
-      message(ExtensionCommand.AutofillCard),
-      sender,
-    );
-
-    expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
-      expectedPageDetail,
-      CipherType.Card,
-    );
-  });
-
-  it("forwards an identity collection to AutofillOrchestrator with the identity cipher type", async () => {
-    await runtimeBackground.processMessageWithSender(
-      message(ExtensionCommand.AutofillIdentity),
-      sender,
-    );
-
-    expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
-      expectedPageDetail,
-      CipherType.Identity,
-    );
-  });
-
-  it("keeps the context-menu sender on its own path, not AutofillOrchestrator", async () => {
-    jest.useFakeTimers();
-
-    await runtimeBackground.processMessageWithSender(message("contextMenu"), sender);
-
-    // Positive assertion that the case body still runs (guards against the whole
-    // shared block being deleted): the context-menu path accumulates page details.
-    expect((runtimeBackground as any).pageDetailsToAutoFill).toHaveLength(1);
-    // ...and does not divert to the AutofillOrchestrator seam.
-    expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
-    expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
-
-    jest.clearAllTimers();
-    jest.useRealTimers();
-  });
-
-  it("no longer routes the retired autofiller sender through AutofillOrchestrator", async () => {
-    await runtimeBackground.processMessageWithSender(message("autofiller"), sender);
-
-    expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
-    expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
+    it.each([
+      ["vault sender origin", { origin: "https://vault.bitwarden.com" }, undefined, true],
+      ["non-vault sender origin", { origin: "https://example.com" }, undefined, false],
+      ["referrer fallback", {}, "vault.bitwarden.com", true],
+    ] as const)("%s", async (_name, messageSender, referrer, expected) => {
+      await expect(
+        runtimeBackground.processMessageWithSender(
+          { command: VaultMessages.checkBwInstalled, referrer },
+          messageSender as chrome.runtime.MessageSender,
+        ),
+      ).resolves.toBe(expected);
+    });
   });
 });
 
@@ -141,24 +483,7 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     mainBackground = mock<MainBackground>();
     (mainBackground as any).domainSettingsService = domainSettingsService;
 
-    runtimeBackground = new RuntimeBackground(
-      mainBackground,
-      mock<AutofillService>(),
-      mock<BrowserPlatformUtilsService>(),
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      mock<LogService>(),
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      mock<AutofillOrchestrator>(),
-    );
+    runtimeBackground = createRuntimeBackground({ main: mainBackground });
   });
 
   afterEach(() => {
@@ -243,5 +568,491 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     const result = await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(result).toBe(rules);
+  });
+});
+
+// The logout dispatch reads `msg.logoutReason` off the incoming message and
+// forwards it to `MainBackground.logout`. It previously read `msg.expired`, a
+// stale field no producer sets, so the reason was silently dropped and the
+// popup lost its post-logout toast. This guards against that field-name drift.
+describe("RuntimeBackground logout dispatch", () => {
+  let runtimeBackground: RuntimeBackground;
+  let mainBackground: MockProxy<MainBackground>;
+
+  const userId = "user-1" as UserId;
+  const logoutReason: LogoutReason = "userInitiated";
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    mainBackground = mock<MainBackground>();
+
+    runtimeBackground = new RuntimeBackground(
+      mainBackground,
+      mock<AutofillService>(),
+      mock<BrowserPlatformUtilsService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      mock<LogService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      mock<AutofillOrchestrator>(),
+      mock<IntraprocessMessageSender>(),
+      mock<FillAssistEventReceiver>(),
+    );
+  });
+
+  it("forwards logoutReason and userId from the message to MainBackground.logout", async () => {
+    await runtimeBackground.processMessage({ command: "logout", logoutReason, userId });
+
+    expect(mainBackground.logout).toHaveBeenCalledWith(logoutReason, userId);
+  });
+
+  it("forwards undefined userId when the message does not include one", async () => {
+    await runtimeBackground.processMessage({ command: "logout", logoutReason });
+
+    expect(mainBackground.logout).toHaveBeenCalledWith(logoutReason, undefined);
+  });
+});
+
+describe("RuntimeBackground vault referrer gating", () => {
+  const environmentWebVaultUrl = "https://vault.selfhosted.test";
+  const regionWebVaultUrl = "https://vault.bitwarden.com";
+
+  let runtimeBackground: RuntimeBackground;
+  let environmentService: MockProxy<BrowserEnvironmentService>;
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    environmentService = mock<BrowserEnvironmentService>();
+    environmentService.environment$ = new BehaviorSubject({
+      getWebVaultUrl: () => environmentWebVaultUrl,
+    } as Environment);
+    environmentService.availableRegions.mockReturnValue([
+      { key: Region.US, domain: "bitwarden.com", urls: { webVault: regionWebVaultUrl } },
+    ] as RegionConfig[]);
+
+    runtimeBackground = createRuntimeBackground({
+      environmentService,
+      messagingService: mock<MessagingService>(),
+    });
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("authResult", () => {
+    const message = (referrer: string) => ({
+      command: "authResult",
+      code: "code",
+      state: "state",
+      referrer,
+    });
+
+    it("opens the SSO popout when the referrer is the configured web vault", async () => {
+      await runtimeBackground.processMessageWithSender(
+        message("vault.selfhosted.test"),
+        {} as chrome.runtime.MessageSender,
+      );
+
+      expect(openSsoAuthResultPopout).toHaveBeenCalled();
+    });
+
+    it("opens the SSO popout when the referrer is a known region's web vault", async () => {
+      await runtimeBackground.processMessageWithSender(
+        message("vault.bitwarden.com"),
+        {} as chrome.runtime.MessageSender,
+      );
+
+      expect(openSsoAuthResultPopout).toHaveBeenCalled();
+    });
+
+    it("ignores a referrer that is not a known vault", async () => {
+      await runtimeBackground.processMessageWithSender(
+        message("attacker.test"),
+        {} as chrome.runtime.MessageSender,
+      );
+
+      expect(openSsoAuthResultPopout).not.toHaveBeenCalled();
+    });
+
+    it("ignores a message with no referrer", async () => {
+      await runtimeBackground.processMessageWithSender(
+        { command: "authResult", code: "code", state: "state" },
+        {} as chrome.runtime.MessageSender,
+      );
+
+      expect(openSsoAuthResultPopout).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("webAuthnResult", () => {
+    const message = (referrer: string) => ({
+      command: "webAuthnResult",
+      data: "data",
+      remember: true,
+      referrer,
+    });
+
+    it("opens the WebAuthn popout when the referrer is the configured web vault", async () => {
+      await runtimeBackground.processMessage(message("vault.selfhosted.test"));
+
+      expect(openTwoFactorAuthWebAuthnPopout).toHaveBeenCalled();
+    });
+
+    it("opens the WebAuthn popout when the referrer is a known region's web vault", async () => {
+      await runtimeBackground.processMessage(message("vault.bitwarden.com"));
+
+      expect(openTwoFactorAuthWebAuthnPopout).toHaveBeenCalled();
+    });
+
+    it("ignores a referrer that is not a known vault", async () => {
+      await runtimeBackground.processMessage(message("attacker.test"));
+
+      expect(openTwoFactorAuthWebAuthnPopout).not.toHaveBeenCalled();
+    });
+
+    it("ignores a message with no referrer", async () => {
+      await runtimeBackground.processMessage({
+        command: "webAuthnResult",
+        data: "data",
+        remember: true,
+      });
+
+      expect(openTwoFactorAuthWebAuthnPopout).not.toHaveBeenCalled();
+    });
+  });
+});
+
+describe("RuntimeBackground locked vault pending notifications", () => {
+  let runtimeBackground: RuntimeBackground;
+  let intraprocessMessageSender: MockProxy<IntraprocessMessageSender>;
+  let tabSendMessageDataSpy: jest.SpyInstance;
+  let focusWindowSpy: jest.SpyInstance;
+  let focusTabSpy: jest.SpyInstance;
+
+  const retainedRetry = (): LockedVaultPendingNotificationsData => ({
+    commandToRetry: {
+      message: { command: ExtensionCommand.AutofillLogin },
+      [RETRY_SENDER]: { tab: createChromeTabMock({ id: 7, windowId: 3 }) },
+    },
+    target: "commands.background",
+  });
+
+  const enqueue = (message: Message<Record<string, unknown>>) =>
+    runtimeBackground.processMessage(message);
+
+  beforeEach(() => {
+    // The ctor wires an onInstalled listener that the shared chrome mock omits.
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+    jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockImplementation();
+    focusWindowSpy = jest.spyOn(BrowserApi, "focusWindow").mockImplementation();
+    focusTabSpy = jest.spyOn(BrowserApi, "focusTab").mockImplementation();
+    jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+    tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+
+    intraprocessMessageSender = mock<IntraprocessMessageSender>();
+    runtimeBackground = createRuntimeBackground({ intraprocessMessageSender });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  // Asserted through the dispatch rather than the private queue: a retry only matters if it is
+  // actually replayed, and `unlocked` is the only thing that drains it.
+  it("replays a retry that was published inside the background", async () => {
+    const data = retainedRetry();
+    await enqueue({ command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command, data });
+
+    await enqueue({ command: "unlocked" });
+
+    expect(intraprocessMessageSender.send).toHaveBeenCalledWith(RETRY_WHEN_UNLOCK_COMPLETED, {
+      data,
+    });
+  });
+
+  it("security: never republishes the retry to the sender tab", async () => {
+    await enqueue({
+      command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command,
+      data: retainedRetry(),
+    });
+
+    await enqueue({ command: "unlocked" });
+
+    expect(tabSendMessageDataSpy).not.toHaveBeenCalledWith(
+      expect.anything(),
+      RETRY_WHEN_UNLOCK_COMPLETED.command,
+      expect.anything(),
+    );
+  });
+
+  it("security: drops a retry that arrived from outside the background", async () => {
+    // `commandToRetry` names the tab that receives the retried autofill and the click data that
+    // selects the cipher, so a sender able to reach `chrome.runtime.onMessage` must not be able
+    // to enqueue one.
+    await enqueue(
+      tagAsExternalMessage({
+        command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command,
+        data: retainedRetry(),
+      }),
+    );
+
+    await enqueue({ command: "unlocked" });
+
+    expect(intraprocessMessageSender.send).not.toHaveBeenCalledWith(
+      RETRY_WHEN_UNLOCK_COMPLETED,
+      expect.anything(),
+    );
+  });
+
+  it("security: focuses no tab for a retry whose sender did not survive leaving this context", async () => {
+    const data = crossContextBoundary(retainedRetry());
+
+    await enqueue({ command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command, data });
+
+    await enqueue({ command: "unlocked" });
+
+    expect(focusWindowSpy).not.toHaveBeenCalled();
+    expect(focusTabSpy).not.toHaveBeenCalled();
+  });
+
+  it("publishes a retry whose sender did not survive leaving this context", async () => {
+    // Failing closed is local, not global: `OverlayBackground` refreshes auth status and ciphers
+    // on the retry regardless, so the publish has to survive the missing sender.
+    const data = crossContextBoundary(retainedRetry());
+
+    await enqueue({ command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command, data });
+
+    await enqueue({ command: "unlocked" });
+
+    expect(intraprocessMessageSender.send).toHaveBeenCalledWith(RETRY_WHEN_UNLOCK_COMPLETED, {
+      data,
+    });
+  });
+
+  it("dispatches no retry when none was queued", async () => {
+    await enqueue({ command: "unlocked" });
+
+    expect(intraprocessMessageSender.send).not.toHaveBeenCalledWith(
+      RETRY_WHEN_UNLOCK_COMPLETED,
+      expect.anything(),
+    );
+  });
+});
+
+describe("RuntimeBackground pageTransitionDetected", () => {
+  const committedUrl = "https://example.test/entry";
+  const routedUrl = "https://example.test/logged-in/step-one";
+
+  let runtimeBackground: RuntimeBackground;
+  let autofillLifecycleService: MockProxy<AutofillLifecycleService>;
+
+  const message = { command: AutofillMessageCommand.pageTransitionDetected };
+  const tab = createChromeTabMock({ id: 1, url: routedUrl });
+
+  /** Stands in for the frame lookup `BrowserApi.getFrameDetails` performs. */
+  const mockFrameLookup = (url: string | undefined) => {
+    (chrome.webNavigation.getFrame as unknown as jest.Mock).mockImplementation(
+      (_details, callback) => callback(url == null ? undefined : { url }),
+    );
+  };
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    autofillLifecycleService = mock<AutofillLifecycleService>();
+    runtimeBackground = createRuntimeBackground({ autofillLifecycleService });
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("reports the frame's live URL rather than the URL it was committed at", async () => {
+    mockFrameLookup(routedUrl);
+    // `sender.url` stays pinned to the entry URL across the same-document navigation the
+    // monitor is reporting.
+    const sender = { frameId: 0, url: committedUrl, tab } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(autofillLifecycleService.reportPageTransition).toHaveBeenCalledWith(tab, 0, routedUrl);
+  });
+
+  it("falls back to the sender URL when the frame lookup resolves nothing", async () => {
+    mockFrameLookup(undefined);
+    const subFrameUrl = "https://widget.example.test/form";
+    const sender = { frameId: 7, url: subFrameUrl, tab } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(autofillLifecycleService.reportPageTransition).toHaveBeenCalledWith(tab, 7, subFrameUrl);
+  });
+});
+
+describe("RuntimeBackground fillAssistEmit", () => {
+  let runtimeBackground: RuntimeBackground;
+  let fillAssistEventReceiver: MockProxy<FillAssistEventReceiver>;
+
+  const event: FillAssistEvent = {
+    name: "fill_assist_rule_qualification_failed",
+    payload: {
+      domain: "example.com",
+      missReason: "structural",
+      ruleId: "0",
+    },
+  };
+  const message = { command: "fillAssistEmit", name: event.name, payload: event.payload };
+  const sender = {
+    frameId: 0,
+    tab: createChromeTabMock({ id: 1 }),
+  } as chrome.runtime.MessageSender;
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    fillAssistEventReceiver = mock<FillAssistEventReceiver>();
+    runtimeBackground = createRuntimeBackground({ fillAssistEventReceiver });
+  });
+
+  it("routes the event to the receiver on a content-script sender", async () => {
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(fillAssistEventReceiver.receive).toHaveBeenCalledWith(event);
+  });
+
+  // Trusted-sender boundary: only content-script senders carry a sender.tab. Popup
+  // and options senders are rejected here.
+  it("security: rejects a message with no sender tab", async () => {
+    const tablessSender = { frameId: 0 } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, tablessSender);
+
+    expect(fillAssistEventReceiver.receive).not.toHaveBeenCalled();
+  });
+});
+
+describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
+  const tabId = 1;
+  const iframeSrc = "https://example.com/iframe";
+  const message = { command: "runFillAssistHeuristicFallback", iframeSrc };
+
+  let runtimeBackground: RuntimeBackground;
+  let logService: MockProxy<LogService>;
+  let tabSendMessageSpy: jest.SpyInstance;
+  let sender: chrome.runtime.MessageSender;
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    logService = mock<LogService>();
+    runtimeBackground = createRuntimeBackground({ logService });
+    sender = {
+      frameId: 0,
+      tab: createChromeTabMock({ id: tabId }),
+    } as chrome.runtime.MessageSender;
+    tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("relays to the single matching child frame with its frameId", async () => {
+    jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+      mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 5, url: iframeSrc }),
+      mock<chrome.webNavigation.GetAllFrameResultDetails>({
+        frameId: 6,
+        url: "https://example.com/other",
+      }),
+    ]);
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(tabSendMessageSpy).toHaveBeenCalledWith(
+      sender.tab,
+      { command: "runFillAssistHeuristicFallback", iframeSrc },
+      { frameId: 5 },
+    );
+  });
+
+  it("does nothing when no frame matches iframeSrc", async () => {
+    jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+      mock<chrome.webNavigation.GetAllFrameResultDetails>({
+        frameId: 5,
+        url: "https://example.com/other",
+      }),
+    ]);
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining("No frame matched"));
+  });
+
+  // Two frames sharing the same URL can't be distinguished from `iframeSrc` alone, and
+  // picking one risks routing the fallback into the wrong document. Matches the
+  // `routeTargetedFieldsToFrame` guard in overlay.background.ts.
+  it("does not relay when multiple frames match the same iframeSrc", async () => {
+    jest
+      .spyOn(BrowserApi, "getAllFrameDetails")
+      .mockResolvedValue([
+        mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 5, url: iframeSrc }),
+        mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 8, url: iframeSrc }),
+      ]);
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining("Ambiguous frame match"));
+  });
+
+  it("does nothing when iframeSrc is missing from the message", async () => {
+    const getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails");
+
+    await runtimeBackground.processMessageWithSender(
+      { command: "runFillAssistHeuristicFallback" },
+      sender,
+    );
+
+    expect(getAllFrameDetailsSpy).not.toHaveBeenCalled();
+    expect(tabSendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  // Trusted-sender boundary: only content-script senders carry a sender.tab. Popup
+  // and options senders are rejected here.
+  it("security: rejects a message with no sender tab", async () => {
+    const getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails");
+    const tablessSender = { frameId: 0 } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, tablessSender);
+
+    expect(getAllFrameDetailsSpy).not.toHaveBeenCalled();
+    expect(tabSendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  // The target frame may be gone by the time we send (navigation, iframe removal). The
+  // handler .catches so the rejection does not surface on the background message pipeline.
+  it("does not throw when tabSendMessage rejects", async () => {
+    jest
+      .spyOn(BrowserApi, "getAllFrameDetails")
+      .mockResolvedValue([
+        mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 5, url: iframeSrc }),
+      ]);
+    tabSendMessageSpy.mockRejectedValueOnce(new Error("Could not establish connection"));
+
+    await expect(
+      runtimeBackground.processMessageWithSender(message, sender),
+    ).resolves.not.toThrow();
   });
 });

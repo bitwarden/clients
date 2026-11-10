@@ -1,7 +1,15 @@
 import { ElementRef, Signal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { animationFrameScheduler, fromEvent, of } from "rxjs";
-import { auditTime, distinctUntilChanged, map, scan, startWith, switchMap } from "rxjs/operators";
+import { animationFrameScheduler, combineLatest, fromEvent, merge, of } from "rxjs";
+import {
+  auditTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  scan,
+  startWith,
+  switchMap,
+} from "rxjs/operators";
 
 /** Which way the user is currently moving through a scrollable region. */
 export type ScrollDirection = "up" | "down";
@@ -18,21 +26,25 @@ export type ScrollDirectionOptions = {
 
   /**
    * Within this many pixels of the bottom, hold `"down"`. Prevents an oscillation loop when a
-   * consumer collapses chrome in response to `"down"`: the collapse grows the viewport, the browser
-   * clamps `scrollTop`, and the smaller offset would otherwise read as `"up"`.
+   * consumer collapses a region in response to `"down"`: the collapse grows the viewport, the
+   * browser clamps `scrollTop`, and the smaller offset would otherwise read as `"up"`.
    */
   bottomOffset?: number;
 
   /**
    * How far the region must be able to scroll before `"down"` is reported at all.
    *
-   * Without a floor here, a consumer that collapses chrome on `"down"` can get stuck in a loop: the
-   * collapse gives that height back to the scroll region, and if there wasn't much to scroll to
-   * begin with, the browser snaps back to the top — which reads as `"up"`, reopens the chrome, and
+   * Without a floor here, a consumer that collapses a region on `"down"` can get stuck in a loop:
+   * the collapse gives that height back to the scroll region, and if there wasn't much to scroll to
+   * begin with, the browser snaps back to the top — which reads as `"up"`, reopens the region, and
    * leaves the next scroll to start the loop over.
    *
-   * Pass the height of the chrome being collapsed. Use a callback to measure it live — it is only
-   * read while scrolling `"up"`, when that chrome is expanded.
+   * Pass the collapsible height. A callback is re-read on each attempt to flip `"down"`, so the
+   * height can be measured after the first render.
+   *
+   * It is read while the region is expanded *or expanding*, since the gate tests the previous
+   * frame's direction. Collapsing consumers should pass a settled height (see `settledHeight`)
+   * rather than a live measurement, which reads an intermediate value while animating.
    */
   minScrollable?: number | (() => number);
 };
@@ -60,7 +72,8 @@ const nativeElement = (
  * Track the direction a scrollable element is being scrolled.
  *
  * Takes an element rather than a `CdkScrollable` so that it also works with regions marked by
- * `bitScrollLayoutHost`, which is not a `CdkScrollable`.
+ * `bitScrollLayoutHost`, which is not a `CdkScrollable`. Holds its direction while the scrollbar is
+ * dragged.
  *
  * @param scrollable The element to observe. Reports `"up"` while it is nullish or not scrollable.
  * @param options See {@link ScrollDirectionOptions}
@@ -80,15 +93,37 @@ export const scrollDirection = (
 
   const element$ = toObservable(scrollable).pipe(map(nativeElement));
 
+  // Watched from creation, since the scroller may only resolve after a drag begins. `scrollend`
+  // covers Chrome skipping `pointerup` after a scrollbar drag.
+  const pressed$ = toObservable(
+    toSignal(
+      merge(
+        fromEvent(document, "pointerdown", { capture: true }).pipe(map((event) => event.target)),
+        merge(
+          fromEvent(window, "pointerup"),
+          fromEvent(window, "pointercancel"),
+          fromEvent(document, "scrollend", { capture: true }),
+        ).pipe(map((): null => null)),
+      ),
+      { initialValue: null },
+    ),
+  );
+
   const direction$ = element$.pipe(
     switchMap((element) => {
       if (!element) {
         return of<ScrollDirection>("up");
       }
 
-      return fromEvent(element, "scroll").pipe(
+      const scroll$ = fromEvent(element, "scroll").pipe(
         auditTime(0, animationFrameScheduler),
         startWith(null),
+      );
+
+      return combineLatest([scroll$, pressed$]).pipe(
+        // A press on the scroller itself is a scrollbar drag, where a collapse would shift the track
+        // under the pointer and jump the offset. Release re-evaluates from where the drag began.
+        filter(([, pressed]) => pressed !== element),
         map(() => ({
           top: element.scrollTop,
           maxTop: element.scrollHeight - element.clientHeight,
@@ -99,8 +134,8 @@ export const scrollDirection = (
             return { direction: "up", anchor: top };
           }
 
-          // Gates the flip only. Once `"down"`, the collapsed chrome has legitimately reduced
-          // `maxTop`, and re-testing it here would expand the chrome again. Equality still fails:
+          // Gates the flip only. Once `"down"`, the collapsed regions have legitimately reduced
+          // `maxTop`, and re-testing it here would expand them again. Equality still fails:
           // giving back exactly `maxTop` leaves nothing to scroll.
           if (state.direction === "up" && maxTop <= readMinScrollable()) {
             return { direction: "up", anchor: top };

@@ -1,15 +1,14 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
-  distinctUntilChanged,
   filter,
+  firstValueFrom,
   map,
   Observable,
   of,
   shareReplay,
-  skip,
-  Subject,
+  startWith,
   switchMap,
   take,
 } from "rxjs";
@@ -36,18 +35,30 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CIPHER_MENU_ITEMS,
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
-import { idString, MY_VAULT, NO_FOLDER, orgIconTile, personalIconTile } from "@bitwarden/vault";
-
-import { PopupCipherViewLike } from "../views/popup-cipher.view";
-
-const NESTING_DELIMITER = "/";
+import {
+  StateProvider,
+  UserKeyDefinition,
+  VAULT_TABLE_FILTERS_DISK,
+  VAULT_TABLE_FILTERS_MEMORY,
+} from "@bitwarden/state";
+import {
+  ALL_ITEMS_SCOPE,
+  idString,
+  MY_VAULT,
+  NO_FOLDER,
+  orgIconTile,
+  personalIconTile,
+  scopeKey,
+  type VaultScope,
+} from "@bitwarden/vault";
 
 interface CachedTableFilterState {
   organizationIds?: string[];
@@ -55,6 +66,53 @@ interface CachedTableFilterState {
   folderIds?: string[];
   cipherType?: CipherType | null;
 }
+
+/**
+ * Each vault's chip selection for a user, keyed by {@link scopeKey}. Stored per user so that
+ * switching accounts brings back that user's filters, which the popup view cache can't do — the
+ * background clears it on every account switch. Cleared on lock and logout.
+ */
+const VAULT_TABLE_FILTERS = UserKeyDefinition.record<CachedTableFilterState>(
+  VAULT_TABLE_FILTERS_DISK,
+  "tableFiltersByScope",
+  {
+    deserializer: (v) => v,
+    clearOn: ["lock", "logout"],
+  },
+);
+
+/** The `:vaultId` route segment of the vault a user last selected, or `null` for All items. */
+const VAULT_SELECTED_SCOPE = new UserKeyDefinition<string | null>(
+  VAULT_TABLE_FILTERS_DISK,
+  "selectedScopeId",
+  {
+    deserializer: (v) => v,
+    clearOn: ["lock", "logout"],
+  },
+);
+
+/** The collection segment beside {@link VAULT_SELECTED_SCOPE}, e.g. "My items"; `null` for none. */
+const VAULT_SELECTED_COLLECTION = new UserKeyDefinition<string | null>(
+  VAULT_TABLE_FILTERS_DISK,
+  "selectedScopeCollection",
+  {
+    deserializer: (v) => v,
+    clearOn: ["lock", "logout"],
+  },
+);
+
+/**
+ * Each vault's search text for a user, keyed by {@link scopeKey}. Search terms can name sites and
+ * accounts.
+ */
+const VAULT_SEARCH_TEXT = UserKeyDefinition.record<string>(
+  VAULT_TABLE_FILTERS_MEMORY,
+  "searchTextByScope",
+  {
+    deserializer: (v) => v,
+    clearOn: ["lock", "logout"],
+  },
+);
 
 /**
  * Filter service for the vault popup list table (`VaultPopupListTableComponent`).
@@ -74,34 +132,141 @@ export class VaultPopupListTableFiltersService {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly configService = inject(ConfigService);
   private readonly avatarService = inject(AvatarService);
-
-  /**
-   * Ids of the currently-selected organizations (plus {@link MY_VAULT}); drives {@link folders$}
-   * and {@link collections$} narrowing. Update this whenever the organization chip selection
-   * changes.
-   */
-  readonly selectedOrganizations = signal<string[]>([]);
-
-  /** Observable mirror of {@link selectedOrganizations} for use in RxJS pipelines. */
-  private readonly selectedOrganizations$ = toObservable(this.selectedOrganizations);
+  private readonly stateProvider = inject(StateProvider);
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
-    filter((userId): userId is UserId => userId !== null),
+    filter((userId): userId is UserId => userId != null),
   );
 
-  private readonly _cachedFilters = this.viewCacheService.signal<CachedTableFilterState>({
-    key: "vault-table-filters",
-    initialValue: {},
-    deserializer: (v) => v,
+  private readonly activeUserId = toSignal(this.activeUserId$);
+
+  /**
+   * The active user's stored `key`. Starts over as `null` for each user until their stored state
+   * arrives, so a switch never shows the previous user's values.
+   */
+  private userState$<T>(key: UserKeyDefinition<T>): Observable<T | null> {
+    return this.activeUserId$.pipe(
+      switchMap((userId) => this.stateProvider.getUser(userId, key).state$.pipe(startWith(null))),
+    );
+  }
+
+  private readonly userFilters = toSignal(
+    this.userState$(VAULT_TABLE_FILTERS).pipe(map((filtersByScope) => filtersByScope ?? {})),
+    { initialValue: {} as Record<string, CachedTableFilterState> },
+  );
+
+  private readonly userSearchText = toSignal(
+    this.userState$(VAULT_SEARCH_TEXT).pipe(map((searchText) => searchText ?? {})),
+    { initialValue: {} as Record<string, string> },
+  );
+
+  /**
+   * The search the user last typed in this popup.
+   */
+  private readonly typedSearchText = signal<{ userId: UserId; key: string; text: string } | null>(
+    null,
+  );
+
+  /** The search text for the active user's vault in view. */
+  readonly searchText = computed(() => {
+    const key = this.activeScopeKey();
+    const typed = this.typedSearchText();
+    return typed?.userId === this.activeUserId() && typed?.key === key
+      ? typed.text
+      : (this.userSearchText()[key] ?? "");
+  });
+
+  /** Sets the search text for the active user's vault in view. */
+  async setSearchText(text: string): Promise<void> {
+    const userId = this.activeUserId();
+    if (userId == null) {
+      return;
+    }
+
+    const key = this.activeScopeKey();
+    const typed = { userId, key, text };
+    this.typedSearchText.set(typed);
+    try {
+      await this.stateProvider
+        .getUser(userId, VAULT_SEARCH_TEXT)
+        .update((searchText) => ({ ...searchText, [key]: text }));
+    } catch (error) {
+      // The text never reached storage, so fall back to what is stored.
+      if (this.typedSearchText() === typed) {
+        this.typedSearchText.set(null);
+      }
+      throw error;
+    }
+  }
+
+  /** The {@link scopeKey} of the vault in view, which every read and write below targets. */
+  private readonly activeScopeKey = signal(scopeKey(ALL_ITEMS_SCOPE));
+
+  /** The {@link scopeKey} of the vault in view, for other per-vault state such as search text. */
+  readonly scopeKey = this.activeScopeKey.asReadonly();
+
+  /** The chip selection for the active user's vault in view. */
+  readonly cachedFilters = computed(() => this.userFilters()[this.activeScopeKey()] ?? {});
+
+  /**
+   * Whether the toolbar's filter dialog is open. Root-scoped because the view cache seeds from its
+   * popup-open snapshot, so a recreated owner would reopen a closed dialog.
+   */
+  readonly filterDialogOpen = this.viewCacheService.signal<boolean>({
+    key: "vault-filter-dialog-open",
+    initialValue: false,
     persistNavigation: true,
   });
 
-  readonly cachedFilters = this._cachedFilters.asReadonly();
+  /** The active user's selected vault, as its `:vaultId` route segment; `null` is All items. */
+  readonly cachedVaultScopeId = toSignal(this.userState$(VAULT_SELECTED_SCOPE), {
+    initialValue: null,
+  });
+
+  /** The collection segment beside {@link cachedVaultScopeId}, so "My items" restores as itself. */
+  readonly cachedVaultScopeCollection = toSignal(this.userState$(VAULT_SELECTED_COLLECTION), {
+    initialValue: null,
+  });
+
+  /** Stores the active user's selected vault. Await it before a navigation that reads it back. */
+  async setCachedVaultScopeId(
+    id: string | null,
+    collectionSegment: string | null = null,
+  ): Promise<void> {
+    const userId = this.activeUserId();
+    if (userId != null) {
+      await Promise.all([
+        this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).update(() => id),
+        this.stateProvider
+          .getUser(userId, VAULT_SELECTED_COLLECTION)
+          .update(() => collectionSegment),
+      ]);
+    }
+  }
+
+  /** The active user's selected vault, once their stored state has loaded. */
+  storedVaultScopeId(): Promise<string | null> {
+    return this.storedState(VAULT_SELECTED_SCOPE);
+  }
+
+  /** The collection segment beside {@link storedVaultScopeId}, so "My items" restores as itself. */
+  storedVaultScopeCollection(): Promise<string | null> {
+    return this.storedState(VAULT_SELECTED_COLLECTION);
+  }
+
+  private storedState(key: UserKeyDefinition<string | null>): Promise<string | null> {
+    return firstValueFrom(
+      this.activeUserId$.pipe(
+        switchMap((userId) => this.stateProvider.getUser(userId, key).state$),
+        map((value) => value ?? null),
+      ),
+    );
+  }
 
   /** Whether any chip filter is currently selected. */
   readonly hasFilterApplied = computed(() => {
-    const filters = this._cachedFilters();
+    const filters = this.cachedFilters();
     return !!(
       filters.organizationIds?.length ||
       filters.collectionIds?.length ||
@@ -112,11 +277,6 @@ export class VaultPopupListTableFiltersService {
 
   /** Observable mirror of {@link hasFilterApplied} for use in RxJS pipelines. */
   hasFilterApplied$ = toObservable(this.hasFilterApplied);
-
-  private readonly vaultScopedFiltersCleared = new Subject<void>();
-
-  /** Emits on {@link clearVaultScopedFilters}, so the table can reset its own chip controls. */
-  readonly vaultScopedFiltersCleared$ = this.vaultScopedFiltersCleared.asObservable();
 
   /**
    * Whether every organization in `ids` is suspended, which blanks the rows rather than filtering
@@ -154,22 +314,30 @@ export class VaultPopupListTableFiltersService {
     }),
   );
 
-  constructor() {
-    // Unlike navigating within the vault (which VFO1 intentionally persists filters across, see `clearVaultStateGuard`),
-    // switching the active account must always clear filters, this service is `providedIn: "root"` and survives the switch, so nothing else resets it.
-    this.activeUserId$
-      .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
-      .subscribe(() => this.clearFilters());
+  /**
+   * Points the cached selection at the vault in view. Call before the table restores, so it seeds
+   * from this vault's entry rather than the previous one's. A `null` scope keys as All items.
+   */
+  setScope(scope: VaultScope | null): void {
+    this.activeScopeKey.set(scopeKey(scope ?? ALL_ITEMS_SCOPE));
   }
 
-  /** Clears all persisted filter state. Called when the active account changes. */
-  private clearFilters(): void {
-    this._cachedFilters.set({});
-    this.selectedOrganizations.set([]);
-  }
+  private fullCipherListViews$ = this.activeUserId$.pipe(
+    switchMap((userId) =>
+      this.cipherService.cipherListViews$(userId).pipe(
+        filter((ciphers) => ciphers != null),
+        map((ciphers) =>
+          ciphers.filter(
+            (cipher) =>
+              !CipherViewLikeUtils.isDeleted(cipher) && !CipherViewLikeUtils.isArchived(cipher),
+          ),
+        ),
+      ),
+    ),
+  );
 
   /**
-   * Persists the current chip selection to the view cache.
+   * Persists the current chip selection to the active user's state, under the vault in view.
    * Call this whenever the table's `filterValues` signal emits a new value.
    */
   saveFilters(values: {
@@ -178,32 +346,26 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }): void {
-    this._cachedFilters.set({
-      organizationIds: values.organization ?? [],
-      collectionIds: values.collection ?? [],
-      folderIds: values.folder ?? [],
-      cipherType: values.cipherType ?? null,
-    });
-    this.selectedOrganizations.set(values.organization ?? []);
+    const userId = this.activeUserId();
+    if (userId == null) {
+      return;
+    }
+
+    // Both resolved now rather than in the update, which lands after a later switch could move them.
+    const key = this.activeScopeKey();
+    void this.stateProvider.getUser(userId, VAULT_TABLE_FILTERS).update((filtersByScope) => ({
+      ...filtersByScope,
+      [key]: {
+        organizationIds: values.organization ?? [],
+        collectionIds: values.collection ?? [],
+        folderIds: values.folder ?? [],
+        cipherType: values.cipherType ?? null,
+      },
+    }));
   }
 
   /**
-   * Drops the vault, shared-folder, and folder selections for a switch. Type is kept: item types
-   * span vaults.
-   */
-  clearVaultScopedFilters(): void {
-    this._cachedFilters.set({
-      organizationIds: [],
-      collectionIds: [],
-      folderIds: [],
-      cipherType: this.cachedFilters().cipherType ?? null,
-    });
-    this.selectedOrganizations.set([]);
-    this.vaultScopedFiltersCleared.next();
-  }
-
-  /**
-   * Resolves the cached filter state back to chip-selectable ids, emitting once.
+   * Resolves the vault in view's cached filter state back to chip-selectable ids, emitting once.
    *
    * Call this after the table's filter chips are registered to seed them from the
    * previously-persisted state. The observable takes the first emission of
@@ -216,14 +378,18 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }> {
-    const state = this._cachedFilters();
     return combineLatest([
       this.organizations$,
       this.collections$,
       this.activeUserId$.pipe(switchMap((userId) => this.folderService.folderViews$(userId))),
+      // Not `userState$`, which starts empty: the first emission here is the stored state.
+      this.activeUserId$.pipe(
+        switchMap((userId) => this.stateProvider.getUser(userId, VAULT_TABLE_FILTERS).state$),
+      ),
     ]).pipe(
       take(1),
-      map(([orgOptions, collectionOptions, folderViews]) => {
+      map(([orgOptions, collectionOptions, folderViews, filtersByScope]) => {
+        const state = filtersByScope?.[this.activeScopeKey()] ?? {};
         const result: {
           cipherType?: CipherType | null;
           organization?: string[];
@@ -266,16 +432,22 @@ export class VaultPopupListTableFiltersService {
   }
 
   /**
-   * Available cipher types, filtered by policy restrictions and feature flags.
+   * Available cipher types, filtered by vault presence, policy restrictions, and feature flags.
+   * Only types that exist in the vault are shown.
    */
   readonly cipherTypes$: Observable<ChipFilterOption<CipherType>[]> = combineLatest([
     this.restrictedItemTypesService.restricted$,
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    this.fullCipherListViews$,
   ]).pipe(
-    map(([restrictedTypes, allowNewItemTypes]) => {
+    map(([restrictedTypes, allowNewItemTypes, ciphers]) => {
+      const presentTypes = new Set((ciphers ?? []).map((c) => CipherViewLikeUtils.getType(c)));
       const cipherMenuItems = allowNewItemTypes ? DIALOG_CIPHER_MENU_ITEMS : CIPHER_MENU_ITEMS;
       return cipherMenuItems
         .filter((item) => {
+          if (!presentTypes.has(item.type)) {
+            return false;
+          }
           const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
           return !restriction || restriction.allowViewOrgIds.length > 0;
         })
@@ -368,92 +540,36 @@ export class VaultPopupListTableFiltersService {
 
   /**
    * Folders, structured for `bit-filter-menu`.
-   * Narrows to folders that have ciphers in the selected organization(s) when an org
-   * filter is active.
    */
   folders$: Observable<ChipFilterOption<FolderView>[]> = this.activeUserId$.pipe(
-    switchMap((userId) => {
-      const cipherViews$ = this.cipherService
-        .cipherListViews$(userId)
-        .pipe(map((ciphers) => (ciphers ? (Object.values(ciphers) as PopupCipherViewLike[]) : [])));
-
-      return combineLatest([
-        this.selectedOrganizations$,
-        this.folderService.folderViews$(userId),
-        cipherViews$,
-      ]).pipe(
-        map(([selectedOrgs, folders, cipherViews]) => {
-          if (folders.length === 1 && !folders[0].id) {
-            return [selectedOrgs, [] as FolderView[], cipherViews] as const;
-          }
-
-          folders.sort(Utils.getSortFunction(this.i18nService, "name"));
-          let arrangedFolders = folders;
-          const noFolder = folders.find((f) => !f.id);
-
-          if (noFolder) {
-            const updatedNoFolder = { ...noFolder, name: this.i18nService.t("noFoldersFilter") };
-            // Leads the list, and the menu rules it off from the real folders.
-            arrangedFolders = [updatedNoFolder, ...folders.filter((f) => f.id)];
-          }
-
-          return [selectedOrgs, arrangedFolders, cipherViews] as const;
-        }),
-        map(([selectedOrgs, folders, cipherViews]) => {
-          const selectedOrgIds = selectedOrgs.filter((id) => id !== MY_VAULT);
-
-          // No org filter active — show all folders.
-          if (!selectedOrgIds.length) {
-            return folders;
-          }
-
-          const orgCiphers = cipherViews.filter(
-            (c) => c.organizationId != null && selectedOrgIds.includes(idString(c.organizationId)!),
-          );
-
-          return folders.filter((f) => {
-            if (!f.id) {
-              return orgCiphers.some((oc) => !oc.folderId);
-            }
-            return orgCiphers.some((oc) => idString(oc.folderId) === f.id);
-          });
-        }),
+    switchMap((userId) =>
+      this.folderService.folderViews$(userId).pipe(
+        map((folders) => (folders.length === 1 && !folders[0].id ? ([] as FolderView[]) : folders)),
         map((folders) => {
-          const nested = this.getAllFoldersNested(folders);
+          const nested = getNestedFolderTree(folders, this.i18nService);
           return new DynamicTreeNode<FolderView>({ fullList: folders, nestedList: nested });
         }),
         map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f))),
-      );
-    }),
+      ),
+    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
    * Collections, structured for `bit-filter-menu`.
-   * Narrows to collections in the selected organization(s) when an org filter is active.
    */
   collections$: Observable<ChipFilterOption<CollectionView>[]> =
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
         combineLatest([
-          this.selectedOrganizations$,
           this.collectionService.decryptedCollections$(userId),
           this.organizationService.memberOrganizations$(userId),
         ]),
       ),
-      map(([selectedOrgs, allCollections, orgs]) => {
-        const selectedOrgIds = selectedOrgs.filter((id) => id !== MY_VAULT);
-
-        const filtered = selectedOrgIds.length
-          ? allCollections.filter(
-              (c) =>
-                c.organizationId != null && selectedOrgIds.includes(idString(c.organizationId)!),
-            )
-          : allCollections;
-
-        return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
-      }),
+      map(([allCollections, orgs]) =>
+        sortDefaultCollections(allCollections, orgs, this.i18nService.collator),
+      ),
       map(
         (fullList) =>
           new DynamicTreeNode<CollectionView>({
@@ -477,17 +593,5 @@ export class VaultPopupListTableFiltersService {
       label: item.node.name,
       children: item.children?.map((i) => this.convertToChipFilterOption(i)),
     };
-  }
-
-  private getAllFoldersNested(folders: FolderView[]): TreeNode<FolderView>[] {
-    const nodes: TreeNode<FolderView>[] = [];
-    folders.forEach((f) => {
-      const folderCopy = new FolderView();
-      folderCopy.id = f.id;
-      folderCopy.revisionDate = f.revisionDate;
-      const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NESTING_DELIMITER) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, undefined, NESTING_DELIMITER);
-    });
-    return nodes;
   }
 }
