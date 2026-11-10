@@ -19,7 +19,12 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 
-import { canAccessHealthDetail, HealthAccessService } from "./health-access.service";
+import {
+  canAccessHealthDetail,
+  canAccessHealthPasskeys,
+  HealthAccessService,
+} from "./health-access.service";
+import { HealthPasskeyScanService } from "./health-passkey-scan.service";
 
 describe("HealthAccessService", () => {
   const userId = Utils.newGuid() as UserId;
@@ -39,6 +44,7 @@ describe("HealthAccessService", () => {
   let router: MockProxy<Router>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let activeAccount$: BehaviorSubject<Account | null>;
+  let passkeysEnabled$: BehaviorSubject<boolean>;
 
   function setFeatureFlag(enabled: boolean) {
     configService.getFeatureFlag$
@@ -59,6 +65,7 @@ describe("HealthAccessService", () => {
     router.createUrlTree.mockReturnValue({} as UrlTree);
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     activeAccount$ = new BehaviorSubject<Account | null>({ id: userId } as Account);
+    passkeysEnabled$ = new BehaviorSubject(true);
 
     TestBed.configureTestingModule({
       providers: [
@@ -68,6 +75,7 @@ describe("HealthAccessService", () => {
         { provide: StateProvider, useValue: stateProvider },
         { provide: Router, useValue: router },
         { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: HealthPasskeyScanService, useValue: { enabled$: passkeysEnabled$ } },
         {
           provide: BillingAccountProfileStateService,
           useValue: billingAccountProfileStateService,
@@ -347,6 +355,29 @@ describe("HealthAccessService", () => {
       expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
         userId,
       );
+    });
+  });
+
+  describe("canAccessHealthPasskeys", () => {
+    function runGuard(enabled: boolean) {
+      passkeysEnabled$.next(enabled);
+      return TestBed.runInInjectionContext(() =>
+        firstValueFrom(
+          canAccessHealthPasskeys(null as never, null as never) as Observable<boolean | UrlTree>,
+        ),
+      );
+    }
+
+    it("lets the user through when the passkeys category is released", async () => {
+      await expect(runGuard(true)).resolves.toBe(true);
+      expect(router.createUrlTree).not.toHaveBeenCalled();
+    });
+
+    it("sends the user to the Health Overview while it is not", async () => {
+      const result = await runGuard(false);
+
+      expect(result).not.toBe(true);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/tabs/health"]);
     });
   });
 });

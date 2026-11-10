@@ -11,8 +11,6 @@ import {
   VaultHealthReportStatus,
 } from "@bitwarden/common/dirt/vault-health/models";
 import { PasskeyOpportunityService } from "@bitwarden/common/dirt/vault-health/services";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -41,7 +39,6 @@ describe("HealthPasskeySectionComponent", () => {
   let state$: BehaviorSubject<PasskeyOpportunitiesState>;
   let opportunityService: MockProxy<PasskeyOpportunityService>;
   let scanService: MockProxy<HealthPasskeyScanService>;
-  let configService: MockProxy<ConfigService>;
 
   async function init(locked: boolean) {
     fixture = TestBed.createComponent(HealthPasskeySectionComponent);
@@ -60,18 +57,17 @@ describe("HealthPasskeySectionComponent", () => {
   beforeEach(async () => {
     flag$ = new BehaviorSubject(true);
     state$ = new BehaviorSubject<PasskeyOpportunitiesState>(PASSKEY_OPPORTUNITIES_IDLE);
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(flag$);
     opportunityService = mock<PasskeyOpportunityService>();
     opportunityService.getPasskeyOpportunities$.mockReturnValue(state$);
     scanService = mock<HealthPasskeyScanService>();
     scanService.keepPasskeysCurrent$.mockReturnValue(NEVER);
+    // `enabled$` is a property, not a method, so the mock has to hold the stream itself.
+    (scanService as { enabled$: unknown }).enabled$ = flag$;
 
     await TestBed.configureTestingModule({
       imports: [HealthPasskeySectionComponent],
       providers: [
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId } as Account) } },
-        { provide: ConfigService, useValue: configService },
         { provide: PasskeyOpportunityService, useValue: opportunityService },
         { provide: HealthPasskeyScanService, useValue: scanService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -84,12 +80,6 @@ describe("HealthPasskeySectionComponent", () => {
       .compileComponents();
   });
 
-  it("is gated on the passkey report feature flag", async () => {
-    await init(false);
-
-    expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.PasskeyLoginReport);
-  });
-
   it("renders the heading and an unlocked row, and starts the check, for a Premium user", async () => {
     await init(false);
 
@@ -98,7 +88,7 @@ describe("HealthPasskeySectionComponent", () => {
     expect(scanService.keepPasskeysCurrent$).toHaveBeenCalledWith(userId);
   });
 
-  it("renders nothing and checks nothing when the flag is off", async () => {
+  it("renders nothing and checks nothing until the category is released", async () => {
     flag$.next(false);
     await init(false);
 

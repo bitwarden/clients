@@ -3,6 +3,8 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subscription } from "rxjs";
 
 import { PasskeyOpportunityService } from "@bitwarden/common/dirt/vault-health/services";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -16,6 +18,7 @@ describe("HealthPasskeyScanService", () => {
   let cipherViews$: BehaviorSubject<CipherView[] | null>;
   let opportunityService: MockProxy<PasskeyOpportunityService>;
   let logService: MockProxy<LogService>;
+  let flags: Record<string, BehaviorSubject<boolean>>;
   let service: HealthPasskeyScanService;
   let subscription: Subscription | undefined;
 
@@ -33,12 +36,19 @@ describe("HealthPasskeyScanService", () => {
     opportunityService = mock<PasskeyOpportunityService>();
     opportunityService.findPasskeyOpportunities.mockResolvedValue();
     logService = mock<LogService>();
+    flags = {
+      [FeatureFlag.PasskeyLoginReport]: new BehaviorSubject(true),
+      [FeatureFlag.VFO1Foundation]: new BehaviorSubject(true),
+    };
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation((flag) => flags[flag] as never);
 
     TestBed.configureTestingModule({
       providers: [
         { provide: CipherService, useValue: cipherService },
         { provide: PasskeyOpportunityService, useValue: opportunityService },
         { provide: LogService, useValue: logService },
+        { provide: ConfigService, useValue: configService },
       ],
     });
     service = TestBed.inject(HealthPasskeyScanService);
@@ -52,6 +62,27 @@ describe("HealthPasskeyScanService", () => {
   async function flush() {
     await jest.advanceTimersByTimeAsync(300);
   }
+
+  describe("enabled$", () => {
+    async function enabled(): Promise<boolean> {
+      let value = false;
+      service.enabled$.subscribe((v) => (value = v)).unsubscribe();
+      return value;
+    }
+
+    it("is on with the passkey report flag and VFO1", async () => {
+      expect(await enabled()).toBe(true);
+    });
+
+    it.each([FeatureFlag.PasskeyLoginReport, FeatureFlag.VFO1Foundation])(
+      "is off without %s",
+      async (flag) => {
+        flags[flag].next(false);
+
+        expect(await enabled()).toBe(false);
+      },
+    );
+  });
 
   it("checks the current vault once subscribed, without reloading the directory", async () => {
     subscription = service.keepPasskeysCurrent$(userId).subscribe();

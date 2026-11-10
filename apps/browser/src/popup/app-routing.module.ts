@@ -81,6 +81,7 @@ import { HealthComponent } from "../dirt/health/popup/health.component";
 import {
   canAccessHealth,
   canAccessHealthDetail,
+  canAccessHealthPasskeys,
 } from "../dirt/health/popup/services/health-access.service";
 import { PhishingWarningComponent } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
@@ -897,12 +898,7 @@ const routes: Routes = [
     // Declared before health/:category, which would otherwise match it first.
     path: "health/passkeys",
     component: HealthPasskeyDetailComponent,
-    canActivate: [
-      authGuard,
-      canAccessHealth,
-      canAccessHealthDetail,
-      canAccessFeature(FeatureFlag.PasskeyLoginReport, true, "/tabs/health", false),
-    ],
+    canActivate: [authGuard, canAccessHealth, canAccessHealthDetail, canAccessHealthPasskeys],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

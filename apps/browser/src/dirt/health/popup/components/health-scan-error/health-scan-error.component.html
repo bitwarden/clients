@@ -4,8 +4,8 @@
 >
   <bit-status-lockup class="tw-text-main">
     <bit-svg slot="graphic" [content]="illustration"></bit-svg>
-    <ng-container slot="title">{{ "healthScanFailed" | i18n }}</ng-container>
-    <ng-container slot="description">{{ "healthScanFailedDescription" | i18n }}</ng-container>
+    <ng-container slot="title">{{ titleKey() | i18n }}</ng-container>
+    <ng-container slot="description">{{ descriptionKey() | i18n }}</ng-container>
     <button slot="button" bitButton type="button" buttonType="primary" (click)="onRetryClick()">
       {{ "tryAgain" | i18n }}
     </button>

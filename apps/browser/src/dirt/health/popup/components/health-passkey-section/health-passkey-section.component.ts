@@ -5,8 +5,6 @@ import { EMPTY, map, of, switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PASSKEY_OPPORTUNITIES_IDLE } from "@bitwarden/common/dirt/vault-health/models";
 import { PasskeyOpportunityService } from "@bitwarden/common/dirt/vault-health/services";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ItemModule, SectionHeaderComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -20,7 +18,7 @@ import { PasskeyOpportunityNavItemComponent } from "../passkey-opportunity-nav-i
  * left out of the at-risk score and the "Risks identified" list.
  *
  * Owns its own check, which runs only while it is on screen. Renders nothing
- * while the feature flag is off. A user without Premium sees the row locked,
+ * until the category is released (its flag and VFO1). A user without Premium sees the row locked,
  * like the other Health categories, and is never checked: the passkey
  * directory is a Premium report, so no directory request is made for them.
  */
@@ -38,23 +36,22 @@ import { PasskeyOpportunityNavItemComponent } from "../passkey-opportunity-nav-i
 })
 export class HealthPasskeySectionComponent {
   private readonly accountService = inject(AccountService);
-  private readonly configService = inject(ConfigService);
   private readonly passkeyOpportunityService = inject(PasskeyOpportunityService);
   private readonly healthPasskeyScanService = inject(HealthPasskeyScanService);
 
   /** Whether Health details are locked behind Premium. */
   readonly locked = input(true);
 
-  private readonly flagEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PasskeyLoginReport),
-    { initialValue: false },
-  );
+  /** The passkey report flag and VFO1, whose list the detail page builds on. */
+  private readonly enabled = toSignal(this.healthPasskeyScanService.enabled$, {
+    initialValue: false,
+  });
 
   private readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
   );
 
-  protected readonly visible = computed(() => this.flagEnabled());
+  protected readonly visible = computed(() => this.enabled());
 
   /** The user to check for, or undefined while the section is hidden or locked. */
   private readonly activeUserId = computed(() =>

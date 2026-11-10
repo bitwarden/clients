@@ -1,6 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import {
   catchError,
+  combineLatest,
   concatMap,
   debounceTime,
   defer,
@@ -14,6 +15,8 @@ import {
 } from "rxjs";
 
 import { PasskeyOpportunityService } from "@bitwarden/common/dirt/vault-health/services";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -40,6 +43,16 @@ export class HealthPasskeyScanService {
   private readonly cipherService = inject(CipherService);
   private readonly passkeyOpportunityService = inject(PasskeyOpportunityService);
   private readonly logService = inject(LogService);
+  private readonly configService = inject(ConfigService);
+
+  /**
+   * Whether the passkeys category is released. Its list is built on the popup vault's
+   * `bit-table-v2` list, so it also waits for that (VFO1).
+   */
+  readonly enabled$: Observable<boolean> = combineLatest([
+    this.configService.getFeatureFlag$(FeatureFlag.PasskeyLoginReport),
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+  ]).pipe(map(([passkeys, vfo1]) => passkeys && vfo1));
 
   /** Per user, because this service outlives an account switch. */
   private readonly retries = new Map<UserId, Subject<void>>();

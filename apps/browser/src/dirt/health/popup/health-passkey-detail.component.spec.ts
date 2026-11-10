@@ -1,11 +1,19 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { LiveAnnouncer } from "@angular/cdk/a11y";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, NEVER, of } from "rxjs";
 
-import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { SignalCacheOptions, ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   PASSKEY_OPPORTUNITIES_IDLE,
@@ -18,28 +26,23 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CompactModeService, ScrollLayoutHostDirective } from "@bitwarden/components";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { FilterOptionNode } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
-import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
-import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
+import { HealthPasskeysListComponent } from "./components/health-passkeys-list/health-passkeys-list.component";
+import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
 import { HealthPasskeyDetailComponent } from "./health-passkey-detail.component";
 import { HealthPasskeyScanService } from "./services/health-passkey-scan.service";
-
-/** Mirrors the real page's scroll host, which the virtual scroll viewport measures. */
-@Component({
-  selector: "popup-page",
-  template: `<div bitScrollLayoutHost><ng-content></ng-content></div>`,
-  imports: [ScrollLayoutHostDirective],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-class MockPopupPageComponent {}
+import { PasskeyGroup, PasskeyListFilters, PasskeyListRow } from "./services/passkey-list";
+import { HEALTH_LIST_ANNOUNCE_DEBOUNCE_MS } from "./shared/health-list";
 
 @Component({
   selector: "popup-header",
@@ -66,56 +69,65 @@ class MockPopOutComponent {}
 class MockCurrentAccountComponent {}
 
 @Component({
-  selector: "dirt-health-scanning",
+  selector: "dirt-health-scan-error",
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class MockHealthScanningComponent {}
+class MockHealthScanErrorComponent {
+  readonly titleKey = input<string>();
+  readonly descriptionKey = input<string>();
+  readonly retry = output<void>();
+}
 
-/** The real vault icon needs domain settings, config and environment services to resolve favicons. */
 @Component({
-  selector: "app-vault-icon",
-  template: ``,
+  selector: "dirt-health-passkeys-list",
+  template: `@for (row of rows(); track row.id) {
+    <button type="button" [attr.data-health-list-row]="row.id">{{ row.name }}</button>
+  }`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-// eslint-disable-next-line @angular-eslint/component-class-suffix
-class MockAppVaultIcon {
-  readonly cipher = input<CipherView | undefined>(undefined);
+class MockListComponent {
+  readonly rows = input.required<readonly PasskeyListRow[]>();
+  readonly loading = input(false);
+  readonly filtersToRestore = input<Partial<PasskeyListFilters>>();
+  readonly folderOptions = input<FilterOptionNode<string>[]>([]);
+  readonly filtersChange = output<PasskeyListFilters>();
+  readonly open = output<PasskeyListRow>();
+  readonly setUp = output<PasskeyListRow>();
+}
+
+const userId = "user-id" as UserId;
+
+function login(id: string, init: { username?: string; folderId?: string } = {}): CipherView {
+  const cipher = new CipherView();
+  cipher.id = id;
+  cipher.name = id;
+  cipher.type = CipherType.Login;
+  cipher.folderId = init.folderId;
+  cipher.login.username = init.username ?? `${id}@example.com`;
+  return cipher;
+}
+
+function opportunity(id: string, init: Partial<PasskeyOpportunity> = {}): PasskeyOpportunity {
+  return {
+    id,
+    supportsPasskeyLogin: true,
+    supportsPasskeyMfa: false,
+    instructions: `https://${id}.example/pk`,
+    ...init,
+  };
 }
 
 describe("HealthPasskeyDetailComponent", () => {
-  const userId = "user-1" as UserId;
-
   let fixture: ComponentFixture<HealthPasskeyDetailComponent>;
   let state$: BehaviorSubject<PasskeyOpportunitiesState>;
-  let cipherViews$: BehaviorSubject<CipherView[]>;
-  let compactEnabled$: BehaviorSubject<boolean>;
+  let ciphers$: BehaviorSubject<CipherView[]>;
   let scanService: MockProxy<HealthPasskeyScanService>;
   let router: MockProxy<Router>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
-
-  function login(id: string, name = id): CipherView {
-    const cipher = new CipherView();
-    cipher.id = id;
-    cipher.name = name;
-    cipher.type = CipherType.Login;
-    cipher.login.username = `${id}@example.com`;
-    return cipher;
-  }
-
-  function opportunity(
-    id: string,
-    overrides: Partial<PasskeyOpportunity> = {},
-  ): PasskeyOpportunity {
-    return {
-      id,
-      supportsPasskeyLogin: true,
-      supportsPasskeyMfa: false,
-      instructions: `https://${id}.example/passkeys`,
-      ...overrides,
-    };
-  }
+  let announce: jest.Mock;
+  let cache: Map<string, WritableSignal<unknown>>;
 
   function publish(
     opportunities: PasskeyOpportunity[] | null,
@@ -124,30 +136,30 @@ describe("HealthPasskeyDetailComponent", () => {
     state$.next({ status, opportunities });
   }
 
+  async function render() {
+    fixture = TestBed.createComponent(HealthPasskeyDetailComponent);
+    await settle();
+  }
+
   async function settle() {
-    // The virtual scroll viewport defers its own init by a microtask.
-    await fixture.whenStable();
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
   }
 
-  async function init() {
-    fixture = TestBed.createComponent(HealthPasskeyDetailComponent);
-    fixture.detectChanges();
-    await settle();
+  function list(): MockListComponent | null {
+    return fixture.debugElement.query(By.directive(MockListComponent))?.componentInstance ?? null;
+  }
+
+  function scanError(): MockHealthScanErrorComponent | null {
+    return (
+      fixture.debugElement.query(By.directive(MockHealthScanErrorComponent))?.componentInstance ??
+      null
+    );
   }
 
   function text(): string {
     return fixture.nativeElement.textContent;
-  }
-
-  function rows(): HTMLElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll("bit-item"));
-  }
-
-  function instructionsButton(index: number): HTMLButtonElement | null {
-    return rows()[index].querySelector("button[bitButton]");
   }
 
   beforeEach(async () => {
@@ -155,39 +167,64 @@ describe("HealthPasskeyDetailComponent", () => {
     const opportunityService = mock<PasskeyOpportunityService>();
     opportunityService.getPasskeyOpportunities$.mockReturnValue(state$);
 
-    cipherViews$ = new BehaviorSubject<CipherView[]>([login("a", "Alpha"), login("b", "Bravo")]);
+    ciphers$ = new BehaviorSubject<CipherView[]>([
+      login("amazon", { folderId: "work" }),
+      login("dropbox"),
+    ]);
     const cipherService = mock<CipherService>();
-    cipherService.cipherViews$.mockReturnValue(cipherViews$);
+    cipherService.cipherViews$.mockReturnValue(ciphers$);
+
+    const folderService = mock<FolderService>();
+    const work = new FolderView();
+    work.id = "work";
+    work.name = "Work";
+    const home = new FolderView();
+    home.id = "home";
+    home.name = "Home";
+    folderService.folderViews$.mockReturnValue(of([work, home]));
 
     scanService = mock<HealthPasskeyScanService>();
     scanService.keepPasskeysCurrent$.mockReturnValue(NEVER);
-
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
     platformUtilsService = mock<PlatformUtilsService>();
-
-    compactEnabled$ = new BehaviorSubject(false);
-    const compactModeService = mock<CompactModeService>();
-    compactModeService.enabled$ = compactEnabled$;
+    announce = jest.fn();
+    cache = new Map();
 
     await TestBed.configureTestingModule({
       imports: [HealthPasskeyDetailComponent],
       providers: [
         { provide: Router, useValue: router },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: userId } as Account) } },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: new BehaviorSubject({ id: userId } as Account) },
+        },
         { provide: PasskeyOpportunityService, useValue: opportunityService },
         { provide: HealthPasskeyScanService, useValue: scanService },
         { provide: CipherService, useValue: cipherService },
+        { provide: FolderService, useValue: folderService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
-        { provide: CompactModeService, useValue: compactModeService },
+        { provide: LiveAnnouncer, useValue: { announce } },
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: (options: SignalCacheOptions<unknown>) => {
+              const value = cache.get(options.key) ?? signal(options.initialValue);
+              cache.set(options.key, value);
+              return value;
+            },
+          },
+        },
         {
           provide: I18nService,
           useValue: {
+            collator: new Intl.Collator("en"),
+            translationLocale: "en",
             t: (key: string, ...args: unknown[]) =>
-              [key, ...args.filter((a) => a != null && a !== "")].join(" "),
+              [key, ...args.filter((arg) => arg != null)].join(" "),
           },
         },
       ],
@@ -195,170 +232,201 @@ describe("HealthPasskeyDetailComponent", () => {
       .overrideComponent(HealthPasskeyDetailComponent, {
         remove: {
           imports: [
-            PopupPageComponent,
             PopupHeaderComponent,
             PopOutComponent,
             CurrentAccountComponent,
-            AppVaultIconComponent,
-            HealthScanningComponent,
+            HealthPasskeysListComponent,
+            HealthScanErrorComponent,
           ],
         },
         add: {
           imports: [
-            MockPopupPageComponent,
             MockPopupHeaderComponent,
             MockPopOutComponent,
             MockCurrentAccountComponent,
-            MockAppVaultIcon,
-            MockHealthScanningComponent,
+            MockListComponent,
+            MockHealthScanErrorComponent,
           ],
         },
       })
       .compileComponents();
   });
 
-  it("titles the page", async () => {
-    await init();
+  it("titles the page and keeps the check running for the active user", async () => {
+    await render();
 
     const header = fixture.debugElement.query(By.directive(MockPopupHeaderComponent));
     expect(header.componentInstance.pageTitle()).toBe("passkeyOpportunitiesTitle");
-  });
-
-  it("keeps the check running for the active user while open", async () => {
-    await init();
-
     expect(scanService.keepPasskeysCurrent$).toHaveBeenCalledWith(userId);
   });
 
   it.each([VaultHealthReportStatus.Idle, VaultHealthReportStatus.Loading])(
-    "shows progress, not the empty state, before a result (%s)",
+    "shows skeleton rows and a screen reader status before a result (%s), not the vault scan",
     async (status) => {
       publish(null, status);
-      await init();
+      await render();
 
-      expect(fixture.nativeElement.querySelector("dirt-health-scanning")).not.toBeNull();
-      expect(text()).not.toContain("passkeyOpportunitiesEmpty");
+      expect(list()!.loading()).toBe(true);
+      expect(fixture.nativeElement.querySelector("[role=status]")?.textContent).toContain(
+        "passkeyOpportunitiesChecking",
+      );
+      expect(fixture.nativeElement.querySelector("dirt-health-scanning")).toBeNull();
+      expect(text()).toContain("passkeyOpportunitiesIntro");
     },
   );
 
   describe("when the first check failed", () => {
     beforeEach(async () => {
       publish(null, VaultHealthReportStatus.Error);
-      await init();
+      await render();
     });
 
-    it("shows the failure as an alert", () => {
-      expect(fixture.nativeElement.querySelector("[role=alert]")).not.toBeNull();
-      expect(text()).toContain("passkeyOpportunitiesFailed");
+    it("shows the shared error state with the passkey copy", () => {
+      expect(scanError()!.titleKey()).toBe("passkeyOpportunitiesFailed");
+      expect(scanError()!.descriptionKey()).toBe("passkeyOpportunitiesFailedDesc");
+      expect(list()).toBeNull();
     });
 
-    it("retries with a fresh directory when asked", () => {
-      fixture.nativeElement.querySelector("#health-passkey-detail_button_retry").click();
+    it("retries for the active user", () => {
+      scanError()!.retry.emit();
 
       expect(scanService.retry).toHaveBeenCalledWith(userId);
     });
   });
 
-  it("keeps an earlier list on screen when a later check failed", async () => {
-    publish([opportunity("a")], VaultHealthReportStatus.Error);
-    await init();
+  it("keeps the last list when a later check fails", async () => {
+    publish([opportunity("amazon")], VaultHealthReportStatus.Error);
+    await render();
 
-    expect(rows()).toHaveLength(1);
-    expect(fixture.nativeElement.querySelector("[role=alert]")).toBeNull();
+    expect(scanError()).toBeNull();
+    expect(
+      list()!
+        .rows()
+        .map((row) => row.id),
+    ).toEqual(["amazon"]);
   });
 
-  it("shows the empty state when no login can use a passkey", async () => {
+  it("shows 'You're all set!' with no toolbar or intro when nothing is left", async () => {
     publish([]);
-    await init();
+    await render();
 
     expect(text()).toContain("youreAllSet");
     expect(text()).toContain("passkeyOpportunitiesEmpty");
-    expect(rows()).toHaveLength(0);
+    expect(text()).not.toContain("passkeyOpportunitiesIntro");
+    expect(list()).toBeNull();
   });
 
-  describe("with opportunities", () => {
+  it("joins opportunities to their logins, in groups, dropping any whose login is gone", async () => {
+    publish([
+      opportunity("amazon"),
+      opportunity("dropbox", { supportsPasskeyLogin: false, supportsPasskeyMfa: true }),
+      opportunity("deleted"),
+    ]);
+    await render();
+
+    const rows = list()!.rows();
+    expect(rows.map((row) => [row.id, row.group])).toEqual([
+      ["amazon", PasskeyGroup.Login],
+      ["dropbox", PasskeyGroup.TwoStep],
+    ]);
+    expect(list()!.loading()).toBe(false);
+  });
+
+  it("offers only the folders the listed logins are in", async () => {
+    publish([opportunity("amazon"), opportunity("dropbox")]);
+    await render();
+
+    expect(list()!.folderOptions()).toEqual([{ value: "work", label: "Work" }]);
+  });
+
+  it("views the item after the master password reprompt", async () => {
+    publish([opportunity("amazon")]);
+    await render();
+
+    list()!.open.emit(list()!.rows()[0]);
+    await settle();
+
+    expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "amazon" }),
+    );
+    expect(router.navigate).toHaveBeenCalledWith(["/view-cipher"], {
+      queryParams: { cipherId: "amazon", type: CipherType.Login },
+    });
+  });
+
+  it("does not view the item when the reprompt is not satisfied", async () => {
+    passwordRepromptService.passwordRepromptCheck.mockResolvedValue(false);
+    publish([opportunity("amazon")]);
+    await render();
+
+    list()!.open.emit(list()!.rows()[0]);
+    await settle();
+
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it("opens the site's instructions when Set up is pressed", async () => {
+    publish([opportunity("amazon")]);
+    await render();
+
+    list()!.setUp.emit(list()!.rows()[0]);
+
+    expect(platformUtilsService.launchUri).toHaveBeenCalledWith("https://amazon.example/pk");
+  });
+
+  it("restores the saved search and saves changes to it", async () => {
+    cache.set("health-passkeys-filters", signal({ search: "drop" }));
+    publish([opportunity("amazon")]);
+    await render();
+
+    expect(list()!.filtersToRestore()).toEqual({ search: "drop" });
+
+    list()!.filtersChange.emit({ search: "ama" });
+
+    expect(cache.get("health-passkeys-filters")!()).toEqual({ search: "ama" });
+  });
+
+  describe("announcements", () => {
+    /** Waits out the shared helper's debounce on real timers. */
+    async function settleAnnouncements() {
+      await settle();
+      await new Promise((resolve) => setTimeout(resolve, HEALTH_LIST_ANNOUNCE_DEBOUNCE_MS + 50));
+    }
+
     beforeEach(async () => {
-      publish([
-        opportunity("a", { supportsPasskeyLogin: true, supportsPasskeyMfa: true }),
-        opportunity("b", {
-          supportsPasskeyLogin: false,
-          supportsPasskeyMfa: true,
-          instructions: undefined,
-        }),
-        opportunity("deleted-since-check"),
-      ]);
-      await init();
+      publish([opportunity("amazon"), opportunity("dropbox")]);
+      await render();
     });
 
-    it("renders a row per opportunity whose login still exists, with its count", () => {
-      expect(rows()).toHaveLength(2);
-      expect(rows()[0].textContent).toContain("Alpha");
-      expect(rows()[0].textContent).toContain("a@example.com");
-      expect(
-        fixture.nativeElement.querySelector("bit-section-header span[slot=end]").textContent,
-      ).toContain("2");
-    });
-
-    it("shows what each site supports passkeys for, with screen reader context", () => {
-      const badges = (index: number) =>
-        Array.from(rows()[index].querySelectorAll("[bitBadge]")).map((b) => b.textContent!.trim());
-
-      expect(badges(0)).toEqual(["logIn", "twoStepLogin"]);
-      expect(badges(1)).toEqual(["twoStepLogin"]);
-      expect(rows()[0].querySelector(".tw-sr-only")!.textContent).toContain("passkeySupportedFor");
-    });
-
-    it("offers the site's instructions only when there are some", () => {
-      expect(instructionsButton(0)).not.toBeNull();
-      expect(instructionsButton(1)).toBeNull();
-    });
-
-    it("labels the instructions button with the item it is for", () => {
-      expect(instructionsButton(0)!.getAttribute("aria-label")).toBe("setUpPasskeyFor Alpha");
-    });
-
-    it("opens the instructions with platform utils", () => {
-      instructionsButton(0)!.click();
-
-      expect(platformUtilsService.launchUri).toHaveBeenCalledWith("https://a.example/passkeys");
-    });
-
-    it("views the item after the master password reprompt", async () => {
-      rows()[0].querySelector<HTMLButtonElement>("button[bit-item-content]")!.click();
+    it("announces how many results a search finds", async () => {
+      list()!.filtersChange.emit({ search: "drop" });
       await settle();
+      list()!.filtersChange.emit({ search: "a" });
+      await settleAnnouncements();
 
-      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "a" }),
-      );
-      expect(router.navigate).toHaveBeenCalledWith(["/view-cipher"], {
-        queryParams: { cipherId: "a", type: CipherType.Login },
-      });
+      expect(announce).toHaveBeenCalledWith("searchResultsCount 2", "polite");
     });
 
-    it("does not view the item when the reprompt is not satisfied", async () => {
-      passwordRepromptService.passwordRepromptCheck.mockResolvedValue(false);
+    it("announces how many logins are left when one leaves the list", async () => {
+      publish([opportunity("amazon")]);
+      await settleAnnouncements();
 
-      rows()[0].querySelector<HTMLButtonElement>("button[bit-item-content]")!.click();
-      await settle();
-
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-
-    it("drops a row once its login is deleted from the vault", async () => {
-      cipherViews$.next([login("b", "Bravo")]);
-      await settle();
-
-      expect(rows()).toHaveLength(1);
-      expect(rows()[0].textContent).toContain("Bravo");
+      expect(announce).toHaveBeenCalledWith("passkeyOpportunitiesRemainingSingular", "polite");
     });
   });
 
-  it("uses the compact row height in compact mode", async () => {
-    compactEnabled$.next(true);
-    publish([opportunity("a")]);
-    await init();
+  it("moves focus to the next row when the focused row leaves the list", async () => {
+    ciphers$.next([login("amazon"), login("bing"), login("dropbox")]);
+    publish([opportunity("amazon"), opportunity("bing"), opportunity("dropbox")]);
+    await render();
+    const bing = fixture.nativeElement.querySelector('[data-health-list-row="bing"]');
+    bing.focus();
+    bing.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
 
-    const viewport = fixture.debugElement.query(By.css("cdk-virtual-scroll-viewport"));
-    expect(viewport.injector.get(HealthPasskeyDetailComponent)["rowSize"]()).toBe(53);
+    publish([opportunity("amazon"), opportunity("dropbox")]);
+    await settle();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(document.activeElement?.getAttribute("data-health-list-row")).toBe("dropbox");
   });
 });

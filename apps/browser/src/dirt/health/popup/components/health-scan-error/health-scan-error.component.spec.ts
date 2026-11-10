@@ -24,6 +24,17 @@ describe("HealthScanErrorComponent", () => {
     expect(text).toContain("healthScanFailedDescription");
   });
 
+  it("renders a report's own heading and description when given", () => {
+    fixture.componentRef.setInput("titleKey", "passkeyOpportunitiesFailed");
+    fixture.componentRef.setInput("descriptionKey", "passkeyOpportunitiesFailedDesc");
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("passkeyOpportunitiesFailed");
+    expect(text).toContain("passkeyOpportunitiesFailedDesc");
+    expect(text).not.toContain("healthScanFailed");
+  });
+
   it("renders the illustration decoratively", () => {
     // The heading carries the announcement; the artwork must not add a second one.
     const svg = fixture.nativeElement.querySelector("bit-svg");
