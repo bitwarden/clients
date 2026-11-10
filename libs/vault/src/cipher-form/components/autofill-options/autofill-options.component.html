@@ -19,6 +19,7 @@
           [defaultMatchDetection]="defaultMatchDetection$ | async"
           [index]="i"
           [showDesktopApps]="showDesktopApps()"
+          [desktopAppRow]="desktopAppRows.get(uri) ?? null"
         ></vault-autofill-uri-option>
       }
     </ng-container>

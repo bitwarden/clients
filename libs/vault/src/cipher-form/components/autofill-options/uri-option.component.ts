@@ -3,6 +3,7 @@
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import {
   Component,
+  computed,
   ElementRef,
   EventEmitter,
   forwardRef,
@@ -10,6 +11,7 @@ import {
   Input,
   input,
   Output,
+  signal,
   ViewChild,
   viewChild,
 } from "@angular/core";
@@ -43,6 +45,15 @@ import {
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
+
+/** How a desktop app row was created */
+export const DesktopAppRow = Object.freeze({
+  /** Loaded from the cipher with a desktop app URI */
+  Saved: "saved",
+  /** Added by the user as a desktop app */
+  New: "new",
+} as const);
+export type DesktopAppRow = (typeof DesktopAppRow)[keyof typeof DesktopAppRow];
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -87,12 +98,34 @@ export class UriOptionComponent implements ControlValueAccessor {
     matchDetection: [null as UriMatchStrategySetting],
   });
 
+  /** The URI last written to this row by the parent form */
+  private readonly writtenUri = signal<string | null>(null);
+
+  /**
+   * The desktop app saved on the cipher, so the dropdown shows the paired app's name. A saved URI
+   * that isn't a valid pairing URI is labeled as a broken pairing.
+   */
+  private readonly savedAppOption = computed(() => {
+    const uri = this.writtenUri();
+    if (this.desktopAppRow() !== DesktopAppRow.Saved || uri == null) {
+      return null;
+    }
+
+    // The saved string is the option's value, so the selection matches it exactly and it is saved
+    // unchanged
+    const appName = DesktopAutotypePairingUri.fromString(uri)?.data.appData.name;
+    return { label: appName ?? this.i18nService.t("brokenDesktopPairing"), value: uri };
+  });
+
   /**
    * The desktop apps that can be selected for a desktop app URI. Each option is labeled with the
    * app's name, and its value is the Desktop Autotype Pairing URI string saved as the login URI.
    */
   // TODO: Add the apps that can be paired to the options for new desktop app URIs
-  protected appOptions: { label: string; value: string }[] = [];
+  protected readonly appOptions = computed(() => {
+    const savedAppOption = this.savedAppOption();
+    return savedAppOption == null ? [] : [savedAppOption];
+  });
 
   protected uriMatchOptions: {
     label: string;
@@ -162,6 +195,12 @@ export class UriOptionComponent implements ControlValueAccessor {
    */
   readonly showDesktopApps = input(false);
 
+  /**
+   * How this row was created, when it's a desktop app row. The parent sets it when it creates the
+   * row, so typing a desktop app URI into a website row doesn't make it a desktop app row.
+   */
+  readonly desktopAppRow = input<DesktopAppRow | null>(null);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
@@ -193,6 +232,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   protected get isAppUri(): boolean {
     return (
       this.showDesktopApps() &&
+      this.desktopAppRow() != null &&
       (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false)
     );
   }
@@ -334,23 +374,8 @@ export class UriOptionComponent implements ControlValueAccessor {
         { emitEvent: false },
       );
       this.lastMatchDetection = value.matchDetection ?? null;
-      this.addSavedAppOption(value.uri);
+      this.writtenUri.set(value.uri ?? null);
     }
-  }
-
-  /**
-   * Adds the desktop app of a saved Desktop Autotype Pairing URI to the dropdown options, so the
-   * dropdown shows the paired app's name.
-   */
-  private addSavedAppOption(uri: string | null) {
-    const pairingUri = uri == null ? null : DesktopAutotypePairingUri.fromString(uri);
-    if (pairingUri == null || this.appOptions.some((option) => option.value === uri)) {
-      return;
-    }
-
-    // The saved string is the option's value, so the selection matches it exactly and it is saved
-    // unchanged
-    this.appOptions = [...this.appOptions, { label: pairingUri.data.appData.name, value: uri }];
   }
 
   registerOnChange(fn: () => void): void {

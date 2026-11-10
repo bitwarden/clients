@@ -7086,6 +7086,10 @@
       }
     }
   },
+  "brokenDesktopPairing": {
+    "message": "Broken desktop pairing",
+    "description": "Shown instead of an application name when the saved pairing of an item with an application installed on the computer can't be read."
+  },
   "websiteAdded": {
     "message": "Website added"
   },

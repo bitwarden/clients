@@ -4,7 +4,7 @@
       <bit-label>{{ uriLabel }}</bit-label>
       @if (isAppUri) {
         <bit-select formControlName="uri" #appSelect data-testid="desktop-app-select">
-          @for (option of appOptions; track option.value) {
+          @for (option of appOptions(); track option.value) {
             <bit-option [label]="option.label" [value]="option.value"></bit-option>
           }
         </bit-select>

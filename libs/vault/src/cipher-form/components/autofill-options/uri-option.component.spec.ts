@@ -18,7 +18,7 @@ import { DialogRef, DialogService } from "@bitwarden/components";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
-import { UriOptionComponent } from "./uri-option.component";
+import { DesktopAppRow, UriOptionComponent } from "./uri-option.component";
 
 function createPairingUri(name: string): string {
   return new DesktopAutotypePairingUri(DesktopAutotypePairingUri.CurrentVersion, {
@@ -228,7 +228,8 @@ describe("UriOptionComponent", () => {
       expect(component["uriLabel"]).toBe("websiteUriCount 2");
     });
 
-    it("returns 'websiteUri' for a desktopapp:// URI at index 0 when showDesktopApps is false", () => {
+    it("returns 'websiteUri' for a desktop app row at index 0 when showDesktopApps is false", () => {
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 0;
       fixture.componentRef.setInput("showDesktopApps", false);
@@ -236,7 +237,8 @@ describe("UriOptionComponent", () => {
       expect(component["uriLabel"]).toBe("websiteUri");
     });
 
-    it("returns 'websiteUriCount' for a desktopapp:// URI at index greater than 0 when showDesktopApps is false", () => {
+    it("returns 'websiteUriCount' for a desktop app row at index greater than 0 when showDesktopApps is false", () => {
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 1;
       fixture.componentRef.setInput("showDesktopApps", false);
@@ -244,7 +246,8 @@ describe("UriOptionComponent", () => {
       expect(component["uriLabel"]).toBe("websiteUriCount 2");
     });
 
-    it("returns 'desktopApp' for a desktopapp:// URI at index 0 when showDesktopApps is true", () => {
+    it("returns 'desktopApp' for a desktop app row at index 0 when showDesktopApps is true", () => {
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 0;
       fixture.componentRef.setInput("showDesktopApps", true);
@@ -252,33 +255,55 @@ describe("UriOptionComponent", () => {
       expect(component["uriLabel"]).toBe("desktopApp");
     });
 
-    it("returns 'desktopAppCount' for a desktopapp:// URI at index greater than 0 when showDesktopApps is true", () => {
+    it("returns 'desktopAppCount' for a desktop app row at index greater than 0 when showDesktopApps is true", () => {
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 1;
       fixture.componentRef.setInput("showDesktopApps", true);
 
       expect(component["uriLabel"]).toBe("desktopAppCount 2");
     });
+
+    it("returns 'websiteUri' for a desktopapp:// URI in a website row when showDesktopApps is true", () => {
+      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
+      component.index = 0;
+      fixture.componentRef.setInput("showDesktopApps", true);
+
+      expect(component["uriLabel"]).toBe("websiteUri");
+    });
   });
 
   describe("isAppUri", () => {
-    it("returns true for a desktopapp:// URI when showDesktopApps is true", () => {
-      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
-      fixture.componentRef.setInput("showDesktopApps", true);
+    it.each([DesktopAppRow.Saved, DesktopAppRow.New])(
+      "returns true for a %p desktop app row with a desktopapp:// URI when showDesktopApps is true",
+      (desktopAppRow) => {
+        fixture.componentRef.setInput("desktopAppRow", desktopAppRow);
+        component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
+        fixture.componentRef.setInput("showDesktopApps", true);
 
-      expect(component["isAppUri"]).toBe(true);
-    });
+        expect(component["isAppUri"]).toBe(true);
+      },
+    );
 
-    it("returns false for a desktopapp:// URI when showDesktopApps is false", () => {
+    it("returns false for a desktop app row when showDesktopApps is false", () => {
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       fixture.componentRef.setInput("showDesktopApps", false);
 
       expect(component["isAppUri"]).toBe(false);
     });
 
+    it("returns false for a desktopapp:// URI in a website row when showDesktopApps is true", () => {
+      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
+      fixture.componentRef.setInput("showDesktopApps", true);
+
+      expect(component["isAppUri"]).toBe(false);
+    });
+
     it.each(["https://example.com", ""])(
-      "returns false for the non desktop app URI %p when showDesktopApps is true",
+      "returns false for a desktop app row with the non desktop app URI %p when showDesktopApps is true",
       (uri) => {
+        fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
         component.writeValue({ uri, matchDetection: null });
         fixture.componentRef.setInput("showDesktopApps", true);
 
@@ -288,6 +313,8 @@ describe("UriOptionComponent", () => {
   });
 
   describe("desktop app URIs", () => {
+    const brokenPairingUri = "desktopapp://autotype?version=1.0.0&data=invalid";
+
     const getUriInput = () =>
       fixture.nativeElement.querySelector("input[formControlName='uri']") as HTMLInputElement;
 
@@ -296,13 +323,18 @@ describe("UriOptionComponent", () => {
         "bit-select[data-testid='desktop-app-select']",
       ) as HTMLElement;
 
-    function renderUri(uri: string, showDesktopApps: boolean) {
+    function renderUri(
+      uri: string,
+      showDesktopApps: boolean,
+      desktopAppRow: DesktopAppRow | null = DesktopAppRow.Saved,
+    ) {
       fixture.componentRef.setInput("showDesktopApps", showDesktopApps);
+      fixture.componentRef.setInput("desktopAppRow", desktopAppRow);
       component.writeValue({ uri, matchDetection: null });
       fixture.detectChanges();
     }
 
-    it("renders a desktop app dropdown instead of a text input for a desktop app URI", () => {
+    it("renders a desktop app dropdown instead of a text input for a desktop app row", () => {
       renderUri(createPairingUri("Notepad"), true);
 
       expect(getDesktopAppSelect()).toBeTruthy();
@@ -310,17 +342,40 @@ describe("UriOptionComponent", () => {
     });
 
     it("renders a text input for a website URI", () => {
-      renderUri("https://example.com", true);
+      renderUri("https://example.com", true, null);
 
       expect(getUriInput()).toBeTruthy();
       expect(getDesktopAppSelect()).toBeFalsy();
     });
 
-    it("renders a text input for a desktop app URI when showDesktopApps is false", () => {
+    it("renders a text input for a desktop app row when showDesktopApps is false", () => {
       renderUri(createPairingUri("Notepad"), false);
 
       expect(getUriInput()).toBeTruthy();
       expect(getDesktopAppSelect()).toBeFalsy();
+    });
+
+    it("renders a text input for a desktop app URI in a website row", () => {
+      renderUri(createPairingUri("Notepad"), true, null);
+
+      expect(getUriInput()).toBeTruthy();
+      expect(getDesktopAppSelect()).toBeFalsy();
+    });
+
+    it("keeps the website row when a desktop app URI is typed into it", () => {
+      component.index = 0;
+      renderUri("", true, null);
+      const uriInput = getUriInput();
+
+      uriInput.value = DESKTOP_APP_URI_PREFIX;
+      uriInput.dispatchEvent(new Event("input"));
+      fixture.detectChanges();
+
+      expect(component["uriForm"].value.uri).toBe(DESKTOP_APP_URI_PREFIX);
+      expect(getUriInput()).toBe(uriInput);
+      expect(getDesktopAppSelect()).toBeFalsy();
+      expect(getToggleMatchDetectionBtn()).toBeTruthy();
+      expect(component["uriLabel"]).toBe("websiteUri");
     });
 
     it("selects the saved desktop app in the dropdown, shown by its name", () => {
@@ -332,39 +387,49 @@ describe("UriOptionComponent", () => {
       expect(component["appSelect"]().selectedOption()?.label).toBe("Notepad");
     });
 
-    it("hides the match detection toggle for a desktop app URI", () => {
-      renderUri(DESKTOP_APP_URI_PREFIX, true);
+    it("selects a broken pairing in the dropdown for a saved URI that isn't a valid pairing URI", () => {
+      fixture.autoDetectChanges();
+      renderUri(brokenPairingUri, true);
+      // bit-select reads its options in an after render effect, which needs an application tick
+      TestBed.tick();
+
+      expect(component["appSelect"]().selectedOption()?.label).toBe("brokenDesktopPairing");
+    });
+
+    it("hides the match detection toggle for a desktop app row", () => {
+      renderUri(DESKTOP_APP_URI_PREFIX, true, DesktopAppRow.New);
 
       expect(getToggleMatchDetectionBtn()).toBeFalsy();
     });
 
     it("shows the match detection toggle for a website URI", () => {
-      renderUri("https://example.com", true);
+      renderUri("https://example.com", true, null);
 
       expect(getToggleMatchDetectionBtn()).toBeTruthy();
     });
 
-    it("hides open match detection options when the URI becomes a desktop app URI", () => {
-      renderUri("https://example.com", true);
+    it("hides open match detection options when a desktop app row is shown as a desktop app", () => {
+      renderUri(DESKTOP_APP_URI_PREFIX, false);
       getToggleMatchDetectionBtn().click();
       fixture.detectChanges();
       expect(getMatchDetectionSelect()).toBeTruthy();
 
-      renderUri(DESKTOP_APP_URI_PREFIX, true);
+      fixture.componentRef.setInput("showDesktopApps", true);
+      fixture.detectChanges();
 
       expect(getMatchDetectionSelect()).toBeFalsy();
     });
 
-    it("shows the remove button for a desktop app URI when canRemove is true", () => {
+    it("shows the remove button for a desktop app row when canRemove is true", () => {
       component.canRemove = true;
 
-      renderUri(DESKTOP_APP_URI_PREFIX, true);
+      renderUri(DESKTOP_APP_URI_PREFIX, true, DesktopAppRow.New);
 
       expect(getRemoveButton()).toBeTruthy();
     });
 
-    it("focuses the desktop app dropdown when focusing a desktop app URI", () => {
-      renderUri(DESKTOP_APP_URI_PREFIX, true);
+    it("focuses the desktop app dropdown when focusing a desktop app row", () => {
+      renderUri(DESKTOP_APP_URI_PREFIX, true, DesktopAppRow.New);
       const focusSpy = jest.spyOn(component["appSelect"]().select(), "focus");
 
       component.focusInput();
@@ -374,30 +439,55 @@ describe("UriOptionComponent", () => {
 
     it("adds the app of a saved pairing URI to the options, labeled with the app name", () => {
       const pairingUri = createPairingUri("Notepad");
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
 
       component.writeValue({ uri: pairingUri, matchDetection: null });
 
-      expect(component["appOptions"]).toEqual([{ label: "Notepad", value: pairingUri }]);
+      expect(component["appOptions"]()).toEqual([{ label: "Notepad", value: pairingUri }]);
     });
 
-    it("adds each saved app to the options only once", () => {
+    it("adds the saved app to the options only once when the same URI is written again", () => {
       const pairingUri = createPairingUri("Notepad");
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
 
       component.writeValue({ uri: pairingUri, matchDetection: null });
       component.writeValue({ uri: pairingUri, matchDetection: null });
 
-      expect(component["appOptions"]).toHaveLength(1);
+      expect(component["appOptions"]()).toHaveLength(1);
     });
 
-    it.each([
-      DESKTOP_APP_URI_PREFIX,
-      "desktopapp://autotype?version=1.0.0&data=invalid",
-      "https://example.com",
-      "",
-    ])("does not add an option for the URI %p", (uri) => {
-      component.writeValue({ uri, matchDetection: null });
+    it.each([brokenPairingUri, DESKTOP_APP_URI_PREFIX])(
+      "adds a broken pairing to the options for the saved URI %p, which isn't a valid pairing URI",
+      (uri) => {
+        fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
 
-      expect(component["appOptions"]).toEqual([]);
+        component.writeValue({ uri, matchDetection: null });
+
+        expect(component["appOptions"]()).toEqual([{ label: "brokenDesktopPairing", value: uri }]);
+      },
+    );
+
+    it("does not add an option for a new desktop app row", () => {
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.New);
+
+      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
+
+      expect(component["appOptions"]()).toEqual([]);
+    });
+
+    it.each([DESKTOP_APP_URI_PREFIX, brokenPairingUri, "https://example.com", ""])(
+      "does not add an option for the URI %p in a website row",
+      (uri) => {
+        component.writeValue({ uri, matchDetection: null });
+
+        expect(component["appOptions"]()).toEqual([]);
+      },
+    );
+
+    it("does not add an option for a pairing URI in a website row", () => {
+      component.writeValue({ uri: createPairingUri("Notepad"), matchDetection: null });
+
+      expect(component["appOptions"]()).toEqual([]);
     });
   });
 
