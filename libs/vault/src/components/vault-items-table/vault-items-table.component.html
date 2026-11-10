@@ -281,6 +281,8 @@
   @if (itemColumn; as column) {
     @if (itemColumnKey; as key) {
       <bit-column
+        removable
+        [label]="column.label"
         [sortable]="column.sortRanks$ != null"
         [sortFn]="sortByContributed"
         width="minmax(140px, 200px)"
