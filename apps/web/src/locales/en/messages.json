@@ -6730,6 +6730,9 @@
       }
     }
   },
+  "addedSharedFolderId": {
+    "message": "Shared folder added $ID$."
+  },
   "createdSharedFolderId": {
     "message": "Created shared folder $ID$.",
     "placeholders": {
