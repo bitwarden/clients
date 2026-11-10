@@ -10,6 +10,7 @@ import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { CipherType } from "../enums";
 import { CipherLike } from "../types/cipher-like";
 import { CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
+import { getRestrictedItemTypes } from "../utils/restricted-item-types.utils";
 
 export type RestrictedCipherType = {
   cipherType: CipherType;
@@ -34,9 +35,9 @@ export class RestrictedItemTypesService {
           this.policyService.policiesByType$(PolicyType.RestrictedItemTypes, userId),
         ]).pipe(
           map(([orgs, enabledPolicies]) => {
-            // Helper to extract restricted types, defaulting to [Card]
+            // null (legacy) means [Card]; otherwise `{ restrictedTypes }`
             const restrictedTypes = (p: (typeof enabledPolicies)[number]) =>
-              (p.data as CipherType[]) ?? [CipherType.Card];
+              getRestrictedItemTypes(p.data);
 
             // Union across all enabled policies
             const allRestrictedTypes = Array.from(
