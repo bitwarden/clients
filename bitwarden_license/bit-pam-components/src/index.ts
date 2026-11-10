@@ -10,6 +10,7 @@ export {
   RequestAccessSheetComponent,
   type RequestAccessSheetParams,
 } from "./cipher-view-banner/request-access-sheet/request-access-sheet.component";
+export { CalendarDatePipe } from "./date/calendar-date.pipe";
 export { DurationCompoundPipe } from "./date/duration-compound.pipe";
 export { DurationLongPipe } from "./date/duration-long.pipe";
 export { DurationShortPipe } from "./date/duration-short.pipe";
