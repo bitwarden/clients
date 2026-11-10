@@ -178,13 +178,22 @@
           @switch (callout()) {
             @case ("never-connected") {
               <bit-callout
-                type="warning"
+                type="info"
                 [title]="null"
-                [icon]="null"
                 [accessibleName]="'pamAccessConnectorDisconnected' | i18n"
                 id="access-connector-detail_callout_never-connected"
               >
                 {{ "pamAccessConnectorNeverConnectedCallout" | i18n }}
+                <!-- TODO(PAM-557): replace with the final PAM setup guide URL once content confirms it -->
+                <a
+                  bitLink
+                  linkType="primary"
+                  href="https://bitwarden.com/help/"
+                  target="_blank"
+                  rel="noreferrer"
+                  id="access-connector-detail_link_setup-guide"
+                  >{{ "pamAccessConnectorReadSetupGuide" | i18n }}</a
+                >
               </bit-callout>
             }
             @case ("disconnected") {
