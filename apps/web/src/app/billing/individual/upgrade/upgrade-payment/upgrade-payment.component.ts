@@ -335,7 +335,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
         variant: "error",
         message:
           error instanceof ErrorResponse && error.statusCode === 400
-            ? error.message
+            ? error.getSingleMessage()
             : this.i18nService.t("upgradeErrorMessage"),
       });
     }

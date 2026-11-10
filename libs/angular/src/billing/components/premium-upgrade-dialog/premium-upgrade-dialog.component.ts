@@ -136,7 +136,7 @@ export class PremiumUpgradeDialogComponent {
         title: this.i18nService.t("error"),
         message:
           error instanceof ErrorResponse && error.statusCode === 400
-            ? error.message
+            ? error.getSingleMessage()
             : this.i18nService.t("unexpectedError"),
       });
       this.logService.error("Failed to start premium upgrade", error);
