@@ -62,7 +62,7 @@ export {
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining, formatRemainingLong } from "./date/format-remaining";
-export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { lapse$, liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";

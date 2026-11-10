@@ -206,6 +206,34 @@ describe("ItemDetailsStateBadgeComponent", () => {
     ).not.toBeNull();
   });
 
+  it.each([
+    ["pendingRequest", "pending"],
+    ["approvedRequest", "ready"],
+  ] as const)(
+    "falls back to privileged the second a %s's window closes",
+    async (field, badgeState) => {
+      // The server drops the request once its window closes, but nothing announces it.
+      jest.useFakeTimers();
+      accessRequestSdkService.getCipherAccessState
+        .mockResolvedValueOnce({
+          badgeState,
+          [field]: { leaseNotAfter: new Date(Date.now() + 5_000).toISOString() },
+        } as unknown as CipherAccessStateView)
+        .mockResolvedValueOnce({ badgeState: "privileged" } as unknown as CipherAccessStateView);
+
+      create(gatedCipher());
+      await jest.advanceTimersByTimeAsync(0);
+      fixture.detectChanges();
+      expect(component["badge"]()?.kind).toBe(badgeState);
+
+      await jest.advanceTimersByTimeAsync(6_000);
+      fixture.detectChanges();
+
+      expect(component["badge"]()?.kind).toBe("privileged");
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+    },
+  );
+
   it("keeps the pill withheld past the original end of a lease extended elsewhere", async () => {
     jest.useFakeTimers();
     accessRequestSdkService.getCipherAccessState.mockResolvedValue(
@@ -224,6 +252,29 @@ describe("ItemDetailsStateBadgeComponent", () => {
 
     expect(component["badge"]()).toBeNull();
     expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the pill withheld when a request's window closes before a live lease ends", async () => {
+    // The early lapse is the request's, not the lease's, so it must not land on the lease badge
+    // even when the re-read fails.
+    jest.useFakeTimers();
+    accessRequestSdkService.getCipherAccessState
+      .mockResolvedValueOnce({
+        ...activeLeaseState(Date.now() + 1_800_000),
+        pendingRequest: { leaseNotAfter: new Date(Date.now() + 5_000).toISOString() },
+      } as unknown as CipherAccessStateView)
+      .mockRejectedValueOnce(new Error("offline"));
+
+    create(gatedCipher());
+    await jest.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+    expect(component["badge"]()).toBeNull();
+
+    await jest.advanceTimersByTimeAsync(6_000);
+    fixture.detectChanges();
+
+    expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+    expect(component["badge"]()).toBeNull();
   });
 
   it("shows the badge for a lease the server still reports past its window", async () => {
