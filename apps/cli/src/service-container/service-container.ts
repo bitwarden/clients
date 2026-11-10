@@ -257,6 +257,7 @@ import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
+import { CliLicenseType } from "../platform/cli-license-type";
 import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { CliIpcService } from "../platform/services/cli-ipc.service";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
@@ -278,6 +279,9 @@ const packageJson = require("../../package.json");
  */
 export class ServiceContainer {
   private inited = false;
+
+  /** The license this build was produced under. The Bitwarden-licensed container overrides it. */
+  readonly licenseType: CliLicenseType = CliLicenseType.Oss;
 
   messagingService: MessageSender;
   storageService: LowdbStorageService;
