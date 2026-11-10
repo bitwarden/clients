@@ -16,7 +16,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { RequestItemCardComponent } from "../../request-summary/request-item-card.component";
+import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 
 export type WithdrawApprovalDialogParams = {
   /** The text the caller shows for the item, so the dialog names it as the row does. */
@@ -51,7 +51,7 @@ export type WithdrawApprovalDialogResult = {
     DialogModule,
     FormFieldModule,
     ReactiveFormsModule,
-    RequestItemCardComponent,
+    RequestSummaryComponent,
     I18nPipe,
   ],
 })
