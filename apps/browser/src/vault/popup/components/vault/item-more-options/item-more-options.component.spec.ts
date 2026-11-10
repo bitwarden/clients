@@ -52,6 +52,8 @@ describe("ItemMoreOptionsComponent", () => {
     open: jest.fn(),
   };
   const cipherService = {
+    get: jest.fn(),
+    decrypt: jest.fn(),
     getFullCipherView: jest.fn(),
     encrypt: jest.fn(),
     updateWithServer: jest.fn(),
@@ -458,6 +460,41 @@ describe("ItemMoreOptionsComponent", () => {
       expect(component.canAutofill).toBe(true);
       expect(component["allows"](RestrictedCipherAction.Share)).toBe(false);
       expect(component["allows"](RestrictedCipherAction.AssignCollections)).toBe(false);
+    });
+  });
+
+  describe("toggleFavorite", () => {
+    beforeEach(() => {
+      cipherService.get.mockResolvedValue({ id: "cipher-1" });
+    });
+
+    it("saves the stored copy of a revealed row and reads the reveal again", async () => {
+      const revealed = { ...baseCipher, partial: false } as CipherView;
+      revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
+      component.cipher = revealed;
+      cipherService.decrypt.mockResolvedValue({ ...baseCipher, partial: true });
+
+      await component.toggleFavorite();
+
+      expect(cipherService.get).toHaveBeenCalledWith("cipher-1", "UserId");
+      expect(cipherService.updateWithServer).toHaveBeenCalledWith(
+        expect.objectContaining({ partial: true, favorite: true }),
+        "UserId",
+      );
+      expect(revealed.favorite).toBe(false);
+      expect(revealedCipherService.refresh).toHaveBeenCalledWith("UserId", "cipher-1");
+    });
+
+    it("does not read a reveal again for a row without one", async () => {
+      cipherService.decrypt.mockResolvedValue({ ...baseCipher });
+
+      await component.toggleFavorite();
+
+      expect(cipherService.updateWithServer).toHaveBeenCalledWith(
+        expect.objectContaining({ favorite: true }),
+        "UserId",
+      );
+      expect(revealedCipherService.refresh).not.toHaveBeenCalled();
     });
   });
 

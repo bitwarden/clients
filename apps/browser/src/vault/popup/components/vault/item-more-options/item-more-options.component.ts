@@ -22,7 +22,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -354,14 +355,18 @@ export class ItemMoreOptionsComponent {
    * Toggles the favorite status of the cipher and updates it on the server.
    */
   async toggleFavorite() {
-    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    // Change the stored copy, not the row: a revealed row is the shared revealed view.
+    const stored = await this.cipherService.get(uuidAsString(this.cipher.id!), activeUserId);
+    const cipher = await this.cipherService.decrypt(stored, activeUserId);
 
     cipher.favorite = !cipher.favorite;
-    const activeUserId = (await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    )) as UserId;
-
     await this.cipherService.updateWithServer(cipher, activeUserId);
+
+    if (this.revealedView() != null) {
+      await this.revealedCipherService.refresh(activeUserId, cipher.id as CipherId);
+    }
+
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
