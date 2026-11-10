@@ -20334,6 +20334,9 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
   },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden automatically rotates a domain account password on an Active Directory server you run."
+  },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
     "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
   },
@@ -20426,6 +20429,10 @@
   },
   "pamTargetSystemTypeCustomScript": {
     "message": "Custom script"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
   },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",

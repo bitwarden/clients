@@ -1491,6 +1491,7 @@ describe("TargetSystemsTabComponent filter options", () => {
 
     // Sorted by label; the test i18n renders each label as its key.
     expect(component.kindOptions).toEqual([
+      { value: TargetSystemKind.ActiveDirectory, label: "pamTargetSystemTypeActiveDirectory" },
       { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
       { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
     ]);

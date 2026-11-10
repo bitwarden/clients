@@ -144,6 +144,7 @@ const SESSION_TERMINATION_CAPABILITY: Partial<
 > = {
   [TargetSystemKind.Entra]: "always",
   [TargetSystemKind.CustomScript]: "operatorDeclared",
+  [TargetSystemKind.ActiveDirectory]: "never",
 };
 
 type PolicyControls = {
@@ -446,6 +447,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
 
   protected readonly kindOptions = [
     { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
+    { value: TargetSystemKind.ActiveDirectory, label: "pamTargetSystemTypeActiveDirectory" },
     { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
   ] as const;
 
@@ -829,6 +831,12 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
         this.createForm.patchValue({
           method: TargetSystemMethod.Automatic,
           kind: TargetSystemKind.Entra,
+        });
+        break;
+      case "active-directory":
+        this.createForm.patchValue({
+          method: TargetSystemMethod.Automatic,
+          kind: TargetSystemKind.ActiveDirectory,
         });
         break;
       case "custom-script":
