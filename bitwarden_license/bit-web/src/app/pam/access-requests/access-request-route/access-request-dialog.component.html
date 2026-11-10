@@ -26,12 +26,10 @@
         [exactWindow]="exactWindowText()"
         [reason]="reason()"
       >
-        <!-- Status reads with the item's name, so the badge is projected into the card header. -->
         <span slot="badge">
           @if (badge()?.badgeState; as state) {
             <app-pam-access-state-badge [state]="state" />
           } @else if (badge()?.statusBadge; as b) {
-            <!-- A closed record badges with a lock, as the access-state pill does. -->
             <span
               bitBadge
               [variant]="b.variant"

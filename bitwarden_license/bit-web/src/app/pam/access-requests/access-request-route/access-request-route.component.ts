@@ -18,10 +18,7 @@ import { MyRequestsTabComponent } from "../my-requests-tab.component";
 import { AccessRequestDetailService } from "./access-request-detail.service";
 import { AccessRequestDialogComponent } from "./access-request-dialog.component";
 
-/**
- * Opens the dialog on the withdraw confirmation. Nothing in the tabs sets it yet; it is reserved
- * for a "Withdraw approval" entry point on the Approvals tab.
- */
+/** Opens the dialog on the withdraw confirmation. */
 const WITHDRAW_QUERY_PARAM = "action";
 
 /** The tabs that link to a request row, and so the surfaces the dialog can be opened over. */

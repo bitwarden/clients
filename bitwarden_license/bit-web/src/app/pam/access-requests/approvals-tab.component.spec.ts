@@ -635,7 +635,9 @@ describe("ApprovalsTabComponent", () => {
 
       create();
 
-      expect(setInterval.mock.calls.filter(([, delay]) => delay === 1000)).toHaveLength(0);
+      expect(setInterval.mock.calls.filter(([, delay]: unknown[]) => delay === 1000)).toHaveLength(
+        0,
+      );
     });
 
     it("re-reads the requested window as the clock moves past its start", () => {
