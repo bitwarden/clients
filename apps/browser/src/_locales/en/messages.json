@@ -8838,17 +8838,9 @@
     "message": "Passkeys available",
     "description": "Page title for the list of logins whose sites support passkeys."
   },
-  "passkeyOpportunitiesDescription": {
-    "message": "These sites let you log in with a passkey, or use one for two-step login. Passkeys can't be guessed or phished. Follow a site's setup steps and Bitwarden will save the passkey to your login.",
-    "description": "Intro on the page listing logins whose sites support passkeys."
-  },
   "passkeyOpportunitiesEmpty": {
     "message": "None of your saved sites support passkeys yet.",
     "description": "Empty state on the page listing logins whose sites support passkeys."
-  },
-  "passkeySupportedFor": {
-    "message": "Passkeys supported for:",
-    "description": "Screen reader text read before the badges that say what a site supports passkeys for, such as log in or two-step login."
   },
   "setUpPasskey": {
     "message": "Set up",
