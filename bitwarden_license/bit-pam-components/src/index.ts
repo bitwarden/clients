@@ -2,6 +2,14 @@ export { ExtendLeaseDialogComponent } from "./access-requests/extend-lease-dialo
 export { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
 export { AccessStateBadgeComponent } from "./access-state-badge/access-state-badge.component";
 export { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
+export {
+  CIPHER_VIEW_BANNER_LAYOUT,
+  type CipherViewBannerLayout,
+} from "./cipher-view-banner/cipher-view-banner-layout";
+export {
+  RequestAccessSheetComponent,
+  type RequestAccessSheetParams,
+} from "./cipher-view-banner/request-access-sheet/request-access-sheet.component";
 export { DurationCompoundPipe } from "./date/duration-compound.pipe";
 export { DurationLongPipe } from "./date/duration-long.pipe";
 export { DurationShortPipe } from "./date/duration-short.pipe";
