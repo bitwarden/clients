@@ -45,7 +45,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { assignableConnectors, eligibleConnectors } from "../assignable";
-import { TARGET_SYSTEM_QUERY_PARAM } from "../create-flow";
 import { filterOptions } from "../filter-options";
 import { RotationConfigsService } from "../managed-credentials/rotation-configs.service";
 import {
@@ -59,6 +58,7 @@ import {
   TargetSystemView,
 } from "../rotation";
 import { rotationActionErrorMessage, rotationErrorMessage } from "../rotation-error";
+import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RowBusyTracker } from "../row-busy-tracker";
@@ -116,8 +116,8 @@ export type TargetSystemRow = {
    * `pendingSeal` target has no confirmed capability to toggle until setup finishes.
    */
   activationBlockedKey: string | null;
-  /** The drill-down link's query, which scopes the Managed credentials tab to this target. */
-  managedCredentialsQueryParams: Record<string, string>;
+  /** The count's absolute link: the target's own page on its Managed credentials tab. */
+  managedCredentialsRoute: string[];
   /** True while a managed credential names this target, which the server refuses to delete. */
   deleteBlocked: boolean;
 };
@@ -452,6 +452,7 @@ export class TargetSystemsTabComponent {
     connectors: AccessConnector[],
     credentialCounts: ReadonlyMap<TargetSystemId, number> | null,
   ): TargetSystemRow[] {
+    const organizationId = this.organizationId();
     const connectorsKnown = this.connectorsKnown();
     const connectorsUnavailable = this.connectorsUnavailable();
     const hasActiveConnector = eligibleConnectors(connectors).length > 0;
@@ -489,7 +490,12 @@ export class TargetSystemsTabComponent {
             : hasActiveConnector
               ? "pamTargetSystemAssignConnectorNoOptions"
               : "pamTargetSystemAssignConnectorNone",
-        managedCredentialsQueryParams: { [TARGET_SYSTEM_QUERY_PARAM]: uuidAsString(system.id) },
+        managedCredentialsRoute: rotationLink(
+          organizationId,
+          ROTATION_TABS.targetSystems,
+          uuidAsString(system.id),
+          ROTATION_TABS.managedCredentials,
+        ),
         deleteBlocked: (credentialCounts?.get(system.id) ?? 0) > 0,
         activationBlockedKey: pendingSeal ? "pamTargetSystemActivationBlockedPendingSeal" : null,
       };
