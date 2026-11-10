@@ -1,32 +1,21 @@
 import { PlanResponse, PrivilegedControlsPlanFeaturesResponse } from "./plan.response";
 
 describe("PlanResponse", () => {
-  const passwordManager = { StripeSeatPlanId: "password-manager-seat", SeatPrice: 72 };
-
-  it("parses the PrivilegedControls section", () => {
+  it("parses PrivilegedControls when present", () => {
     const response = new PlanResponse({
-      PasswordManager: passwordManager,
       PrivilegedControls: {
         StripeSeatPlanId: "privileged-controls-enterprise-seat-annually",
-        SeatPrice: 120,
+        SeatPrice: 5,
         BaseSeats: 0,
       },
     });
 
-    expect(response.PrivilegedControls.seatPrice).toBe(120);
-    expect(response.PrivilegedControls.baseSeats).toBe(0);
-    expect(response.PrivilegedControls.stripeSeatPlanId).toBe(
-      "privileged-controls-enterprise-seat-annually",
-    );
-  });
-
-  it("parses PrivilegedControls when present", () => {
-    const response = new PlanResponse({
-      PrivilegedControls: { SeatPrice: 5 },
-    });
-
     expect(response.PrivilegedControls).toBeInstanceOf(PrivilegedControlsPlanFeaturesResponse);
     expect(response.PrivilegedControls!.seatPrice).toBe(5);
+    expect(response.PrivilegedControls!.baseSeats).toBe(0);
+    expect(response.PrivilegedControls!.stripeSeatPlanId).toBe(
+      "privileged-controls-enterprise-seat-annually",
+    );
   });
 
   it("leaves PrivilegedControls null when absent", () => {
