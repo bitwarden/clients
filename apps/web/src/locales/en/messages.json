@@ -21705,7 +21705,13 @@
     "message": "Configuration"
   },
   "pamTargetSystemInactiveCallout": {
-    "message": "This target system is inactive, so no new rotations start on it. Select Activate to start them again."
+    "message": "This target system is inactive, so no new rotations start on it. Select $ACTIVATE$ to start them again.",
+    "placeholders": {
+      "activate": {
+        "content": "$1",
+        "example": "Activate"
+      }
+    }
   },
   "pamTargetSystemCalloutNoneAssigned": {
     "message": "No access connectors are assigned, so choose at least one before this target system can rotate."
