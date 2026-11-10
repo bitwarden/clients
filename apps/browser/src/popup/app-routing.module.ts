@@ -18,6 +18,7 @@ import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-web
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   DevicesIcon,
   ExpiredIcon,
@@ -51,7 +52,7 @@ import {
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultScopeGuard } from "@bitwarden/vault";
+import { MY_ITEMS_ROUTE, MY_ITEMS_ROUTE_DATA, vaultScopeGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
@@ -104,6 +105,7 @@ import { NewItemPageComponent } from "../vault/popup/components/vault/new-item-p
 import { PasswordHistoryComponent } from "../vault/popup/components/vault/vault-password-history/vault-password-history.component";
 import { VaultComponent } from "../vault/popup/components/vault/vault.component";
 import { ViewComponent } from "../vault/popup/components/vault/view/view.component";
+import { WelcomePageComponent } from "../vault/popup/components/vault/welcome-page/welcome-page.component";
 import {
   atRiskPasswordAuthGuard,
   canAccessAtRiskPasswords,
@@ -760,22 +762,31 @@ const routes: Routes = [
     canActivate: [],
     data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
   },
-  {
-    path: "intro-carousel",
-    component: ExtensionAnonLayoutWrapperComponent,
-    canActivate: [],
-    data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
-    children: [
-      {
-        path: "",
-        component: IntroCarouselComponent,
-        data: {
-          pageIcon: null,
-          hideFooter: true,
-        } satisfies ExtensionAnonLayoutWrapperData,
-      },
-    ],
-  },
+  ...featureFlaggedRoute({
+    defaultComponent: ExtensionAnonLayoutWrapperComponent,
+    flaggedComponent: WelcomePageComponent,
+    featureFlag: FeatureFlag.PM45335_ExtensionWelcomePage,
+    routeOptions: {
+      path: "intro-carousel",
+      canActivate: [],
+      data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+      children: [
+        {
+          path: "",
+          component: IntroCarouselComponent,
+          data: {
+            pageIcon: null,
+            hideFooter: true,
+          } satisfies ExtensionAnonLayoutWrapperData,
+        },
+      ],
+    },
+    flaggedRouteOptions: {
+      path: "intro-carousel",
+      canActivate: [],
+      data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+    },
+  }),
   {
     path: "confirm-key-connector-domain",
     component: ExtensionAnonLayoutWrapperComponent,
@@ -826,6 +837,14 @@ const routes: Routes = [
         canActivate: [authGuard, vaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        // An organization's "My items" collection, named by a static segment — see `MY_ITEMS_ROUTE`.
+        path: `vault/:vaultId/${MY_ITEMS_ROUTE}`,
+        component: VaultComponent,
+        canActivate: [authGuard, vaultScopeGuard],
+        canDeactivate: [clearVaultStateGuard],
+        data: { ...MY_ITEMS_ROUTE_DATA, elevation: 0 } satisfies RouteDataProperties,
       },
       {
         path: "generator",

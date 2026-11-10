@@ -359,4 +359,16 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
     expect(service.cachedVaultScopeId()).toBeNull();
     expect(await service.storedVaultScopeId()).toBeNull();
   });
+
+  it("stores an organization's My items with its collection segment, and clears it on the next selection", async () => {
+    await service.setCachedVaultScopeId(ORG_A, "my-items");
+    await settle();
+    expect(service.cachedVaultScopeCollection()).toBe("my-items");
+    expect(await service.storedVaultScopeCollection()).toBe("my-items");
+
+    await service.setCachedVaultScopeId(ORG_A);
+    await settle();
+    expect(service.cachedVaultScopeCollection()).toBeNull();
+    expect(await service.storedVaultScopeCollection()).toBeNull();
+  });
 });

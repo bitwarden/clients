@@ -9,14 +9,19 @@ import {
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { EMPTY, switchMap } from "rxjs";
 
-import { formatRemaining, AccessBadgeState, ENDING_SOON_THRESHOLD_MS } from "@bitwarden/bit-pam";
+import {
+  formatRemaining,
+  ACCESS_BADGE_LOOK,
+  AccessBadgeState,
+  ENDING_SOON_THRESHOLD_MS,
+} from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
 
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
 type BadgeIcon =
-  "bwi-key" | "bwi-clock" | "bwi-lock" | "bwi-unlock" | "bwi-check" | "bwi-exclamation-triangle";
+  "bwi-key" | "bwi-clock" | "bwi-lock" | "bwi-unlock" | "bwi-check-circle" | "bwi-warning";
 
 type BadgeRecipe = {
   readonly variant: BadgeVariant;
@@ -37,6 +42,13 @@ type BadgeRecipe = {
 })
 export class AccessStateBadgeComponent {
   readonly state = input.required<AccessBadgeState | null>();
+
+  /**
+   * The word for the `ready` state. "Ready to use" is addressed to the requester; a surface whose
+   * viewer is an approver has nothing to use and overrides this with "Approved", the same word
+   * `historyDisplayStatus` gives that grant.
+   */
+  readonly readyLabelKey = input<string>("pamAccessBadgeReady");
 
   private readonly i18nService = inject(I18nService);
   private readonly locale = inject(LOCALE_ID);
@@ -59,21 +71,19 @@ export class AccessStateBadgeComponent {
     if (state.kind === "active") {
       const remainingMs = state.expiresAt.getTime() - this.now();
       if (remainingMs <= 0) {
-        // The lease lapsed locally before a refetch — show "Session ended".
+        // The lease lapsed locally before a refetch, show "Session ended".
         return this.staticRecipe("expired");
       }
       const remaining = formatRemaining(this.locale, remainingMs);
       if (remainingMs <= ENDING_SOON_THRESHOLD_MS) {
         return {
-          variant: "danger",
-          icon: "bwi-exclamation-triangle",
+          ...ACCESS_BADGE_LOOK.endingSoon,
           label: this.i18nService.t("pamAccessBadgeEndingSoon", remaining),
           testId: "access-state-badge-ending-soon",
         };
       }
       return {
-        variant: "accent-primary",
-        icon: "bwi-unlock",
+        ...ACCESS_BADGE_LOOK.active,
         label: this.i18nService.t("pamAccessBadgeTimeLeft", remaining),
         testId: "access-state-badge-active",
       };
@@ -86,36 +96,31 @@ export class AccessStateBadgeComponent {
     switch (kind) {
       case "privileged":
         return {
-          variant: "primary",
-          icon: "bwi-key",
+          ...ACCESS_BADGE_LOOK.privileged,
           label: this.i18nService.t("pamAccessBadgePrivileged"),
           testId: "access-state-badge-privileged",
         };
       case "pending":
         return {
-          variant: "warning",
-          icon: "bwi-clock",
+          ...ACCESS_BADGE_LOOK.pending,
           label: this.i18nService.t("pamAccessBadgePending"),
           testId: "access-state-badge-pending",
         };
       case "unavailable":
         return {
-          variant: "subtle",
-          icon: "bwi-lock",
+          ...ACCESS_BADGE_LOOK.unavailable,
           label: this.i18nService.t("pamAccessBadgeUnavailable"),
           testId: "access-state-badge-unavailable",
         };
       case "ready":
         return {
-          variant: "success",
-          icon: "bwi-check",
-          label: this.i18nService.t("pamAccessBadgeReady"),
+          ...ACCESS_BADGE_LOOK.ready,
+          label: this.i18nService.t(this.readyLabelKey()),
           testId: "access-state-badge-ready",
         };
       case "expired":
         return {
-          variant: "subtle",
-          icon: "bwi-lock",
+          ...ACCESS_BADGE_LOOK.expired,
           label: this.i18nService.t("pamAccessBadgeEnded"),
           testId: "access-state-badge-expired",
         };

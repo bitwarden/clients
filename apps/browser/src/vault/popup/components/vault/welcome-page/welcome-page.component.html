@@ -1,0 +1,56 @@
+<div class="tw-block tw-h-full tw-relative tw-isolate tw-overflow-hidden">
+  <bit-svg
+    class="tw-pointer-events-none tw-absolute tw-inset-0 tw-z-0 !tw-max-h-none tw-size-full [&>svg]:tw-size-full"
+    [content]="backgroundIllustration()"
+  ></bit-svg>
+
+  <popup-page class="tw-relative tw-z-10 [&_main]:!tw-bg-transparent" [disablePadding]="true">
+    <!-- The page titles itself in its own content, so the title bar would be empty. -->
+    <popup-header slot="header" hideTitleBar background="alt" pageTitle="">
+      <div class="tw-w-32">
+        <bit-svg [content]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-svg>
+      </div>
+
+      <ng-container slot="end">
+        <app-pop-out></app-pop-out>
+      </ng-container>
+    </popup-header>
+
+    <div
+      class="tw-flex tw-min-h-full tw-flex-col tw-items-center tw-px-6 bit-compact:tw-px-3 tw-pt-16 tw-pb-6"
+    >
+      <!-- 72px design offset: tw-pt-16 (64px) + tw-mt-2 (8px); no 72px spacing step exists. -->
+      <bit-icon-tile class="tw-mt-2" icon="bwi-vault" variant="primary" size="xl"></bit-icon-tile>
+
+      <div class="tw-mt-10 tw-text-center">
+        <h1 bitTypography="h1">{{ "welcomeToBitwarden" | i18n }}</h1>
+        <p bitTypography="body2" class="tw-mb-0 tw-text-muted">
+          {{ "createYourAccountOrLogIn" | i18n }}
+        </p>
+      </div>
+
+      <div class="tw-mt-10 tw-flex tw-w-full tw-flex-col tw-gap-3">
+        <button
+          id="welcome-page_button_create-account"
+          type="button"
+          bitButton
+          buttonType="primary"
+          [block]="true"
+          (click)="navigateToSignup()"
+        >
+          {{ "createAccount" | i18n }}
+        </button>
+        <button
+          id="welcome-page_button_log-in"
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [block]="true"
+          (click)="navigateToLogin()"
+        >
+          {{ "logIn" | i18n }}
+        </button>
+      </div>
+    </div>
+  </popup-page>
+</div>

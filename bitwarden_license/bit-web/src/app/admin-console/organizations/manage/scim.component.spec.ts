@@ -202,6 +202,7 @@ describe("ScimComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
         organizationId: orgId,
         titleKey: "viewScimApiKey",
+        submitButtonKey: "viewApiKey",
         isRotation: false,
       });
       expect(ta(component).formData.get("clientSecret").value).toBe("revealed-key");
@@ -235,6 +236,7 @@ describe("ScimComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
         organizationId: orgId,
         titleKey: "rotateScimKey",
+        submitButtonKey: "rotateKey",
         isRotation: true,
       });
       expect(ta(component).formData.get("clientSecret").value).toBe("rotated-key");
@@ -270,6 +272,7 @@ describe("ScimComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
         organizationId: orgId,
         titleKey: "copyScimKey",
+        submitButtonKey: "copyApiKey",
         isRotation: false,
       });
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("revealed-key");

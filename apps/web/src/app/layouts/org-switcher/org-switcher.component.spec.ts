@@ -80,8 +80,8 @@ describe("OrgSwitcherComponent", () => {
     // Nav items only render their text when the side nav is expanded.
     sideNavService.open.set(true);
     sideNavService.version.set(version);
-    fixture.componentInstance.hideNewButton = hideNewButton;
-    fixture.componentInstance.open = true;
+    fixture.componentRef.setInput("hideNewButton", hideNewButton);
+    fixture.componentRef.setInput("open", true);
     fixture.detectChanges();
   }
 

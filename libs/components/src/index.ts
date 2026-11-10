@@ -15,6 +15,7 @@ export * from "./berry";
 export * from "./bottom-navigation";
 export * from "./breadcrumbs";
 export * from "./bulk-actions-bar";
+export * from "./button-group";
 export * from "./button";
 export * from "./callout";
 export * from "./card";
