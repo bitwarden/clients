@@ -139,7 +139,9 @@ describe("AccessAuditComponent", () => {
             recentlyActivePast7Days: "Past 7 days",
             recentlyActivePast30Days: "Past 30 days",
             custom: "Custom",
-            pamAuditCustomRange: "__$1__ – __$2__",
+            pamAuditCustomRange: "__$1__ to __$2__",
+            pamAuditSubheading: "Review access requests.",
+            date: "Date",
             pamAuditCustomRangeFrom: "From __$1__",
             pamAuditCustomRangeUntil: "Until __$1__",
             edit: "Edit",
@@ -340,8 +342,8 @@ describe("AccessAuditComponent", () => {
     fixture.detectChanges();
   };
 
-  /** The Event chip is the first one declared. */
-  const kindMenu = () => fixture.debugElement.queryAll(By.directive(FilterMenuComponent))[0];
+  /** The Event chip follows the Date chip. */
+  const kindMenu = () => fixture.debugElement.queryAll(By.directive(FilterMenuComponent))[1];
 
   const kindMenuOptions = () =>
     kindMenu()
@@ -354,7 +356,7 @@ describe("AccessAuditComponent", () => {
   /** The menu renders into a CDK overlay on the document, not the fixture's host element. */
   const openKindMenu = () => {
     (fixture.nativeElement as HTMLElement)
-      .querySelector<HTMLButtonElement>("bit-filter-menu button[aria-haspopup]")!
+      .querySelectorAll<HTMLButtonElement>("bit-filter-menu button[aria-haspopup]")[1]
       .click();
     fixture.detectChanges();
     return Array.from(document.querySelectorAll<HTMLButtonElement>("[role='treeitem']"));
@@ -885,7 +887,7 @@ describe("AccessAuditComponent", () => {
         const triggers = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
           "bit-filter-menu button[aria-haspopup]",
         );
-        triggers[triggers.length - 1].click();
+        triggers[0].click();
         fixture.detectChanges();
         return Array.from(document.querySelectorAll<HTMLElement>("[data-filter-option-row]")).map(
           (row) => ({
@@ -903,15 +905,15 @@ describe("AccessAuditComponent", () => {
         const rows = openTimePeriodMenu();
 
         expect(rows.map((row) => row.label)).toEqual([
-          "All time",
+          "All",
           "Today",
           "Past 7 days",
           "Past 30 days",
-          "Aug 17, 2026 – Aug 18, 2026",
+          "Aug 17 to Aug 18, 2026",
           "Custom",
         ]);
         expect(rows.filter((row) => row.radio.checked).map((row) => row.label)).toEqual([
-          "Aug 17, 2026 – Aug 18, 2026",
+          "Aug 17 to Aug 18, 2026",
         ]);
       });
 
@@ -943,6 +945,8 @@ describe("AccessAuditComponent", () => {
       it.each([
         ["2026-08-18T09:00", "2026-08-18T17:00", "Aug 18, 2026"],
         ["2026-08-17T09:00", "", "From Aug 17, 2026"],
+        ["2025-12-28T09:00", "2026-01-03T17:00", "Dec 28, 2025 to Jan 3, 2026"],
+        ["2026-09-01T09:00", "2026-09-09T17:00", "Sept 1 to Sept 9, 2026"],
         ["", "2026-08-18T17:00", "Until Aug 18, 2026"],
       ])("labels the range %p to %p as %p", async (from, to, label) => {
         await renderTrail([new Date(2026, 7, 18, 12, 0)]);
@@ -1325,13 +1329,31 @@ describe("AccessAuditComponent", () => {
 
       const chips = [...toolbar().querySelectorAll("bit-filter-menu")];
       expect(chips.map((chip) => chip.querySelector("button")!.textContent!.trim())).toEqual([
+        "Date: All",
         "Event",
         "Actor",
         "Requester",
         "Item",
-        "Time period: All time",
       ]);
       expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(4);
+    });
+
+    it("describes the page below the title", async () => {
+      await render([event()]);
+
+      expect(fixture.nativeElement.querySelector("p")!.textContent).toContain(
+        "Review access requests.",
+      );
+    });
+
+    it("renders actor, requester and item values without link styling", async () => {
+      await render([event()]);
+
+      const links = fixture.nativeElement.querySelectorAll("a[id^=access-audit_link_]");
+      for (const link of links) {
+        expect(link.classList).not.toContain("tw-text-primary-600");
+        expect(link.classList).toContain("tw-text-main");
+      }
     });
 
     it("groups Update and Export, with their ids and their handlers", async () => {
@@ -1341,7 +1363,9 @@ describe("AccessAuditComponent", () => {
       expect(actions.querySelector("#access-audit_button_refresh")).not.toBeNull();
       const exportButton = actions.querySelector("#access-audit_button_export")!;
       expect(exportButton.getAttribute("aria-disabled")).toBeNull();
-      expect(exportButton.querySelector("i")!.classList).toContain("bwi-import");
+      expect(exportButton.querySelector("i")).toBeNull();
+      const ids = [...actions.querySelectorAll("button")].map((button) => button.id);
+      expect(ids).toEqual(["access-audit_button_export", "access-audit_button_refresh"]);
 
       const before = readCount();
       (actions.querySelector("#access-audit_button_refresh") as HTMLButtonElement).click();
@@ -1445,16 +1469,6 @@ describe("AccessAuditComponent", () => {
       expect(request.fileName).toMatch(/\.csv$/);
       expect(request.blobOptions).toEqual({ type: "text/csv" });
       expect(request.blobData).toContain("Request approved");
-    });
-
-    // `bwi-import` is this icon set's export glyph, as on the organization event log.
-    it("carries the export icon", async () => {
-      returnsTrail([event()]);
-      await renderReady();
-
-      const icon = fixture.nativeElement.querySelector("#access-audit_button_export i");
-      expect(icon).not.toBeNull();
-      expect(icon.classList).toContain("bwi-import");
     });
 
     it("disables Export while no row matches the filters", async () => {
