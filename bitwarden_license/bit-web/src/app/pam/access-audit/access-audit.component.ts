@@ -756,6 +756,7 @@ export class AccessAuditComponent implements OnInit {
         organizationId: this.organizationId(),
         name: member.name,
         showUser: true,
+        stayInContext: true,
       },
     });
   }
@@ -774,6 +775,7 @@ export class AccessAuditComponent implements OnInit {
         organizationId: this.organizationId(),
         name: row.cipherName,
         showUser: true,
+        stayInContext: true,
       },
     });
   }

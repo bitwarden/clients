@@ -103,4 +103,27 @@ describe("EntityEventsComponent in-dialog navigation (no stacked dialogs)", () =
     expect(loadSpy).not.toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
   });
+
+  describe("with stayInContext", () => {
+    beforeEach(() => {
+      (component as any).params = { ...params, stayInContext: true };
+    });
+
+    it("switches to the member in place without navigating", () => {
+      component.onEventMessageClick(clickOnHref(MEMBER_EVENTS_HREF_PREFIX + "member-user-id"));
+
+      expect(component.entity).toBe("user");
+      expect(component.entityId).toBe("org-user-1");
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("blocks hash navigation from any other in-app link", () => {
+      const ev = clickOnHref("#/organizations/org-1/vault?search=abc&viewEvents=cipher-1&type=all");
+
+      component.onEventMessageClick(ev);
+
+      expect(ev.preventDefault).toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -1758,6 +1758,7 @@ describe("AccessAuditComponent", () => {
         organizationId: ORGANIZATION_ID,
         name: "Ada",
         showUser: true,
+        stayInContext: true,
       });
     });
 
@@ -1776,6 +1777,7 @@ describe("AccessAuditComponent", () => {
         organizationId: ORGANIZATION_ID,
         name: "Grace",
         showUser: true,
+        stayInContext: true,
       });
     });
 
@@ -1795,6 +1797,7 @@ describe("AccessAuditComponent", () => {
         organizationId: ORGANIZATION_ID,
         name: "Prod database",
         showUser: true,
+        stayInContext: true,
       });
     });
 
