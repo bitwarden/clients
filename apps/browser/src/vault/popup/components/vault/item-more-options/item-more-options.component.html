@@ -18,30 +18,16 @@
           {{ "view" | i18n }}
         </button>
       }
-      @if (accessStatus(); as status) {
-        @if (isLocked) {
-          @if (status.kind === "ready") {
-            <button type="button" bitMenuItem (click)="startAccess()">
-              {{ "pamStartLeaseButton" | i18n }}
-            </button>
-          } @else {
-            <button
-              type="button"
-              bitMenuItem
-              [disabled]="status.kind !== 'request'"
-              (click)="requestAccess()"
-            >
-              {{ "pamRequestAccessButton" | i18n }}
-            </button>
-          }
-        } @else if (status.kind === "active") {
-          @if (status.canExtend) {
-            <button type="button" bitMenuItem (click)="extendAccess()">
-              {{ "pamExtendAccessMenuItem" | i18n }}
-            </button>
-          }
-          <button type="button" bitMenuItem (click)="endAccess()">
-            {{ "pamEndLeaseButton" | i18n }}
+      @for (action of contributedActions; track action.id) {
+        @if (action.show?.(cipher) ?? true) {
+          <button
+            type="button"
+            bitMenuItem
+            [variant]="action.variant ?? 'primary'"
+            [disabled]="action.disabled?.(cipher) ?? false"
+            (click)="action.run(cipher)"
+          >
+            {{ action.label }}
           </button>
         }
       }
@@ -54,7 +40,7 @@
         </button>
       }
       @if (canEdit && canViewPassword) {
-        @if (canClone$ | async) {
+        @if ((canClone$ | async) && allows(RestrictedCipherAction.Clone)) {
           <a bitMenuItem (click)="clone()">
             {{ "clone" | i18n }}
           </a>
@@ -90,7 +76,7 @@
         </button>
       }
     }
-    @if ((canDelete$ | async) && allows(RestrictedCipherAction.Delete) && !accessActive) {
+    @if ((canDelete$ | async) && allows(RestrictedCipherAction.Delete)) {
       <button type="button" bitMenuItem variant="danger" (click)="delete()">
         {{ "delete" | i18n }}
       </button>

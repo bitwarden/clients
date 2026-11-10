@@ -529,17 +529,17 @@ describe("ViewComponent", () => {
       expect(component.showAutofillButton()).toBe(false);
     }));
 
-    it("shows a disabled Edit button, not a live one, while the restricted cipher is not revealed", fakeAsync(() => {
+    it("shows the Edit button disabled while the restricted cipher is not revealed", fakeAsync(() => {
       params$.next({ cipherId: mockCipher.id });
       flush();
       fixture.detectChanges();
 
-      const disabled = fixture.debugElement.query(
-        By.css("[data-testid='edit-disabled-restricted']"),
-      );
-      expect(disabled).toBeTruthy();
+      const edit = fixture.debugElement
+        .queryAll(By.css("popup-footer button[bitbutton]"))
+        .find((button) => button.nativeElement.textContent.trim() === "edit");
+      expect(edit).toBeTruthy();
       expect(
-        disabled.nativeElement.disabled || disabled.nativeElement.getAttribute("aria-disabled"),
+        edit!.nativeElement.disabled || edit!.nativeElement.getAttribute("aria-disabled"),
       ).toBeTruthy();
     }));
 
