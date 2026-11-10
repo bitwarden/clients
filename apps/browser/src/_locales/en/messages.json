@@ -8830,6 +8830,10 @@
     "message": "Logins that can use passkeys",
     "description": "Title of the passkeys row on the Health Overview when it is locked behind Premium. Shows no count because free users are not checked."
   },
+  "passkeyOpportunitiesLockedDesc": {
+    "message": "See which sites support passkeys with Premium",
+    "description": "Description of the passkeys row on the Health Overview when it is locked behind Premium."
+  },
   "passkeyOpportunitiesTitle": {
     "message": "Passkeys available",
     "description": "Page title for the list of logins whose sites support passkeys."

@@ -27,6 +27,7 @@ export default {
               passkeyOpportunitiesFailed: "Passkey support couldn't be checked",
               passkeyOpportunitiesFailedDesc: "An error occurred. Please try again.",
               passkeyOpportunitiesLocked: "Logins that can use passkeys",
+              passkeyOpportunitiesLockedDesc: "See which sites support passkeys with Premium",
               tryAgain: "Try again",
               categoryHealthy: "No items need attention",
               premiumSubscriptionRequired: "Premium subscription required",

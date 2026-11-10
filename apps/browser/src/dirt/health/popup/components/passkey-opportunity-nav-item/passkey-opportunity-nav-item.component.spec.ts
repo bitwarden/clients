@@ -101,7 +101,8 @@ describe("PasskeyOpportunityNavItemComponent", () => {
       await render(VaultHealthReportStatus.Idle, null, true);
 
       expect(text()).toContain("passkeyOpportunitiesLocked");
-      expect(text()).toContain("passkeyOpportunitiesDesc");
+      // The description carries the reason to upgrade, next to the lock.
+      expect(text()).toContain("passkeyOpportunitiesLockedDesc");
       expect(link()).toBeNull();
       const lock = fixture.nativeElement.querySelector("bit-icon[slot=end]");
       expect(lock.getAttribute("aria-label") ?? lock.textContent).toContain(
