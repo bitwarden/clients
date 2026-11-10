@@ -235,7 +235,6 @@ export class CompleteTrialInitiationComponent {
       return;
     }
 
-    // Keep the button disabled through navigation so a second click can't create a duplicate org.
     this.isSecretsManagerFree
       ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
       : this.showCompletionToast("trialStarted", "trialActive");
@@ -401,7 +400,6 @@ export class CompleteTrialInitiationComponent {
       return;
     }
 
-    // Keep the button disabled through navigation so a second click can't create a duplicate org.
     this.showCompletionToast("organizationCreated", "organizationReadyToGo");
     try {
       await this.navigateToOrganization();
