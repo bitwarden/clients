@@ -182,7 +182,8 @@ export abstract class AutofillSettingsServiceAbstraction {
   setEnableBasicAuthResponse: (newValue: boolean) => Promise<void>;
   /**
    * Resolved state for answering HTTP auth challenges for the active user: the
-   * user setting, gated on the {@link FeatureFlag.EnableBasicAuthResponse} flag.
+   * user setting, gated on HTTP authentication being available
+   * ({@link httpAuthenticationAvailable$}).
    *
    * Emits `false` while there is no active user. Each subscription resolves the
    * setting of the user active when it subscribes, and follows later changes of
@@ -193,7 +194,8 @@ export abstract class AutofillSettingsServiceAbstraction {
    * Whether HTTP authentication challenges may be answered from the active user's vault, gated on
    * the {@link FeatureFlag.EnableBasicAuthResponse} flag. This reports availability only; it does
    * not make any login eligible. A login is answered when the user setting
-   * ({@link resolvedEnableBasicAuthResponse$}) is on, or when the login itself has opted in.
+   * ({@link resolvedEnableBasicAuthResponse$}) is on, or when the login itself has opted in; both
+   * are gated on availability.
    *
    * Emits `false` while there is no active user, and follows changes of active user.
    */
@@ -365,12 +367,9 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
         userId == null
           ? of(false)
           : combineLatest([
-              // A future org policy would also be resolved here
               this.stateProvider.getUser(userId, ENABLE_BASIC_AUTH_RESPONSE).state$,
-              this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse),
-            ]).pipe(
-              map(([userSetting, featureFlag]) => featureFlag === true && userSetting === true),
-            ),
+              this.httpAuthenticationFeatureEnabled$(),
+            ]).pipe(map(([userSetting, available]) => available && userSetting === true)),
       ),
       distinctUntilChanged(),
     );
@@ -378,11 +377,7 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     this.httpAuthenticationAvailable$ = this.accountService.activeAccount$.pipe(
       getOptionalUserId,
       switchMap((userId) =>
-        userId == null
-          ? of(false)
-          : this.configService
-              .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
-              .pipe(map((featureFlag) => featureFlag === true)),
+        userId == null ? of(false) : this.httpAuthenticationFeatureEnabled$(),
       ),
       distinctUntilChanged(),
     );
@@ -464,6 +459,16 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setHonorBitwardenAutofillAttribute(newValue: boolean): Promise<void> {
     await this.honorBitwardenAutofillAttributeState.update(() => newValue);
+  }
+
+  /**
+   * Whether the {@link FeatureFlag.EnableBasicAuthResponse} flag is on. Both the user setting
+   * ({@link resolvedEnableBasicAuthResponse$}) and logins' own settings are gated on this.
+   */
+  private httpAuthenticationFeatureEnabled$(): Observable<boolean> {
+    return this.configService
+      .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
+      .pipe(map((featureFlag) => featureFlag === true));
   }
 
   async setEnableBasicAuthResponse(newValue: boolean): Promise<void> {

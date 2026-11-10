@@ -146,6 +146,19 @@ describe("AutofillSettingsService", () => {
       subscription.unsubscribe();
     });
 
+    it("follows HTTP authentication availability", () => {
+      const resolved = collectEmissions(autofillSettingsService.resolvedEnableBasicAuthResponse$);
+      const available = collectEmissions(autofillSettingsService.httpAuthenticationAvailable$);
+
+      featureFlag$.next(false);
+      featureFlag$.next(true);
+
+      expect(resolved.emissions).toEqual([true, false, true]);
+      expect(available.emissions).toEqual([true, false, true]);
+      resolved.subscription.unsubscribe();
+      available.subscription.unsubscribe();
+    });
+
     it("does not give a new subscriber the previous user's value before the active user's setting is read", async () => {
       // Stands in for a newly active user whose setting is still being read from storage.
       const pendingOtherUserSetting$ = new Subject<boolean | null>();
