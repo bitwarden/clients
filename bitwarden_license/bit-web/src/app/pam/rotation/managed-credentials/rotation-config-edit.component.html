@@ -495,7 +495,7 @@
               <bit-card>
                 <div class="tw-mb-6">
                   <p bitTypography="body2" class="tw-mb-1 tw-font-medium tw-text-fg-body">
-                    {{ "pamRotationConfigVaultItem" | i18n }}
+                    {{ "pamRotationConfigCredentialName" | i18n }}
                   </p>
                   <p bitTypography="body1" class="tw-m-0" id="rotation-config-edit_text_vault-item">
                     {{ vaultItemName() }}
@@ -517,17 +517,31 @@
                     }}
                   </p>
                 </div>
-                <div class="tw-mb-6">
-                  <p bitTypography="body2" class="tw-mb-1 tw-font-medium tw-text-fg-body">
-                    {{ "pamRotationConfigTargetSystem" | i18n }}
-                  </p>
-                  <p
-                    bitTypography="body1"
-                    class="tw-m-0"
-                    id="rotation-config-edit_text_target-system"
-                  >
-                    {{ detail.config.targetSystemName }}
-                  </p>
+                <div formGroupName="account">
+                  <bit-form-field>
+                    <bit-label>{{ "pamRotationConfigTargetSystem" | i18n }}</bit-label>
+                    <bit-select
+                      id="rotation-config-edit_select_target-system-edit"
+                      formControlName="targetSystemId"
+                      required
+                    >
+                      @for (option of editTargetOptions(); track option.id) {
+                        <bit-option
+                          [value]="option.id"
+                          [label]="option.name"
+                          [description]="option.description"
+                        ></bit-option>
+                      }
+                    </bit-select>
+                    <bit-hint>
+                      {{
+                        (targetSystemEditable
+                          ? "pamRotationConfigTargetSystemHintEdit"
+                          : "pamRotationConfigTargetSystemHintLocked"
+                        ) | i18n
+                      }}
+                    </bit-hint>
+                  </bit-form-field>
                 </div>
 
                 @if (showConnectors()) {
@@ -581,7 +595,7 @@
 
                 <div formGroupName="account">
                   <bit-form-field disableMargin>
-                    <bit-label>{{ "username" | i18n }}</bit-label>
+                    <bit-label>{{ "pamRotationConfigAccountId" | i18n }}</bit-label>
                     <input
                       bitInput
                       type="text"
