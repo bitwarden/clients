@@ -65,7 +65,7 @@ const CONNECTORS: AccessConnector[] = [
     id: connectorId("stage"),
     name: "Staging datacenter",
     isConnected: false,
-    lastHeartbeatAt: null,
+    lastHeartbeatAt: undefined,
     assignedTargetSystemIds: [],
   }),
   accessConnector({
