@@ -348,7 +348,16 @@ export class EditMemberDialogComponent {
     })
       .pipe(takeUntilDestroyed())
       .subscribe(({ organization, collections, userDetails, groups }) => {
-        this.groupAccessItems.set(groups.map<AccessItemView>((g) => mapGroupToAccessItemView(g)));
+        const groupItems = groups.map<AccessItemView>((g) => mapGroupToAccessItemView(g));
+        // Read only, every row is muted, and since read only rows always show, only the
+        // member's groups are kept.
+        this.groupAccessItems.set(
+          this.readonly
+            ? groupItems
+                .filter((item) => userDetails?.groups.includes(item.id))
+                .map((item) => ({ ...item, readonly: true }))
+            : groupItems,
+        );
 
         const collectionItems = collections
           .map((c) =>

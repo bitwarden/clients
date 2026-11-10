@@ -1026,6 +1026,7 @@ describe("EditMemberDialogComponent", () => {
       member: OrganizationUserView = buildMember(),
       collections: CollectionAdminView[] = [],
       orgOverrides: Partial<Organization> = {},
+      extraGroups: GroupView[] = [],
     ) {
       const result = await createComponent(
         defaultParams({
@@ -1040,7 +1041,10 @@ describe("EditMemberDialogComponent", () => {
             ...orgOverrides,
           },
           collections,
-          groups: [new GroupView({ id: GROUP_ID, organizationId: ORG_ID, name: "Engineering" })],
+          groups: [
+            new GroupView({ id: GROUP_ID, organizationId: ORG_ID, name: "Engineering" }),
+            ...extraGroups,
+          ],
         },
       );
       // Echo keys so the footer's buttons can be told apart.
@@ -1068,16 +1072,16 @@ describe("EditMemberDialogComponent", () => {
       expect(mocks.groupApiService.getAllDetails).not.toHaveBeenCalled();
     });
 
-    it("shows the member's groups", async () => {
-      const { component } = await createReadonly(buildMember({ groups: [GROUP_ID] }), [], {
-        useGroups: true,
-      });
+    it("shows only the member's groups, as read only", async () => {
+      const { component } = await createReadonly(
+        buildMember({ groups: [GROUP_ID] }),
+        [],
+        { useGroups: true },
+        [new GroupView({ id: "other-group", organizationId: ORG_ID, name: "Finance" })],
+      );
 
       expect((component as any).groupAccessItems()).toEqual([
-        expect.objectContaining({ id: GROUP_ID, labelName: "Engineering" }),
-      ]);
-      expect((component as any).formGroup.controls.groups.value).toEqual([
-        expect.objectContaining({ id: GROUP_ID }),
+        expect.objectContaining({ id: GROUP_ID, labelName: "Engineering", readonly: true }),
       ]);
     });
 
