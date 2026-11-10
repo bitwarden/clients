@@ -2,12 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  afterEveryRender,
   booleanAttribute,
   computed,
   contentChildren,
   forwardRef,
   input,
   linkedSignal,
+  signal,
   viewChild,
 } from "@angular/core";
 
@@ -98,8 +100,25 @@ export class FilterOptionComponent<T = unknown> implements FilterOptionRow {
 
   private readonly labelEl = viewChild<ElementRef<HTMLElement>>("label");
 
+  /** The projected text as of the last render, so a label that changes later re-notifies readers. */
+  private readonly renderedLabel = signal("");
+
+  constructor() {
+    afterEveryRender(() => {
+      const text = this.labelText();
+      if (text !== this.renderedLabel()) {
+        this.renderedLabel.set(text);
+      }
+    });
+  }
+
   /** The projected label text — the chip renders it, and reads it for search and the summary. */
   label(): string {
+    const rendered = this.renderedLabel();
+    return rendered === "" ? this.labelText() : rendered;
+  }
+
+  private labelText(): string {
     return this.labelEl()?.nativeElement.textContent?.trim() ?? "";
   }
 
