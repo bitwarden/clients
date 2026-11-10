@@ -13,6 +13,8 @@ import {
 import { PasskeyOpportunityService } from "@bitwarden/common/dirt/vault-health/services";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { HealthPasskeyScanService } from "../../services/health-passkey-scan.service";
 import { PasskeyOpportunityNavItemComponent } from "../passkey-opportunity-nav-item/passkey-opportunity-nav-item.component";
@@ -31,6 +33,12 @@ class MockNavItemComponent {
   readonly retry = output<void>();
 }
 
+function cipher(id: string): CipherView {
+  const view = new CipherView();
+  view.id = id;
+  return view;
+}
+
 describe("HealthPasskeySectionComponent", () => {
   const userId = "user-1" as UserId;
 
@@ -39,6 +47,7 @@ describe("HealthPasskeySectionComponent", () => {
   let state$: BehaviorSubject<PasskeyOpportunitiesState>;
   let opportunityService: MockProxy<PasskeyOpportunityService>;
   let scanService: MockProxy<HealthPasskeyScanService>;
+  let cipherService: MockProxy<CipherService>;
 
   async function init(locked: boolean) {
     fixture = TestBed.createComponent(HealthPasskeySectionComponent);
@@ -59,6 +68,8 @@ describe("HealthPasskeySectionComponent", () => {
     state$ = new BehaviorSubject<PasskeyOpportunitiesState>(PASSKEY_OPPORTUNITIES_IDLE);
     opportunityService = mock<PasskeyOpportunityService>();
     opportunityService.getPasskeyOpportunities$.mockReturnValue(state$);
+    cipherService = mock<CipherService>();
+    cipherService.cipherViews$.mockReturnValue(of(["a", "b"].map(cipher)));
     scanService = mock<HealthPasskeyScanService>();
     scanService.keepPasskeysCurrent$.mockReturnValue(NEVER);
     // `enabled$` is a property, not a method, so the mock has to hold the stream itself.
@@ -70,6 +81,7 @@ describe("HealthPasskeySectionComponent", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId } as Account) } },
         { provide: PasskeyOpportunityService, useValue: opportunityService },
         { provide: HealthPasskeyScanService, useValue: scanService },
+        { provide: CipherService, useValue: cipherService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
     })
@@ -115,6 +127,21 @@ describe("HealthPasskeySectionComponent", () => {
 
     expect(navItem()!.locked()).toBe(false);
     expect(scanService.keepPasskeysCurrent$).toHaveBeenCalledWith(userId);
+  });
+
+  it("counts only opportunities whose login still exists, as the page does", async () => {
+    await init(false);
+
+    state$.next({
+      status: VaultHealthReportStatus.Success,
+      opportunities: [
+        { id: "a", supportsPasskeyLogin: true, supportsPasskeyMfa: false },
+        { id: "deleted", supportsPasskeyLogin: true, supportsPasskeyMfa: false },
+      ],
+    });
+    fixture.detectChanges();
+
+    expect(navItem()!.count()).toBe(1);
   });
 
   it("passes no count before a result, then the number of opportunities", async () => {

@@ -8807,11 +8807,11 @@
     }
   },
   "passkeyOpportunitiesDesc": {
-    "message": "Their sites support passkeys",
-    "description": "Explains why a login is listed in the passkeys row on the Health Overview."
+    "message": "Log in more safely on these sites",
+    "description": "The benefit of the logins in the passkeys row on the Health Overview."
   },
   "passkeyOpportunitiesNoneDesc": {
-    "message": "None of your other saved sites support passkeys yet",
+    "message": "None of your saved sites support passkeys yet",
     "description": "Description of the passkeys row on the Health Overview when no saved login's site supports passkeys."
   },
   "passkeyOpportunitiesChecking": {
@@ -8839,7 +8839,7 @@
     "description": "Intro on the page listing logins whose sites support passkeys."
   },
   "passkeyOpportunitiesEmpty": {
-    "message": "None of your other saved sites support passkeys yet.",
+    "message": "None of your saved sites support passkeys yet.",
     "description": "Empty state on the page listing logins whose sites support passkeys."
   },
   "passkeySupportedFor": {

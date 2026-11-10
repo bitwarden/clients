@@ -5,10 +5,14 @@ import { EMPTY, map, of, switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PASSKEY_OPPORTUNITIES_IDLE } from "@bitwarden/common/dirt/vault-health/models";
 import { PasskeyOpportunityService } from "@bitwarden/common/dirt/vault-health/services";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ItemModule, SectionHeaderComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HealthPasskeyScanService } from "../../services/health-passkey-scan.service";
+import { buildPasskeyListRows } from "../../services/passkey-list";
 import { PasskeyOpportunityNavItemComponent } from "../passkey-opportunity-nav-item/passkey-opportunity-nav-item.component";
 
 /**
@@ -38,6 +42,7 @@ export class HealthPasskeySectionComponent {
   private readonly accountService = inject(AccountService);
   private readonly passkeyOpportunityService = inject(PasskeyOpportunityService);
   private readonly healthPasskeyScanService = inject(HealthPasskeyScanService);
+  private readonly cipherService = inject(CipherService);
 
   /** Whether Health details are locked behind Premium. */
   readonly locked = input(true);
@@ -69,7 +74,25 @@ export class HealthPasskeySectionComponent {
     { initialValue: PASSKEY_OPPORTUNITIES_IDLE },
   );
 
-  protected readonly count = computed(() => this.state().opportunities?.length ?? null);
+  private readonly ciphers = toSignal(
+    toObservable(this.activeUserId).pipe(
+      switchMap((userId) => (userId ? this.cipherService.cipherViews$(userId) : of([]))),
+      filterOutNullish(),
+      map((ciphers) => new Map(ciphers.map((cipher) => [cipher.id, cipher]))),
+    ),
+    { initialValue: new Map<string, CipherView>() },
+  );
+
+  /**
+   * The logins the page lists: the same join, so a login deleted since the last check is not
+   * counted here while the page has already dropped it.
+   */
+  protected readonly count = computed(() => {
+    const opportunities = this.state().opportunities;
+    return opportunities == null
+      ? null
+      : buildPasskeyListRows(opportunities, this.ciphers()).length;
+  });
 
   constructor() {
     toObservable(this.activeUserId)
