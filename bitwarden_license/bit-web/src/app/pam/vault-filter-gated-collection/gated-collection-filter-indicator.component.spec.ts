@@ -45,8 +45,8 @@ describe("GatedCollectionFilterIndicatorComponent", () => {
     create({ hasEnabledAccessRule: true });
 
     expect(lock()?.getAttribute("role")).toBe("img");
-    expect(lock()?.getAttribute("aria-label")).toBe("pamCollectionRequiresRequest");
-    expect(lock()?.getAttribute("title")).toBe("pamCollectionRequiresRequest");
+    expect(lock()?.getAttribute("aria-label")).toBe("pamSharedFolderRequiresRequest");
+    expect(lock()?.getAttribute("title")).toBe("pamSharedFolderRequiresRequest");
   });
 
   it("keeps the muted styling alongside the icon's own classes", () => {
