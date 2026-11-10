@@ -76,14 +76,9 @@ export function joinEndpoint(translate: Translate, endpoint: WindowEndpoint): st
 }
 
 /**
- * The requested window in words, the one spelling the My requests and Approvals tables share,
- * since they render the same column over the same data. A window that has already opened reads
- * as its end alone ("Until 8:07 PM"); one still to open reads as its range, with a day both
- * endpoints share lifted out front ("Tomorrow, 9 AM to 1 PM").
- *
- * Takes the bounds as epoch milliseconds, so a caller holding either ISO strings or a parsed row
- * can use it, and takes `nowMs` rather than reading the clock, so a live caller can re-format as
- * the window opens and the day word turns over.
+ * The requested window in words. A window that has already opened reads as its end alone
+ * ("Until 8:07 PM"); one still to open reads as its range, with a shared day lifted out front
+ * ("Tomorrow, 9 AM to 1 PM"). Takes `nowMs` so a live caller can re-format as the day turns over.
  */
 export function formatRequestedWindow(
   translate: Translate,
