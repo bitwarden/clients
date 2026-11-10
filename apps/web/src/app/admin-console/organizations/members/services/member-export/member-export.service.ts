@@ -25,7 +25,15 @@ export class MemberExportService {
   private fileDownloadService = inject(FileDownloadService);
   private logService = inject(LogService);
 
-  getMemberExport(data: OrganizationUserView[]): MemberExportResult {
+  /**
+   * Downloads a CSV of the given members.
+   * @param includePrivilegedControls when true, adds a Privileged Controls column. Pass true only
+   * when the organization can use Privileged Controls.
+   */
+  getMemberExport(
+    data: OrganizationUserView[],
+    includePrivilegedControls = false,
+  ): MemberExportResult {
     try {
       const members = data;
       if (!members || members.length === 0) {
@@ -38,6 +46,7 @@ export class MemberExportService {
           this.userTypePipe,
           this.userStatusPipe,
           m,
+          includePrivilegedControls,
         ),
       );
 
@@ -49,6 +58,7 @@ export class MemberExportService {
         this.i18nService.t("twoStepLogin"),
         this.i18nService.t("accountRecovery"),
         this.i18nService.t("secretsManager"),
+        ...(includePrivilegedControls ? [this.i18nService.t("privilegedControls")] : []),
         this.i18nService.t("groups"),
       ];
 

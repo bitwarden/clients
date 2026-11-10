@@ -10,14 +10,16 @@ export class MemberExport {
    * @returns a Record<string, string> of each column header key, value
    * All property members must be a string for export purposes. Null and undefined will appear as
    * "null" in a .csv export, therefore an empty string is preferable to a nullish type.
+   * @param includePrivilegedControls when true, adds a Privileged Controls column
    */
   static fromOrganizationUserView(
     i18nService: I18nService,
     userTypePipe: UserTypePipe,
     userStatusPipe: UserStatusPipe,
     user: OrganizationUserView,
+    includePrivilegedControls = false,
   ): Record<string, string> {
-    const result = {
+    const result: Record<string, string> = {
       [i18nService.t("email")]: user.email,
       [i18nService.t("name")]: user.name ?? "",
       [i18nService.t("status")]: userStatusPipe.transform(user.status),
@@ -37,6 +39,12 @@ export class MemberExport {
 
       [i18nService.t("groups")]: user.groupNames?.join(", ") ?? "",
     };
+
+    if (includePrivilegedControls) {
+      result[i18nService.t("privilegedControls")] = user.accessPam
+        ? i18nService.t("optionEnabled")
+        : i18nService.t("disabled");
+    }
 
     return result;
   }
