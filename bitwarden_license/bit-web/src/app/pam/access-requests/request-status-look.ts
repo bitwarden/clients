@@ -6,10 +6,6 @@ import { IconTileOptions } from "@bitwarden/components";
  * one table cannot drift from the other or from the badge beside it. The icons come off
  * {@link ACCESS_BADGE_LOOK}; the tile variants are a separate palette from the badge's, so they
  * live here.
- *
- * `ready` carries the requester's word. An approver looking at the same grant has nothing to
- * use, so the Approvals tab overrides that one label with `pamStatusApproved`, the same
- * override its badge takes through `readyLabelKey`. Every other word is shared outright.
  */
 export const REQUEST_STATUS_LOOK = Object.freeze({
   pending: {

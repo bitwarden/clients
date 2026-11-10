@@ -268,8 +268,6 @@ export class MyRequestsTabComponent {
   protected readonly hasRows = computed(() => this.myRequestRows().length > 0);
 
   constructor() {
-    // Holds the announcement region up briefly after the skeleton clears, so a screen reader
-    // reaches "loaded" before it is removed.
     effect((onCleanup) => {
       if (this.skeletonVisible()) {
         this.skeletonShown.set(true);

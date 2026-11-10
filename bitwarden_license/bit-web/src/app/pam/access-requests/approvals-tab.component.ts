@@ -81,11 +81,7 @@ type ApprovalsFilter = {
 
 type FilterOption = { label: string; value: string; iconTile?: FilterOptionIconTile };
 
-/**
- * The Status chip's options, off the table both tabs share, so this chip cannot drift from My
- * requests or from the badge beside it. Only `ready` is reworded: this viewer is the approver,
- * who has nothing to use.
- */
+/** The Status chip's options, off the table both tabs share. Only `ready` is reworded. */
 const STATUS_OPTIONS: ReadonlyArray<{
   value: ApproverRowStatus;
   labelKey: string;
@@ -181,9 +177,7 @@ export class ApprovalsTabComponent {
   );
 
   /**
-   * Every row still inside its window by a live clock, since any of them can lapse with no push.
-   * A pending request is no exception: once its window closes the server refuses a decision on
-   * it, so leaving Approve and Deny on screen would only offer an action that cannot succeed.
+   * Every row still inside its window by a live clock; a closed pending request can't be decided.
    * Compared by identity so the tick only reaches the table when rows change.
    */
   protected readonly rows = computed<ApproverRow[]>(

@@ -65,8 +65,6 @@ describe("RequestedWindowPipe", () => {
   });
 
   it("follows the app's locale, not the browser's", () => {
-    // Reading `LOCALE_ID` is the whole point: the app set to German on an en-US browser used to
-    // mix German words with US clock formatting, and disagreed with the row's own tooltip.
     const american = pipeFor("en-US").transform(at(2026, 8, 25, 9, 0), at(2026, 8, 25, 10, 0), NOW);
     const german = pipeFor("de-DE").transform(at(2026, 8, 25, 9, 0), at(2026, 8, 25, 10, 0), NOW);
 
