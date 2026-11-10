@@ -2806,6 +2806,58 @@ describe("AutofillOverlayContentService", () => {
           });
         });
 
+        it("does not relay or report a position if the source iframe has no size", async () => {
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 0, height: 0, left: 5, top: 7 }));
+          const subFrameData = {
+            frameId: 10,
+            left: 20,
+            top: 10,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateSubFrameData",
+            expect.anything(),
+          );
+        });
+
+        it("adds the iframe offset if the message carries no parent frame ids", async () => {
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 5, top: 7 }));
+          jest
+            .spyOn(globalThis, "getComputedStyle")
+            .mockReturnValue({ getPropertyValue: () => "0" } as unknown as CSSStyleDeclaration);
+          sendExtensionMessageSpy.mockResolvedValue(4);
+          const subFrameData = { frameId: 10, left: 20, top: 10, subFrameDepth: 0 };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateSubFrameData", {
+            subFrameData: { frameId: 10, left: 25, top: 17, subFrameDepth: 1 },
+          });
+        });
+
         it("adds the offset of an iframe within a shadow root to the running position", async () => {
           document.body.innerHTML = `<div id="shadow-host"></div>`;
           const shadowHost = document.getElementById("shadow-host") as HTMLElement;
