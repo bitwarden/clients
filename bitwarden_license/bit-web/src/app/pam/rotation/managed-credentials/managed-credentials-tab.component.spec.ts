@@ -1762,7 +1762,7 @@ describe("ManagedCredentialsTabComponent table", () => {
       fixture.detectChanges();
 
       expect(fixture.componentInstance["searchControl"].value).toBe("");
-      expect(chip("status").value()).toEqual([]);
+      expect(chip("status").value()).toBeNull();
       expect(chip("targetSystem").value()).toEqual([]);
       expect(bodyRows(el)).toHaveLength(all);
       expect(el.querySelector(CLEAR_ALL)).toBeNull();
@@ -1856,7 +1856,7 @@ describe("ManagedCredentialsTabComponent table", () => {
       ]);
     });
 
-    it("labels the chips with their names alone, with no unset label", () => {
+    it("labels the Status chip with All, and the other chips with their names alone", () => {
       render();
       const chips = fixture.debugElement.queryAll(By.css("bit-filter-menu"));
       const labels = chips.map((debug) => debug.componentInstance.placeholderText());
@@ -1868,7 +1868,7 @@ describe("ManagedCredentialsTabComponent table", () => {
         "pamRotationFilterTrigger",
       ]);
       expect(chips.map((debug) => debug.componentInstance.unsetLabel())).toEqual([
-        undefined,
+        "all",
         undefined,
         undefined,
         undefined,
@@ -1881,13 +1881,21 @@ describe("ManagedCredentialsTabComponent table", () => {
       expect(chip("collection").placeholderText()).toBe("sharedFolders");
     });
 
-    it("multi-selects every chip except the rotation method", async () => {
+    it("multi-selects every chip except Status and the rotation method", async () => {
       await withFolders();
 
-      for (const key of ["status", "targetSystem", "collection", "trigger"]) {
+      for (const key of ["targetSystem", "collection", "trigger"]) {
         expect(chip(key).multiple()).toBe(true);
       }
+      expect(chip("status").multiple()).toBe(false);
       expect(chip("method").multiple()).toBe(false);
+    });
+
+    it("follows the Status chip with a filter divider", () => {
+      const el = render();
+
+      const status = toolbar(el).querySelector('bit-filter-menu[key="status"]')!;
+      expect(status.nextElementSibling?.tagName.toLowerCase()).toBe("bit-filter-divider");
     });
 
     it("offers the statuses in urgency order, without Failed", () => {
@@ -1935,11 +1943,11 @@ describe("ManagedCredentialsTabComponent table", () => {
     it("matches rows with any of the selected values within one filter", () => {
       const el = render();
 
-      chip("status").toggle("paused");
-      chip("status").toggle("rotating");
+      chip("trigger").toggle("schedule");
+      chip("trigger").toggle("access-end");
       fixture.detectChanges();
 
-      expect(rowNames(el)).toEqual(["CI pipeline token", "Staging admin login"]);
+      expect(rowNames(el)).toEqual(["Prod DB service account"]);
     });
 
     it("requires every filter at once across filters", () => {
