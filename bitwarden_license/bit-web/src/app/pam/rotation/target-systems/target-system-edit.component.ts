@@ -136,8 +136,8 @@ const MIN_PASSWORD_ENTROPY_BITS = 80;
 type SessionTerminationCapability = "always" | "never" | "operatorDeclared";
 
 /**
- * Per kind rather than native versus custom script: an LDAP password reset cannot revoke Kerberos
- * tickets already issued, and a kind this SDK cannot model must not claim the capability.
+ * Per kind: an LDAP password reset cannot revoke Kerberos tickets already issued, and a kind this
+ * SDK cannot model must not claim the capability.
  */
 const SESSION_TERMINATION_CAPABILITY: Partial<
   Record<TargetSystemKind, SessionTerminationCapability>
@@ -743,7 +743,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
       return [];
     }
 
-    // The connector step is the Access connectors field's own warning now, so it isn't repeated.
+    // The Access connectors field carries its own warning, so there is no connector step.
     const steps: string[] = [];
     if (credentials === "none") {
       steps.push("pamTargetSystemSetupGuidanceCredential");

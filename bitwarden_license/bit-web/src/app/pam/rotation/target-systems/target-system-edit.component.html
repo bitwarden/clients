@@ -20,8 +20,6 @@
     >
   }
 
-  <!-- Delete stays here while editing too; the pinned footer carries only Save and Cancel. The
-       Managed credentials tab's header carries no actions. -->
   @if (editing && existing() != null && activeTab() === "configuration") {
     @if (isDisabled()) {
       <button
@@ -81,7 +79,6 @@
   }
 </bit-header>
 
-<!-- Pinned to the layout's footer region by the component while an edit is unsaved. -->
 <ng-template #footer>
   <div
     class="tw-pointer-events-auto tw-absolute tw-inset-x-0 tw-bottom-0 tw-flex tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-bg-bg-primary tw-px-10 tw-py-4"
@@ -108,7 +105,6 @@
   </div>
 </ng-template>
 
-<!-- The create form's Save and Cancel, pinned the same way once there is input. -->
 <ng-template #createFooter>
   <div
     class="tw-pointer-events-auto tw-absolute tw-inset-x-0 tw-bottom-0 tw-flex tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-bg-bg-primary tw-px-10 tw-py-4"
@@ -135,7 +131,6 @@
   </div>
 </ng-template>
 
-<!-- Shared by create and edit: the picker, what it holds, and the warnings about it. -->
 <ng-template #connectorsField>
   <bit-form-field>
     <bit-label>{{ "pamTargetSystemAccessConnectors" | i18n }}</bit-label>
@@ -222,7 +217,6 @@
   }
 </ng-template>
 
-<!-- Shared by create and edit; its controls gate themselves on the method. -->
 <ng-template #policyCard>
   <bit-section [formGroup]="policyForm">
     <bit-section-header>
