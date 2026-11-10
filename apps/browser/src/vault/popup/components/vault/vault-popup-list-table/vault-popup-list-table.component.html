@@ -92,18 +92,18 @@
       ></bit-filter-menu>
     }
 
-    @if (itemFilter != null && controlledAccessOptions().length) {
+    @if (itemFilter != null && contributedFilterOptions().length) {
       <bit-filter-menu
-        [key]="controlledAccessKey"
+        [key]="itemFilter.key"
         [placeholderText]="itemFilter.label"
         multiple
         [icon]="itemFilter.icon"
       >
-        @for (option of controlledAccessOptions(); track option.id) {
+        @for (option of contributedFilterOptions(); track option.id) {
           <bit-filter-option
             [value]="option.id"
-            [iconTile]="controlledAccessTiles().get(option.id)"
-            [count]="controlledAccessCount(option.id)"
+            [iconTile]="contributedFilterTiles().get(option.id)"
+            [count]="contributedFilterCount(option.id)"
             >{{ option.name }}</bit-filter-option
           >
         }
@@ -184,7 +184,9 @@
                   [appA11yTitle]="'attachments' | i18n"
                 ></bit-icon>
               }
-              <app-vault-row-access-icon [cipher]="row.cipher"></app-vault-row-access-icon>
+              @if (rowIcon) {
+                <ng-container *ngComponentOutlet="rowIcon; inputs: { cipher: row.cipher }" />
+              }
             </div>
           </div>
           <span class="tw-text-muted tw-text-xs tw-truncate">
@@ -193,7 +195,7 @@
         </div>
       </button>
       <div slot="end" class="tw-flex tw-items-center tw-shrink-0 tw-relative tw-z-10">
-        @if (row.actions.showFillOnHover && !isGated(row.cipher)) {
+        @if (row.actions.showFillOnHover) {
           <button
             type="button"
             (click)="doAutofill(row.cipher)"
@@ -203,11 +205,7 @@
             {{ "fill" | i18n }}
           </button>
         }
-        @if (
-          row.actions.showLaunch &&
-          CipherViewLikeUtils.canLaunch(row.cipher) &&
-          !isGated(row.cipher)
-        ) {
+        @if (row.actions.showLaunch && CipherViewLikeUtils.canLaunch(row.cipher)) {
           <button
             type="button"
             bitIconButton="bwi-external-link"
@@ -216,7 +214,7 @@
             [label]="'launchWebsiteForName' | i18n: row.cipher.name"
           ></button>
         }
-        @if (!isGated(row.cipher)) {
+        @if (row.actions.showCopyActions) {
           <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
         }
         <app-item-more-options

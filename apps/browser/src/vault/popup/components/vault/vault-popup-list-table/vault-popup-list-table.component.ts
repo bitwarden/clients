@@ -11,6 +11,7 @@ import {
   effect,
   inject,
   Injector,
+  isDevMode,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -96,20 +97,36 @@ import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
 import { VaultFiltersTourComponent } from "../vault-filters-tour/vault-filters-tour.component";
-import { isGatedRow, revealedCipherIds } from "../vault-row-access/revealed-cipher-ids";
-import { VaultRowAccessIconComponent } from "../vault-row-access/vault-row-access-icon.component";
-import { VaultRowSubtitleComponent } from "../vault-row-access/vault-row-subtitle.component";
+import { VAULT_ROW_ICON, VaultRowIcon } from "../vault-row-slots/vault-row-icon.token";
+import { VaultRowSubtitleComponent } from "../vault-row-slots/vault-row-subtitle.component";
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
   return nodes.flatMap((n) => [n.value, ...subtreeValues(n.options ?? [])]);
 }
 
+/** The built-in chips' selection keys. A contributed filter's key must differ. */
+const BUILT_IN_FILTER_KEYS: ReadonlySet<string> = new Set([
+  "cipherType",
+  "organization",
+  "collection",
+  "folder",
+  "search",
+]);
+
 /**
- * The Controlled access chip's selection key, persisted by {@link VaultPopupListTableFiltersService}.
- * The popup uses it whatever key the provider names, since the provider's is the web table's URL key.
+ * The host's contributed filter, or `null` when its key matches a built-in chip key. Throws in dev
+ * mode instead.
  */
-const CONTROLLED_ACCESS_KEY = "controlledAccess";
+function contributedFilter(filter: VaultItemFilter | null): VaultItemFilter | null {
+  if (filter == null || !BUILT_IN_FILTER_KEYS.has(filter.key)) {
+    return filter;
+  }
+  if (isDevMode()) {
+    throw new Error(`VAULT_ITEM_FILTER key "${filter.key}" matches a built-in popup filter key.`);
+  }
+  return null;
+}
 
 @Component({
   selector: "app-vault-popup-list-table",
@@ -147,7 +164,6 @@ const CONTROLLED_ACCESS_KEY = "controlledAccess";
     EmptyVaultComponent,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
-    VaultRowAccessIconComponent,
     VaultRowSubtitleComponent,
     OrgIconDirective,
     Vfo1I18nPipe,
@@ -180,23 +196,18 @@ export class VaultPopupListTableComponent {
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly i18nService = inject(I18nService);
-  private readonly revealedIds = revealedCipherIds();
   private readonly window = inject<Window>(WINDOW);
 
-  /** Host contribution of the Controlled access chip. Unprovided, the table has no such chip. */
-  protected readonly itemFilter: VaultItemFilter | null = inject(VAULT_ITEM_FILTER, {
-    optional: true,
-  });
+  /** The host's contributed filter chip. Unprovided, the table has no such chip. */
+  protected readonly itemFilter = contributedFilter(inject(VAULT_ITEM_FILTER, { optional: true }));
+
+  /** The host's icon after a row's name. Unprovided, rows show no extra icon. */
+  protected readonly rowIcon: VaultRowIcon | null = inject(VAULT_ROW_ICON, { optional: true });
 
   /** The projected `bit-table-v2`, used to seed and observe chip selections. */
   private readonly tableEl = viewChild(BitTableV2Component);
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
-
-  /** A restricted item with no live reveal: no credentials to launch, copy or fill. */
-  protected isGated(cipher: PopupCipherViewLike): boolean {
-    return isGatedRow(cipher, this.revealedIds());
-  }
 
   protected readonly deactivatedIcon = DeactivatedOrg;
 
@@ -256,22 +267,29 @@ export class VaultPopupListTableComponent {
       organization?: string[];
       collection?: string[];
       folder?: string[];
-      controlledAccess?: string[];
+      [contributedKey: string]: unknown;
     },
   ): boolean =>
     matchesType(row.cipher, values.cipherType) &&
     matchesVault(row.cipher, values.organization) &&
     matchesSharedFolder(row.cipher, values.collection) &&
     matchesFolder(row.cipher, values.folder) &&
-    this.matchesControlledAccess(row.cipher, values.controlledAccess);
+    this.matchesContributedFilter(row.cipher, this.contributedSelection(values));
+
+  /** The contributed chip's selected option IDs in `values`, keyed by the filter's own key. */
+  private contributedSelection(values: Record<string, unknown>): string[] | undefined {
+    return this.itemFilter == null
+      ? undefined
+      : (values[this.itemFilter.key] as string[] | undefined);
+  }
 
   /**
-   * Whether the cipher is among any selected Controlled access option's matches: OR within the
-   * chip, AND with the others. Unresolved matches let every row pass, and so does an option the
-   * provider does not offer (a stale cached selection).
+   * Whether the cipher is among any selected contributed option's matches: OR within the chip, AND
+   * with the others. Unresolved matches let every row pass, and so does an option the provider does
+   * not offer (a stale cached selection).
    */
-  private matchesControlledAccess(cipher: PopupCipherViewLike, selected?: string[]): boolean {
-    const byOption = this.controlledAccessMatches();
+  private matchesContributedFilter(cipher: PopupCipherViewLike, selected?: string[]): boolean {
+    const byOption = this.contributedFilterMatches();
     if (!selected?.length || byOption === undefined) {
       return true;
     }
@@ -301,10 +319,11 @@ export class VaultPopupListTableComponent {
           organization?: string[];
           collection?: string[];
           folder?: string[];
-          controlledAccess?: string[];
           search?: string;
+          [contributedKey: string]: unknown;
         }
       | undefined;
+    const contributed = values == null ? undefined : this.contributedSelection(values);
 
     return {
       search: this.hasSearchText() ? values?.search : undefined,
@@ -313,8 +332,8 @@ export class VaultPopupListTableComponent {
       sharedFolder: values?.collection,
       folder: values?.folder,
       // No such key in the empty state's shape; carried so a selection alone reads as "filtered".
-      ...(values?.controlledAccess?.length
-        ? { [CONTROLLED_ACCESS_KEY]: values.controlledAccess }
+      ...(this.itemFilter != null && contributed?.length
+        ? { [this.itemFilter.key]: contributed }
         : {}),
     };
   });
@@ -349,10 +368,12 @@ export class VaultPopupListTableComponent {
    */
   protected readonly filtersToRestore = toSignal(
     this.listFiltersService.restoreFilters$().pipe(
-      // Without the contributed chip (no PAM, or the flag off) a cached selection has no control.
-      map(({ controlledAccess, ...rest }) =>
-        this.itemFilter == null || controlledAccess == null ? rest : { ...rest, controlledAccess },
-      ),
+      // Only the provided chip's cached selection is restored: any other has no control.
+      map(({ contributed, ...rest }) => {
+        const key = this.itemFilter?.key;
+        const selected = key == null ? undefined : contributed?.[key];
+        return key == null || selected == null ? rest : { ...rest, [key]: selected };
+      }),
     ),
   );
 
@@ -404,18 +425,16 @@ export class VaultPopupListTableComponent {
     initialValue: [] as PopupCipherViewLike[],
   });
 
-  protected readonly controlledAccessKey = CONTROLLED_ACCESS_KEY;
-
-  /** The chip's options, already localized by the host. Empty hides the chip. */
-  protected readonly controlledAccessOptions = toSignal(
+  /** The contributed chip's options, already localized by the host. Empty hides the chip. */
+  protected readonly contributedFilterOptions = toSignal(
     this.itemFilter?.options$ ?? of<readonly VaultItemFilterOption[]>([]),
     { initialValue: [] as readonly VaultItemFilterOption[] },
   );
 
   /** Icon tile per option, so each option's binding keeps a stable identity across checks. */
-  protected readonly controlledAccessTiles = computed(() => {
+  protected readonly contributedFilterTiles = computed(() => {
     const tiles = new Map<string, IconTileOptions>();
-    for (const option of this.controlledAccessOptions()) {
+    for (const option of this.contributedFilterOptions()) {
       tiles.set(option.id, { icon: option.icon, variant: option.tileVariant });
     }
     return tiles;
@@ -426,10 +445,10 @@ export class VaultPopupListTableComponent {
    * soon as the chip is offered, since every option shows a count. Until it lands every row passes
    * and counts are blank, and so after a failed read.
    */
-  private readonly controlledAccessMatches = toSignal(
+  private readonly contributedFilterMatches = toSignal(
     toObservable(
       computed(() => ({
-        options: this.controlledAccessOptions(),
+        options: this.contributedFilterOptions(),
         ciphers: this.activeCiphers(),
       })),
     ).pipe(
@@ -449,10 +468,10 @@ export class VaultPopupListTableComponent {
   );
 
   /** An option's count, blank until its matches have landed. */
-  protected controlledAccessCount(optionId: string): number | undefined {
-    return this.controlledAccessMatches() === undefined
+  protected contributedFilterCount(optionId: string): number | undefined {
+    return this.itemFilter == null || this.contributedFilterMatches() === undefined
       ? undefined
-      : this.optionCount(CONTROLLED_ACCESS_KEY, [optionId]);
+      : this.optionCount(this.itemFilter.key, [optionId]);
   }
 
   /**
@@ -701,7 +720,14 @@ export class VaultPopupListTableComponent {
           takeUntilDestroyed(this.destroyRef),
         )
         .subscribe((values: any) => {
-          this.listFiltersService.saveFilters(values);
+          const contributed = this.contributedSelection(values);
+          this.listFiltersService.saveFilters({
+            ...values,
+            contributed:
+              this.itemFilter == null || contributed == null
+                ? {}
+                : { [this.itemFilter.key]: contributed },
+          });
         });
     });
   }
@@ -744,7 +770,7 @@ export class VaultPopupListTableComponent {
   }
 
   launchCipher(cipher: CipherViewLike) {
-    return this.isGated(cipher) ? undefined : this.listTableService.launchCipher(cipher);
+    return this.listTableService.launchCipher(cipher);
   }
 
   doAutofill(cipher: PopupCipherViewLike) {

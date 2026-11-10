@@ -4,11 +4,9 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, map, of, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService } from "@bitwarden/components";
@@ -47,7 +45,6 @@ describe("VaultPopupListTableService", () => {
   const applyScopedFilter = jest.fn();
 
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
-  const revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
   /** The chip selection, as the table's `filterValues` reports it. */
   const selectedFilters$ = new BehaviorSubject<{
     cipherType: CipherType | null;
@@ -73,7 +70,6 @@ describe("VaultPopupListTableService", () => {
     hasFilterApplied$.next(false);
     autofillAllowed$.next(true);
     currentTabIsOnBlocklist$.next(false);
-    revealed$.next(new Map());
     selectedFilters$.next({ cipherType: null, organization: [], collection: [], folder: [] });
     memberOrganizations$.next([]);
 
@@ -108,7 +104,6 @@ describe("VaultPopupListTableService", () => {
           useValue: { loading$: loading$.asObservable() },
         },
         { provide: CipherService, useValue: cipherService },
-        { provide: RevealedCipherService, useValue: { revealed$: () => revealed$.asObservable() } },
         { provide: AccountService, useValue: accountService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -486,7 +481,7 @@ describe("VaultPopupListTableService", () => {
       });
     });
 
-    describe("a PAM-gated partial row", () => {
+    describe("a restricted row", () => {
       const gatedAutofillRow = () => {
         autoFillCiphers$.next([makeCipher({ id: "gated", partial: true })]);
         return latestRows()[0].actions;
@@ -508,15 +503,9 @@ describe("VaultPopupListTableService", () => {
         });
       });
 
-      it("restores fill, launch and the menu Autofill once its reveal is live", async () => {
-        currentTabIsOnBlocklist$.next(false);
-        revealed$.next(new Map([["gated" as CipherId, {} as CipherView]]));
-
-        expect(gatedAutofillRow()).toMatchObject({
-          primaryAutofill: true,
-          showFillOnHover: true,
-        });
-        expect(gatedAllItemsRow()).toMatchObject({ showLaunch: true, showAutofillInMenu: true });
+      it("offers no copy actions", async () => {
+        expect(sectionRow("allItems")).toMatchObject({ showCopyActions: true });
+        expect(gatedAllItemsRow()).toMatchObject({ showCopyActions: false });
       });
 
       it("never offers launch", async () => {
@@ -723,6 +712,17 @@ describe("VaultPopupListTableService", () => {
 
       expect(cipherService.updateLastLaunchedDate).toHaveBeenCalledWith("c1", "user-1");
       expect(newTab).toHaveBeenCalledWith("https://example.com");
+    });
+
+    it("does nothing for a restricted cipher", async () => {
+      jest.spyOn(CipherViewLikeUtils, "canLaunch").mockReturnValue(true);
+      jest.spyOn(CipherViewLikeUtils, "getLaunchUri").mockReturnValue("https://example.com");
+      const newTab = jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue({} as any);
+
+      await service.launchCipher(makeCipher({ id: "c1", partial: true }));
+
+      expect(cipherService.updateLastLaunchedDate).not.toHaveBeenCalled();
+      expect(newTab).not.toHaveBeenCalled();
     });
   });
 });

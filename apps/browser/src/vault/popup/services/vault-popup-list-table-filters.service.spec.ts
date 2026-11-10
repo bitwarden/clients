@@ -188,7 +188,7 @@ describe("VaultPopupListTableFiltersService — cipherTypes$", () => {
     expect(types.map((t) => t.value)).toContain(CipherType.BankAccount);
   });
 
-  describe("Controlled access selection", () => {
+  describe("contributed filter selection", () => {
     /** Saves land in state asynchronously, so let them settle before reading back. */
     const save = async (
       values: Parameters<VaultPopupListTableFiltersService["saveFilters"]>[0],
@@ -197,43 +197,35 @@ describe("VaultPopupListTableFiltersService — cipherTypes$", () => {
       await new Promise((resolve) => setTimeout(resolve));
     };
 
-    it("persists the selection and reports a filter applied", async () => {
-      await save({ controlledAccess: ["pending", "ready"] });
+    it("persists the selection under the filter's key and reports a filter applied", async () => {
+      await save({ contributed: { status: ["pending", "ready"] } });
 
-      expect(service.cachedFilters().controlledAccessIds).toEqual(["pending", "ready"]);
+      expect(service.cachedFilters().contributedFilterIds).toEqual({
+        status: ["pending", "ready"],
+      });
       expect(service.hasFilterApplied()).toBe(true);
     });
 
     it("reports no filter once the selection is cleared", async () => {
-      await save({ controlledAccess: ["pending"] });
-      await save({ controlledAccess: [] });
+      await save({ contributed: { status: ["pending"] } });
+      await save({ contributed: { status: [] } });
 
       expect(service.hasFilterApplied()).toBe(false);
     });
 
-    it("mirrors the selection in the table's filter-value shape", async () => {
-      await save({ controlledAccess: ["pending"] });
-
-      expect(await firstValueFrom(service.selectedFilters$)).toMatchObject({
-        controlledAccess: ["pending"],
-      });
-    });
-
-    it("restores the selection", async () => {
-      await save({ controlledAccess: ["pending"], cipherType: CipherType.Login });
+    it("restores the selection under the filter's key", async () => {
+      await save({ contributed: { status: ["pending"] }, cipherType: CipherType.Login });
 
       expect(await firstValueFrom(service.restoreFilters$())).toMatchObject({
-        controlledAccess: ["pending"],
+        contributed: { status: ["pending"] },
         cipherType: CipherType.Login,
       });
     });
 
     it("restores nothing for an empty selection", async () => {
-      await save({ controlledAccess: [] });
+      await save({ contributed: { status: [] } });
 
-      expect(await firstValueFrom(service.restoreFilters$())).not.toHaveProperty(
-        "controlledAccess",
-      );
+      expect(await firstValueFrom(service.restoreFilters$())).not.toHaveProperty("contributed");
     });
   });
 });
@@ -280,7 +272,7 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
       collectionIds: [],
       folderIds: ["folder-1"],
       cipherType: CipherType.Card,
-      controlledAccessIds: [],
+      contributedFilterIds: {},
     });
     expect(service.hasFilterApplied()).toBe(true);
   });
