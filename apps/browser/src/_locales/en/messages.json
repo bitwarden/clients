@@ -9133,7 +9133,7 @@
     "message": "Ready to use"
   },
   "pamApprovedAccessUntilToday": {
-    "message": "You have access to this credential until $TIME$ today.",
+    "message": "You can access this credential until $TIME$ today.",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -9142,7 +9142,7 @@
     }
   },
   "pamApprovedAccessUntil": {
-    "message": "You have access to this credential until $TIME$ on $DATE$.",
+    "message": "You can access this credential until $TIME$ on $DATE$.",
     "placeholders": {
       "time": {
         "content": "$1",
