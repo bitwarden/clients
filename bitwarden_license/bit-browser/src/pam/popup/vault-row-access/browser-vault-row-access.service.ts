@@ -1,8 +1,10 @@
-import { Injectable, LOCALE_ID, inject } from "@angular/core";
+import { DestroyRef, Injectable, LOCALE_ID, inject, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
   EMPTY,
   Observable,
+  Subscription,
   combineLatest,
   concat,
   defer,
@@ -14,6 +16,7 @@ import {
   startWith,
   switchMap,
   takeWhile,
+  tap,
 } from "rxjs";
 
 import {
@@ -34,10 +37,7 @@ import {
   AccessBadgeTickerService,
   ExtendLeaseDialogComponent,
 } from "@bitwarden/bit-pam-components";
-import {
-  VaultRowAccess,
-  VaultRowAccessStatus,
-} from "@bitwarden/browser/vault/popup/components/vault/vault-row-access/vault-row-access.token";
+import { VaultRowSubtitle } from "@bitwarden/browser/vault/popup/components/vault/vault-row-slots/vault-row-subtitle.token";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -52,16 +52,23 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { VaultItemsTableRowAction } from "@bitwarden/vault";
 
 import { VaultRowAccessStateService } from "../vault-row-access-state/vault-row-access-state.service";
 
+import { VaultRowAccessStatus } from "./vault-row-access-status";
+
+/** Separates the status from the username in a row's subtitle, as in "8h left • frodo@shire.com". */
+const SUBTITLE_SEPARATOR = " • ";
+
 /**
- * Binds `VAULT_ROW_ACCESS`: the status each popup vault row shows for a privileged-control item,
- * off the SDK's badge ranking, and the request, start, extend and end actions its overflow menu
- * offers. Nothing is reported until the member is known to be licensed.
+ * The status each popup vault row shows for a privileged-control item, off the SDK's badge
+ * ranking, and the request, start, extend and end actions its overflow menu offers. Binds
+ * `VAULT_ROW_SUBTITLE` and backs `VAULT_ROW_ICON` and `VAULT_ROW_ACTIONS`. Nothing is reported until
+ * the member is known to be licensed.
  */
 @Injectable()
-export class BrowserVaultRowAccessService implements VaultRowAccess {
+export class BrowserVaultRowAccessService implements VaultRowSubtitle {
   private readonly configService = inject(ConfigService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
@@ -84,6 +91,27 @@ export class BrowserVaultRowAccessService implements VaultRowAccess {
   );
 
   private readonly pamEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
+
+  /** The latest status each row reported, by cipher id, for the menu's synchronous checks. */
+  private readonly statuses = signal<ReadonlyMap<string, VaultRowAccessStatus>>(new Map());
+
+  /** Status reads the menu started for rows that render no icon or subtitle, by cipher id. */
+  private readonly watched = new Map<string, Subscription>();
+
+  constructor() {
+    // The popup document survives an account switch, so the previous account's statuses go.
+    this.accountService.activeAccount$
+      .pipe(
+        map((account) => account?.id ?? null),
+        distinctUntilChanged(),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        this.unwatchAll();
+        this.statuses.set(new Map());
+      });
+    inject(DestroyRef).onDestroy(() => this.unwatchAll());
+  }
 
   /**
    * A restricted item is always governed. An unrestricted one is governed only while a live
@@ -114,7 +142,119 @@ export class BrowserVaultRowAccessService implements VaultRowAccess {
               .state$(cipherId)
               .pipe(switchMap((state) => this.toStatus$(cipherId, state))),
       ),
+      tap((status) => this.record(cipherId, status)),
       shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  /** The status, then the revealed username once access is active. `null` for an ungoverned item. */
+  subtitle$(cipher: CipherViewLike): Observable<string | null> {
+    return this.status$(cipher).pipe(
+      switchMap((status) =>
+        status?.kind !== "active"
+          ? of(status?.label ?? null)
+          : this.revealedSubtitle$(cipher).pipe(
+              map((username) =>
+                username ? `${status.label}${SUBTITLE_SEPARATOR}${username}` : status.label,
+              ),
+            ),
+      ),
+    );
+  }
+
+  /**
+   * The row menu's access actions: Request access (disabled unless requestable) or Start access on
+   * a gated row, Extend and End access while active. Each reads the status its row last reported.
+   */
+  rowActions(): readonly VaultItemsTableRowAction<CipherViewLike>[] {
+    const statusOf = (cipher: CipherViewLike) => this.reportedStatus(cipher);
+    // The list swaps a revealed view in for its restricted row, so a restricted row is not in use.
+    const gated = (cipher: CipherViewLike) => CipherViewLikeUtils.isRestricted(cipher);
+    return [
+      {
+        id: "pamStartAccess",
+        label: this.i18nService.t("pamStartLeaseButton"),
+        icon: "bwi-unlock",
+        show: (cipher) => gated(cipher) && statusOf(cipher)?.kind === "ready",
+        run: (cipher) => this.startAccess(cipher),
+      },
+      {
+        id: "pamRequestAccess",
+        label: this.i18nService.t("pamRequestAccessButton"),
+        icon: "bwi-lock-encrypted",
+        show: (cipher) => {
+          const kind = statusOf(cipher)?.kind;
+          return gated(cipher) && kind != null && kind !== "ready";
+        },
+        disabled: (cipher) => statusOf(cipher)?.kind !== "request",
+        run: (cipher) => this.requestAccess(cipher),
+      },
+      {
+        id: "pamExtendAccess",
+        label: this.i18nService.t("pamExtendAccessMenuItem"),
+        icon: "bwi-clock",
+        show: (cipher) => {
+          const status = statusOf(cipher);
+          return !gated(cipher) && status?.kind === "active" && status.canExtend;
+        },
+        run: (cipher) => this.extendAccess(cipher),
+      },
+      {
+        id: "pamEndAccess",
+        label: this.i18nService.t("pamEndLeaseButton"),
+        icon: "bwi-lock",
+        show: (cipher) => !gated(cipher) && statusOf(cipher)?.kind === "active",
+        run: (cipher) => this.endAccess(cipher),
+      },
+    ];
+  }
+
+  /**
+   * The row's last reported status. A row with no icon or subtitle (the list without VFO1) never
+   * reports one, so the first ask starts a read. `show` may not write a signal: it starts after.
+   */
+  private reportedStatus(cipher: CipherViewLike): VaultRowAccessStatus | undefined {
+    if (cipher.id == null) {
+      return undefined;
+    }
+    const cipherId = String(cipher.id);
+    const status = this.statuses().get(cipherId);
+    if (status == null && !this.watched.has(cipherId)) {
+      this.watched.set(cipherId, Subscription.EMPTY);
+      queueMicrotask(() => {
+        if (this.watched.has(cipherId)) {
+          this.watched.set(cipherId, this.status$(cipher).subscribe());
+        }
+      });
+    }
+    return status;
+  }
+
+  private unwatchAll(): void {
+    this.watched.forEach((subscription) => subscription.unsubscribe());
+    this.watched.clear();
+  }
+
+  private record(cipherId: string, status: VaultRowAccessStatus | null): void {
+    const statuses = new Map(this.statuses());
+    if (status == null) {
+      statuses.delete(cipherId);
+    } else {
+      statuses.set(cipherId, status);
+    }
+    this.statuses.set(statuses);
+  }
+
+  /** The subtitle of the live revealed copy, which a stripped list entry lacks. */
+  private revealedSubtitle$(cipher: CipherViewLike): Observable<string | undefined> {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+      map((revealed) => {
+        const view = cipher.id == null ? undefined : revealed.get(cipher.id as CipherId);
+        return view == null ? undefined : CipherViewLikeUtils.subtitle(view, this.i18nService);
+      }),
+      distinctUntilChanged(),
     );
   }
 
