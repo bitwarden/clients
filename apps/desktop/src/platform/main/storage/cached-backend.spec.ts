@@ -14,12 +14,14 @@ function createMockBackend(initial: Record<string, unknown> = {}): StorageBacken
 
 describe("CachedBackend", () => {
   let inner: StorageBackend;
+  let onFlushError: jest.Mock;
   let sut: CachedBackend;
 
   beforeEach(() => {
     jest.useFakeTimers();
     inner = createMockBackend({ key1: "value1" });
-    sut = new CachedBackend(inner);
+    onFlushError = jest.fn();
+    sut = new CachedBackend(inner, onFlushError);
   });
 
   afterEach(() => {
@@ -134,6 +136,74 @@ describe("CachedBackend", () => {
       await jest.advanceTimersByTimeAsync(5000);
 
       expect(inner.update).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("flush failures", () => {
+    const writeError = new Error("EBUSY: resource busy or locked, rename");
+
+    it("should not throw from the timer or an explicit flush when the write fails", async () => {
+      (inner.update as jest.Mock).mockImplementation(() => {
+        throw writeError;
+      });
+      sut.update((store) => ({ ...store, key1: "pending" }));
+
+      // A throw from the debounce timer would reject here.
+      await jest.advanceTimersByTimeAsync(200);
+      expect(() => sut.flush()).not.toThrow();
+
+      expect(inner.update).toHaveBeenCalledTimes(2);
+      expect(onFlushError).toHaveBeenCalledWith(writeError);
+    });
+
+    it("should keep the cached data after a failed write", () => {
+      (inner.update as jest.Mock).mockImplementationOnce(() => {
+        throw writeError;
+      });
+      sut.update((store) => ({ ...store, key1: "pending" }));
+      sut.flush();
+
+      expect(sut.read()).toEqual({ key1: "pending" });
+    });
+
+    it("should retry a failed write without further updates", async () => {
+      (inner.update as jest.Mock).mockImplementationOnce(() => {
+        throw writeError;
+      });
+      sut.update((store) => ({ ...store, key1: "pending" }));
+      sut.flush();
+
+      await jest.advanceTimersByTimeAsync(5000);
+
+      expect(inner.update).toHaveBeenCalledTimes(2);
+      expect(inner.read()).toEqual({ key1: "pending" });
+
+      await jest.advanceTimersByTimeAsync(5000);
+
+      expect(inner.update).toHaveBeenCalledTimes(2);
+    });
+
+    it("should report the error once per streak of failures", async () => {
+      const update = inner.update as jest.Mock;
+      update.mockImplementation(() => {
+        throw writeError;
+      });
+      sut.update((store) => ({ ...store, key1: "pending" }));
+      sut.flush();
+      await jest.advanceTimersByTimeAsync(15000);
+
+      expect(update.mock.calls.length).toBeGreaterThan(1);
+      expect(onFlushError).toHaveBeenCalledTimes(1);
+
+      update.mockReset();
+      await jest.advanceTimersByTimeAsync(5000);
+      update.mockImplementation(() => {
+        throw writeError;
+      });
+      sut.update((store) => ({ ...store, key1: "again" }));
+      sut.flush();
+
+      expect(onFlushError).toHaveBeenCalledTimes(2);
     });
   });
 });
