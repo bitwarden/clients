@@ -1792,6 +1792,15 @@ describe("TargetSystemsTabComponent table", () => {
     expect(href).not.toContain("?");
   });
 
+  it("styles the managed credentials count link like the Name column link", async () => {
+    const el = await render();
+
+    const link = el.querySelector<HTMLAnchorElement>("bit-table-v2 bit-row a[bitLink]")!;
+
+    expect(link.classList).toContain("tw-text-fg-heading");
+    expect(link.classList).not.toContain("tw-text-fg-brand");
+  });
+
   it("routes a row action through the shared component method", async () => {
     const el = await render();
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
