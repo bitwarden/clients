@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
 import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -17,17 +16,14 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
+import { BulkOperationStatus } from "../models/bulk-operation-status";
 import { ProjectListView } from "../models/view/project-list.view";
 import { ProjectView } from "../models/view/project.view";
-import { BulkOperationStatus } from "../shared/dialogs/bulk-status-dialog.component";
 
 import { ProjectRequest } from "./models/requests/project.request";
 import { ProjectListItemResponse } from "./models/responses/project-list-item.response";
 import { ProjectResponse } from "./models/responses/project.response";
 
-@Injectable({
-  providedIn: "root",
-})
 export class ProjectService {
   protected _project = new Subject<ProjectView>();
   project$ = this._project.asObservable();
