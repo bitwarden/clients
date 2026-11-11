@@ -6,15 +6,16 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 
 ## Surfaces
 
-- `abstractions/` / `helpers/` / `date/`, framework-agnostic contract layer: domain
-  types and error helpers (`abstractions/access-rule.ts`, `abstractions/access-lease.ts`),
-  the abstract service contracts, and pure helpers. Re-exported via `index.ts`. No
+- `bit-pam/src/` (`abstractions/`, `helpers/`, `date/`, `services/`), the framework-agnostic
+  contract layer: domain types and error helpers (`abstractions/access-rule.ts`,
+  `abstractions/access-lease.ts`), the abstract service contracts, pure helpers, and the SDK-backed
+  services. Re-exported via `bit-pam/src/index.ts`. No
   Angular runtime APIs here; keep it that way so this stays unit-testable without a
   TestBed. Type-only imports of component-library option shapes (e.g.
   `SimpleDialogOptions`) are fine, since they are erased at compile time.
-- `access-rules/`, list (`access-rules.component` + `.service`) and the routed
-  create/edit page (`access-rule-edit.component`), at `access-rules`,
-  `access-rules/new`, `access-rules/:accessRuleId`.
+- `access-rules/`, list (`access-rules.component`, with `services/access-rules.service.ts`) and the
+  routed create/edit page (`access-rule-edit.component`), at `access-rules`, `access-rules/new`,
+  `access-rules/:accessRuleId`.
 - `access-rules/access-rule-edit/ip-allowlist/`, the `ip_allowlist` condition's CIDR
   editor plus its validators (delegates to the SDK's `is_valid_cidr`). The editor is a
   thin view over a `FormArray` owned by the edit page's form group (passed in via a
@@ -67,25 +68,25 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `cipher-view-banner/`, the requester's entry point on an open gated cipher (it lives in
   `bit-pam-components`, with each state's card under `cards/`, the form in `request-access-form/`,
   the popup's sheet around it in `request-access-sheet/`, and the human path's window picker in
-  `request-window-fields/`):
-  seven states, six off `cipher_access_state()` (including Unavailable, when the rule refuses a
-  request right now, and Access ended) plus a request form that folds out in the item view, or
-  opens in a bottom sheet where `CIPHER_VIEW_BANNER_LAYOUT` says `popup` (the extension, which also
-  puts the actions above the cards), and the licensing block (PM-39423). The block comes FIRST and
-  replaces every other state, active lease included, because the server stops releasing a gated
-  cipher's secrets to an unlicensed holder whatever lease they hold
-  (`CipherLeaseGate.LeaseCanRelease`); withdrawing a seat withdraws what the outstanding leases
-  were carrying, so a countdown here would narrate access no longer being served. Withdrawing an
-  outstanding request stays reachable from the vault-row menu and the My requests tab, neither of
-  which is licensing-gated; the banner's approved card offers only Start access, and only the
-  pending card offers Cancel request. The active card drops Extend and End once the lease is inside
-  `ENDING_SOON_THRESHOLD_MS` (five minutes), as the design specifies. It is also the one state not
-  derived from the access-state read: licensing is per-member, so it comes off
-  local membership state via `services/pam-membership.ts` with no round trip, and renders even
-  when that read fails. The signal is tri-state, `undefined` until membership lands, so
-  readers test `=== false`, not truthiness; treating "not yet known" as licensed flashes the
-  request card and fires its pre-check at someone about to be blocked.
-- `services/pam-membership.ts`, `callerOrganizations$` (the `getOptionalUserId` +
+  `request-window-fields/`): seven states, six off `cipher_access_state()` (including Unavailable,
+  when the rule refuses a request right now, and Access ended) and the licensing block (PM-39423).
+  The Request access card, and the Access ended card when a new request is possible, hold the
+  Request access button, which folds the request form out in the item view, or opens it in a bottom
+  sheet where `CIPHER_VIEW_BANNER_LAYOUT` says `popup` (the extension, which also puts the actions
+  above the cards). The licensing block comes FIRST and replaces every other state, active lease
+  included, because the server stops releasing a gated cipher's secrets to an unlicensed holder
+  whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`); withdrawing a seat withdraws what
+  the outstanding leases were carrying, so a countdown here would narrate access no longer being
+  served. Withdrawing an outstanding request stays reachable from the vault-row menu and the My
+  requests tab, neither of which is licensing-gated; the banner's approved card offers only Start
+  access, and only the pending card offers Cancel request. The active card drops Extend and End once
+  the lease is inside `ENDING_SOON_THRESHOLD_MS` (five minutes), as the design specifies. The
+  licensing block is also the one state not derived from the access-state read: licensing is
+  per-member, so it comes off local membership state via `bit-pam/src/services/pam-membership.ts`
+  with no round trip, and renders even when that read fails. The signal is tri-state, `undefined`
+  until membership lands, so readers test `=== false`, not truthiness; treating "not yet known" as
+  licensed flashes the request card and fires its pre-check at someone about to be blocked.
+- `bit-pam/src/services/pam-membership.ts`, `callerOrganizations$` (the `getOptionalUserId` +
   `organizations$` pipeline several surfaces here hand-rolled) and `unlicensedForPam`. The
   latter is PRESENTATION policy, which is why it is not on `Organization`: only
   `Organization.canAccessPrivilegedAccess` (`usePam && accessPam`, shaped like
@@ -127,7 +128,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `provide-pam.ts`, and `bit-browser` cannot import `bit-web`.
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/`: the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
-  name row. Both re-read on `AccessRefreshService` so neither can contradict a mutation
+  name row. The pill and the item-details host live in `bit-pam-components`, and the badge model
+  (`access-badge-state.ts`) in `bit-pam`; only `vault-row-lease-badge/` and the pill's stories are
+  here. Both hosts re-read on `AccessRefreshService` so neither can contradict a mutation
   made beside it: the row badge because canceling a request from that row's own menu
   otherwise left the old pill standing until a reload (PAM-200). The item-details host
   also drops the `active` state, because the banner heading under it already runs that
@@ -146,7 +149,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   constant, not restate five minutes.
 - `collection-access-rule-callout/`, the callout naming the rules that govern a collection,
   inside the collection edit dialog.
-- `services/`, the SDK-backed implementations of the `abstractions/` contracts.
+- `services/`, this folder's own services, among them `AccessRulesService`,
+  `GovernedCollectionsService`, `PamRevealedCipherService` and the nav badge. The SDK-backed
+  implementations of the `abstractions/` contracts are in `bit-pam/src/services/`.
 - `testing/`, builders shared across specs (`decision-builders.ts`).
 
 ## SDK-first
@@ -155,8 +160,8 @@ Every PAM call goes through the Rust SDK (`client.commercial().pam()`), never HT
 exception left is `access-audit/`: `AuditApiService` reads the audit trail over HTTP because the
 SDK has no audit client yet (see `access-audit/README.md`).
 `AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
-`ApprovalSdkService` are the abstract contracts; `services/*-sdk.service.ts` compose the
-SDK client. `ApprovalSdkService` (`services/approvals-sdk.service.ts`) covers the
+`ApprovalSdkService` are the abstract contracts; `bit-pam/src/services/*-sdk.service.ts` compose the
+SDK client. `ApprovalSdkService` (`bit-pam/src/services/approvals-sdk.service.ts`) covers the
 approver-facing surface (the pending inbox, the decided history, recording a
 decision, and withdrawing an approval) via `commercial().pam().approvals()`.
 
@@ -166,33 +171,33 @@ through the SDK (`leases().end()` and `approvals().revoke()`) for the same reaso
 
 ## Error shape
 
-`abstractions/access-rule.ts` re-exports the SDK's `AccessRuleError`, a flat shape
-(`{ name: "AccessRuleError", variant, message }`) following the wasm-bindgen error convention,
-and pairs it with a LOCAL structural guard, because the SDK's own `isAccessRuleError` is a runtime
-wasm import and this directory stays type-only (see "`export type` matters" below). Use
+`bit-pam/src/abstractions/access-rule.ts` re-exports the SDK's `AccessRuleError`, a flat shape
+(`{ name: "AccessRuleError", variant, message }`) following the wasm-bindgen error convention, and
+pairs it with a LOCAL structural guard, because the SDK's own `isAccessRuleError` is a runtime wasm
+import and `abstractions/` stays type-only (see "`export type` matters" below). Use
 `accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it; never treat it as
-`ErrorResponse`. The SDK splits its own failures per client:
-`AccessRequestError` (request/activate/cancel), `ApprovalError` (decide/revoke) and
-`AccessLeaseError` (read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
-through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
-All three carry an `Api` variant holding the server's message. That variant's payload is the whole
-serialized response, so `abstractions/api-error.ts` owns the one `apiErrorBodyMessage()` decode of
-the `ErrorResponseModel` body. Use it rather than re-parsing; what a miss means (generic copy, or
-the raw string) stays with the caller.
+`ErrorResponse`. The SDK splits its own failures per client: `AccessRequestError`
+(request/activate/cancel), `ApprovalError` (decide/revoke) and `AccessLeaseError` (read/extend/end).
+`bit-pam/src/abstractions/access-lease.ts` unions them as `LeasingError`, detected through the
+injectable `LeasingErrorService` seam so consumers never import the wasm guards. All three carry an
+`Api` variant holding the server's message. That variant's payload is the whole serialized response,
+so `bit-pam/src/abstractions/api-error.ts` owns the one `apiErrorBodyMessage()` decode of the
+`ErrorResponseModel` body. Use it rather than re-parsing; what a miss means (generic copy, or the
+raw string) stays with the caller.
 
-`helpers/pam-license-error.ts` owns the one copy of the server's licensing refusal
+`bit-pam/src/helpers/pam-license-error.ts` owns the one copy of the server's licensing refusal
 (`PamLicenseGuard.UnlicensedMessage`), which all three acquiring paths throw. The submit and
 activate catalogs and the extend handler all match through it rather than spelling the sentence
 again. They match only its FIRST sentence, so the "ask your admin" half can be reworded server-side
-without degrading three surfaces to generic copy. Note the two surfaces with no licensing block of their
-own, the My requests tab and the shared request dialog, reach it only through that toast, since
-they offer Start off a request row with no cipher in hand.
+without degrading three surfaces to generic copy. Note the two surfaces with no licensing block of
+their own, the My requests tab and the shared request dialog, reach it only through that toast,
+since they offer Start off a request row with no cipher in hand.
 
-A rejected access-request submit is interpreted by
-`helpers/request-access-error.ts`. Three of the server's messages mean the caller already
-has what they asked for; those are reconciled (close the form, re-read the state) rather
-than surfaced as errors. The licensing refusal, and the condition denials the automatic path
-throws, show activation's localized strings (`refused`) rather than the server's English.
+A rejected access-request submit is interpreted by `bit-pam/src/helpers/request-access-error.ts`.
+Three of the server's messages mean the caller already has what they asked for; those are reconciled
+(close the form, re-read the state) rather than surfaced as errors. The licensing refusal, and the
+condition denials the automatic path throws, show activation's localized strings (`refused`) rather
+than the server's English.
 
 That file carries TWO catalogs, and the split is deliberate. `REQUEST_ACCESS_SERVER_ERRORS`
 holds the sentences `SubmitAccessRequestCommand` throws; `REQUEST_ACCESS_SDK_ERRORS` holds the
@@ -214,9 +219,9 @@ Keep the noun: the automatic path shows no window, so the two cannot share wordi
 
 ## `export type` matters
 
-`abstractions/access-rule.ts` and `abstractions/access-lease.ts` re-export SDK shapes
+`bit-pam/src/abstractions/access-rule.ts` and `access-lease.ts` re-export SDK shapes
 using `export type` (not `export`), type-only and erased at compile time, so jest never
-resolves the wasm SDK package when running this directory's unit tests. Keep new
+resolves the wasm SDK package when running `bit-pam`'s unit tests. Keep new
 re-exports of SDK shapes type-only for the same reason.
 
 ## Status spelling follows the SDK
@@ -261,11 +266,11 @@ different moments. `AccessRequestDetailService` reads one request, so it re-fetc
 
 ### A lease running out
 
-**Neither service fires when a lease reaches its `notAfter`**: no mutation here, and on the
-server nothing happened at all. Left to them, an item open across its own expiry keeps the
-credential revealed until a reload (PM-41837). With no event to wait for, every reader of
-`activeLease` goes through `liveActiveLease(state, nowMs)` (`helpers/lease-liveness.ts`), which
-drops a lapsed lease whatever the response said and fails closed on an unparseable `notAfter`.
+**Neither service fires when a lease reaches its `notAfter`**: no mutation here, and on the server
+nothing happened at all. Left to them, an item open across its own expiry keeps the credential
+revealed until a reload (PM-41837). With no event to wait for, every reader of `activeLease` goes
+through `liveActiveLease(state, nowMs)` (`bit-pam/src/helpers/lease-liveness.ts`), which drops a
+lapsed lease whatever the response said and fails closed on an unparseable `notAfter`.
 
 Something has to move that clock. **Use one of the two that already tick; do not add a third.**
 The cipher-view banner owns a 1-second interval for its countdown, live exactly while there is an
@@ -275,9 +280,10 @@ clock the badges run on, and only while the state they hold carries a live lease
 
 **A lapse is a cue to ask again, not proof the lease ended.** It may have been extended on another
 device, and no push need ever reach this tab (PAM-152). So every surface that caches a state
-re-reads it when its lease lapses, through `rereadOnLapse` (`helpers/lease-liveness.ts`), and
-judges the answer with `liveActiveLease` again. A server whose clock trails still hands back the
-old `notAfter`, so the item still locks; only a genuinely later end keeps it open.
+re-reads it when its lease lapses, through `rereadOnLapse`
+(`bit-pam/src/helpers/lease-liveness.ts`), and judges the answer with `liveActiveLease` again. A
+server whose clock trails still hands back the old `notAfter`, so the item still locks; only a
+genuinely later end keeps it open.
 
 Both tick OUTSIDE the Angular zone, or NgZone never settles and `whenStable()` hangs for every
 host embedding a gated item. Signals carry out of it, so the banner and the pill need nothing
