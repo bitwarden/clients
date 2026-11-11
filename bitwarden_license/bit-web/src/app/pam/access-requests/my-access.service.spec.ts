@@ -56,8 +56,8 @@ function lease(id: string, overrides: Record<string, unknown> = {}): AccessLease
     organizationId: "org-1",
     requesterId: "user-1",
     status: "active",
-    notBefore: "2024-01-01T00:00:00.000Z",
-    notAfter: "2024-01-01T01:00:00.000Z",
+    notBefore: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    notAfter: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     termination: undefined,
     ...overrides,
   } as unknown as AccessLeaseView;
@@ -101,6 +101,113 @@ describe("MyAccessService", () => {
     });
 
     service = TestBed.inject(MyAccessService);
+  });
+
+  describe("a lease running out on its own", () => {
+    it("drops a lease whose window has closed, whatever its status says", async () => {
+      leasesApi.listMyLeases.mockResolvedValue([
+        lease("lease-live"),
+        lease("lease-lapsed", {
+          notBefore: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          notAfter: new Date(Date.now() - 60 * 1000).toISOString(),
+        }),
+      ]);
+
+      await service.load();
+
+      const ids = (await firstValueFrom(service.leases$)).map((row) => row.id);
+      expect(ids).toEqual(["lease-live"]);
+    });
+
+    it("re-reads when the soonest-ending lease is due to lapse", async () => {
+      jest.useFakeTimers();
+      try {
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-1", { notAfter: new Date(Date.now() + 60 * 1000).toISOString() }),
+        ]);
+
+        await service.load();
+        const callsAfterLoad = leasesApi.listMyLeases.mock.calls.length;
+
+        jest.advanceTimersByTime(60 * 1000 + 1);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBeGreaterThan(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it("waits out a lease further off than setTimeout can count to", async () => {
+      // A delay past 2^31-1 ms (~24.8 days) overflows and fires a `setTimeout` at once, which
+      // would have reloaded in a loop. The shared ticker just compares clocks.
+      jest.useFakeTimers();
+      try {
+        const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+        const endsAt = Date.now() + thirtyDaysMs;
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-distant", { notAfter: new Date(endsAt).toISOString() }),
+        ]);
+
+        await service.load();
+        const callsAfterLoad = leasesApi.listMyLeases.mock.calls.length;
+
+        jest.advanceTimersByTime(5000);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBe(callsAfterLoad);
+
+        // Still re-reads once the window actually closes; jumped rather than ticked, since a
+        // second-by-second month is millions of fires.
+        jest.setSystemTime(new Date(endsAt + 1));
+        jest.advanceTimersByTime(1000);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBeGreaterThan(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it("re-reads when an unstarted grant's window is due to close", async () => {
+      // The server refuses to activate past the window, so the grant has to leave Pending for
+      // History, and no push announces that, just as none announces a lease running out.
+      jest.useFakeTimers();
+      try {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-grant", {
+            status: "approved",
+            leaseNotAfter: new Date(Date.now() + 60 * 1000).toISOString(),
+          }),
+        ]);
+        leasesApi.listMyLeases.mockResolvedValue([]);
+
+        await service.load();
+        const callsAfterLoad = requestsApi.listMyAccessRequests.mock.calls.length;
+
+        jest.advanceTimersByTime(60 * 1000 + 1);
+        await Promise.resolve();
+
+        expect(requestsApi.listMyAccessRequests.mock.calls.length).toBeGreaterThan(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it("schedules nothing while the caller holds no lease", async () => {
+      jest.useFakeTimers();
+      try {
+        await service.load();
+        const callsAfterLoad = leasesApi.listMyLeases.mock.calls.length;
+
+        jest.advanceTimersByTime(24 * 60 * 60 * 1000);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBe(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
   });
 
   describe("load", () => {
@@ -193,7 +300,32 @@ describe("MyAccessService", () => {
         await service.load();
 
         const [row] = await firstValueFrom(service.historyRows$);
-        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "warning" });
+        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
+      });
+
+      it("badges a lease that lapsed since the load Expired rather than Active", async () => {
+        // The server record still reads `active`; only the clock says otherwise, and History is
+        // terminal, so "Active" is not something it can mean.
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-lapsed", {
+            status: "approved",
+            producedLeaseId: "lease-1",
+            producedLeaseStatus: "active",
+          }),
+        ]);
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-1", {
+            status: "active",
+            notBefore: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            notAfter: new Date(Date.now() - 60 * 1000).toISOString(),
+          }),
+        ]);
+
+        await service.load();
+
+        const [row] = await firstValueFrom(service.historyRows$);
+        expect(row.id).toBe("req-lapsed");
+        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
       });
 
       it("includes only active leases in leases$", async () => {

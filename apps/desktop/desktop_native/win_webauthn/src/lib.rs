@@ -17,8 +17,10 @@ use std::{error::Error, fmt::Display};
 
 pub use api::{
     webauthn::{
-        AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion, PublicKeyCredentialParameters,
-        UserId, Uuid,
+        api_version, get_assertion, AllowCredential, Assertion, AuthenticatorAttachment,
+        AuthenticatorInfo, CancellationId, CredentialId, CtapTransport, CtapVersion,
+        GetAssertionRequest, GetAssertionRequestBuilder, PrfInputs, PrfOutputs, PrfValues,
+        PublicKeyCredentialParameters, UserId, UserVerificationRequirement, Uuid,
     },
     CborError, CborParser, CborValue, CborWriter,
 };
@@ -29,6 +31,7 @@ pub struct WinWebAuthnError {
     kind: ErrorKind,
     description: Option<String>,
     cause: Option<Box<dyn std::error::Error + Send + Sync>>,
+    dom_error_name: Option<String>,
 }
 
 impl WinWebAuthnError {
@@ -37,6 +40,7 @@ impl WinWebAuthnError {
             kind,
             description: Some(description.to_string()),
             cause: None,
+            dom_error_name: None,
         }
     }
 
@@ -50,7 +54,13 @@ impl WinWebAuthnError {
             kind,
             description: Some(description.to_string()),
             cause: Some(cause),
+            dom_error_name: None,
         }
+    }
+
+    pub(crate) fn with_dom_error_name(mut self, name: Option<String>) -> Self {
+        self.dom_error_name = name;
+        self
     }
 
     /// Whether the user dismissed an OS prompt, as opposed to the operation
@@ -58,6 +68,12 @@ impl WinWebAuthnError {
     /// an error.
     pub fn is_user_cancelled(&self) -> bool {
         matches!(self.kind, ErrorKind::UserCancelled)
+    }
+
+    /// The name of the W3C `DOMException` that corresponds to this error, e.g.
+    /// `"NotAllowedError"`, if the error was returned by a WebAuthn operation.
+    pub fn dom_error_name(&self) -> Option<&str> {
+        self.dom_error_name.as_deref()
     }
 }
 
@@ -71,6 +87,12 @@ enum ErrorKind {
 
     /// An invalid argument was passed.
     InvalidArguments,
+
+    /// The feature is not supported by the installed version of webauthn.dll.
+    NotSupported,
+
+    /// A WebAuthn operation failed.
+    OperationFailed,
 
     /// An unknown error occurred.
     Other,
@@ -88,6 +110,8 @@ impl Display for WinWebAuthnError {
             ErrorKind::Serialization => "Failed to serialize data",
             ErrorKind::DllLoad => "Failed to load function from DLL",
             ErrorKind::InvalidArguments => "Invalid arguments passed to function",
+            ErrorKind::NotSupported => "Not supported by this version of Windows",
+            ErrorKind::OperationFailed => "The WebAuthn operation failed",
             ErrorKind::Other => "An error occurred",
             ErrorKind::UserCancelled => "The user cancelled the operation",
             ErrorKind::WindowsInternal => "A Windows error occurred",

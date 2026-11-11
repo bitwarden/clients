@@ -1,4 +1,3 @@
-export * from "./auth-request-api.service";
 export * from "./login-email.service";
 export * from "./login-strategy.service";
 export * from "./user-decryption-options.service.abstraction";

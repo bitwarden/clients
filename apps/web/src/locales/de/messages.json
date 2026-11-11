@@ -7267,7 +7267,7 @@
     "message": "Gerade eben"
   },
   "requestedXMinutesAgo": {
-    "message": "Vor $MINUTES$ Minuten angefordert",
+    "message": "Vor $MINUTES$ Minuten angefragt",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "Voraussichtliche Steuern"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Dein endgültiger Rechnungsbetrag kann geringfügig abweichen, da die anteilige Berechnung zum Zeitpunkt der Buchung erfolgt."
+  },
   "subtotal": {
     "message": "Zwischensumme"
   },
@@ -10621,7 +10624,7 @@
     "message": "Benutzerdefinierte Namen Anspruchstypen"
   },
   "acrValues": {
-    "message": "Angeforderte Authentifizierungskontextklassen Referenzwerte (acr_values)"
+    "message": "Angefragte Authentifizierungskontextklassen Referenzwerte"
   },
   "expectedReturnAcrValue": {
     "message": "\"acr\" Anspruchswert in Antwort erwartet (acr Validation)"
@@ -18335,7 +18338,7 @@
     "message": "Kopieren"
   },
   "pamAccessRequestsTitle": {
-    "message": "Zugriffsanforderungen"
+    "message": "Zugriffsanfragen"
   },
   "pamAccessRequestsSubtitle": {
     "message": "Genehmigen, überwachen und den zeitlich begrenzten Zugriff auf deine Zugangsdaten kontrollieren."
@@ -19319,7 +19322,7 @@
     "message": "Keine Begrenzung"
   },
   "pamAccessRuleMaxDurationLimitHint": {
-    "message": "Der Zugriff ist auf diese Länge beschränkt, unabhängig davon, welche Dauer angefordert wird."
+    "message": "Der Zugriff ist auf diese Länge beschränkt, unabhängig davon, welche Dauer angefragt wird."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 Minuten"
@@ -19426,7 +19429,7 @@
     "message": "Zugriffsregel deaktivieren"
   },
   "pamAccessRuleDeactivateConfirmContent": {
-    "message": "Diese Regel gilt nicht mehr für neue Zugriffsanforderungen."
+    "message": "Diese Regel gilt nicht mehr für neue Zugriffsanfragen."
   },
   "pamAccessRuleSaveErrorGeneric": {
     "message": "Es ist ein Fehler aufgetreten. Deine Regel wurde nicht gespeichert, aber deine Angaben sind weiterhin vorhanden."
@@ -19576,7 +19579,7 @@
     "message": "Zugriffsregeln deaktivieren"
   },
   "pamAccessRuleBulkDeactivateConfirmContent": {
-    "message": "$COUNT$ Regeln gelten nicht mehr für neue Zugriffsanforderungen.",
+    "message": "$COUNT$ Regeln gelten nicht mehr für neue Zugriffsanfragen.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -20833,7 +20836,7 @@
     "message": "Unbekannt"
   },
   "pamRotationSessionTerminationNotRequested": {
-    "message": "Keine Beendigung der Sitzung angefordert"
+    "message": "Keine Beendigung der Sitzung angefragt"
   },
   "pamRotationSessionTerminationTerminated": {
     "message": "Sitzung beendet"

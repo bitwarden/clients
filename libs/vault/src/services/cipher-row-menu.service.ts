@@ -56,13 +56,14 @@ const BUILT_IN_ACTION_IDS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Drops each contributed action whose ID matches a built-in ID or an earlier contributed ID.
+ * Drops each contributed action whose ID matches one of `builtInIds` or an earlier contributed ID.
  * Throws in dev mode instead.
  */
-function uniqueContributedActions(
+export function uniqueContributedActions(
   actions: readonly VaultItemsTableRowAction<CipherViewLike>[],
+  builtInIds: ReadonlySet<string>,
 ): readonly VaultItemsTableRowAction<CipherViewLike>[] {
-  const seen = new Set(BUILT_IN_ACTION_IDS);
+  const seen = new Set(builtInIds);
   return actions.filter((action) => {
     if (seen.has(action.id)) {
       if (isDevMode()) {
@@ -99,6 +100,7 @@ export class CipherRowMenuService {
   });
   private readonly contributedActions = uniqueContributedActions(
     inject(VAULT_ROW_ACTIONS, { optional: true }) ?? [],
+    BUILT_IN_ACTION_IDS,
   );
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(

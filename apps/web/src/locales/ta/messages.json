@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "மதிப்பிடப்பட்ட வரி"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+  },
   "subtotal": {
     "message": "கூட்டுத்தொகை"
   },

@@ -44,6 +44,7 @@ import { completePendingDefaultPasswordManagerApply } from "../autofill/default-
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { CipherUse } from "../autofill/services/abstractions/fill-cipher-policy";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { AUTOFILL_DENIED } from "../autofill/types/fill-result";
 import { getSubFrameUrlVariations } from "../autofill/utils/url-variations";
@@ -210,9 +211,11 @@ export default class RuntimeBackground {
         if (activeUserId == null) {
           return AUTOFILL_DENIED;
         }
-        const [cipher] = await this.main.cipherService.getAllDecryptedForIds(activeUserId, [
-          msg.cipherId,
-        ]);
+        const [cipher] = await this.main.fillCipherPolicy.ciphersForIds(
+          activeUserId,
+          [msg.cipherId],
+          CipherUse.UserFill,
+        );
         if (cipher == null) {
           return AUTOFILL_DENIED;
         }
@@ -509,12 +512,7 @@ export default class RuntimeBackground {
         break;
       case "syncCompleted":
         if (msg.successfully) {
-          setTimeout(async () => {
-            await this.main.refreshMenu();
-          }, 2000);
           await this.configService.ensureConfigFetched();
-          await this.main.updateOverlayCiphers();
-
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
@@ -541,9 +539,6 @@ export default class RuntimeBackground {
         break;
       }
       case "bgUpdateContextMenu":
-      case "editedCipher":
-      case "addedCipher":
-      case "deletedCipher":
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {

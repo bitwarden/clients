@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "Tahmini vergi"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+  },
   "subtotal": {
     "message": "Ara toplam"
   },

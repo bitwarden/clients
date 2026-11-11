@@ -168,6 +168,24 @@ describe("AccessConnectorsService", () => {
       expect(rows[0].assignmentNames).toEqual([String(sysId("unknown-id"))]);
     });
 
+    it("parses the last heartbeat into epoch milliseconds", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeAccessConnector({ lastHeartbeatAt: "2026-01-01T00:00:00Z" }),
+      ]);
+      await service.load(orgId);
+      const rows = await firstValue(service.rows$);
+      expect(rows[0].lastSeenAtMs).toBe(Date.parse("2026-01-01T00:00:00Z"));
+    });
+
+    it("leaves last seen null for a connector that has never checked in", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeAccessConnector({ lastHeartbeatAt: undefined }),
+      ]);
+      await service.load(orgId);
+      const rows = await firstValue(service.rows$);
+      expect(rows[0].lastSeenAtMs).toBeNull();
+    });
+
     it("sets enabled and canAssign true for enabled accessConnectors", async () => {
       rotationSdk.listConnectors.mockResolvedValue([
         makeAccessConnector({ status: AccessConnectorStatus.Enabled }),
@@ -297,7 +315,7 @@ describe("AccessConnectorsService", () => {
       expect(rows[0].accessConnector).toBe(untouched);
     });
 
-    it("does not reach the server — the delete already took the assignments", async () => {
+    it("does not reach the server, the delete already took the assignments", async () => {
       rotationSdk.listConnectors.mockResolvedValue([
         makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1")] }),
       ]);

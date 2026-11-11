@@ -1328,7 +1328,7 @@
     "message": "Pridajte položky do Moje položky a filtrujte ich tu."
   },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "Ak tu chcete filtrovať, pridajte položky do zdieľaného priečinka."
   },
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
@@ -1806,7 +1806,7 @@
     "message": "Moje položky"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Moje položky"
   },
   "myVault": {
     "message": "Môj trezor"
@@ -2134,10 +2134,10 @@
     "message": "Položka odstránená"
   },
   "deleteItemError": {
-    "message": "Couldn't delete the item."
+    "message": "Položku sa nepodarilo odstrániť."
   },
   "restrictedItemChangeRefused": {
-    "message": "This item is restricted. Your change was not saved."
+    "message": "Táto položka je obmedzená. Vaša zmena nebola uložená."
   },
   "deletedItems": {
     "message": "Položky odstránené"
@@ -3504,7 +3504,7 @@
     "message": "Dáta nie sú správne formátované. Prosím overte importovaný súbor a skúste znova."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "Tento súbor používa nepodporované nastavenia šifrovania a nie je možné ho importovať."
   },
   "importNothingError": {
     "message": "Nič na importovanie."
@@ -3918,31 +3918,31 @@
     "message": "E-mail LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-mailová adresa je povinná."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Zadajte platnú e-mailovú adresu."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Vyžaduje sa heslo."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Zadajte platné heslo"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Zadajte platný overovací kód."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Zadajte hlavné heslo pre LastPass."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Zadajte overovací kód nižšie."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Čaká sa na overenie SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "Po prihlásení automaticky pokračujeme v importe."
   },
   "includeSharedFolders": {
     "message": "Zahrnúť zdieľané priečinky"
@@ -4028,16 +4028,16 @@
     "message": "Prihlasovacie údaje, karty, identity, zabezpečené poznámky a TOTP kódy so zachovanou štruktúrou priečinkov."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Rýchlo a bezpečne"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Tento proces je kompletne šifrovaný. Nie je potrebný žiadny exportný súbor."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Všetko, čo potrebujete, sú vaše prihlasovacie údaje"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "V ďalšom kroku zadáte svoje prihlasovacie údaje pre $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4046,10 +4046,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Čo sa prenesie"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Vaše prihlasovacie údaje, ostatné položky a priečinky sa prenesú. Prístupové kľúče a prílohy môžu byť vylúčené."
   },
   "importAcceptedFormats": {
     "message": "Podporované: $FORMATS$",
@@ -4751,10 +4751,10 @@
     "message": "Logins that support passkeys"
   },
   "passkeyLoginFoundInfoPrefix": {
-    "message": "Great news! We found "
+    "message": "Dobrá správa! Našli sme "
   },
   "loginsCount": {
-    "message": "$COUNT$ login(s)",
+    "message": "$COUNT$ prihlásení",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4763,10 +4763,10 @@
     }
   },
   "passkeyLoginFoundInfoSuffixSingular": {
-    "message": " in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+    "message": " vo vašom trezore, ktoré podporujú prístupové kľúče. Pre dodatočné zabezpečenie týchto účtov, zvážte nastavenie prístupových kľúčov tam kde je to možné. Na základe passkeys.2fa.directory"
   },
   "passkeyLoginFoundInfoSuffixPlural": {
-    "message": " in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+    "message": " vo vašich trezoroch, ktoré podporujú prístupové kľúče. Pre dodatočné zabezpečenie týchto účtov, zvážte nastavenie prístupových kľúčov tam kde je to možné. Na základe passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "No accounts were found in your vault that support passkeys without one configured."
@@ -5545,7 +5545,7 @@
     "message": "Vyberte váš plán"
   },
   "choosePlan": {
-    "message": "Choose plan"
+    "message": "Vybrať plán"
   },
   "users": {
     "message": "Používatelia"
@@ -9505,7 +9505,7 @@
     "message": "Nastavenia Send"
   },
   "manageSendV2": {
-    "message": "Manage Send and share",
+    "message": "Spravovať Send a zdieľanie",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
@@ -9513,7 +9513,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescV5": {
-    "message": "Manage how members use Send and share Vault items. This policy won't be enforced for owners and admins.",
+    "message": "Spravujte ako budú členovia používať Send a zdielať položky trezora. Toto pravidlo nebude uplatnené na vlastníkov a správcov.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "Odhadovaná daň"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+  },
   "subtotal": {
     "message": "Medzisúčet"
   },
@@ -9680,10 +9683,10 @@
     "message": "Spravovať obnovu konta"
   },
   "manageAccessRules": {
-    "message": "Manage access rules"
+    "message": "Spravovať pravidlá prístupu"
   },
   "manageRotation": {
-    "message": "Manage rotation"
+    "message": "Spravovať rotáciu"
   },
   "disableRequiredError": {
     "message": "Pred zakázaním tejto zásady musíte ručne vypnúť zásadu $POLICYNAME$.",
@@ -12505,19 +12508,19 @@
     "message": "Add a shared folder to securely share vault items with other members."
   },
   "pinned": {
-    "message": "Pinned",
+    "message": "Pripnuté",
     "description": "Heading of the side navigation section that lists the shared folders the user pinned."
   },
   "pinToSidebar": {
-    "message": "Pin to sidebar",
+    "message": "Pripnúť na bočný panel",
     "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
   },
   "unpinFromSidebar": {
-    "message": "Unpin from sidebar",
+    "message": "Odopnúť z bočného panela",
     "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
   },
   "folderPinnedToSidebar": {
-    "message": "$NAME$ pinned to sidebar",
+    "message": "$NAME$ pripnuté na bočnom paneli",
     "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
     "placeholders": {
       "name": {
@@ -12527,7 +12530,7 @@
     }
   },
   "folderUnpinnedFromSidebar": {
-    "message": "$NAME$ unpinned from sidebar",
+    "message": "$NAME$ odopnuté z bočného panela",
     "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
     "placeholders": {
       "name": {
@@ -12537,15 +12540,15 @@
     }
   },
   "pinnedEmptyStatePrefix": {
-    "message": "Find a shared folder in this vault and select",
+    "message": "Nájdite zdieľaný priečinok v tomto trezore a vyberte ho",
     "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
   },
   "pinnedEmptyStateSuffix": {
-    "message": "from the Options menu.",
+    "message": "z ponuky Možnosti.",
     "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
   },
   "noPinnedFoldersTooltip": {
-    "message": "Pin shared folders to the sidebar to filter them here."
+    "message": "Pripnite zdieľané priečinky na bočný panel a filtrujte ich tu."
   },
   "noMembersAdded": {
     "message": "Žiadni pridaní členovia"
@@ -13830,7 +13833,7 @@
     "message": "Cena plánu Secrets Manager"
   },
   "privilegedControlsPlanPrice": {
-    "message": "Privileged Controls plan price",
+    "message": "Cena predplatného Privilegované Nastavenia",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
@@ -16212,7 +16215,7 @@
     "message": "Restart your subscription"
   },
   "restartSubscriptionBillingAddressLoadError": {
-    "message": "We couldn't load your billing details. Close this dialog and try again."
+    "message": "Nepodarilo sa nám načítať vaše fakturačné údaje. Zatvorte toto dialógové okno a skúste to znova."
   },
   "suspendedManagedOrgMessage": {
     "message": "Contact $PROVIDER$ for assistance.",
@@ -16705,7 +16708,7 @@
     "message": "Zobraziť viac"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Zobraziť ďalšie: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -18030,58 +18033,58 @@
     "message": "Server"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-mailová adresa je povinná."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Zadajte platnú e-mailovú adresu."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Nepodporovaná metóda dvojstupňového overenia. Zmeňte metódu alebo importujte manuálne."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Spôsob schválenia zariadenia"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Zadajte platný overovací kód."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Znova odoslať overovací kód"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Upozornenie Keeper Push odoslané na schválené zariadenie."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Schváľte toto zariadenie výberom jednej z metód."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Skontrolujte e-mail a zadajte overovací kód nižšie."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Zadajte kód z overovacej aplikácie."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Zadajte kód zaslaný cez SMS správu."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Zadajte hlavné heslo pre Keeper."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Výzva Keeper DNA bola odoslaná"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Schváľte oznámenie aplikácie Keeper DNA na vašom zariadení."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Vaša žiadosť o schválenie bude zrušená. Naozaj chcete pokračovať?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Poslali sme žiadosť o schválenie správcom vášmu správcovi."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Vyžaduje sa heslo."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Zadajte platné heslo."
   },
   "passcode": {
     "message": "Prístupový kód"
@@ -19746,11 +19749,11 @@
     }
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "Exspiruje",
     "description": "Label preceding the expiration date of an active share link."
   },
   "sendAccessItemSubtitle": {
-    "message": "$SENDER_NAME$ has shared the following item with you.",
+    "message": "$SENDER_NAME$ s vami zdieľal nasledujúcu položku.",
     "placeholders": {
       "sender_name": {
         "content": "$1",
@@ -19771,13 +19774,13 @@
     "message": "člen"
   },
   "annualLower": {
-    "message": "annual"
+    "message": "ročné"
   },
   "monthlyLower": {
-    "message": "monthly"
+    "message": "mesačné"
   },
   "organizationSubscriptionCardTitle": {
-    "message": "$PLAN$ $CADENCE$ subscription",
+    "message": "$PLAN$ $CADENCE$ predplatné",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -19790,19 +19793,19 @@
     }
   },
   "keepAndReactivate": {
-    "message": "Keep and reactivate"
+    "message": "Ponechať a znovu aktivovať"
   },
   "subscriptionIsNowActive": {
-    "message": "Subscription is now active"
+    "message": "Predplatné je aktívne"
   },
   "undoCancellationRequestConfirmation": {
-    "message": "This will undo your cancellation request and reactivate your subscription."
+    "message": "Týmto zrušíte vašu požiadavku na ukončenie a znovu aktivujete predplatné."
   },
   "subscriptionDetailsNotLoading": {
-    "message": "Subscription details not loading"
+    "message": "Detailu predplatného sa nenačítali"
   },
   "subscriptionDetailsNotLoadingDesc": {
-    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
+    "message": "Naša fakturačná služba je nedostupná, takže vám teraz nevieme zobraziť predplatné a cenník. Na vaše predplatné to nemá vplyv."
   },
   "passwordManagerProratedCharge": {
     "message": "Pomerný poplatok za správcu hesiel"
@@ -19814,7 +19817,7 @@
     "message": "Pomerný poplatok za Secrets Manager"
   },
   "privilegedControlsProratedCharge": {
-    "message": "Privileged Controls prorated charge",
+    "message": "Pomerný poplatok pre Privilegované Nastavenia",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
@@ -19896,10 +19899,10 @@
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   },
   "pamRotation": {
-    "message": "Rotation"
+    "message": "Rotácia"
   },
   "pamRotationSubtitle": {
-    "message": "Add managed credentials and the target systems where those credentials live. Then, register access connectors to run inside your network and perform rotation. Once configured, credentials can be rotated on target systems automatically."
+    "message": "Pridajte spravované prístupové údaje a cieľový systém kde sa tieto údaje nachádzajú. Potom zaregistrujte prepojenie prístupu ktoré bude bežať vo vašej sieti a vykonávať výmenu. Po nastavení môžu byt prístupové údaje na cieľových systémoch automaticky rotované."
   },
   "pamRotationTabManagedCredentials": {
     "message": "Managed credentials"
@@ -19935,58 +19938,58 @@
     "message": "Edit target system"
   },
   "pamRotationScheduleLabel": {
-    "message": "Rotation schedule"
+    "message": "Rozvrh rotácie"
   },
   "pamRotationScheduleNone": {
-    "message": "None"
+    "message": "Žiadne"
   },
   "pamRotationScheduleHourly": {
-    "message": "Hourly"
+    "message": "Každú hodinu"
   },
   "pamRotationScheduleEvery6Hours": {
-    "message": "Every 6 hours"
+    "message": "Každých 6 hodín"
   },
   "pamRotationScheduleDaily": {
-    "message": "Daily"
+    "message": "Každý deň"
   },
   "pamRotationScheduleWeekly": {
-    "message": "Weekly"
+    "message": "Týždenne"
   },
   "pamRotationScheduleMonthly": {
-    "message": "Monthly"
+    "message": "Mesačne"
   },
   "pamRotationScheduleCustom": {
-    "message": "Custom"
+    "message": "Vlastné"
   },
   "pamRotationScheduleCustomLabel": {
-    "message": "Custom cron expression"
+    "message": "Vlastný cronový výraz"
   },
   "pamRotationScheduleCustomHint": {
-    "message": "Enter a Quartz 6-field cron expression (e.g. 0 0 */4 * * ?). The server enforces a minimum 15-minute interval."
+    "message": "Zadajte 6 miestny Quartz cron výraz (napr. 0 0 */4 **?). Server vyžaduje minimálne 15-minutovy interval."
   },
   "pamRotationScheduleInvalidCron": {
-    "message": "Please enter a valid Quartz cron expression (6 or 7 space-separated fields)."
+    "message": "Prosím zadajte platný Quartz cron výraz (6 alebo 7 polí oddelených medzerou)."
   },
   "pamRotationScheduleEchoNone": {
-    "message": "No scheduled rotation. This credential rotates only when you start one, or when access ends if that option is on."
+    "message": "Žiadna plánovaná rotácia. Tieto prístupové údaje sa obnovia iba ak ju spustíte, alebo ak je to tak nastavené pri ukončení prístupu."
   },
   "pamRotationScheduleEchoHourly": {
-    "message": "Rotates once an hour, on the hour."
+    "message": "Obnovuje raz za hodinu, presne na celú hodinu."
   },
   "pamRotationScheduleEchoEvery6Hours": {
-    "message": "Rotates every 6 hours, on the hour."
+    "message": "Obnovuje raz za 6 hodín, presne na celú hodinu."
   },
   "pamRotationScheduleEchoDaily": {
-    "message": "Rotates once a day, at midnight."
+    "message": "Obnovuje denne o polnoci."
   },
   "pamRotationScheduleEchoWeekly": {
-    "message": "Rotates once a week, at midnight on Sunday."
+    "message": "Obnovuje raz za týždeň v nedeľu o polnoci."
   },
   "pamRotationScheduleEchoMonthly": {
-    "message": "Rotates once a month, at midnight on the 1st."
+    "message": "Obnovuje mesačne prvý deň v mesiaci o polnoci."
   },
   "pamRotationScheduleEchoIntervalDay": {
-    "message": "Rotates every day, at $TIME$.",
+    "message": "Obnovuje každý deň o $TIME$.",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -19995,7 +19998,7 @@
     }
   },
   "pamRotationScheduleEchoIntervalDays": {
-    "message": "Rotates every $COUNT$ days, at $TIME$.",
+    "message": "Obnovuje každých $COUNT$ dní o $TIME$.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -20008,7 +20011,7 @@
     }
   },
   "pamRotationScheduleEchoIntervalMonth": {
-    "message": "Rotates every month, at $TIME$.",
+    "message": "Obnovuje každý mesiac o $TIME$.",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -20017,7 +20020,7 @@
     }
   },
   "pamRotationScheduleEchoIntervalMonths": {
-    "message": "Rotates every $COUNT$ months, at $TIME$.",
+    "message": "Obnovuje každých $COUNT$ mesiacov o $TIME$.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -20030,7 +20033,7 @@
     }
   },
   "pamRotationScheduleEchoCustom": {
-    "message": "Custom Quartz schedule: $CRON$",
+    "message": "Vlastný Quartz rozvrh: $CRON$",
     "placeholders": {
       "cron": {
         "content": "$1",
@@ -20039,34 +20042,34 @@
     }
   },
   "pamRotationScheduleTimezoneHint": {
-    "message": "Schedules run in UTC, not your local time zone."
+    "message": "Rozvrh beží podla UTC, nie vašej lokálnej časovej zóny."
   },
   "pamRotationScheduleInterval": {
     "message": "Interval"
   },
   "pamRotationScheduleIntervalCountLabel": {
-    "message": "Repeat every"
+    "message": "Opakuj každý"
   },
   "pamRotationScheduleIntervalUnitLabel": {
-    "message": "Unit"
+    "message": "Jednotka"
   },
   "pamRotationScheduleIntervalUnitDays": {
-    "message": "Days"
+    "message": "Dni"
   },
   "pamRotationScheduleIntervalUnitMonths": {
-    "message": "Months"
+    "message": "Mesiace"
   },
   "pamRotationScheduleIntervalTimeLabel": {
-    "message": "Time of day (UTC)"
+    "message": "Čas (UTC)"
   },
   "pamRotationScheduleIntervalHint": {
-    "message": "Intervals are anchored to the calendar. Day intervals restart on the 1st of each month, and month intervals run on the 1st and restart in January."
+    "message": "Intervaly sú ukotvené v kalendári. Denne intervaly reštartujú prvý deň v mesiaci, mesačné intervaly bežia prvý deň a reštartujú v Januári."
   },
   "pamRotationScheduleInvalidInterval": {
-    "message": "Enter how often the rotation repeats and the time of day."
+    "message": "Nastavte ako často sa opakuje rotácia a jej čas."
   },
   "pamRotationScheduleIntervalCountWholeNumber": {
-    "message": "Enter a whole number."
+    "message": "Zadajte celé číslo."
   },
   "pamTargetSystemNew": {
     "message": "New target system"
@@ -20078,7 +20081,7 @@
     "message": "Method"
   },
   "pamTargetSystemTypeColumn": {
-    "message": "Type"
+    "message": "Typ"
   },
   "pamTargetSystemSessionTerminationColumn": {
     "message": "Session termination"
@@ -20129,7 +20132,7 @@
     "message": "Delete target system"
   },
   "pamTargetSystemAssignConnectors": {
-    "message": "Assign access connectors"
+    "message": "Prideliť prepojenie prístupu"
   },
   "pamTargetSystemAssignConnectorTitle": {
     "message": "Assign access connector"
@@ -20141,13 +20144,13 @@
     "message": "All active access connectors are already assigned to this target system."
   },
   "pamTargetSystemAssignConnectorManual": {
-    "message": "Access connectors can only be assigned to target systems set to automatic rotation."
+    "message": "Prepojenie prístupu môže byt pridelene len cieľovým systémom nastaveným pre automatickú rotáciu."
   },
   "pamTargetSystemAssignConnectorSelectHint": {
-    "message": "Only active access connectors can be assigned to this target system."
+    "message": "Iba aktívne prepojenia prístupu môžu byť pridelené k tomuto cieľovému systému."
   },
   "pamTargetSystemAssignConnectorNone": {
-    "message": "There are no active access connectors to assign. Register one on the Access connectors tab, or activate an existing one."
+    "message": "Žiadne aktívne prepojenia prístupu na pridelenie. Zaregistrujte nejaké na záložke Prepojenia prístupu alebo aktivujte existujúce."
   },
   "pamTargetSystemAssignGoToConnectors": {
     "message": "Go to Access connectors"
@@ -20192,10 +20195,10 @@
     "message": "Target system deleted."
   },
   "pamTargetSystemMethodAutomatic": {
-    "message": "Automatic"
+    "message": "Automatický"
   },
   "pamTargetSystemMethodManual": {
-    "message": "Manual"
+    "message": "Manuálny"
   },
   "pamTargetSystemMethodAutomaticHint": {
     "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
@@ -20207,7 +20210,7 @@
     "message": "Entra"
   },
   "pamTargetSystemTypeCustomScript": {
-    "message": "Custom script"
+    "message": "Vlastný skript"
   },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
@@ -20275,7 +20278,7 @@
     "message": "Include at least one character type."
   },
   "pamTargetSystemPolicyBelowStrengthFloor": {
-    "message": "This policy is too weak. Increase the length or include more character types."
+    "message": "Toto pravidlo je príliš slabé. Nastavte väčšiu dĺžku, alebo zahrňte viac druhov znakov."
   },
   "pamTargetSystemPolicyUppercase": {
     "message": "Include uppercase letters"
@@ -20347,7 +20350,7 @@
     "message": "This target system's settings could not be verified."
   },
   "pamTargetSystemImmutableFieldMismatch": {
-    "message": "This target system's technology could not be confirmed to match. Reload the page and try again."
+    "message": "Nepodarilo sa overiť zhodu technológie tohto cieľa. Obnovte stránku a skúste to znova."
   },
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
@@ -20368,19 +20371,19 @@
     "message": "Register an access connector to start rotating credentials."
   },
   "pamAccessConnectorConnection": {
-    "message": "Connection"
+    "message": "Pripojenie"
   },
   "pamAccessConnectorLastSeen": {
     "message": "Last seen"
   },
   "pamAccessConnectorAssignments": {
-    "message": "Assigned targets"
+    "message": "Pridelené ciele"
   },
   "pamAccessConnectorConnected": {
-    "message": "Connected"
+    "message": "Pripojené"
   },
   "pamAccessConnectorDisconnected": {
-    "message": "Disconnected"
+    "message": "Odpojené"
   },
   "pamAccessConnectorAssignTargetDisabled": {
     "message": "Target systems can only be assigned while the access connector is active."

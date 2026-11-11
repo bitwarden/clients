@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "Geschatte belasting"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Je uiteindelijke kosten kunnen enigszins verschillen, aangezien de berekening tot op het moment dat je indient wordt gemaakt."
+  },
   "subtotal": {
     "message": "Subtotaal"
   },

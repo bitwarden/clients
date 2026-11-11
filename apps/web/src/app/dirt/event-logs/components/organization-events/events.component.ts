@@ -57,6 +57,7 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.PublicApi]: "publicApi",
   [EventSystemUser.BitwardenPortal]: "system",
   [EventSystemUser.Pam]: "privilegedControls",
+  [EventSystemUser.ScheduledJob]: "system",
 };
 
 @Component({

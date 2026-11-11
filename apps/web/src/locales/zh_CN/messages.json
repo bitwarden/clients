@@ -2722,7 +2722,7 @@
     "message": "没有可列出的成员。"
   },
   "noMembersInvitedToOrg": {
-    "message": "您的组织尚未邀请任何成员"
+    "message": "尚未邀请任何成员加入您的组织"
   },
   "memberCount": {
     "message": "$COUNT$ 位成员",
@@ -3673,7 +3673,7 @@
     "message": "组织密码库"
   },
   "importSharedWithOnePerson": {
-    "message": "Shared with one person"
+    "message": "已与某人共享"
   },
   "importFamilyVault": {
     "message": "家庭密码库"
@@ -3699,10 +3699,10 @@
     }
   },
   "importSharedFolderHint": {
-    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将得到保留。"
+    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将被保留。"
   },
   "importSharedFolderRequired": {
-    "message": "A shared folder is required."
+    "message": "必须选择共享文件夹。"
   },
   "importIntoOrganization": {
     "message": "项目将被导入到 $ORGANIZATION$。",
@@ -3717,7 +3717,7 @@
     "message": "将所有项目移动到共享文件夹"
   },
   "importNoSharedFoldersForOrg": {
-    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "message": "项目无法导入到没有共享文件夹且您在其中无任何管理权限的 $ORGANIZATION$ 中。请选择其他位置。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3747,10 +3747,10 @@
     }
   },
   "importDataMayBeShared": {
-    "message": "Your data may be shared with members of this organization."
+    "message": "您的数据可能会与此​​组织的成员共享。"
   },
   "importItemTypesRestricted": {
-    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "message": "$ORGANIZATION$ 不允许您导入 $ITEM_TYPES$。如果您的导入内容中包含这些项目，它们将被跳过。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3763,35 +3763,35 @@
     }
   },
   "importRestrictedTypeLogin": {
-    "message": "logins",
+    "message": "登录",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSecureNote": {
-    "message": "secure notes",
+    "message": "安全笔记",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeCard": {
-    "message": "cards",
+    "message": "支付卡",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeIdentity": {
-    "message": "identities",
+    "message": "身份",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSshKey": {
-    "message": "SSH keys",
+    "message": "SSH 密钥",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeBankAccount": {
-    "message": "bank accounts",
+    "message": "银行账户",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeDriversLicense": {
-    "message": "licenses",
+    "message": "驾驶证",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypePassport": {
-    "message": "passports",
+    "message": "护照",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
@@ -5752,7 +5752,7 @@
     "message": "我们已经发送了一封确认电子邮件到您团队的计费电子邮箱 "
   },
   "trialIncludesPrivilegedControls": {
-    "message": "Your trial includes Privileged Controls."
+    "message": "您的试用包含 Privileged Controls。"
   },
   "monthly": {
     "message": "按月"
@@ -5884,7 +5884,7 @@
     "message": "尚无群组"
   },
   "noGroupsYetDesc": {
-    "message": "Groups will help organize $ORGANIZATIONNAME$ members and give them access to shared folders.",
+    "message": "群组可用于帮助组织 $ORGANIZATIONNAME$ 中的成员，并为他们授予共享文件夹的访问权限。",
     "placeholders": {
       "organizationname": {
         "content": "$1",
@@ -6339,7 +6339,7 @@
     }
   },
   "sendDisabledByPolicy": {
-    "message": "Send$SENDID$ disabled by policy",
+    "message": "Send$SENDID$ 被策略禁用",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6349,7 +6349,7 @@
     }
   },
   "sendEnabledByPolicy": {
-    "message": "Send$SENDID$ enabled by policy",
+    "message": "Send$SENDID$ 被策略启用",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6359,7 +6359,7 @@
     }
   },
   "createdItemSend": {
-    "message": "Created item Send$SENDID$",
+    "message": "创建了项目 Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6369,7 +6369,7 @@
     }
   },
   "editedItemSend": {
-    "message": "Edited item Send$SENDID$",
+    "message": "编辑了项目 Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6379,7 +6379,7 @@
     }
   },
   "deletedItemSend": {
-    "message": "Deleted item Send$SENDID$",
+    "message": "删除了项目 Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6389,7 +6389,7 @@
     }
   },
   "accessedItemSend": {
-    "message": "Accessed item Send$SENDID$ created by $ID$",
+    "message": "访问了由 $ID$ 创建的项目 Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6872,10 +6872,10 @@
     "message": "一个或多个电子邮箱属于已被撤销的成员。恢复其访问权限以便重新邀请。"
   },
   "revocationReasonNotLogged": {
-    "message": "未记录任何原因"
+    "message": "未记录任何理由"
   },
   "revocationReasonManual": {
-    "message": "被管理员撤销了"
+    "message": "被管理员撤销"
   },
   "revocationReasonTwoFactorNonCompliance": {
     "message": "不符合两步登录策略"
@@ -6887,11 +6887,11 @@
     "message": "拒绝了将项目转移到组织"
   },
   "revocationReasonByAdmin": {
-    "message": "By admin",
+    "message": "由管理员",
     "description": "Status filter option for revoked members whose access an admin revoked."
   },
   "revocationReasonNotRecorded": {
-    "message": "No reason recorded",
+    "message": "未记录任何理由",
     "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
@@ -7616,10 +7616,10 @@
     "message": "出错了，请重新加载页面以重试。"
   },
   "verify": {
-    "message": "Verify"
+    "message": "验证"
   },
   "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
-    "message": "To join this organization, enter the code sent to your email."
+    "message": "要加入此组织，请输入发送到您电子邮箱的代码。"
   },
   "failedToSendVerificationEmail": {
     "message": "发送验证电子邮件失败。请重试。"
@@ -7822,10 +7822,10 @@
     "message": "为您的 Secrets Manager 订阅设置一个席位限制。达到此限制后，您将无法邀请新的成员。"
   },
   "limitPrivilegedControlsSubscriptionDesc": {
-    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
+    "message": "为您的 Privileged Controls 订阅设置一个席位限制。达到此限制后，您将无法授予成员 Privileged Controls 访问权限。"
   },
   "maximumSeatsCount": {
-    "message": "Maximum $COUNT$ seats",
+    "message": "最多 $COUNT$ 个席位",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9609,6 +9609,9 @@
   },
   "estimatedTax": {
     "message": "预估税额"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "您最终的费用可能略有差异，因为费用会按比例计算至您提交时为止。"
   },
   "subtotal": {
     "message": "小计"
@@ -12593,7 +12596,7 @@
     "message": "您不能两次声明同一个域名。"
   },
   "domainNotAvailable": {
-    "message": "别人正在使用 $DOMAIN$。请使用其他域名以继续。",
+    "message": "其他人正在使用 $DOMAIN$。请使用不同的域名以继续。",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -16974,7 +16977,7 @@
     "message": "立即升级"
   },
   "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
-    "message": "Get advanced online security with Bitwarden Premium."
+    "message": "通过 Bitwarden 高级版，获得高级在线安全防护。"
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "完成此表单将创建一个新的家庭版组织。您可以从 Admin Console 升级您的免费版组织。"
@@ -17339,7 +17342,7 @@
     "message": "您的订阅已到期。请联系支持团队寻求帮助。"
   },
   "yourSubscriptionIsScheduledToCancel": {
-    "message": "您的订阅将于 $DATE$ 取消。在此日期之前，您可以随时恢复订阅。",
+    "message": "您的订阅计划于 $DATE$ 取消。在此日期之前，您可以随时恢复订阅。",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -18338,7 +18341,7 @@
     "message": "访问请求"
   },
   "pamAccessRequestsSubtitle": {
-    "message": "Approve, monitor, and audit time-limited access to your credentials."
+    "message": "批准、监测和审计您的凭据的限时访问权限。"
   },
   "pamTabApprovals": {
     "message": "批准"
@@ -18350,7 +18353,7 @@
     "message": "历史记录"
   },
   "pamAccessRequestsSearchPlaceholder": {
-    "message": "搜索凭据、集合、请求人"
+    "message": "搜索凭据、集合、请求者"
   },
   "pamCollectionFilter": {
     "message": "集合"
@@ -18359,10 +18362,10 @@
     "message": "延期请求"
   },
   "pamMyRequestsActiveAccessSection": {
-    "message": "Active access"
+    "message": "活动访问权限"
   },
   "pamMyRequestsActiveAccessEmpty": {
-    "message": "No active access"
+    "message": "无活动访问权限"
   },
   "pamMyRequestsLoadError": {
     "message": "无法加载您的请求"
@@ -18374,7 +18377,7 @@
     "message": "没有待处理的请求"
   },
   "pamMyRequestsEmptyTitle": {
-    "message": "You have no requests"
+    "message": "您没有任何请求"
   },
   "pamMyRequestsEmptyDescription": {
     "message": "目前您没有针对敏感凭据的访问请求。"
@@ -18386,7 +18389,7 @@
     "message": "时间段"
   },
   "pamColumnRequestedWindow": {
-    "message": "已请求的时间段"
+    "message": "请求的时间段"
   },
   "pamColumnSubmitted": {
     "message": "已提交"
@@ -18395,13 +18398,13 @@
     "message": "状态"
   },
   "pamColumnResolvedBy": {
-    "message": "Resolved by"
+    "message": "处理者"
   },
   "pamColumnResolved": {
-    "message": "Resolved"
+    "message": "已处理"
   },
   "pamColumnRemaining": {
-    "message": "Remaining"
+    "message": "剩余时间"
   },
   "pamColumnActions": {
     "message": "操作"
@@ -18441,7 +18444,7 @@
     "message": "访问规则"
   },
   "pamResolverRequester": {
-    "message": "请求人"
+    "message": "请求者"
   },
   "pamResolverUnknown": {
     "message": "未知用户"
@@ -18459,13 +18462,13 @@
     "message": "理由"
   },
   "pamInboxReasonMissing": {
-    "message": "未提供理由"
+    "message": "未提供任何理由"
   },
   "pamAccessRequestedLabel": {
-    "message": "访问已请求"
+    "message": "已请求访问权限"
   },
   "pamInboxRequester": {
-    "message": "请求人"
+    "message": "请求者"
   },
   "pamInboxDurationMinutes": {
     "message": "$MINUTES$ 分钟",
@@ -18540,7 +18543,7 @@
     "message": "延期访问权限"
   },
   "pamExtendLeaseDurationLabel": {
-    "message": "延期时长"
+    "message": "延期长度"
   },
   "pamExtendLeaseReasonLabel": {
     "message": "理由"
@@ -18579,7 +18582,7 @@
     "message": "未知"
   },
   "pamSharedFolderPrivilegedControls": {
-    "message": "Privileged controls: access requires a request"
+    "message": "Privileged Controls：需要请求访问权限"
   },
   "pamAccessBadgePrivileged": {
     "message": "特权"
@@ -18619,28 +18622,28 @@
     "description": "Controlled access filter option in the vault table: items with an active access session."
   },
   "pamAuditKindAccessEndedByRequester": {
-    "message": "访问被请求人结束"
+    "message": "访问被请求者结束"
   },
   "pamAuditKindAccessRevoked": {
     "message": "访问已撤销"
   },
   "pamAuditLoadError": {
-    "message": "Could not load the audit trail"
+    "message": "无法加载审计轨迹"
   },
   "pamAuditEmptyTitle": {
     "message": "无审计活动"
   },
   "pamAuditEmptyMessage": {
-    "message": "Privileged-access activity in this organization will appear here."
+    "message": "此组织中的特权访问活动将显示在这里。"
   },
   "pamAuditNoMatchesTitle": {
-    "message": "No matching events"
+    "message": "没有匹配的事件"
   },
   "pamAuditNoMatchesMessage": {
     "message": "没有匹配当前筛选的事件。"
   },
   "pamAuditRangeOutsideHistory": {
-    "message": "Choose a date within the last $DAYS$ days.",
+    "message": "选择过去 $DAYS$ 天内的一个日期。",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -18655,7 +18658,7 @@
     "message": "操作者"
   },
   "pamAuditColumnRequester": {
-    "message": "请求人"
+    "message": "请求者"
   },
   "pamAuditColumnItem": {
     "message": "项目"
@@ -18676,16 +18679,16 @@
     }
   },
   "pamAuditSystem": {
-    "message": "System"
+    "message": "系统"
   },
   "pamAuditIncomplete": {
-    "message": "Incomplete"
+    "message": "未完成"
   },
   "pamAuditIncompleteTooltip": {
-    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+    "message": "此操作已记录，但其结果从未得到确认 — 操作可能失败或被中断。"
   },
   "pamAuditKindRequestSubmitted": {
-    "message": "访问已请求"
+    "message": "已请求访问权限"
   },
   "pamAuditKindRequestApproved": {
     "message": "请求已批准"
@@ -18703,10 +18706,10 @@
     "message": "由于未使用，批准已过期"
   },
   "pamAuditKindAccessActivated": {
-    "message": "Access activated"
+    "message": "访问权限已激活"
   },
   "pamAuditKindLeaseActivationRejected": {
-    "message": "Activation rejected"
+    "message": "激活被拒绝"
   },
   "pamAuditKindAccessExtended": {
     "message": "访问权限已延期"
@@ -18715,10 +18718,10 @@
     "message": "访问权限已过期"
   },
   "pamAuditKindCredentialAccessed": {
-    "message": "Credential accessed"
+    "message": "凭据已访问"
   },
   "pamAuditKindCredentialAccessDenied": {
-    "message": "Credential access denied"
+    "message": "凭据访问被拒绝"
   },
   "pamAuditKindRuleCreated": {
     "message": "访问规则已创建"
@@ -18730,7 +18733,7 @@
     "message": "访问规则已删除"
   },
   "pamAuditKindLeasingKillSwitchTriggered": {
-    "message": "Kill switch triggered"
+    "message": "紧急停止机制被触发"
   },
   "pamAuditKindAccessFreezeEnabled": {
     "message": "Access freeze enabled"
@@ -18751,7 +18754,7 @@
     "message": "请求详细信息"
   },
   "pamAccessRequestLeaseTitle": {
-    "message": "Access"
+    "message": "访问权限"
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "决策日志"
@@ -18766,7 +18769,7 @@
     "message": "无法加载此访问请求。"
   },
   "pamActiveLeaseBannerTitle": {
-    "message": "您拥有此项目的有效访问权限 — 剩余 $DURATION$",
+    "message": "您拥有此项目的活动访问权限 — 剩余 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18787,7 +18790,7 @@
     "message": "访问请求待批准"
   },
   "pamApprovedRequestBannerHeading": {
-    "message": "访问已批准"
+    "message": "访问权限已批准"
   },
   "pamApprovedRequestBannerDuration": {
     "message": "访问权限的时长为 $DURATION$",
@@ -18805,15 +18808,15 @@
     "message": "您可以请求访问权限"
   },
   "pamUnlicensedBannerHeading": {
-    "message": "Privileged Controls license required",
+    "message": "需要 Privileged Controls 许可证",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerBody": {
-    "message": "You need a Privileged Controls license to view this item. Ask your admin to activate your license.",
+    "message": "您需要 Privileged Controls 许可证才能查看此项目。请联系管理员激活您的许可证。",
     "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
-    "message": "Requesting access is not available while unlicensed.",
+    "message": "无许可证时，无法请求访问权限。",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
   },
   "pamStartLeaseErrorWindowNotStarted": {
@@ -18832,7 +18835,7 @@
     "message": "此请求的访问权限已被使用，已不再有效。"
   },
   "pamStartLeaseErrorSingleActiveAccess": {
-    "message": "同一时间只能有一名用户拥有此项目的有效访问权限。请在当前访问结束后重试。"
+    "message": "同一时间只能有一名用户拥有此项目的活动访问权限。请在当前访问结束后重试。"
   },
   "pamStartLeaseErrorNetworkNotPermitted": {
     "message": "不允许从您的当前网络访问此项目。"
@@ -18869,10 +18872,10 @@
     "message": "请求访问权限"
   },
   "pamRequestSlotTaken": {
-    "message": "目前别人正在访问此项目。您可以请求访问权限，但需等到其完成之后您才能发起访问。"
+    "message": "目前其他人拥有此项目的访问权限。您可以请求访问权限，但需等到其完成之后您才能发起访问。"
   },
   "pamRequestSlotTakenUntil": {
-    "message": "目前别人正在访问此项目。您可以请求访问权限，但需等到 $TIME$ 之后您才能发起访问。",
+    "message": "目前其他人拥有此项目的访问权限。您可以请求访问权限，但需等到 $TIME$ 之后您才能发起访问。",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -18893,7 +18896,7 @@
     "message": "这将在审批人决策之前撤回您的请求。您可以随时提交新的请求。"
   },
   "pamCancelRequestApprovedConfirm": {
-    "message": "这将放弃已被批准的访问。您可以提交新的请求，但需要再次批准。"
+    "message": "这将放弃已被批准的访问权限。您可以提交新的请求，但需要再次批准。"
   },
   "pamCancelRequestCanceledToast": {
     "message": "请求已取消"
@@ -18905,10 +18908,10 @@
     "message": "请求访问权限"
   },
   "requestAccessModalAutomaticDescription": {
-    "message": "Pick a duration. You'll get immediate access for that long."
+    "message": "请选择持续时间。您将立即获得相应长度的访问权限。"
   },
   "requestAccessModalHumanDescription": {
-    "message": "选择一个时间段并告诉审批人您需要访问的原因。他们将进行审查和作出决策。"
+    "message": "选择一个时间段并告诉审批人您需要访问权限的理由。他们将进行审查和作出决策。"
   },
   "requestAccessModalDuration": {
     "message": "持续时间"
@@ -18926,7 +18929,7 @@
     "message": "结束时间"
   },
   "requestAccessModalEndNotAfterStart": {
-    "message": "End must be after the start."
+    "message": "结束时间必须晚于开始时间。"
   },
   "requestAccessModalStartNow": {
     "message": "$TIME$（现在）",
@@ -18998,7 +19001,7 @@
     "message": "理由（可选）"
   },
   "requestAccessModalReasonPlaceholder": {
-    "message": "Why do you need this?"
+    "message": "您为什么需要访问权限？"
   },
   "requestAccessModalAutomaticReasonHint": {
     "message": "此理由已与您的访问请求一起保存。"
@@ -19010,19 +19013,19 @@
     "message": "无法请求访问权限。请重试。"
   },
   "requestAccessModalAlreadyActive": {
-    "message": "您已经拥有此项目的有效访问权限。"
+    "message": "您已经拥有此项目的活动访问权限。"
   },
   "requestAccessModalApprovedSuccess": {
-    "message": "访问已批准 — 选择「发起访问」以开始。"
+    "message": "访问权限已批准 — 选择「发起访问」以开始。"
   },
   "requestAccessModalRequestCreatedSuccess": {
     "message": "请求已提交 — 等待批准。"
   },
   "pamApprovalsActiveAccessEmpty": {
-    "message": "No active access"
+    "message": "无活动访问权限"
   },
   "pamApprovalsActiveAccessSection": {
-    "message": "Active access"
+    "message": "活动访问权限"
   },
   "pamApprovalsCollectionFilter": {
     "message": "集合"
@@ -19034,10 +19037,10 @@
     "message": "待批准"
   },
   "pamApprovalsRequesterFilter": {
-    "message": "请求人"
+    "message": "请求者"
   },
   "pamApprovalsSearchPlaceholder": {
-    "message": "搜索凭据、集合、请求人"
+    "message": "搜索凭据、集合、请求者"
   },
   "pamDecideAdditionalInformation": {
     "message": "附加信息"
@@ -19055,22 +19058,22 @@
     "message": "拒绝的理由"
   },
   "pamDecideDenyReasonPlaceholder": {
-    "message": "e.g. Access no longer needed"
+    "message": "例如：不再需要访问权限"
   },
   "pamDecideDenyReasonRequired": {
     "message": "请提供拒绝此请求的理由。"
   },
   "pamInboxApprove": {
-    "message": "Approve"
+    "message": "批准"
   },
   "pamInboxApprovedToast": {
-    "message": "Request approved"
+    "message": "请求已批准"
   },
   "pamInboxWithdrawApproval": {
     "message": "撤回批准"
   },
   "pamInboxCannotApproveOwn": {
-    "message": "You cannot approve your own request."
+    "message": "您不能批准您自己的请求。"
   },
   "pamInboxCommentLabel": {
     "message": "Comment"
@@ -19082,10 +19085,10 @@
     "message": "批准请求"
   },
   "pamInboxConfirmDenyButton": {
-    "message": "Deny request"
+    "message": "拒绝请求"
   },
   "pamInboxDecisionFailed": {
-    "message": "Could not record decision"
+    "message": "无法记录决策"
   },
   "pamInboxDecisionNoLongerPending": {
     "message": "此请求已不再处于待处理状态。它已被撤回或已作出决策。"
@@ -19094,10 +19097,10 @@
     "message": "此请求的时间段已结束，无法再作出决策。"
   },
   "pamInboxDeny": {
-    "message": "Deny"
+    "message": "拒绝"
   },
   "pamInboxDeniedToast": {
-    "message": "Request denied"
+    "message": "请求已拒绝"
   },
   "requestAccessModalAlreadyApproved": {
     "message": "您已经有此项目已批准的请求。"
@@ -19115,7 +19118,7 @@
     }
   },
   "pamInboxElapsedWeeks": {
-    "message": "$WEEKS$w ago",
+    "message": "$WEEKS$w 前",
     "placeholders": {
       "weeks": {
         "content": "$1",
@@ -19130,7 +19133,7 @@
     "message": "Inbox zero"
   },
   "pamInboxLoadFailed": {
-    "message": "Could not load inbox"
+    "message": "无法加载收件箱"
   },
   "pamInboxRequestReasonLabel": {
     "message": "请求的理由"
@@ -19142,7 +19145,7 @@
     "message": "无法撤销访问权限"
   },
   "pamInboxRevokedToast": {
-    "message": "访问已撤销"
+    "message": "访问权限已撤销"
   },
   "pamInboxApprovalWithdrawnToast": {
     "message": "批准已撤回"
@@ -19184,13 +19187,13 @@
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
   },
   "pamWithdrawApprovalReasonLabel": {
-    "message": "Reason"
+    "message": "理由"
   },
   "pamWithdrawApprovalReasonPlaceholder": {
-    "message": "Shown to the requester in their decision log."
+    "message": "在请求者的决策日志中向其展示。"
   },
   "pamWithdrawApprovalReasonHint": {
-    "message": "Keep it brief. The requester reads this directly."
+    "message": "请简明扼要。请求者会直接阅读此内容。"
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "访问规则"
@@ -19231,7 +19234,7 @@
     "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
   },
   "pamNoAccessRule": {
-    "message": "No access rule",
+    "message": "无访问规则",
     "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
   },
   "pamAccessRuleActive": {
@@ -19241,7 +19244,7 @@
     "message": "失效"
   },
   "pamAccessRuleActiveHint": {
-    "message": "失效后，该规则将不再限制访问。"
+    "message": "不活动后，该规则将不再限制访问权限。"
   },
   "pamAccessRuleActivate": {
     "message": "激活规则"
@@ -19259,7 +19262,7 @@
     "message": "未找到访问规则。"
   },
   "pamAccessRulesSubheading": {
-    "message": "设置规则来控制谁可以在何种条件下以及多长时间内请求访问敏感的凭据。"
+    "message": "设置规则来控制谁可以在何种条件下以及多长时间内请求访对敏感凭据的访问权限。"
   },
   "pamAccessRuleCreate": {
     "message": "创建访问规则"
@@ -19283,7 +19286,7 @@
     "message": "状态"
   },
   "pamAccessRuleAccessDurationHeading": {
-    "message": "访问持续时间"
+    "message": "访问权限持续时间"
   },
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "可选条件"
@@ -19319,7 +19322,7 @@
     "message": "无上限"
   },
   "pamAccessRuleMaxDurationLimitHint": {
-    "message": "无论请求的持续时间为何，访问均被限制为此长度。"
+    "message": "无论请求的持续时间为何，访问权限均被限制为此长度。"
   },
   "pamAccessRuleDuration15m": {
     "message": "15 分钟"
@@ -19352,7 +19355,7 @@
     "message": "30 天"
   },
   "pamAccessRuleSingleActiveUser": {
-    "message": "同一时间只能有一名用户拥有有效访问权限"
+    "message": "同一时间只能有一名用户拥有活动访问权限"
   },
   "pamAccessRuleSingleActiveAccessHint": {
     "message": "获得批准的其他人员可以在当前访问结束或被撤销后尝试发起访问。"
@@ -19361,10 +19364,10 @@
     "message": "允许访问扩展"
   },
   "pamAccessRuleAllowAccessExtensionsHint": {
-    "message": "成员可以在无需重新审批的情况下，将有效访问权限延期一次，最长不超过下方的最大时长。"
+    "message": "成员可以在无需重新审批的情况下，将活动访问权限延期一次，最多不超过下方的最大长度。"
   },
   "pamAccessRuleMaxExtensionLength": {
-    "message": "最大延期时长"
+    "message": "最大延期长度"
   },
   "pamAccessRuleMaxExtensionLengthHint": {
     "message": "单次延期允许持续的最长时间。"
@@ -19420,7 +19423,7 @@
     "message": "删除访问规则吗？"
   },
   "pamAccessRuleDeleteConfirmDescription": {
-    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+    "message": "这将永久移除此规则。受其管理的集合中的用户将恢复普通访问权限。"
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "停用访问规则"
@@ -19456,7 +19459,7 @@
     "message": "您所选的其中一个集合不属于此组织。请选择其他合集。"
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
-    "message": "选择最大延期时长，或关闭延期。"
+    "message": "选择最大延期长度，或关闭延期。"
   },
   "pamAccessRuleErrorMissing": {
     "message": "此规则已不存在。它可能已被其他管理员删除。"
@@ -19968,7 +19971,7 @@
     "message": "请输入有效的 Quartz Cron 表达式（包含 6 或 7 个由空格分隔的字段）。"
   },
   "pamRotationScheduleEchoNone": {
-    "message": "未设置轮换计划。只有在您手动启动轮换时，或者当访问结束时（如果启用了相应选项），此凭据才会轮换。"
+    "message": "没有计划中的轮换任务。只有在您手动启动轮换时，或者当访问结束时（如果启用了相应选项），此凭据才会轮换。"
   },
   "pamRotationScheduleEchoHourly": {
     "message": "每小时整点轮换一次。"
@@ -20081,19 +20084,19 @@
     "message": "类型"
   },
   "pamTargetSystemSessionTerminationColumn": {
-    "message": "Session termination"
+    "message": "会话终止"
   },
   "pamTargetSystemSessionTerminationYes": {
-    "message": "Supported"
+    "message": "支持"
   },
   "pamTargetSystemSessionTerminationNo": {
-    "message": "Not supported"
+    "message": "不支持"
   },
   "pamNoTargetSystemsYetTitle": {
     "message": "尚无目标系统"
   },
   "pamNoTargetSystemsYetDescription": {
-    "message": "Add the system whose credentials Bitwarden should rotate."
+    "message": "添加需要由 Bitwarden 轮换凭据的系统。"
   },
   "pamTargetSystemsStartFromTemplate": {
     "message": "从模板开始"
@@ -20102,7 +20105,7 @@
     "message": "使用模板"
   },
   "pamTargetSystemTemplateManualSummary": {
-    "message": "您自己轮换凭据；Bitwarden 跟踪每次轮换的计划任务并做记录。"
+    "message": "您自己轮换凭据；Bitwarden 跟踪计划任务并记录每次轮换操作。"
   },
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden 自动轮换 Microsoft Entra ID 应用程序机密。"
@@ -20123,7 +20126,7 @@
     "message": "激活"
   },
   "pamTargetSystemActivationBlockedPendingSeal": {
-    "message": "Finish setting up this target system before activating or deactivating it."
+    "message": "在激活或停用此目标系统之前，请先完成其设置。"
   },
   "pamTargetSystemDeleteTarget": {
     "message": "删除目标系统"
@@ -20138,13 +20141,13 @@
     "message": "访问连接器"
   },
   "pamTargetSystemAssignConnectorNoOptions": {
-    "message": "所有有效的访问连接器已分配到此目标系统。"
+    "message": "所有活动的访问连接器已分配到此目标系统。"
   },
   "pamTargetSystemAssignConnectorManual": {
     "message": "访问连接器只能分配给已设置为自动轮换的目标系统。"
   },
   "pamTargetSystemAssignConnectorSelectHint": {
-    "message": "仅处于活动状态的访问连接器可分配至此目标系统。"
+    "message": "仅活动的访问连接器可分配至此目标系统。"
   },
   "pamTargetSystemAssignConnectorNone": {
     "message": "没有可分配的活动访问连接器。请在「访问连接器」选项卡中注册一个，或激活一个现有的访问连接器。"
@@ -20156,7 +20159,7 @@
     "message": "停用目标系统吗？"
   },
   "pamTargetSystemDeactivateContent": {
-    "message": "Deactivating this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+    "message": "停用此目标系统将停止提供新的轮换。待处理的作业将被挂起，且无法被认领。已在进行中的轮换将继续执行直至完成。"
   },
   "pamTargetSystemDeactivateConfirm": {
     "message": "停用"
@@ -20171,7 +20174,7 @@
     "message": "删除目标系统吗？"
   },
   "pamTargetSystemDeleteContent": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+    "message": "删除 $NAME$ 是永久性操作。必须先移除所有针对其执行轮换的托管凭据。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -20180,7 +20183,7 @@
     }
   },
   "pamTargetSystemDeleteContentDeactivateInstead": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, deactivate it instead. Deactivating holds pending jobs and can be undone.",
+    "message": "删除 $NAME$ 是永久性操作。必须先移除所有针对其执行轮换的托管凭据。要停止轮换而不失去目标系统，请改为停用。停用将保留待处理的作业，且可以撤销。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -20201,7 +20204,7 @@
     "message": "完成保存后显示的设置步骤后，轮换就会按照您设置的计划任务运行。"
   },
   "pamTargetSystemMethodManualHint": {
-    "message": "未创建轮换作业。您可以手动轮换凭据，然后将其标记为已轮换。"
+    "message": "未创建任何轮换作业。您可以手动轮换凭据，然后将其标记为已轮换。"
   },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
@@ -20230,97 +20233,97 @@
     "message": "Inactive"
   },
   "pamTargetSystemStatusPendingSeal": {
-    "message": "Setup incomplete"
+    "message": "设置未完成"
   },
   "pamTargetSystemGeneralInfoHeading": {
-    "message": "General information"
+    "message": "常规信息"
   },
   "pamTargetSystemIdLabel": {
     "message": "系统 ID"
   },
   "pamTargetSystemCopyId": {
-    "message": "Copy system ID"
+    "message": "复制系统 ID"
   },
   "pamTargetSystemNamePlaceholder": {
-    "message": "Enter a name"
+    "message": "输入一个名称"
   },
   "pamTargetSystemMethodLabel": {
-    "message": "Rotation method"
+    "message": "轮换方式"
   },
   "pamTargetSystemTypeHeading": {
-    "message": "Type"
+    "message": "类型"
   },
   "pamTargetSystemTypeLabel": {
-    "message": "Type"
+    "message": "类型"
   },
   "pamTargetSystemTypeUnverifiedHint": {
-    "message": "This target's integration could not be confirmed. Choose it again to finish setup."
+    "message": "无法确认此目标的集成。请再次选择以完成设置。"
   },
   "pamTargetSystemPolicyManualHint": {
-    "message": "These are the rules to follow when you rotate this credential by hand."
+    "message": "这些是您手动轮换此凭证时应遵循的规则。"
   },
   "pamTargetSystemPolicyHeading": {
-    "message": "Password policy"
+    "message": "密码策略"
   },
   "pamTargetSystemPolicyMinLength": {
-    "message": "Minimum length"
+    "message": "最小长度"
   },
   "pamTargetSystemPolicyMaxLength": {
-    "message": "Maximum length"
+    "message": "最大长度"
   },
   "pamTargetSystemPolicyMinExceedsMax": {
-    "message": "Minimum length must be less than or equal to maximum length."
+    "message": "最小长度必须小于或等于最大长度。"
   },
   "pamTargetSystemPolicyNoCharacterClass": {
-    "message": "Include at least one character type."
+    "message": "包含至少一个字符类型。"
   },
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "此策略过于薄弱。请增加长度或包含更多字符类型。"
   },
   "pamTargetSystemPolicyUppercase": {
-    "message": "Include uppercase letters"
+    "message": "包含大写字母"
   },
   "pamTargetSystemPolicyLowercase": {
-    "message": "Include lowercase letters"
+    "message": "包含小写字母"
   },
   "pamTargetSystemPolicyDigits": {
-    "message": "Include digits"
+    "message": "包含数字"
   },
   "pamTargetSystemPolicySymbols": {
-    "message": "Include symbols"
+    "message": "包含符号"
   },
   "pamTargetSystemSupportsSessionTermination": {
-    "message": "Supports session termination"
+    "message": "支持会话终止"
   },
   "pamTargetSystemSupportsSessionTerminationHintConnector": {
-    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
+    "message": "启用后，访问连接器将在凭据轮换后终止活动会话。"
   },
   "pamTargetSystemSessionTerminationSupported": {
-    "message": "Supported"
+    "message": "支持"
   },
   "pamTargetSystemSessionTerminationNativeHint": {
-    "message": "Native integrations always terminate active sessions after a credential is rotated."
+    "message": "凭据轮换后，原生集成始终会终止活动会话。"
   },
   "pamTargetSystemSessionTerminationUnknown": {
-    "message": "Unknown"
+    "message": "未知"
   },
   "pamTargetSystemSessionTerminationUnknownTooltip": {
-    "message": "This target system's settings could not be verified, so its session-termination support is unknown."
+    "message": "无法验证此目标系统的设置，因此无法确定其是否支持会话终止。"
   },
   "pamTargetSystemTerminationWithdrawalCredentialWarning": {
-    "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
+    "message": "若目标系统上有任何托管凭据仍依赖于「会话终止」功能，则无法禁用会话终止支持。请先更新这些凭据。"
   },
   "pamTargetSystemCreated": {
-    "message": "Target system created."
+    "message": "目标系统已创建。"
   },
   "pamTargetSystemSaved": {
-    "message": "Target system saved."
+    "message": "目标系统已保存。"
   },
   "pamTargetSystemSavedNotReread": {
-    "message": "Target system saved. The saved values could not be read back, so this page may be out of date."
+    "message": "目标系统已保存。但保存的值无法读取，因此此页面可能已经过时。"
   },
   "pamTargetSystemCreatePartialFailure": {
-    "message": "The target system was created, but setup could not finish. Save again to finish securing it."
+    "message": "目标系统已创建，但设置未能完成。请再次保存以完成安全设置。"
   },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Finish setting up rotation"
@@ -20329,28 +20332,28 @@
     "message": "在下面的已分配访问连接器部分分配一个访问连接器。"
   },
   "pamTargetSystemSetupGuidanceCredential": {
-    "message": "Add a managed credential on the Managed credentials tab."
+    "message": "在托管凭据选项卡上添加一个托管凭据。"
   },
   "pamTargetSystemSetupIncompleteTitle": {
-    "message": "Setup incomplete"
+    "message": "设置未完成"
   },
   "pamTargetSystemSetupIncompleteContent": {
-    "message": "This target system was created but never finished securing its settings. Save to finish, or delete it."
+    "message": "此目标系统已创建，但其安全设置尚未完成。请保存以完成设置或删除它。"
   },
   "pamTargetSystemIntegrityCheckFailedTitle": {
-    "message": "Integrity check failed"
+    "message": "完整性检查失败"
   },
   "pamTargetSystemIntegrityCheckFailedContent": {
-    "message": "This target system's settings could not be verified. Save to re-secure it, or delete it."
+    "message": "无法验证此目标系统的设置。请保存以重新确保其安全，或将其删除。"
   },
   "pamTargetSystemIntegrityCheckFailedTooltip": {
-    "message": "This target system's settings could not be verified."
+    "message": "无法验证此目标系统的设置。"
   },
   "pamTargetSystemImmutableFieldMismatch": {
     "message": "无法确认此目标系统的技术类型是否匹配。请重新加载页面，然后重试。"
   },
   "pamTargetSystemNotFound": {
-    "message": "Target system not found."
+    "message": "未找到目标系统。"
   },
   "pamAccessConnectorSearch": {
     "message": "搜索访问连接器"
@@ -20362,7 +20365,7 @@
     "message": "注册访问连接器"
   },
   "pamAccessConnectorEmptyStateTitle": {
-    "message": "未注册访问连接器"
+    "message": "未注册任何访问连接器"
   },
   "pamAccessConnectorEmptyStateDescription": {
     "message": "注册一个访问连接器以开始轮换凭据。"
@@ -20419,10 +20422,10 @@
     "message": "无法加载目标系统。请刷新页面以重试。"
   },
   "pamAccessConnectorAssigned": {
-    "message": "Target system assigned."
+    "message": "目标系统已分配。"
   },
   "pamAccessConnectorAssignmentsEmpty": {
-    "message": "未分配目标系统。"
+    "message": "未分配任何目标系统。"
   },
   "pamTargetSystemAssignConnectorSuccess": {
     "message": "访问连接器已分配。"
@@ -20437,10 +20440,10 @@
     }
   },
   "pamAccessConnectorUnassignConfirmTitle": {
-    "message": "Remove assignment?"
+    "message": "移除分配吗？"
   },
   "pamAccessConnectorUnassignConfirmContent": {
-    "message": "Remove $NAME$ from this access connector? Active rotation jobs claimed by this access connector will continue to completion.",
+    "message": "要从此访问连接器中移除 $NAME$ 吗？由此访问连接器认领的活动轮换作业将继续执行直至完成。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -20449,7 +20452,7 @@
     }
   },
   "pamAccessConnectorUnassigned": {
-    "message": "Target system removed."
+    "message": "目标系统已移除。"
   },
   "pamAccessConnectorDeactivate": {
     "message": "停用"
@@ -20461,7 +20464,7 @@
     "message": "停用访问连接器吗？"
   },
   "pamAccessConnectorDeactivateConfirmContent": {
-    "message": "停用 $NAME$ 吗？停用后，它将不再接收新的轮换作业，并且当前正在运行的作业也将被释放。您可以在以后重新激活它。",
+    "message": "停用 $NAME$ 吗？停用后，它将不再认领新的轮换作业，并且当前正在运行的作业也将被释放。您可以在以后重新激活它。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -20497,10 +20500,10 @@
     "message": "注册访问连接器"
   },
   "pamAccessConnectorNamePlaceholder": {
-    "message": "e.g. On-prem production server"
+    "message": "例如：On-prem 生产服务器"
   },
   "pamAccessConnectorNameHint": {
-    "message": "A descriptive name to identify this access connector. Max 200 characters."
+    "message": "用于识别此访问连接器的描述性名称。最多 200 个字符。"
   },
   "pamAccessConnectorRegistered": {
     "message": "访问连接器已注册。"
@@ -20524,7 +20527,7 @@
     "message": "尚无轮换活动。"
   },
   "pamAccessConnectorActiveHint": {
-    "message": "失效后，访问连接器将不再接收新的轮换作业，并且当前正在运行的作业也将被释放。"
+    "message": "不活动后，访问连接器将不再认领新的轮换作业，并且当前正在运行的作业也将被释放。"
   },
   "pamAccessConnectorTokenTitle": {
     "message": "访问连接器令牌"
@@ -20554,7 +20557,7 @@
     "message": "搜索托管凭据"
   },
   "pamRotationConfigEmptyState": {
-    "message": "未配置托管凭据"
+    "message": "未配置任何托管凭据"
   },
   "pamRotationConfigEmptyStateDescription": {
     "message": "添加托管凭据，以开始自动轮换。"
@@ -20584,7 +20587,7 @@
     "message": "目标系统"
   },
   "pamRotationConfigColumnSchedule": {
-    "message": "Schedule"
+    "message": "计划任务"
   },
   "pamRotationConfigColumnRotateOnAccessEnd": {
     "message": "Rotate on access end"
@@ -20614,7 +20617,7 @@
     "message": "当前无法轮换。目标系统处于非活动状态，或者轮换已暂停或正在进行中。"
   },
   "pamRotationConfigRotateNowSuccess": {
-    "message": "Rotation dispatched."
+    "message": "轮换已下发。"
   },
   "pamRotationConfigMarkRotated": {
     "message": "标记为已轮换"
@@ -20626,19 +20629,19 @@
     "message": "标记为已轮换"
   },
   "pamRotationConfigRecordManualContent": {
-    "message": "This records that the credential was rotated outside Bitwarden and resets the schedule. The audit log will reflect the manual rotation."
+    "message": "此记录表明凭据是在 Bitwarden 之外轮换的，并重置了计划任务。审计日志将体现此次手动轮换操作。"
   },
   "pamRotationConfigRecordManualConfirm": {
-    "message": "Record rotation"
+    "message": "记录轮换"
   },
   "pamRotationConfigRecordManualSuccess": {
-    "message": "Manual rotation recorded."
+    "message": "手动轮换已记录。"
   },
   "pamRotationConfigEditCredential": {
     "message": "编辑凭据"
   },
   "pamRotationConfigRemoveFromRotation": {
-    "message": "Remove from rotation"
+    "message": "从轮换中移除"
   },
   "pamRotationConfigPauseRotation": {
     "message": "暂停轮换"
@@ -20680,7 +20683,7 @@
     "message": "详细信息"
   },
   "pamRotationConfigSettingsHeading": {
-    "message": "Rotation settings"
+    "message": "轮换设置"
   },
   "pamRotationConfigAccountHeading": {
     "message": "账户"
@@ -20698,34 +20701,34 @@
     "message": "选择凭据"
   },
   "pamRotationConfigCipherHint": {
-    "message": "Select the vault item whose password will be rotated."
+    "message": "选择其密码将被轮换的密码库项目。"
   },
   "pamRotationConfigTargetSystem": {
-    "message": "Target system"
+    "message": "目标系统"
   },
   "pamRotationConfigTargetSystemPlaceholder": {
-    "message": "Select a target system"
+    "message": "选择目标系统"
   },
   "pamRotationConfigAccountIdentity": {
     "message": "账户标识"
   },
   "pamRotationConfigAccountIdentityHintConnector": {
-    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the access connector as-is."
+    "message": "要在目标系统中轮换的账户，例如 UPN、SQL 登录或脚本参数。该值将原样传递给访问连接器。"
   },
   "pamRotationConfigTerminateSessions": {
-    "message": "Terminate active sessions after rotation"
+    "message": "轮换后终止活动会话"
   },
   "pamRotationConfigTerminateSessionsHint": {
-    "message": "Requires the target system to support session termination."
+    "message": "需要目标系统支持会话终止。"
   },
   "pamRotationConfigTerminationUnknownHint": {
-    "message": "This target system's support for session termination could not be verified."
+    "message": "无法验证此目标系统是否支持会话终止。"
   },
   "pamRotationConfigRotateOnAccessEnd": {
-    "message": "Rotate when access ends"
+    "message": "访问结束时轮换"
   },
   "pamRotationConfigRotateWhenAccessEndsHint": {
-    "message": "Automatically rotate this credential when PAM access to it ends."
+    "message": "当 PAM 访问结束时自动轮换此凭据。"
   },
   "pamRotationConfigCreated": {
     "message": "托管凭据已创建。"
@@ -20734,13 +20737,13 @@
     "message": "托管凭据已保存。"
   },
   "pamRotationConfigAccountLockedTitle": {
-    "message": "Settings unavailable"
+    "message": "设置不可用"
   },
   "pamRotationConfigAccountLockedContent": {
     "message": "轮换作业进行期间，无法保存更改。作业完成或超时后，您即可再次保存。"
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
-    "message": "Integrity check failed"
+    "message": "完整性检查失败"
   },
   "pamRotationConfigIntegrityCheckFailedContent": {
     "message": "无法验证此托管凭据的设置。请保存以重新确保其安全。"
@@ -20758,58 +20761,58 @@
     "message": "尚未记录任何轮换作业。"
   },
   "pamRotationHistoryColumnSource": {
-    "message": "Source"
+    "message": "来源"
   },
   "pamRotationHistoryColumnAttempts": {
-    "message": "Attempts"
+    "message": "尝试"
   },
   "pamRotationSourceScheduled": {
-    "message": "Scheduled"
+    "message": "按计划"
   },
   "pamRotationSourceOnDemand": {
-    "message": "On demand"
+    "message": "按需"
   },
   "pamRotationSourceAccessEnd": {
-    "message": "访问已结束"
+    "message": "访问结束时"
   },
   "pamRotationSourceUnknown": {
-    "message": "Unknown"
+    "message": "未知"
   },
   "pamRotationJobStatusPending": {
-    "message": "Pending"
+    "message": "待处理"
   },
   "pamRotationJobStatusClaimed": {
-    "message": "Claimed"
+    "message": "已认领"
   },
   "pamRotationJobStatusSucceeded": {
-    "message": "Succeeded"
+    "message": "成功"
   },
   "pamRotationJobStatusFailed": {
-    "message": "Failed"
+    "message": "失败"
   },
   "pamRotationJobStatusTimedOut": {
-    "message": "Timed out"
+    "message": "超时"
   },
   "pamRotationJobStatusUnknown": {
-    "message": "Unknown"
+    "message": "未知"
   },
   "pamRotationAssignmentPendingAssign": {
-    "message": "Pending assignment"
+    "message": "待分配"
   },
   "pamRotationAssignmentPendingUnassign": {
-    "message": "Pending removal"
+    "message": "待移除"
   },
   "pamRotationAttemptStatusExecuting": {
-    "message": "Executing"
+    "message": "执行中"
   },
   "pamRotationAttemptStatusRotated": {
-    "message": "Rotated"
+    "message": "已轮换"
   },
   "pamRotationAttemptStatusErrored": {
-    "message": "Errored"
+    "message": "出错"
   },
   "pamRotationAttemptStatusAbandoned": {
-    "message": "Abandoned"
+    "message": "已放弃"
   },
   "pamRotationAttemptStatusUnknown": {
     "message": "未知"
@@ -20827,22 +20830,22 @@
     "message": "Target updated"
   },
   "pamRotationSyncStateIndeterminate": {
-    "message": "Indeterminate"
+    "message": "不确定"
   },
   "pamRotationSyncStateUnknown": {
     "message": "未知"
   },
   "pamRotationSessionTerminationNotRequested": {
-    "message": "Session termination not requested"
+    "message": "未请求会话终止"
   },
   "pamRotationSessionTerminationTerminated": {
-    "message": "Sessions terminated"
+    "message": "会话已终止"
   },
   "pamRotationSessionTerminationTermFailed": {
-    "message": "Session termination failed"
+    "message": "会话终止失败"
   },
   "pamRotationSessionTerminationUnknown": {
-    "message": "Unknown"
+    "message": "未知"
   },
   "pamRotationFailureCauseInsufficientRights": {
     "message": "不允许访问连接器账户更改此密码。请授予其重置目标账户密码的权限，然后重新执行轮换。"
@@ -20857,7 +20860,7 @@
     "message": "目标系统无法找到需要轮换的账户。请检查此托管凭据中的账户标识，然后重新执行轮换。"
   },
   "pamRotationFailureCauseDirectoryRefused": {
-    "message": "The target system refused to make the change. This commonly means the new password broke a password rule, or the connection to the target system was not encrypted."
+    "message": "目标系统拒绝作出更改。这通常意味着新密码不符合密码规则，或者与目标系统的连接未加密。"
   },
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "访问连接器无法连接到目标系统。请检查目标系统的地址，并确认连接器能够通过网络连接到该系统，然后重新执行轮换。"
@@ -20878,10 +20881,10 @@
     "message": "持续时间"
   },
   "pamRotationHistoryColumnAttempt": {
-    "message": "Attempt"
+    "message": "尝试"
   },
   "pamRotationHistoryColumnResult": {
-    "message": "Result"
+    "message": "结果"
   },
   "pamRotationHistoryAttemptsCaption": {
     "message": "Attempts, oldest first"
@@ -20893,7 +20896,7 @@
     "message": "轮换作业"
   },
   "pamRotationHistoryFailureHeading": {
-    "message": "Why it failed"
+    "message": "失败原因"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$s",
@@ -20931,58 +20934,58 @@
     }
   },
   "pamAuditKindRotationConfigCreated": {
-    "message": "Rotation config created"
+    "message": "轮换配置已创建"
   },
   "pamAuditKindRotationSettingsUpdated": {
-    "message": "Rotation settings updated"
+    "message": "轮换设置已更新"
   },
   "pamAuditKindRotationAccountUpdated": {
-    "message": "Rotation account updated"
+    "message": "轮换账户已更新"
   },
   "pamAuditKindRotationPaused": {
-    "message": "Rotation paused"
+    "message": "轮换已暂停"
   },
   "pamAuditKindRotationResumed": {
-    "message": "Rotation resumed"
+    "message": "轮换已恢复"
   },
   "pamAuditKindRotationConfigDeleted": {
-    "message": "Rotation config deleted"
+    "message": "轮换配置已删除"
   },
   "pamAuditKindRotationConfigUpdated": {
-    "message": "Rotation config updated"
+    "message": "轮换配置已更新"
   },
   "pamAuditKindRotationOfferedToConnector": {
-    "message": "Rotation offered to access connector"
+    "message": "已向访问连接器提供轮换"
   },
   "pamAuditKindRotationDispatched": {
-    "message": "Rotation dispatched"
+    "message": "轮换已下发"
   },
   "pamAuditKindRotationSucceeded": {
-    "message": "Credential rotated"
+    "message": "凭据已轮换"
   },
   "pamAuditKindRotationAttemptFailed": {
-    "message": "Rotation attempt failed"
+    "message": "轮换尝试失败"
   },
   "pamAuditKindRotationFailed": {
-    "message": "Rotation failed"
+    "message": "轮换失败"
   },
   "pamAuditKindRotationReleased": {
-    "message": "Rotation released"
+    "message": "轮换被释放"
   },
   "pamAuditKindRotationTimedOut": {
-    "message": "Rotation timed out"
+    "message": "轮换超时"
   },
   "pamAuditKindRotationWriteRejected": {
-    "message": "Vault write rejected"
+    "message": "密码库写入被拒绝"
   },
   "pamAuditKindRotationReportRejected": {
-    "message": "Rotation report rejected"
+    "message": "轮换报告被拒绝"
   },
   "pamAuditKindManualRotationDue": {
     "message": "Manual rotation due"
   },
   "pamAuditKindManualRotationRecorded": {
-    "message": "Manual rotation recorded"
+    "message": "手动轮换已记录"
   },
   "pamAuditKindAccessConnectorRegistered": {
     "message": "访问连接器已注册"
@@ -21000,10 +21003,10 @@
     "message": "访问连接器已删除"
   },
   "pamAuditKindAccessConnectorAssigned": {
-    "message": "Access connector assigned to target"
+    "message": "访问连接器已分配到目标"
   },
   "pamAuditKindAccessConnectorUnassigned": {
-    "message": "Access connector unassigned from target"
+    "message": "访问连接器已从目标取消分配"
   },
   "pamAuditKindTargetRegistered": {
     "message": "目标系统已注册"
@@ -21033,7 +21036,7 @@
     "message": "访问连接器"
   },
   "pamAccessConnectorAssignmentCountSingular": {
-    "message": "$COUNT$ target",
+    "message": "$COUNT$ 个目标",
     "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
     "placeholders": {
       "count": {
@@ -21043,7 +21046,7 @@
     }
   },
   "pamAccessConnectorAssignmentCount": {
-    "message": "$COUNT$ targets",
+    "message": "$COUNT$ 个目标",
     "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
     "placeholders": {
       "count": {
@@ -21053,7 +21056,7 @@
     }
   },
   "pamAccessConnectorAssignmentsNone": {
-    "message": "None",
+    "message": "无",
     "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
   },
   "pamRotationConfigNoActiveTargetSystems": {
@@ -21069,7 +21072,7 @@
     "message": "无法加载此目标系统的访问连接器。"
   },
   "pamTargetSystemDeleteAssignedConnectorsContent": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first, and its access connector assignments are removed with it.",
+    "message": "删除 $NAME$ 是永久性操作。必须先移除所有针对其执行轮换的托管凭据，同时，与其关联的访问连接器分配也将一并被移除。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -21143,7 +21146,7 @@
     }
   },
   "pamEventCancelledAccessRequest": {
-    "message": "取消了对项目 $ITEM$ 的特权访问权限（请求 $ID$）。",
+    "message": "取消了对项目 $ITEM$ 的特权访问请求（请求 $ID$）。",
     "placeholders": {
       "item": {
         "content": "$1",

@@ -9610,6 +9610,9 @@
   "estimatedTax": {
     "message": "Eeldatavad maksud"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+  },
   "subtotal": {
     "message": "Subtotal"
   },
