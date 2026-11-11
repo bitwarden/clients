@@ -113,8 +113,13 @@ export class VaultProgram extends BaseProgram {
         `Filter items or ${useSharedFoldersTerm ? "shared folders" : "collections"} by organization id.`,
       )
       .option("--trash", "Filter items that are deleted and in the trash.")
+      .option("--all", "Explicitly list every vault item, including decrypted secrets.")
       .on("--help", () => {
         writeLn("\n  Notes:");
+        writeLn("");
+        writeLn(
+          "    Listing all items outputs decrypted item contents, including secrets; use --all only when intended.",
+        );
         writeLn("");
         writeLn("    Combining search with a filter performs a logical AND operation.");
         writeLn("");
@@ -122,7 +127,8 @@ export class VaultProgram extends BaseProgram {
         writeLn("");
         writeLn("  Examples:");
         writeLn("");
-        writeLn("    bw list items");
+        writeLn("    bw list items --search google");
+        writeLn("    bw list items --all  # explicitly output every decrypted item");
         writeLn("    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
         writeLn(
           "    bw list items --search google --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
@@ -168,7 +174,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cipherArchiveService,
           this.serviceContainer.configService,
         );
-        const response = await command.run(object, cmd);
+        const response = await command.run(object, cmd, object === "items");
 
         this.processResponse(response);
       });

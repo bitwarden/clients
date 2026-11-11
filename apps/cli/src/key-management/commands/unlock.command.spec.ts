@@ -53,18 +53,11 @@ describe("UnlockCommand", () => {
   const expectedSuccessMessage = new MessageResponse(
     "Your vault is now unlocked!",
     "\n" +
-      "To unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n" +
-      '$ export BW_SESSION="' +
-      b64sessionKey +
-      '"\n' +
-      '> $env:BW_SESSION="' +
-      b64sessionKey +
-      '"\n\n' +
-      "You can also pass the session key to any command with the `--session` option. ex:\n" +
-      "$ bw list items --session " +
-      b64sessionKey,
+      "The session key is available to this command process as `BW_SESSION`. To set it in your shell without printing it, run:\n" +
+      '  export BW_SESSION="$(bw unlock --raw)"  # bash/zsh\n' +
+      "  $env:BW_SESSION = (bw unlock --raw)  # PowerShell\n\n" +
+      "Use `bw status` to check your vault state. `bw list items` outputs decrypted vault contents; use it only when you intend to display or process every item.",
   );
-  expectedSuccessMessage.raw = b64sessionKey;
 
   beforeEach(async () => {
     jest.restoreAllMocks();
@@ -72,6 +65,7 @@ describe("UnlockCommand", () => {
     delete process.env.BW_NOINTERACTION;
     delete process.env.BW_QUIET;
     delete process.env.BW_RESPONSE;
+    delete process.env.BW_RAW;
 
     i18nService.t.mockImplementation((key: string) => key);
     accountService.activeAccount$ = of(activeAccount);
@@ -131,6 +125,15 @@ describe("UnlockCommand", () => {
       },
     );
 
+    it("returns the session key only when raw output is explicitly requested", async () => {
+      process.env.BW_RAW = "true";
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+
+      const response = await command.run(mockMasterPassword, {});
+
+      expect((response.data as MessageResponse).raw).toBe(b64sessionKey);
+    });
+
     it("calls unlockService successfully", async () => {
       unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
 
@@ -139,6 +142,7 @@ describe("UnlockCommand", () => {
       expect(response).not.toBeNull();
       expect(response.success).toEqual(true);
       expect(response.data).toEqual(expectedSuccessMessage);
+      expect((response.data as MessageResponse).raw).toBeUndefined();
       expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
         activeAccount.id,
         mockMasterPassword,

@@ -50,8 +50,12 @@ export class ListCommand {
     private configService: ConfigService,
   ) {}
 
-  async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
-    const normalizedOptions = new Options(cmdOptions);
+  async run(
+    object: string,
+    cmdOptions: Record<string, any>,
+    requireExplicitAll = false,
+  ): Promise<Response> {
+    const normalizedOptions = new Options(cmdOptions, requireExplicitAll);
     switch (object.toLowerCase()) {
       case "items":
         return await this.listCiphers(normalizedOptions);
@@ -83,6 +87,20 @@ export class ListCommand {
 
     options.trash = options.trash || false;
     options.archived = userCanArchive && options.archived;
+
+    const hasFilter =
+      options.search?.trim() ||
+      options.url?.trim() ||
+      options.folderId != null ||
+      options.collectionId != null ||
+      options.organizationId != null ||
+      options.trash ||
+      options.archived;
+    if (options.requireExplicitAll && !hasFilter && !options.all) {
+      return Response.badRequest(
+        "Listing every vault item outputs decrypted item contents, including secrets. Add a filter or pass --all to confirm you intend to list the entire vault.",
+      );
+    }
 
     if (options.url != null && options.url.trim() !== "") {
       ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
@@ -338,8 +356,10 @@ class Options {
   url: string;
   trash: boolean;
   archived: boolean;
+  all: boolean;
+  requireExplicitAll: boolean;
 
-  constructor(passedOptions: Record<string, any>) {
+  constructor(passedOptions: Record<string, any>, requireExplicitAll: boolean) {
     this.organizationId = passedOptions?.organizationid || passedOptions?.organizationId;
     this.collectionId =
       passedOptions?.collectionid ||
@@ -351,5 +371,7 @@ class Options {
     this.url = passedOptions?.url;
     this.trash = CliUtils.convertBooleanOption(passedOptions?.trash);
     this.archived = CliUtils.convertBooleanOption(passedOptions?.archived);
+    this.all = CliUtils.convertBooleanOption(passedOptions?.all);
+    this.requireExplicitAll = requireExplicitAll;
   }
 }
