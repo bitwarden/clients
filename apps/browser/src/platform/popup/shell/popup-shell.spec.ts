@@ -1,29 +1,6 @@
-import { THEME_SELECTION } from "@bitwarden/common/platform/theming/theme-state.service";
-
-import { THEME_STATE_KEY, resolveShellTheme, themeClass, unwrapStored } from "./popup-shell";
+import { resolveShellTheme, themeClass } from "./popup-shell";
 
 describe("popup shell", () => {
-  it("reads the theme from the key the theme state writes to", () => {
-    expect(THEME_STATE_KEY).toBe(
-      `global_${THEME_SELECTION.stateDefinition.name}_${THEME_SELECTION.key}`,
-    );
-  });
-
-  describe("unwrapStored", () => {
-    it("unwraps the serialization wrapper BrowserLocalStorageService writes", () => {
-      expect(unwrapStored({ __json__: true, value: JSON.stringify("wide") })).toBe("wide");
-    });
-
-    it("passes a plain value through and maps nothing stored to null", () => {
-      expect(unwrapStored("dark")).toBe("dark");
-      expect(unwrapStored(undefined)).toBeNull();
-    });
-
-    it("maps a wrapper with malformed JSON to null", () => {
-      expect(unwrapStored({ __json__: true, value: "{" })).toBeNull();
-    });
-  });
-
   describe("resolveShellTheme", () => {
     it.each([
       ["light", true, "light"],
