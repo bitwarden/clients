@@ -1,4 +1,4 @@
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
 
 import { autofillStoryProviders } from "../shared/story-providers";
 
@@ -7,7 +7,10 @@ import { NotificationOptionSelectComponent } from "./notification-option-select.
 export default {
   title: "Browser/Autofill/Notification Bar/Option Select",
   component: NotificationOptionSelectComponent,
-  decorators: [moduleMetadata({ providers: autofillStoryProviders })],
+  decorators: [
+    moduleMetadata({ providers: autofillStoryProviders }),
+    componentWrapperDecorator((story) => `<div style="width: 160px">${story}</div>`),
+  ],
   args: {
     name: "folder",
     label: "Folder",

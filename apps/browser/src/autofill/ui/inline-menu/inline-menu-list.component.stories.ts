@@ -1,5 +1,7 @@
 import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
 
+import { startClockAtStoryNow } from "@bitwarden/storybook";
+
 import {
   mockCardCiphers,
   mockIdentityCiphers,
@@ -19,6 +21,7 @@ export default {
     moduleMetadata({ providers: autofillStoryProviders }),
     componentWrapperDecorator((story) => `<div style="width: 280px">${story}</div>`),
   ],
+  beforeEach: startClockAtStoryNow,
   parameters: {
     chromatic: { modes: { light: { theme: "light" }, dark: { theme: "dark" } } },
   },
@@ -36,6 +39,10 @@ export const NoResults: Story = {
 
 export const SaveLogin: Story = {
   args: { state: { view: "saveLogin" } },
+};
+
+export const Authenticating: Story = {
+  args: { state: { view: "authenticating" } },
 };
 
 export const Logins: Story = {

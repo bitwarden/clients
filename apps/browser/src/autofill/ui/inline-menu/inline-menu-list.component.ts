@@ -6,7 +6,6 @@ import {
   IconButtonModule,
   IconComponent,
   ItemModule,
-  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -23,8 +22,6 @@ const newItemKeys: Record<InlineMenuNewItemKind, { text: string; ariaLabel: stri
   item: { text: "newItem", ariaLabel: "addNewVaultItem" },
 };
 
-type CipherGroup = { headingKey?: "passkeys" | "passwords"; ciphers: InlineMenuCipherData[] };
-
 /**
  * The inline menu list page. Renders whichever view `state` describes.
  */
@@ -38,12 +35,11 @@ type CipherGroup = { headingKey?: "passkeys" | "passwords"; ciphers: InlineMenuC
     InlineMenuActionComponent,
     InlineMenuCipherItemComponent,
     ItemModule,
-    TypographyModule,
   ],
   templateUrl: "inline-menu-list.component.html",
   host: {
     class:
-      "tw-block tw-w-full tw-overflow-hidden tw-rounded tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-text-fg-body",
+      "tw-bit-compact tw-block tw-w-full tw-overflow-hidden tw-rounded-lg tw-bg-bg-primary tw-text-fg-body",
     "[attr.data-testid]": "testId()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,6 +67,8 @@ export class InlineMenuListComponent {
         return "inline-menu-empty-state";
       case "saveLogin":
         return "inline-menu-save-login";
+      case "authenticating":
+        return "inline-menu-passkey-authenticating";
       case "ciphers":
         return "inline-menu-cipher-list";
       case "passwordGenerator":
@@ -107,27 +105,7 @@ export class InlineMenuListComponent {
     () => this.generatorState()?.heading ?? this.i18nService.t("fillGeneratedPassword"),
   );
 
-  protected readonly multipleTotp = computed(
-    () =>
-      (this.cipherState()?.ciphers ?? []).filter((c) => c.login?.totpField && c.login?.totp)
-        .length > 1,
-  );
-
-  protected readonly cipherGroups = computed<CipherGroup[]>(() => {
-    const state = this.cipherState();
-    if (!state) {
-      return [];
-    }
-    const passkeys = state.ciphers.filter((c) => c.login?.passkey);
-    const others = state.ciphers.filter((c) => !c.login?.passkey);
-    const withHeadings = state.showPasskeyHeadings ?? (passkeys.length > 0 && others.length > 0);
-
-    if (!withHeadings) {
-      return [{ ciphers: state.ciphers }];
-    }
-    return [
-      { headingKey: "passkeys" as const, ciphers: passkeys },
-      { headingKey: "passwords" as const, ciphers: others },
-    ].filter((group) => group.ciphers.length);
-  });
+  protected viewLabel(cipher: InlineMenuCipherData) {
+    return `${this.i18nService.t("view")} ${cipher.name}, ${this.i18nService.t("opensInANewWindow")}`;
+  }
 }

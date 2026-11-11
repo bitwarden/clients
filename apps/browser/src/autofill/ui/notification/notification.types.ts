@@ -32,6 +32,8 @@ export type NotificationBarConfirmationState = {
   /** The kind of save that was attempted. */
   type: typeof NotificationTypes.Add | typeof NotificationTypes.Change;
   itemName: string;
+  /** The saved item, opened by the "View" action. */
+  cipherId?: string;
   /** Set when the save failed. */
   error?: string;
   task?: NotificationTaskInfo;

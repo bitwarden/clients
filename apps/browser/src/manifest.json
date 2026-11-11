@@ -80,7 +80,12 @@
   "__safari__optional_permissions": null,
   "content_security_policy": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
   "sandbox": {
-    "pages": ["overlay/menu-button.html", "overlay/menu-list.html"],
+    "pages": [
+      "overlay/menu-button.html",
+      "overlay/menu-list.html",
+      "overlay/menu-button-angular.html",
+      "overlay/menu-list-angular.html"
+    ],
     "content_security_policy": "sandbox allow-scripts; script-src 'self'"
   },
   "__firefox__sandbox": null,
@@ -131,10 +136,13 @@
   "web_accessible_resources": [
     "content/fido2-page-script.js",
     "notification/bar.html",
+    "notification/bar-angular.html",
     "images/icon38.png",
     "images/icon38_locked.png",
     "overlay/menu-button.html",
     "overlay/menu-list.html",
+    "overlay/menu-button-angular.html",
+    "overlay/menu-list-angular.html",
     "overlay/menu.html",
     "popup/fonts/*"
   ],

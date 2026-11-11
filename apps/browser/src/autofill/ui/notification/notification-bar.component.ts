@@ -8,6 +8,7 @@ import {
   signal,
 } from "@angular/core";
 
+import { Celebrate, Keyhole } from "@bitwarden/assets/svg";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -24,7 +25,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { NotificationTypes } from "../../notification/abstractions/notification-bar";
 import { CipherIconComponent } from "../shared/cipher-icon.component";
-import { Celebrate, Keyhole } from "../shared/illustrations";
 
 import {
   NotificationOptionSelectComponent,
@@ -267,8 +267,9 @@ export class NotificationBarComponent {
     () => this.confirmationState()?.task?.remainingTasksCount ?? 0,
   );
 
-  protected readonly tasksComplete = computed(
-    () => !this.confirmationState()?.task || this.remainingTasks() === 0,
+  /** The update finished the last of the organization's at-risk password tasks. */
+  protected readonly lastTaskComplete = computed(
+    () => !!this.confirmationState()?.task && this.remainingTasks() === 0,
   );
 
   protected readonly taskMessage = computed(() => {

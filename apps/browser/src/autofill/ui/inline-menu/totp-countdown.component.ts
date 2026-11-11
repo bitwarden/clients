@@ -8,53 +8,45 @@ import {
   signal,
 } from "@angular/core";
 
-import { TypographyModule } from "@bitwarden/components";
-
 const EXPIRING_SECONDS = 7;
-const INNER_CIRCUMFERENCE = 60;
+const CIRCUMFERENCE = 2 * Math.PI * 11;
 
-/** Matches the vault's TOTP countdown ring. */
+/** A thin countdown ring around the seconds left in the current TOTP period. */
 @Component({
   selector: "autofill-totp-countdown",
-  imports: [TypographyModule],
-  host: { class: "tw-relative tw-flex tw-size-7 tw-shrink-0 tw-items-center tw-justify-center" },
+  host: { class: "tw-flex tw-size-6 tw-shrink-0" },
   template: `
-    <span
-      class="tw-absolute"
-      bitTypography="helper"
-      aria-hidden="true"
-      [class.tw-text-fg-heading]="!expiring()"
-      [class.tw-text-fg-danger]="expiring()"
-    >
-      {{ seconds() }}
-    </span>
-    <svg class="tw-size-7 -tw-rotate-90" viewBox="0 0 28 28" aria-hidden="true">
+    <svg class="tw-size-6" viewBox="0 0 24 24" aria-hidden="true">
+      <circle class="tw-fill-none tw-stroke-border-base" r="11" cx="12" cy="12" stroke-width="1" />
       <circle
         class="tw-fill-none"
-        [class.tw-stroke-text-main]="!expiring()"
-        [class.tw-stroke-danger-600]="expiring()"
-        r="9.5"
-        cy="14"
-        cx="14"
-        stroke-width="2"
-        [attr.stroke-dasharray]="INNER_CIRCUMFERENCE"
-        [style.stroke-dashoffset.px]="dashOffset()"
-      ></circle>
-      <circle
-        class="tw-fill-none"
-        [class.tw-stroke-text-main]="!expiring()"
-        [class.tw-stroke-danger-600]="expiring()"
+        [class.tw-stroke-fg-body]="!expiring()"
+        [class.tw-stroke-fg-danger]="expiring()"
         r="11"
-        cy="14"
-        cx="14"
-        stroke-width="1"
-      ></circle>
+        cx="12"
+        cy="12"
+        stroke-width="1.5"
+        transform="rotate(-90 12 12)"
+        [attr.stroke-dasharray]="CIRCUMFERENCE"
+        [attr.stroke-dashoffset]="dashOffset()"
+      />
+      <text
+        x="12"
+        y="12"
+        text-anchor="middle"
+        dominant-baseline="central"
+        font-size="10"
+        [class.tw-fill-fg-body]="!expiring()"
+        [class.tw-fill-fg-danger]="expiring()"
+      >
+        {{ seconds() }}
+      </text>
     </svg>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TotpCountdownComponent {
-  protected readonly INNER_CIRCUMFERENCE = INNER_CIRCUMFERENCE;
+  protected readonly CIRCUMFERENCE = CIRCUMFERENCE;
 
   readonly period = input(30);
   /** Freezes the countdown at a fixed value instead of tracking the clock. */
@@ -68,7 +60,7 @@ export class TotpCountdownComponent {
   protected readonly seconds = computed(() => this.secondsRemaining() ?? this.liveSeconds());
   protected readonly expiring = computed(() => this.seconds() <= EXPIRING_SECONDS);
   protected readonly dashOffset = computed(
-    () => ((this.period() - this.seconds()) / this.period()) * INNER_CIRCUMFERENCE,
+    () => ((this.period() - this.seconds()) / this.period()) * CIRCUMFERENCE,
   );
 
   constructor() {

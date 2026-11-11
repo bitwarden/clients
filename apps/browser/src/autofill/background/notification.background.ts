@@ -20,6 +20,7 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -116,6 +117,9 @@ export default class NotificationBackground {
   private openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private openViewVaultItemPopout = openViewVaultItemPopout;
   private notificationQueue: NotificationQueueMessageItem[] = [];
+  private readonly useAngularAutofillUi$ = this.configService.getFeatureFlag$(
+    FeatureFlag.AngularAutofillUi,
+  );
   private allowedRetryCommands: Set<ExtensionCommandType> = new Set([
     ExtensionCommand.AutofillLogin,
     ExtensionCommand.AutofillCard,
@@ -495,6 +499,7 @@ export default class NotificationBackground {
       launchTimestamp,
       showAnimations:
         (await firstValueFrom(this.autofillService.enableNotificationAnimation$)) ?? true,
+      useAngularUi: await firstValueFrom(this.useAngularAutofillUi$),
     };
 
     switch (notificationType) {
@@ -611,6 +616,7 @@ export default class NotificationBackground {
         theme,
         launchTimestamp: new Date().getTime(),
         showAnimations,
+        useAngularUi: await firstValueFrom(this.useAngularAutofillUi$),
       },
       params: {},
       isConfirmation: true,

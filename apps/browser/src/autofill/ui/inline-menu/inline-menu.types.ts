@@ -7,11 +7,11 @@ export type InlineMenuListState =
   | { view: "locked" }
   | { view: "noResults"; newItemKind: InlineMenuNewItemKind }
   | { view: "saveLogin" }
+  /** A passkey sign-in is underway. */
+  | { view: "authenticating" }
   | {
       view: "ciphers";
       ciphers: InlineMenuCipherData[];
-      /** Group passkeys and passwords under headings. Defaults to grouping when both are present. */
-      showPasskeyHeadings?: boolean;
       /** Omit to hide the new item action. */
       newItemKind?: InlineMenuNewItemKind;
       /** Freezes TOTP countdowns, for stories and screenshots. */

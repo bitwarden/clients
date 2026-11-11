@@ -2,24 +2,26 @@ import { ChangeDetectionStrategy, Component, input, output } from "@angular/core
 
 import { BitwardenIcon, IconComponent, ItemModule } from "@bitwarden/components";
 
-/** A full-width action row in the inline menu list, e.g. "Unlock account" or "New login". */
+/**
+ * The main content of an action row, e.g. "Unlock account" or "New login". The list renders the
+ * surrounding `bit-item` so compact mode can join it to neighboring rows.
+ */
 @Component({
   selector: "autofill-inline-menu-action",
   imports: [IconComponent, ItemModule],
+  host: { class: "tw-flex tw-min-w-0 tw-flex-1" },
   template: `
-    <bit-item>
-      <button
-        [id]="'inline-menu-action_button_' + name()"
-        type="button"
-        bit-item-content
-        [attr.data-testid]="'inline-menu-' + name() + '-button'"
-        [attr.aria-label]="ariaLabel()"
-        (click)="action.emit()"
-      >
-        <bit-icon slot="start" [name]="icon()" class="tw-text-fg-brand" />
-        <span class="tw-font-medium tw-text-fg-brand">{{ text() }}</span>
-      </button>
-    </bit-item>
+    <button
+      [id]="'inline-menu-action_button_' + name()"
+      type="button"
+      bit-item-content
+      [attr.data-testid]="'inline-menu-' + name() + '-button'"
+      [attr.aria-label]="ariaLabel()"
+      (click)="action.emit()"
+    >
+      <bit-icon slot="start" [name]="icon()" class="tw-text-fg-brand" />
+      <span class="tw-font-semibold tw-text-fg-brand">{{ text() }}</span>
+    </button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

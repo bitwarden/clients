@@ -5,7 +5,7 @@
   <h1
     bitTypography="h4"
     noMargin
-    class="tw-min-w-0 tw-flex-1 tw-truncate tw-text-fg-heading"
+    class="tw-min-w-0 tw-flex-1 tw-truncate tw-font-semibold tw-text-fg-heading"
     [title]="heading()"
   >
     {{ heading() }}
@@ -22,7 +22,7 @@
 
 @if (saveState(); as state) {
   @if (state.view !== NotificationTypes.Unlock && state.ciphers?.length) {
-    <bit-item-group class="tw-flex tw-max-h-32 tw-flex-col tw-gap-1.5 tw-overflow-y-auto tw-p-3">
+    <bit-item-group class="tw-bit-compact tw-block tw-max-h-40 tw-overflow-y-auto tw-p-3">
       @for (cipher of state.ciphers; track cipher.id) {
         <bit-item>
           <div bit-item-content>
@@ -72,6 +72,7 @@
         type="button"
         bitButton
         buttonType="primary"
+        size="small"
         [loading]="state.loading ?? false"
         (click)="save.emit(selection())"
       >
@@ -118,7 +119,7 @@
     @if (state.error) {
       <bit-icon name="bwi-exclamation-triangle" class="tw-text-4xl tw-text-fg-warning" />
     } @else {
-      <bit-svg [content]="tasksComplete() ? Celebrate : Keyhole" class="tw-w-12 tw-shrink-0" />
+      <bit-svg [content]="lastTaskComplete() ? Keyhole : Celebrate" class="tw-w-12 tw-shrink-0" />
     }
     <div class="tw-flex tw-min-w-0 tw-flex-col tw-gap-1">
       <p bitTypography="body1" noMargin class="tw-break-words tw-text-fg-heading">
@@ -153,6 +154,7 @@
         type="button"
         bitButton
         buttonType="primary"
+        size="small"
         endIcon="bwi-external-link"
         (click)="openTasks.emit()"
       >
@@ -163,9 +165,12 @@
 }
 
 @if (atRiskState(); as state) {
-  <p bitTypography="body1" noMargin class="tw-p-3 tw-break-words tw-text-fg-heading">
-    {{ atRiskMessage() }}
-  </p>
+  <div class="tw-flex tw-items-center tw-gap-4 tw-p-4">
+    <bit-icon name="bwi-exclamation-triangle" class="tw-shrink-0 tw-text-4xl tw-text-fg-heading" />
+    <p bitTypography="body1" noMargin class="tw-break-words tw-text-fg-heading">
+      {{ atRiskMessage() }}
+    </p>
+  </div>
   @if (state.passwordChangeUri) {
     <footer class="tw-px-4 tw-pb-4 tw-pt-2">
       <button
@@ -173,6 +178,7 @@
         type="button"
         bitButton
         buttonType="primary"
+        size="small"
         endIcon="bwi-external-link"
         data-testid="change-password-button"
         (click)="changePassword.emit()"
