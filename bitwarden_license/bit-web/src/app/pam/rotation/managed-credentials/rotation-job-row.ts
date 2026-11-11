@@ -49,6 +49,8 @@ export interface JobView {
   credentialName: string;
   /** False when {@link credentialName} is the raw config id rather than a resolved name. */
   credentialResolved: boolean;
+  /** The target system the credential rotates on, or `null` when its config is not loaded. */
+  targetSystemName: string | null;
   sourceLabelKey: string;
   statusLabelKey: string;
   statusVariant: BadgeVariant;
