@@ -37,11 +37,11 @@ export function styleShell() {
 
     // Resolves the theme the way `AngularThemingService` does: anything other than an explicit
     // light or dark, including nothing stored yet, follows the OS like the `system` default.
-    const theme = localStorage.getItem(POPUP_THEME_STORAGE_KEY);
-    const dark =
-      theme === "dark" ||
-      (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    document.documentElement.classList.add(dark ? "theme_dark" : "theme_light");
+    let theme = localStorage.getItem(POPUP_THEME_STORAGE_KEY);
+    if (theme !== "light" && theme !== "dark") {
+      theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    document.documentElement.classList.add(`theme_${theme}`);
   } catch {
     // Leave the shell unstyled rather than block the app from loading.
   }
