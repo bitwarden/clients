@@ -277,7 +277,28 @@ describe("VaultRowLeaseBadgeComponent", () => {
       expect(placeholder()).toBeNull();
     });
 
-    it("draws no em dash for a personal cipher, which belongs to no organization", async () => {
+    it("draws an em dash for a personal cipher, which no rule can govern", async () => {
+      create(ungatedCipher());
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["showNoAccessRule"]()).toBe(true);
+      expect(placeholder()?.textContent?.trim()).toBe("—");
+    });
+
+    it("draws an em dash for a personal cipher even with no PAM organization loaded", async () => {
+      organizations$.next([]);
+
+      create(ungatedCipher());
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["showNoAccessRule"]()).toBe(true);
+    });
+
+    it("draws no em dash for a personal cipher while the PAM flag is off", async () => {
+      enabled$.next(false);
+
       create(ungatedCipher());
       await fixture.whenStable();
       fixture.detectChanges();
