@@ -45,6 +45,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { RestrictedCipherAction } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
@@ -114,6 +115,7 @@ import {
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { restoreVaultScopeGuard } from "../vault/popup/guards/restore-vault-scope.guard";
+import { restrictedCipherGuard } from "../vault/popup/guards/restricted-cipher.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
@@ -271,7 +273,11 @@ const routes: Routes = [
   {
     path: "edit-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard, debounceNavigationGuard()],
+    canActivate: [
+      authGuard,
+      debounceNavigationGuard(),
+      restrictedCipherGuard(RestrictedCipherAction.Edit),
+    ],
     data: {
       // Above "trash"
       elevation: 3,
@@ -425,7 +431,7 @@ const routes: Routes = [
   {
     path: "clone-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, restrictedCipherGuard(RestrictedCipherAction.Clone)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -735,7 +741,7 @@ const routes: Routes = [
   {
     path: "assign-collections",
     component: AssignCollections,
-    canActivate: [authGuard],
+    canActivate: [authGuard, restrictedCipherGuard(RestrictedCipherAction.AssignCollections)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

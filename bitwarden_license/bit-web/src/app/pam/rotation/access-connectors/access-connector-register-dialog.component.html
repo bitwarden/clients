@@ -4,15 +4,13 @@
   </ng-container>
 
   <div bitDialogContent>
-    <bit-form-field>
+    <p bitTypography="body1" class="tw-text-fg-body">
+      {{ "pamAccessConnectorRegisterDescription" | i18n }}
+    </p>
+    <bit-form-field disableMargin>
       <bit-label>{{ "name" | i18n }}</bit-label>
-      <input
-        bitInput
-        formControlName="name"
-        id="access-connector-register-dialog_input_name"
-        [placeholder]="'pamAccessConnectorNamePlaceholder' | i18n"
-      />
-      <bit-hint>{{ "pamAccessConnectorNameHint" | i18n }}</bit-hint>
+      <input bitInput formControlName="name" id="access-connector-register-dialog_input_name" />
+      <bit-hint>{{ "pamAccessConnectorNameRecognizableHint" | i18n }}</bit-hint>
     </bit-form-field>
   </div>
 
