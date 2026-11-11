@@ -7,6 +7,7 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   CollectionAccessSelectionView,
   CollectionAdminView,
+  CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -263,8 +264,12 @@ export class MemberAccessReportService {
       firstValueFrom(this.keyService.orgKeys$(userId)),
       this.reportApiService.getCollectionAccessDetails(organizationId),
     ]);
+    // My Items collections never hold report ciphers, so they would only add empty rows
+    const sharedCollections = collections.filter(
+      (c) => c.type !== CollectionTypes.DefaultUserCollection,
+    );
     return Promise.all(
-      collections.map((c) =>
+      sharedCollections.map((c) =>
         CollectionAdminView.fromCollectionAccessDetails(
           c,
           this.encryptService,

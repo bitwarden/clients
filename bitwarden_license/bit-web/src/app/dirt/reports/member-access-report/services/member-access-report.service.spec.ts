@@ -8,6 +8,7 @@ import {
 import {
   CollectionAccessDetailsResponse,
   CollectionAdminView,
+  CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -346,6 +347,30 @@ describe("MemberAccessReportService", () => {
   });
 
   describe("generateMemberAccessReportViewV2", () => {
+    it("leaves My Items collections out of the report", async () => {
+      const user = { id: "user-1", readOnly: false, hidePasswords: false, manage: false };
+      mockCollections([
+        {
+          ...createMockCollection("shared-1", "Shared", [user]),
+          type: CollectionTypes.SharedCollection,
+        },
+        {
+          ...createMockCollection("default-1", "My Items", [user]),
+          type: CollectionTypes.DefaultUserCollection,
+        },
+      ] as CollectionAdminView[]);
+      mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [createMockOrganizationUser("user-1", "user1@test.com", "User One")],
+      } as ListResponse<OrganizationUserUserDetailsResponse>);
+      mockCipherService.getAllFromApiForOrganization.mockResolvedValue([]);
+
+      const report =
+        await memberAccessReportService.generateMemberAccessReportViewV2(mockOrganizationId);
+
+      expect(report).toHaveLength(1);
+      expect(report[0].collectionsCount).toBe(1);
+    });
+
     it("loads collections from the report-reader endpoint with the org key", async () => {
       const response = {
         id: "collection-1",
