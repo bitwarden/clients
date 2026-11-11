@@ -436,7 +436,7 @@ describe("ItemMoreOptionsComponent", () => {
       expect(component["allows"](RestrictedCipherAction.UserFields)).toBe(true);
     });
 
-    it("allows edit, but not clone or delete, while a reveal of its restricted cipher is live", () => {
+    it("allows edit and delete, but not clone, while a reveal of its restricted cipher is live", () => {
       const restricted = { ...baseCipher, partial: true } as CipherView;
       component.cipher = restricted;
       expect(component["isLocked"]).toBe(true);
@@ -447,7 +447,7 @@ describe("ItemMoreOptionsComponent", () => {
 
       expect(component["isLocked"]).toBe(false);
       expect(component.canEdit).toBe(true);
-      expect(component["allows"](RestrictedCipherAction.Delete)).toBe(false);
+      expect(component["allows"](RestrictedCipherAction.Delete)).toBe(true);
       expect(component["allows"](RestrictedCipherAction.Clone)).toBe(false);
     });
 
@@ -574,7 +574,7 @@ describe("ItemMoreOptionsComponent", () => {
       expect(menuItems()).toEqual(["favorite", "archiveVerb"]);
     });
 
-    it("offers Edit, but not Clone or Delete, on a revealed row", () => {
+    it("offers Edit and Delete, but not Clone, on a revealed row", () => {
       const revealed = { ...baseCipher, partial: false } as CipherView;
       revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
       component.cipher = revealed;
@@ -582,8 +582,8 @@ describe("ItemMoreOptionsComponent", () => {
       const items = menuItems();
 
       expect(items).toContain("edit");
+      expect(items).toContain("delete");
       expect(items).not.toContain("clone");
-      expect(items).not.toContain("delete");
     });
 
     it("keeps the overflow trigger for a restricted row", () => {

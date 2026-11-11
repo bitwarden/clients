@@ -64,6 +64,8 @@ describe("RestrictedCipherPolicy", () => {
       RestrictedCipherAction.UserFields,
       RestrictedCipherAction.Edit,
       RestrictedCipherAction.Attachments,
+      RestrictedCipherAction.Delete,
+      RestrictedCipherAction.Restore,
     ];
     const revealedBlocked = allActions.filter((a) => !revealedAllowed.includes(a));
     const revealedView = new CipherView();

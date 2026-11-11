@@ -269,7 +269,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.cipher !== null && this.formConfig.mode !== "clone";
   }
 
-  /** The footer's Delete icon button, withheld for a restricted cipher, revealed or not. */
+  /** The footer's Delete icon button, withheld for a restricted cipher until it is revealed. */
   protected get showDeleteButton() {
     return (
       this.cipher != null &&
