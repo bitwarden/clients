@@ -7078,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8901,8 +8902,26 @@
   "pamStartLeaseErrorNotApproved": {
     "message": "This request has not been approved yet."
   },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
   "pamStartLeaseErrorSingleActiveAccess": {
     "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
   },
   "requestAccessModalAlreadyPending": {
     "message": "You already have a pending request for this item."
@@ -8971,6 +8990,9 @@
   "pamExtendLeaseEnded": {
     "message": "Your access ended before it could be extended. The request is in your history."
   },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
   "pamAccessBadgePending": {
     "message": "Pending approval"
   },
@@ -8979,6 +9001,27 @@
   },
   "pamAccessBadgeReady": {
     "message": "Ready to use"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Session ended"
   },
   "pamActiveLeaseBannerTitleV2": {
     "message": "Access active • $DURATION$ left",
@@ -9022,6 +9065,18 @@
   },
   "pamRequestToUse": {
     "message": "Request to use"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Unavailable to request",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Extend access",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1m left",
+    "description": "Badge for a vault item whose access ends in under a minute."
   },
   "controlledAccess": {
     "message": "Controlled access"
@@ -9127,8 +9182,23 @@
   "pendingStateCancelRequest": {
     "message": "Cancel request"
   },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
   "pamCancelRequestCanceledToast": {
     "message": "Request canceled"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
   },
   "requestAccessModalSubmitV2": {
     "message": "Send request"
@@ -9237,6 +9307,9 @@
   },
   "requestAccessModalGenericError": {
     "message": "Could not request access. Try again."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
   },
   "requestAccessModalApprovedSuccessV2": {
     "message": "Access approved. Select Start access to begin."
