@@ -423,10 +423,7 @@ export class Fido2AuthenticatorService<
     return ciphers
       .filter(
         (cipher) =>
-          !cipher.isDeleted &&
           cipher.organizationId == undefined &&
-          cipher.type === CipherType.Login &&
-          cipher.login.hasFido2Credentials &&
           ids.includes(cipher.login.fido2Credentials[0].credentialId),
       )
       .map((cipher) => cipher.id);
@@ -444,9 +441,6 @@ export class Fido2AuthenticatorService<
     const ciphers = await this.passkeyCiphers(activeUserId);
     return ciphers.filter(
       (cipher) =>
-        !cipher.isDeleted &&
-        cipher.type === CipherType.Login &&
-        cipher.login.hasFido2Credentials &&
         cipher.login.fido2Credentials[0].rpId === rpId &&
         credentials.some((credential) =>
           compareCredentialIds(
@@ -458,8 +452,8 @@ export class Fido2AuthenticatorService<
   }
 
   /**
-   * Ciphers holding a passkey, fully decrypted. Picked on list views first, so a passkey
-   * lookup never decrypts the whole vault.
+   * Non-deleted login ciphers holding a passkey, fully decrypted. Picked on list views first,
+   * so a passkey lookup never decrypts the whole vault.
    */
   private async passkeyCiphers(userId: UserId): Promise<CipherView[]> {
     const listViews = await firstValueFrom(
@@ -468,7 +462,9 @@ export class Fido2AuthenticatorService<
     const ids = listViews
       .filter(
         (cipher) =>
-          CipherViewLikeUtils.hasFido2Credentials(cipher) && !CipherViewLikeUtils.isDeleted(cipher),
+          CipherViewLikeUtils.getType(cipher) === CipherType.Login &&
+          CipherViewLikeUtils.hasFido2Credentials(cipher) &&
+          !CipherViewLikeUtils.isDeleted(cipher),
       )
       .map((cipher) => CipherViewLikeUtils.getId(cipher))
       .filter((id) => id != null);
@@ -481,9 +477,6 @@ export class Fido2AuthenticatorService<
     const ciphers = await this.passkeyCiphers(activeUserId);
     return ciphers.filter(
       (cipher) =>
-        !cipher.isDeleted &&
-        cipher.type === CipherType.Login &&
-        cipher.login.hasFido2Credentials &&
         cipher.login.fido2Credentials[0].rpId === rpId &&
         cipher.login.fido2Credentials[0].discoverable,
     );
