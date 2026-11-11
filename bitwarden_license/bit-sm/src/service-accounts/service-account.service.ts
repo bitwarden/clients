@@ -95,7 +95,7 @@ export class ServiceAccountService {
     serviceAccountId: string,
     organizationId: string,
     serviceAccountView: ServiceAccountView,
-  ) {
+  ): Promise<ServiceAccountView> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = await this.getServiceAccountRequest(orgKey, serviceAccountView);
     const r = await this.apiService.send(
@@ -105,9 +105,12 @@ export class ServiceAccountService {
       true,
       true,
     );
-    this._serviceAccount.next(
-      await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r)),
+    const serviceAccount = await this.createServiceAccountView(
+      orgKey,
+      new ServiceAccountResponse(r),
     );
+    this._serviceAccount.next(serviceAccount);
+    return serviceAccount;
   }
 
   async create(
