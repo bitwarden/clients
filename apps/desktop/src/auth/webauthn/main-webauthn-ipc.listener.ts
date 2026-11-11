@@ -9,6 +9,10 @@ import { WindowMain } from "../../main/window.main";
 import { SafeShell } from "../../platform/main/safe-shell.main";
 import { isDev } from "../../utils";
 
+import {
+  AutomationWebAuthnCancellation,
+  AutomationWebAuthnService,
+} from "./automation-webauthn.service";
 import type { WebVault } from "./native-webauthn";
 import {
   buildConnectorRequest,
@@ -35,7 +39,7 @@ const BROWSER_SESSION_GRACE_MS = 60_000;
  */
 export class MainWebAuthnIpcListener {
   /** Cancellations for in-progress requests, by renderer-chosen request ID. */
-  private pending = new Map<string, webauthn.AssertionCancellation>();
+  private pending = new Map<string, { cancel(): void }>();
   /** Requests waiting for the user's browser, by request ID, which the renderer may reopen. */
   private browserSessions = new Map<string, { sender: WebContents; url: string }>();
 
@@ -43,6 +47,11 @@ export class MainWebAuthnIpcListener {
     private windowMain: WindowMain,
     private logService: LogService,
     private shell: SafeShell,
+    /**
+     * Answers requests instead of the platform's passkey APIs and the browser connector, for
+     * automation. Only set in dev mode with `USE_AUTOMATION_WEBAUTHN`.
+     */
+    private automation?: AutomationWebAuthnService,
   ) {}
 
   init() {
@@ -102,11 +111,16 @@ export class MainWebAuthnIpcListener {
     // Close the platform's prompt if the renderer reloads or goes away while it is open.
     const cancelOnRendererGone = () => this.pending.get(requestId)?.cancel();
     try {
-      const cancellation = new webauthn.AssertionCancellation();
-      this.pending.set(requestId, cancellation);
       sender.once("did-start-loading", cancelOnRendererGone);
       sender.once("render-process-gone", cancelOnRendererGone);
       sender.once("destroyed", cancelOnRendererGone);
+      if (this.automation != null) {
+        const automationCancellation = new AutomationWebAuthnCancellation();
+        this.pending.set(requestId, automationCancellation);
+        return await this.automation.getAssertion(request, automationCancellation);
+      }
+      const cancellation = new webauthn.AssertionCancellation();
+      this.pending.set(requestId, cancellation);
       const windowHandle = win.getNativeWindowHandle();
       const result = webauthn.requiresBrowser(request.rpId)
         ? { requiresBrowser: true }

@@ -12,6 +12,7 @@ import { isAppImage, isLinux } from "../../main/platform-utils.main";
 import { WindowMain } from "../../main/window.main";
 import { SafeShell } from "../../platform/main/safe-shell.main";
 
+import { AutomationWebAuthnService } from "./automation-webauthn.service";
 import { MainWebAuthnIpcListener } from "./main-webauthn-ipc.listener";
 import { WEBAUTHN_IPC_CHANNELS } from "./webauthn-ipc-channels";
 import { WebAuthnLoopbackCallback } from "./webauthn-loopback-callback";
@@ -530,6 +531,74 @@ describe("MainWebAuthnIpcListener", () => {
       error: { name: "UnknownError", message: "Failed to get assertion." },
     });
     expect(logService.error).toHaveBeenCalled();
+  });
+
+  describe("with the automation client", () => {
+    let automation: AutomationWebAuthnService;
+
+    beforeEach(() => {
+      automation = new AutomationWebAuthnService(logService);
+      listener = new MainWebAuthnIpcListener(windowMain, logService, shell, automation);
+      listener.init();
+    });
+
+    it("waits for automation to answer instead of using the platform or a browser", async () => {
+      const result = getAssertion("1");
+      const [pending] = automation.listPendingRequests();
+
+      automation.respond(pending.id, {
+        credentialId: "AQ",
+        clientDataJson: "Ag",
+        authenticatorData: "Aw",
+        signature: "BA",
+      });
+
+      await expect(result).resolves.toEqual({
+        response: expect.objectContaining({ credentialId: new Uint8Array([1]) }),
+      });
+      expect(webauthn.getAssertion).not.toHaveBeenCalled();
+      expect(webauthn.requiresBrowser).not.toHaveBeenCalled();
+      expect(webauthn.webAuthenticationSession).not.toHaveBeenCalled();
+    });
+
+    it("ends the request with an AbortError when the renderer cancels it", async () => {
+      const result = getAssertion("1");
+
+      await cancelRequest("1");
+
+      await expect(result).resolves.toEqual({
+        error: { name: "AbortError", message: "The request was cancelled." },
+      });
+      expect(automation.listPendingRequests()).toEqual([]);
+    });
+
+    it("ends the request with an AbortError when the renderer reloads", async () => {
+      const result = getAssertion("1");
+
+      (sender as unknown as EventEmitter).emit("did-start-loading");
+
+      await expect(result).resolves.toEqual({
+        error: { name: "AbortError", message: "The request was cancelled." },
+      });
+    });
+
+    it("still rejects requests from other windows", async () => {
+      const other = Object.assign(new EventEmitter(), {
+        isDestroyed: () => false,
+      }) as unknown as WebContents;
+
+      const result = handlers.get(WEBAUTHN_IPC_CHANNELS.GET_ASSERTION)!(
+        { sender: other },
+        "1",
+        request,
+        webVault,
+      );
+
+      await expect(result).resolves.toEqual({
+        error: { name: "NotAllowedError", message: "The request is not allowed." },
+      });
+      expect(automation.listPendingRequests()).toEqual([]);
+    });
   });
 
   describe("handleCallbackUrl", () => {

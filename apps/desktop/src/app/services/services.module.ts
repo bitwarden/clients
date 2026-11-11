@@ -39,6 +39,7 @@ import {
 import {
   AutomationCapability,
   BiometricsCapability,
+  WebAuthnCapability,
   DesktopNavigationCapability,
   ProcessReloadCapability,
 } from "@bitwarden/automation-driver";
@@ -185,6 +186,7 @@ import { DesktopLoginComponentService } from "../../auth/login/desktop-login-com
 import { DesktopLoginViaWebAuthnComponentService } from "../../auth/login/desktop-login-via-webauthn-component.service";
 import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
+import { AutomationWebAuthnResponse } from "../../auth/webauthn/automation-webauthn-message";
 import { DesktopTwoFactorAuthWebAuthnComponentService } from "../../auth/webauthn/desktop-two-factor-auth-webauthn-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -284,6 +286,22 @@ const safeProviders: SafeProvider[] = [
           approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
           deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
           onRequest: (callback) => ipc.keyManagement.automation.biometrics.onRequest(callback),
+        },
+        toastService,
+      ),
+    deps: [ToastService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (toastService: ToastService) =>
+      new WebAuthnCapability(
+        {
+          listPending: () => ipc.auth.automation.webauthn.listPending(),
+          respond: (id, response) =>
+            ipc.auth.automation.webauthn.respond(id, response as AutomationWebAuthnResponse),
+          reject: (id, error) => ipc.auth.automation.webauthn.reject(id, error),
+          onRequest: (callback) => ipc.auth.automation.webauthn.onRequest(callback),
         },
         toastService,
       ),

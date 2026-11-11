@@ -48,6 +48,8 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
+import { AutomationWebAuthnIpcListener } from "./auth/webauthn/automation-webauthn-ipc.listener";
+import { AutomationWebAuthnService } from "./auth/webauthn/automation-webauthn.service";
 import { MainWebAuthnIpcListener } from "./auth/webauthn/main-webauthn-ipc.listener";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
@@ -83,6 +85,7 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
+import { isDev } from "./utils";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -341,10 +344,24 @@ export class Main {
       this.biometricsService,
       this.logService,
     );
+    // Automation answers WebAuthn requests in place of the platform's passkey APIs (dev only).
+    let automationWebAuthnService: AutomationWebAuthnService | undefined;
+    if (process.env.USE_AUTOMATION_WEBAUTHN && isDev()) {
+      this.logService.warning(
+        "[WebAuthn] USE_AUTOMATION_WEBAUTHN is set; using automation WebAuthn",
+      );
+      automationWebAuthnService = new AutomationWebAuthnService(this.logService);
+      new AutomationWebAuthnIpcListener(
+        automationWebAuthnService,
+        this.logService,
+        this.windowMain,
+      ).init();
+    }
     this.mainWebAuthnIpcListener = new MainWebAuthnIpcListener(
       this.windowMain,
       this.logService,
       this.shell,
+      automationWebAuthnService,
     );
 
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(stateProvider);

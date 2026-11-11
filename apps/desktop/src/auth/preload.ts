@@ -2,6 +2,15 @@ import { ipcRenderer } from "electron";
 
 import type { webauthn } from "@bitwarden/desktop-napi";
 
+import {
+  AUTOMATION_WEBAUTHN_CHANNEL,
+  AUTOMATION_WEBAUTHN_REQUEST_CHANNEL,
+  AutomationWebAuthnAction,
+  AutomationWebAuthnError,
+  AutomationWebAuthnMessage,
+  AutomationWebAuthnRequest,
+  AutomationWebAuthnResponse,
+} from "./webauthn/automation-webauthn-message";
 import type { WebVault } from "./webauthn/native-webauthn";
 import { WEBAUTHN_IPC_CHANNELS } from "./webauthn/webauthn-ipc-channels";
 
@@ -31,5 +40,29 @@ export default {
     },
     reopenBrowser: (requestId: string): Promise<void> =>
       ipcRenderer.invoke(WEBAUTHN_IPC_CHANNELS.REOPEN_BROWSER, requestId),
+  },
+  // Automation-only surface, controlled by the renderer automation driver (dev mode only).
+  automation: {
+    webauthn: {
+      listPending: (): Promise<AutomationWebAuthnRequest[]> =>
+        ipcRenderer.invoke(AUTOMATION_WEBAUTHN_CHANNEL, {
+          action: AutomationWebAuthnAction.ListPending,
+        } satisfies AutomationWebAuthnMessage),
+      respond: (id: string, response: AutomationWebAuthnResponse): Promise<boolean> =>
+        ipcRenderer.invoke(AUTOMATION_WEBAUTHN_CHANNEL, {
+          action: AutomationWebAuthnAction.Respond,
+          id,
+          response,
+        } satisfies AutomationWebAuthnMessage),
+      reject: (id: string, error: AutomationWebAuthnError): Promise<boolean> =>
+        ipcRenderer.invoke(AUTOMATION_WEBAUTHN_CHANNEL, {
+          action: AutomationWebAuthnAction.Reject,
+          id,
+          error,
+        } satisfies AutomationWebAuthnMessage),
+      onRequest: (callback: (request: AutomationWebAuthnRequest) => void) => {
+        ipcRenderer.on(AUTOMATION_WEBAUTHN_REQUEST_CHANNEL, (_event, request) => callback(request));
+      },
+    },
   },
 };
