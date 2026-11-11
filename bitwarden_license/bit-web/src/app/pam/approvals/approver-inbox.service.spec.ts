@@ -18,7 +18,6 @@ import {
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
-import { humanDecision } from "../testing/decision-builders";
 
 import { ApproverInboxService } from "./approver-inbox.service";
 
@@ -89,7 +88,7 @@ describe("ApproverInboxService", () => {
     inboxPush$ = new Subject<void>();
 
     approvalApi.listInbox.mockResolvedValue([]);
-    approvalApi.listHistory.mockResolvedValue([]);
+    approvalApi.listApproved.mockResolvedValue([]);
     nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames() as ResolvedNames);
 
     TestBed.configureTestingModule({
@@ -113,9 +112,11 @@ describe("ApproverInboxService", () => {
   });
 
   describe("load", () => {
-    it("reads the inbox and the history and resolves their names together", async () => {
+    it("reads the inbox and the approved requests and resolves their names together", async () => {
       approvalApi.listInbox.mockResolvedValue([request({ id: "pending-1" })]);
-      approvalApi.listHistory.mockResolvedValue([request({ id: "done-1", status: "approved" })]);
+      approvalApi.listApproved.mockResolvedValue([
+        request({ id: "approved-1", status: "approved" }),
+      ]);
 
       await service.load();
 
@@ -124,7 +125,7 @@ describe("ApproverInboxService", () => {
         { cipherId: "cipher-1", collectionId: "col-1" },
       ]);
       expect(await firstValueFrom(service.inboxRows$)).toHaveLength(1);
-      expect(await firstValueFrom(service.historyRows$)).toHaveLength(1);
+      expect(await firstValueFrom(service.managedIds$)).toEqual(new Set(["approved-1"]));
       expect(await firstValueFrom(service.loading$)).toBe(false);
     });
 
@@ -181,8 +182,10 @@ describe("ApproverInboxService", () => {
       expect(await firstValueFrom(service.pendingCount$)).toBe(1);
     });
 
-    it("exposes the managed ids so history knows which rows it may act on", async () => {
-      approvalApi.listHistory.mockResolvedValue([request({ id: "managed-1", status: "denied" })]);
+    it("exposes the approved ids, the only requests the caller may withdraw or revoke", async () => {
+      approvalApi.listApproved.mockResolvedValue([
+        request({ id: "managed-1", status: "approved" }),
+      ]);
 
       await service.load();
 
@@ -216,40 +219,17 @@ describe("ApproverInboxService", () => {
       await service.load();
     });
 
-    it("removes the row from the inbox and takes history from the re-read", async () => {
+    it("removes the row from the inbox and takes the approval from the re-read", async () => {
       approvalApi.decide.mockResolvedValue(request({ id: "req-1", status: "approved" }));
       approvalApi.listInbox.mockResolvedValue([]);
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({ id: "req-1", status: "approved", resolvedAt: "2026-08-17T12:00:00.000Z" }),
       ]);
 
       await service.decide("req-1" as unknown as AccessRequestId, "approve", "fine");
 
       expect(await firstValueFrom(service.inboxRows$)).toHaveLength(0);
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history).toHaveLength(1);
-      expect(history[0].status).toBe("approved");
-    });
-
-    it("names the approver from the re-read, not from the decision response", async () => {
-      // The response carries the approver's id alone; only the list read resolves it to a name.
-      approvalApi.decide.mockResolvedValue(
-        request({ id: "req-1", status: "approved", decisions: [humanDecision({ id: "user-9" })] }),
-      );
-      approvalApi.listInbox.mockResolvedValue([]);
-      approvalApi.listHistory.mockResolvedValue([
-        request({
-          id: "req-1",
-          status: "approved",
-          decisions: [humanDecision({ id: "user-9", name: "Ada Lovelace" })],
-        }),
-      ]);
-
-      await service.decide("req-1" as unknown as AccessRequestId, "approve", undefined);
-
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].resolverName).toBe("Ada Lovelace");
-      expect(history[0].resolverLabelKey).toBeNull();
+      expect(await firstValueFrom(service.managedIds$)).toEqual(new Set(["req-1"]));
     });
 
     it("puts the row back and rethrows when the decision fails", async () => {
@@ -292,16 +272,12 @@ describe("ApproverInboxService", () => {
       // The requester withdrew it after the inbox loaded; the row the click came from is stale.
       approvalApi.decide.mockRejectedValue(alreadyResolved());
       approvalApi.listInbox.mockResolvedValue([]);
-      approvalApi.listHistory.mockResolvedValue([
-        request({ id: "req-1", status: "canceled", resolvedAt: "2026-08-17T12:00:00.000Z" }),
-      ]);
 
       await expect(
         service.decide("req-1" as unknown as AccessRequestId, "approve", undefined),
       ).rejects.toThrow();
 
       expect(await firstValueFrom(service.inboxRows$)).toHaveLength(0);
-      expect(await firstValueFrom(service.historyRows$)).toHaveLength(1);
     });
 
     it("announces a request that is already resolved, so the nav badge drops it too", async () => {
@@ -332,7 +308,7 @@ describe("ApproverInboxService", () => {
 
   describe("approver-side mutations go through the SDK, not the HTTP seam", () => {
     beforeEach(async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({
           id: "req-1",
           status: "approved",
@@ -352,14 +328,13 @@ describe("ApproverInboxService", () => {
       expect(leasesApi.endLease).toHaveBeenCalledWith("lease-1", { reason: undefined });
     });
 
-    it("marks the produced lease revoked so the row re-buckets", async () => {
+    it("marks the produced lease revoked so the row leaves the running leases", async () => {
       await service.revokeLease(
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
 
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].statusBadge?.labelKey).toBe("pamStatusRevoked");
+      expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(0);
     });
 
     it("restores the row and rethrows when the revoke fails", async () => {
@@ -371,8 +346,7 @@ describe("ApproverInboxService", () => {
           "lease-1" as unknown as AccessLeaseId,
         ),
       ).rejects.toThrow("boom");
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
+      expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(1);
     });
 
     it("withdraws an approval via approvals().revoke() with the reason", async () => {
@@ -381,27 +355,18 @@ describe("ApproverInboxService", () => {
       expect(approvalApi.revoke).toHaveBeenCalledWith("req-1", { reason: "Approved by mistake" });
     });
 
-    it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
-      approvalApi.listHistory.mockClear();
-      approvalApi.listHistory.mockResolvedValue([
-        request({
-          id: "req-1",
-          status: "denied",
-          decisions: [
-            humanDecision({ id: "approver-1", verdict: "deny", comment: "Approved by mistake" }),
-          ],
-        }),
-      ]);
+    it("re-reads the approved requests after a withdrawal, which no longer list it", async () => {
+      approvalApi.listApproved.mockClear();
+      approvalApi.listApproved.mockResolvedValue([]);
 
       await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      expect(approvalApi.listHistory).toHaveBeenCalledTimes(1);
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].status).toBe("denied");
+      expect(approvalApi.listApproved).toHaveBeenCalledTimes(1);
+      expect(await firstValueFrom(service.managedIds$)).toEqual(new Set());
     });
 
     it("names the requester and organization of a managed request", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({ id: "req-1", status: "approved", organizationId: "org-1" }),
       ]);
       nameResolver.resolveNames.mockResolvedValue({
@@ -417,7 +382,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("falls back to the requester's email when they have no name", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({ id: "req-1", requesterName: undefined, requesterEmail: "grace@example.com" }),
       ]);
       await service.load();
@@ -426,7 +391,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("falls back to the requester's id, and names no organization it cannot resolve", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({
           id: "req-1",
           requesterId: "user-9",
@@ -463,8 +428,7 @@ describe("ApproverInboxService", () => {
       await expect(
         service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed"),
       ).rejects.toThrow("boom");
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].status).toBe("approved");
+      expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(1);
     });
 
     it("never reaches for the HTTP seam to mutate", async () => {
@@ -481,7 +445,7 @@ describe("ApproverInboxService", () => {
 
   describe("activeLeaseRows$", () => {
     it("lists only the requests whose produced lease is still active", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({
           id: "live",
           status: "approved",
@@ -508,7 +472,7 @@ describe("ApproverInboxService", () => {
     it("lists an activated grant whose status does not read as approved", async () => {
       // Liveness reads off the produced lease, never the display badge, since an activated grant
       // can carry a status read as denied.
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({
           id: "reads-denied",
           status: "denied",
@@ -523,7 +487,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("drops a lease whose window has closed, however the server still reports its status", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({
           id: "lapsed",
           status: "approved",
@@ -539,7 +503,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("names a cipher outside the local vault by its id, the text the Item column shows", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({
           id: "unresolved",
           status: "approved",
@@ -558,7 +522,7 @@ describe("ApproverInboxService", () => {
     it("keeps a lease an extension has carried past the request's own end", async () => {
       const requestEnd = new Date(Date.now() - 1000).toISOString();
       const extendedEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-      approvalApi.listHistory.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
+      approvalApi.listApproved.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
 
       await service.load();
 
@@ -570,7 +534,7 @@ describe("ApproverInboxService", () => {
     it("ends the row at the applied extension's end, not the originating request's", async () => {
       const requestEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
       const extendedEnd = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
-      approvalApi.listHistory.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
+      approvalApi.listApproved.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
 
       await service.load();
 
@@ -582,7 +546,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("drops the row on revoke and puts it back when the SDK rejects", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({
           id: "req-1",
           status: "approved",
@@ -616,7 +580,7 @@ describe("ApproverInboxService", () => {
 
     it("lists pending requests, then approvals not yet started, then running leases", async () => {
       approvalApi.listInbox.mockResolvedValue([request({ id: "pending" })]);
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({
           id: "running",
           status: "approved",
@@ -637,7 +601,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("orders approvals not yet started by when their window opens", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({ id: "later", status: "approved", leaseNotBefore: LATER, leaseNotAfter: LATER }),
         request({ id: "sooner", status: "approved" }),
       ]);
@@ -649,7 +613,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("leaves out decided requests the approver can no longer act on", async () => {
-      approvalApi.listHistory.mockResolvedValue([
+      approvalApi.listApproved.mockResolvedValue([
         request({ id: "denied", status: "denied" }),
         request({ id: "lapsed", status: "approved", leaseNotAfter: PAST }),
         request({
@@ -666,7 +630,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("leaves out an approved extension, which moves its lease rather than minting one", async () => {
-      approvalApi.listHistory.mockResolvedValue(
+      approvalApi.listApproved.mockResolvedValue(
         extendedLease(FUTURE, new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString()),
       );
 
@@ -675,29 +639,5 @@ describe("ApproverInboxService", () => {
       const rows = await firstValueFrom(service.approverRows$);
       expect(rows.map((row) => row.id)).toEqual(["original"]);
     });
-  });
-
-  it("sorts history newest-resolved first", async () => {
-    approvalApi.listHistory.mockResolvedValue([
-      request({ id: "older", status: "denied", resolvedAt: "2026-08-17T09:00:00.000Z" }),
-      request({ id: "newer", status: "denied", resolvedAt: "2026-08-17T11:00:00.000Z" }),
-    ]);
-
-    await service.load();
-
-    const history = await firstValueFrom(service.historyRows$);
-    expect(history.map((r) => r.id)).toEqual(["newer", "older"]);
-  });
-
-  it("folds an applied extension into its original history row", async () => {
-    const requestEnd = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-    const extendedEnd = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    approvalApi.listHistory.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
-
-    await service.load();
-
-    const history = await firstValueFrom(service.historyRows$);
-    expect(history.map((r) => r.id)).toEqual(["original"]);
-    expect(history[0].extendedUntil).toBe(extendedEnd);
   });
 });

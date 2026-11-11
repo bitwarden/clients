@@ -19395,6 +19395,38 @@
   "pamInboxLoadFailed": {
     "message": "Could not load inbox"
   },
+  "pamHistoryLoadFailed": {
+    "message": "Could not load history"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ requests",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 request"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ of $TOTAL$ requests",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
+  },
   "pamInboxRequestReasonLabel": {
     "message": "Request reason"
   },

@@ -12,6 +12,7 @@ import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service
 import { UserId } from "@bitwarden/common/types/guid";
 import type {
   AccessDecisionRequest,
+  AccessRequestHistoryQuery,
   AccessRequestId,
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
@@ -72,15 +73,45 @@ describe("ApprovalsSdkService", () => {
     });
   });
 
-  describe("listHistory", () => {
-    it("calls approvals().list_history() and returns the result", async () => {
+  describe("listApproved", () => {
+    it("calls approvals().list_approved() and returns the result", async () => {
       const approvals = mockApprovalsClient();
-      approvals.list_history.mockResolvedValue([decidedView]);
+      approvals.list_approved.mockResolvedValue([decidedView]);
 
-      const result = await service.listHistory();
+      const result = await service.listApproved();
 
-      expect(approvals.list_history).toHaveBeenCalledWith();
+      expect(approvals.list_approved).toHaveBeenCalledWith();
       expect(result).toEqual([decidedView]);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const approvals = mockApprovalsClient();
+      const error = new Error("boom");
+      approvals.list_approved.mockRejectedValue(error);
+
+      await expect(service.listApproved()).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("listHistory", () => {
+    const query = {
+      page: 2,
+      pageSize: 25,
+      statuses: ["revoked"],
+      collectionIds: [],
+      requesterIds: [],
+    } as unknown as AccessRequestHistoryQuery;
+
+    it("calls approvals().list_history() with the query and returns the page", async () => {
+      const approvals = mockApprovalsClient();
+      const page = { requests: [decidedView], total: 51, requesters: [], collectionIds: [] };
+      approvals.list_history.mockResolvedValue(page);
+
+      const result = await service.listHistory(query);
+
+      expect(approvals.list_history).toHaveBeenCalledWith(query);
+      expect(result).toEqual(page);
     });
 
     it("logs and rethrows on failure", async () => {
@@ -88,7 +119,7 @@ describe("ApprovalsSdkService", () => {
       const error = new Error("boom");
       approvals.list_history.mockRejectedValue(error);
 
-      await expect(service.listHistory()).rejects.toBe(error);
+      await expect(service.listHistory(query)).rejects.toBe(error);
       expect(logService.error).toHaveBeenCalled();
     });
   });

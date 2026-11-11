@@ -232,13 +232,13 @@ describe("MyAccessService", () => {
     // The server omits the requester from the caller's own read.
     it("names the caller as the requester of their own requests", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
-        request("req-1", { status: "denied" }),
-        request("req-2", { status: "denied", requesterName: "Server name" }),
+        request("req-1", { status: "pending" }),
+        request("req-2", { status: "pending", requesterName: "Server name" }),
       ]);
 
       await service.load();
 
-      const rows = await firstValueFrom(service.historyRows$);
+      const rows = await firstValueFrom(service.pendingRows$);
       expect(rows.map((r) => [r.id, r.requester, r.requesterEmail])).toEqual([
         ["req-1", "Ada", "ada@example.com"],
         ["req-2", "Server name", null],
@@ -247,11 +247,11 @@ describe("MyAccessService", () => {
 
     it("leaves the requester unnamed when no account is active", async () => {
       activeAccount$.next(null);
-      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "denied" })]);
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
 
       await service.load();
 
-      expect((await firstValueFrom(service.historyRows$))[0].requester).toBe("");
+      expect((await firstValueFrom(service.pendingRows$))[0].requester).toBe("");
     });
 
     it("records the error and clears loading when a fetch fails", async () => {
@@ -287,45 +287,6 @@ describe("MyAccessService", () => {
         await service.load();
 
         expect((await firstValueFrom(service.pendingRows$)).map((r) => r.id)).toEqual(["req-live"]);
-        expect((await firstValueFrom(service.historyRows$)).map((r) => r.id)).toEqual([
-          "req-lapsed",
-        ]);
-      });
-
-      it("badges a grant that lapsed unactivated Expired rather than Approved", async () => {
-        requestsApi.listMyAccessRequests.mockResolvedValue([
-          request("req-lapsed", { status: "approved", leaseNotAfter: "2000-01-01T00:00:00.000Z" }),
-        ]);
-
-        await service.load();
-
-        const [row] = await firstValueFrom(service.historyRows$);
-        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
-      });
-
-      it("badges a lease that lapsed since the load Expired rather than Active", async () => {
-        // The server record still reads `active`; only the clock says otherwise, and History is
-        // terminal, so "Active" is not something it can mean.
-        requestsApi.listMyAccessRequests.mockResolvedValue([
-          request("req-lapsed", {
-            status: "approved",
-            producedLeaseId: "lease-1",
-            producedLeaseStatus: "active",
-          }),
-        ]);
-        leasesApi.listMyLeases.mockResolvedValue([
-          lease("lease-1", {
-            status: "active",
-            notBefore: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            notAfter: new Date(Date.now() - 60 * 1000).toISOString(),
-          }),
-        ]);
-
-        await service.load();
-
-        const [row] = await firstValueFrom(service.historyRows$);
-        expect(row.id).toBe("req-lapsed");
-        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
       });
 
       it("includes only active leases in leases$", async () => {
@@ -341,32 +302,7 @@ describe("MyAccessService", () => {
         expect(rows.map((r) => r.id)).toEqual(["lease-1"]);
       });
 
-      it("excludes pending/approved requests and one whose lease is still active from historyRows$", async () => {
-        requestsApi.listMyAccessRequests.mockResolvedValue([
-          request("req-1", { status: "denied" }), // terminal, no lease -> included
-          // still actionable -> excluded (in Pending)
-          request("req-2", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
-          request("req-3", { status: "pending" }), // still actionable -> excluded (in Pending)
-          request("req-4", {
-            status: "approved",
-            producedLeaseId: "lease-1",
-            producedLeaseStatus: "active",
-          }), // lease still active -> excluded (in Active access)
-          request("req-5", {
-            status: "approved",
-            producedLeaseId: "lease-2",
-            producedLeaseStatus: "expired",
-          }), // lease no longer active -> included
-        ]);
-        leasesApi.listMyLeases.mockResolvedValue([lease("lease-1", { status: "active" })]);
-
-        await service.load();
-
-        const rows = await firstValueFrom(service.historyRows$);
-        expect(rows.map((r) => r.id).sort()).toEqual(["req-1", "req-5"]);
-      });
-
-      it("surfaces a denied extension in historyRows$ while an applied one stays folded away", async () => {
+      it("lists neither an applied nor a denied extension as pending", async () => {
         requestsApi.listMyAccessRequests.mockResolvedValue([
           request("req-1", {
             status: "approved",
@@ -386,8 +322,6 @@ describe("MyAccessService", () => {
 
         await service.load();
 
-        const rows = await firstValueFrom(service.historyRows$);
-        expect(rows.map((r) => r.id).sort()).toEqual(["ext-denied", "req-1"]);
         expect(await firstValueFrom(service.extensionRows$)).toEqual([]);
       });
     });
@@ -404,9 +338,6 @@ describe("MyAccessService", () => {
       expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1); // no reload
       const pending = await firstValueFrom(service.pendingRows$);
       expect(pending).toEqual([]);
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history.map((r) => r.id)).toEqual(["req-1"]);
-      expect(history[0].status).toBe("canceled");
     });
 
     it("announces a landed cancel, so the nav badge re-reads without waiting on a push", async () => {
@@ -452,9 +383,6 @@ describe("MyAccessService", () => {
 
       const leases = await firstValueFrom(service.leases$);
       expect(leases).toEqual([]);
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history.map((r) => r.id)).toEqual(["req-1"]);
-      expect(history[0].statusBadge?.labelKey).toBe("pamStatusCanceled");
       expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
     });
 
@@ -475,8 +403,6 @@ describe("MyAccessService", () => {
 
       const leases = await firstValueFrom(service.leases$);
       expect(leases.map((l) => l.id)).toEqual(["lease-1"]);
-      const history = await firstValueFrom(service.historyRows$);
-      expect(history).toEqual([]);
     });
   });
 

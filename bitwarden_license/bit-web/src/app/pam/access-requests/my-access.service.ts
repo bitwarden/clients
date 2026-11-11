@@ -44,9 +44,6 @@ import {
   buildMyAccessRequestRows,
   extensionsByLeaseId,
   isRedeemableGrant,
-  lapsedGrantBadge,
-  lapsedInHistory,
-  resolvedOrSubmittedMs,
   toLeaseRow,
   toRequestRow,
 } from "./my-access-row";
@@ -124,31 +121,6 @@ export class MyAccessService {
         .map((r) => toRequestRow(r, names))
         .slice(0, MY_ACCESS_PAGE_LIMIT),
     ),
-  );
-
-  /**
-   * Terminal requests, newest first. A grant with an active lease joins once the lease ends, and
-   * anything whose access is already over gets {@link lapsedGrantBadge}, see
-   * {@link lapsedInHistory}.
-   */
-  readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
-    this.rows$,
-    this.leases$,
-  ]).pipe(
-    map(([rows, leases]) => {
-      const nowMs = Date.now();
-      const activeLeaseIds = new Set(leases.map((l) => uuidAsString(l.id)));
-      return rows
-        .filter(
-          (r) =>
-            r.status !== "pending" &&
-            !isRedeemableGrant(r, nowMs) &&
-            !(r.producedLeaseId != null && activeLeaseIds.has(r.producedLeaseId)),
-        )
-        .map((r) => (lapsedInHistory(r) ? { ...r, statusBadge: lapsedGrantBadge } : r))
-        .sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a))
-        .slice(0, MY_ACCESS_PAGE_LIMIT);
-    }),
   );
 
   /**

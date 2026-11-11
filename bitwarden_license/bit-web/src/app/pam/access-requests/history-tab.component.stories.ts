@@ -1,19 +1,24 @@
 import { importProvidersFrom } from "@angular/core";
 import { provideRouter, withHashLocation } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { of } from "rxjs";
+import { NEVER, of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
+import {
+  AccessEventService,
+  AccessRequestHistoryPage,
+  AccessRequestHistoryQuery,
+  AccessRequestHistoryStatus,
+  AccessRequestView,
+  ApprovalSdkService,
+} from "@bitwarden/bit-pam";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { SyncService } from "@bitwarden/common/platform/sync";
-import { DialogService, ToastService } from "@bitwarden/components";
-import { DAY, HOUR, MINUTE, liveFromNow, startClockAtStoryNow } from "@bitwarden/storybook";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { DAY, HOUR, liveFromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
   accessRequest,
   decision,
@@ -22,9 +27,8 @@ import {
   storyNames,
 } from "../testing/story-fixtures";
 
+import { AccessNameResolverService } from "./access-name-resolver.service";
 import { HistoryTabComponent } from "./history-tab.component";
-import { MyAccessRequestRow, toRequestRow } from "./my-access-row";
-import { MyAccessService } from "./my-access.service";
 
 const names = storyNames();
 
@@ -34,11 +38,9 @@ async function selectFilterOptions(
   filter: string,
   options: string[],
 ): Promise<void> {
-  // Scoped to the toolbar, since the sortable Status column header is also a button named Status.
-  const [trigger] = (
-    await within(canvasElement).findAllByRole("button", { name: new RegExp(`^${filter}`) })
-  ).filter((button) => button.closest("bit-table-toolbar") != null);
-  await userEvent.click(trigger);
+  await userEvent.click(
+    await within(canvasElement).findByRole("button", { name: new RegExp(`^${filter}`) }),
+  );
   // Scoped to the popover, since the chip also stamps each option into a hidden slot that an
   // unscoped query would match.
   const menu = await within(document.body).findByRole("dialog", { name: filter });
@@ -50,17 +52,23 @@ async function selectFilterOptions(
 }
 
 const derek = { human: { id: "approver-1", name: "derek.finnegan", email: "derek@example.com" } };
+const sam = { requesterId: "user-2", requesterName: "sam.okafor" };
 
-const request = (overrides: Record<string, unknown>) =>
-  toRequestRow(accessRequest({ requesterName: "marcus.chen", ...overrides }), names);
+type Ended = { status: AccessRequestHistoryStatus; request: AccessRequestView };
+
+const ended = (status: AccessRequestHistoryStatus, overrides: Record<string, unknown>): Ended => ({
+  status,
+  request: accessRequest({ requesterName: "marcus.chen", ...overrides }),
+});
 
 /**
- * One row per end state, as the design frame lists them. Built in a factory, since the tab reads
- * the real clock and the times must stay relative to it.
+ * One request per end state, newest end first, as the design frame lists them, each with the
+ * status the server derives. Built in a factory, since the tab reads the real clock and the times
+ * must stay relative to it.
  */
-function frameRows(): MyAccessRequestRow[] {
+function frameRequests(): Ended[] {
   return [
-    request({
+    ended("denied", {
       id: "req-denied",
       cipherId: "cipher-2",
       collectionId: "col-2",
@@ -68,7 +76,7 @@ function frameRows(): MyAccessRequestRow[] {
       resolvedAt: liveFromNow(0),
       decisions: [decision({ decider: derek, verdict: "deny", decidedAt: liveFromNow(0) })],
     }),
-    request({
+    ended("revoked", {
       id: "req-revoked",
       status: "approved",
       producedLeaseId: "lease-revoked",
@@ -79,24 +87,24 @@ function frameRows(): MyAccessRequestRow[] {
         decision({ decider: derek, verdict: "deny", decidedAt: liveFromNow(-HOUR) }),
       ],
     }),
-    request({
+    ended("canceled", {
       id: "req-canceled",
       cipherId: "cipher-3",
       status: "canceled",
       resolvedAt: liveFromNow(-3 * HOUR),
     }),
-    request({
+    ended("expired", {
+      ...sam,
       id: "req-expired",
       cipherId: "cipher-2",
       collectionId: "col-2",
-      requesterName: "sam.okafor",
       status: "expired",
       leaseNotBefore: liveFromNow(-DAY - HOUR),
       leaseNotAfter: liveFromNow(-DAY),
     }),
-    request({
+    ended("session_ended", {
+      ...sam,
       id: "req-lapsed",
-      requesterName: "sam.okafor",
       status: "approved",
       producedLeaseId: "lease-lapsed",
       producedLeaseStatus: "expired",
@@ -104,10 +112,10 @@ function frameRows(): MyAccessRequestRow[] {
       resolvedAt: liveFromNow(-2 * DAY - HOUR),
       decisions: [decision({ decider: "automatic" })],
     }),
-    request({
+    ended("session_ended", {
+      ...sam,
       id: "req-ended",
       cipherId: "cipher-3",
-      requesterName: "sam.okafor",
       status: "approved",
       producedLeaseId: "lease-ended",
       producedLeaseStatus: "canceled",
@@ -121,45 +129,67 @@ function frameRows(): MyAccessRequestRow[] {
         }),
       ],
     }),
-    // Still running, so it stays on Approvals and My requests rather than listing here.
-    request({
-      id: "req-running",
-      status: "approved",
-      producedLeaseId: "lease-running",
-      producedLeaseStatus: "active",
-      producedLeaseNotAfter: liveFromNow(30 * MINUTE),
-      decisions: [decision({ decider: derek })],
-    }),
   ];
 }
 
-function history(options: { mine?: () => MyAccessRequestRow[]; canApprove?: boolean } = {}) {
-  const { mine = () => [], canApprove = true } = options;
+/** Older denials, so the history runs past one page. */
+function olderRequests(count: number): Ended[] {
+  return Array.from({ length: count }, (_, i) =>
+    ended("denied", {
+      id: `req-older-${i}`,
+      status: "denied",
+      resolvedAt: liveFromNow(-(8 + i) * DAY),
+      decisions: [
+        decision({ decider: derek, verdict: "deny", decidedAt: liveFromNow(-(8 + i) * DAY) }),
+      ],
+    }),
+  );
+}
+
+/** Answers like the server: filters, then pages, with facets over the whole history. */
+function historyServer(requests: () => Ended[]): Pick<ApprovalSdkService, "listHistory"> {
+  return {
+    listHistory: (query: AccessRequestHistoryQuery) => {
+      const all = requests();
+      const matching = all.filter(
+        ({ status, request }) =>
+          (query.statuses.length === 0 || query.statuses.includes(status)) &&
+          (query.collectionIds.length === 0 ||
+            query.collectionIds.map(uuidAsString).includes(uuidAsString(request.collectionId))) &&
+          (query.requesterIds.length === 0 ||
+            query.requesterIds.map(uuidAsString).includes(uuidAsString(request.requesterId))),
+      );
+      const start = query.page * query.pageSize;
+      return Promise.resolve({
+        requests: matching.slice(start, start + query.pageSize).map(({ request }) => request),
+        total: matching.length,
+        requesters: [
+          ...new Map(
+            all.map(({ request }) => [
+              uuidAsString(request.requesterId),
+              { id: request.requesterId, name: request.requesterName, email: undefined },
+            ]),
+          ).values(),
+        ],
+        collectionIds: [...new Set(all.map(({ request }) => uuidAsString(request.collectionId)))],
+      } as unknown as AccessRequestHistoryPage);
+    },
+  };
+}
+
+function history(requests: () => Ended[] = frameRequests) {
   return moduleMetadata({
     imports: [HistoryTabComponent],
     providers: [
+      { provide: ApprovalSdkService, useFactory: () => historyServer(requests) },
       {
-        provide: MyAccessService,
-        useFactory: () => ({
-          historyRows$: of(mine()),
-          cipherById$: of(names.cipherById),
-          loading$: of(false),
-          loadError$: of(null),
-        }),
+        provide: AccessNameResolverService,
+        useValue: { resolveNames: () => Promise.resolve(names) },
       },
       {
-        provide: ApproverInboxService,
-        useFactory: () => ({
-          historyRows$: of(canApprove ? frameRows() : []),
-          cipherById$: of(names.cipherById),
-          loading$: of(false),
-          loadError$: of(null),
-        }),
+        provide: AccessEventService,
+        useValue: { accessChanged$: () => NEVER, approverInboxChanged$: () => NEVER },
       },
-      { provide: ApprovalPrivilegeService, useValue: { canApprove$: of(canApprove) } },
-      { provide: SyncService, useValue: { activeUserLastSync$: () => of(new Date()) } },
-      { provide: DialogService, useValue: { open: () => {} } },
-      { provide: ToastService, useValue: { showToast: () => {} } },
     ],
   });
 }
@@ -191,24 +221,19 @@ export default {
 
 type Story = StoryObj<HistoryTabComponent>;
 
-/** An approver's history: every end state, newest first, with who or what resolved each. */
+/** Every end state, newest end first, with who or what resolved each. */
 export const Default: Story = {
   decorators: [history()],
 };
 
-/** A member who cannot approve sees only their own requests. */
-export const Requester: Story = {
-  decorators: [
-    history({
-      canApprove: false,
-      mine: () => frameRows().filter((row) => row.requester === "marcus.chen"),
-    }),
-  ],
+/** The history runs past one page; the server counts and pages it. */
+export const MorePages: Story = {
+  decorators: [history(() => [...frameRequests(), ...olderRequests(17)])],
 };
 
 /** Nothing has ended yet. */
 export const Empty: Story = {
-  decorators: [history({ canApprove: false })],
+  decorators: [history(() => [])],
 };
 
 /** Two Status options picked, matching either. */
