@@ -29,7 +29,7 @@ describe("ForegroundCipherService", () => {
       .mockResolvedValue({ result: listViews("first") });
 
     // Only the list-view stream is under test; the inherited dependencies stay mocks.
-    const cipherServiceDeps = Array.from({ length: 15 }, () =>
+    const cipherServiceDeps = Array.from({ length: 14 }, () =>
       mock<any>(),
     ) as ConstructorParameters<typeof CipherService>;
     service = new ForegroundCipherService(new MessageListener(messages$), ...cipherServiceDeps);
