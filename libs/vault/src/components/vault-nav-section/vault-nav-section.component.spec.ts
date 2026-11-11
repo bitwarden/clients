@@ -611,6 +611,22 @@ describe("VaultNavSectionComponent", () => {
         expect(wrapper.attributes["slot"]).toBe("end");
         expect(wrapper.injector.get(HoverRevealDirective, null)).not.toBeNull();
       });
+
+      it("places the menu before the suspended warning, so the hidden menu leaves no gap between icons", () => {
+        viewModel$.next({
+          ...withOrgs,
+          vaults: [personalItem, { ...orgA, enabled: false }, family],
+        });
+        fixture.detectChanges();
+
+        const menu = fixture.debugElement.query(By.directive(StubOrganizationOptionsComponent))
+          .parent.nativeElement as HTMLElement;
+        const warning = fixture.nativeElement.querySelector("bit-icon.bwi-exclamation-triangle");
+
+        expect(
+          menu.compareDocumentPosition(warning) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+      });
     });
 
     it("renders no menu when the client provides none", () => {
