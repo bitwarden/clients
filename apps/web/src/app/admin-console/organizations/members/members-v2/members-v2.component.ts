@@ -4,10 +4,11 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
   viewChildren,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   combineLatest,
   concatMap,
@@ -22,7 +23,7 @@ import {
 } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { RegistrationUserAddIcon } from "@bitwarden/assets/svg";
+import { RegistrationUserAddIcon, SearchFolder } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -33,8 +34,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import {
   BitCellComponent,
@@ -56,6 +60,7 @@ import {
   SvgComponent,
   type TableRowRange,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -72,9 +77,27 @@ import { SharedOrganizationModule } from "../../shared";
 import { AccountRecoveryDialogResultType } from "../components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
 import { AvatarIdPipe } from "../pipes";
-import { MemberDialogManagerService, OrganizationMembersService } from "../services";
+import {
+  MemberDialogManagerService,
+  MemberExportService,
+  OrganizationMembersService,
+} from "../services";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberActionResult } from "../services/member-actions/member-actions.types";
+
+import {
+  AccountRecoveryFilter,
+  matchesAccess,
+  matchesPolicies,
+  matchesProduct,
+  matchesRole,
+  matchesStatus,
+  MemberFilters,
+  MemberProductFilter,
+  REVOCATION_REASON_OPTIONS,
+  ROLE_OPTIONS,
+  TwoFactorFilter,
+} from "./members-filter";
 
 /** Badge text and variant per status, listed in the order the Status column sorts. */
 const STATUS_BADGES = [
@@ -90,11 +113,6 @@ const STATUS_BADGES = [
 ] as const;
 
 type StatusBadge = (typeof STATUS_BADGES)[number];
-
-/** The membership columns a chip can filter by, each keyed by the column it filters. */
-type MembershipKey = "groupNames" | "collectionNames";
-
-type MemberFilters = Partial<Record<MembershipKey, string[]>>;
 
 @Component({
   templateUrl: "members-v2.component.html",
@@ -114,6 +132,7 @@ type MemberFilters = Partial<Record<MembershipKey, string[]>>;
     SharedOrganizationModule,
     StatusLockupComponent,
     SvgComponent,
+    TooltipDirective,
     Vfo1I18nPipe,
     Vfo1IconPipe,
   ],
@@ -121,6 +140,7 @@ type MemberFilters = Partial<Record<MembershipKey, string[]>>;
 })
 export class MembersV2Component {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly i18nService = inject(I18nService);
   private readonly organizationService = inject(OrganizationService);
   private readonly accountService = inject(AccountService);
@@ -133,11 +153,20 @@ export class MembersV2Component {
   private readonly policyApiService = inject(PolicyApiServiceAbstraction);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
+  private readonly validationService = inject(ValidationService);
+  private readonly memberExportService = inject(MemberExportService);
   private readonly userNamePipe = inject(UserNamePipe);
+  private readonly configService = inject(ConfigService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly emptyIcon = RegistrationUserAddIcon;
+  protected readonly noMatchesIcon = SearchFolder;
+  protected readonly revocationReasons = REVOCATION_REASON_OPTIONS;
+  protected readonly roleOptions = ROLE_OPTIONS;
+  protected readonly productFilter = MemberProductFilter;
+  protected readonly accountRecoveryFilter = AccountRecoveryFilter;
+  protected readonly twoFactorFilter = TwoFactorFilter;
   protected readonly memberTab = MemberDialogTab;
   protected readonly userStatusType = OrganizationUserStatusType;
 
@@ -156,9 +185,17 @@ export class MembersV2Component {
   protected readonly organization = toSignal(this.organization$);
 
   protected readonly members = signal<OrganizationUserView[]>([]);
+  /** The name of every group in the organization by ID, or of every collection without groups. */
+  private readonly accessNames = signal<Map<string, string>>(new Map());
   protected readonly firstLoaded = signal(false);
   protected readonly isProcessing = this.memberActionsService.isProcessing;
   protected readonly table = defineTable<OrganizationUserView, "options">(this.members);
+
+  /**
+   * Whether an empty table means the search or filters hide every member, rather than the
+   * organization having none (e.g. one a provider just created).
+   */
+  protected readonly noMatches = computed(() => this.members().length > 0);
 
   protected readonly showUserManagementControls = computed(
     () => this.organization()?.canManageUsers ?? false,
@@ -209,6 +246,15 @@ export class MembersV2Component {
     { initialValue: false },
   );
 
+  /**
+   * The Account recovery section of the Policies filter shows when the organization uses account
+   * recovery and its policy is on: the same check as the v1 page's `showEnrolledStatus`. Admins
+   * without manage users permission still get it, though the server only returns enrolled members.
+   */
+  protected readonly showAccountRecoverySection = computed(
+    () => !!this.organization()?.useResetPassword && this.resetPasswordPolicyEnabled(),
+  );
+
   private readonly billingMetadata$: Observable<OrganizationBillingMetadataResponse> =
     this.organization$.pipe(
       switchMap((organization) =>
@@ -217,31 +263,87 @@ export class MembersV2Component {
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
-  /** Every group a member belongs to, offered as options in the Groups filter. */
-  protected readonly groupNames = computed(() => this.distinctNames("groupNames"));
-
-  /** Every collection a member can access, offered as options in the Collections filter. */
-  protected readonly collectionNames = computed(() => this.distinctNames("collectionNames"));
-
-  /** Each member's groups as action chips. Built once per load, so chip groups don't remeasure. */
-  protected readonly groupChips = computed(() => this.chipsByMember("groupNames", "bwi-users"));
-
-  /** Each member's collections as action chips. */
-  protected readonly collectionChips = computed(() =>
-    this.chipsByMember("collectionNames", "bwi-collection-shared"),
+  /**
+   * The organization's groups, or its collections without groups, as options in the Groups or
+   * Collections filter, sorted by name. Keyed by ID, so two groups sharing a name stay separate.
+   */
+  protected readonly accessOptions = computed(() =>
+    [...this.accessNames()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => this.compareText(a.name, b.name) || this.compareText(a.id, b.id)),
   );
 
+  /**
+   * Each member's groups, or collections without groups, as action chips sorted by name. Built
+   * once per load, so chip groups don't remeasure.
+   */
+  protected readonly accessChips = computed(() => {
+    const useGroups = this.organization()?.useGroups ?? false;
+    const startIcon: BitwardenIcon = useGroups ? "bwi-users" : "bwi-collection-shared";
+    const names = this.accessNames();
+    return new Map<OrganizationUserView, ChipGroupItem[]>(
+      this.members().map((member) => [
+        member,
+        (useGroups ? member.groups : member.collections.map((c) => c.id))
+          .flatMap((id) => {
+            const label = names.get(id);
+            return label == null ? [] : [{ id, label, startIcon }];
+          })
+          .sort((a, b) => this.compareText(a.label, b.label)),
+      ]),
+    );
+  });
+
+  private readonly privilegedControlsFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    { initialValue: false },
+  );
+
+  protected readonly canUseSecretsManager = computed(
+    () => this.organization()?.useSecretsManager ?? false,
+  );
+
+  protected readonly canUsePrivilegedControls = computed(
+    () => (this.organization()?.usePam ?? false) && this.privilegedControlsFlag(),
+  );
+
+  /** The Staged option only shows for organizations with staged members. */
+  protected readonly hasStagedMembers = computed(() =>
+    this.members().some((member) => member.status === OrganizationUserStatusType.Staged),
+  );
+
+  private readonly membersTable = viewChild(BitTableV2Component);
   private readonly filterMenus = viewChildren(FilterMenuComponent);
 
-  /** Members in any of the selected groups or collections. Names stand in for ids, as on the chips. */
+  /**
+   * The plain `?search=` and `?viewEvents=` keys that Event Logs links here with. Read once, since
+   * the table only syncs its own `members.*` keys and these are dropped after the first load.
+   */
+  private readonly deepLink: Params = this.route.snapshot.queryParams;
+
+  /** Seeds the table's search from `?search=`. The table prefers `members.search` when present. */
+  protected readonly initialFilters: MemberFilters = this.deepLink.search
+    ? { search: this.deepLink.search }
+    : {};
+
+  /**
+   * Members matching the search on name, email or id and every filter: Status, Role, in any of
+   * the checked groups or collections, with any of the checked products, and matching Policies.
+   */
   protected readonly filter = (row: OrganizationUserView, filters: MemberFilters) =>
-    this.matchesAny(row.groupNames, filters.groupNames) &&
-    this.matchesAny(row.collectionNames, filters.collectionNames);
+    this.matchesSearch(row, filters.search) &&
+    matchesStatus(row, filters.status) &&
+    matchesRole(row, filters.role) &&
+    matchesAccess(row, filters.access, this.organization()?.useGroups ?? false) &&
+    matchesProduct(row, filters.product) &&
+    matchesPolicies(row, filters.policies);
 
   constructor() {
     this.organization$
       .pipe(
-        switchMap((organization) => this.load(organization)),
+        switchMap((organization, index) =>
+          index === 0 ? this.loadFromDeepLink(organization) : this.load(organization),
+        ),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -251,9 +353,73 @@ export class MembersV2Component {
     this.billingMetadata$.pipe(take(1), takeUntilDestroyed()).subscribe();
   }
 
+  /**
+   * Orders members by name before they reach the table, so the page opens alphabetized without
+   * an active column sort. This keeps the sort out of the URL until the user picks one.
+   */
   async load(organization: Organization) {
-    this.members.set(await this.memberService.loadUsers(organization));
+    const { users, accessNames } = await this.memberService.loadMembers(organization);
+    this.accessNames.set(accessNames);
+    this.members.set([...users].sort(this.sortByName));
     this.firstLoaded.set(true);
+  }
+
+  /**
+   * Loads, opens the event log for a confirmed member named by `?viewEvents=`, then drops the
+   * plain deep link keys without a history entry so a reload or Back doesn't reopen the dialog.
+   */
+  private async loadFromDeepLink(organization: Organization) {
+    await this.load(organization);
+
+    const { search, viewEvents } = this.deepLink;
+    if (search == null && viewEvents == null) {
+      return;
+    }
+
+    const member = this.members().find((m) => m.id === viewEvents);
+    if (member?.status === OrganizationUserStatusType.Confirmed) {
+      this.openEventsDialog(member, organization);
+    }
+
+    await this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { search: null, viewEvents: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  }
+
+  async invite(organization: Organization) {
+    if (await this.seatLimitBlocks(organization)) {
+      return;
+    }
+
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const result = await this.memberDialogManager.openInviteDialog(
+      organization,
+      billingMetadata,
+      this.members(),
+    );
+
+    if (result === MemberDialogResult.Saved) {
+      await this.load(organization);
+      this.organizationMetadataService.refreshMetadataCache();
+    }
+  }
+
+  /** Exports every member, regardless of the search and filters, as on the v1 page. */
+  exportMembers() {
+    const result = this.memberExportService.getMemberExport(this.members());
+    if (result.success) {
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("dataExportSuccess"),
+      });
+    }
+
+    if (result.error != null) {
+      this.validationService.showError(result.error.message);
+    }
   }
 
   async edit(
@@ -311,6 +477,11 @@ export class MembersV2Component {
 
   openEventsDialog(user: OrganizationUserView, organization: Organization) {
     this.memberDialogManager.openEventsDialog(user, organization);
+  }
+
+  /** Whether the key icon follows a member's name, as in the v1 page's Policies column. */
+  protected showEnrolledStatus(user: OrganizationUserView): boolean {
+    return this.showAccountRecoverySection() && user.resetPasswordEnrolled;
   }
 
   allowResetPassword(user: OrganizationUserView, organization: Organization): boolean {
@@ -410,10 +581,17 @@ export class MembersV2Component {
   }
 
   /** Narrows the table to members of the chip's group or collection, replacing any prior choice. */
-  protected filterBy(key: MembershipKey, name: string) {
+  protected filterByAccess(id: string) {
     this.filterMenus()
-      .find((menu) => menu.key() === key)
-      ?.setValue([name]);
+      .find((menu) => menu.key() === "access")
+      ?.setValue([id]);
+  }
+
+  /** Resets the search and every filter, so Status returns to its default. */
+  protected clearAllFilters() {
+    this.membersTable()
+      ?.filterControls()
+      .forEach((control) => control.setValue(control.clearedValue()));
   }
 
   protected statusBadge(status: OrganizationUserStatusType): StatusBadge | undefined {
@@ -451,25 +629,11 @@ export class MembersV2Component {
     );
   };
 
-  private distinctNames(key: MembershipKey): string[] {
-    const names = new Set(this.members().flatMap((member) => member[key]));
-    return [...names].sort((a, b) => this.compareText(a, b));
-  }
-
-  private chipsByMember(
-    key: MembershipKey,
-    startIcon: BitwardenIcon,
-  ): Map<OrganizationUserView, ChipGroupItem[]> {
-    return new Map(
-      this.members().map((member) => [
-        member,
-        member[key].map((name) => ({ id: name, label: name, startIcon })),
-      ]),
+  private matchesSearch(row: OrganizationUserView, search: string | undefined): boolean {
+    const text = search?.toLowerCase();
+    return (
+      !text || [row.name, row.email, row.id].some((value) => value?.toLowerCase().includes(text))
     );
-  }
-
-  private matchesAny(names: string[], selected: string[] | undefined): boolean {
-    return !selected?.length || selected.some((name) => names.includes(name));
   }
 
   private compareText(a: string, b: string): number {

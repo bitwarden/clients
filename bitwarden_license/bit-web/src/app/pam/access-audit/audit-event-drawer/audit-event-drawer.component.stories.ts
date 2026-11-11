@@ -37,8 +37,8 @@ const POPULATED: AuditRow = {
   inDoubt: false,
   requestId: "3a9d5f74-2c18-4c6b-9f0d-71b8e4a2c6d5",
   leaseId: "b27e4c91-5d3a-4f88-a1c6-90e7d5f2b834",
-  duration: { key: "pamInboxDurationHours", value: 4 },
-  exactWindow: "18/08/2026, 09:00 – 18/08/2026, 13:00",
+  duration: "4 hours",
+  exactWindow: "Aug 18, 2026, 9:00 AM – Aug 18, 2026, 1:00 PM",
   extendedUntil: null,
 };
 

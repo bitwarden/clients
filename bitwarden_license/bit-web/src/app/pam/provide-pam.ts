@@ -1,5 +1,30 @@
 import { NgZone } from "@angular/core";
 
+import {
+  AccessEventService,
+  ApprovalSdkService,
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  AccessRuleSdkService,
+  LeasingErrorService,
+  AccessLeasesSdkService,
+  AccessRequestsSdkService,
+  AccessRulesSdkService,
+  ApprovalsSdkService,
+  DefaultAccessEventService,
+  DefaultAccessRefreshService,
+  DefaultLeasingErrorService,
+} from "@bitwarden/bit-pam";
+import {
+  AccessBadgeTickerService,
+  CipherViewBannerComponent,
+  ItemDetailsStateBadgeComponent,
+  AccessRequestCancelService,
+  controlledAccessItemFilter,
+  ControlledAccessVaultFilterService,
+  MyLeasesService,
+} from "@bitwarden/bit-pam-components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -26,60 +51,28 @@ import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-
 import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
-import { VAULT_CONTROLLED_ACCESS_FILTER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/pam/vault-filter-gated-collection-indicator.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
+import { AuditApiService } from "./access-audit/audit-api.service";
 import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
-import { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
-import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
-import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
-import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
-import { AccessRequestCancelService } from "./services/access-request-cancel.service";
-import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
-import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
-import { ApprovalsSdkService } from "./services/approvals-sdk.service";
-import { DefaultAccessEventService } from "./services/default-access-event.service";
-import { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
-import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
+import { RotationSdkService } from "./rotation/rotation-sdk.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
-import { MyLeasesService } from "./services/my-leases.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
 import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
-import { controlledAccessItemFilter } from "./vault-filter-controlled-access/controlled-access-item-filter";
-import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-access/controlled-access-vault-filter.service";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 import { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
 
-import {
-  AccessEventService,
-  ApprovalSdkService,
-  AuditApiService,
-  AccessLeaseSdkService,
-  AccessRefreshService,
-  AccessRequestSdkService,
-  AccessRuleSdkService,
-  LeasingErrorService,
-  RotationSdkService,
-} from ".";
-
-/**
- * PAM-owned root-level providers. Consumed by the commercial web `AppModule` so
- * the shell imports a single function instead of enumerating each PAM provider
- * inline. Binds `AccessRuleSdkService` (the abstract CRUD contract from
- * `.`) to `AccessRulesSdkService`, which serves access-rule
- * CRUD via the Rust SDK's `commercial().pam().access_rules()` client, and
- * `CidrValidationService` to its SDK-backed default for the IP-allowlist editor.
- */
+/** PAM's root-level providers, including every OSS seam it fills. */
 export function providePam(): SafeProvider[] {
   return [
     safeProvider({
@@ -147,16 +140,11 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_GATED_COLLECTION_BANNER,
       useValue: GatedCollectionBannerComponent,
     }),
-    // One instance behind the sidebar filter, the table chip, and the column, so they share one
-    // per-row state cache.
+    // One instance behind the table chip and the column, so they share one per-row state cache.
     safeProvider({
       provide: ControlledAccessVaultFilterService,
       useClass: ControlledAccessVaultFilterService,
       deps: [],
-    }),
-    safeProvider({
-      provide: VAULT_CONTROLLED_ACCESS_FILTER,
-      useExisting: ControlledAccessVaultFilterService,
     }),
     safeProvider({
       provide: VAULT_ITEM_FILTER,
@@ -200,7 +188,6 @@ export function providePam(): SafeProvider[] {
     }),
     safeProvider({
       provide: AccessEventService,
-      // A factory, since the service takes the notification stream rather than the service.
       useFactory: (
         notificationsService: ServerNotificationsService,
         accountService: AccountService,

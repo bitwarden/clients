@@ -1,7 +1,7 @@
-export { DisableSendPolicy } from "./disable-send.component";
 export { SendControlsPolicy } from "./send-controls.component";
 export { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component";
+export { DesktopAutotypeGaPolicy } from "./autotype-ga-policy.component";
 export { FillAssistPolicy } from "./fill-assist.component";
 export { MasterPasswordPolicy } from "./master-password.component";
 export {
@@ -13,7 +13,6 @@ export { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
 export { RequireSsoPolicy } from "./require-sso.component";
 export { ResetPasswordPolicy } from "./reset-password.component";
 export { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
-export { SendOptionsPolicy } from "./send-options.component";
 export { SingleOrgPolicy } from "./single-org.component";
 export { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
 export { UriMatchDefaultPolicy } from "./uri-match-default.component";

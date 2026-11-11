@@ -17,17 +17,22 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
+  PolicyType,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ProviderService } from "@bitwarden/common/provider";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -45,6 +50,7 @@ import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberDialogManagerService } from "../services/member-dialog-manager/member-dialog-manager.service";
+import { MemberExportService } from "../services/member-export/member-export.service";
 import { OrganizationMembersService } from "../services/organization-members-service/organization-members.service";
 
 import { MembersV2Component } from "./members-v2.component";
@@ -52,18 +58,62 @@ import { MembersV2Component } from "./members-v2.component";
 const ORG_ID = "org-1" as OrganizationId;
 const USER_ID = "user-1" as UserId;
 
+/**
+ * More than 10 groups, so the Groups filter shows its search, with two named Engineering to show
+ * they stay separate options.
+ */
+const GROUP_NAMES = new Map([
+  ["g-engineering", "Engineering"],
+  ["g-engineering-emea", "Engineering"],
+  ["g-design", "Design"],
+  ["g-finance", "Finance"],
+  ["g-it", "IT"],
+  ["g-leadership", "Leadership"],
+  ["g-legal", "Legal"],
+  ["g-marketing", "Marketing"],
+  ["g-operations", "Operations"],
+  ["g-sales", "Sales"],
+  ["g-security", "Security"],
+  ["g-support", "Support"],
+]);
+
+const COLLECTION_NAMES = new Map([
+  ["c-engineering", "Engineering"],
+  ["c-finance", "Finance"],
+  ["c-marketing", "Marketing"],
+]);
+
+/**
+ * Secrets Manager and Privileged controls on, so the Products filter offers both, and account
+ * recovery on, so the Policies filter offers its Account recovery section.
+ */
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
   return {
     id: ORG_ID,
     name: "Acme Corp",
     useGroups: true,
     useEvents: true,
+    useSecretsManager: true,
+    usePam: true,
+    useResetPassword: true,
     canManageUsers: true,
     ...overrides,
   } as unknown as Organization;
 }
 
-function mockUser(overrides: Partial<OrganizationUserView> = {}): OrganizationUserView {
+type MockUserOverrides = Partial<Omit<OrganizationUserView, "collections">> & {
+  /** Collection IDs, from {@link COLLECTION_NAMES}. */
+  collections?: string[];
+};
+
+/** Fills in the group and collection names from their IDs, as `loadMembers` does. */
+function mockUser({
+  groups = ["g-engineering"],
+  collections = ["c-marketing"],
+  ...overrides
+}: MockUserOverrides = {}): OrganizationUserView {
+  const names = (ids: string[], map: Map<string, string>) =>
+    ids.map((id) => map.get(id) ?? id).sort();
   return {
     id: "user-1",
     userId: "user-1",
@@ -71,9 +121,14 @@ function mockUser(overrides: Partial<OrganizationUserView> = {}): OrganizationUs
     email: "alice@example.com",
     status: OrganizationUserStatusType.Confirmed,
     type: OrganizationUserType.User,
-    collectionNames: ["Marketing"],
-    groupNames: ["Engineering"],
+    groups,
+    collections: collections.map((id) => ({ id })),
+    groupNames: names(groups, GROUP_NAMES),
+    collectionNames: names(collections, COLLECTION_NAMES),
+    accessSecretsManager: false,
+    accessPam: false,
     resetPasswordEnrolled: false,
+    twoFactorEnabled: false,
     claimedByOrganization: false,
     canSendInvite: false,
     canReinvite: false,
@@ -85,29 +140,38 @@ function mockUser(overrides: Partial<OrganizationUserView> = {}): OrganizationUs
   } as unknown as OrganizationUserView;
 }
 
-/** A member in every status, and more than one page of them so the paginator shows. */
+/**
+ * A member in every status, and more than one page of them so the paginator shows. Members mix
+ * two-step login and account recovery enrollment, so both icons and their tooltips show.
+ */
 const mockMembers: OrganizationUserView[] = [
   mockUser({
     id: "user-1" as Guid,
     name: "Alice Smith",
     email: "alice@example.com",
     type: OrganizationUserType.Owner,
-    groupNames: ["Engineering", "Leadership", "Security"],
-    collectionNames: ["Engineering", "Finance"],
+    groups: ["g-engineering", "g-leadership", "g-security"],
+    collections: ["c-engineering", "c-finance"],
+    accessSecretsManager: true,
+    accessPam: true,
+    twoFactorEnabled: true,
+    resetPasswordEnrolled: true,
   }),
   mockUser({
     id: "user-2" as Guid,
     name: "Bob Jones",
     email: "bob@example.com",
     status: OrganizationUserStatusType.Invited,
+    groups: ["g-engineering-emea"],
+    accessSecretsManager: true,
   }),
   mockUser({
     id: "user-3" as Guid,
     name: undefined,
     email: "carol@example.com",
     status: OrganizationUserStatusType.Staged,
-    groupNames: [],
-    collectionNames: [],
+    groups: [],
+    collections: [],
   }),
   mockUser({
     id: "user-4" as Guid,
@@ -115,13 +179,16 @@ const mockMembers: OrganizationUserView[] = [
     email: "dan@example.com",
     status: OrganizationUserStatusType.Accepted,
     type: OrganizationUserType.Admin,
+    groups: ["g-it", "g-operations"],
+    accessPam: true,
+    twoFactorEnabled: true,
   }),
   mockUser({
     id: "user-5" as Guid,
     name: "Eve Adams",
     email: "eve@example.com",
     status: OrganizationUserStatusType.Revoked,
-    groupNames: ["Sales", "Support"],
+    groups: ["g-sales", "g-support"],
   }),
   ...Array.from({ length: 20 }, (_, i) =>
     mockUser({
@@ -129,7 +196,11 @@ const mockMembers: OrganizationUserView[] = [
       name: `Member ${i + 6}`,
       email: `member${i + 6}@example.com`,
       type: i % 4 === 0 ? OrganizationUserType.Custom : OrganizationUserType.User,
-      groupNames: i % 3 === 0 ? ["Support"] : ["Engineering", "Support"],
+      groups: i % 3 === 0 ? ["g-support"] : ["g-engineering", "g-support"],
+      collections: i % 2 === 0 ? ["c-marketing"] : ["c-finance"],
+      accessSecretsManager: i % 5 === 0,
+      twoFactorEnabled: i % 2 === 0,
+      resetPasswordEnrolled: i % 3 !== 1,
     }),
   ),
 ];
@@ -186,6 +257,30 @@ const rowActionMembers: OrganizationUserView[] = [
   }),
 ];
 
+/** A revoked member for each revocation reason, plus a Staged one, for the Status filter. */
+const statusFilterMembers: OrganizationUserView[] = [
+  ...mockMembers.filter((member) => member.status !== OrganizationUserStatusType.Revoked),
+  ...(
+    [
+      ["Manual", RevocationReasonType.Manual],
+      ["Declined", RevocationReasonType.OrganizationDataOwnershipPolicyNonCompliance],
+      ["Single org", RevocationReasonType.SingleOrgPolicyNonCompliance],
+      ["Two-step", RevocationReasonType.TwoFactorPolicyNonCompliance],
+      ["Unknown", RevocationReasonType.Unknown],
+    ] as const
+  ).map(([label, revocationReason], i) =>
+    mockUser({
+      id: `revoked-${revocationReason}` as Guid,
+      name: `Revoked ${label}`,
+      email: `revoked${i}@example.com`,
+      status: OrganizationUserStatusType.Revoked,
+      revocationReason,
+      canRestore: true,
+      canRevoke: false,
+    }),
+  ),
+];
+
 function makeOrganizationService(org: Organization) {
   return { organizations$: () => of([org]) };
 }
@@ -224,17 +319,25 @@ const mockBillingAccountProfileStateService = {
   hasPremiumFromAnySource$: () => of(false),
 };
 
-const mockPolicyService = {
-  policies$: () => of([]),
-  policyAppliesToUser$: () => of(false),
-};
+function makePolicyService(resetPasswordPolicyEnabled: boolean) {
+  const policy = {
+    type: PolicyType.ResetPassword,
+    organizationId: ORG_ID,
+    enabled: resetPasswordPolicyEnabled,
+  } as Policy;
+  return {
+    policies$: () => of([policy]),
+    policyAppliesToUser$: () => of(false),
+  };
+}
 
 const mockAvatarService = {
   avatarColor$: of("#FF0000"),
 };
 
+/** Only the Pam flag is on, so Privileged controls shows in the Products filter. */
 const mockConfigService = {
-  getFeatureFlag$: () => of(false),
+  getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.Pam),
 };
 
 const mockPolicyApiService = {
@@ -276,6 +379,7 @@ const mockMemberActionsService = {
 };
 
 const mockMemberDialogManagerService = {
+  openInviteDialog: () => Promise.resolve(undefined),
   openEditDialog: () => Promise.resolve(undefined),
   openAccountRecoveryDialog: () => Promise.resolve(undefined),
   openEventsDialog: () => {},
@@ -284,15 +388,29 @@ const mockMemberDialogManagerService = {
   openDeleteUserConfirmationDialog: () => Promise.resolve(false),
 };
 
+const mockMemberExportService = {
+  getMemberExport: () => ({ success: true }),
+};
+
+const mockValidationService = {
+  showError: () => {},
+};
+
 const mockBillingConstraintService = {
   checkSeatLimit: () => ({ canAddUsers: true }),
   seatLimitReached: () => Promise.resolve(false),
 };
 
-function makeOrganizationMembersService(members: OrganizationUserView[] | "loading") {
+function makeOrganizationMembersService(
+  members: OrganizationUserView[] | "loading",
+  organization: Organization,
+) {
+  const accessNames = organization.useGroups ? GROUP_NAMES : COLLECTION_NAMES;
   return {
-    loadUsers: () =>
-      members === "loading" ? new Promise<never>(() => {}) : Promise.resolve(members),
+    loadMembers: () =>
+      members === "loading"
+        ? new Promise<never>(() => {})
+        : Promise.resolve({ users: members, accessNames }),
   };
 }
 
@@ -337,6 +455,8 @@ export default {
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: MemberDialogManagerService, useValue: mockMemberDialogManagerService },
         { provide: BillingConstraintService, useValue: mockBillingConstraintService },
+        { provide: MemberExportService, useValue: mockMemberExportService },
+        { provide: ValidationService, useValue: mockValidationService },
       ],
     }),
     applicationConfig({
@@ -349,7 +469,7 @@ export default {
         { provide: SyncService, useValue: mockSyncService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: AccountService, useValue: mockAccountService },
-        { provide: PolicyService, useValue: mockPolicyService },
+        { provide: PolicyService, useValue: makePolicyService(true) },
         { provide: ConfigService, useValue: mockConfigService },
         {
           provide: BillingAccountProfileStateService,
@@ -369,14 +489,16 @@ type Story = StoryObj<MembersV2Component>;
 function makeRender(
   members: OrganizationUserView[] | "loading",
   organization: Organization = mockOrganization(),
+  resetPasswordPolicyEnabled = true,
 ): Story["render"] {
   return () => ({
     moduleMetadata: {
       providers: [
         { provide: OrganizationService, useValue: makeOrganizationService(organization) },
+        { provide: PolicyService, useValue: makePolicyService(resetPasswordPolicyEnabled) },
         {
           provide: OrganizationMembersService,
-          useValue: makeOrganizationMembersService(members),
+          useValue: makeOrganizationMembersService(members, organization),
         },
       ],
     },
@@ -385,17 +507,40 @@ function makeRender(
 }
 
 /**
- * An organization that uses groups, with a member in every status and enough members to page.
+ * An organization that uses groups, with a member in every status and enough members to page. The
+ * toolbar has search, Export, Invite member and the Status, Role, Groups and Products filters.
+ * Groups has more than 10 options, so it shows a search, and two of them are named Engineering.
+ * Products offers both Secrets Manager and Privileged controls. Policies offers Account recovery
+ * and Two-step login sections, and a lock or key icon follows the name of members with two-step
+ * login or enrolled in account recovery; hover either for its tooltip.
  */
 export const Default: Story = {
   render: makeRender(mockMembers),
 };
 
 /**
- * An organization that doesn't use groups shows Collections as the fourth column.
+ * An organization that doesn't use groups shows Collections as the fourth column, and a
+ * Collections filter in place of Groups.
  */
 export const Collections: Story = {
   render: makeRender(mockMembers, mockOrganization({ useGroups: false })),
+};
+
+/**
+ * An organization with neither Secrets Manager nor Privileged controls has no Products filter.
+ */
+export const WithoutProducts: Story = {
+  name: "Without products",
+  render: makeRender(mockMembers, mockOrganization({ useSecretsManager: false, usePam: false })),
+};
+
+/**
+ * With the account recovery policy off, the Policies filter only offers Two-step login, and no key
+ * icons show.
+ */
+export const WithoutAccountRecoveryPolicy: Story = {
+  name: "Without account recovery policy",
+  render: makeRender(mockMembers, mockOrganization(), false),
 };
 
 /**
@@ -410,8 +555,8 @@ export const RowActions: Story = {
 };
 
 /**
- * An admin who can't manage users gets no checkbox column, no Options column and no clickable
- * cells.
+ * An admin who can't manage users gets search, but no Export or Invite member button, no checkbox
+ * column, no Options column and no clickable cells.
  */
 export const ReadOnly: Story = {
   name: "Read only",
@@ -426,8 +571,48 @@ export const Loading: Story = {
 };
 
 /**
- * An organization with no members.
+ * An organization with no members, as a provider-created one starts out. The table shows
+ * "No members have been invited to your organization" without Clear all, and Search, Export
+ * and Invite member stay in the toolbar.
  */
 export const Empty: Story = {
   render: makeRender([]),
+};
+
+/**
+ * Opens at `?members.search=`, as a reloaded or copied link would, with only the matching rows.
+ */
+export const SearchFromUrl: Story = {
+  name: "Search from URL",
+  render: makeRender(mockMembers),
+  decorators: [atUrl(`/organizations/${ORG_ID}/members?members.search=member%201`)],
+};
+
+/**
+ * Open the Status filter: Staged shows, and Revoked expands into a member for each revocation
+ * reason, including No reason recorded. Revoked members stay hidden until checked.
+ */
+export const StatusFilter: Story = {
+  name: "Status filter",
+  render: makeRender(statusFilterMembers),
+};
+
+/**
+ * Without Staged members, the Status filter hides the Staged option.
+ */
+export const StatusFilterWithoutStaged: Story = {
+  name: "Status filter without Staged",
+  render: makeRender(
+    statusFilterMembers.filter((member) => member.status !== OrganizationUserStatusType.Staged),
+  ),
+};
+
+/**
+ * Opens with a Status selection that matches no member, so the table shows "No items match
+ * the selected filters" with Clear all, which puts Status back to its default.
+ */
+export const NoMatches: Story = {
+  name: "No matches",
+  render: makeRender(mockMembers),
+  decorators: [atUrl(`/organizations/${ORG_ID}/members?members.status=revoked-4`)],
 };

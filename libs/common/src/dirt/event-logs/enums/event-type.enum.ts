@@ -85,6 +85,8 @@ export enum EventType {
   OrganizationUser_InviteLinkAccepted = 1524,
   OrganizationUser_AdminChangedEmail = 1525,
   OrganizationUser_InviteLinkConfirmed = 1526,
+  OrganizationUser_InviteReminderSent = 1527,
+  OrganizationUser_Reinvited = 1528,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
@@ -170,6 +172,12 @@ export enum EventType {
   Send_Deleted_File = 2509,
   Send_Accessed_Text = 2510,
   Send_Accessed_File = 2511,
+  Send_PolicyDisabled = 2512,
+  Send_PolicyEnabled = 2513,
+  Send_Created_Item = 2514,
+  Send_Edited_Item = 2515,
+  Send_Deleted_Item = 2516,
+  Send_Accessed_Item = 2517,
 
   // PAM events reported organization-wide, a subset of PAM's own audit trail. Keep in sync with
   // the server's EventType.

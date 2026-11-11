@@ -553,6 +553,20 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_InviteReminderSent:
+        msg = this.i18nService.t("sentInviteReminderToUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "sentInviteReminderToUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Reinvited:
+        msg = this.i18nService.t("resentInviteToUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "resentInviteToUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
@@ -1023,7 +1037,50 @@ export class EventService {
           this.getShortId(ev.userId),
         );
         break;
-
+      case EventType.Send_PolicyDisabled:
+        msg = this.i18nService.t("sendDisabledByPolicy", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "sendDisabledByPolicy",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_PolicyEnabled:
+        msg = this.i18nService.t("sendEnabledByPolicy", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "sendEnabledByPolicy",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Created_Item:
+        msg = this.i18nService.t("createdItemSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdItemSend",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Edited_Item:
+        msg = this.i18nService.t("editedItemSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t("editedItemSend", this.formatSendIdText(ev, options));
+        break;
+      case EventType.Send_Deleted_Item:
+        msg = this.i18nService.t("deletedItemSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedItemSend",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Accessed_Item:
+        msg = this.i18nService.t(
+          "accessedItemSend",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedItemSend",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
+        break;
       // PAM access-audit events reported organization-wide. The trailing request or lease id
       // correlates the row with PAM's own audit view.
       case EventType.Pam_AccessRequest_Submitted:

@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "No hay elementos en Mi caja fuerte"
   },
+  "noItemsInFolder": {
+    "message": "No hay elementos en $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Añade elementos a esta carpeta. Podrás acceder rápidamente a ellos utilizando filtros de caja fuerte.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "No hay elementos en Mis elementos"
   },
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "Elemento enviado a la papelera"
   },
+  "deleteItemError": {
+    "message": "Couldn't delete the item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
+  },
   "overwritePassword": {
     "message": "Sobreescribir contraseña"
   },
@@ -1556,7 +1576,7 @@
     "message": "Seleccionar origen"
   },
   "importData": {
-    "message": "Import data"
+    "message": "Importar datos"
   },
   "importSourceSelectTitle": {
     "message": "Seleccione su origen"
@@ -1588,6 +1608,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Select vault",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Seleccionar ubicación",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Select a vault"
+  },
+  "selectALocationTitle": {
+    "message": "Select a location"
+  },
+  "importDestinationDescription": {
+    "message": "Choose where to import these items."
+  },
+  "importMyItemsOption": {
+    "message": "Mis elementos",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible solo para ti"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organization vault"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Compartido con una persona"
+  },
+  "importFamilyVault": {
+    "message": "Family vault"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+  },
+  "importSharedFolderRequired": {
+    "message": "Se requiere una carpeta compartida."
+  },
+  "importIntoOrganization": {
+    "message": "Items will be imported into $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Mover todos los elementos a una carpeta compartida"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Importar $COUNT$ elementos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Importar 1 elemento"
+  },
+  "importToOrganization": {
+    "message": "Importar a $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "inicios de sesión",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "notas seguras",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "tarjetas",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identidades",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "Claves SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bank accounts",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "licencias",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "pasaportes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
   },
   "importItems": {
     "message": "Importar elementos"
@@ -4287,11 +4468,11 @@
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
-    "message": "Enter a valid URL",
+    "message": "Introduce una URL válida",
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
-    "message": "Unsafe URL detected",
+    "message": "URL insegura detectada",
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
@@ -4299,11 +4480,11 @@
     "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderTrustUrl": {
-    "message": "Trust URL",
+    "message": "Confiar en URL",
     "description": "Accept button on the forwarder unsafe url confirmation dialog."
   },
   "forwarderUrlTrustedHint": {
-    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "message": "Esta URL ha sido marcada como de confianza. La puedes editar en cualquier momento.",
     "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
@@ -5094,7 +5275,7 @@
     "message": "Los datos no están formateados correctamente. Por favor, comprueba tu archivo de importación e inténtalo de nuevo."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "Este archivo utiliza ajustes de cifrado no soportados y no puede ser importado."
   },
   "importNothingError": {
     "message": "No se ha importado nada."
@@ -5304,38 +5485,38 @@
     "message": "Centro de ayuda"
   },
   "uploadFile": {
-    "message": "Upload file"
+    "message": "Subir archivo"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "Pegar como texto plano"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "Texto plano"
   },
   "profile": {
-    "message": "Profile"
+    "message": "Perfil"
   },
   "importManuallyInstead": {
-    "message": "Import manually instead"
+    "message": "Importar manualmente en su lugar"
   },
   "directlyImportInstead": {
-    "message": "Directly import instead"
+    "message": "Importar directamente en su lugar"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "El más rápido"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "Importar tus datos"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "Importa tus datos en minutos"
   },
   "importDataDirectSubtitlePrefix": {
     "message": "Import your items directly from",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": "para obtener todos sus datos.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
@@ -5396,7 +5577,7 @@
     "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Rápido y seguro"
   },
   "importDataSecureByDesignBodyV2": {
     "message": "This process is end-to-end encrypted. No export file needed."
@@ -5414,13 +5595,13 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Qué será transferido"
   },
   "importDataAutomaticTransferBody": {
     "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "Aceptados: $FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -5700,6 +5881,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "Se omitió 1 archivo adjunto dañado durante la exportación. Todos los demás datos y archivos adjuntos de la caja fuerte se exportaron correctamente."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "Se omitieron $COUNT$ adjuntos corruptos durante la exportación. Todo el resto de datos de la caja fuerte y de adjunto se exportó correctamente.",
     "placeholders": {
@@ -5833,25 +6026,25 @@
     "message": "Importando su cuenta..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "Servidor"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Se requiere correo electrónico."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Introduce una dirección de correo electrónico válida."
   },
   "keeperLoginUnsupportedTwoFactor": {
     "message": "Unsupported two-factor method. Switch methods or import manually."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Método de aprobación del dispositivo"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Introduzca un código de verificación válido."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Reenviar código de verificación"
   },
   "keeperLoginPushSentDesc": {
     "message": "Keeper Push notification sent to approved device."
@@ -5884,10 +6077,10 @@
     "message": "We’ve sent an admin approval request to your admin."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Se requiere contraseña."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Introduzca una contraseña válida."
   },
   "lastPassMFARequired": {
     "message": "Se requiere autenticación multifactor LastPass"
@@ -5953,7 +6146,7 @@
     "message": "An error has occurred. Try again or use a different import method."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "Se requiere correo electrónico."
   },
   "enterValidEmailAddress": {
     "message": "Enter a valid email address."
@@ -5965,7 +6158,7 @@
     "message": "Enter a valid sign-in address."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "Es necesaria una clave secreta."
   },
   "enterValidSecretKey": {
     "message": "Enter a valid secret key."
@@ -5974,10 +6167,10 @@
     "message": "Password is required."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Introduzca un código de verificación válido."
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "Dirección de inicio de sesión"
   },
   "onePasswordEmail": {
     "message": "1Password email"
@@ -5986,7 +6179,7 @@
     "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Clave secreta"
   },
   "secretKeyAndPassword": {
     "message": "Secret key and password"
@@ -6514,6 +6707,9 @@
   },
   "myItems": {
     "message": "Mis Elementos"
+  },
+  "myItemsV2": {
+    "message": "My items"
   },
   "adminConsole": {
     "message": "Consola de administrador"
@@ -7591,7 +7787,7 @@
     }
   },
   "youHaveNoFoldersV2": {
-    "message": "You have no folders"
+    "message": "No tienes ninguna carpeta."
   },
   "emptyFoldersDescriptionV2": {
     "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
@@ -8049,17 +8245,11 @@
   "sharedUnlock": {
     "message": "Desbloqueo compartido"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Sync unlock with desktop app"
+  "syncUnlockWithDesktop1": {
+    "message": "Synchronize unlock with desktop"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Sync unlock with web app"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "The Bitwarden browser extension and web app lock and unlock together."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together. Biometrics will be used if available."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "El desbloqueo compartido no está disponible porque eligió no recordar este dispositivo. Para habilitar esta configuración, intente iniciar sesión de nuevo."
@@ -8438,6 +8628,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Esta contraseña tiene riesgos adicionales:"
   },
+  "excludeFromList": {
+    "message": "Excluir de la lista"
+  },
+  "excludeFromListDesc": {
+    "message": "Excluding doesn’t fix the risk to your password. To protect your account, change your password first."
+  },
+  "excludeAnyway": {
+    "message": "Excluir de todos modos"
+  },
   "reused": {
     "message": "Reutilizada",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,8 +8757,17 @@
   "unknownCipher": {
     "message": "Elemento desconocido, es posible que deba solicitar permiso para acceder a este elemento."
   },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
   "newExperienceDialogTitle": {
-    "message": "Bitwarden has a new look",
+    "message": "Bitwarden tiene un aspecto nuevo.",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
   },
   "newExperienceDialogDesc": {
@@ -8590,8 +8798,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Switch between vaults"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
   },
   "coachmarkFiltersTitle": {
     "message": "Mix and match filters"
@@ -8616,5 +8824,46 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   }
 }

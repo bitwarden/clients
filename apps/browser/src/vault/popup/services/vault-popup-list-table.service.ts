@@ -27,6 +27,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService } from "@bitwarden/components";
 import {
   ALL_ITEMS_SCOPE,
@@ -65,6 +66,8 @@ export interface VaultRowActions {
   showFillOnHover: boolean;
   /** Show the launch-in-new-tab button (still gated on the cipher being launchable). */
   showLaunch: boolean;
+  /** Show the quick copy actions. */
+  showCopyActions: boolean;
   /** Offer "Autofill" in the more-options menu. */
   showAutofillInMenu: boolean;
   /** Offer "View" in the more-options menu. */
@@ -115,7 +118,7 @@ export class VaultPopupListTableService {
 
   /**
    * Narrows the vault to `scope`; {@link ALL_ITEMS_SCOPE} shows every vault's items. Does not
-   * clear the chips — this also fires on popup open, so the switcher does that instead.
+   * touch the chips — each vault keeps its own, keyed by the filter service.
    */
   setScope(scope: VaultScope | null): void {
     this.scope$.next(scope ?? ALL_ITEMS_SCOPE);
@@ -126,8 +129,8 @@ export class VaultPopupListTableService {
    */
   private viewCipherTimeout?: number;
 
-  /** The search text currently applied to the vault (e.g. restored from stored state). */
-  readonly searchText$ = this.vaultPopupItemsService.searchText$;
+  /** The search text applied to the vault in view (e.g. restored from stored state). */
+  readonly searchText = this.vaultPopupItemsService.searchText;
 
   /** Whether a search term is currently narrowing the vault list. */
   readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
@@ -290,9 +293,12 @@ export class VaultPopupListTableService {
     { currentUriIsBlocked }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
+    // The list swaps a revealed view in for its restricted row, so a restricted row has nothing
+    // revealed: the server withholds its credentials.
+    const gated = RestrictedCipherPolicy.isRestricted(cipher as CipherViewLike);
 
     // Whether clicking the row autofills: the autofill section fills unless the URI is blocked.
-    const primaryAutofill = isAutofill && !currentUriIsBlocked;
+    const primaryAutofill = !gated && isAutofill && !currentUriIsBlocked;
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";
@@ -300,8 +306,9 @@ export class VaultPopupListTableService {
     return {
       primaryAutofill,
       showFillOnHover: primaryAutofill,
-      showLaunch: !isAutofill,
-      showAutofillInMenu: !primaryAutofill,
+      showLaunch: !isAutofill && !gated,
+      showCopyActions: !gated,
+      showAutofillInMenu: !gated && !primaryAutofill,
       showViewInMenu: primaryAutofill,
       // Name the login's username field in the label when it has one.
       titleKey: login?.username != null ? `${titleBase}WithField` : titleBase,
@@ -324,7 +331,7 @@ export class VaultPopupListTableService {
       map(([text]) => text),
       tap((text) =>
         this.ngZone.runOutsideAngular(() =>
-          this.ngZone.run(() => this.vaultPopupItemsService.applyFilter(text)),
+          this.ngZone.run(() => this.vaultPopupItemsService.applyScopedFilter(text)),
         ),
       ),
     );
@@ -343,7 +350,11 @@ export class VaultPopupListTableService {
    */
   async launchCipher(cipher: CipherViewLike) {
     const launchURI = CipherViewLikeUtils.getLaunchUri(cipher);
-    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI) {
+    if (
+      !CipherViewLikeUtils.canLaunch(cipher) ||
+      !launchURI ||
+      RestrictedCipherPolicy.isRestricted(cipher)
+    ) {
       return;
     }
 

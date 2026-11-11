@@ -1,5 +1,5 @@
 import { ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
-import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
+import { MARKETING_SALES_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 
 import { parseTrialInitiationParams } from "./trial-initiation-params";
 
@@ -80,7 +80,7 @@ describe("parseTrialInitiationParams", () => {
     });
 
     it("defaults the trial length and preserves an explicit zero", () => {
-      expect(parseTrialInitiationParams({}).trialLength).toBe(DEFAULT_TRIAL_LENGTH_DAYS);
+      expect(parseTrialInitiationParams({}).trialLength).toBe(MARKETING_SALES_TRIAL_LENGTH_DAYS);
       expect(parseTrialInitiationParams({ trialLength: "0" }).trialLength).toBe(0);
       expect(parseTrialInitiationParams({ trialLength: "14" }).trialLength).toBe(14);
     });

@@ -1,28 +1,28 @@
-import { Component, HostBinding, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 // Increments for each instance of this component
 let nextId = 0;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-error",
-  template: `<i class="bwi bwi-error"></i> {{ displayError }}`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<i class="bwi bwi-error"></i> {{ displayError() }}`,
   host: {
     class: "tw-block tw-mt-1 tw-text-danger tw-text-xs",
     "aria-live": "assertive",
+    "[id]": "id",
   },
 })
 export class BitErrorComponent {
-  @HostBinding() id = `bit-error-${nextId++}`;
+  private readonly i18nService = inject(I18nService);
+
+  readonly id = `bit-error-${nextId++}`;
 
   readonly error = input<[string, any]>();
 
-  constructor(private i18nService: I18nService) {}
-
-  get displayError() {
+  protected readonly displayError = computed(() => {
     const error = this.error();
     if (!error) {
       return "";
@@ -55,5 +55,5 @@ export class BitErrorComponent {
 
         return error;
     }
-  }
+  });
 }
