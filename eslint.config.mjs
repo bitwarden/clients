@@ -500,7 +500,7 @@ export default tseslint.config(
       "apps/browser/src/popup/main.ts",
       "bitwarden_license/bit-browser/src/popup/main.ts",
       "apps/browser/src/platform/popup/shell/popup-shell.ts",
-      "apps/browser/src/platform/browser/popup-width.ts",
+      "apps/browser/src/platform/browser/popup-view.ts",
     ],
     rules: {
       "no-restricted-imports": [
@@ -509,7 +509,7 @@ export default tseslint.config(
           patterns: [
             {
               regex:
-                "^(?!(\\.\\./platform/popup/shell/popup-shell|@bitwarden/browser/platform/popup/shell/popup-shell|\\./scss|@bitwarden/browser/popup/scss|\\.\\./\\.\\./browser/popup-width)$)",
+                "^(?!(\\.\\./platform/popup/shell/popup-shell|@bitwarden/browser/platform/popup/shell/popup-shell|\\./scss|@bitwarden/browser/popup/scss|\\.\\./\\.\\./browser/popup-view)$)",
               message:
                 "Runs before the popup is shown. Import app code from popup/bootstrap.ts instead.",
             },

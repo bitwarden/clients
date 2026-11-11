@@ -1,8 +1,9 @@
 import {
   POPUP_WIDTH_STORAGE_KEY,
-  PopupWidthOption,
   PopupWidthOptions,
-} from "../../browser/popup-width";
+  isPopupLocation,
+  parsePopupWidthOption,
+} from "../../browser/popup-view";
 
 /**
  * Styles the popup's static shell (`index.ejs`) before the app runs. `popup/main.ts` calls this,
@@ -56,26 +57,6 @@ export function themeClass(theme: ShellTheme): string {
   return `theme_${theme}`;
 }
 
-/**
- * Pixel width for the stored option, falling back to the default like `PopupSizeService` does.
- * Never unset: a popup with no width shrinks to fit the spinner.
- */
-export function shellWidthPx(stored: string | null): number {
-  // `PopupSizeService.migrateOldWidthOption`: the old "extraWide" is today's "wide".
-  const option = stored === "extraWide" ? "wide" : stored;
-
-  if (option != null && option in PopupWidthOptions) {
-    return PopupWidthOptions[option as PopupWidthOption];
-  }
-
-  return PopupWidthOptions.default;
-}
-
-/** Mirrors `BrowserPopupUtils.inPopup`: the action popup has no `uilocation`, or `popup`. */
-export function isPopupLocation(href: string): boolean {
-  return !href.includes("uilocation=") || href.includes("uilocation=popup");
-}
-
 const prefersDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 function setTheme(theme: ShellTheme) {
@@ -102,7 +83,8 @@ export function styleShell() {
   try {
     // A tab has no fixed width; `PopupSizeService` makes the same distinction.
     if (isActionPopup()) {
-      document.body.style.width = `${shellWidthPx(localStorage.getItem(POPUP_WIDTH_STORAGE_KEY))}px`;
+      const option = parsePopupWidthOption(localStorage.getItem(POPUP_WIDTH_STORAGE_KEY));
+      document.body.style.width = `${PopupWidthOptions[option ?? "default"]}px`;
     }
 
     setTheme(resolveShellTheme(null, prefersDark()));
