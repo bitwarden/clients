@@ -21,6 +21,7 @@ import {
   CipherViewBannerComponent,
   ItemDetailsStateBadgeComponent,
   AccessRequestCancelService,
+  CONTROLLED_ACCESS_FILTER_LIVE_REFRESH,
   controlledAccessItemFilter,
   ControlledAccessVaultFilterService,
   MyLeasesService,
@@ -139,6 +140,12 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: VAULT_GATED_COLLECTION_BANNER,
       useValue: GatedCollectionBannerComponent,
+    }),
+    // The vault's All items table re-reads a row's state when its access changes, so the chip's
+    // counts follow the badges.
+    safeProvider({
+      provide: CONTROLLED_ACCESS_FILTER_LIVE_REFRESH,
+      useValue: true,
     }),
     // One instance behind the table chip and the column, so they share one per-row state cache.
     safeProvider({

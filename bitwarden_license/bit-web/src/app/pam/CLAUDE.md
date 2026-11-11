@@ -122,7 +122,10 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   active leases at `ENDING_SOON_THRESHOLD_MS`, so "In use" is the badge's "X left" and a lapsed
   lease is in neither. "Unavailable" matches items whose rule refuses a request right now. Each
   row's state is read once per row list and shared across options (`accessKinds$`), so the
-  chip's counts don't multiply the reads. Add an option by appending to the list, not by
+  chip's counts don't multiply the reads. Where `CONTROLLED_ACCESS_FILTER_LIVE_REFRESH` is bound
+  (the web vault), a row is also re-read when `AccessRefreshService` reports a change for it, so
+  the counts, the selection and the column sort follow the badges without a reload (PAM-567); the
+  popup leaves it unbound and reads once per list. Add an option by appending to the list, not by
   branching in `matches$`. The service and the chip factory live in `bit-pam-components`
   because the extension popup binds the same `VAULT_ITEM_FILTER` in `bit-browser`'s
   `provide-pam.ts`, and `bit-browser` cannot import `bit-web`.

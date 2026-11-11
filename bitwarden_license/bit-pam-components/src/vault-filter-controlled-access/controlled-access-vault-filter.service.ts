@@ -2,8 +2,8 @@ import { inject, Injectable } from "@angular/core";
 import {
   catchError,
   combineLatest,
+  defer,
   distinctUntilChanged,
-  forkJoin,
   from,
   map,
   Observable,
@@ -14,6 +14,7 @@ import {
 } from "rxjs";
 
 import {
+  AccessRefreshService,
   AccessRequestSdkService,
   ACCESS_BADGE_LOOK,
   AccessBadgeState,
@@ -42,6 +43,8 @@ import {
 } from "@bitwarden/vault";
 
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
+
+import { CONTROLLED_ACCESS_FILTER_LIVE_REFRESH } from "./controlled-access-filter-live-refresh";
 
 /** Table-chip option for an active lease inside {@link ENDING_SOON_THRESHOLD_MS} of its end. */
 export const ENDING_SOON_FILTER_ID = "ending-soon";
@@ -174,6 +177,9 @@ export class ControlledAccessVaultFilterService {
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
   private readonly i18nService = inject(I18nService);
   private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly accessRefreshService = inject(AccessRefreshService);
+  private readonly liveRefresh =
+    inject(CONTROLLED_ACCESS_FILTER_LIVE_REFRESH, { optional: true }) ?? false;
 
   private readonly pamOrganizationIds$: Observable<Set<string>> =
     this.accountService.activeAccount$.pipe(
@@ -216,8 +222,9 @@ export class ControlledAccessVaultFilterService {
    * neither. While any lease is active the split follows the clock, emitting only when a row
    * crosses it.
    *
-   * TODO: the states are read once per list, not live on access events. Re-reading on
-   * `AccessRefreshService` is PAM follow-up work.
+   * With {@link CONTROLLED_ACCESS_FILTER_LIVE_REFRESH} bound, a row is re-read whenever
+   * `AccessRefreshService` reports a change for it, so the counts follow the badges. Unbound, the
+   * states are read once per list.
    */
   matches$(
     ciphers: readonly CipherViewLike[],
@@ -323,7 +330,9 @@ export class ControlledAccessVaultFilterService {
         if (candidates.length === 0) {
           return of(new Map<string, AccessBadgeState>());
         }
-        return forkJoin(candidates.map((cipher) => this.state$(cipher))).pipe(
+        // `combineLatest`, not `forkJoin`: a live row's read never completes, and each re-read
+        // re-emits the whole map with only that row's state changed.
+        return combineLatest(candidates.map((cipher) => this.state$(cipher))).pipe(
           map((states) => {
             const byId = new Map<string, AccessBadgeState>();
             candidates.forEach((cipher, index) => {
@@ -343,11 +352,22 @@ export class ControlledAccessVaultFilterService {
   }
 
   private state$(cipher: CipherViewLike): Observable<AccessBadgeState | undefined> {
-    return from(this.accessRequestSdkService.getCipherAccessState(String(cipher.id))).pipe(
+    const cipherId = String(cipher.id);
+    const read$ = defer(() =>
+      from(this.accessRequestSdkService.getCipherAccessState(cipherId)),
+    ).pipe(
       map((state) => cipherAccessBadgeState(state) ?? undefined),
       // A failed read is not evidence of any particular state, and listing the row anyway would
       // make the filter overstate what it is showing.
       catchError(() => of(undefined)),
+    );
+    if (!this.liveRefresh) {
+      return read$;
+    }
+    // Scoped to this row, as the row badge is, so one change re-reads one row, not the list.
+    return this.accessRefreshService.accessChanged$(cipherId).pipe(
+      startWith(undefined),
+      switchMap(() => read$),
     );
   }
 }
