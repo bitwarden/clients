@@ -20,6 +20,14 @@ export const smOrg: SmOrganization = {
   organization: { id: smOrgId, canAccessSecretsManager: true } as Organization,
 };
 
+/** Makes `smUserId` the active user. */
+export function mockSmActiveAccount(accountService: MockProxy<AccountService>) {
+  accountService.activeAccount$ = of({
+    id: smUserId,
+    ...mockAccountInfoWith({ email: "user@example.com", name: "Test User" }),
+  });
+}
+
 /**
  * Wires the account and organization mocks so `smOrgId` resolves to an organization the
  * active user is a member of.
@@ -30,10 +38,7 @@ export function mockSmOrganization(
   canAccessSecretsManager = true,
   organization: Partial<Organization> = {},
 ) {
-  accountService.activeAccount$ = of({
-    id: smUserId,
-    ...mockAccountInfoWith({ email: "user@example.com", name: "Test User" }),
-  });
+  mockSmActiveAccount(accountService);
   organizationService.organizations$.mockReturnValue(
     of([{ id: smOrgId, canAccessSecretsManager, ...organization } as Organization]),
   );
