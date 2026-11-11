@@ -40,7 +40,13 @@
     />
     <bit-form-control *ngIf="!hideRememberMe()">
       <bit-label>{{ "dontAskAgainOnThisDeviceFor30Days" | i18n }}</bit-label>
-      <input type="checkbox" bitCheckbox formControlName="remember" (change)="onRememberChange()" />
+      <input
+        type="checkbox"
+        bitCheckbox
+        formControlName="remember"
+        (change)="onRememberChange()"
+        data-testid="two-factor-remember-checkbox"
+      />
     </bit-form-control>
 
     <app-two-factor-auth-webauthn
