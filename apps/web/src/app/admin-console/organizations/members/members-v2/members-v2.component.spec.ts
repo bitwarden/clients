@@ -868,12 +868,6 @@ describe("MembersV2Component", () => {
       expect(memberActionsService.confirmUser).not.toHaveBeenCalled();
     });
 
-    it("shows the Options menu for every member when the admin can manage users", () => {
-      memberActionsService.allowResetPassword.mockReturnValue(false);
-
-      expect(component.showRowActions(user, organization)).toBe(true);
-    });
-
     it("checks account recovery with the reset password policy", async () => {
       memberActionsService.allowResetPassword.mockReturnValue(true);
 
@@ -905,8 +899,8 @@ describe("MembersV2Component", () => {
       memberService.loadMembers.mockClear();
     });
 
-    it("shows the Options menu for a member who can be recovered", () => {
-      expect(component.showRowActions(enrolled, organization)).toBe(true);
+    it("allows recovering a member who's enrolled in account recovery", () => {
+      expect(component.allowResetPassword(enrolled, organization)).toBe(true);
       expect(memberActionsService.allowResetPassword).toHaveBeenCalledWith(
         enrolled,
         organization,
@@ -914,8 +908,8 @@ describe("MembersV2Component", () => {
       );
     });
 
-    it("shows no Options menu for a member who can't be recovered, so none opens empty", () => {
-      expect(component.showRowActions(notEnrolled, organization)).toBe(false);
+    it("doesn't allow recovering a member who isn't enrolled, so their row shows no action", () => {
+      expect(component.allowResetPassword(notEnrolled, organization)).toBe(false);
     });
 
     it("has no selection, so no checkbox column", () => {

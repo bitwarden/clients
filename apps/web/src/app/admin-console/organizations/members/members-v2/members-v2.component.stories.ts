@@ -558,9 +558,9 @@ export const RowActions: Story = {
  * An admin who can't manage users but can recover accounts, like a custom role with only Manage
  * account recovery. They get search, filters, the count and pagination, but no Export or Invite
  * member button and no checkbox column. A member's name opens the member dialog read-only; no
- * other cell is clickable. The Options menu holds only Recover account, and shows only for members
- * who can be recovered: Alice Smith, enrolled in account recovery, has it, and Bob Jones, not
- * enrolled, has no action.
+ * other cell is clickable. Recover account is their only action, so instead of the Options menu,
+ * members who can be recovered get a Recover button and the rest get an em dash: Alice Smith,
+ * enrolled in account recovery, has the button, and Bob Jones, not enrolled, doesn't.
  */
 export const ReadOnly: Story = {
   name: "Read only",
