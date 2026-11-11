@@ -6,10 +6,7 @@ import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
 
-import {
-  CollectionAdminService,
-  OrganizationUserApiService,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -68,7 +65,6 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
         KeyService,
         AccountService,
         // V2 dependencies
-        CollectionAdminService,
         OrganizationUserApiService,
         CipherService,
         LogService,
