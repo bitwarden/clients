@@ -1143,7 +1143,7 @@ class DemoBoundedWidthsTableComponent {
 }
 
 export default {
-  title: "Component Library/Table V2 (Beta)",
+  title: "Component Library/Table V2",
   decorators: [
     positionFixedWrapperDecorator(undefined, { border: false }),
     moduleMetadata({
