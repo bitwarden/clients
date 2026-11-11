@@ -1298,7 +1298,8 @@ describe("SettingsDialogComponent", () => {
           if (flag === FeatureFlag.WindowsDesktopAutotype) {
             return of(mvpEnabled);
           }
-          throw new Error(`Unexpected feature flag requested in test: ${flag}`);
+          // Other flags (e.g. the premium-badge rollout flag) default off.
+          return of(false);
         });
       }
 
