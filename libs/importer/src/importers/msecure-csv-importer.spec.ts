@@ -26,6 +26,28 @@ describe("MSecureCsvImporter.parse", () => {
     expect(cipher.card.brand).toBe("");
   });
 
+  it("should parse card expiration dates formatted as MM-YYYY", async () => {
+    const mockCsvData =
+      `myCreditCard|155089404,Credit Card,,,Card Number|12|41111111111111111,Expiration Date|11|01-2037,Security Code|9|123,Name on Card|0|John Doe,`.trim();
+    const result = await importer.parse(mockCsvData);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toBe(1);
+    const cipher = result.ciphers[0];
+    expect(cipher.card.expMonth).toBe("01");
+    expect(cipher.card.expYear).toBe("2037");
+  });
+
+  it("should not abort the import when a card expiration date is missing or malformed", async () => {
+    const mockCsvData =
+      `noExpiry|1,Credit Card,,,Card Number|12|4111,Expiration Date|11|,Security Code|9|123,Name on Card|0|John Doe,
+badExpiry|2,Credit Card,,,Card Number|12|4222,Expiration Date|11|2037,Security Code|9|123,Name on Card|0|Jane Doe,`.trim();
+    const result = await importer.parse(mockCsvData);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toBe(2);
+  });
+
   it("should correctly parse credit card entries as Secret Notes", async () => {
     const mockCsvData =
       `myCreditCard|155089404,Credit Card,,,Card Number|12|41111111111111111,Expiration Date|11|05/2026,Security Code|9|123,Name on Card|0|John Doe,PIN|9|1234,Issuing Bank|0|Visa,Phone Number|4|,Billing Address|0|,`.trim();

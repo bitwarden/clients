@@ -38,11 +38,10 @@ export class MSecureCsvImporter extends BaseImporter implements Importer {
         cipher.type = CipherType.Card;
         cipher.card.number = this.getValueOrDefault(this.splitValueRetainingLastPart(value[4]));
 
-        const [month, year] = this.getValueOrDefault(
-          this.splitValueRetainingLastPart(value[5]),
-        ).split("/");
-        cipher.card.expMonth = month.trim();
-        cipher.card.expYear = year.trim();
+        const expiration = this.getValueOrDefault(this.splitValueRetainingLastPart(value[5]), "");
+        const [month, year] = expiration.split(/[/-]/);
+        cipher.card.expMonth = month?.trim() ?? null;
+        cipher.card.expYear = year?.trim() ?? null;
         const securityCodeRegex = RegExp("^Security Code\\|\\d*\\|");
         const securityCodeEntry = value.find((entry: string) => securityCodeRegex.test(entry));
         cipher.card.code = this.getValueOrDefault(
