@@ -13545,6 +13545,28 @@
   "recoverAccount": {
     "message": "Recover account"
   },
+  "recover": {
+    "message": "Recover",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Recover account for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "No actions for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
   },
