@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { trackEmissions, mockAccountInfoWith } from "@bitwarden/common/../spec";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -30,8 +31,6 @@ import { AccessPolicyService } from "./access-policy.service";
 import { PeopleAccessPoliciesRequest } from "./models/requests/people-access-policies.request";
 import { ProjectServiceAccountsAccessPoliciesRequest } from "./models/requests/project-service-accounts-access-policies.request";
 import { ServiceAccountGrantedPoliciesRequest } from "./models/requests/service-account-granted-policies.request";
-
-import { trackEmissions, mockAccountInfoWith } from "@bitwarden/common/../spec";
 
 const SomeCsprngArray = new Uint8Array(64) as CsprngArray;
 const SomeOrganization = "some organization" as OrganizationId;

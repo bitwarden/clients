@@ -1,13 +1,11 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
+import { SecretService, SecretView } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
-
-import { SecretView } from "../../models/view/secret.view";
-import { SecretService } from "../secret.service";
 
 import { SecretVersionDialogService } from "./secret-version-dialog.service";
 import { SecretVersionDialogComponent } from "./secret-version.component";

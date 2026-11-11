@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
 import { Subject, firstValueFrom, switchMap, map, filter } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -16,12 +15,12 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
+import { BulkOperationStatus } from "../models/bulk-operation-status";
 import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretListView } from "../models/view/secret-list.view";
 import { SecretProjectView } from "../models/view/secret-project.view";
 import { SecretView } from "../models/view/secret.view";
 import { AccessPolicyService } from "../shared/access-policies/access-policy.service";
-import { BulkOperationStatus } from "../shared/dialogs/bulk-status-dialog.component";
 
 import { SecretRequest } from "./requests/secret.request";
 import { SecretListItemResponse } from "./responses/secret-list-item.response";
@@ -29,9 +28,6 @@ import { SecretProjectResponse } from "./responses/secret-project.response";
 import { SecretWithProjectsListResponse } from "./responses/secret-with-projects-list.response";
 import { SecretResponse } from "./responses/secret.response";
 
-@Injectable({
-  providedIn: "root",
-})
 export class SecretService {
   protected _secret: Subject<SecretView> = new Subject();
   secret$ = this._secret.asObservable();

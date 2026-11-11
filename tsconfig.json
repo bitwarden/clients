@@ -13,6 +13,7 @@
     "bitwarden_license/bit-common/src/**/*",
     "bitwarden_license/bit-pam/src/**/*",
     "bitwarden_license/bit-pam-components/src/**/*",
+    "bitwarden_license/bit-sm/src/**/*",
     "bitwarden_license/bit-browser/src/**/*"
   ],
   "exclude": [

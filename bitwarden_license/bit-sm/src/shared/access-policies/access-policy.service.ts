@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
 import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -53,9 +52,6 @@ import { ServiceAccountGrantedPoliciesPermissionDetailsResponse } from "./models
 import { ServiceAccountPeopleAccessPoliciesResponse } from "./models/responses/service-account-people-access-policies.response";
 import { GrantedProjectAccessPolicyPermissionDetailsResponse } from "./models/responses/service-account-project-policy-permission-details.response";
 
-@Injectable({
-  providedIn: "root",
-})
 export class AccessPolicyService {
   protected _accessPolicy: Subject<
     | ProjectPeopleAccessPoliciesView
