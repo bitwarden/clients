@@ -8,7 +8,11 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
-import { ForegroundCipherService, GET_CIPHER_LIST_VIEWS } from "./foreground-cipher.service";
+import {
+  CIPHER_LIST_VIEWS_CHANGED,
+  ForegroundCipherService,
+  GET_CIPHER_LIST_VIEWS,
+} from "./foreground-cipher.service";
 
 describe("ForegroundCipherService", () => {
   const userId = "user-id" as UserId;
@@ -48,12 +52,22 @@ describe("ForegroundCipherService", () => {
     await Promise.resolve();
 
     sendMessageWithResponse.mockResolvedValue({ result: listViews("second") });
-    messages$.next({ command: "updateOverlayCiphers" });
+    messages$.next({ command: CIPHER_LIST_VIEWS_CHANGED });
     await Promise.resolve();
     await Promise.resolve();
 
     expect(emitted.at(-1)).toEqual(listViews("second"));
     expect(sendMessageWithResponse).toHaveBeenCalledTimes(2);
+  });
+
+  it("ignores the overlay's updateOverlayCiphers, which nothing sends anymore", async () => {
+    service.cipherListViewsIncludingRestricted$(userId).subscribe();
+    await Promise.resolve();
+
+    messages$.next({ command: "updateOverlayCiphers" });
+    await Promise.resolve();
+
+    expect(sendMessageWithResponse).toHaveBeenCalledTimes(1);
   });
 
   it("waits for the background's announcement when the background did not answer", async () => {
@@ -64,7 +78,7 @@ describe("ForegroundCipherService", () => {
     await Promise.resolve();
     expect(emitted).toEqual([null]);
 
-    messages$.next({ command: "updateOverlayCiphers" });
+    messages$.next({ command: CIPHER_LIST_VIEWS_CHANGED });
     await Promise.resolve();
     await Promise.resolve();
 

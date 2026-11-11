@@ -10,8 +10,8 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 
 export const GET_CIPHER_LIST_VIEWS = "getCipherListViews";
 
-/** What the background's `CipherService` sends each time its list views change. */
-const LIST_VIEWS_CHANGED = "updateOverlayCiphers";
+/** What the background's `ListViewsAnnouncerService` sends each time its list views change. */
+export const CIPHER_LIST_VIEWS_CHANGED = "cipherListViewsChanged";
 
 /**
  * The popup's cipher service. Takes the list views from the background, which already
@@ -32,7 +32,7 @@ export class ForegroundCipherService extends CipherService {
   override cipherListViewsIncludingRestricted$ = perUserCache$(
     (userId: UserId) =>
       this.messageListener.allMessages$.pipe(
-        filter((message) => message.command === LIST_VIEWS_CHANGED),
+        filter((message) => message.command === CIPHER_LIST_VIEWS_CHANGED),
         startWith(null),
         switchMap(() =>
           BrowserApi.sendMessageWithResponse<{ result: CipherListView[] }>(GET_CIPHER_LIST_VIEWS, {
