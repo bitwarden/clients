@@ -346,6 +346,28 @@ describe("MemberAccessReportService", () => {
   });
 
   describe("generateMemberAccessReportViewV2", () => {
+    it("loads collections from the report-reader endpoint with the org key", async () => {
+      const response = {
+        id: "collection-1",
+        users: [],
+        groups: [],
+      } as unknown as CollectionAccessDetailsResponse;
+      reportApiService.getCollectionAccessDetails.mockResolvedValue([response]);
+      mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [],
+      } as unknown as ListResponse<OrganizationUserUserDetailsResponse>);
+      mockCipherService.getAllFromApiForOrganization.mockResolvedValue([]);
+
+      await memberAccessReportService.generateMemberAccessReportViewV2(mockOrganizationId);
+
+      expect(reportApiService.getCollectionAccessDetails).toHaveBeenCalledWith(mockOrganizationId);
+      expect(CollectionAdminView.fromCollectionAccessDetails).toHaveBeenCalledWith(
+        response,
+        mockEncryptService,
+        expect.any(SymmetricCryptoKey),
+      );
+    });
+
     it("should generate report using frontend mapping with direct user access", async () => {
       const userId1 = "user-1";
       const userId2 = "user-2";
