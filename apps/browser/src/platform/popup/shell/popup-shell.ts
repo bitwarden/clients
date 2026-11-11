@@ -19,8 +19,6 @@ import {
  */
 export const THEME_STATE_KEY = "global_theming_selection";
 
-export { POPUP_WIDTH_STORAGE_KEY };
-
 /** Unwraps a value `BrowserLocalStorageService` stored as `{ __json__: true, value: "<json>" }`. */
 export function unwrapStored(stored: unknown): unknown {
   if (

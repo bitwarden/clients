@@ -17,7 +17,7 @@ export const POPUP_WIDTH_STORAGE_KEY = "bw-popup-width";
 
 /**
  * The width option a stored value names, or null when it names none. Maps the retired
- * `extraWide`, which migration 76 renamed to `wide` in state but may linger in older copies.
+ * `extraWide` option to `wide`.
  */
 export function parsePopupWidthOption(stored: unknown): PopupWidthOption | null {
   const option = stored === "extraWide" ? "wide" : stored;
