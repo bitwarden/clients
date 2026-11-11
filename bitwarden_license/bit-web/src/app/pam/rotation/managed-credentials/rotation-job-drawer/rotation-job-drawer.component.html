@@ -12,7 +12,7 @@
       @if (params.showCredential) {
         <div>
           <dt class="tw-text-sm tw-font-medium tw-text-fg-body">
-            {{ "pamRotationConfigColumnCredential" | i18n }}
+            {{ "pamRotationConfigColumnManagedCredential" | i18n }}
           </dt>
           <dd
             class="tw-m-0 tw-break-words"
@@ -20,7 +20,26 @@
             [class.tw-text-muted]="!job.credentialResolved"
             data-testid="drawer-credential"
           >
-            {{ job.credentialName }}
+            @if (credentialLink; as link) {
+              <a bitLink [routerLink]="link">{{ job.credentialName }}</a>
+            } @else {
+              {{ job.credentialName }}
+            }
+          </dd>
+        </div>
+
+        <div>
+          <dt class="tw-text-sm tw-font-medium tw-text-fg-body">
+            {{ "pamRotationConfigColumnTargetSystem" | i18n }}
+          </dt>
+          <dd class="tw-m-0 tw-break-words" data-testid="drawer-target-system">
+            @if (job.targetSystemName) {
+              @if (targetSystemLink; as link) {
+                <a bitLink [routerLink]="link">{{ job.targetSystemName }}</a>
+              } @else {
+                {{ job.targetSystemName }}
+              }
+            }
           </dd>
         </div>
       }

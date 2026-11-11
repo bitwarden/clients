@@ -47,6 +47,10 @@ export interface JobView {
   id: RotationJobId;
   /** The managed credential this job rotated, or the config id when no name resolved. */
   credentialName: string;
+  /** The rotation config (managed credential) the job belongs to. */
+  configId: string;
+  /** The target system's id, or `null` when its config is not loaded. */
+  targetSystemId: string | null;
   /** False when {@link credentialName} is the raw config id rather than a resolved name. */
   credentialResolved: boolean;
   /** The target system the credential rotates on, or `null` when its config is not loaded. */

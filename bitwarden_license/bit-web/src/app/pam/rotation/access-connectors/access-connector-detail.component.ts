@@ -169,7 +169,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly layoutFooter = inject(LayoutFooterService);
 
-  private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
+  protected readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly accessConnectorId = asUuid<AccessConnectorId>(
     this.route.snapshot.params.accessConnectorId,
   );
@@ -251,6 +251,25 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   protected readonly targetSystemNames = computed<ReadonlyMap<RotationConfigId, string>>(
     () => new Map(this.rotationConfigs().map((config) => [config.id, config.targetSystemName])),
   );
+
+  /** Target system ids by rotation config id, for the history drawer's Target system link. */
+  protected readonly targetSystemIds = computed<ReadonlyMap<RotationConfigId, string>>(
+    () =>
+      new Map(this.rotationConfigs().map((config) => [config.id, String(config.targetSystemId)])),
+  );
+
+  /** Access connector names by id, since an attempt can run on a connector other than this one. */
+  protected readonly connectorNames = computed<ReadonlyMap<string, string>>(() => {
+    const names = new Map<string, string>();
+    for (const connector of this.connectorsForStatus() ?? []) {
+      names.set(String(connector.id), connector.name);
+    }
+    const current = this.connector();
+    if (current != null) {
+      names.set(String(current.id), current.name);
+    }
+    return names;
+  });
 
   private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
     initialValue: [] as TargetSystemView[],

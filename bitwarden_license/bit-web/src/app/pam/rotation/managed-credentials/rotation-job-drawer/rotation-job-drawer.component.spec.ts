@@ -1,6 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { provideRouter } from "@angular/router";
 
 import { formatTimeOfDay, formatTimestamp } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -43,6 +44,8 @@ function retriedFailure(overrides: Partial<JobView> = {}): JobView {
     id: jobId("1"),
     credentialName: "Prod service account",
     credentialResolved: true,
+    configId: "config-1",
+    targetSystemId: null,
     targetSystemName: null,
     sourceLabelKey: "pamRotationSourceScheduled",
     statusLabelKey: "pamRotationJobStatusFailed",
@@ -96,13 +99,15 @@ describe("RotationJobDrawerComponent", () => {
     job: JobView,
     showCredential = false,
     endingSessions: RotationJobDrawerParams["endingSessions"] = null,
+    organizationId: string | null = null,
   ) {
-    const params: RotationJobDrawerParams = { job, showCredential, endingSessions };
+    const params: RotationJobDrawerParams = { job, showCredential, endingSessions, organizationId };
 
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [RotationJobDrawerComponent],
       providers: [
+        provideRouter([]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: I18nService, useValue: i18nFake },
       ],
@@ -154,6 +159,33 @@ describe("RotationJobDrawerComponent", () => {
     ]);
     expect(text()).not.toContain("pamRotationAttemptStarted");
     expect(text()).not.toContain("pamRotationHistoryDurationLabel");
+  });
+
+  it("names the managed credential and target system as links, ahead of the trigger", async () => {
+    await render(
+      retriedFailure({ targetSystemName: "ADP - On Prem AD", targetSystemId: "target-1" }),
+      true,
+      null,
+      "org-1",
+    );
+
+    const labels = fixture.debugElement
+      .queryAll(By.css("dt"))
+      .map((dt: any) => dt.nativeElement.textContent.trim());
+    expect(labels).toEqual([
+      "pamRotationConfigColumnManagedCredential",
+      "pamRotationConfigColumnTargetSystem",
+      "pamRotationHistoryColumnRotationTrigger",
+    ]);
+    const credential = query("drawer-credential").nativeElement.querySelector("a");
+    expect(credential.getAttribute("href")).toBe(
+      "/organizations/org-1/pam/rotation/managed-credentials/config-1",
+    );
+    const target = query("drawer-target-system").nativeElement.querySelector("a");
+    expect(target.textContent.trim()).toBe("ADP - On Prem AD");
+    expect(target.getAttribute("href")).toBe(
+      "/organizations/org-1/pam/rotation/target-systems/target-1",
+    );
   });
 
   it("states the start without a separate Started field", async () => {
@@ -366,6 +398,17 @@ describe("RotationJobDrawerComponent", () => {
 
     it("says nothing when termination was never requested", async () => {
       await render(succeeded());
+
+      expect(query("drawer-session-termination")).toBeNull();
+    });
+
+    it("says nothing when the caller passes no ending-sessions info, as the connector page does", async () => {
+      await render(
+        succeeded({ sessionTerminationLabelKey: "pamRotationSessionTerminationTerminated" }),
+        true,
+        null,
+        "org-1",
+      );
 
       expect(query("drawer-session-termination")).toBeNull();
     });

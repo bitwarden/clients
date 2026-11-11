@@ -121,6 +121,12 @@ export class RotationHistoryComponent {
   /** Target system names by rotation config id, for {@link showCredential}. */
   readonly targetSystemNames = input<ReadonlyMap<RotationConfigId, string>>(new Map());
 
+  /** Target system ids by rotation config id, for the drawer's Target system link. */
+  readonly targetSystemIds = input<ReadonlyMap<RotationConfigId, string>>(new Map());
+
+  /** The organization the drawer's links point into. */
+  readonly organizationId = input<string | null>(null);
+
   /** Access connector names by id, for the drawer's attempts. */
   readonly connectorNames = input<ReadonlyMap<string, string>>(new Map());
 
@@ -165,6 +171,7 @@ export class RotationHistoryComponent {
       data: {
         job,
         showCredential: this.showCredential(),
+        organizationId: this.organizationId(),
         endingSessions: this.endingSessions(),
       },
     });
@@ -225,6 +232,8 @@ export class RotationHistoryComponent {
       id: job.id,
       credentialName: credentialName ?? String(job.rotationConfigId),
       credentialResolved: credentialName != null,
+      configId: String(job.rotationConfigId),
+      targetSystemId: this.targetSystemIds().get(job.rotationConfigId) ?? null,
       targetSystemName: this.targetSystemNames().get(job.rotationConfigId) ?? null,
       sourceLabelKey: this.sourceLabelKey(job.source),
       statusLabelKey: retrying
