@@ -6,7 +6,12 @@ import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { UserId } from "../../../types/guid";
 import { StateDefinition, StateProvider, UserKeyDefinition } from "../../state";
 
-import { RepositoryRecord, SdkRecordMapper } from "./client-managed-state";
+import {
+  PersistedValueState,
+  RepositoryRecord,
+  SdkRecordMapper,
+  SdkValueMapper,
+} from "./client-managed-state";
 
 type ClientType = string;
 type SdkType = { value: string };
@@ -487,6 +492,112 @@ describe("RepositoryRecord", () => {
           expect(await optimisticRepo.list()).toEqual([]);
         });
       });
+    });
+  });
+});
+
+const TEST_VALUE_KEY = new UserKeyDefinition<ClientType>(TEST_STATE, "testValueKey", {
+  deserializer: (data) => data,
+  clearOn: ["logout"],
+});
+
+describe("PersistedValueState", () => {
+  let stateProvider: FakeStateProvider;
+  let userId: UserId;
+  let mapper: SdkValueMapper<ClientType, SdkType>;
+  let value: PersistedValueState<ClientType, SdkType>;
+
+  beforeEach(() => {
+    userId = newGuid() as UserId;
+    stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
+    mapper = {
+      userKeyDefinition: () => TEST_VALUE_KEY,
+      toSdk: (value: ClientType) => ({ value }),
+      fromSdk: (sdk: SdkType) => sdk.value,
+    };
+    value = new PersistedValueState(userId, stateProvider, mapper);
+  });
+
+  async function getState(): Promise<ClientType | null> {
+    return await firstValueFrom(stateProvider.getUser(userId, TEST_VALUE_KEY).state$);
+  }
+
+  describe("get", () => {
+    it("returns null when state is empty", async () => {
+      await stateProvider.setUserState(TEST_VALUE_KEY, null, userId);
+
+      expect(await value.get()).toBeNull();
+    });
+
+    it("returns mapped value", async () => {
+      await stateProvider.setUserState(TEST_VALUE_KEY, "value-1", userId);
+
+      expect(await value.get()).toEqual({ value: "value-1" });
+    });
+  });
+
+  describe("set", () => {
+    it("stores mapped value", async () => {
+      await value.set({ value: "value-1" });
+
+      expect(await getState()).toBe("value-1");
+    });
+
+    it("overwrites existing value", async () => {
+      await stateProvider.setUserState(TEST_VALUE_KEY, "value-1", userId);
+
+      await value.set({ value: "value-2" });
+
+      expect(await getState()).toBe("value-2");
+    });
+  });
+
+  describe("remove", () => {
+    it("clears existing value", async () => {
+      await stateProvider.setUserState(TEST_VALUE_KEY, "value-1", userId);
+
+      await value.remove();
+
+      expect(await getState()).toBeNull();
+    });
+  });
+
+  describe("delayed state propagation", () => {
+    function createDelayedStateProvider(initialState: ClientType | null = null): StateProvider {
+      let currentValue = initialState;
+      const subject = new BehaviorSubject<ClientType | null>(initialState);
+
+      const delayedUserState = {
+        state$: subject.asObservable(),
+        update: jest.fn(async (fn: (state: ClientType | null) => ClientType | null) => {
+          currentValue = fn(currentValue);
+          const newState = currentValue;
+          setTimeout(() => subject.next(newState), 200);
+          return newState;
+        }),
+      };
+
+      return { getUser: () => delayedUserState } as unknown as StateProvider;
+    }
+
+    it("get returns updated value after set", async () => {
+      const delayedValue = new PersistedValueState(userId, createDelayedStateProvider(), mapper);
+
+      await delayedValue.set({ value: "value-1" });
+
+      expect(await delayedValue.get()).toEqual({ value: "value-1" });
+    });
+
+    it("get returns null after remove", async () => {
+      const delayedValue = new PersistedValueState(
+        userId,
+        createDelayedStateProvider("value-1"),
+        mapper,
+      );
+
+      await delayedValue.remove();
+
+      expect(await delayedValue.get()).toBeNull();
     });
   });
 });
