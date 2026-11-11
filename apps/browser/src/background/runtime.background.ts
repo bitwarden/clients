@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, mergeMap } from "rxjs";
+import { filter, firstValueFrom, map, mergeMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
@@ -55,6 +55,7 @@ import BrowserInitialInstallService from "../platform/services/browser-initial-i
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { isValidVaultReferrer } from "../platform/utils/valid-vault-referrer";
 import { getWebExtSender } from "../platform/utils/web-ext-sender";
+import { GET_CIPHER_LIST_VIEWS } from "../vault/services/foreground-cipher.service";
 
 import MainBackground from "./main.background";
 
@@ -124,6 +125,7 @@ export default class RuntimeBackground {
         "fillCipherForPopup",
         "getBitwardenAutofillAttributeSettings",
         VaultMessages.checkBwInstalled,
+        GET_CIPHER_LIST_VIEWS,
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -180,6 +182,17 @@ export default class RuntimeBackground {
         }
         return await this.autofillOrchestrator.collectPageDetails(targetTab);
       }
+      case GET_CIPHER_LIST_VIEWS: {
+        // The list views are decrypted vault data, so only extension pages get them.
+        if (!BrowserApi.senderIsInternal(sender, this.logService)) {
+          return [];
+        }
+        return await firstValueFrom(
+          this.main.cipherService
+            .cipherListViewsIncludingRestricted$(msg.userId)
+            .pipe(filter((views) => views != null)),
+        );
+      }
       case "fillCipherForPopup": {
         // The popup keeps the reprompt and TOTP copy in the foreground but dispatches the fill here.
         // The cipher is referenced by id and re-fetched below so decrypted vault data never crosses
@@ -198,8 +211,11 @@ export default class RuntimeBackground {
         if (activeUserId == null) {
           return AUTOFILL_DENIED;
         }
-        const ciphers = await this.main.fillCipherPolicy.ciphers(activeUserId, CipherUse.UserFill);
-        const cipher = ciphers.find((candidate) => candidate.id === msg.cipherId);
+        const [cipher] = await this.main.fillCipherPolicy.ciphersForIds(
+          activeUserId,
+          [msg.cipherId],
+          CipherUse.UserFill,
+        );
         if (cipher == null) {
           return AUTOFILL_DENIED;
         }
