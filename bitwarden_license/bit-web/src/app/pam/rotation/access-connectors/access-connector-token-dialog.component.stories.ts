@@ -1,5 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { userEvent } from "storybook/test";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
@@ -21,7 +22,8 @@ function withParams(params: AccessConnectorTokenDialogParams) {
     imports: [AccessConnectorTokenDialogComponent],
     providers: [
       { provide: DIALOG_DATA, useValue: params },
-      { provide: DialogRef, useValue: { close: () => {} } },
+      // Opened with disableClose, which hides the header's close button.
+      { provide: DialogRef, useValue: { close: () => {}, disableClose: true } },
       { provide: PlatformUtilsService, useValue: { copyToClipboard: () => {} } },
       { provide: ToastService, useValue: { showToast: () => {} } },
     ],
@@ -41,16 +43,19 @@ export default {
 
 type Story = StoryObj<AccessConnectorTokenDialogComponent>;
 
+/** Figma 1092:44630: the token just issued, Close disabled until the box is checked. */
 export const Default: Story = {
-  decorators: [withParams({ accessConnectorName: "eu-west-rotator", token: TOKEN })],
+  decorators: [withParams({ token: TOKEN })],
 };
 
-export const LongName: Story = {
-  decorators: [
-    withParams({
-      accessConnectorName:
-        "Primary datacenter rotation connector for the production directory and its replicas",
-      token: TOKEN,
-    }),
-  ],
+/** Figma 1092:44688: the admin confirmed they stored the token, so Close is enabled. */
+export const Stored: Story = {
+  decorators: [withParams({ token: TOKEN })],
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      canvasElement.querySelector<HTMLInputElement>(
+        "#access-connector-token-dialog_checkbox_stored",
+      )!,
+    );
+  },
 };

@@ -110,6 +110,7 @@ describe("SendComponent", () => {
     // Mock activeAccount$ observable
     accountService.activeAccount$ = of({ id: "test-user-id" } as any);
     policyService.policyAppliesToUser$ = jest.fn().mockReturnValue(of(false));
+    policyService.policiesByType$ = jest.fn().mockReturnValue(of([]));
 
     // Mock SearchService methods needed by base component
     const mockSearchService = mock<SearchService>();

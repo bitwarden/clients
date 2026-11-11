@@ -1,68 +1,86 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
+  effect,
   inject,
   signal,
-  viewChild,
+  untracked,
 } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { EMPTY, switchMap } from "rxjs";
+import { EMPTY, filter, map, shareReplay, startWith, switchMap, take } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoResults } from "@bitwarden/assets/svg";
 import {
   AccessLeaseId,
   AccessRequestId,
   activateAccessErrorMessageKey,
   AccessBadgeState,
+  selectedFilterStrings,
 } from "@bitwarden/bit-pam";
 import {
   AccessBadgeTickerService,
   AccessStateBadgeComponent,
+  DurationCompoundPipe,
   DurationShortPipe,
-  RemainingTimePipe,
+  RequestedWindowPipe,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
-  AccordionComponent,
-  AccordionGroupComponent,
   BadgeComponent,
   BitCellComponent,
   BitCellDefDirective,
+  BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
-  ButtonModule,
   DialogService,
-  FILTER_CONTROL,
-  FilterControl,
   FilterMenuComponent,
   FilterOptionComponent,
+  IconComponent as BitIconComponent,
+  HoverRevealDirective,
+  IconButtonModule,
+  IconTileOptions,
   SearchModule,
-  SortDirection,
+  SkeletonComponent,
+  SkeletonTextComponent,
   SortFn,
+  StatusLockupComponent,
+  SvgComponent,
   ToastService,
   TypographyModule,
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { announcementHoldMs } from "./announcement-hold";
 import {
   MyAccessLeaseRow,
   MyAccessRequestRow,
-  TerminalStatusBadge,
   isRedeemableGrant,
   lapsedGrantBadge,
 } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
+import {
+  MY_REQUEST_LOOK,
+  MY_REQUEST_STATUSES,
+  MyRequestRow,
+  MyRequestStatus,
+  buildMyRequestRows,
+  myRequestStatus,
+  myRequestStatusRank,
+} from "./my-request-row";
 
-type FilterOption = { label: string; value: string };
+type FilterOption = { label: string; value: string; iconTile?: IconTileOptions };
 
 type FilterableRow = {
   collectionId: string;
@@ -70,65 +88,49 @@ type FilterableRow = {
   collectionName: string | null;
 };
 
-type MyRequestsFilter = { term: string; collection: string | null };
-
 /**
  * The toolbar's raw values by filter key, where `search` is the key the table gives a projected
  * `bit-search`. Untyped, since a chip's value is `unknown`.
  */
-type MyRequestsFilterValues = { search?: unknown; collection?: unknown };
+type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?: unknown };
 
 /**
- * A row of the active-access table; exactly one of `lease` and `request` is set. `cipherName` and
- * `notAfter` are flattened because `bit-table-v2` sorts on top-level properties.
- */
-type ActiveAccessRow = {
-  readonly testId: string;
-  readonly requestId: AccessRequestId;
-  readonly cipherId: string;
-  readonly cipherName: string | null;
-  readonly collectionName: string | null;
-  readonly notBefore: string;
-  readonly notAfter: string;
-  readonly lease: MyAccessLeaseRow | null;
-  readonly request: MyAccessRequestRow | null;
-};
-
-/** Ascending by window end; meaningful only within one row kind. */
-const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
-  Date.parse(a.notAfter) - Date.parse(b.notAfter);
-
-/**
- * The caller's own access in three sections: Pending, Extension requests, and Active access, which
- * holds leases and unactivated grants.
+ * The caller's own access in one table: undecided requests, unactivated grants and held leases,
+ * each row carrying the status that decides what can be done with it.
  */
 @Component({
   selector: "pam-my-requests-tab",
   templateUrl: "./my-requests-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     AccessStateBadgeComponent,
-    AccordionComponent,
-    AccordionGroupComponent,
+    SkeletonComponent,
+    SkeletonTextComponent,
+    StatusLockupComponent,
+    SvgComponent,
     BadgeComponent,
     BitCellComponent,
     BitCellDefDirective,
+    BitCellLoadingDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
-    ButtonModule,
     FilterMenuComponent,
     FilterOptionComponent,
+    BitIconComponent,
+    HoverRevealDirective,
+    IconButtonModule,
     IconComponent,
     SearchModule,
     TypographyModule,
     I18nPipe,
+    TimestampPipe,
+    DurationCompoundPipe,
     DurationShortPipe,
-    RemainingTimePipe,
+    RequestedWindowPipe,
   ],
 })
 export class MyRequestsTabComponent {
@@ -138,6 +140,7 @@ export class MyRequestsTabComponent {
   private readonly logService = inject(LogService);
   private readonly dialogService = inject(DialogService);
   private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
   protected readonly starting = signal<Set<AccessRequestId>>(new Set());
@@ -145,20 +148,6 @@ export class MyRequestsTabComponent {
 
   /** Free-text search across item and collection names. */
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
-
-  private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: "" });
-
-  /**
-   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip owns its selection and is
-   * read through the {@link FilterControl} contract rather than a `FormControl`.
-   */
-  private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
-  private readonly selectedCollection = computed(() => this.selectedValue(this.collectionFilter()));
-
-  private selectedValue(chip: FilterControl | undefined): string | undefined {
-    const value = chip?.value();
-    return typeof value === "string" ? value : undefined;
-  }
 
   private readonly allPending = toSignal(this.myAccess.pendingRows$, {
     initialValue: [] as MyAccessRequestRow[],
@@ -171,12 +160,55 @@ export class MyRequestsTabComponent {
   });
 
   /**
-   * Shares the badges' clock, idle while no request is listed since lease badges run their own
-   * countdown. Gated on the unfiltered requests, not anything downstream of the clock, to avoid
-   * feedback.
+   * Latched on the first complete load, so a background reload can't pull the table from under a
+   * reader. Until it raises, the tab renders neither empty state, "you have no requests" is not
+   * something an unfinished read can say.
    */
+  private readonly loaded$ = this.myAccess.loading$.pipe(
+    filter((loading) => !loading),
+    take(1),
+    map(() => true),
+    startWith(false),
+    takeUntilDestroyed(this.destroyRef),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+
+  protected readonly loaded = toSignal(this.loaded$, { initialValue: false });
+
+  /** Held back for a second of loading, so a quick read never flashes the skeleton. */
+  private readonly showSkeleton = toSignal(
+    this.loaded$.pipe(
+      map((isLoaded) => !isLoaded),
+      skeletonLoadingDelay(),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.loaded());
+
+  /** Raised once the skeleton shows, so its removal can be announced; lowered after the hold. */
+  private readonly skeletonShown = signal(false);
+
+  private readonly loadFailed = toSignal(
+    this.myAccess.loadError$.pipe(map((error) => error != null)),
+    { initialValue: false },
+  );
+
+  /**
+   * Announced only after a shown skeleton and a read that landed: a failure leaves the same empty
+   * table, and "loaded" would contradict the shell's error toast.
+   */
+  protected readonly announceLoaded = computed(
+    () => this.skeletonShown() && !this.skeletonVisible() && !this.loadFailed(),
+  );
+
+  /** Five rows fill the table's space without implying a real row count. */
+  protected readonly skeletonRows = [0, 1, 2, 3, 4];
+
+  protected readonly noResultsSvg = NoResults;
+
   protected readonly nowMs = toSignal(
-    toObservable(computed(() => this.allPending().length > 0)).pipe(
+    toObservable(computed(() => this.myRequestRows().length > 0)).pipe(
       switchMap((anyRequests) => (anyRequests ? this.ticker.ticks$ : EMPTY)),
     ),
     { initialValue: Date.now() },
@@ -200,8 +232,8 @@ export class MyRequestsTabComponent {
   });
 
   /**
-   * Overrides the host Pending table's option counts, which see only pending rows, since the chip
-   * narrows all three sections. Counted without the search term, like the host's absolute counts.
+   * The chip's own counts, over every row the tab holds. Counted without the search term, so a
+   * chip reads the same whether or not something is typed in the search box.
    */
   protected readonly collectionCounts = computed<ReadonlyMap<string, number>>(() => {
     const counts = new Map<string, number>();
@@ -209,59 +241,6 @@ export class MyRequestsTabComponent {
       counts.set(row.collectionId, (counts.get(row.collectionId) ?? 0) + 1);
     }
     return counts;
-  });
-
-  private readonly filteredPending = computed(() => this.applyFilters(this.allPending()));
-
-  private readonly allPendingRows = computed(() =>
-    this.allPending().filter((row) => row.status === "pending"),
-  );
-
-  /** Only rows still awaiting a decision; approved grants go to Active access. */
-  protected readonly pendingRows = computed(() =>
-    this.filteredPending().filter((row) => row.status === "pending"),
-  );
-
-  /**
-   * Approved and awaiting activation. Split from {@link pendingRows} on `status` alone, since a
-   * clock-dependent split would drop a lapsed grant from both sections.
-   */
-  private readonly approvedRows = computed(() =>
-    this.filteredPending().filter((row) => row.status !== "pending"),
-  );
-
-  protected readonly extensionRows = computed(() => this.applyFilters(this.allExtensions()));
-  private readonly leases = computed(() => this.applyFilters(this.allLeases()));
-
-  /**
-   * Never reads `nowMs()`, since a per-tick rebuild would restart every badge's countdown. Leases
-   * come first, and Window isn't sortable because `notAfter` is a lease's end but a grant's
-   * activation deadline.
-   */
-  protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => {
-    const held: ActiveAccessRow[] = this.leases().map((lease): ActiveAccessRow => ({
-      testId: `my-access-lease-${lease.id}`,
-      requestId: lease.requestId,
-      cipherId: lease.cipherId,
-      cipherName: lease.cipherName,
-      collectionName: lease.collectionName,
-      notBefore: lease.notBefore,
-      notAfter: lease.notAfter,
-      lease,
-      request: null,
-    }));
-    const granted: ActiveAccessRow[] = this.approvedRows().map((request): ActiveAccessRow => ({
-      testId: `my-access-approved-${request.id}`,
-      requestId: request.id,
-      cipherId: request.cipherId,
-      cipherName: request.cipherName,
-      collectionName: request.collectionName,
-      notBefore: request.leaseNotBefore,
-      notAfter: request.leaseNotAfter,
-      lease: null,
-      request,
-    }));
-    return [...held.sort(byWindowEnd), ...granted.sort(byWindowEnd)];
   });
 
   /**
@@ -281,57 +260,79 @@ export class MyRequestsTabComponent {
   /** One shared instance so the badge input stays stable. */
   protected readonly readyBadge: AccessBadgeState = { kind: "ready" };
 
-  /**
-   * `bit-table-v2` multiplies a custom comparator by its direction, so the held-first term is
-   * pre-multiplied to hold in both directions; the item name decides within a group.
-   */
-  protected readonly byItemName: SortFn = (
-    a: ActiveAccessRow,
-    b: ActiveAccessRow,
-    direction?: SortDirection,
-  ): number => {
-    const grouping = (a.lease == null ? 1 : 0) - (b.lease == null ? 1 : 0);
-    if (grouping !== 0) {
-      return direction === "desc" ? -grouping : grouping;
-    }
-    return (a.cipherName ?? "").localeCompare(b.cipherName ?? "");
-  };
-
-  /**
-   * Fed the unfiltered pending rows, since the projected toolbar registers with this table and it
-   * filters through {@link rowMatchesFilter}. Pre-filtered rows would filter twice and skew the
-   * chip's counts.
-   */
-  protected readonly pendingTable = defineTable<MyAccessRequestRow, "window" | "actions">(
-    this.allPendingRows,
+  protected readonly myRequestRows = computed<MyRequestRow[]>(() =>
+    buildMyRequestRows(this.allLeases(), this.allPending(), this.allExtensions()),
   );
-  protected readonly extensionTable = defineTable<MyAccessRequestRow, "window" | "actions">(
-    this.extensionRows,
-  );
-  protected readonly activeAccessTable = defineTable<
-    ActiveAccessRow,
-    "window" | "status" | "actions"
-  >(this.activeAccessRows);
 
-  private readonly filterInputs = computed<MyRequestsFilter>(() => ({
-    term: this.searchTerm().trim().toLowerCase(),
-    collection: this.selectedCollection() ?? null,
-  }));
+  /** Whether the tab holds anything at all, before any filter narrows it. */
+  protected readonly hasRows = computed(() => this.myRequestRows().length > 0);
 
-  /**
-   * The Pending table's row test. Its toolbar's values arrive as `values` rather than through
-   * {@link filterInputs}, since that keyed shape lets the table count the chip's options.
-   */
-  protected readonly rowMatchesFilter = (
-    row: MyAccessRequestRow,
-    values: MyRequestsFilterValues,
-  ): boolean => matchesFilter(row, toMyRequestsFilter(values));
-
-  /** Filters every section but Pending, which the table hosting the toolbar narrows. */
-  private applyFilters<T extends FilterableRow>(rows: T[]): T[] {
-    const filter = this.filterInputs();
-    return rows.filter((row) => matchesFilter(row, filter));
+  constructor() {
+    effect((onCleanup) => {
+      if (this.skeletonVisible()) {
+        this.skeletonShown.set(true);
+        return;
+      }
+      if (!untracked(this.skeletonShown)) {
+        return;
+      }
+      const handle = setTimeout(() => this.skeletonShown.set(false), announcementHoldMs);
+      onCleanup(() => clearTimeout(handle));
+    });
   }
+
+  protected readonly statusOptions = computed<FilterOption[]>(() =>
+    MY_REQUEST_STATUSES.map((status) => ({
+      value: status,
+      label: this.i18nService.t(MY_REQUEST_LOOK[status].labelKey),
+      iconTile: MY_REQUEST_LOOK[status].tile,
+    })),
+  );
+
+  protected readonly statusCounts = computed<ReadonlyMap<string, number>>(() => {
+    const counts = new Map<string, number>(MY_REQUEST_STATUSES.map((status) => [status, 0]));
+    for (const row of this.myRequestRows()) {
+      const status = this.rowStatus(row);
+      counts.set(status, (counts.get(status) ?? 0) + 1);
+    }
+    return counts;
+  });
+
+  protected readonly noCollectionOptions = computed(() => this.collectionOptions().length === 0);
+
+  protected readonly byStatus: SortFn = (a: MyRequestRow, b: MyRequestRow): number =>
+    myRequestStatusRank(this.rowStatus(a)) - myRequestStatusRank(this.rowStatus(b));
+
+  /**
+   * `window` is a synthetic column, so there is no property for the table to sort on: without a
+   * comparator every row reads `undefined` and the header sorts nothing. Orders by when the
+   * window opens, as the Approvals tab does.
+   */
+  protected readonly byWindow: SortFn = (a: MyRequestRow, b: MyRequestRow): number =>
+    Date.parse(a.notBefore) - Date.parse(b.notBefore);
+
+  protected readonly myRequestsTable = defineTable<MyRequestRow, "window" | "status" | "actions">(
+    this.myRequestRows,
+  );
+
+  protected rowStatus(row: MyRequestRow): MyRequestStatus {
+    return myRequestStatus(row, this.nowMs());
+  }
+
+  protected readonly myRequestMatchesFilter = (
+    row: MyRequestRow,
+    values: MyRequestsFilterValues,
+  ): boolean => {
+    const statuses = selectedFilterStrings(values.status);
+    if (statuses.length > 0 && !statuses.includes(this.rowStatus(row))) {
+      return false;
+    }
+    const collections = selectedFilterStrings(values.collection);
+    if (collections.length > 0 && !collections.includes(row.collectionId)) {
+      return false;
+    }
+    return matchesTerm(row, searchTerm(values));
+  };
 
   /** Undefined when absent from the caller's vault, in which case no favicon renders. */
   protected cipherFor(cipherId: string): CipherView | undefined {
@@ -354,9 +355,9 @@ export class MyRequestsTabComponent {
     return this.ending().has(id);
   }
 
-  /** An opened window renders as "until X" instead of a from-to range. */
-  protected startsNow(row: Pick<MyAccessRequestRow, "leaseNotBefore">): boolean {
-    return Date.parse(row.leaseNotBefore) <= this.nowMs();
+  /** The server refuses to activate before the window opens, so Start waits for it. */
+  protected hasOpened(notBefore: string): boolean {
+    return Date.parse(notBefore) <= this.nowMs();
   }
 
   /** A lapsed grant can no longer be started, so Cancel is withheld like Start until it expires. */
@@ -367,23 +368,15 @@ export class MyRequestsTabComponent {
     return isRedeemableGrant(row, this.nowMs());
   }
 
-  /** Past the window the server rejects activation, so Start is not offered. */
   protected canStart(row: MyAccessRequestRow): boolean {
+    return isRedeemableGrant(row, this.nowMs()) && this.hasOpened(row.leaseNotBefore);
+  }
+
+  protected badgesReady(row: MyAccessRequestRow): boolean {
     return isRedeemableGrant(row, this.nowMs());
   }
 
-  /** Startable and inside its window, the only time "Ready to use" is true. */
-  protected isReadyNow(row: MyAccessRequestRow): boolean {
-    return this.canStart(row) && this.startsNow(row);
-  }
-
-  /**
-   * A lapsed grant shares a section with the access the caller holds, so it must not keep the green
-   * "Approved".
-   */
-  protected grantBadge(row: MyAccessRequestRow): TerminalStatusBadge | null {
-    return this.canStart(row) ? row.statusBadge : lapsedGrantBadge;
-  }
+  protected readonly lapsedGrantBadge = lapsedGrantBadge;
 
   protected async cancel(row: MyAccessRequestRow): Promise<void> {
     if (!this.canCancel(row) || this.isCancelling(row.id)) {
@@ -476,20 +469,13 @@ export class MyRequestsTabComponent {
   }
 }
 
-function matchesFilter(row: FilterableRow, filter: MyRequestsFilter): boolean {
-  if (filter.collection != null && row.collectionId !== filter.collection) {
-    return false;
-  }
-  if (filter.term === "") {
-    return true;
-  }
-  const haystack = `${row.cipherName ?? ""} ${row.collectionName ?? ""}`.toLowerCase();
-  return haystack.includes(filter.term);
+function searchTerm(values: MyRequestsFilterValues): string {
+  return typeof values.search === "string" ? values.search.trim().toLowerCase() : "";
 }
 
-function toMyRequestsFilter(values: MyRequestsFilterValues): MyRequestsFilter {
-  return {
-    term: typeof values.search === "string" ? values.search.trim().toLowerCase() : "",
-    collection: typeof values.collection === "string" ? values.collection : null,
-  };
+function matchesTerm(row: FilterableRow, term: string): boolean {
+  if (term === "") {
+    return true;
+  }
+  return `${row.cipherName ?? ""} ${row.collectionName ?? ""}`.toLowerCase().includes(term);
 }

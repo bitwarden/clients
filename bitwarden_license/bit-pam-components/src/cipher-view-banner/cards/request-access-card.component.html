@@ -1,0 +1,20 @@
+<bit-card data-testid="cipher-view-banner-request">
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <app-pam-banner-card-header [icon]="badgeLook.privileged.icon" variant="primary">
+      <span slot="title">{{ "pamRequestAccessBannerHeading" | i18n }}</span>
+      <span slot="description">{{ "pamRequestAccessBannerBody" | i18n }}</span>
+    </app-pam-banner-card-header>
+
+    @if (terms(); as rule) {
+      <p
+        bitTypography="helper"
+        class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-fg-heading"
+        data-testid="cipher-view-banner-max-duration"
+      >
+        <bit-icon name="bwi-clock" />
+        {{ rule.messageKey | i18n: (rule.maxSeconds | durationLong) }}
+      </p>
+    }
+    <ng-content />
+  </div>
+</bit-card>
