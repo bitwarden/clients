@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bitwarden</title>
     <base href="" />
-    <% for (const href of stylesheetHrefs) { %>
-    <link href="<%= href %>" rel="stylesheet" />
-    <% } %>
-    <script defer src="<%= loaderSrc %>" data-chunks="<%= chunkSrcs %>"></script>
   </head>
   <body>
     <app-root>

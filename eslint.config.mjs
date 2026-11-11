@@ -492,6 +492,32 @@ export default tseslint.config(
       ]),
     },
   },
+  // The browser popup's entry runs before Chrome shows the popup (see apps/browser/src/popup/main.ts),
+  // so these files may only import each other and the stylesheet. Any other import is parsed while
+  // the popup is still withheld, which brings back the blank popup this split exists to avoid.
+  {
+    files: [
+      "apps/browser/src/popup/main.ts",
+      "bitwarden_license/bit-browser/src/popup/main.ts",
+      "apps/browser/src/platform/popup/shell/popup-shell.ts",
+      "apps/browser/src/platform/browser/popup-width.ts",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              regex:
+                "^(?!(\\.\\./platform/popup/shell/popup-shell|@bitwarden/browser/platform/popup/shell/popup-shell|\\./scss|@bitwarden/browser/popup/scss|\\.\\./\\.\\./browser/popup-width)$)",
+              message:
+                "Runs before the popup is shown. Import app code from popup/bootstrap.ts instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     files: ["libs/nx-plugin/**/*.ts", "libs/nx-plugin/**/*.js"],
     rules: {

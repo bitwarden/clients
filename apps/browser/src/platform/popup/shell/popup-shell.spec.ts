@@ -1,6 +1,6 @@
 import { THEME_SELECTION } from "@bitwarden/common/platform/theming/theme-state.service";
 
-import { PopupWidthOptions } from "../platform/browser/popup-width";
+import { PopupWidthOptions } from "../../browser/popup-width";
 
 import {
   THEME_STATE_KEY,

@@ -166,26 +166,7 @@ module.exports.buildConfig = function buildConfig(params) {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/popup/index.ejs"),
       filename: "popup/index.html",
-      chunks: [
-        "popup/loader",
-        "popup/polyfills",
-        "popup/vendor-angular",
-        "popup/vendor",
-        "popup/main",
-      ],
-      // The template places the scripts itself: only the loader runs before `load`, and it
-      // injects the rest afterwards (see src/popup/loader.ts).
-      inject: false,
-      templateParameters: (compilation, assets, assetTags, options) => {
-        const isLoader = (src) => src.endsWith("/loader.js");
-        // Plain asset paths only, so the template interpolates values and never renders HTML.
-        return {
-          htmlWebpackPlugin: { options },
-          loaderSrc: assets.js.find(isLoader),
-          chunkSrcs: assets.js.filter((src) => !isLoader(src)).join(" "),
-          stylesheetHrefs: assets.css,
-        };
-      },
+      chunks: ["popup/polyfills", "popup/vendor-angular", "popup/vendor", "popup/main"],
       browser: browser,
     }),
     new HtmlWebpackPlugin({
@@ -276,7 +257,6 @@ module.exports.buildConfig = function buildConfig(params) {
     devtool: false,
 
     entry: {
-      "popup/loader": path.resolve(__dirname, "src/popup/loader.ts"),
       "popup/polyfills": path.resolve(__dirname, "src/popup/polyfills.ts"),
       "popup/main": params.popup.entry,
       "content/trigger-autofill-script-injection": path.resolve(
@@ -392,7 +372,8 @@ module.exports.buildConfig = function buildConfig(params) {
             },
             name: "popup/vendor",
             chunks: (chunk) => {
-              return chunk.name === "popup/main";
+              // The app is loaded after `load` as `popup/app` (see src/popup/main.ts).
+              return chunk.name === "popup/main" || chunk.name === "popup/app";
             },
           },
           angular: {
@@ -404,7 +385,8 @@ module.exports.buildConfig = function buildConfig(params) {
             },
             name: "popup/vendor-angular",
             chunks: (chunk) => {
-              return chunk.name === "popup/main";
+              // The app is loaded after `load` as `popup/app` (see src/popup/main.ts).
+              return chunk.name === "popup/main" || chunk.name === "popup/app";
             },
           },
         },

@@ -2,11 +2,13 @@ import {
   POPUP_WIDTH_STORAGE_KEY,
   PopupWidthOption,
   PopupWidthOptions,
-} from "../platform/browser/popup-width";
+} from "../../browser/popup-width";
 
 /**
- * What the popup loader needs to style the static shell before the app bundles run. Kept free of
- * app imports so the loader stays small.
+ * Styles the popup's static shell (`index.ejs`) before the app runs. `popup/main.ts` calls this,
+ * then loads the app after the document's `load` event, so this module runs while Chrome is still
+ * withholding the popup and must stay free of app imports. The ESLint override for pre-load files
+ * enforces that.
  */
 
 /**
@@ -72,4 +74,42 @@ export function shellWidthPx(stored: string | null): number {
 /** Mirrors `BrowserPopupUtils.inPopup`: the action popup has no `uilocation`, or `popup`. */
 export function isPopupLocation(href: string): boolean {
   return !href.includes("uilocation=") || href.includes("uilocation=popup");
+}
+
+const prefersDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+function setTheme(theme: ShellTheme) {
+  document.documentElement.classList.remove(themeClass("light"), themeClass("dark"));
+  document.documentElement.classList.add(themeClass(theme));
+}
+
+/** Whether this document is the action popup, as opposed to the same page opened in a tab. */
+function isActionPopup(): boolean {
+  if (globalThis.chrome?.extension?.getViews == null) {
+    return isPopupLocation(window.location.href);
+  }
+
+  return chrome.extension.getViews({ type: "popup" }).includes(window);
+}
+
+/**
+ * Sizes and themes the shell. Chrome sizes the popup once, when it shows it, so the width is set
+ * synchronously from the `localStorage` copy `PopupSizeService` keeps, with the default when there
+ * is none: an unsized popup shrinks to fit the spinner. The OS color scheme is applied at once,
+ * then corrected from the theme state. Cosmetic only; the app applies both itself once it runs.
+ */
+export function styleShell() {
+  try {
+    // A tab has no fixed width; `PopupSizeService` makes the same distinction.
+    if (isActionPopup()) {
+      document.body.style.width = `${shellWidthPx(localStorage.getItem(POPUP_WIDTH_STORAGE_KEY))}px`;
+    }
+
+    setTheme(resolveShellTheme(null, prefersDark()));
+    globalThis.chrome?.storage?.local?.get(THEME_STATE_KEY, (stored) => {
+      setTheme(resolveShellTheme(unwrapStored(stored?.[THEME_STATE_KEY]), prefersDark()));
+    });
+  } catch {
+    // Leave the shell unstyled rather than block the app from loading.
+  }
 }
