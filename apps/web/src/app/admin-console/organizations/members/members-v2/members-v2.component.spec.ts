@@ -202,8 +202,18 @@ describe("MembersV2Component", () => {
       ]);
     });
 
-    it("adds Options when the admin can only recover accounts", async () => {
-      await setup({ useGroups: true, canManageUsers: false, canManageUsersPassword: true }, []);
+    it("adds Options when the admin can only recover accounts and a member can be recovered", async () => {
+      const enrolled = member({ id: "enrolled" as Guid, resetPasswordEnrolled: true });
+      const notEnrolled = member({ id: "not-enrolled" as Guid, resetPasswordEnrolled: false });
+      await setup(
+        { useGroups: true, canManageUsers: false, canManageUsersPassword: true },
+        [enrolled, notEnrolled],
+        {},
+        { resetPasswordPolicyEnabled: true },
+      );
+      memberActionsService.allowResetPassword.mockImplementation(
+        (user) => user.resetPasswordEnrolled,
+      );
 
       expect(component.displayedColumns()).toEqual([
         "name",
@@ -212,6 +222,19 @@ describe("MembersV2Component", () => {
         "groupNames",
         "options",
       ]);
+    });
+
+    it("leaves out Options when the admin can only recover accounts and no member can be recovered", async () => {
+      const notEnrolled = member({ id: "not-enrolled" as Guid, resetPasswordEnrolled: false });
+      await setup(
+        { useGroups: true, canManageUsers: false, canManageUsersPassword: true },
+        [notEnrolled],
+        {},
+        { resetPasswordPolicyEnabled: true },
+      );
+      memberActionsService.allowResetPassword.mockReturnValue(false);
+
+      expect(component.displayedColumns()).toEqual(["name", "status", "type", "groupNames"]);
     });
 
     it("shows Collections when the organization doesn't use groups", async () => {

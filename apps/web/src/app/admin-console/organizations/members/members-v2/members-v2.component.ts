@@ -201,11 +201,25 @@ export class MembersV2Component {
     () => this.organization()?.canManageUsers ?? false,
   );
 
-  /** Custom users with only "Manage account recovery" still need the menu for Recover account. */
-  protected readonly showOptionsColumn = computed(
-    () =>
-      this.showUserManagementControls() || (this.organization()?.canManageUsersPassword ?? false),
-  );
+  /**
+   * Admins who can manage users always have actions. Custom users with only "Manage account
+   * recovery" have just Recover account, so the column only shows when a member can be recovered,
+   * rather than holding nothing but em dashes. It's based on every member, not the filtered rows,
+   * so it doesn't come and go as the admin filters.
+   */
+  protected readonly showOptionsColumn = computed(() => {
+    const organization = this.organization();
+    if (!organization) {
+      return false;
+    }
+    if (this.showUserManagementControls()) {
+      return true;
+    }
+    return (
+      organization.canManageUsersPassword &&
+      this.members().some((member) => this.allowResetPassword(member, organization))
+    );
+  });
 
   /** Select all stops at {@link MaxCheckedCount}, the most members a bulk action accepts. */
   protected readonly selection = computed<SelectionConfig<OrganizationUserView> | undefined>(() =>
@@ -213,8 +227,8 @@ export class MembersV2Component {
   );
 
   /**
-   * Groups for organizations that use them, otherwise collections, as in v1. Options only for
-   * admins who can manage users or recover accounts.
+   * Groups for organizations that use them, otherwise collections, as in v1. Options only when
+   * the admin has an action for some member; see {@link showOptionsColumn}.
    */
   protected readonly displayedColumns = computed(() => [
     "name" as const,
