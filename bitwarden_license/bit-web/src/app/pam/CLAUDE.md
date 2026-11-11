@@ -258,10 +258,13 @@ Two services drive every refresh:
   fans it out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a
   local change and a remote one through exactly the same path.
 
-Page-level services subscribe to the pushes directly and reload: `MyAccessService` on
-`accessChanged$`, `ApproverInboxService` on both. Use `concatMap`, not `switchMap`: two pushes
-arriving together must not interleave their loads and leave several subjects describing
-different moments. `AccessRequestDetailService` reads one request, so it re-fetches with
+Page-level services reload on these streams. `MyAccessService` listens on
+`AccessRefreshService.accessChanged$()`, not the bare push, so a cancel, start or end made
+elsewhere in this client (the request dialog, the vault) updates its tabs and counts even when the
+push is missed. It skips its own announcements, since each of its mutations already patched or
+reloaded the state. `ApproverInboxService` subscribes to both pushes directly. Use `concatMap`, not
+`switchMap`: two refreshes arriving together must not interleave their loads and leave several
+subjects describing different moments. `AccessRequestDetailService` reads one request, so it re-fetches with
 `switchMap` on the `:id` and `accessChanged$`.
 
 ### A lease running out
