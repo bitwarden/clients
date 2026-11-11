@@ -3,6 +3,7 @@ import { lockNow as lockExtensionNow } from "../../../src/browser/account-switch
 import { account } from "../../../src/credentials";
 import { clickMenuItem, MenuItem } from "../../../src/desktop/app-menu";
 import { BiometricRequestType } from "../../../src/desktop/biometrics";
+import { watchReload } from "../../../src/desktop/lock";
 import { DesktopSettings } from "../../../src/desktop/settings";
 import { FeatureFlag } from "../../../src/feature-flags";
 import { LockScreen } from "../../../src/lock-screen";
@@ -21,6 +22,8 @@ import { expect, test } from "../../../src/shared/desktop-fixtures";
 /**
  * Extension and desktop app lock and unlock together ("Sync unlock with desktop app"), and the
  * extension unlocks with the desktop app's biometrics. Biometrics go over SDK IPC.
+ *
+ * Every desktop lock crashes and reloads its renderer, so tests go on in the reloaded window.
  */
 
 const FLAGS = [FeatureFlag.SharedUnlock, FeatureFlag.BiometricsSdkIpc];
@@ -48,12 +51,14 @@ test.describe("shared unlock between extension and desktop app", () => {
     context,
     window,
   }) => {
+    const desktopReload = watchReload(window);
     extension = await lockExtension(context, extension, () => clickMenuItem(app, MenuItem.LockAll));
     const extensionLock = new LockScreen(extension.popup);
     await extensionLock.waitUntilShown();
-    await window.waitForURL(LOCK_URL);
+    const desktop = await desktopReload();
+    await desktop.waitForURL(LOCK_URL);
 
-    await new LockScreen(window).unlockWithMasterPassword(account().password);
+    await new LockScreen(desktop).unlockWithMasterPassword(account().password);
     await extensionLock.waitUntilGone();
   });
 
@@ -61,9 +66,11 @@ test.describe("shared unlock between extension and desktop app", () => {
     context,
     window,
   }) => {
+    const desktopReload = watchReload(window);
     extension = await lockExtension(context, extension, () => lockExtensionNow(extension.popup));
-    await window.waitForURL(LOCK_URL, { timeout: SYNC_TIMEOUT_MS });
-    const desktopLock = new LockScreen(window);
+    const desktop = await desktopReload();
+    await desktop.waitForURL(LOCK_URL, { timeout: SYNC_TIMEOUT_MS });
+    const desktopLock = new LockScreen(desktop);
     await desktopLock.waitUntilShown();
 
     await new LockScreen(extension.popup).unlockWithMasterPassword(account().password);
@@ -76,11 +83,12 @@ test.describe("shared unlock between extension and desktop app", () => {
     await settings.setPin(PIN);
     await settings.close();
 
+    const desktopReload = watchReload(window);
     extension = await lockExtension(context, extension, () => clickMenuItem(app, MenuItem.LockAll));
     const extensionLock = new LockScreen(extension.popup);
     await extensionLock.waitUntilShown();
 
-    await new LockScreen(window).unlockWithPin(PIN);
+    await new LockScreen(await desktopReload()).unlockWithPin(PIN);
     await extensionLock.waitUntilGone();
   });
 
@@ -89,8 +97,9 @@ test.describe("shared unlock between extension and desktop app", () => {
     await settings.open(extension.url);
     await settings.setPin(PIN);
 
+    const desktopReload = watchReload(window);
     extension = await lockExtension(context, extension, () => clickMenuItem(app, MenuItem.LockAll));
-    const desktopLock = new LockScreen(window);
+    const desktopLock = new LockScreen(await desktopReload());
     await desktopLock.waitUntilShown();
 
     await new LockScreen(extension.popup).unlockWithPin(PIN);
@@ -108,8 +117,9 @@ test.describe("shared unlock between extension and desktop app", () => {
     await settings.enableBiometrics(biometrics);
     await settings.close();
 
+    const desktopReload = watchReload(window);
     extension = await lockExtension(context, extension, () => clickMenuItem(app, MenuItem.LockAll));
-    const desktopLock = new LockScreen(window);
+    const desktopLock = new LockScreen(await desktopReload());
     await desktopLock.waitUntilShown();
 
     await new LockScreen(extension.popup).unlockWithBiometrics(() =>
