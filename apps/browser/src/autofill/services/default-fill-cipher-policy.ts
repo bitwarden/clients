@@ -12,9 +12,13 @@ import { CipherUse, FillCipherPolicy, SaveCandidate } from "./abstractions/fill-
 export class DefaultFillCipherPolicy implements FillCipherPolicy {
   constructor(protected readonly cipherService: CipherService) {}
 
-  /** Emits after each decryption, so a lookup that follows reads the new ciphers. */
+  /**
+   * Emits after each decryption, so a lookup that follows reads the new ciphers. Watches list
+   * views: the background subscribes for as long as the vault is unlocked, and full views would
+   * keep the whole vault decrypted in memory.
+   */
   changed$(userId: UserId): Observable<void> {
-    return this.cipherService.cipherViews$(userId).pipe(
+    return this.cipherService.cipherListViews$(userId).pipe(
       filter((views) => views != null),
       map((): void => undefined),
     );
