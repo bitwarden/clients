@@ -18,6 +18,7 @@ import {
 
 const POPUP_POLL_ATTEMPTS = 5;
 const POPUP_POLL_INTERVAL_MS = 200;
+const MIN_OPENING_DURATION_MS = 2000;
 
 // Where opening the popup from a page can work. BrowserActionsService only handles Chrome,
 // DuckDuckGo, Firefox and Safari, and Firefox fails from a page
@@ -71,11 +72,20 @@ export class ImportConfirmationBrowserComponent {
     }
   }
 
-  // openPopup() swallows its own failures, so success is confirmed by finding the popup.
+  // The spinner card stays up at least MIN_OPENING_DURATION_MS so a fast result doesn't flash it.
   private async tryOpenExtension(onFailure: "button" | "toolbar"): Promise<void> {
+    const [opened] = await Promise.all([
+      this.openPopup(),
+      new Promise((resolve) => setTimeout(resolve, MIN_OPENING_DURATION_MS)),
+    ]);
+    this.phase.set(opened ? "opened" : onFailure);
+  }
+
+  // openPopup() swallows its own failures, so success is confirmed by finding the popup.
+  private async openPopup(): Promise<boolean> {
     await this.confirmationState.resetPopupHistory();
     await this.actionsService.openPopup();
-    this.phase.set((await this.popupOpened()) ? "opened" : onFailure);
+    return this.popupOpened();
   }
 
   private async popupOpened(): Promise<boolean> {

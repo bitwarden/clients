@@ -110,6 +110,53 @@ describe("ImportConfirmationBrowserComponent", () => {
     });
   });
 
+  describe("minimum time on the spinner card", () => {
+    const elapse = async (ms: number) => {
+      await jest.advanceTimersByTimeAsync(ms);
+      fixture.detectChanges();
+    };
+
+    it("keeps the spinner for 2 seconds when the popup is already open", async () => {
+      isPopupOpen.mockResolvedValue(true);
+      await create({ settled: false });
+
+      await elapse(1999);
+      expect(text()).toContain("importingItemsTitle");
+      expect(text()).not.toContain("openedExtensionTitle");
+
+      await elapse(1);
+      expect(text()).toContain("openedExtensionTitle");
+      expect(text()).not.toContain("importingItemsTitle");
+    });
+
+    it("keeps the spinner for 2 seconds when the popup does not open", async () => {
+      isPopupOpen.mockResolvedValue(false);
+      await create({ settled: false });
+
+      await elapse(1999);
+      expect(text()).toContain("importingItemsTitle");
+      expect(button("import-confirmation_button_open-extension")).toBeNull();
+
+      await elapse(1);
+      expect(text()).not.toContain("importingItemsTitle");
+      expect(button("import-confirmation_button_open-extension")).not.toBeNull();
+    });
+
+    it("keeps the button loading for 2 seconds on a retry before showing the toolbar instructions", async () => {
+      isPopupOpen.mockResolvedValue(false);
+      await create();
+
+      button("import-confirmation_button_open-extension")!.click();
+      await elapse(1999);
+      expect(button("import-confirmation_button_open-extension")).not.toBeNull();
+      expect(text()).not.toContain("openingExtensionToolbarErrorPart1");
+
+      await elapse(1);
+      expect(text()).toContain("openingExtensionToolbarErrorPart1");
+      expect(button("import-confirmation_button_open-extension")).toBeNull();
+    });
+  });
+
   it("shows the celebration card once the popup is open, with no summary or vault button", async () => {
     isPopupOpen.mockResolvedValue(true);
 

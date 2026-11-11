@@ -3522,7 +3522,7 @@
     "message": "Importing"
   },
   "importingDescription": {
-    "message": "This might take a few minutes."
+    "message": "This process may take a few minutes."
   },
   "dataExportSuccess": {
     "message": "Data successfully exported"
