@@ -23,21 +23,26 @@ interface CommonMemberDialogParams {
   organizationId: OrganizationId;
 }
 
-export interface EditMemberDialogParams extends CommonMemberDialogParams {
-  name: string;
-  profileName?: string;
-  email?: string;
-  createdDate?: Date;
-  organizationUserId: Guid;
-  usesKeyConnector: boolean;
-  claimedByOrganization?: boolean;
-  hasMasterPassword?: boolean;
+interface BaseEditMemberDialogParams extends CommonMemberDialogParams {
   initialTab: MemberDialogTab;
-  /** Disables the form and hides Save, Remove and Revoke. Defaults to false. */
-  readonly?: boolean;
-  /**
-   * The member's row from the members list. A readonly dialog reads the member from here, since
-   * reading a single member requires the Manage users permission.
-   */
-  member?: OrganizationUserView;
+  createdDate?: Date;
 }
+
+/** Opens the dialog from the members list, which already has the member's row. */
+export interface EditMemberFromListDialogParams extends BaseEditMemberDialogParams {
+  member: OrganizationUserView;
+  /**
+   * Disables the form and hides Save, Remove and Revoke. Defaults to false. A readonly dialog
+   * reads the member from `member`, since reading a single member requires Manage users.
+   */
+  readonly?: boolean;
+}
+
+/** Opens the dialog from places that only know the member's ID, such as the member access report. */
+export interface EditMemberByIdDialogParams extends BaseEditMemberDialogParams {
+  organizationUserId: Guid;
+  name: string;
+  usesKeyConnector: boolean;
+}
+
+export type EditMemberDialogParams = EditMemberFromListDialogParams | EditMemberByIdDialogParams;

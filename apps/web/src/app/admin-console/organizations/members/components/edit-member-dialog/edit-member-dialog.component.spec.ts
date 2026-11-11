@@ -51,7 +51,9 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
 import {
+  EditMemberByIdDialogParams,
   EditMemberDialogParams,
+  EditMemberFromListDialogParams,
   MemberDialogResult,
   MemberDialogTab,
 } from "../member-dialog/member-dialog.types";
@@ -110,13 +112,38 @@ function buildUserDetails(
   });
 }
 
-function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMemberDialogParams {
+type MemberOverrides = Partial<
+  Pick<
+    OrganizationUserView,
+    "name" | "email" | "claimedByOrganization" | "hasMasterPassword" | "usesKeyConnector"
+  >
+>;
+
+function buildListMember(overrides: MemberOverrides = {}): OrganizationUserView {
+  const member = new OrganizationUserView({
+    id: USER_ID,
+    userId: "member-account-id" as any,
+    email: overrides.email ?? "",
+    type: OrganizationUserType.User,
+    revocationReason: undefined as any,
+    status: OrganizationUserStatusType.Confirmed,
+    permissions: new PermissionsApi(),
+    avatarColor: "",
+    name: overrides.name ?? "Test User",
+    claimedByOrganization: overrides.claimedByOrganization ?? false,
+  });
+  member.hasMasterPassword = overrides.hasMasterPassword ?? true;
+  member.usesKeyConnector = overrides.usesKeyConnector ?? false;
+  return member;
+}
+
+function defaultParams(
+  overrides: Partial<EditMemberFromListDialogParams> = {},
+  memberOverrides: MemberOverrides = {},
+): EditMemberFromListDialogParams {
   return {
     organizationId: ORG_ID,
-    organizationUserId: USER_ID,
-    name: "Test User",
-    usesKeyConnector: false,
-    claimedByOrganization: false,
+    member: buildListMember(memberOverrides),
     isOnSecretsManagerStandalone: false,
     initialTab: MemberDialogTab.Details,
     ...overrides,
@@ -612,7 +639,7 @@ describe("EditMemberDialogComponent", () => {
 
     it("email control is disabled", async () => {
       const { component } = await createComponent(
-        defaultParams({ initialTab: MemberDialogTab.Details, email: "test@example.com" }),
+        defaultParams({ initialTab: MemberDialogTab.Details }, { email: "test@example.com" }),
       );
 
       expect((component as any).formGroup.controls.email.disabled).toBe(true);
@@ -620,7 +647,7 @@ describe("EditMemberDialogComponent", () => {
 
     it("patches email from params on load", async () => {
       const { component } = await createComponent(
-        defaultParams({ initialTab: MemberDialogTab.Details, email: "member@example.com" }),
+        defaultParams({ initialTab: MemberDialogTab.Details }, { email: "member@example.com" }),
       );
 
       // Wait for userService.get to resolve and form to be patched
@@ -629,14 +656,32 @@ describe("EditMemberDialogComponent", () => {
       expect((component as any).formGroup.controls.email.value).toBe("member@example.com");
     });
 
-    it("patches name from profileName param on load", async () => {
+    it("patches name from the member's name on load", async () => {
       const { component } = await createComponent(
-        defaultParams({ initialTab: MemberDialogTab.Details, profileName: "Test User" }),
+        defaultParams({ initialTab: MemberDialogTab.Details }, { name: "Profile Name" }),
       );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect((component as any).formGroup.controls.name.value).toBe("Test User");
+      expect((component as any).formGroup.controls.name.value).toBe("Profile Name");
+    });
+
+    it("loads the member by ID and leaves name and email empty when opened without a member", async () => {
+      const params: EditMemberByIdDialogParams = {
+        organizationId: ORG_ID,
+        organizationUserId: USER_ID,
+        name: "Test User",
+        usesKeyConnector: false,
+        isOnSecretsManagerStandalone: false,
+        initialTab: MemberDialogTab.Details,
+      };
+      const { component, mocks } = await createComponent(params);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mocks.userAdminService.get).toHaveBeenCalledWith(ORG_ID, USER_ID);
+      expect((component as any).formGroup.controls.name.value).toBe("");
+      expect((component as any).formGroup.controls.email.value).toBe("");
     });
 
     it("submit error toast uses 'details' tab label when form invalid and not on Details tab", async () => {
@@ -658,7 +703,7 @@ describe("EditMemberDialogComponent", () => {
   describe("emailEditable", () => {
     it("is true when claimed and no master password", async () => {
       const { component } = await createComponent(
-        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        defaultParams({}, { claimedByOrganization: true, hasMasterPassword: false }),
       );
 
       expect((component as any).emailEditable()).toBe(true);
@@ -666,7 +711,7 @@ describe("EditMemberDialogComponent", () => {
 
     it("is false when not claimed (regardless of master password)", async () => {
       const { component } = await createComponent(
-        defaultParams({ claimedByOrganization: false, hasMasterPassword: false }),
+        defaultParams({}, { claimedByOrganization: false, hasMasterPassword: false }),
       );
 
       expect((component as any).emailEditable()).toBe(false);
@@ -674,7 +719,7 @@ describe("EditMemberDialogComponent", () => {
 
     it("is false when claimed but has a master password", async () => {
       const { component } = await createComponent(
-        defaultParams({ claimedByOrganization: true, hasMasterPassword: true }),
+        defaultParams({}, { claimedByOrganization: true, hasMasterPassword: true }),
       );
 
       expect((component as any).emailEditable()).toBe(false);
@@ -683,13 +728,17 @@ describe("EditMemberDialogComponent", () => {
 
   describe("nameEditable", () => {
     it("is true when claimed by organization", async () => {
-      const { component } = await createComponent(defaultParams({ claimedByOrganization: true }));
+      const { component } = await createComponent(
+        defaultParams({}, { claimedByOrganization: true }),
+      );
 
       expect((component as any).nameEditable()).toBe(true);
     });
 
     it("is false when not claimed by organization", async () => {
-      const { component } = await createComponent(defaultParams({ claimedByOrganization: false }));
+      const { component } = await createComponent(
+        defaultParams({}, { claimedByOrganization: false }),
+      );
 
       expect((component as any).nameEditable()).toBe(false);
     });
@@ -697,7 +746,9 @@ describe("EditMemberDialogComponent", () => {
 
   describe("name control enabled state after load", () => {
     it("enables name control when claimed by organization", async () => {
-      const { component } = await createComponent(defaultParams({ claimedByOrganization: true }));
+      const { component } = await createComponent(
+        defaultParams({}, { claimedByOrganization: true }),
+      );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -705,7 +756,9 @@ describe("EditMemberDialogComponent", () => {
     });
 
     it("keeps name control disabled when not claimed by organization", async () => {
-      const { component } = await createComponent(defaultParams({ claimedByOrganization: false }));
+      const { component } = await createComponent(
+        defaultParams({}, { claimedByOrganization: false }),
+      );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -716,7 +769,7 @@ describe("EditMemberDialogComponent", () => {
   describe("handleEditUser() name field", () => {
     it("includes name in request when claimed by organization", async () => {
       const { component, mocks } = await createComponent(
-        defaultParams({ claimedByOrganization: true }),
+        defaultParams({}, { claimedByOrganization: true }),
       );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -733,7 +786,7 @@ describe("EditMemberDialogComponent", () => {
 
     it("omits name from request when not claimed by organization", async () => {
       const { component, mocks } = await createComponent(
-        defaultParams({ claimedByOrganization: false }),
+        defaultParams({}, { claimedByOrganization: false }),
       );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -751,11 +804,10 @@ describe("EditMemberDialogComponent", () => {
   describe("email control enabled state after load", () => {
     it("enables email control when emailEditable is true", async () => {
       const { component } = await createComponent(
-        defaultParams({
-          claimedByOrganization: true,
-          hasMasterPassword: false,
-          email: "user@org.com",
-        }),
+        defaultParams(
+          {},
+          { claimedByOrganization: true, hasMasterPassword: false, email: "user@org.com" },
+        ),
       );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -765,7 +817,7 @@ describe("EditMemberDialogComponent", () => {
 
     it("keeps email control disabled when not claimed", async () => {
       const { component } = await createComponent(
-        defaultParams({ claimedByOrganization: false, hasMasterPassword: false }),
+        defaultParams({}, { claimedByOrganization: false, hasMasterPassword: false }),
       );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -775,7 +827,7 @@ describe("EditMemberDialogComponent", () => {
 
     it("keeps email control disabled when claimed but has master password", async () => {
       const { component } = await createComponent(
-        defaultParams({ claimedByOrganization: true, hasMasterPassword: true }),
+        defaultParams({}, { claimedByOrganization: true, hasMasterPassword: true }),
       );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -787,11 +839,10 @@ describe("EditMemberDialogComponent", () => {
   describe("handleEditUser() email field", () => {
     it("includes email in request when editable", async () => {
       const { component, mocks } = await createComponent(
-        defaultParams({
-          claimedByOrganization: true,
-          hasMasterPassword: false,
-          email: "original@org.com",
-        }),
+        defaultParams(
+          {},
+          { claimedByOrganization: true, hasMasterPassword: false, email: "original@org.com" },
+        ),
       );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -808,7 +859,7 @@ describe("EditMemberDialogComponent", () => {
 
     it("omits email from request when not editable", async () => {
       const { component, mocks } = await createComponent(
-        defaultParams({ claimedByOrganization: false, hasMasterPassword: true }),
+        defaultParams({}, { claimedByOrganization: false, hasMasterPassword: true }),
       );
 
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -828,7 +879,7 @@ describe("EditMemberDialogComponent", () => {
         400,
       );
       const { component, mocks } = await createComponent(
-        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        defaultParams({}, { claimedByOrganization: true, hasMasterPassword: false }),
       );
 
       mocks.userAdminService.saveV2.mockRejectedValue(emailError);
@@ -854,7 +905,7 @@ describe("EditMemberDialogComponent", () => {
           400,
         );
         const { component, mocks } = await createComponent(
-          defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+          defaultParams({}, { claimedByOrganization: true, hasMasterPassword: false }),
         );
 
         mocks.userAdminService.saveV2.mockRejectedValue(error);
@@ -876,7 +927,7 @@ describe("EditMemberDialogComponent", () => {
         400,
       );
       const { component, mocks } = await createComponent(
-        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        defaultParams({}, { claimedByOrganization: true, hasMasterPassword: false }),
       );
 
       mocks.userAdminService.saveV2.mockRejectedValue(nameError);
@@ -892,7 +943,7 @@ describe("EditMemberDialogComponent", () => {
     it("re-throws non-email errors so the generic toast path runs", async () => {
       const genericError = new Error("Unexpected server error");
       const { component, mocks } = await createComponent(
-        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        defaultParams({}, { claimedByOrganization: true, hasMasterPassword: false }),
       );
 
       mocks.userAdminService.saveV2.mockRejectedValue(genericError);
@@ -1028,25 +1079,17 @@ describe("EditMemberDialogComponent", () => {
       orgOverrides: Partial<Organization> = {},
       extraGroups: GroupView[] = [],
     ) {
-      const result = await createComponent(
-        defaultParams({
-          readonly: true,
-          member,
-          claimedByOrganization: true,
-          hasMasterPassword: false,
-        }),
-        {
-          orgOverrides: {
-            permissions: { manageUsers: false, manageResetPassword: true } as PermissionsApi,
-            ...orgOverrides,
-          },
-          collections,
-          groups: [
-            new GroupView({ id: GROUP_ID, organizationId: ORG_ID, name: "Engineering" }),
-            ...extraGroups,
-          ],
+      const result = await createComponent(defaultParams({ readonly: true, member }), {
+        orgOverrides: {
+          permissions: { manageUsers: false, manageResetPassword: true } as PermissionsApi,
+          ...orgOverrides,
         },
-      );
+        collections,
+        groups: [
+          new GroupView({ id: GROUP_ID, organizationId: ORG_ID, name: "Engineering" }),
+          ...extraGroups,
+        ],
+      });
       // Echo keys so the footer's buttons can be told apart.
       result.mocks.i18nService.t.mockImplementation((key: string) => key);
       result.fixture.detectChanges();

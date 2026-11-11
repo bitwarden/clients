@@ -35,7 +35,11 @@ import {
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
-import { EditMemberDialogParams, MemberDialogTab } from "../member-dialog/member-dialog.types";
+import {
+  EditMemberDialogParams,
+  EditMemberFromListDialogParams,
+  MemberDialogTab,
+} from "../member-dialog/member-dialog.types";
 
 import { EditMemberDialogComponent } from "./edit-member-dialog.component";
 
@@ -81,15 +85,35 @@ function mockUserDetails(
   });
 }
 
-function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMemberDialogParams {
+function listMember(
+  overrides: Partial<
+    Pick<OrganizationUserView, "claimedByOrganization" | "hasMasterPassword">
+  > = {},
+): OrganizationUserView {
+  const member = new OrganizationUserView({
+    id: USER_ID,
+    userId: "other-account-id" as any,
+    email: "alice@example.com",
+    type: OrganizationUserType.User,
+    revocationReason: undefined as any,
+    status: OrganizationUserStatusType.Confirmed,
+    permissions: new PermissionsApi(),
+    avatarColor: "",
+    name: "Alice Smith",
+    claimedByOrganization: overrides.claimedByOrganization ?? false,
+  });
+  member.hasMasterPassword = overrides.hasMasterPassword ?? true;
+  return member;
+}
+
+function defaultParams(
+  overrides: Partial<EditMemberFromListDialogParams> = {},
+  memberOverrides: Parameters<typeof listMember>[0] = {},
+): EditMemberFromListDialogParams {
   return {
     organizationId: ORG_ID,
-    organizationUserId: USER_ID,
-    name: "Alice Smith",
-    email: "alice@example.com",
+    member: listMember(memberOverrides),
     createdDate: new Date("2026-01-16T10:02:00Z"),
-    usesKeyConnector: false,
-    claimedByOrganization: false,
     isOnSecretsManagerStandalone: false,
     initialTab: MemberDialogTab.Details,
     ...overrides,
@@ -330,7 +354,7 @@ export const RevokedMember: Story = {
  */
 export const ClaimedByOrganization: Story = {
   render: makeRender(
-    defaultParams({ claimedByOrganization: true }),
+    defaultParams({}, { claimedByOrganization: true }),
     mockOrganization({ productTierType: ProductTierType.Enterprise }),
     mockUserDetails({ claimedByOrganization: true }),
   ),
@@ -394,7 +418,7 @@ export const WithCustomPermissionsSharedFolderTerminology: Story = {
  */
 export const DetailsTabEditEmail: Story = {
   render: makeRender(
-    defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+    defaultParams({}, { claimedByOrganization: true, hasMasterPassword: false }),
     mockOrganization({ productTierType: ProductTierType.Enterprise }),
     mockUserDetails({ claimedByOrganization: true, hasMasterPassword: false }),
   ),
@@ -410,11 +434,10 @@ export const DetailsTabEditEmailError: Story = {
       providers: [
         {
           provide: DIALOG_DATA,
-          useValue: defaultParams({
-            claimedByOrganization: true,
-            hasMasterPassword: false,
-            initialTab: MemberDialogTab.Details,
-          }),
+          useValue: defaultParams(
+            { initialTab: MemberDialogTab.Details },
+            { claimedByOrganization: true, hasMasterPassword: false },
+          ),
         },
         {
           provide: OrganizationService,
