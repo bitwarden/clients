@@ -37,6 +37,12 @@ export class LockScreen {
     await this.waitUntilGone();
   }
 
+  /** Types the PIN key by key, without pressing Unlock or Enter: a complete PIN submits itself. */
+  async typePin(pin: string) {
+    await this.pinInput.pressSequentially(pin);
+    await this.waitUntilGone();
+  }
+
   /**
    * Biometrics is the default option once available. `approve` answers the prompt the click
    * raises, e.g. `() => biometrics.approveNext(BiometricRequestType.Unlock)`.
