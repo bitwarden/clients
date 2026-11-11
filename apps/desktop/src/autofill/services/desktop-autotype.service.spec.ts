@@ -244,46 +244,47 @@ describe("DesktopAutotypeService", () => {
       expect(autotypeEnabledSubject.value).toBe(false);
     });
 
-    it("follows a later policy shortcut without storing it", async () => {
+    it("stores the policy shortcut when the local shortcut has never been set", async () => {
       autotypeKeyboardShortcutSubject.next(null);
       autotypeGaPolicyShortcutSubject.next(["Super", "K"]);
 
       await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeKeyboardShortcutSubject.value).toEqual(["Super", "K"]);
       expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual(["Super", "K"]);
-
-      autotypeGaPolicyShortcutSubject.next(["Alt", "Q"]);
-
-      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual(["Alt", "Q"]);
-      expect(mockAutotypeKeyboardShortcutState.update).not.toHaveBeenCalled();
-      expect(autotypeKeyboardShortcutSubject.value).toBeNull();
     });
 
-    it("keeps a local keyboard shortcut ahead of the policy", async () => {
+    it("does not overwrite a stored shortcut when the policy shortcut changes", async () => {
+      autotypeKeyboardShortcutSubject.next(null);
+      autotypeGaPolicyShortcutSubject.next(["Super", "K"]);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      autotypeGaPolicyShortcutSubject.next(["Alt", "Q"]);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mockAutotypeKeyboardShortcutState.update).toHaveBeenCalledTimes(1);
+      expect(autotypeKeyboardShortcutSubject.value).toEqual(["Super", "K"]);
+    });
+
+    it("does not overwrite a local keyboard shortcut the user already chose", async () => {
       autotypeKeyboardShortcutSubject.next(["Control", "Alt", "A"]);
       autotypeGaPolicyShortcutSubject.next(["Super", "K"]);
 
       await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual([
-        "Control",
-        "Alt",
-        "A",
-      ]);
       expect(mockAutotypeKeyboardShortcutState.update).not.toHaveBeenCalled();
-
-      autotypeGaPolicyShortcutSubject.next(["Alt", "Q"]);
-
-      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual([
-        "Control",
-        "Alt",
-        "A",
-      ]);
+      expect(autotypeKeyboardShortcutSubject.value).toEqual(["Control", "Alt", "A"]);
     });
 
     it("uses the built-in shortcut when there is no local shortcut and no policy shortcut", async () => {
       autotypeKeyboardShortcutSubject.next(null);
 
       await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual(
         DEFAULT_KEYBOARD_SHORTCUT,

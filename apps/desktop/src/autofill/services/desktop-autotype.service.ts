@@ -109,17 +109,8 @@ export class DesktopAutotypeService implements OnDestroy {
       takeUntil(this.destroy$),
     );
 
-    // Local shortcut, else the active account's policy, else the built-in default.
     this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcutState.state$.pipe(
-      switchMap((keyboardShortcut) => {
-        if (keyboardShortcut != null) {
-          return of(keyboardShortcut);
-        }
-
-        return this.desktopAutotypeGaPolicyService.autotypeGaDefaultKeyboardShortcut$.pipe(
-          map((policyKeyboardShortcut) => policyKeyboardShortcut ?? DEFAULT_KEYBOARD_SHORTCUT),
-        );
-      }),
+      map((shortcut) => shortcut ?? DEFAULT_KEYBOARD_SHORTCUT),
       takeUntil(this.destroy$),
     );
   }
@@ -142,6 +133,24 @@ export class DesktopAutotypeService implements OnDestroy {
             }
           } catch {
             this.logService.error("Failed to set Autotype enabled state.");
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    combineLatest([
+      this.autotypeKeyboardShortcutState.state$,
+      this.desktopAutotypeGaPolicyService.autotypeGaDefaultKeyboardShortcut$,
+    ])
+      .pipe(
+        concatMap(async ([keyboardShortcutState, policyKeyboardShortcut]) => {
+          try {
+            if (policyKeyboardShortcut != null && keyboardShortcutState == null) {
+              await this.setAutotypeKeyboardShortcutState(policyKeyboardShortcut);
+            }
+          } catch {
+            this.logService.error("Failed to set Autotype keyboard shortcut.");
           }
         }),
         takeUntil(this.destroy$),

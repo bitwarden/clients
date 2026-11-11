@@ -30,7 +30,7 @@ export class AutotypeKeyboardShortcut {
     Returns a boolean value indicating if the autotypeKeyboardShortcut
     was valid and set or not.
   */
-  set(newAutotypeKeyboardShortcut: unknown): boolean {
+  set(newAutotypeKeyboardShortcut: string[]): boolean {
     if (!isAutotypeGaShortcut(newAutotypeKeyboardShortcut)) {
       return false;
     }

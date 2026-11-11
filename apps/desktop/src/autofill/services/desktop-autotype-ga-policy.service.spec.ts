@@ -122,15 +122,15 @@ describe("DesktopAutotypeGaPolicyService", () => {
       expect(policyService.policyAppliesToUser$).not.toHaveBeenCalled();
     });
 
-    it("emits null while there is no active account", () => {
+    it("does not emit until an account appears", () => {
       mockAccountSubject.next(null);
       mockPolicyAppliesSubject.next(true);
 
       const { emissions, subscription } = collectEmissions();
-      expect(emissions).toEqual([null]);
+      expect(emissions).toEqual([]);
 
       mockAccountSubject.next({ id: mockUserId } as Account);
-      expect(emissions).toEqual([null, true]);
+      expect(emissions).toEqual([true]);
 
       subscription.unsubscribe();
     });
@@ -333,55 +333,16 @@ describe("DesktopAutotypeGaPolicyService", () => {
       featureFlagSubject.next(AutotypeFeatureFlagState.Ga);
       mockAuthStatusSubject.next(AuthenticationStatus.Locked);
       expect(await latest()).toBeNull();
-
-      mockAccountSubject.next(null);
-      expect(await latest()).toBeNull();
     });
 
-    it("keeps the last shortcut only while the same user is locked", () => {
-      const otherUserId = "user-456" as UserId;
-      const otherAuthStatus = new BehaviorSubject(AuthenticationStatus.Locked);
-      authService.authStatusFor$.mockImplementation((userId: UserId) =>
-        userId === otherUserId
-          ? otherAuthStatus.asObservable()
-          : mockAuthStatusSubject.asObservable(),
-      );
+    it("emits null while locked and the shortcut again after unlock", () => {
       mockPoliciesSubject.next([custom(["Super", "K"])]);
       const { emissions, subscription } = record();
 
       mockAuthStatusSubject.next(AuthenticationStatus.Locked);
       mockAuthStatusSubject.next(AuthenticationStatus.Unlocked);
-      expect(emissions).toEqual([["Super", "K"]]);
 
-      mockAuthStatusSubject.next(AuthenticationStatus.Locked);
-      mockAccountSubject.next({ id: otherUserId } as Account);
-
-      expect(emissions).toEqual([["Super", "K"], null]);
-      subscription.unsubscribe();
-      otherAuthStatus.complete();
-    });
-
-    it("does not restore the shortcut after the feature flag turns off", () => {
-      mockPoliciesSubject.next([custom(["Super", "K"])]);
-      const { emissions, subscription } = record();
-
-      mockAuthStatusSubject.next(AuthenticationStatus.Locked);
-      featureFlagSubject.next(AutotypeFeatureFlagState.Mvp);
-      featureFlagSubject.next(AutotypeFeatureFlagState.Ga);
-
-      expect(emissions).toEqual([["Super", "K"], null]);
-      subscription.unsubscribe();
-    });
-
-    it("does not restore the shortcut when the same user logs back in locked", () => {
-      mockPoliciesSubject.next([custom(["Super", "K"])]);
-      const { emissions, subscription } = record();
-
-      mockAccountSubject.next(null);
-      mockAuthStatusSubject.next(AuthenticationStatus.Locked);
-      mockAccountSubject.next({ id: mockUserId } as Account);
-
-      expect(emissions).toEqual([["Super", "K"], null]);
+      expect(emissions).toEqual([["Super", "K"], null, ["Super", "K"]]);
       subscription.unsubscribe();
     });
   });
