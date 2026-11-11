@@ -43,7 +43,8 @@ export async function skipOnboardingDialogs(page: Page) {
     // The same dialog can open twice, stacked. Close the topmost copy until none is left: it
     // covers the ones below, so their buttons cannot be clicked first.
     const close = dialog.getByRole("button", { name: dismiss });
-    await page.addLocatorHandler(dialog, async () => {
+    // first(): the handler's visibility check is strict, and fails on stacked copies.
+    await page.addLocatorHandler(dialog.first(), async () => {
       for (let open = await close.count(); open > 0; open = await close.count()) {
         await close.last().click();
         await expect(close).toHaveCount(open - 1);

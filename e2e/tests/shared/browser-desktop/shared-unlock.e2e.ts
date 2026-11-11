@@ -2,7 +2,7 @@ import { AccountSecurityPage } from "../../../src/browser/account-security";
 import { lockNow as lockExtensionNow } from "../../../src/browser/account-switcher";
 import { account } from "../../../src/credentials";
 import { clickMenuItem, MenuItem } from "../../../src/desktop/app-menu";
-import { BiometricRequestType } from "../../../src/desktop/biometrics";
+import { BiometricRequestType, Biometrics } from "../../../src/desktop/biometrics";
 import { watchReload } from "../../../src/desktop/lock";
 import { DesktopSettings } from "../../../src/desktop/settings";
 import { FeatureFlag } from "../../../src/feature-flags";
@@ -119,11 +119,14 @@ test.describe("shared unlock between extension and desktop app", () => {
 
     const desktopReload = watchReload(window);
     extension = await lockExtension(context, extension, () => clickMenuItem(app, MenuItem.LockAll));
-    const desktopLock = new LockScreen(await desktopReload());
+    const desktop = await desktopReload();
+    const desktopLock = new LockScreen(desktop);
     await desktopLock.waitUntilShown();
 
+    // The fake biometrics live in the renderer, so drive them from the reloaded one.
+    const desktopBiometrics = new Biometrics(desktop);
     await new LockScreen(extension.popup).unlockWithBiometrics(() =>
-      biometrics.approveNext(BiometricRequestType.Unlock),
+      desktopBiometrics.approveNext(BiometricRequestType.Unlock),
     );
     await desktopLock.waitUntilGone();
   });
