@@ -20,6 +20,9 @@ import { SecretRestoreVersionCommand } from "./secrets/secret-restore-version.co
 import { SecretVersionsCommand } from "./secrets/secret-versions.command";
 import { withSmOrganization } from "./sm-command.utils";
 import { SmTemplateObjects, TemplateCommand } from "./templates/template.command";
+import { TrashEmptyCommand } from "./trash/trash-empty.command";
+import { TrashListCommand } from "./trash/trash-list.command";
+import { TrashRestoreCommand } from "./trash/trash-restore.command";
 
 const writeLn = CliUtils.writeLn;
 
@@ -30,6 +33,10 @@ const ENCODED_JSON_DESCRIPTION =
 
 type OrgOptions = {
   organizationid: string;
+};
+
+type TrashOptions = OrgOptions & {
+  all?: boolean;
 };
 
 export class SmProgram extends BaseProgram {
@@ -50,6 +57,7 @@ export class SmProgram extends BaseProgram {
       .hook("preAction", () => this.exitIfFeatureFlagDisabled(FeatureFlag.SmCli))
       .addCommand(this.projectCommand())
       .addCommand(this.secretCommand())
+      .addCommand(this.trashCommand())
       .addCommand(this.templateCommand())
       .on("--help", () => {
         writeLn("\n  Examples:");
@@ -372,6 +380,89 @@ export class SmProgram extends BaseProgram {
                   secretId,
                   versionId,
                 ),
+            );
+            this.processResponse(response);
+          }),
+      );
+  }
+
+  private trashCommand(): Command {
+    return new Command("trash")
+      .description("Manage deleted Secrets Manager secrets.")
+      .addCommand(
+        new Command("list")
+          .description("List the secrets in an organization's trash.")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn("    bw sm trash list --organizationid <organizationid>");
+            writeLn("", true);
+          })
+          .action(async (options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await withSmOrganization(
+              this.serviceContainer,
+              options.organizationid,
+              (org) => TrashListCommand.create(this.serviceContainer).run(org),
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("restore")
+          .description("Restore secrets from the trash.")
+          .argument("[secretIds...]", "The ids of the trashed secrets")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .option("--all", "Restore every secret in the trash")
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn("    bw sm trash restore <secretId> --organizationid <organizationid>");
+            writeLn("    bw sm trash restore --all --organizationid <organizationid>");
+            writeLn("", true);
+          })
+          .action(async (secretIds: string[], options: TrashOptions) => {
+            await this.exitIfLocked();
+            const response = await withSmOrganization(
+              this.serviceContainer,
+              options.organizationid,
+              (org) =>
+                TrashRestoreCommand.create(this.serviceContainer).run(org, {
+                  secretIds,
+                  all: options.all,
+                }),
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("empty")
+          .description("Permanently delete secrets from the trash.")
+          .argument("[secretIds...]", "The ids of the trashed secrets")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .option("--all", "Permanently delete every secret in the trash")
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Permanently deleted secrets cannot be recovered.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn("    bw sm trash empty <secretId> --organizationid <organizationid>");
+            writeLn("    bw sm trash empty --all --organizationid <organizationid>");
+            writeLn("", true);
+          })
+          .action(async (secretIds: string[], options: TrashOptions) => {
+            await this.exitIfLocked();
+            const response = await withSmOrganization(
+              this.serviceContainer,
+              options.organizationid,
+              (org) =>
+                TrashEmptyCommand.create(this.serviceContainer).run(org, {
+                  secretIds,
+                  all: options.all,
+                }),
             );
             this.processResponse(response);
           }),
