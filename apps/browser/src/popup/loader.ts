@@ -24,12 +24,13 @@ import {
  * `PopupSizeService` keeps, with the default when there is none. The OS color scheme is applied
  * at once, then corrected from the theme state in `chrome.storage.local`.
  *
- * `index.ejs` renders the bundle list into this script's `data-chunks` attribute as JSON. It is
- * data on the tag rather than an inline script because the extension CSP forbids inline scripts.
+ * `index.ejs` renders the bundle paths into this script's `data-chunks` attribute, space separated.
+ * They are data on the tag rather than an inline script because the extension CSP forbids inline
+ * scripts.
  */
-const sources: string[] = JSON.parse(
-  document.querySelector<HTMLScriptElement>("script[data-chunks]")?.dataset.chunks ?? "[]",
-);
+const sources: string[] =
+  document.querySelector<HTMLScriptElement>("script[data-chunks]")?.dataset.chunks?.split(" ") ??
+  [];
 
 const prefersDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
 

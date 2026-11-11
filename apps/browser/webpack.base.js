@@ -178,13 +178,12 @@ module.exports.buildConfig = function buildConfig(params) {
       inject: false,
       templateParameters: (compilation, assets, assetTags, options) => {
         const isLoader = (src) => src.endsWith("/loader.js");
+        // Plain asset paths only, so the template interpolates values and never renders HTML.
         return {
           htmlWebpackPlugin: { options },
           loaderSrc: assets.js.find(isLoader),
-          chunkSrcs: JSON.stringify(assets.js.filter((src) => !isLoader(src))),
-          stylesheetLinks: assets.css
-            .map((href) => `<link href="${href}" rel="stylesheet" />`)
-            .join("\n    "),
+          chunkSrcs: assets.js.filter((src) => !isLoader(src)).join(" "),
+          stylesheetHrefs: assets.css,
         };
       },
       browser: browser,
