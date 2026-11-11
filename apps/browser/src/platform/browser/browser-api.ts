@@ -146,9 +146,21 @@ export class BrowserApi {
     return new Promise((resolve) => chrome.windows.get(windowId, { populate: true }, resolve));
   }
 
+  /**
+   * Creates a new browser window.
+   *
+   * @param options - The options for the new window.
+   * @returns A promise that resolves with the new window, or rejects if the browser refused to
+   * create it (for example, because the requested bounds are mostly off-screen).
+   */
   static async createWindow(options: chrome.windows.CreateData): Promise<chrome.windows.Window> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       chrome.windows.create(options, async (newWindow) => {
+        const lastError = chrome.runtime.lastError;
+        if (lastError || newWindow == null) {
+          return reject(new Error(lastError?.message ?? "Failed to create window"));
+        }
+
         if (!BrowserApi.isSafariApi) {
           return resolve(newWindow);
         }

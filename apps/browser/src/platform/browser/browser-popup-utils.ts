@@ -193,7 +193,21 @@ export default class BrowserPopupUtils {
       return;
     }
 
-    return await BrowserApi.createWindow(popoutWindowOptions);
+    try {
+      return await BrowserApi.createWindow(popoutWindowOptions);
+    } catch (error) {
+      if (popoutWindowOptions.left == null && popoutWindowOptions.top == null) {
+        throw error;
+      }
+
+      // The browser can reject the computed position when the sender window's reported bounds
+      // don't match the real display, for example when Chrome is launched with
+      // --force-device-scale-factor. Fall back to letting the browser place the window.
+      const unpositionedOptions = { ...popoutWindowOptions };
+      delete unpositionedOptions.left;
+      delete unpositionedOptions.top;
+      return await BrowserApi.createWindow(unpositionedOptions);
+    }
   }
 
   /**

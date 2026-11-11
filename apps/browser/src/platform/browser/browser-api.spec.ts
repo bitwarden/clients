@@ -304,6 +304,46 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("createWindow", () => {
+    afterEach(() => {
+      (chrome.runtime.lastError as any) = undefined;
+    });
+
+    it("resolves the created window", async () => {
+      const options = { type: "popup", url: "popup/index.html" } as chrome.windows.CreateData;
+      const newWindow = { id: 10 } as chrome.windows.Window;
+      (chrome.windows.create as jest.Mock).mockImplementationOnce((_options, callback) =>
+        callback(newWindow),
+      );
+
+      const result = await BrowserApi.createWindow(options);
+
+      expect(chrome.windows.create).toHaveBeenCalledWith(options, expect.any(Function));
+      expect(result).toBe(newWindow);
+    });
+
+    it("rejects with the runtime error when the browser refuses to create the window", async () => {
+      const message =
+        "Invalid value for bounds. Bounds must be at least 50% within visible screen space.";
+      (chrome.windows.create as jest.Mock).mockImplementationOnce((_options, callback) => {
+        (chrome.runtime.lastError as any) = { message };
+        callback(undefined);
+      });
+
+      await expect(BrowserApi.createWindow({ left: -10000, top: -10000 })).rejects.toThrow(
+        message,
+      );
+    });
+
+    it("rejects when no window is returned and there is no runtime error", async () => {
+      (chrome.windows.create as jest.Mock).mockImplementationOnce((_options, callback) =>
+        callback(undefined),
+      );
+
+      await expect(BrowserApi.createWindow({})).rejects.toThrow("Failed to create window");
+    });
+  });
+
   describe("removeWindow", () => {
     it("removes the window based on the passed window id", () => {
       const windowId = 10;
