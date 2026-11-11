@@ -1084,8 +1084,8 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
     );
   });
 
-  /** `updateConfig` replaces the blob wholesale; `cipherId`/`targetSystemId` are resent unedited. */
-  it("resends the loaded config's cipherId and targetSystemId, unedited", async () => {
+  /** `updateConfig` replaces the blob wholesale; an untouched `cipherId`/`targetSystemId` is resent as loaded. */
+  it("resends the loaded config's cipherId and targetSystemId when untouched", async () => {
     const existingConfig = loadedConfig({ cipherId: CIPHER_ID, targetSystemId: TARGET_SYSTEM_ID });
     const { component, fixture, rotationSdk } = setup({
       configId: configId("cfg-1"),
@@ -1101,6 +1101,90 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
       configId("cfg-1"),
       expect.objectContaining({ cipherId: CIPHER_ID, targetSystemId: TARGET_SYSTEM_ID }),
     );
+  });
+
+  it("keeps the target dropdown disabled and always saves the saved target", async () => {
+    const other = targetSystem({ id: sysId("sys-other"), name: "Other system" });
+    const { component, fixture, rotationSdk } = setup({
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ cipherId: CIPHER_ID, targetSystemId: TARGET_SYSTEM_ID }),
+      targetSystems: [targetSystem(), other],
+    });
+    await fixture.whenStable();
+    expect(component.accountForm.controls.targetSystemId.value).toBe(String(TARGET_SYSTEM_ID));
+    expect(component.accountForm.controls.targetSystemId.disabled).toBe(true);
+
+    // Even if the control were somehow changed, the saved target is what gets submitted.
+    component.accountForm.controls.targetSystemId.setValue(String(other.id));
+    component.accountForm.controls.accountIdentity.setValue("svc_other");
+    await component.submitEdit();
+
+    expect(rotationSdk.updateConfig).toHaveBeenCalledWith(
+      ORG_ID,
+      configId("cfg-1"),
+      expect.objectContaining({
+        cipherId: CIPHER_ID,
+        targetSystemId: TARGET_SYSTEM_ID,
+        accountIdentity: "svc_other",
+      }),
+    );
+  });
+
+  it("explains that the target system can't be changed yet", async () => {
+    const { fixture } = setup({
+      template: "real",
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ cipherId: CIPHER_ID, targetSystemId: TARGET_SYSTEM_ID }),
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent;
+    expect(text).toContain("pamRotationConfigTargetSystemHintLocked");
+    expect(text).not.toContain("pamRotationConfigTargetSystemHintEdit");
+  });
+
+  it("keeps an inactive saved target selectable in the edit dropdown", async () => {
+    const inactive = targetSystem({ status: "disabled" });
+    const { component, fixture } = setup({
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ targetSystemId: inactive.id }),
+      targetSystems: [inactive],
+    });
+    await fixture.whenStable();
+
+    expect(component["editTargetOptions"]().map((o: { id: string }) => o.id)).toContain(
+      String(inactive.id),
+    );
+  });
+
+  it("keeps the target dropdown locked while a job runs", async () => {
+    const { component, fixture } = setup({
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ hasActiveJob: true }),
+    });
+    await fixture.whenStable();
+    expect(component.accountForm.controls.targetSystemId.disabled).toBe(true);
+  });
+
+  it("follows the picked target for the account hint and manual coupling", async () => {
+    const entra = targetSystem({ sealed: targetSystemSealedFields({ kind: "entra" }) });
+    const manual = targetSystem({ id: sysId("sys-manual"), name: "Ledger", method: "manual" });
+    const { component, fixture } = setup({
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ targetSystemId: entra.id }),
+      targetSystems: [entra, manual],
+    });
+    await fixture.whenStable();
+    expect(component.usernameHintKey()).toBe("pamRotationDetailUsernameHintEntra");
+    component.settingsForm.controls.rotateOnAccessEnd.setValue(true);
+
+    component.accountForm.controls.targetSystemId.setValue(String(manual.id));
+
+    expect(component.usernameHintKey()).toBe("pamRotationDetailUsernameHintManual");
+    expect(component.settingsForm.controls.rotateOnAccessEnd.value).toBe(false);
+    expect(component.settingsForm.controls.rotateOnAccessEnd.disabled).toBe(true);
+    expect(component.accountForm.controls.terminateSessions.disabled).toBe(true);
   });
 
   /** Every field on the Configuration tab is part of `editForm`. */

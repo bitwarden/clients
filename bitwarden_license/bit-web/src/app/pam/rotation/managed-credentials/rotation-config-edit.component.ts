@@ -115,6 +115,14 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
 const ADD_TARGET_SYSTEM_OPTION = "__add-target-system__";
 
 /**
+ * Whether the edit page lets the admin change a saved config's target system. Off until both
+ * dependencies land: the SDK's `update()` in `rotation/configs.rs` rejects a changed target with
+ * `RotationConfigImmutableFieldMismatch`, and the server's `UpdateRotationConfigRequestModel` has no
+ * `TargetSystemId`. Set to true to re-enable the dropdown and submit the picked target.
+ */
+const EDIT_TARGET_SYSTEM_ENABLED = false;
+
+/**
  * Create and edit page for a rotation config. It provides its own `OrgCiphersService` and
  * `TargetSystemsService`, since the shell route's providers don't reach a sibling page.
  */
@@ -375,7 +383,10 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     rotateOnAccessEnd: [false],
   });
 
+  protected readonly targetSystemEditable = EDIT_TARGET_SYSTEM_ENABLED;
+
   protected readonly accountForm = this.formBuilder.nonNullable.group({
+    targetSystemId: ["", [Validators.required]],
     accountIdentity: ["", [Validators.required, Validators.maxLength(ACCOUNT_IDENTITY_MAX_LENGTH)]],
     terminateSessions: [false],
   });
@@ -410,9 +421,50 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     () => this.config()?.targetSystemMethod === TargetSystemMethod.Manual,
   );
 
+  /** The edit form's chosen target; empty until the saved one is patched in. */
+  private readonly editTargetId = signal("");
+
+  /**
+   * The target the edit form currently points at, which follows the dropdown, so the hints and
+   * checkboxes describe the target a save would use. Falls back to the saved target.
+   */
   private readonly configTargetSystem = computed(() => {
-    const targetSystemId = this.config()?.targetSystemId;
-    return this.allTargetSystems().find((s) => s.id === targetSystemId) ?? null;
+    const selectedId = this.editTargetId() || String(this.config()?.targetSystemId ?? "");
+    return this.allTargetSystems().find((s) => String(s.id) === selectedId) ?? null;
+  });
+
+  private readonly editTargetIsManual = computed(() => {
+    const selectedId = this.editTargetId();
+    const target = this.configTargetSystem();
+    // The saved target keeps the saved config's own method until another one is picked.
+    if (
+      target == null ||
+      selectedId === "" ||
+      selectedId === String(this.config()?.targetSystemId)
+    ) {
+      return this.isManual();
+    }
+    return target.method === TargetSystemMethod.Manual;
+  });
+
+  /**
+   * The create picker's options, plus the saved target when it is not among them (inactive), so
+   * the current choice always shows.
+   */
+  protected readonly editTargetOptions = computed(() => {
+    const options = this.targetOptions();
+    const config = this.config();
+    if (config == null || options.some((o) => o.id === String(config.targetSystemId))) {
+      return options;
+    }
+    return [
+      ...options,
+      {
+        id: String(config.targetSystemId),
+        name: config.targetSystemName,
+        description: undefined as string | undefined,
+      },
+    ];
   });
 
   private readonly connectorState = computed<ConnectorState>(() => {
@@ -505,7 +557,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   protected readonly endingSessions = computed(() => {
     const sealed = this.configTargetSystem()?.sealed;
-    return this.isManual() || sealed == null
+    return this.editTargetIsManual() || sealed == null
       ? null
       : { kind: sealed.kind, supported: sealed.supportsSessionTermination === true };
   });
@@ -514,7 +566,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   protected readonly terminateSessionsWaitsForJob = computed(
     () =>
       this.config()?.hasActiveJob === true &&
-      !this.isManual() &&
+      !this.editTargetIsManual() &&
       this.configTargetSystem()?.sealed?.supportsSessionTermination === true,
   );
 
@@ -522,7 +574,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     if (this.config()?.hasActiveJob) {
       return "pamRotationConfigChangeAfterAttempt";
     }
-    if (this.isManual()) {
+    if (this.editTargetIsManual()) {
       return "pamRotationDetailUsernameHintManual";
     }
     switch (this.configTargetSystem()?.sealed?.kind) {
@@ -583,6 +635,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   constructor() {
     this.coupleTargetControls();
+    this.coupleEditTargetControls();
     this.pinCreateFooter();
     inject(DestroyRef).onDestroy(() => this.poller.stop());
     void this.initialize();
@@ -694,6 +747,12 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     ]);
     this.connectors.set(connectors);
     await this.loadDescriptionsAndApplyDetail(detail);
+    // Silent, so the coupling below only runs for the admin's own change of target.
+    this.accountForm.controls.targetSystemId.setValue(String(detail.config.targetSystemId), {
+      emitEvent: false,
+    });
+    this.editTargetId.set(String(detail.config.targetSystemId));
+    this.applyEditLocks(detail.config);
     this.settingsForm.patchValue({
       scheduleCron: detail.config.scheduleCron ?? null,
       rotateOnAccessEnd: detail.config.rotateOnAccessEnd,
@@ -749,14 +808,19 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   }
 
   private applyEditLocks(config: RotationConfigView): void {
-    const { accountIdentity, terminateSessions } = this.accountForm.controls;
+    const { accountIdentity, terminateSessions, targetSystemId } = this.accountForm.controls;
     const { rotateOnAccessEnd } = this.settingsForm.controls;
-    const manual = config.targetSystemMethod === TargetSystemMethod.Manual;
+    const manual = this.editTargetIsManual();
 
     if (config.hasActiveJob) {
       accountIdentity.disable({ emitEvent: false });
     } else {
       accountIdentity.enable({ emitEvent: false });
+    }
+    if (config.hasActiveJob || !EDIT_TARGET_SYSTEM_ENABLED) {
+      targetSystemId.disable({ emitEvent: false });
+    } else {
+      targetSystemId.enable({ emitEvent: false });
     }
 
     const canTerminate =
@@ -774,6 +838,32 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     } else {
       rotateOnAccessEnd.enable({ emitEvent: false });
     }
+  }
+
+  /**
+   * Re-applies the create form's target coupling when the admin picks another target while
+   * editing: end-sessions needs a target that supports it and a manual target has no access-end
+   * rotation.
+   */
+  private coupleEditTargetControls(): void {
+    this.accountForm.controls.targetSystemId.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        this.editTargetId.set(value);
+        const config = this.config();
+        if (config == null) {
+          return;
+        }
+        this.applyEditLocks(config);
+        const { terminateSessions } = this.accountForm.controls;
+        const { rotateOnAccessEnd } = this.settingsForm.controls;
+        if (terminateSessions.disabled) {
+          terminateSessions.setValue(false, { emitEvent: false });
+        }
+        if (this.editTargetIsManual()) {
+          rotateOnAccessEnd.setValue(false, { emitEvent: false });
+        }
+      });
   }
 
   /** True for an automatic target with no verified sealed fields, the checkbox is disabled for "unknown", not "unsupported". */
@@ -859,8 +949,8 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   };
 
   /**
-   * Replaces the blob wholesale, so `cipherId`/`targetSystemId` are resent exactly as loaded
-   * though neither is editable here. Also rejected while a job is in flight.
+   * Replaces the blob wholesale, so `cipherId` is resent as loaded while the target system and
+   * account come from the form. Also rejected while a job is in flight.
    */
   protected readonly submitEdit = async (): Promise<void> => {
     this.settingsForm.markAllAsTouched();
@@ -876,7 +966,10 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     const account = this.accountForm.getRawValue();
     const request: RotationConfigCreateRequest = {
       cipherId: existing.cipherId,
-      targetSystemId: existing.targetSystemId,
+      // Always the saved target while changing it is unsupported, whatever the control holds.
+      targetSystemId: EDIT_TARGET_SYSTEM_ENABLED
+        ? asUuid<TargetSystemId>(account.targetSystemId)
+        : existing.targetSystemId,
       accountIdentity: account.accountIdentity,
       terminateSessions: account.terminateSessions,
       scheduleCron: settings.scheduleCron ?? undefined,

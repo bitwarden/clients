@@ -21584,6 +21584,12 @@
   "pamRotationConfigCredentialHint": {
     "message": "Credentials that are already in rotation aren't listed."
   },
+  "pamRotationConfigTargetSystemHintEdit": {
+    "message": "The system that holds this account. If you change it, the next rotation changes the password on the new system, so make sure the username matches an account there."
+  },
+  "pamRotationConfigTargetSystemHintLocked": {
+    "message": "You can't change the target system after setup yet."
+  },
   "pamRotationConfigTargetSystemHint": {
     "message": "The credential lives on the target system."
   },
