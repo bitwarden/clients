@@ -97,14 +97,14 @@
       </bit-cell>
     </bit-column>
 
-    <bit-column sortable [sortFn]="sortByAssignments">
+    <bit-column sortable [sortFn]="sortByAssignments" width="minmax(10rem, 1fr)">
       <bit-header-cell>{{ "pamAccessConnectorTargetSystems" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.assignmentNames; let r" [truncate]="false">
         <span class="tw-text-sm" data-testid="target-system-count">{{ r.targetSystemsLabel }}</span>
       </bit-cell>
     </bit-column>
 
-    <bit-column sortable [sortFn]="sortByLastSeen">
+    <bit-column sortable [sortFn]="sortByLastSeen" width="minmax(9rem, 1fr)">
       <bit-header-cell>{{ "pamAccessConnectorLastSeen" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.lastSeenAtMs; let r" [truncate]="false">
         @if (r.lastSeenAtMs != null) {

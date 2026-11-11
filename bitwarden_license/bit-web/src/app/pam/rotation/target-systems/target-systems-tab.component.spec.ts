@@ -1977,7 +1977,7 @@ describe("TargetSystemsTabComponent table", () => {
       setLoading(true);
 
       expect(el.querySelector<HTMLElement>("bit-table-v2 bit-row")!.style.gridTemplateColumns).toBe(
-        "minmax(12rem, 2fr) 1fr 1fr 1fr 1fr 96px",
+        "minmax(12rem, 2fr) minmax(9.5rem, 1fr) minmax(11.5rem, 1fr) minmax(9rem, 1fr) minmax(10rem, 1fr) 96px",
       );
     });
   });

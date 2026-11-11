@@ -83,9 +83,9 @@
       </bit-cell>
     </bit-column>
 
-    <bit-column sortable defaultSort="asc" [sortFn]="sortByStatus">
+    <bit-column sortable defaultSort="asc" [sortFn]="sortByStatus" width="minmax(9.5rem, 1fr)">
       <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
-      <bit-cell *bitCellDef="table.columns.statusSortOrder; let r">
+      <bit-cell *bitCellDef="table.columns.statusSortOrder; let r" [truncate]="false">
         <span
           bitBadge
           [variant]="r.statusBadge.variant"
@@ -96,7 +96,7 @@
       </bit-cell>
     </bit-column>
 
-    <bit-column sortable [sortFn]="sortByManagedCredentials">
+    <bit-column sortable [sortFn]="sortByManagedCredentials" width="minmax(11.5rem, 1fr)">
       <bit-header-cell>{{ "pamTargetSystemManagedCredentialsColumn" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.managedCredentialCount; let r" [truncate]="false">
         @if (r.managedCredentialCount == null) {
@@ -115,7 +115,7 @@
       </bit-cell>
     </bit-column>
 
-    <bit-column>
+    <bit-column width="minmax(9rem, 1fr)">
       <bit-header-cell>{{ "pamTargetSystemMethodLabel" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.methodLabel; let r" [truncate]="false">
         @if (r.methodLabel) {
@@ -126,7 +126,7 @@
       </bit-cell>
     </bit-column>
 
-    <bit-column>
+    <bit-column width="minmax(10rem, 1fr)">
       <bit-header-cell>{{ "pamTargetSystemSystemTypeLabel" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.kindLabel; let r" [truncate]="false">
         @if (r.kindLabel) {
