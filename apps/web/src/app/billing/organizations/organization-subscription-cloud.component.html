@@ -89,6 +89,22 @@
         </div>
       }
 
+      @if (showPrivilegedControlsPurchase() && orgSub && org) {
+        <div class="tw-mt-7">
+          @if (!showSecretsManagerSubscribe()) {
+            <h3 bitTypography="h3">{{ "moreFromBitwarden" | i18n }}</h3>
+          }
+          <billing-privileged-controls-purchase
+            [plan]="orgSub.plan"
+            [organizationId]="org.id"
+            [customerDiscount]="customerDiscount()"
+            [passwordManagerSeats]="orgSub.seats"
+            [passwordManagerMaxAutoscaleSeats]="orgSub.maxAutoscaleSeats"
+            (purchased)="subscriptionAdjusted()"
+          />
+        </div>
+      }
+
       @if (showPrivilegedControlsContactSalesToAdd()) {
         <div class="tw-mt-7" id="privileged-controls-contact-sales-to-add">
           <h2 bitTypography="h2">{{ "privilegedControls" | i18n }}</h2>
