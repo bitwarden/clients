@@ -15,10 +15,14 @@ export const smOrgId = "11111111-1111-1111-1111-111111111111";
 export const smOtherOrgId = "99999999-9999-9999-9999-999999999999";
 
 /** A validated organization, as the program layer hands it to a command's `run()`. */
-export const smOrg: SmOrganization = {
-  organizationId: smOrgId,
-  organization: { id: smOrgId, canAccessSecretsManager: true } as Organization,
-};
+export function createSmOrg(organization: Partial<Organization> = {}): SmOrganization {
+  return {
+    organizationId: smOrgId,
+    organization: { id: smOrgId, canAccessSecretsManager: true, ...organization } as Organization,
+  };
+}
+
+export const smOrg = createSmOrg();
 
 /** Makes `smUserId` the active user. */
 export function mockSmActiveAccount(accountService: MockProxy<AccountService>) {
