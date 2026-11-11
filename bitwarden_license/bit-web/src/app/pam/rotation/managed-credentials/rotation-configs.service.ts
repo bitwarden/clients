@@ -47,9 +47,8 @@ export class RotationConfigsService implements OnDestroy {
     this.targetSystems.loadError$,
   ]).pipe(map(([own, targetSystemsError]) => own ?? targetSystemsError));
 
-  readonly awaitingManualCount$: Observable<number> = this._configs$.pipe(
-    map((configs) => configs.filter((c) => c.awaitingManualRotation).length),
-  );
+  /** Total managed credentials in the org, ignoring table filters and search, for the tab berry. */
+  readonly totalCount$: Observable<number> = this._configs$.pipe(map((configs) => configs.length));
 
   /**
    * The access connectors once read successfully, else `null`. An unread or failed list would

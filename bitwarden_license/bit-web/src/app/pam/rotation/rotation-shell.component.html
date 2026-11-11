@@ -40,7 +40,7 @@
     </button>
   </bit-menu>
   <bit-tab-nav-bar slot="tabs" [label]="'pamRotation' | i18n">
-    <bit-tab-link route="managed-credentials" [berryValue]="awaitingManualCount()">{{
+    <bit-tab-link route="managed-credentials" [berryValue]="managedCredentialsCount()">{{
       "pamRotationTabManagedCredentials" | i18n
     }}</bit-tab-link>
     <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>

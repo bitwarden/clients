@@ -346,11 +346,14 @@ describe("RotationConfigsService", () => {
     });
   });
 
-  it("awaitingManualCount$ counts configs awaiting manual rotation", async () => {
-    rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ awaitingManualRotation: true })]);
+  it("totalCount$ counts every config, not only those awaiting manual rotation", async () => {
+    rotationSdk.listConfigs.mockResolvedValue([
+      rotationConfig({ awaitingManualRotation: true }),
+      rotationConfig({ awaitingManualRotation: false }),
+      rotationConfig({ awaitingManualRotation: false }),
+    ]);
     await service.load(ORG_ID);
-    const count = await firstValueFrom(service.awaitingManualCount$);
-    expect(count).toBe(1);
+    expect(await firstValueFrom(service.totalCount$)).toBe(3);
   });
 
   it("pause optimistically sets enabled=false", async () => {
@@ -413,6 +416,7 @@ describe("RotationConfigsService", () => {
     await service.delete(configs[0]);
     const updated = await firstValueFrom(service.configs$);
     expect(updated).toHaveLength(0);
+    expect(await firstValueFrom(service.totalCount$)).toBe(0);
   });
 
   it("delete does not modify local state on API error", async () => {

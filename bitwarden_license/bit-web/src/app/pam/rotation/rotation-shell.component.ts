@@ -48,8 +48,8 @@ export class RotationShellComponent {
     { requireSync: true },
   );
 
-  /** Configs awaiting a manual rotation confirmation, for the tab berry. */
-  protected readonly awaitingManualCount = toSignal(this.configsService.awaitingManualCount$, {
+  /** Total managed credentials in the org, for the tab berry. */
+  protected readonly managedCredentialsCount = toSignal(this.configsService.totalCount$, {
     initialValue: 0,
   });
 

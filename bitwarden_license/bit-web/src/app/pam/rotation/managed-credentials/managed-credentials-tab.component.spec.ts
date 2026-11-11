@@ -88,7 +88,7 @@ function makeConfigsServiceStub(
     ),
     rows$: new BehaviorSubject(rows),
     configs$: new BehaviorSubject(rows.map((r) => r.config)),
-    awaitingManualCount$: new BehaviorSubject(0),
+    totalCount$: new BehaviorSubject(0),
     load: jest.fn().mockResolvedValue(undefined),
     pause: jest.fn().mockResolvedValue(undefined),
     resume: jest.fn().mockResolvedValue(undefined),
