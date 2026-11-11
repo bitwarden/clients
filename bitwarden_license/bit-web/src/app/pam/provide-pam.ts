@@ -23,6 +23,7 @@ import {
   AccessRequestCancelService,
   controlledAccessItemFilter,
   ControlledAccessVaultFilterService,
+  MyAccessRequestsService,
   MyLeasesService,
 } from "@bitwarden/bit-pam-components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -174,6 +175,18 @@ export function providePam(): SafeProvider[] {
       useClass: MyLeasesService,
       deps: [AccessLeaseSdkService, LogService],
     }),
+    // One read of the caller's requests behind the nav count, the vault list's badges and the filter.
+    safeProvider({
+      provide: MyAccessRequestsService,
+      useClass: MyAccessRequestsService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccountService,
+        AccessBadgeTickerService,
+        LogService,
+      ],
+    }),
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
       useValue: CipherViewBannerComponent,
@@ -207,7 +220,7 @@ export function providePam(): SafeProvider[] {
       provide: PamNavBadgeService,
       useClass: DefaultPamNavBadgeService,
       deps: [
-        AccessRequestSdkService,
+        MyAccessRequestsService,
         ApprovalSdkService,
         ApprovalPrivilegeService,
         AccessEventService,

@@ -1,10 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import {
-  catchError,
   combineLatest,
   distinctUntilChanged,
-  forkJoin,
-  from,
   map,
   Observable,
   of,
@@ -13,13 +10,7 @@ import {
   switchMap,
 } from "rxjs";
 
-import {
-  AccessRequestSdkService,
-  ACCESS_BADGE_LOOK,
-  AccessBadgeState,
-  cipherAccessBadgeState,
-  ENDING_SOON_THRESHOLD_MS,
-} from "@bitwarden/bit-pam";
+import { ACCESS_BADGE_LOOK, AccessBadgeState, ENDING_SOON_THRESHOLD_MS } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
@@ -38,10 +29,10 @@ import {
   PENDING_FILTER_ID,
   PRIVILEGED_FILTER_ID,
   READY_FILTER_ID,
-  UNAVAILABLE_FILTER_ID,
 } from "@bitwarden/vault";
 
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
+import { MyAccessRequestsService } from "../services/my-access-requests.service";
 
 /** Table-chip option for an active lease inside {@link ENDING_SOON_THRESHOLD_MS} of its end. */
 export const ENDING_SOON_FILTER_ID = "ending-soon";
@@ -100,28 +91,18 @@ const CONTROLLED_ACCESS_STATE_FILTERS: readonly ControlledAccessFilterDefinition
     kinds: ["active"],
     tileVariant: "danger",
   },
-  {
-    id: UNAVAILABLE_FILTER_ID,
-    nameKey: "pamAccessBadgeUnavailable",
-    icon: ACCESS_BADGE_LOOK.unavailable.icon,
-    kinds: ["unavailable"],
-    tileVariant: "gray",
-  },
 ];
 
 type AccessKind = AccessBadgeState["kind"];
 
 /**
  * The vault table's Controlled access sort, ascending: the SDK's badge ranking (active → ready →
- * pending → unavailable → privileged), so the rows needing the user's attention lead.
+ * pending → privileged), so the rows needing the user's attention lead.
  */
-const SORT_ORDER: readonly AccessKind[] = [
-  "active",
-  "ready",
-  "pending",
-  "unavailable",
-  "privileged",
-];
+const SORT_ORDER: readonly AccessKind[] = ["active", "ready", "pending", "privileged"];
+
+/** A gated row the caller holds no lease or request on reads Privileged. */
+const RESTING: AccessBadgeState = { kind: "privileged" };
 
 /**
  * Whether a row in `state` belongs under a table option at `now`. A lease past its end belongs
@@ -163,15 +144,16 @@ function sameMatches(
 
 /**
  * The vault tables' "Controlled access" filter: one option per access state ({@link stateOptions$}),
- * their matches and the column's sort. A list costs one `getCipherAccessState` call per gated row in
- * a PAM organization, shared across options.
+ * their matches and the column's sort. Every row list maps over the caller's own requests
+ * ({@link MyAccessRequestsService}), the read the nav count already makes, so it sends no request
+ * per row. "Unavailable" needs the server's rule evaluation, so the filter does not offer it.
  */
 @Injectable()
 export class ControlledAccessVaultFilterService {
   private readonly configService = inject(ConfigService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
-  private readonly accessRequestSdkService = inject(AccessRequestSdkService);
+  private readonly myAccessRequestsService = inject(MyAccessRequestsService);
   private readonly i18nService = inject(I18nService);
   private readonly ticker = inject(AccessBadgeTickerService);
 
@@ -201,23 +183,11 @@ export class ControlledAccessVaultFilterService {
   );
 
   /**
-   * The access state of each gated row in a list, keyed by the list itself so the matches and the
-   * sort over the same rows share one read. Weakly held: a superseded list is dropped with it.
-   */
-  private readonly statesByRows = new WeakMap<
-    readonly CipherViewLike[],
-    Observable<Map<string, AccessBadgeState>>
-  >();
-
-  /**
    * The vault table chip's matches: each state option's ID → the IDs of the rows in that state.
-   * One read per list, shared across options. "In use" and "Ending soon" split the active leases
+   * One read of the caller's requests, shared across options and lists. "In use" and "Ending soon" split the active leases
    * at {@link ENDING_SOON_THRESHOLD_MS}, as the badge does, and a lease that has lapsed is in
    * neither. While any lease is active the split follows the clock, emitting only when a row
    * crosses it.
-   *
-   * TODO: the states are read once per list, not live on access events. Re-reading on
-   * `AccessRefreshService` is PAM follow-up work.
    */
   matches$(
     ciphers: readonly CipherViewLike[],
@@ -306,12 +276,7 @@ export class ControlledAccessVaultFilterService {
   private accessStates$(
     ciphers: readonly CipherViewLike[],
   ): Observable<Map<string, AccessBadgeState>> {
-    const cached = this.statesByRows.get(ciphers);
-    if (cached != null) {
-      return cached;
-    }
-
-    const states$ = this.pamOrganizationIds$.pipe(
+    return this.pamOrganizationIds$.pipe(
       switchMap((pamOrganizationIds) => {
         const candidates = ciphers.filter(
           (cipher) =>
@@ -323,31 +288,18 @@ export class ControlledAccessVaultFilterService {
         if (candidates.length === 0) {
           return of(new Map<string, AccessBadgeState>());
         }
-        return forkJoin(candidates.map((cipher) => this.state$(cipher))).pipe(
-          map((states) => {
-            const byId = new Map<string, AccessBadgeState>();
-            candidates.forEach((cipher, index) => {
-              const state = states[index];
-              if (state != null) {
-                byId.set(String(cipher.id), state);
-              }
-            });
-            return byId;
-          }),
+        return this.myAccessRequestsService.badges$.pipe(
+          map(
+            (badges) =>
+              new Map(
+                candidates.map((cipher) => [
+                  String(cipher.id),
+                  badges.get(String(cipher.id)) ?? RESTING,
+                ]),
+              ),
+          ),
         );
       }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
-    this.statesByRows.set(ciphers, states$);
-    return states$;
-  }
-
-  private state$(cipher: CipherViewLike): Observable<AccessBadgeState | undefined> {
-    return from(this.accessRequestSdkService.getCipherAccessState(String(cipher.id))).pipe(
-      map((state) => cipherAccessBadgeState(state) ?? undefined),
-      // A failed read is not evidence of any particular state, and listing the row anyway would
-      // make the filter overstate what it is showing.
-      catchError(() => of(undefined)),
     );
   }
 }

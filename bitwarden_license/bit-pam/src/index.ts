@@ -55,6 +55,7 @@ export { resolveCollectionNames } from "./helpers/collection-names";
 export { conflictingCollectionIds } from "./helpers/collection-conflicts";
 export { filterRulesToToggle } from "./helpers/filter-rules-to-toggle";
 export { approvalMethodLabelKeys } from "./helpers/approval-method";
+export { badgesFromMyRequests, nextRequestListChangeMs } from "./helpers/request-list-badges";
 export {
   AccessRuleStatusFilter,
   AccessRuleFilter,

@@ -19,12 +19,11 @@ import {
 import {
   AccessEventService,
   AccessRefreshService,
-  AccessRequestSdkService,
   AccessRequestView,
   ApprovalSdkService,
   isActionableRequest,
 } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
+import { AccessBadgeTickerService, MyAccessRequestsService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -46,7 +45,7 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
   readonly count$: Observable<number>;
 
   constructor(
-    private accessRequestSdkService: AccessRequestSdkService,
+    private myAccessRequestsService: MyAccessRequestsService,
     private approvalSdkService: ApprovalSdkService,
     private approvalPrivilegeService: ApprovalPrivilegeService,
     private accessEventService: AccessEventService,
@@ -81,14 +80,18 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
     );
   }
 
+  /**
+   * Off the read the vault list's badges share, which repeats on access changes and when a counted
+   * window ends.
+   */
   private ownRequestIds$(): Observable<string[]> {
-    return merge(of(undefined), this.accessRefreshService.accessChanged$()).pipe(
-      switchMap(() =>
-        this.actionableIds$(
-          () => this.accessRequestSdkService.listMyAccessRequests(),
-          isActionableRequest,
-        ),
-      ),
+    return this.myAccessRequestsService.requests$.pipe(
+      map((requests) => {
+        const now = new Date();
+        return requests
+          .filter((request) => isActionableRequest(request, now))
+          .map((request) => uuidAsString(request.id));
+      }),
       startWith<string[]>([]),
     );
   }
