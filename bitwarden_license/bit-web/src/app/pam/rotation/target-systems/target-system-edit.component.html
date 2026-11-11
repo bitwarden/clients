@@ -477,7 +477,9 @@
             [accessibleName]="'pamTargetSystemStatusInactive' | i18n"
             id="target-system-edit_callout_inactive"
           >
-            {{ "pamTargetSystemInactiveCallout" | i18n }}
+            {{ inactiveCalloutParts().before
+            }}<strong class="tw-font-semibold">{{ "pamTargetSystemActivate" | i18n }}</strong
+            >{{ inactiveCalloutParts().after }}
           </bit-callout>
         }
 

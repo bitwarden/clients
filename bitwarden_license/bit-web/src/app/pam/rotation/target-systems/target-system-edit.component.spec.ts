@@ -60,7 +60,8 @@ class ResizeObserverStub {
 const ORG_ID = ORGANIZATION_ID;
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
-  t: (id: string) => id,
+  t: (id: string, p1?: string | number) =>
+    id === "pamTargetSystemInactiveCallout" ? `inactive-before ${p1} inactive-after` : id,
   translate: (id: string) => id,
 };
 
@@ -2639,7 +2640,12 @@ describe("TargetSystemEditComponent: assigned access connectors", () => {
       expect(
         el().querySelector("#target-system-edit_button_activate")!.getAttribute("buttonType"),
       ).toBe("primary");
-      expect(el().querySelector("#target-system-edit_callout_inactive")).toBeTruthy();
+      const callout = el().querySelector("#target-system-edit_callout_inactive")!;
+      expect(callout).toBeTruthy();
+      expect(callout.querySelector("strong")!.textContent).toBe("pamTargetSystemActivate");
+      expect(callout.textContent!.replace(/\s+/g, " ").trim()).toBe(
+        "inactive-before pamTargetSystemActivate inactive-after",
+      );
       openMenu();
       expect(menuItems()).toEqual(["target-system-edit_button_delete"]);
     });

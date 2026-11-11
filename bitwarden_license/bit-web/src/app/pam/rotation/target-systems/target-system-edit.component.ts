@@ -423,6 +423,15 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     targetSystemKindLabelKey(this.existing()?.sealed?.kind),
   );
 
+  /** The inactive callout's copy split around where the bold Activate control name goes. */
+  protected readonly inactiveCalloutParts = computed(() => {
+    const marker = "\u0000";
+    const [before, after] = this.i18nService
+      .t("pamTargetSystemInactiveCallout", marker)
+      .split(marker);
+    return { before, after: after ?? "" };
+  });
+
   /** The target's own name once loaded, so the page reads as that record rather than a form. */
   protected readonly titleText = computed(() => {
     if (!this.editing) {
