@@ -1,4 +1,4 @@
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType } from "../../enums";
 
 export const DESKTOP_SSO_CALLBACK: string = "bitwarden://sso-callback";
 

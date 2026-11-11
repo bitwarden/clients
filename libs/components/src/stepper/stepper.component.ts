@@ -1,7 +1,15 @@
 import { Directionality } from "@angular/cdk/bidi";
 import { CdkStepper, StepperOrientation } from "@angular/cdk/stepper";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, Input, QueryList } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  input,
+  linkedSignal,
+  QueryList,
+} from "@angular/core";
 
 import { ResizeObserverDirective } from "../resize-observer";
 import { TypographyModule } from "../typography";
@@ -12,10 +20,9 @@ import { StepComponent } from "./step.component";
  * The `<bit-stepper>` component extends the
  * [Angular CdkStepper](https://material.angular.io/cdk/stepper/api#CdkStepper) component
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-stepper",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "stepper.component.html",
   providers: [{ provide: CdkStepper, useExisting: StepperComponent }],
   imports: [CommonModule, ResizeObserverDirective, TypographyModule],
@@ -31,7 +38,7 @@ export class StepperComponent extends CdkStepper {
     super(_dir, _changeDetectorRef, _elementRef);
   }
 
-  private resizeWidthsMap = new Map([
+  private readonly resizeWidthsMap = new Map([
     [2, 600],
     [3, 768],
     [4, 900],
@@ -39,30 +46,26 @@ export class StepperComponent extends CdkStepper {
 
   override readonly steps!: QueryList<StepComponent>;
 
-  private internalOrientation: StepperOrientation | undefined = undefined;
-  private initialOrientation: StepperOrientation | undefined = undefined;
+  /** Overrides CdkStepper's `orientation` input so we can default to vertical. */
+  readonly orientationInput = input<StepperOrientation | undefined>(undefined, {
+    alias: "orientation",
+  });
 
-  // overriding CdkStepper orientation input so we can default to vertical
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  override get orientation() {
-    return this.internalOrientation || "vertical";
+  /** Follows the input, but resize handling may switch a horizontal stepper to vertical. */
+  private readonly currentOrientation = linkedSignal<StepperOrientation>(
+    () => this.orientationInput() ?? "vertical",
+  );
+
+  override get orientation(): StepperOrientation {
+    return this.currentOrientation();
   }
   override set orientation(value: StepperOrientation) {
-    if (!this.internalOrientation) {
-      // tracking the first value of orientation. We want to handle resize events if it's 'horizontal'.
-      // If it's 'vertical' don't change the orientation to 'horizontal' when resizing
-      this.initialOrientation = value;
-    }
-
-    this.internalOrientation = value;
+    this.currentOrientation.set(value);
   }
 
   handleResize(entry: ResizeObserverEntry) {
-    if (this.initialOrientation === "horizontal") {
+    // A stepper declared vertical stays vertical regardless of width.
+    if (this.orientationInput() === "horizontal") {
       const stepperContainerWidth = entry.contentRect.width;
       const numberOfSteps = this.steps.length;
       const breakpoint = this.resizeWidthsMap.get(numberOfSteps) || 450;
@@ -89,5 +92,5 @@ export class StepperComponent extends CdkStepper {
   /**
    * UID for `[attr.aria-controls]`
    */
-  protected contentId = Math.random().toString(36).substring(2);
+  protected readonly contentId = Math.random().toString(36).substring(2);
 }
