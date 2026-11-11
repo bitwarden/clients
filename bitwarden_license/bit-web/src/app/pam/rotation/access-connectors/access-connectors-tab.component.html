@@ -14,13 +14,14 @@
         [placeholder]="'search' | i18n"
         [formControl]="searchControl"
       ></bit-search>
-      <bit-filter-menu key="status" [placeholderText]="'status' | i18n" multiple>
+      <bit-filter-menu key="status" [placeholderText]="'status' | i18n" [unsetLabel]="'all' | i18n">
         @for (badge of statusBadges; track badge.status) {
           <bit-filter-option [value]="badge.status" [iconTile]="badge.iconTile">{{
             badge.labelKey | i18n
           }}</bit-filter-option>
         }
       </bit-filter-menu>
+      <bit-filter-divider />
       <bit-filter-menu
         key="targetSystem"
         [placeholderText]="'pamRotationConfigColumnTargetSystem' | i18n"

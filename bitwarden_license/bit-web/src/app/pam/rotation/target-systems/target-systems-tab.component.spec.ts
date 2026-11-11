@@ -2125,10 +2125,11 @@ describe("TargetSystemsTabComponent toolbar", () => {
     ).toEqual(["status", "method", "kind", "connector"]);
   });
 
-  it("makes every chip multi-select but the rotation method", async () => {
+  it("makes every chip multi-select but Status and the rotation method", async () => {
     const on = await render(SYSTEMS, [accessConnector({ id: connectorId("c") })]);
 
-    expect(chip(on, "status").multiple()).toBe(true);
+    expect(chip(on, "status").multiple()).toBe(false);
+    expect(chip(on, "status").unsetLabel()).toBe("all");
     expect(chip(on, "method").multiple()).toBe(false);
     expect(chip(on, "kind").multiple()).toBe(true);
     expect(chip(on, "connector").multiple()).toBe(true);
@@ -2141,7 +2142,7 @@ describe("TargetSystemsTabComponent toolbar", () => {
     );
 
     expect(chips.map(text)).toEqual([
-      "status",
+      "status: all",
       "pamTargetSystemMethodLabel",
       "pamTargetSystemSystemTypeLabel",
     ]);
@@ -2191,13 +2192,20 @@ describe("TargetSystemsTabComponent toolbar", () => {
     expect(rowNames(on)).toEqual(expected);
   });
 
-  it("matches a row against any of several chosen values on a multi-select chip", async () => {
+  it("follows the Status chip with a filter divider", async () => {
+    const on = await render();
+
+    const status = toolbar(on).querySelector('bit-filter-menu[key="status"]')!;
+    expect(status.nextElementSibling?.tagName.toLowerCase()).toBe("bit-filter-divider");
+  });
+
+  it("replaces the chosen status when another is picked on the single-select Status chip", async () => {
     const on = await render();
 
     setFilters(on, { status: TargetSystemRowStatus.Inactive });
     setFilters(on, { status: TargetSystemRowStatus.NotConnected });
 
-    expect(rowNames(on)).toEqual(["Prod Entra", "Billing script"]);
+    expect(rowNames(on)).toEqual(["Prod Entra"]);
   });
 
   it("restores every row when the search is cleared", async () => {
