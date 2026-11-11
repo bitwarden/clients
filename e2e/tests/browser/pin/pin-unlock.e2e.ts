@@ -28,6 +28,6 @@ test("unlocks with a PIN once it is fully typed", async ({ context, popup }) => 
   await expect(lockScreen.pinInput).toBeVisible();
 
   // Then typing the PIN unlocks it, without pressing Unlock
-  await lockScreen.typePin(PIN);
+  await lockScreen.unlockWithPin(PIN);
   await new LoginPage(lockedPopup).waitForVault(VAULT_URL);
 });

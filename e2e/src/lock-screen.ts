@@ -5,7 +5,6 @@ const LOCK_SCREEN = "lock-screen";
 const MASTER_PASSWORD_INPUT = "lock-master-password-input";
 const MASTER_PASSWORD_UNLOCK_BUTTON = "lock-master-password-unlock-button";
 const PIN_INPUT = "lock-pin-input";
-const PIN_UNLOCK_BUTTON = "lock-pin-unlock-button";
 const BIOMETRIC_UNLOCK_BUTTON = "lock-biometric-unlock-button";
 const BIOMETRIC_SWAP_BUTTON = "lock-biometric-swap-button";
 const UNLOCK_TIMEOUT_MS = 60_000;
@@ -31,14 +30,11 @@ export class LockScreen {
     return this.page.getByTestId(PIN_INPUT);
   }
 
+  /**
+   * Types the PIN key by key, without pressing Unlock or Enter: a complete PIN submits itself.
+   * Clicking Unlock as well would race that submit, which unlocks and removes the button.
+   */
   async unlockWithPin(pin: string) {
-    await this.pinInput.fill(pin);
-    await this.page.getByTestId(PIN_UNLOCK_BUTTON).click();
-    await this.waitUntilGone();
-  }
-
-  /** Types the PIN key by key, without pressing Unlock or Enter: a complete PIN submits itself. */
-  async typePin(pin: string) {
     await this.pinInput.pressSequentially(pin);
     await this.waitUntilGone();
   }
