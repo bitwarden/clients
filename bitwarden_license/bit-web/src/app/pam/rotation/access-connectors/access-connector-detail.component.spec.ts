@@ -337,14 +337,19 @@ describe("AccessConnectorDetailComponent", () => {
       );
     });
 
-    it("asks to finish setting up a connector that has never connected", async () => {
+    it("shows an informational setup callout with a guide link for a connector that has never connected", async () => {
       await mount(makeAccessConnector({ isConnected: false, lastHeartbeatAt: undefined }), {
         renderTemplate: true,
       });
 
-      expect(query("#access-connector-detail_callout_never-connected")!.textContent).toContain(
-        "pamAccessConnectorNeverConnectedCallout",
-      );
+      const callout = query("#access-connector-detail_callout_never-connected")!;
+      expect(callout.textContent).toContain("pamAccessConnectorNeverConnectedCallout");
+      expect(callout.querySelector(".tw-bg-bg-brand-softer")).not.toBeNull();
+      expect(callout.querySelector("bit-icon")).not.toBeNull();
+      const link = query("#access-connector-detail_link_setup-guide") as HTMLAnchorElement;
+      expect(link.textContent).toContain("pamAccessConnectorReadSetupGuide");
+      expect(link.target).toBe("_blank");
+      expect(link.rel).toContain("noreferrer");
     });
 
     it("shows none for an inactive connector, which the header already explains", async () => {

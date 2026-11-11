@@ -20770,7 +20770,10 @@
     "message": "This access connector isn't connected, so it can't rotate passwords. Check that it's running on its machine and can reach Bitwarden."
   },
   "pamAccessConnectorNeverConnectedCallout": {
-    "message": "Finish setting up. Add the token and each target system's connection details to this access connector's configuration, then start it."
+    "message": "Add the token you copied when you created this access connector and each target system's connection details on the machine running it, then start it."
+  },
+  "pamAccessConnectorReadSetupGuide": {
+    "message": "Read the setup guide"
   },
   "pamAccessConnectorTokenTitle": {
     "message": "Access connector token"
