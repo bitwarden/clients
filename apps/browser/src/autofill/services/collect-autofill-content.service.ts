@@ -41,7 +41,10 @@ import { AutoFillConstants } from "./autofill-constants";
 import { ShadowHostHydrationTracker } from "./shadow-host-hydration-tracker";
 
 type ResolveFieldTarget = {
-  selectorAlternatives: string[];
+  // Each alternative is either a single selector or a multi-input group of
+  // selectors (e.g. a one-time code split across inputs). Matches the canonical
+  // FormFields shape in libs/common/src/autofill/types.
+  selectorAlternatives: (string | string[])[];
   fieldType: AutofillTargetingRuleType;
   formCategory?: FormPurposeCategory;
 };
@@ -411,7 +414,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
     const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
-      (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
+      (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, (string | string[])[]]>)
         .filter(([, alternatives]) => alternatives?.length)
         .map(([fieldType, selectorAlternatives]) => ({
           fieldType,
@@ -532,46 +535,64 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
 
-      for (const selector of selectorAlternatives) {
-        if (typeof selector !== "string") {
-          continue;
-        }
+      for (const selectorOrGroup of selectorAlternatives) {
+        // An alternative is either a single selector (string) or a multi-input
+        // group (string[]). Example: a 6-digit one-time code split across
+        // inputs. Normalize to a group so the resolution logic is uniform.
+        const groupSelectors = Array.isArray(selectorOrGroup) ? selectorOrGroup : [selectorOrGroup];
+        const isMultiInputGroup = groupSelectors.length > 1;
+        let matchedInThisAlternative = 0;
 
-        // Check whether this selector crosses an iframe boundary before
-        // trying to resolve it locally.
-        const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
-        if (iframeCrossing) {
-          const { iframeElement, innerSelector } = iframeCrossing;
-          const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
-          // Empty src (srcdoc, about:blank) is deferred — see routing/scope notes.
-          if (iframeSrc) {
-            if (!iframeTargets.has(iframeSrc)) {
-              iframeTargets.set(iframeSrc, []);
-            }
-            iframeTargets.get(iframeSrc)!.push({
-              selector: innerSelector,
-              fieldType,
-              formCategory,
-            });
+        for (const selector of groupSelectors) {
+          if (typeof selector !== "string") {
+            continue;
           }
-          break;
+
+          // Check whether this selector crosses an iframe boundary before
+          // trying to resolve it locally.
+          const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
+          if (iframeCrossing) {
+            const { iframeElement, innerSelector } = iframeCrossing;
+            const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
+            // Empty src (srcdoc, about:blank) is deferred — see routing/scope notes.
+            if (iframeSrc) {
+              if (!iframeTargets.has(iframeSrc)) {
+                iframeTargets.set(iframeSrc, []);
+              }
+              iframeTargets.get(iframeSrc)!.push({
+                selector: innerSelector,
+                fieldType,
+                formCategory,
+              });
+              matchedInThisAlternative++;
+            }
+            continue;
+          }
+
+          // No iframe boundary — resolve locally (direct element or shadow DOM).
+          const matchedElement = this.domQueryService.queryDeepSelector(selector);
+          if (matchedElement) {
+            // Group members share a target index; a group suffix keeps each
+            // member's opid unique. Single-selector targets keep the original
+            // opid shape.
+            const groupSuffix = isMultiInputGroup ? `_${matchedInThisAlternative}` : "";
+            const fieldId = `targeted_field_${targetIndex}_${fieldType}${groupSuffix}`;
+            const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+            formFieldElement.opid = fieldId;
+
+            const autofillField = this.buildTargetedAutofillField(
+              formFieldElement,
+              fieldType,
+              localFields.length,
+              formCategory,
+            );
+            localFields.push(autofillField);
+            this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
+            matchedInThisAlternative++;
+          }
         }
 
-        // No iframe boundary — resolve locally (direct element or shadow DOM).
-        const matchedElement = this.domQueryService.queryDeepSelector(selector);
-        if (matchedElement) {
-          const fieldId = `targeted_field_${targetIndex}_${fieldType}`;
-          const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-          formFieldElement.opid = fieldId;
-
-          const autofillField = this.buildTargetedAutofillField(
-            formFieldElement,
-            fieldType,
-            localFields.length,
-            formCategory,
-          );
-          localFields.push(autofillField);
-          this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
+        if (matchedInThisAlternative > 0) {
           break;
         }
       }

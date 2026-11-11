@@ -702,6 +702,44 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("getTargetedPageDetails multi-input group", () => {
+    it("resolves every sub-selector in a nested-array alternative with unique opids", async () => {
+      // A nested array alternative represents a multi-input group (e.g. one char per
+      // OTP box). Every member must resolve, not just the first, otherwise the group
+      // of inputs gets no autofill coverage.
+      document.body.innerHTML = `
+        <input id="otp-0" />
+        <input id="otp-1" />
+        <input id="otp-2" />
+      `;
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [
+                {
+                  category: FormPurposeCategories.AccountLogin,
+                  fields: { oneTimeCode: [["#otp-0", "#otp-1", "#otp-2"]] },
+                },
+              ],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields).toHaveLength(3);
+      const opids = pageDetails.fields.map((f) => f.opid);
+      expect(new Set(opids).size).toBe(3);
+      pageDetails.fields.forEach((field) => {
+        expect(field.fieldQualifier).toBe("oneTimeCode");
+        expect(field.targeted).toBe(true);
+      });
+    });
+  });
+
   describe("applyExternalTargetedFields recursion", () => {
     it("re-routes via routeTargetedFieldsToFrame when received selector itself crosses another iframe", async () => {
       document.body.innerHTML = `<iframe id="inner-iframe"></iframe>`;
