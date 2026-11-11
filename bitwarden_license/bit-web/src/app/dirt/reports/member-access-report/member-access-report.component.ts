@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -9,7 +9,9 @@ import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rx
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -17,6 +19,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -76,6 +79,10 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 })
 export class MemberAccessReportComponent implements OnInit {
   private readonly configService = inject(ConfigService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
+
+  protected readonly canManageUsers = signal(false);
 
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
@@ -115,6 +122,11 @@ export class MemberAccessReportComponent implements OnInit {
     try {
       const params = await firstValueFrom(this.route.params);
       this.organizationId = params.organizationId;
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const organization = await firstValueFrom(
+        this.organizationService.organizations$(userId).pipe(getById(this.organizationId)),
+      );
+      this.canManageUsers.set(organization?.canManageUsers ?? false);
 
       // Handle billing metadata with fallback
       try {
