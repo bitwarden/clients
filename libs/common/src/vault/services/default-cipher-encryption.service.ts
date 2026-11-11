@@ -5,7 +5,6 @@ import { CipherListView, DecryptCipherListResult } from "@bitwarden/sdk-internal
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
-import { UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { EncryptionContext } from "../abstractions/cipher.service";
 import { Cipher } from "../models/domain/cipher";
@@ -100,37 +99,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to move cipher to organization: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
-  }
-
-  async encryptCipherForRotation(
-    model: CipherView,
-    userId: UserId,
-    newKey: UserKey,
-  ): Promise<EncryptionContext | undefined> {
-    return firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        concatMap(async (sdk) => {
-          using ref = sdk.take();
-          const sdkCipherView = model.toSdkCipherView();
-
-          const encryptionContext = await ref.value
-            .vault()
-            .ciphers()
-            .encrypt_cipher_for_rotation(sdkCipherView, newKey.toBase64());
-
-          return {
-            cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
-            // Rotation encrypts under the new key, so this is the new key's id, not the current one.
-            encryptedByKeyId: encryptionContext.encryptedByKeyId,
-          };
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to rotate cipher data: ${error}`);
           return EMPTY;
         }),
       ),

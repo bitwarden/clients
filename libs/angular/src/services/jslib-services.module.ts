@@ -722,7 +722,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: UserKeyRotationServiceAbstraction,
     useClass: UserKeyRotationService,
-    deps: [SdkService, LogService, UserCryptoDialogService],
+    deps: [SdkService, LogService, UserCryptoDialogService, ConfigService],
   }),
   safeProvider({
     provide: CipherServiceAbstraction,
@@ -1016,7 +1016,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
-      SdkService,
       SendDecryptionService,
     ],
   }),

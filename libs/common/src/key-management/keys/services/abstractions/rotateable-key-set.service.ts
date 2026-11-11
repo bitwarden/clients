@@ -15,18 +15,4 @@ export abstract class RotateableKeySetService {
     upstreamKey: UpstreamKey,
     downstreamKey: SymmetricCryptoKey,
   ): Promise<RotateableKeySet<UpstreamKey>>;
-
-  /**
-   * Rotates the provided `RotateableKeySet` with the new key.
-   *
-   * @param keySet The current `RotateableKeySet` to be rotated.
-   * @param oldDownstreamKey The current downstreamKey used to decrypt the `PublicKey`.
-   * @param newDownstreamKey The new downstreamKey to encrypt the `PublicKey`.
-   * @returns The updated `RotateableKeySet` that contains the new downstreamKey.
-   */
-  abstract rotateKeySet<UpstreamKey extends SymmetricCryptoKey>(
-    keySet: RotateableKeySet<UpstreamKey>,
-    oldDownstreamKey: SymmetricCryptoKey,
-    newDownstreamKey: SymmetricCryptoKey,
-  ): Promise<RotateableKeySet<UpstreamKey>>;
 }
