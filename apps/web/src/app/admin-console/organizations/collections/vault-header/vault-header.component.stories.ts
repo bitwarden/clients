@@ -82,6 +82,14 @@ function nestedCollection(): TreeNode<CollectionAdminView> {
   return child;
 }
 
+/** "Web", nested under "Frontend", nested under "Engineering". */
+function deeplyNestedCollection(): TreeNode<CollectionAdminView> {
+  const parent = nestedCollection();
+  const child = mockTreeNode(mockCollection("Web", "col-3" as CollectionId), parent);
+  parent.children = [child];
+  return child;
+}
+
 /** A collection the current user can view but not manage. */
 function readOnlyCollection(): TreeNode<CollectionAdminView> {
   const collection = mockCollection("Read-Only Vault");
@@ -277,6 +285,19 @@ export const CollectionSelectedVfo1Enabled: Story = {
   args: {
     filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-1" as CollectionId },
     collection: mockTreeNode(mockCollection("Engineering")),
+  },
+  render,
+};
+
+/**
+ * Three levels of nesting with the VFO1 flag on — the full trail renders the organization, each
+ * ancestor as a link, and the collection in view as the final, non-linked crumb.
+ */
+export const DeeplyNestedCollectionVfo1Enabled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  args: {
+    filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-3" as CollectionId },
+    collection: deeplyNestedCollection(),
   },
   render,
 };

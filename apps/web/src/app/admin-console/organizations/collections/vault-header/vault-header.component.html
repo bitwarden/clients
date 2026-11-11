@@ -1,5 +1,35 @@
 <app-header [title]="title()" [icon]="icon()">
-  @if (showBreadcrumbs()) {
+  @if (showFullNestingBreadcrumbs()) {
+    <bit-breadcrumbs slot="breadcrumbs">
+      <bit-breadcrumb [route]="[]" [queryParams]="orgRootQueryParams()" queryParamsHandling="merge">
+        <bit-icon-tile
+          slot="start"
+          [icon]="orgTile().icon"
+          [variant]="orgTile().variant ?? 'primary'"
+          [emphasis]="orgTile().emphasis ?? 'subtle'"
+          aria-hidden="true"
+        />
+        {{ organization().name }}
+      </bit-breadcrumb>
+      @for (collection of collections(); track collection.id) {
+        <bit-breadcrumb
+          [icon]="icon()"
+          [route]="[]"
+          [queryParams]="collectionQueryParams(collection.id)"
+          queryParamsHandling="merge"
+        >
+          {{ collection.name }}
+        </bit-breadcrumb>
+      }
+      <!--
+        `[route]="[]"` plus `merge` resolves to the current URL, so this crumb is always the active
+        one: it renders as non-linked text and `bit-header` promotes it to the page heading.
+      -->
+      <bit-breadcrumb [icon]="icon()" [route]="[]" queryParamsHandling="merge">
+        {{ title() }}
+      </bit-breadcrumb>
+    </bit-breadcrumbs>
+  } @else if (showBreadcrumbs()) {
     <bit-breadcrumbs slot="breadcrumbs" showTrailingArrow>
       <bit-breadcrumb
         [route]="[]"

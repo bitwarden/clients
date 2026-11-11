@@ -23,10 +23,13 @@ import {
   SearchModule,
   SimpleDialogOptions,
   IconModule,
+  IconTileComponent,
+  IconTileOptions,
 } from "@bitwarden/components";
 import {
   NewCipherMenuComponent,
   All,
+  orgIconTile,
   RoutedVaultFilterModel,
   Vfo1I18nPipe,
   Vfo1IconPipe,
@@ -51,6 +54,7 @@ import { CollectionDialogTabType } from "../../shared/components/collection-dial
     JslibModule,
     NewCipherMenuComponent,
     IconModule,
+    IconTileComponent,
     Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
@@ -134,8 +138,25 @@ export class VaultHeaderComponent {
     () => this.filter().collectionId !== undefined && this.filter().collectionId !== All,
   );
 
+  /**
+   * With the VFO1 flag on, the trail runs the full nesting path — organization, ancestors, then the
+   * collection in view as the final, non-linked crumb (which `bit-header` promotes to the page
+   * heading). With the flag off, the legacy trail of ancestors followed by the page title is kept.
+   */
+  protected readonly showFullNestingBreadcrumbs = computed(
+    () => this.vfo1TerminologyService.enabled() && this.showBreadcrumbs(),
+  );
+
+  /** The icon tile for the organization root crumb in the full nesting trail. */
+  protected readonly orgTile = computed((): IconTileOptions =>
+    orgIconTile(this.organization().productTierType),
+  );
+
+  /** Query params that return to the organization root, clearing any selected collection. */
+  protected readonly orgRootQueryParams = computed(() => this.collectionQueryParams(null));
+
   /** Builds query params to navigate to a collection, using the terminology-appropriate param key. */
-  protected collectionQueryParams(collectionId: string) {
+  protected collectionQueryParams(collectionId: string | null) {
     return this.vfo1TerminologyService.collectionQueryParams(collectionId);
   }
 
