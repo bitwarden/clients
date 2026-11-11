@@ -1,14 +1,14 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, throwError } from "rxjs";
 
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/user-core";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../../../libs/common/spec";
 import { NUDGE_DISMISSED_DISK_KEY, NudgeType } from "../nudges.service";
-import { VaultProfileService } from "../vault-profile.service";
 
 import {
   VFO1_GA_RELEASE_DATE,
@@ -30,7 +30,8 @@ function gaDatePlusMonths(months: number): Date {
 
 describe("Vfo1OnboardingNudgeService", () => {
   let service: Vfo1OnboardingNudgeService;
-  let vaultProfileService: MockProxy<VaultProfileService>;
+  let activeAccount$: BehaviorSubject<Account | null>;
+  let accountService: { activeAccount$: unknown };
   let logService: MockProxy<LogService>;
   let fakeStateProvider: FakeStateProvider;
   const userId = "user-id" as UserId;
@@ -39,21 +40,26 @@ describe("Vfo1OnboardingNudgeService", () => {
   const preGaAccount = gaDatePlusDays(-30);
   const insideWindow = gaDatePlusMonths(1);
 
+  function setCreationDate(creationDate: Date) {
+    activeAccount$.next({ id: userId, creationDate } as Account);
+  }
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(insideWindow);
 
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
-    vaultProfileService = mock<VaultProfileService>();
+    activeAccount$ = new BehaviorSubject<Account | null>(null);
+    accountService = { activeAccount$ };
     logService = mock<LogService>();
 
-    vaultProfileService.getProfileCreationDate.mockResolvedValue(preGaAccount);
+    setCreationDate(preGaAccount);
 
     TestBed.configureTestingModule({
       providers: [
         Vfo1OnboardingNudgeService,
         { provide: StateProvider, useValue: fakeStateProvider },
-        { provide: VaultProfileService, useValue: vaultProfileService },
+        { provide: AccountService, useValue: accountService },
         { provide: LogService, useValue: logService },
       ],
     });
@@ -76,7 +82,7 @@ describe("Vfo1OnboardingNudgeService", () => {
     });
 
     it("reports the nudge as dismissed for an account created after the GA release date", async () => {
-      vaultProfileService.getProfileCreationDate.mockResolvedValue(gaDatePlusDays(1));
+      setCreationDate(gaDatePlusDays(1));
 
       const result = await firstValueFrom(service.nudgeStatus$(nudgeType, userId));
 
@@ -87,7 +93,7 @@ describe("Vfo1OnboardingNudgeService", () => {
     });
 
     it("reports the nudge as dismissed for an account created exactly on the GA release date", async () => {
-      vaultProfileService.getProfileCreationDate.mockResolvedValue(new Date(VFO1_GA_RELEASE_DATE));
+      setCreationDate(new Date(VFO1_GA_RELEASE_DATE));
 
       const result = await firstValueFrom(service.nudgeStatus$(nudgeType, userId));
 
@@ -98,7 +104,7 @@ describe("Vfo1OnboardingNudgeService", () => {
     });
 
     it("reports the walkthrough as active for an account created shortly before GA", async () => {
-      vaultProfileService.getProfileCreationDate.mockResolvedValue(gaDatePlusDays(-10));
+      setCreationDate(gaDatePlusDays(-10));
 
       const result = await firstValueFrom(service.nudgeStatus$(NudgeType.Vfo1Walkthrough, userId));
 
@@ -143,7 +149,7 @@ describe("Vfo1OnboardingNudgeService", () => {
     });
 
     it("reports the nudge as dismissed when the profile creation date cannot be read", async () => {
-      vaultProfileService.getProfileCreationDate.mockRejectedValue(new Error("network error"));
+      accountService.activeAccount$ = throwError(() => new Error("network error"));
 
       const result = await firstValueFrom(service.nudgeStatus$(nudgeType, userId));
 
