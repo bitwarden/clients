@@ -82,7 +82,7 @@
     "lowdb": "1.0.0",
     "lunr": "2.3.9",
     "multer": "2.4.0",
-    "node-fetch": "2.7.0",
+    "node-fetch": "3.3.2",
     "node-forge": "1.4.0",
     "open": "8.4.2",
     "papaparse": "5.7.0",
