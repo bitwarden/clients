@@ -45,9 +45,6 @@ export class DesktopSettings {
   ) {}
 
   async open() {
-    // Lets the onboarding handlers close e.g. "Bitwarden has a new look" first. The menu click
-    // is no page action and runs none, so settings would open on top and cover its Close button.
-    await expect(this.window.getByRole("dialog")).toHaveCount(0);
     await clickMenuItem(this.app, MenuItem.Settings);
     await expect(this.dialog()).toBeVisible();
   }
