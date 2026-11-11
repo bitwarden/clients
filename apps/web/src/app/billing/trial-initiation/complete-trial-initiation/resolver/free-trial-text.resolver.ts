@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, ResolveFn } from "@angular/router";
 import { ProductType } from "@bitwarden/common/billing/enums";
 import { Translation } from "@bitwarden/components";
 
-import { DEFAULT_TRIAL_LENGTH_DAYS } from "../../../constants";
+import { MARKETING_SALES_TRIAL_LENGTH_DAYS } from "../../../constants";
 
 export const freeTrialTextResolver: ResolveFn<Translation | null> = (
   route: ActivatedRouteSnapshot,
@@ -13,7 +13,7 @@ export const freeTrialTextResolver: ResolveFn<Translation | null> = (
 
   const trialLength = route.queryParams.trialLength
     ? parseInt(route.queryParams.trialLength)
-    : DEFAULT_TRIAL_LENGTH_DAYS;
+    : MARKETING_SALES_TRIAL_LENGTH_DAYS;
 
   const onlyPasswordManager = products.length === 1 && products[0] === ProductType.PasswordManager;
   const onlySecretsManager = products.length === 1 && products[0] === ProductType.SecretsManager;

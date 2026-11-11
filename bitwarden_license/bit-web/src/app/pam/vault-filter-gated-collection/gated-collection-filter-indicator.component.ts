@@ -24,7 +24,7 @@ export class GatedCollectionFilterIndicatorComponent {
 
   private readonly configService = inject(ConfigService);
 
-  protected readonly requiresRequestLabel = inject(I18nService).t("pamCollectionRequiresRequest");
+  protected readonly requiresRequestLabel = inject(I18nService).t("pamSharedFolderRequiresRequest");
 
   private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
     initialValue: false,

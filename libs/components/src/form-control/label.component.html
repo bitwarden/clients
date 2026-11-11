@@ -4,7 +4,7 @@
 
 <!-- Only bit-form-control (the inline checkbox/radio/switch row) suppresses truncation, so its
   long labels wrap. Everywhere else — including bit-form-control-card — labels clip. -->
-<span [ngClass]="{ 'tw-truncate': !isInsideFormControl }">
+<span [class]="isInsideFormControl ? '' : 'tw-truncate'">
   <ng-content></ng-content>
   @if (isInsideFormControl) {
     <ng-container *ngTemplateOutlet="endSlotContent"></ng-container>

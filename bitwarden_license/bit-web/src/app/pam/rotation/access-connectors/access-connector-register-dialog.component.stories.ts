@@ -1,4 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideRouter, withHashLocation } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { userEvent } from "storybook/test";
 
@@ -37,7 +38,10 @@ export default {
       ],
     }),
     applicationConfig({
-      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
+      providers: [
+        importProvidersFrom(PreloadedEnglishI18nModule),
+        provideRouter([], withHashLocation()),
+      ],
     }),
   ],
   render: () => ({ template: `<app-access-connector-register-dialog />` }),
@@ -45,12 +49,13 @@ export default {
 
 type Story = StoryObj<AccessConnectorRegisterDialogComponent>;
 
+/** Figma 1092:43725: the empty form. */
 export const Default: Story = {};
 
 export const Completed: Story = {
   play: async ({ canvasElement }) => {
     const name = canvasElement.querySelector<HTMLInputElement>(NAME_INPUT)!;
-    await userEvent.type(name, "eu-west-rotator");
+    await userEvent.type(name, "East datacenter");
   },
 };
 

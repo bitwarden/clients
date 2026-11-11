@@ -35,10 +35,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
@@ -122,6 +120,10 @@ import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService, LogoutReason, LogoutService } from "@bitwarden/common/auth/logout";
 import {
   NoopOrganizationInviteService,
@@ -738,7 +740,6 @@ const safeProviders: SafeProvider[] = [
       accountService: AccountServiceAbstraction,
       logService: LogService,
       cipherEncryptionService: CipherEncryptionService,
-      messagingService: MessagingServiceAbstraction,
       cipherSdkService: CipherSdkService,
     ) =>
       new CipherService(
@@ -755,7 +756,6 @@ const safeProviders: SafeProvider[] = [
         accountService,
         logService,
         cipherEncryptionService,
-        messagingService,
         cipherSdkService,
       ),
     deps: [
@@ -772,7 +772,6 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       LogService,
       CipherEncryptionService,
-      MessagingServiceAbstraction,
       CipherSdkService,
     ],
   }),

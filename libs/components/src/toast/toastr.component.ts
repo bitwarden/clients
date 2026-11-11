@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { Toast as BaseToastrComponent, ToastPackage, ToastrService } from "ngx-toastr";
 
 import { ToastComponent } from "./toast.component";
@@ -7,9 +7,8 @@ import { ToastComponent } from "./toast.component";
 /**
  * Toasts are ephemeral notifications. They most often communicate the result of a user action. Due to their ephemeral nature, long messages and critical alerts should not utilize toasts.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-toast
       [title]="options?.payload?.title"

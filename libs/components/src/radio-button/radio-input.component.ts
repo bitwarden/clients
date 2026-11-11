@@ -1,12 +1,10 @@
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
-  HostBinding,
   inject,
   input,
-  Optional,
-  Self,
 } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
@@ -94,10 +92,9 @@ export const radioInputClasses = [
   "checked:disabled:hover:before:tw-border-border-base",
 ];
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "input[type=radio][bitRadio]",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
   host: {
@@ -107,12 +104,14 @@ export const radioInputClasses = [
     "[attr.name]": "groupName",
     "[attr.aria-labelledby]": "cardLabelledBy()",
     "[attr.aria-describedby]": "cardDescribedBy()",
+    "[class]": "inputClasses",
     "(change)": "onGroupChange()",
     "(blur)": "onGroupBlur()",
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
   protected readonly group = inject(FormControlGroupComponent, { optional: true });
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
   private readonly card = inject(FormControlCardComponent, { optional: true });
 
   protected readonly isGroupChecked = computed(
@@ -132,10 +131,9 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   readonly id = input(`bit-radio-input-${nextId++}`);
   readonly value = input<unknown>();
 
-  @HostBinding("class")
-  protected inputClasses = radioInputClasses;
+  protected readonly inputClasses = radioInputClasses;
 
-  constructor(@Optional() @Self() private ngControl?: NgControl) {
+  constructor() {
     this.group?.registerRadioChild();
   }
 
