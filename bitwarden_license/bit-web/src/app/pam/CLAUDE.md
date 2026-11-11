@@ -26,7 +26,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   shareable single request at `/pam/requests/:id`. `MyAccessService`,
   `ApproverInboxService`, and `AccessNameResolverService` are provided on the SHELL
   ROUTE, not on the component, because routed children inherit a parent route's
-  providers but not a component's, that is what lets the tabs share one load.
+  providers but not a component's. That is what lets the tabs share one load.
 - `access-requests/access-request-route/`, `/pam/requests/:id`. A real route, not a
   click handler, because the rows link to it and both the requester's and the approvers'
   emails deep-link to it; but a DIALOG over the shell rather than a page of its own. It
@@ -51,7 +51,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   router's `previousNavigation` says only that this SPA session navigated before, never
   that the browser has an entry below this one to go back to.
   `AccessRequestDetailService` is provided on the host component, not the route config,
-  because it reads the `:id` off `ActivatedRoute`, a route-level provider resolves in
+  because it reads the `:id` off `ActivatedRoute`: a route-level provider resolves in
   the route's environment injector, where that lookup falls through to the root route.
   The host hands the service to the dialog through `DIALOG_DATA` for the same reason:
   `DialogService` builds the dialog's injector from the root one.
@@ -68,18 +68,19 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `bit-pam-components`, with each state's card under `cards/`, the form in `request-access-form/`,
   the popup's sheet around it in `request-access-sheet/`, and the human path's window picker in
   `request-window-fields/`):
-  six states, five off `cipher_access_state()` (including Access ended) plus a request form that
-  folds out in the item view, or opens in a bottom sheet where `CIPHER_VIEW_BANNER_LAYOUT` says
-  `popup` (the extension, which also puts the actions above the cards), and the licensing block (PM-39423). The block comes FIRST and replaces every other state, active lease
-  included, because the server stops releasing a gated cipher's secrets to an unlicensed
-  holder whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`), withdrawing a seat
-  withdraws what the outstanding leases were carrying, so a countdown here would narrate
-  access no longer being served. Withdrawing an outstanding request stays reachable from the
-  vault-row menu and the My requests tab, neither of which is licensing-gated; the banner's
-  approved card offers only Start access, and only the pending card offers Cancel request.
-  The active card drops Extend and End once the lease is inside `ENDING_SOON_THRESHOLD_MS`
-  (five minutes), as the design specifies. It is also the
-  one state not derived from the access-state read: licensing is per-member, so it comes off
+  seven states, six off `cipher_access_state()` (including Unavailable, when the rule refuses a
+  request right now, and Access ended) plus a request form that folds out in the item view, or
+  opens in a bottom sheet where `CIPHER_VIEW_BANNER_LAYOUT` says `popup` (the extension, which also
+  puts the actions above the cards), and the licensing block (PM-39423). The block comes FIRST and
+  replaces every other state, active lease included, because the server stops releasing a gated
+  cipher's secrets to an unlicensed holder whatever lease they hold
+  (`CipherLeaseGate.LeaseCanRelease`); withdrawing a seat withdraws what the outstanding leases
+  were carrying, so a countdown here would narrate access no longer being served. Withdrawing an
+  outstanding request stays reachable from the vault-row menu and the My requests tab, neither of
+  which is licensing-gated; the banner's approved card offers only Start access, and only the
+  pending card offers Cancel request. The active card drops Extend and End once the lease is inside
+  `ENDING_SOON_THRESHOLD_MS` (five minutes), as the design specifies. It is also the one state not
+  derived from the access-state read: licensing is per-member, so it comes off
   local membership state via `services/pam-membership.ts` with no round trip, and renders even
   when that read fails. The signal is tri-state, `undefined` until membership lands, so
   readers test `=== false`, not truthiness; treating "not yet known" as licensed flashes the
@@ -89,7 +90,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   latter is PRESENTATION policy, which is why it is not on `Organization`: only
   `Organization.canAccessPrivilegedAccess` (`usePam && accessPam`, shaped like
   `canAccessSecretsManager`) is the entitlement the server evaluates. The other three
-  conditions decide whether it is honest to say anything at all, no `usePam` (no license to
+  conditions decide whether it is honest to say anything at all: no `usePam` (no license to
   be missing), `accessPam !== false` (an un-synced persisted blob is not an answer), not
   `enabled` (a lapsed subscription is the wrong reason), and never a provider user
   (`ProfileProviderOrganizationResponseModel` hardcodes `AccessPam = false` while still
@@ -124,10 +125,10 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   branching in `matches$`. The service and the chip factory live in `bit-pam-components`
   because the extension popup binds the same `VAULT_ITEM_FILTER` in `bit-browser`'s
   `provide-pam.ts`, and `bit-browser` cannot import `bit-web`.
-- `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/`, the one
+- `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/`: the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
   name row. Both re-read on `AccessRefreshService` so neither can contradict a mutation
-  made beside it, the row badge because canceling a request from that row's own menu
+  made beside it: the row badge because canceling a request from that row's own menu
   otherwise left the old pill standing until a reload (PAM-200). The item-details host
   also drops the `active` state, because the banner heading under it already runs that
   countdown on its own timer, but it drops it on a LIVE lease (`liveActiveLease`), not on
@@ -143,8 +144,8 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   banner escalates on it too: that surface has the `active` badge suppressed, so its heading is
   the only countdown there and has to carry the warning itself. A new countdown must read this
   constant, not restate five minutes.
-- `collection-access-rule-callout/`, names the rules governing a collection, inside the
-  collection edit dialog.
+- `collection-access-rule-callout/`, the callout naming the rules that govern a collection,
+  inside the collection edit dialog.
 - `services/`, the SDK-backed implementations of the `abstractions/` contracts.
 - `testing/`, builders shared across specs (`decision-builders.ts`).
 
@@ -156,8 +157,8 @@ SDK has no audit client yet (see `access-audit/README.md`).
 `AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
 `ApprovalSdkService` are the abstract contracts; `services/*-sdk.service.ts` compose the
 SDK client. `ApprovalSdkService` (`services/approvals-sdk.service.ts`) covers the
-approver-facing surface, the pending inbox, the decided history, recording a
-decision, and withdrawing an approval, via `commercial().pam().approvals()`.
+approver-facing surface (the pending inbox, the decided history, recording a
+decision, and withdrawing an approval) via `commercial().pam().approvals()`.
 
 **If a PAM capability turns out to be missing from the SDK, that is SDK work, not a
 raw-HTTP route.** An approver ending a lease and an approver withdrawing an approval go
@@ -170,20 +171,20 @@ through the SDK (`leases().end()` and `approvals().revoke()`) for the same reaso
 and pairs it with a LOCAL structural guard, because the SDK's own `isAccessRuleError` is a runtime
 wasm import and this directory stays type-only (see "`export type` matters" below). Use
 `accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it; never treat it as
-`ErrorResponse`. The SDK splits its own failures per client,
+`ErrorResponse`. The SDK splits its own failures per client:
 `AccessRequestError` (request/activate/cancel), `ApprovalError` (decide/revoke) and
 `AccessLeaseError` (read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
 through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
 All three carry an `Api` variant holding the server's message. That variant's payload is the whole
 serialized response, so `abstractions/api-error.ts` owns the one `apiErrorBodyMessage()` decode of
-the `ErrorResponseModel` body, use it rather than re-parsing; what a miss means (generic copy, or
+the `ErrorResponseModel` body. Use it rather than re-parsing; what a miss means (generic copy, or
 the raw string) stays with the caller.
 
 `helpers/pam-license-error.ts` owns the one copy of the server's licensing refusal
 (`PamLicenseGuard.UnlicensedMessage`), which all three acquiring paths throw. The submit and
 activate catalogs and the extend handler all match through it rather than spelling the sentence
-again, only its FIRST sentence, so the "ask your admin" half can be reworded server-side without
-degrading three surfaces to generic copy. Note the two surfaces with no licensing block of their
+again. They match only its FIRST sentence, so the "ask your admin" half can be reworded server-side
+without degrading three surfaces to generic copy. Note the two surfaces with no licensing block of their
 own, the My requests tab and the shared request dialog, reach it only through that toast, since
 they offer Start off a request row with no cipher in hand.
 
@@ -196,7 +197,7 @@ throws, show activation's localized strings (`refused`) rather than the server's
 That file carries TWO catalogs, and the split is deliberate. `REQUEST_ACCESS_SERVER_ERRORS`
 holds the sentences `SubmitAccessRequestCommand` throws; `REQUEST_ACCESS_SDK_ERRORS` holds the
 ones the SDK raises locally, before the wire, which reach `.message` verbatim because
-`AccessRequestError::Validation` is `#[error(transparent)]`. The two are NOT kept in step, an
+`AccessRequestError::Validation` is `#[error(transparent)]`. The two are NOT kept in step: an
 elapsed window is "The end date must be in the future." from the server and "The requested
 window has already ended." from the SDK. They were once assumed identical, so only the SDK's
 spelling was listed and every server-side refusal fell through to the generic toast
@@ -204,7 +205,7 @@ spelling was listed and every server-side refusal fell through to the generic to
 sentences are pinned in `request-access-error.spec.ts` rather than compared against themselves,
 so drift fails a test instead of degrading the copy silently.
 
-The two `*ExceedsMax` refusals are NOT catalog entries, the server interpolates its
+The two `*ExceedsMax` refusals are NOT catalog entries: the server interpolates its
 `EffectiveMax` into them, so no fixed sentence matches more than one rule. `EXCEEDS_MAX_PATTERN`
 captures the noun and the maximum instead, and also matches the SDK's local window refusal, which
 has no full stop. The window path re-renders through
@@ -220,7 +221,7 @@ re-exports of SDK shapes type-only for the same reason.
 
 ## Status spelling follows the SDK
 
-`canceled`, one L, in code, in i18n keys (`pamStatusCanceled`), everywhere. The SDK's own
+`canceled`, one L: in code, in i18n keys (`pamStatusCanceled`), everywhere. The SDK's own
 `TryFrom` conversions normalise incoming wire values onto these spellings, so the module
 never sees the other form.
 
@@ -229,12 +230,12 @@ never sees the other form.
 `AccessRequestStatus` has no `activated` value. An activated request stays `approved` and is
 recognised by the `producedLeaseId` it minted, with `producedLeaseStatus` carrying that lease's
 state. Anything separating "approved, still to start" from "already running" must test
-`producedLeaseId` rather than the status, that is what keeps the nav badge, the Pending list and
+`producedLeaseId` rather than the status. That is what keeps the nav badge, the Pending list and
 the Start/Cancel actions off a grant the requester has already activated.
 
 `AccessLeaseStatus` carries a distinct `canceled` (the requester ended their own lease) next to
 `revoked` (an operator did), and `historyDisplayStatus` reads the label straight off
-`producedLeaseStatus`, it does not scan the decision log. Optimistic patches must therefore write
+`producedLeaseStatus`; it does not scan the decision log. Optimistic patches must therefore write
 the matching one: the holder's own `endLease` writes `canceled`, an approver's `revokeLease` writes
 `revoked`. `AccessLeaseView` additionally carries `termination: AccessLeaseTermination | undefined`,
 which spells out which happened and when; the row builders have no need for it, since
@@ -248,9 +249,9 @@ Two services drive every refresh:
 - `AccessEventService`, the server's pushes for the active user, filtered to bare ticks:
   `accessChanged$` (`RefreshAccessRequest`) and `approverInboxChanged$`
   (`RefreshApproverInbox`, sent to everyone who can Manage the request's collection).
-- `AccessRefreshService`, merges `accessChanged$` with this client's own mutations and fans it
-  out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a local
-  change and a remote one through exactly the same path.
+- `AccessRefreshService`, which merges `accessChanged$` with this client's own mutations and
+  fans it out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a
+  local change and a remote one through exactly the same path.
 
 Page-level services subscribe to the pushes directly and reload: `MyAccessService` on
 `accessChanged$`, `ApproverInboxService` on both. Use `concatMap`, not `switchMap`: two pushes
@@ -260,7 +261,7 @@ different moments. `AccessRequestDetailService` reads one request, so it re-fetc
 
 ### A lease running out
 
-**Neither service fires when a lease reaches its `notAfter`**, no mutation here, and on the
+**Neither service fires when a lease reaches its `notAfter`**: no mutation here, and on the
 server nothing happened at all. Left to them, an item open across its own expiry keeps the
 credential revealed until a reload (PM-41837). With no event to wait for, every reader of
 `activeLease` goes through `liveActiveLease(state, nowMs)` (`helpers/lease-liveness.ts`), which
@@ -283,7 +284,7 @@ host embedding a gated item. Signals carry out of it, so the banner and the pill
 more; `PamRevealedCipherService` re-enters explicitly, because the re-lock writes plain component fields on
 `vault-item-dialog.component.ts`.
 
-`badgeState` is NOT clamped, only the SDK ranks it, so a lapsed `active` badge falls to
+`badgeState` is NOT clamped: only the SDK ranks it, so a lapsed `active` badge falls to
 `AccessStateBadgeComponent`'s `remainingMs <= 0` recipe. The vault row has no clamp either, but
 it does re-read: on `AccessRefreshService`, and on a lapse through `rereadOnLapse` off the same
 shared ticker.
@@ -296,11 +297,11 @@ binds them all. In `libs/vault`: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`,
 `VAULT_ITEM_FILTER` and `VAULT_ITEM_COLUMN` (the vault table's "Controlled access" chip and
 column, over the same state reads), and
 `SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name). In `apps/web`:
-`VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows,
+`VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows;
 collection rows show the "Privileged" pill straight off the collection's server-derived
 `hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a
 governed collection in the vault's Filters sidebar, reading that same
-`hasEnabledAccessRule` off the sidebar's own collection node, `VaultFilterService`
+`hasEnabledAccessRule` off the sidebar's own collection node; `VaultFilterService`
 carries it onto the copy `buildCollectionTree` makes through `new CollectionView(...)`,
 whose field initializer would otherwise reset it to `false`),
 `VAULT_GATED_COLLECTION_BANNER` (the notice above the item list naming that same
@@ -310,7 +311,7 @@ to read), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry), `PAM_ROUTES` (the
 lazy loader for the user-scoped pages), and
 `PAM_ORG_ADMIN_ROUTE` (the `pam` path under `/organizations/{id}`, so the Admin Console's
-redirect guard can land a member who holds only one of the PAM permissions, see "Routing and
+redirect guard can land a member who holds only one of the PAM permissions; see "Routing and
 DI").
 Add a seam rather than importing PAM from OSS code.
 
@@ -332,14 +333,14 @@ and implement `HasUnsavedChangesDialog`: `unsavedChanges()` returns `false`, `tr
 default discard dialog, or options overriding it. Cancel just navigates and lets the guard ask.
 The guard stands down on lock and logout.
 
-**The rotation fleet is a third authority, separate from rule authorship, do not reuse
+**The rotation fleet is a third authority, separate from rule authorship. Do not reuse
 `canManageAccessRules` for it.** `canManageRotation` is Admin/Owner, or a Custom member
 holding `ManageRotation`, mirroring the server's `ManageAccessConnectorRequirement`.
 `ManageAccessRules` is authority over who may lease a credential, not over the connectors that
 rewrite it at the target system, so a Custom member holding only the rule permission who reaches
 `rotation/` gets a 403 from every request the page makes.
 
-**Authoring a rule and deciding a request against it are separate authorities, do not
+**Authoring a rule and deciding a request against it are separate authorities. Do not
 collapse them into one check.** `canManageAccessRules` (Admin/Owner, or a Custom member
 holding `ManageAccessRules`) gates the rules admin UI and nothing else; the approver surfaces
 gate on Manage over a collection
