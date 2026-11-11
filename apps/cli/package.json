@@ -83,7 +83,7 @@
     "lunr": "2.3.9",
     "multer": "2.4.0",
     "node-fetch": "2.7.0",
-    "node-forge": "1.4.0",
+    "node-forge": "1.4.3",
     "open": "8.4.2",
     "papaparse": "5.7.0",
     "proper-lockfile": "4.1.2",
