@@ -6,27 +6,28 @@ import {
   computed,
   effect,
   inject,
+  linkedSignal,
   signal,
   untracked,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
-import {
-  combineLatest,
-  distinctUntilChanged,
-  filter,
-  map,
-  shareReplay,
-  startWith,
-  take,
-} from "rxjs";
+import { distinctUntilChanged, filter, map, shareReplay, startWith, take } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { ElapsedLabel, elapsedLabel, selectedFilterStrings } from "@bitwarden/bit-pam";
+import {
+  AccessRequestHistoryQuery,
+  AccessRequestHistoryStatus,
+  ElapsedLabel,
+  elapsedLabel,
+  selectedFilterStrings,
+} from "@bitwarden/bit-pam";
 import { AccessBadgeTickerService, TimestampPipe } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SyncService } from "@bitwarden/common/platform/sync";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
@@ -35,27 +36,27 @@ import {
   BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
+  BitTablePaginatorComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
   FilterMenuComponent,
   FilterOptionComponent,
   IconModule,
-  SearchModule,
   SkeletonComponent,
   SkeletonTextComponent,
-  SortFn,
   StatusLockupComponent,
   SvgComponent,
+  TableRowRange,
+  ToastService,
   TooltipDirective,
   TypographyModule,
   defineTable,
 } from "@bitwarden/components";
+import type { CollectionId as SdkCollectionId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-
 import { announcementHoldMs } from "./announcement-hold";
+import { HistoryPageService } from "./history-page.service";
 import {
   HISTORY_STATUS_LABEL_KEYS,
   HistoryResolver,
@@ -63,35 +64,33 @@ import {
   HistoryStatus,
   toHistoryRow,
 } from "./history-row";
-import { MyAccessRequestRow } from "./my-access-row";
-import { MyAccessService } from "./my-access.service";
 
 /** A History row with its Resolved label, which moves with the clock. */
 type HistoryTableRow = HistoryRow & { elapsed: ElapsedLabel };
 
 /** The table's `filterValues()`, keyed by each toolbar control's `key`. Untyped, as a chip's is. */
 type HistoryFilterValues = {
-  search?: unknown;
   status?: unknown;
   collection?: unknown;
   requester?: unknown;
-};
-
-/** An empty list means that filter is unset. */
-type HistoryFilter = {
-  term: string;
-  statuses: string[];
-  collections: string[];
-  requesters: string[];
 };
 
 type FilterOption = { label: string; value: string };
 
 const minuteMs = 60_000;
 
+/** The SDK's spelling of each status the Status filter offers. */
+const SDK_STATUS: Readonly<Record<HistoryStatus, AccessRequestHistoryStatus>> = Object.freeze({
+  [HistoryStatus.Denied]: "denied",
+  [HistoryStatus.Revoked]: "revoked",
+  [HistoryStatus.Canceled]: "canceled",
+  [HistoryStatus.Expired]: "expired",
+  [HistoryStatus.SessionEnded]: "session_ended",
+});
+
 /**
- * A read-only record of every request that reached an end state, merged from the caller's own
- * requests and those on collections they manage.
+ * A read-only record of every request that reached an end state, on collections the caller
+ * manages and among their own. The server pages, filters and orders it, newest end first.
  */
 @Component({
   selector: "pam-history-tab",
@@ -104,13 +103,13 @@ const minuteMs = 60_000;
     BitCellLoadingDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
+    BitTablePaginatorComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     FilterMenuComponent,
     FilterOptionComponent,
     IconComponent,
     IconModule,
-    SearchModule,
     SkeletonComponent,
     SkeletonTextComponent,
     StatusLockupComponent,
@@ -120,38 +119,49 @@ const minuteMs = 60_000;
     I18nPipe,
     TimestampPipe,
   ],
+  providers: [HistoryPageService],
 })
 export class HistoryTabComponent {
   protected readonly noResultsSvg = NoResults;
 
-  private readonly myAccess = inject(MyAccessService);
-  private readonly inbox = inject(ApproverInboxService);
-  private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
-  private readonly syncService = inject(SyncService);
+  private readonly history = inject(HistoryPageService);
   private readonly ticker = inject(AccessBadgeTickerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
+  private readonly toastService = inject(ToastService);
 
-  private readonly myRows = toSignal(this.myAccess.historyRows$, {
-    initialValue: [] as MyAccessRequestRow[],
-  });
-  private readonly managedRows = toSignal(this.inbox.historyRows$, {
-    initialValue: [] as MyAccessRequestRow[],
-  });
+  private readonly page = toSignal(this.history.page$, { initialValue: null });
+  private readonly pageLoading = toSignal(this.history.loading$, { initialValue: true });
+  private readonly loadError = toSignal(this.history.loadError$, { initialValue: null });
 
-  private readonly myCiphers = toSignal(this.myAccess.cipherById$, {
-    initialValue: new Map<string, CipherView>(),
-  });
-  private readonly managedCiphers = toSignal(this.inbox.cipherById$, {
-    initialValue: new Map<string, CipherView>(),
-  });
+  private readonly tableRef = viewChild(BitTableV2Component);
 
-  private readonly myLoadError = toSignal(this.myAccess.loadError$, { initialValue: null });
-  private readonly managedLoadError = toSignal(this.inbox.loadError$, { initialValue: null });
+  private readonly filterValues = computed<HistoryFilterValues>(
+    () => this.tableRef()?.filterValues() ?? {},
+  );
+  private readonly statuses = computed(() => selectedFilterStrings(this.filterValues().status));
+  private readonly collections = computed(() =>
+    selectedFilterStrings(this.filterValues().collection),
+  );
+  private readonly requesters = computed(() =>
+    selectedFilterStrings(this.filterValues().requester),
+  );
+  private readonly filtered = computed(
+    () =>
+      this.statuses().length > 0 || this.collections().length > 0 || this.requesters().length > 0,
+  );
+
+  /** Back to the first page whenever a filter changes. */
+  protected readonly pageIndex = linkedSignal({
+    source: () => [this.statuses(), this.collections(), this.requesters()],
+    computation: () => 0,
+  });
+  protected readonly pageSize = signal(10);
 
   /**
-   * The badges' clock, to the minute: enough to move the Resolved labels and to bring in a lease
-   * that lapsed while the tab was open, which no push announces.
+   * The badges' clock, to the minute: enough to move the Resolved labels. A request that ends
+   * while the tab is open arrives with the next push or page change.
    */
   private readonly nowMs = toSignal(
     this.ticker.ticks$.pipe(
@@ -161,26 +171,9 @@ export class HistoryTabComponent {
     { initialValue: Date.now() },
   );
 
-  /** A failed read leaves the merged list short of that side's rows, which the table can't show. */
-  private readonly loadFailed = computed(
-    () => this.myLoadError() != null || this.managedLoadError() != null,
-  );
-
-  /**
-   * Latched on the first complete load, so a background reload can't pull the table from under a
-   * reader. Waits on the inbox for an approver, or for anyone before the first sync, when
-   * `canApprove$` can read false.
-   */
-  private readonly historyLoaded$ = combineLatest([
-    this.myAccess.loading$,
-    this.inbox.loading$,
-    this.approvalPrivileges.canApprove$,
-    this.syncService.activeUserLastSync$(),
-  ]).pipe(
-    filter(
-      ([myLoading, inboxLoading, canApprove, lastSync]) =>
-        !myLoading && !((canApprove || lastSync == null) && inboxLoading),
-    ),
+  /** Latched on the first read, so a later read can't pull the table from under a reader. */
+  private readonly historyLoaded$ = this.history.loading$.pipe(
+    filter((loading) => !loading),
     take(1),
     map(() => true),
     startWith(false),
@@ -212,33 +205,35 @@ export class HistoryTabComponent {
 
   /**
    * Announces arrival only after a shown skeleton and no failed read, since a failure also resolves
-   * the latch and "loaded" would contradict the shell's error toast.
+   * the latch and "loaded" would contradict the error toast.
    */
   protected readonly announceLoaded = computed(
-    () => this.skeletonShown() && !this.skeletonVisible() && !this.loadFailed(),
+    () => this.skeletonShown() && !this.skeletonVisible() && this.loadError() == null,
   );
 
-  /**
-   * Every ended request, newest first. A row both reads return keeps the caller's own copy, which
-   * alone carries the lease's extended end.
-   */
+  /** The page's rows in the server's order, newest end first. */
   protected readonly rows = computed<HistoryTableRow[]>(() => {
-    const rowsById = new Map(this.myRows().map((row) => [String(row.id), row]));
-    for (const row of this.managedRows()) {
-      if (!rowsById.has(String(row.id))) {
-        rowsById.set(String(row.id), row);
-      }
-    }
     const nowMs = this.nowMs();
     const now = new Date(nowMs);
-    return [...rowsById.values()]
+    return (this.page()?.rows ?? [])
       .map((row) => toHistoryRow(row, nowMs))
       .filter((row): row is HistoryRow => row != null)
-      .map((row) => ({ ...row, elapsed: elapsedLabel(row.resolvedAt, now) }))
-      .sort((a, b) => b.resolvedAtMs - a.resolvedAtMs);
+      .map((row) => ({ ...row, elapsed: elapsedLabel(row.resolvedAt, now) }));
   });
 
-  protected readonly hasHistory = computed(() => this.rows().length > 0);
+  /** How many requests match the filters, across all pages. */
+  protected readonly total = computed(() => this.page()?.total ?? 0);
+
+  /**
+   * A filter that matched nothing keeps the table, so it can be cleared. A failed read keeps it
+   * too, since "no history" would not be true.
+   */
+  protected readonly hasHistory = computed(
+    () => this.total() > 0 || this.filtered() || this.loadError() != null,
+  );
+
+  /** Shows the table's loading rows while a new page is read, after the first load. */
+  protected readonly tableLoading = computed(() => this.historyLoaded() && this.pageLoading());
 
   /** Plain options, without the icon tiles the other tabs' Status filters carry. */
   protected readonly statusOptions: FilterOption[] = Object.values(HistoryStatus).map((status) => ({
@@ -246,26 +241,52 @@ export class HistoryTabComponent {
     label: this.i18nService.t(HISTORY_STATUS_LABEL_KEYS[status]),
   }));
 
-  /** Every distinct shared folder present on the tab. */
-  protected readonly collectionOptions = computed<FilterOption[]>(() =>
-    distinctOptions(this.rows().map((row) => row.collectionName)),
-  );
+  /** Every shared folder with a request in the history, whatever the filters. */
+  protected readonly collectionOptions = computed(() => this.page()?.collectionOptions ?? []);
 
-  /** Every distinct requester present on the tab. */
-  protected readonly requesterOptions = computed<FilterOption[]>(() =>
-    distinctOptions(this.rows().map((row) => row.requester)),
-  );
+  /** Everyone with a request in the history, whatever the filters. */
+  protected readonly requesterOptions = computed(() => this.page()?.requesterOptions ?? []);
 
-  /**
-   * Fed the unfiltered rows, since the projected toolbar filters through {@link rowMatchesFilter}
-   * and counts each chip's options against them.
-   */
   protected readonly table = defineTable<HistoryTableRow>(this.rows);
 
   /** Five rows fill the table's space without implying a real row count. */
   protected readonly skeletonRows = 5;
 
   constructor() {
+    effect(() => {
+      const query: AccessRequestHistoryQuery = {
+        page: this.pageIndex(),
+        pageSize: this.pageSize(),
+        statuses: this.statuses()
+          .filter(isHistoryStatus)
+          .map((status) => SDK_STATUS[status]),
+        collectionIds: this.collections().map((id) => asUuid<SdkCollectionId>(id)),
+        requesterIds: this.requesters().map((id) => asUuid<SdkUserId>(id)),
+      };
+      untracked(() => this.history.setQuery(query));
+    });
+
+    // The page can shrink under the reader, past the last page the paginator shows.
+    effect(() => {
+      const lastPage = Math.max(0, Math.ceil(this.total() / this.pageSize()) - 1);
+      if (this.page() != null && untracked(this.pageIndex) > lastPage) {
+        this.pageIndex.set(lastPage);
+      }
+    });
+
+    this.history.loadError$
+      .pipe(
+        filter((e) => e != null),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((e) => {
+        this.logService.error(e);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("pamHistoryLoadFailed"),
+        });
+      });
+
     effect((onCleanup) => {
       if (this.skeletonVisible()) {
         this.skeletonShown.set(true);
@@ -279,15 +300,19 @@ export class HistoryTabComponent {
     });
   }
 
-  protected readonly rowMatchesFilter = (row: HistoryTableRow, values: HistoryFilterValues) =>
-    this.matchesFilter(row, toHistoryFilter(values));
+  /** The rows on screen out of the server's total, in place of the page's own count. */
+  protected readonly rangeLabel = ({ start, end, total }: TableRowRange) => {
+    if (total === 0) {
+      return this.i18nService.t("pamHistoryRequestCount", "0");
+    }
+    if (total === 1) {
+      return this.i18nService.t("pamHistoryRequestCountSingular");
+    }
+    return this.i18nService.t("pamHistoryRangeOfTotal", `${start}`, `${end}`, `${total}`);
+  };
 
   /** The clock rebuilds every row each minute; tracking by id keeps the row and its focus. */
   protected readonly trackById: TrackByFunction<HistoryTableRow> = (_index, row) => row.id;
-
-  /** By the label the column shows, not the status's internal value. */
-  protected readonly sortByStatus: SortFn = (a: HistoryTableRow, b: HistoryTableRow) =>
-    this.statusLabel(a.status).localeCompare(this.statusLabel(b.status));
 
   protected statusLabel(status: HistoryStatus): string {
     return this.i18nService.t(HISTORY_STATUS_LABEL_KEYS[status]);
@@ -302,39 +327,10 @@ export class HistoryTabComponent {
 
   /** The decrypted cipher for a row, undefined when absent from the caller's vault. */
   protected cipherFor(cipherId: string): CipherView | undefined {
-    return this.myCiphers().get(cipherId) ?? this.managedCiphers().get(cipherId);
-  }
-
-  /** OR within a filter, AND across them. Searches the text the row shows. */
-  private matchesFilter(row: HistoryTableRow, filter: HistoryFilter): boolean {
-    return (
-      (filter.term === "" ||
-        [
-          row.cipherName,
-          row.collectionName,
-          row.requester,
-          row.requesterEmail,
-          this.statusLabel(row.status),
-          this.resolverLabel(row.resolvedBy),
-        ].some((field) => field != null && field.toLowerCase().includes(filter.term))) &&
-      (filter.statuses.length === 0 || filter.statuses.includes(row.status)) &&
-      (filter.collections.length === 0 ||
-        (row.collectionName != null && filter.collections.includes(row.collectionName))) &&
-      (filter.requesters.length === 0 || filter.requesters.includes(row.requester))
-    );
+    return this.page()?.cipherById.get(cipherId);
   }
 }
 
-function toHistoryFilter(values: HistoryFilterValues): HistoryFilter {
-  return {
-    term: typeof values.search === "string" ? values.search.trim().toLowerCase() : "",
-    statuses: selectedFilterStrings(values.status),
-    collections: selectedFilterStrings(values.collection),
-    requesters: selectedFilterStrings(values.requester),
-  };
-}
-
-function distinctOptions(labels: Array<string | null>): FilterOption[] {
-  const distinct = new Set(labels.filter((label): label is string => !!label));
-  return [...distinct].sort((a, b) => a.localeCompare(b)).map((label) => ({ value: label, label }));
+function isHistoryStatus(value: string): value is HistoryStatus {
+  return (Object.values(HistoryStatus) as string[]).includes(value);
 }

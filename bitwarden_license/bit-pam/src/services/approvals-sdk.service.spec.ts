@@ -12,7 +12,7 @@ import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service
 import { UserId } from "@bitwarden/common/types/guid";
 import type {
   AccessDecisionRequest,
-  AccessRequestHistoryPage,
+  AccessRequestHistoryQuery,
   AccessRequestId,
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
@@ -38,16 +38,6 @@ describe("ApprovalsSdkService", () => {
     id: requestId,
     status: "approved",
   } as unknown as AccessRequestView;
-
-  const endedView = {
-    id: requestId,
-    status: "denied",
-  } as unknown as AccessRequestView;
-
-  /** One page of ended requests, as `list_history` answers. */
-  function historyPage(requests: AccessRequestView[]): AccessRequestHistoryPage {
-    return { requests, total: requests.length, requesters: [], collectionIds: [] };
-  }
 
   beforeEach(() => {
     sdkService = new MockSdkService();
@@ -105,31 +95,23 @@ describe("ApprovalsSdkService", () => {
   });
 
   describe("listHistory", () => {
-    it("reads the first page unfiltered, at the largest page size the SDK accepts", async () => {
+    const query = {
+      page: 2,
+      pageSize: 25,
+      statuses: ["revoked"],
+      collectionIds: [],
+      requesterIds: [],
+    } as unknown as AccessRequestHistoryQuery;
+
+    it("calls approvals().list_history() with the query and returns the page", async () => {
       const approvals = mockApprovalsClient();
-      approvals.list_history.mockResolvedValue(historyPage([endedView]));
+      const page = { requests: [decidedView], total: 51, requesters: [], collectionIds: [] };
+      approvals.list_history.mockResolvedValue(page);
 
-      const result = await service.listHistory();
+      const result = await service.listHistory(query);
 
-      expect(approvals.list_history).toHaveBeenCalledWith({
-        page: 0,
-        pageSize: 100,
-        statuses: [],
-        collectionIds: [],
-        requesterIds: [],
-      });
-      expect(result).toEqual([endedView]);
-    });
-
-    it("returns the page's requests alone, since nothing here pages or filters yet", async () => {
-      const approvals = mockApprovalsClient();
-      approvals.list_history.mockResolvedValue({
-        ...historyPage([endedView]),
-        total: 250,
-        requesters: [{ id: userId, name: "Grace", email: "grace@example.com" }],
-      } as unknown as AccessRequestHistoryPage);
-
-      await expect(service.listHistory()).resolves.toEqual([endedView]);
+      expect(approvals.list_history).toHaveBeenCalledWith(query);
+      expect(result).toEqual(page);
     });
 
     it("logs and rethrows on failure", async () => {
@@ -137,7 +119,7 @@ describe("ApprovalsSdkService", () => {
       const error = new Error("boom");
       approvals.list_history.mockRejectedValue(error);
 
-      await expect(service.listHistory()).rejects.toBe(error);
+      await expect(service.listHistory(query)).rejects.toBe(error);
       expect(logService.error).toHaveBeenCalled();
     });
   });

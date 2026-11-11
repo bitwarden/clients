@@ -3,13 +3,11 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { mock } from "jest-mock-extended";
-import { of, BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BitTableV2Component,
@@ -18,12 +16,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-
+import { HistoryPageService, HistoryPageView } from "./history-page.service";
 import { HistoryTabComponent } from "./history-tab.component";
 import { MyAccessRequestRow } from "./my-access-row";
-import { MyAccessService } from "./my-access.service";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 
@@ -112,21 +107,48 @@ const FRAME_ROWS = [
   }),
 ];
 
+const DESIGN_ID = "11111111-1111-4111-8111-1111111111c1";
+const IDENTITY_ID = "11111111-1111-4111-8111-1111111111c2";
+const MARCUS_ID = "11111111-1111-4111-8111-1111111111a1";
+const SAM_ID = "11111111-1111-4111-8111-1111111111a2";
+
+function pageOf(
+  rows: MyAccessRequestRow[],
+  overrides: Partial<HistoryPageView> = {},
+): HistoryPageView {
+  return {
+    rows,
+    total: rows.length,
+    requesterOptions: [
+      { value: MARCUS_ID, label: "marcus.chen" },
+      { value: SAM_ID, label: "sam.okafor" },
+    ],
+    collectionOptions: [
+      { value: DESIGN_ID, label: "Design" },
+      { value: IDENTITY_ID, label: "Identity" },
+    ],
+    cipherById: new Map<string, CipherView>(),
+    ...overrides,
+  };
+}
+
 describe("HistoryTabComponent", () => {
   let fixture: ComponentFixture<HistoryTabComponent>;
-  let component: HistoryTabComponent;
-  let myRows$: BehaviorSubject<MyAccessRequestRow[]>;
-  let managedRows$: BehaviorSubject<MyAccessRequestRow[]>;
-  let managedLoading$: BehaviorSubject<boolean>;
-  let managedLoadError$: BehaviorSubject<unknown | null>;
-  let myLoading$: BehaviorSubject<boolean>;
-  let myLoadError$: BehaviorSubject<unknown | null>;
-  let lastSync$: BehaviorSubject<Date | null>;
-  let canApprove$: BehaviorSubject<boolean>;
+  let page$: BehaviorSubject<HistoryPageView | null>;
+  let loading$: BehaviorSubject<boolean>;
+  let loadError$: BehaviorSubject<unknown | null>;
+  let setQuery: jest.Mock;
+  let showToast: jest.Mock;
 
   function create(): void {
     fixture = TestBed.createComponent(HistoryTabComponent);
-    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
+
+  /** Settles a page read: the latest page lands and the load ends. */
+  function land(page: HistoryPageView | null): void {
+    page$.next(page);
+    loading$.next(false);
     fixture.detectChanges();
   }
 
@@ -182,10 +204,8 @@ describe("HistoryTabComponent", () => {
     fixture.detectChanges();
   }
 
-  function clickSortHeader(heading: string): void {
-    const header = headers().find((candidate) => text(candidate) === heading)!;
-    header.querySelector("button")!.click();
-    fixture.detectChanges();
+  function lastQuery() {
+    return setQuery.mock.calls[setQuery.mock.calls.length - 1][0];
   }
 
   function tick(ms: number): void {
@@ -200,43 +220,20 @@ describe("HistoryTabComponent", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     jest.setSystemTime(NOW);
-    myRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
-    managedRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
-    managedLoading$ = new BehaviorSubject(false);
-    managedLoadError$ = new BehaviorSubject<unknown | null>(null);
-    myLoading$ = new BehaviorSubject(false);
-    myLoadError$ = new BehaviorSubject<unknown | null>(null);
-    lastSync$ = new BehaviorSubject<Date | null>(new Date("2026-08-17T09:00:00.000Z"));
-    canApprove$ = new BehaviorSubject(false);
+    page$ = new BehaviorSubject<HistoryPageView | null>(null);
+    loading$ = new BehaviorSubject(true);
+    loadError$ = new BehaviorSubject<unknown | null>(null);
+    setQuery = jest.fn();
+    showToast = jest.fn();
 
     await TestBed.configureTestingModule({
       imports: [HistoryTabComponent, NoopAnimationsModule],
       providers: [
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
-        {
-          provide: MyAccessService,
-          useValue: {
-            historyRows$: myRows$,
-            cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
-            loading$: myLoading$,
-            loadError$: myLoadError$,
-          },
-        },
-        {
-          provide: ApproverInboxService,
-          useValue: {
-            historyRows$: managedRows$,
-            cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
-            loading$: managedLoading$,
-            loadError$: managedLoadError$,
-          },
-        },
-        { provide: ApprovalPrivilegeService, useValue: { canApprove$ } },
-        { provide: SyncService, useValue: { activeUserLastSync$: () => lastSync$ } },
-        { provide: DialogService, useValue: mock<DialogService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: LogService, useValue: mock<LogService>() },
+        { provide: LogService, useValue: { error: jest.fn() } },
+        { provide: ToastService, useValue: { showToast } },
+        { provide: DialogService, useValue: { open: jest.fn() } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         {
           // Echoes the key plus params, since I18nMockService throws on any key not given.
           provide: I18nService,
@@ -248,8 +245,18 @@ describe("HistoryTabComponent", () => {
       ],
     })
       // Stubs the vault favicon component, which pulls in environment/settings services this test
-      // has no interest in.
-      .overrideComponent(HistoryTabComponent, { add: { schemas: [NO_ERRORS_SCHEMA] } })
+      // has no interest in. The page service is the tab's own provider, so it is replaced there.
+      .overrideComponent(HistoryTabComponent, {
+        add: {
+          schemas: [NO_ERRORS_SCHEMA],
+          providers: [
+            {
+              provide: HistoryPageService,
+              useValue: { page$, loading$, loadError$, setQuery },
+            },
+          ],
+        },
+      })
       .compileComponents();
   });
 
@@ -260,8 +267,8 @@ describe("HistoryTabComponent", () => {
 
   describe("table", () => {
     beforeEach(() => {
-      myRows$.next(FRAME_ROWS);
       create();
+      land(pageOf(FRAME_ROWS));
     });
 
     it("shows Item, Status, Requester, Resolved by and Resolved, with no Action column", () => {
@@ -274,35 +281,14 @@ describe("HistoryTabComponent", () => {
       ]);
     });
 
-    it("sorts on Item, Status and Resolved only", () => {
-      expect(
-        headers()
-          .filter((header) => header.querySelector("button") != null)
-          .map(text),
-      ).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnResolved"]);
+    it("sorts on no column, since the server orders the rows newest end first", () => {
+      expect(headers().filter((header) => header.querySelector("button") != null)).toEqual([]);
     });
 
-    it("lists the newest resolution first", () => {
-      expect(rowIds()).toEqual(["stripe", "okta", "figma", "pagerduty", "datadog", "servicenow"]);
-    });
-
-    it("reverses the Resolved sort by timestamp, not by its relative text", () => {
-      clickSortHeader("pamColumnResolved");
+    it("lists the rows in the server's order", () => {
+      land(pageOf([...FRAME_ROWS].reverse()));
 
       expect(rowIds()).toEqual(["servicenow", "datadog", "pagerduty", "figma", "okta", "stripe"]);
-    });
-
-    it("sorts Status by the label it shows", () => {
-      clickSortHeader("pamColumnStatus");
-
-      expect(rowIds().map((id) => text(cell("status", id)))).toEqual([
-        "pamStatusCanceled",
-        "pamStatusDenied",
-        "pamStatusExpired",
-        "pamStatusRevoked",
-        "pamStatusSessionEnded",
-        "pamStatusSessionEnded",
-      ]);
     });
 
     it("shows each end state as plain text with who resolved it", () => {
@@ -350,7 +336,6 @@ describe("HistoryTabComponent", () => {
       expect(icon).not.toBeNull();
       expect(icon?.previousElementSibling?.textContent?.trim()).toBe("Okta admin");
       expect(text(item)).toContain("pamInboxInSharedFolder Identity");
-      expect(item.querySelector('bit-icon[name="bwi-collection-shared"]')).toBeNull();
     });
 
     it("links each item to its request", () => {
@@ -365,220 +350,102 @@ describe("HistoryTabComponent", () => {
     });
   });
 
-  describe("rows", () => {
-    it("merges both reads, listing a request they both return once", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "shared" }), historyRow({ id: "mine", resolvedAt: ago(40) })]);
-      managedRows$.next([
-        historyRow({ id: "shared" }),
-        historyRow({ id: "managed", resolvedAt: ago(50) }),
-      ]);
-
+  describe("paging and filters", () => {
+    beforeEach(() => {
       create();
-
-      expect(rowIds()).toEqual(["shared", "mine", "managed"]);
+      land(pageOf(FRAME_ROWS, { total: 53 }));
     });
 
-    it("leaves out requests still pending, waiting to start, or running", () => {
-      canApprove$.next(true);
-      managedRows$.next([
-        historyRow({ id: "denied" }),
-        historyRow({ id: "pending", status: "pending", resolvedAt: null }),
-        historyRow({ id: "waiting", status: "approved", leaseNotAfter: ago(-60) }),
-        historyRow({
-          id: "running",
-          status: "approved",
-          producedLeaseId: "lease-1",
-          producedLeaseStatus: "active",
-          producedLeaseNotAfter: ago(-60),
-        }),
-      ]);
-
-      create();
-
-      expect(rowIds()).toEqual(["denied"]);
+    it("asks for the first page of ten, unfiltered", () => {
+      expect(lastQuery()).toEqual({
+        page: 0,
+        pageSize: 10,
+        statuses: [],
+        collectionIds: [],
+        requesterIds: [],
+      });
     });
 
-    it("brings in a lease that runs out while the tab is open", () => {
-      canApprove$.next(true);
-      managedRows$.next([
-        historyRow({ id: "denied" }),
-        historyRow({
-          id: "running",
-          status: "approved",
-          producedLeaseId: "lease-1",
-          producedLeaseStatus: "active",
-          producedLeaseNotAfter: ago(-1),
-          finalDeny: null,
-        }),
-      ]);
-      create();
+    it("pages over the server's total", () => {
+      expect(query('[data-testid="history-paginator"]')).not.toBeNull();
 
-      expect(rowIds()).toEqual(["denied"]);
-
-      tick(2 * 60_000);
-
-      expect(rowIds()).toEqual(["running", "denied"]);
-      expect(text(cell("status", "running"))).toBe("pamStatusSessionEnded");
-      expect(text(cell("resolver", "running"))).toBe("system");
-    });
-
-    it("updates a row in place on a clock tick, so keyboard focus stays on it", () => {
-      myRows$.next([historyRow({ id: "denied", resolvedAt: ago(5) })]);
-      create();
-      const before = cell("resolved", "denied");
-      expect(text(before)).toContain("pamInboxElapsedMinutes 5");
-
-      tick(2 * 60_000);
-
-      expect(cell("resolved", "denied")).toBe(before);
-      expect(text(before)).toContain("pamInboxElapsedMinutes 7");
-    });
-
-    it("puts a newly ended request at the top", () => {
-      myRows$.next([historyRow({ id: "older", resolvedAt: ago(60) })]);
-      create();
-
-      myRows$.next([
-        historyRow({ id: "older", resolvedAt: ago(60) }),
-        historyRow({ id: "new", resolvedAt: ago(0) }),
-      ]);
+      fixture.componentInstance["pageIndex"].set(3);
       fixture.detectChanges();
 
-      expect(rowIds()).toEqual(["new", "older"]);
-    });
-  });
-
-  describe("toolbar", () => {
-    function optionLabels(key: string): string[] {
-      const menu = query(`bit-filter-menu[key="${key}"]`)!;
-      return Array.from(menu.querySelectorAll("bit-filter-option")).map(text);
-    }
-
-    function searchFor(term: string): void {
-      setFilter("search", term);
-    }
-
-    beforeEach(() => {
-      myRows$.next(FRAME_ROWS);
-      create();
+      expect(lastQuery()).toMatchObject({ page: 3, pageSize: 10 });
     });
 
-    it("offers search and multi-select Status, Shared folders and Requester filters", () => {
-      expect(query("bit-table-toolbar bit-search")?.id).toBe("pam-history-tab_input_search");
+    it("counts the rows on screen out of the server's total", () => {
+      expect(text(query("bit-table-toolbar"))).toContain("pamHistoryRangeOfTotal 1 10 53");
+    });
+
+    it("offers Status, Shared folders and Requester filters, and no search", () => {
       expect(
-        queryAll("bit-table-toolbar bit-filter-menu").map((menu) => [
-          menu.getAttribute("key"),
-          menu.hasAttribute("multiple"),
-        ]),
-      ).toEqual([
-        ["status", true],
-        ["collection", true],
-        ["requester", true],
-      ]);
+        table()
+          .filterControls()
+          .map((control) => control.key()),
+      ).toEqual(["status", "collection", "requester"]);
+      expect(query("bit-search")).toBeNull();
     });
 
-    it("lists every end state under Status, without icons", () => {
-      expect(optionLabels("status")).toEqual([
-        "pamStatusDenied",
-        "pamStatusRevoked",
-        "pamStatusCanceled",
-        "pamStatusExpired",
-        "pamStatusSessionEnded",
-      ]);
-      expect(component["statusOptions"].some((option) => "iconTile" in option)).toBe(false);
+    it("sends the SDK's status names and the chosen ids, from the first page", () => {
+      fixture.componentInstance["pageIndex"].set(2);
+      fixture.detectChanges();
+
+      setFilter("status", ["sessionEnded", "denied"]);
+      setFilter("collection", [IDENTITY_ID]);
+      setFilter("requester", [SAM_ID]);
+
+      expect(lastQuery()).toEqual({
+        page: 0,
+        pageSize: 10,
+        statuses: ["session_ended", "denied"],
+        collectionIds: [IDENTITY_ID],
+        requesterIds: [SAM_ID],
+      });
     });
 
-    it("lists each shared folder and requester once", () => {
-      expect(optionLabels("collection")).toEqual(["Design", "Identity", "Production"]);
-      expect(optionLabels("requester")).toEqual(["marcus.chen", "sam.okafor"]);
+    it("moves back to the last page when the history shrinks under the reader", () => {
+      fixture.componentInstance["pageIndex"].set(5);
+      fixture.detectChanges();
+
+      land(pageOf([], { total: 23 }));
+
+      expect(lastQuery()).toMatchObject({ page: 2 });
     });
 
-    it("counts each option's rows", () => {
-      expect(table().optionCount("status", ["sessionEnded"])).toBe(2);
-      expect(table().optionCount("status", ["denied"])).toBe(1);
-      expect(table().optionCount("collection", ["Identity"])).toBe(2);
-      expect(table().optionCount("requester", ["sam.okafor"])).toBe(2);
-    });
-
-    it("matches any selected option within a filter", () => {
-      setFilter("status", ["denied", "revoked"]);
-
-      expect(rowIds()).toEqual(["stripe", "okta"]);
-    });
-
-    it("matches every filter across them", () => {
-      setFilter("status", ["sessionEnded", "expired"]);
-      setFilter("requester", ["sam.okafor"]);
-
-      expect(rowIds()).toEqual(["datadog", "servicenow"]);
-
-      setFilter("collection", ["Identity"]);
+    it("shows the table's loading rows while a new page is read", () => {
+      loading$.next(true);
+      fixture.detectChanges();
 
       expect(rowIds()).toEqual([]);
-    });
-
-    it("counts the items left on screen", () => {
-      const count = () => text(query("bit-table-toolbar [bitOverflowTrigger]"));
-
-      expect(count()).toBe("itemCount 6");
-
-      setFilter("collection", ["Identity"]);
-
-      expect(count()).toBe("itemCount 2");
-    });
-
-    it("searches the item, folder, requester, resolver and status", () => {
-      searchFor("figma");
-      expect(rowIds()).toEqual(["figma"]);
-
-      searchFor("design");
-      expect(rowIds()).toEqual(["figma"]);
-
-      searchFor("derek");
-      expect(rowIds()).toEqual(["stripe", "okta"]);
-
-      searchFor("system");
-      expect(rowIds()).toEqual(["pagerduty", "datadog"]);
-
-      searchFor("revoked");
-      expect(rowIds()).toEqual(["okta"]);
-    });
-
-    it("ignores case and surrounding whitespace", () => {
-      searchFor("  OKTA  ");
-
-      expect(rowIds()).toEqual(["okta"]);
-    });
-
-    it("says nothing matched rather than that the history is empty", () => {
-      searchFor("no-such-thing");
-
-      expect(rowIds()).toEqual([]);
-      expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
-      expect(text(query('[data-testid="my-access-history-no-results"]'))).toContain(
-        "noMatchingItems",
-      );
+      expect(queryAll('[data-testid="history-table"] bit-skeleton-text').length).toBeGreaterThan(0);
     });
   });
 
   describe("empty state", () => {
     it("replaces the table and its toolbar when nothing has ended yet", () => {
-      myRows$.next([historyRow({ id: "pending", status: "pending", resolvedAt: null })]);
-
       create();
+      land(pageOf([]));
 
       expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
       expect(query("bit-table-toolbar")).toBeNull();
+    });
+
+    it("keeps the table when a filter matches nothing, so it can be cleared", () => {
+      create();
+      land(pageOf(FRAME_ROWS));
+
+      setFilter("status", ["revoked"]);
+      land(pageOf([]));
+
+      expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
+      expect(query('[data-testid="my-access-history-no-results"]')).not.toBeNull();
     });
   });
 
   describe("loading", () => {
     it("shows the skeleton once the load has run for a second, then the history", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-
       create();
 
       expect(query('[data-testid="history-loading"]')).toBeNull();
@@ -589,35 +456,26 @@ describe("HistoryTabComponent", () => {
       expect(skeleton?.getAttribute("aria-hidden")).toBe("true");
       expect(skeleton?.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
 
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      managedLoading$.next(false);
-      fixture.detectChanges();
+      land(pageOf([historyRow({ id: "managed-1" })]));
 
       expect(query('[data-testid="history-loading"]')).toBeNull();
       expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
     });
 
     it("never shows the skeleton when the history arrives inside a second", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-
       create();
       tick(500);
 
-      managedLoading$.next(false);
+      land(pageOf([historyRow({ id: "mine-1" })]));
       passSkeletonDelay();
 
-      expect(query("bit-skeleton")).toBeNull();
+      expect(query('[data-testid="history-loading"]')).toBeNull();
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
       expect(text(query('[data-testid="history-loading-status"]'))).toBe("");
     });
 
     // A live region must exist before its text changes, or assistive tech announces nothing.
     it("keeps one live region mounted, announces both halves of the load, then clears", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-
       create();
 
       const status = query('[data-testid="history-loading-status"]');
@@ -629,9 +487,7 @@ describe("HistoryTabComponent", () => {
 
       expect(text(status)).toBe("loading");
 
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      managedLoading$.next(false);
-      fixture.detectChanges();
+      land(pageOf([historyRow({ id: "managed-1" })]));
 
       expect(query('[data-testid="history-loading-status"]')).toBe(status);
       expect(text(status)).toBe("pamHistoryLoaded");
@@ -641,105 +497,27 @@ describe("HistoryTabComponent", () => {
       expect(text(status)).toBe("");
     });
 
-    // The latch resolves on loading flags alone; a failed read ends the skeleton same as success.
-    it("does not announce a failed load as loaded", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-
-      create();
-      passSkeletonDelay();
-
-      managedLoadError$.next(new Error("boom"));
-      managedLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="history-loading"]')).toBeNull();
-      expect(text(query('[data-testid="history-loading-status"]'))).toBe("");
-    });
-
-    it("does not announce a failed own-history load as loaded", () => {
-      myLoading$.next(true);
-
-      create();
-      passSkeletonDelay();
-
-      myLoadError$.next(new Error("boom"));
-      myLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(text(query('[data-testid="history-loading-status"]'))).toBe("");
-    });
-
-    // The latch never resolves for a non-approver on an unsynced session.
-    it("drops its load-latch subscription when the tab is destroyed", () => {
-      lastSync$.next(null);
-      managedLoading$.next(true);
-
-      create();
-      passSkeletonDelay();
-
-      expect(component["historyLoaded"]()).toBe(false);
-      expect(canApprove$.observed).toBe(true);
-
-      fixture.destroy();
-
-      expect(canApprove$.observed).toBe(false);
-    });
-
-    // The shell never loads the inbox for a member who can't approve.
-    it("does not wait on the inbox for a member who cannot approve", () => {
-      managedLoading$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-
+    it("toasts a failed read and keeps the table rather than claim there is no history", () => {
       create();
 
-      expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
-    });
+      loadError$.next(new Error("boom"));
+      land(null);
 
-    // `canApprove$` answers false for a genuine approver before the first sync lands.
-    it("waits for the first sync before reading a false approval privilege as settled", () => {
-      lastSync$.next(null);
-      managedLoading$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-
-      create();
-      passSkeletonDelay();
-
-      expect(query('[data-testid="history-loading"]')).not.toBeNull();
-
-      canApprove$.next(true);
-      lastSync$.next(new Date("2026-08-17T09:05:00.000Z"));
-      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: ago(5) })]);
-      managedLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(rowIds()).toEqual(["managed-1", "mine-1"]);
-    });
-
-    it("waits on the caller's own history too, so its empty state cannot flash", () => {
-      myLoading$.next(true);
-
-      create();
-      passSkeletonDelay();
-
+      expect(showToast).toHaveBeenCalledWith({ variant: "error", message: "pamHistoryLoadFailed" });
       expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
-
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      myLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
+      expect(query('[data-testid="history-table"]')).not.toBeNull();
     });
 
-    it("does not replace rows already on screen with a skeleton when a reload starts", () => {
-      myRows$.next([historyRow({ id: "mine-1" })]);
+    // The latch resolves on the loading flag alone; a failed read ends the skeleton same as success.
+    it("does not announce a failed load as loaded", () => {
       create();
-
-      myLoading$.next(true);
       passSkeletonDelay();
 
+      loadError$.next(new Error("boom"));
+      land(null);
+
       expect(query('[data-testid="history-loading"]')).toBeNull();
-      expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
+      expect(text(query('[data-testid="history-loading-status"]'))).toBe("");
     });
   });
 });
