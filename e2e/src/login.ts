@@ -49,6 +49,17 @@ export class LoginPage {
     await this.page.getByTestId("login-submit-button").click();
   }
 
+  /**
+   * On desktop and browser, switches to the account's self-hosted server, e.g. before logging
+   * in with a passkey, which asks for no email.
+   */
+  async useServerOf(targetAccount: Account = account()) {
+    await expect(this.page.getByTestId("login-email-input")).toBeVisible();
+    if ((await this.page.locator(ENV_MENU_TRIGGER).count()) > 0) {
+      await this.useSelfHostedServer(targetAccount.server);
+    }
+  }
+
   /** Starts a passkey login; an authenticator must be ready to answer the assertion. */
   async logInWithPasskey() {
     await this.page.getByTestId("login-with-passkey-button").click();
