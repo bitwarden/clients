@@ -1,25 +1,40 @@
-import { resolveShellTheme, themeClass } from "./popup-shell";
+import { POPUP_THEME_STORAGE_KEY } from "../../browser/popup-view";
 
-describe("popup shell", () => {
-  describe("resolveShellTheme", () => {
-    it.each([
-      ["light", true, "light"],
-      ["dark", false, "dark"],
-    ])("keeps an explicit %s regardless of the OS", (stored, prefersDark, expected) => {
-      expect(resolveShellTheme(stored, prefersDark)).toBe(expected);
-    });
+import { styleShell } from "./popup-shell";
 
-    it.each([
-      [null, true, "dark"],
-      [null, false, "light"],
-      ["system", true, "dark"],
-      ["sepia", false, "light"],
-    ])("follows the OS for %s (prefersDark=%s)", (stored, prefersDark, expected) => {
-      expect(resolveShellTheme(stored, prefersDark)).toBe(expected);
-    });
+describe("styleShell", () => {
+  const styleWith = (stored: string | null, prefersDark: boolean) => {
+    if (stored == null) {
+      localStorage.removeItem(POPUP_THEME_STORAGE_KEY);
+    } else {
+      localStorage.setItem(POPUP_THEME_STORAGE_KEY, stored);
+    }
+    window.matchMedia = jest.fn().mockReturnValue({ matches: prefersDark });
+    jest.mocked(chrome.extension.getViews).mockReturnValue([]);
+
+    styleShell();
+
+    return document.documentElement.className;
+  };
+
+  afterEach(() => {
+    document.documentElement.className = "";
+    localStorage.clear();
   });
 
-  it("builds the class the theming service applies", () => {
-    expect(themeClass("dark")).toBe("theme_dark");
+  it.each([
+    ["light", true, "theme_light"],
+    ["dark", false, "theme_dark"],
+  ])("keeps an explicit %s regardless of the OS", (stored, prefersDark, expected) => {
+    expect(styleWith(stored, prefersDark)).toBe(expected);
+  });
+
+  it.each([
+    [null, true, "theme_dark"],
+    [null, false, "theme_light"],
+    ["system", true, "theme_dark"],
+    ["sepia", false, "theme_light"],
+  ])("follows the OS for %s (prefersDark=%s)", (stored, prefersDark, expected) => {
+    expect(styleWith(stored, prefersDark)).toBe(expected);
   });
 });

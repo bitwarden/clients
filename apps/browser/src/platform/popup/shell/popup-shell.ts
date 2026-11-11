@@ -12,31 +12,6 @@ import {
  * withholding the popup and must stay free of app imports.
  */
 
-export type ShellTheme = "light" | "dark";
-
-/**
- * Resolves the stored theme the way `AngularThemingService` does. Anything other than an
- * explicit light or dark, including nothing stored yet, follows the OS like the `system` default.
- */
-export function resolveShellTheme(stored: string | null, prefersDark: boolean): ShellTheme {
-  if (stored === "light" || stored === "dark") {
-    return stored;
-  }
-
-  return prefersDark ? "dark" : "light";
-}
-
-export function themeClass(theme: ShellTheme): string {
-  return `theme_${theme}`;
-}
-
-const prefersDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-function setTheme(theme: ShellTheme) {
-  document.documentElement.classList.remove(themeClass("light"), themeClass("dark"));
-  document.documentElement.classList.add(themeClass(theme));
-}
-
 /** Whether this document is the action popup, as opposed to the same page opened in a tab. */
 function isActionPopup(): boolean {
   if (globalThis.chrome?.extension?.getViews == null) {
@@ -60,7 +35,13 @@ export function styleShell() {
       document.body.style.width = `${PopupWidthOptions[option ?? "default"]}px`;
     }
 
-    setTheme(resolveShellTheme(localStorage.getItem(POPUP_THEME_STORAGE_KEY), prefersDark()));
+    // Resolves the theme the way `AngularThemingService` does: anything other than an explicit
+    // light or dark, including nothing stored yet, follows the OS like the `system` default.
+    const theme = localStorage.getItem(POPUP_THEME_STORAGE_KEY);
+    const dark =
+      theme === "dark" ||
+      (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.classList.add(dark ? "theme_dark" : "theme_light");
   } catch {
     // Leave the shell unstyled rather than block the app from loading.
   }
