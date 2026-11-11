@@ -2,7 +2,7 @@
 import "core-js/proposals/explicit-resource-management";
 
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject, throwError } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -128,17 +128,15 @@ describe("BackgroundUnlockService", () => {
         await jest.advanceTimersByTimeAsync(10_000);
 
         expect(clientRequested).not.toHaveBeenCalled();
-        expect(logService.warning).toHaveBeenCalled();
+        expect(logService.error).toHaveBeenCalled();
       } finally {
         jest.useRealTimers();
       }
     });
 
-    it("runs the registered on-unlock actions first", async () => {
+    it("still runs the registered on-unlock actions", async () => {
       userKeyInBackground.next(userKey);
-      const action = jest.fn().mockImplementation(async () => {
-        expect(clientRequested).not.toHaveBeenCalled();
-      });
+      const action = jest.fn().mockResolvedValue(undefined);
       service.registerOnUnlockAction(action);
 
       announcePopupUnlock();
@@ -146,6 +144,36 @@ describe("BackgroundUnlockService", () => {
 
       expect(action).toHaveBeenCalledWith(userId, expect.anything(), UnlockMethod.Pin);
       expect(clientRequested).toHaveBeenCalledTimes(1);
+    });
+
+    it("logs a failed client build and keeps building clients for later unlocks", async () => {
+      userKeyInBackground.next(userKey);
+      sdkService.userClient$.mockReturnValueOnce(throwError(() => new Error("no client")));
+
+      announcePopupUnlock();
+      await settle();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("[BackgroundUnlockService]"),
+        expect.anything(),
+      );
+
+      announcePopupUnlock();
+      await settle();
+
+      expect(clientRequested).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("an unlock the background performs itself", () => {
+    // Its registered SDK client already ran the local unlock migrations while unlocking.
+    it("does not build another client", async () => {
+      userKeyInBackground.next(userKey);
+
+      await service.runOnUnlockActions(userId, userKey, UnlockMethod.Biometrics);
+      await settle();
+
+      expect(clientRequested).not.toHaveBeenCalled();
     });
   });
 });

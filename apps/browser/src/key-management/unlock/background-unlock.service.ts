@@ -1,4 +1,4 @@
-import { filter, firstValueFrom, timeout } from "rxjs";
+import { Subscription, concatMap, filter, firstValueFrom, timeout } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -14,16 +14,14 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
-import { AutoUnlockService, CrossContextUnlockService, UnlockMethod } from "@bitwarden/unlock";
+import { AutoUnlockService, CrossContextUnlockService } from "@bitwarden/unlock";
 
 import { BACKGROUND_UNLOCK_COMPLETED, FOREGROUND_UNLOCK_COMPLETED } from "./unlock-messages";
 
 // The popup announces its unlock once the user key is in state, so the background normally finds
-// it at once. Bounded, since unlock messages are handled one at a time.
+// it at once. Bounded, so a missing key does not hold up the next announced unlock.
 const USER_KEY_WAIT_MS = 10_000;
 
 /**
@@ -38,6 +36,7 @@ export class BackgroundUnlockService extends CrossContextUnlockService {
   private readonly backgroundKeyService: KeyService;
   private readonly backgroundSdkService: SdkService;
   private readonly backgroundLogService: LogService;
+  private readonly backgroundMessageListener: MessageListener;
 
   constructor(
     registerSdkService: RegisterSdkService,
@@ -77,37 +76,49 @@ export class BackgroundUnlockService extends CrossContextUnlockService {
     this.backgroundKeyService = keyService;
     this.backgroundSdkService = sdkService;
     this.backgroundLogService = logService;
+    this.backgroundMessageListener = messageListener;
   }
 
   /**
-   * Also builds the user's SDK client, for unlocks the popup performs too. The popup's SDK clients
+   * Also builds the user's SDK client for each unlock the popup announces. The popup's SDK clients
    * skip the local unlock migrations, such as storing the length of a PIN set before lengths were
    * stored, and leave them to the background. The background only builds a client when something
    * here needs one, which, for an empty vault, may not happen while unlocked.
+   *
+   * Unlocks the background performs itself are left out: its registered SDK client already ran
+   * the migrations while unlocking.
    */
-  override async runOnUnlockActions(
-    userId: UserId,
-    userKey: SymmetricCryptoKey,
-    method: UnlockMethod,
-  ): Promise<void> {
-    await super.runOnUnlockActions(userId, userKey, method);
+  override init(): Subscription {
+    const subscription = super.init();
 
-    // A client built before the user key reaches the background would stay locked.
+    subscription.add(
+      this.backgroundMessageListener
+        .messages$(FOREGROUND_UNLOCK_COMPLETED)
+        .pipe(concatMap(({ userId }) => this.buildUserClient(userId)))
+        .subscribe(),
+    );
+
+    return subscription;
+  }
+
+  /** Best effort: the unlock has already succeeded, and this only runs the migrations. */
+  private async buildUserClient(userId: UserId): Promise<void> {
     try {
+      // A client built before the user key reaches the background would stay locked.
       await firstValueFrom(
         this.backgroundKeyService.userKey$(userId).pipe(
           filter((key) => key != null),
           timeout({ first: USER_KEY_WAIT_MS }),
         ),
       );
-    } catch {
-      this.backgroundLogService.warning(
-        "[BackgroundUnlockService] The user key never reached the background; its SDK client was not built",
-      );
-      return;
-    }
 
-    // Emits once the client has initialized its crypto, migrations included.
-    await firstValueFrom(this.backgroundSdkService.userClient$(userId));
+      // Emits once the client has initialized its crypto, migrations included.
+      await firstValueFrom(this.backgroundSdkService.userClient$(userId));
+    } catch (e) {
+      this.backgroundLogService.error(
+        "[BackgroundUnlockService] Failed to build the user's SDK client after an unlock in the popup",
+        e,
+      );
+    }
   }
 }
