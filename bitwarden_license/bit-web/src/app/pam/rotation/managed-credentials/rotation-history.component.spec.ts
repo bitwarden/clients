@@ -660,11 +660,23 @@ describe("RotationHistoryComponent rendering", () => {
     expect(empty.nativeElement.textContent).toContain("pamRotationConfigHistoryEmptyState");
   });
 
-  it("shows the connector page's empty message when there are no jobs", () => {
+  it("keeps the connector page's table headers over the empty state when there are no jobs", () => {
     const fixture = render([], { showCredential: true });
+    const empty = fixture.debugElement.query(By.css("[data-testid='rotation-history-empty']"));
+    const headers = fixture.debugElement
+      .queryAll(By.css('bit-table-v2 [role="columnheader"]'))
+      .map((h: any) => h.nativeElement.textContent.trim());
+
     expect(jobRows(fixture)).toHaveLength(0);
-    expect(fixture.debugElement.query(By.css("table"))).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain("pamRotationHistoryEmpty");
+    expect(headers).toEqual([
+      "pamRotationHistoryColumnRotationStarted",
+      "pamRotationConfigColumnManagedCredential",
+      "pamRotationConfigColumnTargetSystem",
+      "pamRotationHistoryColumnFinalResult",
+      "pamRotationHistoryColumnRotationTrigger",
+    ]);
+    expect(empty.nativeElement.textContent).toContain("pamRotationHistoryEmptyTitle");
+    expect(empty.nativeElement.textContent).not.toContain("pamRotationConfigHistoryEmptyState");
   });
 
   it("keeps the connector page's columns and adds Details when it names the credential", () => {

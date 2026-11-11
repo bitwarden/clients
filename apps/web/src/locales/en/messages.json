@@ -20829,6 +20829,9 @@
   "pamRotationConfigColumnCredential": {
     "message": "Credential"
   },
+  "pamRotationConfigColumnManagedCredential": {
+    "message": "Managed credential"
+  },
   "pamRotationConfigColumnItem": {
     "message": "Item"
   },
@@ -21267,8 +21270,8 @@
   "pamRotationConfigImmutableFieldMismatch": {
     "message": "This managed credential's item or target system could not be confirmed to match. Reload the page and try again."
   },
-  "pamRotationHistoryEmpty": {
-    "message": "No rotation jobs recorded yet."
+  "pamRotationHistoryEmptyTitle": {
+    "message": "No rotations yet."
   },
   "pamRotationHistoryColumnSource": {
     "message": "Source"
@@ -21376,7 +21379,7 @@
     "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
   },
   "pamRotationHistoryCaption": {
-    "message": "Rotation jobs, newest first"
+    "message": "Rotations, newest first"
   },
   "pamRotationHistoryDurationLabel": {
     "message": "Duration"

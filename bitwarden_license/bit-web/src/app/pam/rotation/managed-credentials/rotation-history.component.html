@@ -59,7 +59,42 @@
     </bit-column>
   </bit-table-v2>
 } @else if (jobViews().length === 0) {
-  <p class="tw-m-0 tw-text-sm tw-text-muted">{{ "pamRotationHistoryEmpty" | i18n }}</p>
+  <bit-table-v2 [tableDef]="table" data-testid="rotation-history-table">
+    <div slot="empty" class="tw-py-8 tw-text-center" data-testid="rotation-history-empty">
+      {{ "pamRotationHistoryEmptyTitle" | i18n }}
+    </div>
+
+    <bit-column sortable defaultSort="desc" [sortFn]="sortByStarted" width="minmax(12rem, 1.2fr)">
+      <bit-header-cell>{{ "pamRotationHistoryColumnRotationStarted" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.startedAt; let job">{{ job.displayStartedAt }}</bit-cell>
+    </bit-column>
+
+    <bit-column width="minmax(8rem, 1fr)">
+      <bit-header-cell>{{ "pamRotationConfigColumnManagedCredential" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.credentialName; let job">{{
+        job.credentialName
+      }}</bit-cell>
+    </bit-column>
+
+    <bit-column width="minmax(8rem, 1fr)">
+      <bit-header-cell>{{ "pamRotationConfigColumnTargetSystem" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.targetSystem"></bit-cell>
+    </bit-column>
+
+    <bit-column width="minmax(8rem, 1fr)">
+      <bit-header-cell>{{ "pamRotationHistoryColumnFinalResult" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.statusLabelKey; let job">{{
+        job.statusLabelKey | i18n
+      }}</bit-cell>
+    </bit-column>
+
+    <bit-column width="minmax(8rem, 1fr)">
+      <bit-header-cell>{{ "pamRotationHistoryColumnRotationTrigger" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.sourceLabelKey; let job">{{
+        job.sourceLabelKey | i18n
+      }}</bit-cell>
+    </bit-column>
+  </bit-table-v2>
 } @else {
   <div class="tw-overflow-x-auto">
     <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-start tw-text-main">
