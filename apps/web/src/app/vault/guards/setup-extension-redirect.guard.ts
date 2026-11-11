@@ -2,7 +2,6 @@ import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -25,7 +24,6 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   const router = inject(Router);
   const accountService = inject(AccountService);
   const configService = inject(ConfigService);
-  const vaultProfileService = inject(VaultProfileService);
   const stateProvider = inject(StateProvider);
 
   const isMobile = Utils.isMobileBrowser;
@@ -53,14 +51,10 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
       .state$.pipe(map((dismissed) => dismissed ?? false)),
   );
 
-  const isProfileOlderThan30Days = await profileIsOlderThan30Days(
-    vaultProfileService,
-    currentAcct.id,
-  ).catch(
-    () =>
-      // If the call for the profile fails for any reason, do not block the user
-      true,
-  );
+  // If the creation date is unavailable, do not block the user
+  const isProfileOlderThan30Days = currentAcct.creationDate
+    ? isMoreThan30DaysAgo(currentAcct.creationDate)
+    : true;
 
   if (dismissedExtensionPage || isProfileOlderThan30Days) {
     return true;
@@ -68,15 +62,6 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
 
   return router.createUrlTree(["/setup-extension"]);
 };
-
-/** Returns true when the user's profile is older than 30 days */
-async function profileIsOlderThan30Days(
-  vaultProfileService: VaultProfileService,
-  userId: string,
-): Promise<boolean> {
-  const creationDate = await vaultProfileService.getProfileCreationDate(userId);
-  return isMoreThan30DaysAgo(creationDate);
-}
 
 /** Returns the true when the date given is older than 30 days */
 function isMoreThan30DaysAgo(date?: string | Date): boolean {

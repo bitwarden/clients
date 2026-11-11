@@ -20,7 +20,6 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -296,10 +295,6 @@ describe("VaultComponent", () => {
             organizations$: of([]),
             providers$: of([]),
           },
-        },
-        {
-          provide: VaultProfileService,
-          useValue: { getProfileCreationDate: jest.fn().mockResolvedValue(new Date()) },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
