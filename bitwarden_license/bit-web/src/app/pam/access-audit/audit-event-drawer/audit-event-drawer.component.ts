@@ -106,6 +106,7 @@ export class AuditEventDrawerComponent {
         organizationId: this.params.organizationId,
         name: member.name,
         showUser: true,
+        stayInContext: true,
       },
     });
   }
@@ -124,6 +125,7 @@ export class AuditEventDrawerComponent {
         organizationId: this.params.organizationId,
         name: cipherName,
         showUser: true,
+        stayInContext: true,
       },
     });
   }

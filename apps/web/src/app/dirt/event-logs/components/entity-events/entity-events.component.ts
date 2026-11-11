@@ -49,6 +49,11 @@ export interface EntityEventsDialogParams {
   providerId?: string;
   showUser?: boolean;
   name?: string;
+  /**
+   * Keeps the page behind the dialog untouched. Event ids render as plain text instead of vault
+   * links, and clicking a member switches the dialog in place without navigating to Members.
+   */
+  stayInContext?: boolean;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -165,10 +170,14 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
       const member = this.orgUsersUserIdMap.get(platformUserId);
       if (member?.organizationUserId != null) {
         void this.switchEntity("user", member.organizationUserId, member.name);
-        if (this.params.organizationId != null) {
+        if (this.params.organizationId != null && !this.params.stayInContext) {
           void this.router.navigate(["/organizations", this.params.organizationId, "members"]);
         }
       }
+      return;
+    }
+    if (this.params.stayInContext && href.startsWith("#/")) {
+      event.preventDefault();
     }
   }
 
@@ -304,6 +313,9 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
 
     const options = new EventOptions();
     options.hideSendId = this.entity === "send";
+    if (this.params.stayInContext) {
+      options.cipherInfo = false;
+    }
     // Built from the org user map, which is only populated when showUser is set. Dialogs that don't
     // load member data (showUser=false) get an empty set, so creator ids render as plain text rather
     // than links that would resolve to nothing on click.
