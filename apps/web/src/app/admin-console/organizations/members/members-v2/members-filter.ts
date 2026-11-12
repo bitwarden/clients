@@ -41,11 +41,15 @@ export type MemberFilters = {
   policies?: PolicyOption[];
 };
 
-/** The roles offered in the Role filter, in display order. */
+/**
+ * The roles offered in the Role filter, in display order. This is also the ascending order of the
+ * Role column sort. User comes first on purpose: most admin actions are on users. This is a
+ * design decision, not lowest-to-highest access.
+ */
 export const ROLE_OPTIONS: readonly { value: OrganizationUserType; labelKey: string }[] = [
-  { value: OrganizationUserType.Owner, labelKey: "owner" },
-  { value: OrganizationUserType.Admin, labelKey: "admin" },
   { value: OrganizationUserType.User, labelKey: "user" },
+  { value: OrganizationUserType.Admin, labelKey: "admin" },
+  { value: OrganizationUserType.Owner, labelKey: "owner" },
   { value: OrganizationUserType.Custom, labelKey: "custom" },
 ];
 

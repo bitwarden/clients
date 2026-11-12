@@ -207,7 +207,7 @@
   </bit-column>
 
   <!-- Role -->
-  <bit-column sortable width="minmax(120px, 1fr)">
+  <bit-column sortable [sortFn]="sortByRole" width="minmax(120px, 1fr)">
     <bit-header-cell>{{ "role" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.type; let row">
       @if (canManage && organization) {
