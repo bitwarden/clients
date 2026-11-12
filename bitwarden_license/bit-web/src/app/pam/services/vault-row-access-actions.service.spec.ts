@@ -1,9 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, NEVER, of, Subscription } from "rxjs";
+import { firstValueFrom, NEVER, of, Subject, Subscription } from "rxjs";
 
 import { AccessRequestSdkService, DefaultAccessRefreshService } from "@bitwarden/bit-pam";
 import type { AccessRequestId, CipherAccessStateView } from "@bitwarden/bit-pam";
-import { AccessRequestCancelService } from "@bitwarden/bit-pam-components";
+import {
+  AccessBadgeTickerService,
+  AccessRequestCancelService,
+} from "@bitwarden/bit-pam-components";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
@@ -36,6 +39,7 @@ describe("DefaultVaultRowAccessActionsService", () => {
   let cancelService: MockProxy<AccessRequestCancelService>;
   let configService: MockProxy<ConfigService>;
   let accessRefresh: DefaultAccessRefreshService;
+  let ticks$: Subject<number>;
   let service: DefaultVaultRowAccessActionsService;
   let subscription: Subscription | undefined;
 
@@ -49,11 +53,13 @@ describe("DefaultVaultRowAccessActionsService", () => {
       approverInboxChanged$: () => NEVER,
     });
     configService.getFeatureFlag$.mockReturnValue(of(true));
+    ticks$ = new Subject<number>();
     service = new DefaultVaultRowAccessActionsService(
       requestsApi,
       accessRefresh,
       cancelService,
       configService,
+      { ticks$ } as unknown as AccessBadgeTickerService,
     );
   });
 
@@ -77,6 +83,29 @@ describe("DefaultVaultRowAccessActionsService", () => {
       );
 
       await expect(firstValueFrom(service.cancelableRequest$(gatedCipher()))).resolves.toBe(true);
+    });
+
+    it("emits false once the request's window closes, since the server then drops it", async () => {
+      const windowEnd = Date.now() + 60_000;
+      requestsApi.getCipherAccessState
+        .mockResolvedValueOnce(
+          state({
+            pendingRequest: {
+              id: REQUEST_ID,
+              leaseNotAfter: new Date(windowEnd).toISOString(),
+            } as never,
+          }),
+        )
+        .mockResolvedValueOnce(state());
+      const emitted: boolean[] = [];
+      subscription = service.cancelableRequest$(gatedCipher()).subscribe((v) => emitted.push(v));
+      await Promise.resolve();
+
+      ticks$.next(windowEnd);
+      await Promise.resolve();
+
+      expect(emitted).toEqual([true, false]);
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(2);
     });
 
     it("emits false when nothing is outstanding", async () => {

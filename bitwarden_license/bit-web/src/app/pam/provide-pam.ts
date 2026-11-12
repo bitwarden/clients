@@ -257,6 +257,7 @@ export function providePam(): SafeProvider[] {
         AccessRefreshService,
         AccessRequestCancelService,
         ConfigService,
+        AccessBadgeTickerService,
       ],
     }),
   ];

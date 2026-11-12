@@ -276,14 +276,17 @@ Something has to move that clock. **Use one of the two that already tick; do not
 The cipher-view banner owns a 1-second interval for its countdown, live exactly while there is an
 active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent` and
 `PamRevealedCipherService` take a single tick off `AccessBadgeTickerService.ticks$`, the shared
-clock the badges run on, and only while the state they hold carries a live lease.
+clock the badges run on, and only while the state they hold has something left to lapse.
 
 **A lapse is a cue to ask again, not proof the lease ended.** It may have been extended on another
 device, and no push need ever reach this tab (PAM-152). So every surface that caches a state
-re-reads it when its lease lapses, through `rereadOnLapse`
-(`bit-pam/src/helpers/lease-liveness.ts`), and judges the answer with `liveActiveLease` again. A
-server whose clock trails still hands back the old `notAfter`, so the item still locks; only a
-genuinely later end keeps it open.
+re-reads it when it lapses, through `rereadOnLapse` (`bit-pam/src/helpers/lease-liveness.ts`), and
+judges the answer with `liveActiveLease` again. A server whose clock trails still hands back the
+old `notAfter`, so the item still locks; only a genuinely later end keeps it open. "Lapses" also
+covers a pending or approved request's `leaseNotAfter`: the server drops the request once its
+window closes, but announces nothing, so without that re-read the row and the dialog keep showing
+Pending or Start access (PAM-445). A request has no local clamp, so `nextRereadMs` retries a
+trailing server for a bounded time (see its constants) rather than once.
 
 Both tick OUTSIDE the Angular zone, or NgZone never settles and `whenStable()` hangs for every
 host embedding a gated item. Signals carry out of it, so the banner and the pill need nothing
@@ -292,7 +295,7 @@ more; `PamRevealedCipherService` re-enters explicitly, because the re-lock write
 
 `badgeState` is NOT clamped: only the SDK ranks it, so a lapsed `active` badge falls to
 `AccessStateBadgeComponent`'s `remainingMs <= 0` recipe. The vault row has no clamp either, but
-it does re-read: on `AccessRefreshService`, and on a lapse through `rereadOnLapse` off the same
+it does re-read: on `AccessRefreshService`, and on any lapse through `rereadOnLapse` off the same
 shared ticker.
 
 ## OSS seams

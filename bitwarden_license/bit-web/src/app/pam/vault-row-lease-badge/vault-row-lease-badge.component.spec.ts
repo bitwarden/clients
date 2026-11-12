@@ -212,6 +212,31 @@ describe("VaultRowLeaseBadgeComponent", () => {
       expect(component["badge"]()).toEqual({ kind: "active", expiresAt: new Date(extendedEnd) });
     });
 
+    it.each([
+      ["pendingRequest", "pending"],
+      ["approvedRequest", "ready"],
+    ] as const)("falls back to privileged once a %s's window closes", async (field, badgeState) => {
+      const windowEnd = Date.now() + 60_000;
+      accessRequestSdkService.getCipherAccessState
+        .mockResolvedValueOnce({
+          [field]: { id: "request-1", leaseNotAfter: new Date(windowEnd).toISOString() },
+          badgeState,
+        } as unknown as CipherAccessStateView)
+        .mockResolvedValueOnce({ badgeState: "privileged" } as unknown as CipherAccessStateView);
+
+      create(gatedCipher());
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component["badge"]()?.kind).toBe(badgeState);
+
+      ticks$.next(windowEnd + 1_000);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+      expect(component["badge"]()?.kind).toBe("privileged");
+    });
+
     // A broadcast subscription would re-read every gated row in the viewport on any mutation.
     it("scopes the subscription to the row's own cipher", async () => {
       accessRequestSdkService.getCipherAccessState.mockResolvedValue({
