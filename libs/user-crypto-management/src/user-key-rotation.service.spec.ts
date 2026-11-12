@@ -1,8 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogService } from "@bitwarden/logging";
 import { PublicKey, UpgradeTokenAction } from "@bitwarden/sdk-internal";
@@ -17,7 +15,6 @@ describe("DefaultUserKeyRotationService", () => {
   let mockSdkService: MockProxy<SdkService>;
   let mockLogService: MockProxy<LogService>;
   let mockUserCryptoDialogService: MockProxy<UserCryptoDialogService>;
-  let mockConfigService: MockProxy<ConfigService>;
 
   const mockUserId = "mockUserId" as UserId;
 
@@ -33,8 +30,6 @@ describe("DefaultUserKeyRotationService", () => {
     mockSdkService = mock<SdkService>();
     mockLogService = mock<LogService>();
     mockUserCryptoDialogService = mock<UserCryptoDialogService>();
-    mockConfigService = mock<ConfigService>();
-    mockConfigService.getFeatureFlag.mockResolvedValue(false);
 
     mockUserCryptoManagement = {
       get_untrusted_memberships: jest.fn(),
@@ -64,7 +59,6 @@ describe("DefaultUserKeyRotationService", () => {
       mockSdkService,
       mockLogService,
       mockUserCryptoDialogService,
-      mockConfigService,
     );
   });
 
@@ -166,35 +160,6 @@ describe("DefaultUserKeyRotationService", () => {
       expect(result).toBe(true);
       expect(verifyTrustSpy).toHaveBeenCalledWith(mockUserId, "Skip");
     });
-
-    it.each([
-      [false, "KeepVersion"],
-      [true, "UpgradeToV2"],
-    ])(
-      "with force-upgrade-v2-encryption %s, sends user_key_upgrade %s",
-      async (forceUpgradeV2, userKeyUpgrade) => {
-        mockConfigService.getFeatureFlag.mockResolvedValue(forceUpgradeV2);
-        jest.spyOn(service, "verifyTrust").mockResolvedValue({
-          wasTrustDenied: false,
-          trustedOrganizationPublicKeys: [],
-          trustedEmergencyAccessUserPublicKeys: [],
-        });
-
-        await service.changePasswordAndRotateUserKey(
-          "currentPassword",
-          "newPassword",
-          undefined,
-          mockUserId,
-        );
-
-        expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-          FeatureFlag.ForceUpgradeV2Encryption,
-        );
-        expect(mockUserCryptoManagement.password_change_and_rotate_user_keys).toHaveBeenCalledWith(
-          expect.objectContaining({ user_key_upgrade: userKeyUpgrade }),
-        );
-      },
-    );
   });
 
   describe("rotateUserKey", () => {
@@ -282,22 +247,6 @@ describe("DefaultUserKeyRotationService", () => {
         }),
       );
     });
-
-    it.each([
-      [false, "KeepVersion"],
-      [true, "UpgradeToV2"],
-    ])(
-      "with force-upgrade-v2-encryption %s, sends user_key_upgrade %s",
-      async (forceUpgradeV2, userKeyUpgrade) => {
-        mockConfigService.getFeatureFlag.mockResolvedValue(forceUpgradeV2);
-
-        await service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId);
-
-        expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
-          expect.objectContaining({ user_key_upgrade: userKeyUpgrade }),
-        );
-      },
-    );
 
     it("forwards a CreateIfNeeded upgrade token action to verifyTrust", async () => {
       await service.rotateUserKey(mockPasswordRotation, "CreateIfNeeded", mockUserId);
