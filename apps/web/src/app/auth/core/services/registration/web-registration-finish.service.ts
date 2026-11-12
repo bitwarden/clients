@@ -2,22 +2,13 @@
 // @ts-strict-ignore
 import {
   DefaultRegistrationFinishService,
-  PasswordInputResult,
   RegistrationFinishService,
 } from "@bitwarden/auth/angular";
-import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { OpenOrgInviteRequest } from "@bitwarden/common/auth/models/request/registration/open-org-invite.request";
-import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import {
   OrganizationInviteService,
   OrgInviteKind,
 } from "@bitwarden/common/auth/organization-invite";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { UserKey } from "@bitwarden/common/types/key";
-// eslint-disable-next-line no-restricted-imports
-import { EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
   OrganizationId as SdkOrganizationId,
   UserMasterPasswordRegistrationRequest,
@@ -28,20 +19,10 @@ export class WebRegistrationFinishService
   implements RegistrationFinishService
 {
   constructor(
-    protected legacyCompatKeyService: LegacyCompatKeyService,
-    protected accountApiService: AccountApiService,
-    protected masterPasswordService: MasterPasswordServiceAbstraction,
-    protected configService: ConfigService,
     protected sdkService: SdkService,
     private organizationInviteService: OrganizationInviteService,
   ) {
-    super(
-      legacyCompatKeyService,
-      accountApiService,
-      masterPasswordService,
-      configService,
-      sdkService,
-    );
+    super(sdkService);
   }
 
   override async buildSdkRegisterRequest(
@@ -120,89 +101,6 @@ export class WebRegistrationFinishService
         registerRequest.accept_emergency_access_invite_token ||
         registerRequest.provider_invite_token ||
         registerRequest.sales_assisted_token)
-    ) {
-      throw new Error(
-        `emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.`,
-      );
-    }
-
-    return registerRequest;
-  }
-
-  override async buildRegisterRequest(
-    newUserKey: UserKey,
-    email: string,
-    passwordInputResult: PasswordInputResult,
-    userAsymmetricKeys: [string, EncString],
-    emailVerificationToken?: string,
-    orgSponsoredFreeFamilyPlanToken?: string,
-    acceptEmergencyAccessInviteToken?: string,
-    emergencyAccessId?: string,
-    providerInviteToken?: string,
-    providerUserId?: string,
-    salesAssistedToken?: string,
-  ): Promise<RegisterFinishRequest> {
-    const registerRequest = await super.buildRegisterRequest(
-      newUserKey,
-      email,
-      passwordInputResult,
-      userAsymmetricKeys,
-      emailVerificationToken,
-    );
-
-    // web specific logic
-
-    // Sales-assisted invites are deep-linked to trial initiation.
-    // It does not grant an org, family, emergency-access, or provider relationship; it
-    // authorizes registration on instances where open self-registration is disabled.
-    // No linking/validation needed here, only forward the token.
-    if (salesAssistedToken) {
-      registerRequest.salesAssistedToken = salesAssistedToken;
-    }
-
-    // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Direct invites: per-user invite credentials are included for validation and
-    // two-factor purposes.
-    // Open invites: the invite link reference is included so the server can identify the
-    // invite link and apply any invite-link–gated behaviors during registration. The open
-    // invite itself is accepted via a separate flow after login.
-    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-    if (orgInvite?.kind === OrgInviteKind.Direct) {
-      registerRequest.organizationUserId = orgInvite.organizationUserId;
-      registerRequest.orgInviteToken = orgInvite.token;
-    } else if (orgInvite?.kind === OrgInviteKind.Open) {
-      registerRequest.openOrgInvite = new OpenOrgInviteRequest(
-        orgInvite.organizationId,
-        orgInvite.inviteLinkCode,
-      );
-    }
-
-    if (orgSponsoredFreeFamilyPlanToken) {
-      registerRequest.orgSponsoredFreeFamilyPlanToken = orgSponsoredFreeFamilyPlanToken;
-    }
-
-    if (acceptEmergencyAccessInviteToken && emergencyAccessId) {
-      registerRequest.acceptEmergencyAccessInviteToken = acceptEmergencyAccessInviteToken;
-      registerRequest.acceptEmergencyAccessId = emergencyAccessId;
-    }
-
-    if (providerInviteToken && providerUserId) {
-      registerRequest.providerInviteToken = providerInviteToken;
-      registerRequest.providerUserId = providerUserId;
-    }
-
-    // Alternative invite/acceptance tokens (direct org invite, org-sponsored
-    // family plan, emergency access, provider, sales-assisted) are mutually exclusive with
-    // emailVerificationToken — presence of any one of them proves email ownership
-    // via the server-issued invite link, so the standalone email verification
-    // token is not required and would not be present.
-    if (
-      emailVerificationToken &&
-      (registerRequest.orgInviteToken ||
-        registerRequest.orgSponsoredFreeFamilyPlanToken ||
-        registerRequest.acceptEmergencyAccessInviteToken ||
-        registerRequest.providerInviteToken ||
-        registerRequest.salesAssistedToken)
     ) {
       throw new Error(
         `emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.`,
