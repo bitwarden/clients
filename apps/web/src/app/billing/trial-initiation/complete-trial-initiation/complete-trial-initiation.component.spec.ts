@@ -535,21 +535,20 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations", "org-id", "vault"]);
     });
 
-    it("propagates a navigation failure so the billing step re-enables its button and surfaces it", async () => {
+    it("surfaces a navigation failure without throwing so the button stays usable", async () => {
+      const validationService = TestBed.inject(ValidationService) as MockProxy<ValidationService>;
       const error = new Error("Rejected");
       mockRouter.navigate.mockRejectedValue(error);
 
-      await expect(
-        component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" }),
-      ).rejects.toThrow(error);
+      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
+
+      expect(validationService.showError).toHaveBeenCalledWith(error);
     });
 
     it("re-navigates to the existing org on retry without toasting again", async () => {
       mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
 
-      await expect(
-        component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" }),
-      ).rejects.toThrow();
+      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
       await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
 
       expect(mockToastService.showToast).toHaveBeenCalledTimes(1);

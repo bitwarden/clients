@@ -217,7 +217,7 @@ export class CompleteTrialInitiationComponent {
       : { organizationId: this.orgId, planDescription: this.billingSubLabel };
   }
 
-  /** Awaited by the billing step: shows the success toast and navigates once the org is created. */
+  /** Handles the billing step's output: shows the success toast and navigates once the org is created. */
   createdOrganization = async (event: OrganizationCreatedEvent): Promise<void> => {
     if (this.orgId === "") {
       this.orgId = event.organizationId;
@@ -226,7 +226,11 @@ export class CompleteTrialInitiationComponent {
         ? this.showCompletionToast("trialStarted", "trialActive")
         : this.showCompletionToast("organizationCreated", "organizationReadyToGo");
     }
-    await this.navigateToOrganization();
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+    }
   };
 
   /**

@@ -52,9 +52,8 @@ export class TrialBillingStepComponent implements OnInit {
   protected trial = input.required<Trial>();
   protected steppedBack = output<void>();
 
-  /** Awaited so bitSubmit holds the button through navigation, preventing a duplicate submit. */
-  protected readonly organizationCreated =
-    input.required<(event: OrganizationCreatedEvent) => Promise<void>>();
+  /** Emitted once the org exists; the container navigates. Duplicate submits are stopped by the created guards. */
+  protected readonly organizationCreated = output<OrganizationCreatedEvent>();
 
   /** The org the container already created; set so a remounted billing step won't call startTrial again. */
   protected readonly existingOrganization = input<OrganizationCreatedEvent | undefined>(undefined);
@@ -188,7 +187,7 @@ export class TrialBillingStepComponent implements OnInit {
       };
     }
 
-    await this.organizationCreated()(this.createdOrganization);
+    this.organizationCreated.emit(this.createdOrganization);
   };
 
   protected stepBack = () => this.steppedBack.emit();

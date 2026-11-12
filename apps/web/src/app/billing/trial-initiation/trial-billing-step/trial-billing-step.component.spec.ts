@@ -390,7 +390,6 @@ describe("TrialBillingStepComponent", () => {
   describe("submit — coupon error recovery", () => {
     const setupSubmit = (discounts: any[]) => {
       fixture.componentRef.setInput("trial", mockFamiliesTrial);
-      fixture.componentRef.setInput("organizationCreated", jest.fn().mockResolvedValue(undefined));
       fixture.detectChanges();
 
       // Mock the signal directly after detectChanges (avoids @ViewChild reset issues)
@@ -511,31 +510,27 @@ describe("TrialBillingStepComponent", () => {
 
       component["formGroup"].controls.cadence.setValue("monthly");
 
-      const onCreated = jest.fn<Promise<void>, [OrganizationCreatedEvent]>().mockResolvedValue();
-      fixture.componentRef.setInput("organizationCreated", onCreated);
+      const emitted: OrganizationCreatedEvent[] = [];
+      component["organizationCreated"].subscribe((e) => emitted.push(e));
 
       await component["submit"]();
 
-      const emitted = onCreated.mock.calls[0]?.[0];
-      expect(emitted?.planDescription).toContain("monthly");
-      expect(emitted?.planDescription).not.toContain("annual");
+      expect(emitted[0]?.planDescription).toContain("monthly");
+      expect(emitted[0]?.planDescription).not.toContain("annual");
     });
 
-    it("does not start a second trial on retry after the callback rejects", async () => {
+    it("does not start a second trial on a resubmit", async () => {
       mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
       setupSubmit();
 
-      const onCreated = jest
-        .fn<Promise<void>, [OrganizationCreatedEvent]>()
-        .mockRejectedValueOnce(new Error("Rejected"))
-        .mockResolvedValue();
-      fixture.componentRef.setInput("organizationCreated", onCreated);
+      const emitted: OrganizationCreatedEvent[] = [];
+      component["organizationCreated"].subscribe((e) => emitted.push(e));
 
-      await expect(component["submit"]()).rejects.toThrow();
+      await component["submit"]();
       await component["submit"]();
 
       expect(mockTrialBillingStepService.startTrial).toHaveBeenCalledTimes(1);
-      expect(onCreated).toHaveBeenCalledTimes(2);
+      expect(emitted).toHaveLength(2);
     });
 
     it("skips startTrial when the container already created an org (remounted step)", async () => {
@@ -546,16 +541,13 @@ describe("TrialBillingStepComponent", () => {
         planDescription: "Annual",
       });
 
-      const onCreated = jest.fn<Promise<void>, [OrganizationCreatedEvent]>().mockResolvedValue();
-      fixture.componentRef.setInput("organizationCreated", onCreated);
+      const emitted: OrganizationCreatedEvent[] = [];
+      component["organizationCreated"].subscribe((e) => emitted.push(e));
 
       await component["submit"]();
 
       expect(mockTrialBillingStepService.startTrial).not.toHaveBeenCalled();
-      expect(onCreated).toHaveBeenCalledWith({
-        organizationId: "org-123",
-        planDescription: "Annual",
-      });
+      expect(emitted[0]).toEqual({ organizationId: "org-123", planDescription: "Annual" });
     });
   });
 });
