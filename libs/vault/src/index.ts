@@ -23,7 +23,6 @@ export {
 } from "./services/vault-copy-buttons.service";
 export { OrgIconDirective, getOrgIconForTier } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
-export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
 
 export * from "./cipher-view";

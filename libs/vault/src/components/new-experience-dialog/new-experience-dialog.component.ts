@@ -10,6 +10,7 @@ import {
 } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { DarkImageSourceDirective } from "@bitwarden/angular/directives/dark-image-source.directive";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -24,8 +25,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { DarkImageSourceDirective } from "../dark-image-source.directive";
 
 export const NewExperienceDialogResult = {
   /** The user chose to explore the redesigned vault. */

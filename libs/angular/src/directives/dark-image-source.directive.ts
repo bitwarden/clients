@@ -2,9 +2,10 @@ import { DestroyRef, Directive, ElementRef, inject, input, OnInit, signal } from
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { combineLatest, Observable } from "rxjs";
 
-import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { Theme } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+
+import { SYSTEM_THEME_OBSERVABLE } from "../services/injection-tokens";
 
 /**
  * Directive that will switch the image source based on the currently applied theme.
