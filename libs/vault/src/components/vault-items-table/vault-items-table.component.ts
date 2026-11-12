@@ -1072,9 +1072,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Row IDs each option admits, from one live `matches$` call per row list. A change keeps the old
    * map until the new one lands, so the table stays filtered meanwhile. A failed read lets every
    * row pass: an error reaching the signal would rethrow inside `bit-table-v2`'s filter.
-   *
-   * PAM's implementation reads one access state per restricted row. A batch `cipher_access_state`
-   * in the SDK would make that one call per list.
    */
   private readonly contributedMatches: Signal<
     ReadonlyMap<string, ReadonlySet<CipherId>> | undefined
