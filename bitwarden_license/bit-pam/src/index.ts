@@ -67,7 +67,7 @@ export {
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining, formatRemainingLong } from "./date/format-remaining";
-export { lapse$, liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
 export { rereadAt } from "./helpers/reread-at";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
@@ -92,7 +92,6 @@ export {
   snapToNearestDuration,
   snapToNearestAccessRuleDuration,
   pickDurationUnit,
-  maxRequestDurationSeconds,
   requestDurationOptions,
 } from "./helpers/lease-window.utils";
 export type { RequestDurationOption } from "./helpers/lease-window.utils";

@@ -53,12 +53,9 @@ export function badgesFromMyRequests(
   const badges = new Map<string, ListedBadge>();
   for (const request of requests) {
     const badge = listedBadge(request, nowMs);
-    if (badge == null) {
-      continue;
-    }
     const cipherId = String(request.cipherId);
     const held = badges.get(cipherId);
-    if (held == null || RANK[badge.kind] < RANK[held.kind]) {
+    if (badge != null && (held == null || RANK[badge.kind] < RANK[held.kind])) {
       badges.set(cipherId, badge);
     }
   }
