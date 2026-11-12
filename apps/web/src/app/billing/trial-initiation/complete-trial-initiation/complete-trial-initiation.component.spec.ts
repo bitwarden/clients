@@ -305,7 +305,7 @@ describe("CompleteTrialInitiationComponent", () => {
         productTier: ProductTierType.Enterprise,
       });
       component.verticalStepper = { next: jest.fn() } as any;
-      component.orgId = "org-id";
+      (component as any).organization = { organizationId: "org-id", planDescription: "" };
       const createOnTrialSpy = jest
         .spyOn(component, "createOrganizationOnTrial")
         .mockResolvedValue(undefined);

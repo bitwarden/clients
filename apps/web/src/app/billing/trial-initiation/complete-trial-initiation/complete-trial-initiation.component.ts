@@ -84,8 +84,17 @@ export class CompleteTrialInitiationComponent {
   showPrivilegedControlsSalesCallout = false;
 
   orgInfoSubLabel = "";
-  orgId = "";
-  billingSubLabel = "";
+
+  /** The org created during this flow; the single source for orgId, the billing sub-label, and the billing-step input. */
+  protected organization: OrganizationCreatedEvent | undefined;
+
+  get orgId(): string {
+    return this.organization?.organizationId ?? "";
+  }
+
+  get billingSubLabel(): string {
+    return this.organization?.planDescription ?? "";
+  }
 
   /** User's email address associated with the trial */
   email = "";
@@ -210,17 +219,10 @@ export class CompleteTrialInitiationComponent {
     }
   }
 
-  get existingOrganization(): OrganizationCreatedEvent | undefined {
-    return this.orgId === ""
-      ? undefined
-      : { organizationId: this.orgId, planDescription: this.billingSubLabel };
-  }
-
   /** Handles the billing step's output: shows the success toast and navigates once the org is created. */
   createdOrganization = async (event: OrganizationCreatedEvent): Promise<void> => {
     if (this.orgId === "") {
-      this.orgId = event.organizationId;
-      this.billingSubLabel = event.planDescription;
+      this.organization = event;
       this.trialLength > 0
         ? this.showCompletionToast("trialStarted", "trialActive")
         : this.showCompletionToast("organizationCreated", "organizationReadyToGo");
@@ -240,8 +242,10 @@ export class CompleteTrialInitiationComponent {
     try {
       const response = await this.purchaseTrialWithoutPayment(activeUserId);
 
-      this.orgId = response.id;
-      this.billingSubLabel = response.name.toString();
+      this.organization = {
+        organizationId: response.id,
+        planDescription: response.name.toString(),
+      };
     } catch (e: unknown) {
       this.validationService.showError(e);
       this.loading = false;
@@ -411,7 +415,7 @@ export class CompleteTrialInitiationComponent {
         activeUserId,
       );
 
-      this.orgId = response.id;
+      this.organization = { organizationId: response.id, planDescription: "" };
     } catch (e: unknown) {
       this.validationService.showError(e);
       this.loading = false;
