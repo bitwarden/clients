@@ -79,6 +79,7 @@
       [orgRequiresDataOwnership]="(enforceOrgDataOwnershipPolicy$ | async) ?? false"
       [loading]="refreshing || performingInitialLoad"
       [canCreateCipher]="(canCreateCipher$ | async) ?? true"
+      [sendTypes]="sendTypes()"
       [showAddCipherBtn]="(showAddCipherBtn$ | async) ?? true"
       [scope]="vaultScope()"
       [organizationName]="emptyVaultOrganizationName()"
@@ -90,6 +91,7 @@
       (onEvent)="onVaultItemsEvent($event)"
       (onAddCipher)="addCipher($event)"
       (onAddFolder)="addFolder()"
+      (onAddSend)="addSend($event)"
       (onAddItemDialog)="openAddItemDialog()"
       (onImport)="openImport()"
     />

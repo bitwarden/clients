@@ -8886,6 +8886,12 @@
   "sendTypeFile": {
     "message": "File"
   },
+  "textSend": {
+    "message": "Text Send"
+  },
+  "fileSend": {
+    "message": "File Send"
+  },
   "sendTypeText": {
     "message": "Text"
   },

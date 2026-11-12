@@ -3,9 +3,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -33,6 +33,7 @@ import {
   SendAddEditDialogComponent,
   SendFormConfig,
   SendFormService,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 
 import { DesktopHeaderComponent } from "../../layout/header";
@@ -65,8 +66,13 @@ describe("SendComponent", () => {
   let configService: MockProxy<ConfigService>;
   let sendFormService: MockProxy<SendFormService>;
   let sendDecryptionService: MockProxy<SendDecryptionService>;
+  let navigate: jest.SpyInstance;
+  let queryParamMap$: BehaviorSubject<ParamMap>;
+  let creatableSendTypes$: BehaviorSubject<SendType[]>;
 
   beforeEach(async () => {
+    queryParamMap$ = new BehaviorSubject(convertToParamMap({}));
+    creatableSendTypes$ = new BehaviorSubject([SendType.Text, SendType.File]);
     sendService = mock<SendService>();
     accountService = mock<AccountService>();
     policyService = mock<PolicyService>();
@@ -146,8 +152,10 @@ describe("SendComponent", () => {
           provide: ActivatedRoute,
           useValue: {
             data: of({}),
+            queryParamMap: queryParamMap$,
           },
         },
+
         {
           provide: SendFormService,
           useValue: sendFormService,
@@ -155,6 +163,14 @@ describe("SendComponent", () => {
         {
           provide: SendDecryptionService,
           useValue: sendDecryptionService,
+        },
+        {
+          provide: SendPolicyService,
+          useValue: {
+            disableSend$: of(false),
+            allowedSendTypes$: of([SendType.Text, SendType.File]),
+            creatableSendTypes$,
+          },
         },
       ],
     })
@@ -172,10 +188,52 @@ describe("SendComponent", () => {
 
     fixture = TestBed.createComponent(SendComponent);
     component = fixture.componentInstance;
+    navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
   });
 
   it("creates component", () => {
     expect(component).toBeTruthy();
+  });
+
+  describe("?new= route parameter", () => {
+    it("clears the parameter and opens the add form for that type", async () => {
+      sendFormConfigService.buildConfig.mockResolvedValue({ mode: "add" } as SendFormConfig);
+      jest
+        .spyOn(SendAddEditDialogComponent, "openDrawer")
+        .mockResolvedValue({ closed: of(undefined) } as any);
+
+      queryParamMap$.next(convertToParamMap({ new: "file" }));
+      await fixture.whenStable();
+      await new Promise((resolve) => setTimeout(resolve));
+
+      expect(navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({ queryParams: { new: null }, replaceUrl: true }),
+      );
+      expect(sendFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        SendType.File,
+      );
+    });
+
+    it("does not open the form for a type the user cannot create", async () => {
+      creatableSendTypes$.next([SendType.Text]);
+
+      queryParamMap$.next(convertToParamMap({ new: "file" }));
+      await fixture.whenStable();
+      await new Promise((resolve) => setTimeout(resolve));
+
+      expect(navigate).toHaveBeenCalled();
+      expect(sendFormConfigService.buildConfig).not.toHaveBeenCalled();
+    });
+
+    it("ignores an unknown value", async () => {
+      queryParamMap$.next(convertToParamMap({ new: "other" }));
+      await fixture.whenStable();
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
   });
 
   describe("addSend", () => {

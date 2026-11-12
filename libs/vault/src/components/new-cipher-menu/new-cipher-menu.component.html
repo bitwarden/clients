@@ -59,6 +59,31 @@
           {{ "collection" | vfo1I18n: "sharedFolder" }}
         </button>
       }
+      @if (sendTypes().length) {
+        <bit-menu-divider></bit-menu-divider>
+      }
+      @if (sendTypes().includes(SendType.Text)) {
+        <button
+          type="button"
+          bitMenuItem
+          id="new-cipher-menu_button_text-send"
+          (click)="sendAdded.emit(SendType.Text)"
+        >
+          <bit-icon fixedWidth name="bwi-file-text" slot="start" />
+          {{ "textSend" | i18n }}
+        </button>
+      }
+      @if (sendTypes().includes(SendType.File)) {
+        <button
+          type="button"
+          bitMenuItem
+          id="new-cipher-menu_button_file-send"
+          (click)="sendAdded.emit(SendType.File)"
+        >
+          <bit-icon fixedWidth name="bwi-file" slot="start" />
+          {{ "fileSend" | i18n }}
+        </button>
+      }
     </bit-menu>
   </div>
 }

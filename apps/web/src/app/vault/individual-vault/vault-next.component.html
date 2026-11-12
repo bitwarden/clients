@@ -124,10 +124,12 @@
         [canCreateSshKey]="true"
         [canCreateFolder]="true"
         [canCreateCollection]="canCreateCollections()"
+        [sendTypes]="sendTypes()"
         (cipherAdded)="addCipher($event)"
         (onAddItemDialog)="openAddItemDialog('toolbar')"
         (folderAdded)="addFolder()"
         (collectionAdded)="addCollection()"
+        (sendAdded)="addSend($event)"
       />
     }
   </div>

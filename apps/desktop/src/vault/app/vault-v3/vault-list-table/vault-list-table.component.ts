@@ -9,6 +9,7 @@ import { getOptionalUserId } from "@bitwarden/common/auth/services/account.servi
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
@@ -71,6 +72,7 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly orgRequiresDataOwnership = input<boolean>(false);
   readonly loading = input<boolean>(false);
   readonly canCreateCipher = input<boolean>(true);
+  readonly sendTypes = input<SendType[]>([]);
   readonly showAddCipherBtn = input<boolean>(true);
 
   /** The vault scope — relayed to `vault-items-table` untouched. */
@@ -97,6 +99,7 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly onEvent = output<VaultItemEvent<C>>();
   readonly onAddCipher = output<CipherType>();
   readonly onAddFolder = output<void>();
+  readonly onAddSend = output<SendType>();
   readonly onAddItemDialog = output<void>();
   readonly onImport = output<void>();
 

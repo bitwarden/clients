@@ -65,6 +65,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId, OrganizationId, UserId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -95,6 +97,7 @@ import {
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
 import { importQueryParamsForVault } from "@bitwarden/importer-ui";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -311,6 +314,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
 
   protected readonly vfo1Foundation = toSignal(this.vfo1Foundation$, { initialValue: false });
+
+  protected readonly sendTypes = toSignal(inject(SendPolicyService).creatableSendTypes$, {
+    initialValue: [],
+  });
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -1200,6 +1207,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     } else {
       this.messagingService.send("newFolder");
     }
+  }
+
+  /** The Send page opens its add form; unsaved item edits get the same question as other Add actions. */
+  protected async addSend(type: SendType): Promise<void> {
+    if (this.activeDrawerRef != null && this.dirtyInput() && (await this.wantsToSaveChanges())) {
+      return;
+    }
+    await this.router.navigate(["/send"], {
+      queryParams: { new: type === SendType.File ? SendFilterType.File : SendFilterType.Text },
+    });
   }
 
   protected async openAddItemDialog(): Promise<void> {

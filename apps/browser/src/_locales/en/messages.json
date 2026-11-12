@@ -3819,6 +3819,12 @@
   "sendTypeFile": {
     "message": "File"
   },
+  "textSend": {
+    "message": "Text Send"
+  },
+  "fileSend": {
+    "message": "File Send"
+  },
   "allSends": {
     "message": "All Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

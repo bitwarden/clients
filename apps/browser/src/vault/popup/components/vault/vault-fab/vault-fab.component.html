@@ -27,5 +27,29 @@
       <bit-icon name="bwi-folder" slot="start" />
       {{ "newFolder" | i18n }}
     </button>
+    @if (sendTypes().includes(SendType.Text)) {
+      <a
+        bitMenuItem
+        id="vault-fab_link_text-send"
+        [routerLink]="['/add-send']"
+        [queryParams]="{ type: SendType.Text, isNew: true }"
+        slot="footer"
+      >
+        <bit-icon name="bwi-file-text" slot="start" />
+        {{ "textSend" | i18n }}
+      </a>
+    }
+    @if (sendTypes().includes(SendType.File)) {
+      <a
+        bitMenuItem
+        id="vault-fab_link_file-send"
+        [routerLink]="['/add-send']"
+        [queryParams]="{ type: SendType.File, isNew: true }"
+        slot="footer"
+      >
+        <bit-icon name="bwi-file" slot="start" />
+        {{ "fileSend" | i18n }}
+      </a>
+    }
   </bit-menu>
 }
