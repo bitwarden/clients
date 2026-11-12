@@ -1,61 +1,84 @@
-<popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
-  @if (!sendsDisabled && vfo1Enabled()) {
+<popup-page
+  [hideOverflow]="showSkeletonsLoaders$ | async"
+  [collapseAboveScrollArea]="vfo1Enabled()"
+>
+  @if (!sendsDisabled() && vfo1Enabled()) {
     <app-send-fab slot="floating-action"></app-send-fab>
   }
   <popup-header slot="header" [pageTitle]="'send' | i18n">
+    @if (vfo1Enabled()) {
+      <span slot="title-end" class="tw-text-sm">
+        {{ sendCountLabel() }}
+      </span>
+    }
     <ng-container slot="end">
-      @if (!sendsDisabled && !vfo1Enabled()) {
+      @if (!sendsDisabled() && !vfo1Enabled()) {
         <tools-new-send-dropdown></tools-new-send-dropdown>
       }
       <app-pop-out></app-pop-out>
       <app-current-account></app-current-account>
     </ng-container>
   </popup-header>
-  <ng-container slot="above-scroll-area">
-    <bit-callout *ngIf="sendsDisabled" [title]="'sendDisabled' | i18n">
-      {{ "sendDisabledWarning" | i18n }}
-    </bit-callout>
-    <ng-container *ngIf="listState !== sendState.Empty">
-      <tools-send-search></tools-send-search>
-      <app-send-list-filters></app-send-list-filters>
+  @if (sendsDisabled()) {
+    <ng-container slot="above-scroll-area">
+      <bit-callout [title]="'sendDisabled' | i18n">
+        {{ "sendDisabledWarning" | i18n }}
+      </bit-callout>
+      @if (!vfo1Enabled() && listState !== sendState.Empty) {
+        <tools-send-search></tools-send-search>
+        <app-send-list-filters></app-send-list-filters>
+      }
     </ng-container>
-  </ng-container>
-
-  <div
-    *ngIf="listState === sendState.Empty"
-    class="tw-flex tw-flex-col tw-h-full tw-justify-center"
-  >
-    <bit-status-lockup class="tw-text-main">
-      <bit-svg slot="graphic" [content]="noItemIcon"></bit-svg>
-      <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-      <div slot="description" class="tw-mx-6">
-        {{ "sendsBodyNoItems" | i18n }}
-      </div>
-      <tools-new-send-dropdown
-        [hideIcon]="true"
-        *ngIf="!sendsDisabled"
-        slot="button"
-        [buttonType]="'secondary'"
-      ></tools-new-send-dropdown>
-    </bit-status-lockup>
-  </div>
-
-  <ng-container *ngIf="listState !== sendState.Empty && !(showSkeletonsLoaders$ | async)">
+  }
+  @if (vfo1Enabled()) {
+    <!-- This is needed to offset popup-page's padding -->
+    <tools-send-table-v2
+      class="tw-flex tw-flex-col tw-flex-1 tw-min-h-0 tw-h-full -tw-mx-3 -tw-my-3 -tw-mb-2.5 bit-compact:-tw-mx-2 bit-compact:-tw-mt-2 bit-compact:-tw-mb-1.5"
+      [sends]="allSends()"
+      [queryPrefix]="undefined"
+      [presentation]="'list'"
+      [showCreateButtons]="false"
+      [showDeletionDateCol]="false"
+      [collapseRowActions]="false"
+      (editSend)="editSend($event)"
+    />
+  } @else {
     <div
-      *ngIf="listState === sendState.NoResults"
-      class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
+      *ngIf="listState === sendState.Empty"
+      class="tw-flex tw-flex-col tw-h-full tw-justify-center"
     >
-      <bit-status-lockup>
-        <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
-        <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
-        <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
+      <bit-status-lockup class="tw-text-main">
+        <bit-svg slot="graphic" [content]="noItemIcon"></bit-svg>
+        <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+        <div slot="description" class="tw-mx-6">
+          {{ "sendsBodyNoItems" | i18n }}
+        </div>
+        <tools-new-send-dropdown
+          [hideIcon]="true"
+          *ngIf="!sendsDisabled()"
+          slot="button"
+          [buttonType]="'secondary'"
+        ></tools-new-send-dropdown>
       </bit-status-lockup>
     </div>
-    <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
-  </ng-container>
-  @if (showSkeletonsLoaders$ | async) {
-    <vault-fade-in-out-skeleton>
-      <vault-loading-skeleton></vault-loading-skeleton>
-    </vault-fade-in-out-skeleton>
+
+    <ng-container *ngIf="listState !== sendState.Empty && !(showSkeletonsLoaders$ | async)">
+      <div
+        *ngIf="listState === sendState.NoResults"
+        class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
+      >
+        <bit-status-lockup>
+          <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
+          <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
+          <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
+        </bit-status-lockup>
+      </div>
+      <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
+    </ng-container>
+    @if (showSkeletonsLoaders$ | async) {
+      <vault-fade-in-out-skeleton>
+        <vault-loading-skeleton></vault-loading-skeleton>
+      </vault-fade-in-out-skeleton>
+    }
   }
 </popup-page>

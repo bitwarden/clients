@@ -78,9 +78,7 @@ export class SendComponent {
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
   });
-  protected readonly allSends = toSignal(this.sendService.sendViews$, {
-    initialValue: [],
-  });
+  protected readonly allSends = toSignal(this.sendService.sendViews$);
 
   protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 

@@ -10,11 +10,7 @@
   @if (vfo1Foundation()) {
     <tools-send-table-v2
       [sends]="allSends()"
-      [disableSend]="disableSend()"
       (editSend)="onEditSend($event)"
-      (copySend)="onCopySend($event)"
-      (removeAuth)="onRemoveAuth($event)"
-      (deleteSend)="onDeleteSend($event)"
       (addSend)="addSend($event)"
     />
   } @else {

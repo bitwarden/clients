@@ -118,9 +118,7 @@ export class SendComponent implements OnDestroy {
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
   });
-  protected readonly allSends = toSignal(this.sendService.sendViews$, {
-    initialValue: [],
-  });
+  protected readonly allSends = toSignal(this.sendService.sendViews$);
 
   protected readonly disableSend = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -414,10 +412,5 @@ export class SendComponent implements OnDestroy {
       title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
-  }
-
-  // Legacy method. TODO: Remove once the SendUI refresh is permanently enabled
-  searchTextChanged(newSearchText: string) {
-    this.sendItemsService.applyFilter(newSearchText);
   }
 }
