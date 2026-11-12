@@ -195,6 +195,12 @@ export class CompleteTrialInitiationComponent {
   }
 
   async orgNameEntrySubmit(): Promise<void> {
+    // The org may already exist (a retry after a navigation failure); just navigate to it.
+    if (this.orgId !== "") {
+      await this.navigateToExistingOrganization();
+      return;
+    }
+
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (this.startsWithoutPayment(this.paymentOptional, this.trialLength)) {
@@ -217,33 +223,25 @@ export class CompleteTrialInitiationComponent {
   };
 
   /**
-   * Create an organization on trial without a payment method. A rejected request shows the error and
-   * leaves the user on the organization step.
+   * Create an organization on trial without a payment method.
    */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
-    if (this.orgId === "") {
-      try {
-        const response = await this.purchaseTrialWithoutPayment(activeUserId);
-
-        this.orgId = response.id;
-        this.billingSubLabel = response.name.toString();
-      } catch (e: unknown) {
-        this.validationService.showError(e);
-        this.loading = false;
-        return;
-      }
-
-      this.isSecretsManagerFree
-        ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
-        : this.showCompletionToast("trialStarted", "trialActive");
-    }
     try {
-      await this.navigateToOrganization();
+      const response = await this.purchaseTrialWithoutPayment(activeUserId);
+
+      this.orgId = response.id;
+      this.billingSubLabel = response.name.toString();
     } catch (e: unknown) {
       this.validationService.showError(e);
       this.loading = false;
+      return;
     }
+
+    this.isSecretsManagerFree
+      ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
+      : this.showCompletionToast("trialStarted", "trialActive");
+    await this.navigateToExistingOrganization();
   }
 
   private async purchaseTrialWithoutPayment(activeUserId: UserId): Promise<OrganizationResponse> {
@@ -296,6 +294,16 @@ export class CompleteTrialInitiationComponent {
   /** Move the user to the previous step */
   previousStep() {
     this.verticalStepper.previous();
+  }
+
+  private async navigateToExistingOrganization(): Promise<void> {
+    this.loading = true;
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+      this.loading = false;
+    }
   }
 
   /** Navigate to the organization's vault (Secrets Manager for an SM trial). */
@@ -373,43 +381,35 @@ export class CompleteTrialInitiationComponent {
     }
 
     this.loading = true;
-    if (this.orgId === "") {
-      try {
-        const response = await this.organizationBillingService.startFree(
-          {
-            organization: {
-              name:
-                this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
-              billingEmail:
-                this.orgInfoFormGroup.value.billingEmail == null
-                  ? ""
-                  : this.orgInfoFormGroup.value.billingEmail,
-              initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
-            },
-            plan: {
-              type: 0,
-              subscribeToSecretsManager: true,
-              isFromSecretsManagerTrial: true,
-            },
-          },
-          activeUserId,
-        );
-
-        this.orgId = response.id;
-      } catch (e: unknown) {
-        this.validationService.showError(e);
-        this.loading = false;
-        return;
-      }
-
-      this.showCompletionToast("organizationCreated", "organizationReadyToGo");
-    }
     try {
-      await this.navigateToOrganization();
+      const response = await this.organizationBillingService.startFree(
+        {
+          organization: {
+            name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
+            billingEmail:
+              this.orgInfoFormGroup.value.billingEmail == null
+                ? ""
+                : this.orgInfoFormGroup.value.billingEmail,
+            initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+          },
+          plan: {
+            type: 0,
+            subscribeToSecretsManager: true,
+            isFromSecretsManagerTrial: true,
+          },
+        },
+        activeUserId,
+      );
+
+      this.orgId = response.id;
     } catch (e: unknown) {
       this.validationService.showError(e);
       this.loading = false;
+      return;
     }
+
+    this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    await this.navigateToExistingOrganization();
   }
 
   /**

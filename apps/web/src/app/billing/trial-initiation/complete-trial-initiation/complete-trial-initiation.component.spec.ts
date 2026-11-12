@@ -298,6 +298,52 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(createOnTrialSpy).not.toHaveBeenCalled();
       expect(conditionalCreateSpy).toHaveBeenCalled();
     });
+
+    it("navigates to the existing org and skips creation when the org already exists (Back then Next)", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+      });
+      component.verticalStepper = { next: jest.fn() } as any;
+      component.orgId = "org-id";
+      const createOnTrialSpy = jest
+        .spyOn(component, "createOrganizationOnTrial")
+        .mockResolvedValue(undefined);
+      const conditionalCreateSpy = jest
+        .spyOn(component as any, "conditionallyCreateOrganization")
+        .mockResolvedValue(undefined);
+
+      await component.orgNameEntrySubmit();
+
+      expect(createOnTrialSpy).not.toHaveBeenCalled();
+      expect(conditionalCreateSpy).not.toHaveBeenCalled();
+      expect(component.verticalStepper.next).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations", "org-id", "vault"]);
+    });
+
+    it("creates the org once when resubmitted after a navigation failure", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+        trialLength: "7",
+        paymentOptional: "true",
+      });
+      component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+        id: "org-id",
+        name: "Test Org",
+      } as any);
+      mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
+
+      await component.orgNameEntrySubmit();
+      await component.orgNameEntrySubmit();
+
+      expect(
+        mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod,
+      ).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockRouter.navigate).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("createOrganizationOnTrial", () => {
@@ -419,19 +465,6 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(component.loading).toBe(false);
       expect(mockToastService.showToast).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
-    });
-
-    it("does not create a second org on retry after a navigation failure", async () => {
-      mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
-
-      await component.createOrganizationOnTrial("user-id-123" as UserId);
-      await component.createOrganizationOnTrial("user-id-123" as UserId);
-
-      expect(
-        mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod,
-      ).toHaveBeenCalledTimes(1);
-      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
-      expect(mockRouter.navigate).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -572,23 +605,6 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(component.loading).toBe(false);
       expect(mockToastService.showToast).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
-    });
-
-    it("does not create a second org on retry after a navigation failure", async () => {
-      mockActivatedRoute.queryParams.next({
-        product: ProductType.SecretsManager,
-        productTier: ProductTierType.Free,
-      });
-      component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
-      mockOrganizationBillingService.startFree.mockResolvedValue({ id: "sm-org-id" } as any);
-      mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
-
-      await (component as any).conditionallyCreateOrganization("user-id-123" as UserId);
-      await (component as any).conditionallyCreateOrganization("user-id-123" as UserId);
-
-      expect(mockOrganizationBillingService.startFree).toHaveBeenCalledTimes(1);
-      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
-      expect(mockRouter.navigate).toHaveBeenCalledTimes(2);
     });
   });
 
