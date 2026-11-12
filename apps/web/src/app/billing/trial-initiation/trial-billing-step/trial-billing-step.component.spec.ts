@@ -520,5 +520,22 @@ describe("TrialBillingStepComponent", () => {
       expect(emitted?.planDescription).toContain("monthly");
       expect(emitted?.planDescription).not.toContain("annual");
     });
+
+    it("does not start a second trial on retry after the callback rejects", async () => {
+      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+      setupSubmit();
+
+      const onCreated = jest
+        .fn<Promise<void>, [OrganizationCreatedEvent]>()
+        .mockRejectedValueOnce(new Error("Rejected"))
+        .mockResolvedValue();
+      fixture.componentRef.setInput("organizationCreated", onCreated);
+
+      await expect(component["submit"]()).rejects.toThrow();
+      await component["submit"]();
+
+      expect(mockTrialBillingStepService.startTrial).toHaveBeenCalledTimes(1);
+      expect(onCreated).toHaveBeenCalledTimes(2);
+    });
   });
 });

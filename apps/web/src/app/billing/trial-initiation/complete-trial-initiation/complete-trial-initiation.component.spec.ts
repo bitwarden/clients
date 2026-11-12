@@ -420,6 +420,19 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(mockToastService.showToast).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
+
+    it("does not create a second org on retry after a navigation failure", async () => {
+      mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(
+        mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod,
+      ).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockRouter.navigate).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("orgInfoButtonLabel", () => {
@@ -497,6 +510,18 @@ describe("CompleteTrialInitiationComponent", () => {
         component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" }),
       ).rejects.toThrow(error);
     });
+
+    it("re-navigates to the existing org on retry without toasting again", async () => {
+      mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
+
+      await expect(
+        component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" }),
+      ).rejects.toThrow();
+      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
+
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockRouter.navigate).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("conditionallyCreateOrganization (free Secrets Manager organization)", () => {
@@ -547,6 +572,23 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(component.loading).toBe(false);
       expect(mockToastService.showToast).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+
+    it("does not create a second org on retry after a navigation failure", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.SecretsManager,
+        productTier: ProductTierType.Free,
+      });
+      component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
+      mockOrganizationBillingService.startFree.mockResolvedValue({ id: "sm-org-id" } as any);
+      mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
+
+      await (component as any).conditionallyCreateOrganization("user-id-123" as UserId);
+      await (component as any).conditionallyCreateOrganization("user-id-123" as UserId);
+
+      expect(mockOrganizationBillingService.startFree).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockRouter.navigate).toHaveBeenCalledTimes(2);
     });
   });
 

@@ -206,11 +206,13 @@ export class CompleteTrialInitiationComponent {
 
   /** Awaited by the billing step: shows the success toast and navigates once the org is created. */
   createdOrganization = async (event: OrganizationCreatedEvent): Promise<void> => {
-    this.orgId = event.organizationId;
-    this.billingSubLabel = event.planDescription;
-    this.trialLength > 0
-      ? this.showCompletionToast("trialStarted", "trialActive")
-      : this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    if (this.orgId === "") {
+      this.orgId = event.organizationId;
+      this.billingSubLabel = event.planDescription;
+      this.trialLength > 0
+        ? this.showCompletionToast("trialStarted", "trialActive")
+        : this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    }
     await this.navigateToOrganization();
   };
 
@@ -220,20 +222,22 @@ export class CompleteTrialInitiationComponent {
    */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
-    try {
-      const response = await this.purchaseTrialWithoutPayment(activeUserId);
+    if (this.orgId === "") {
+      try {
+        const response = await this.purchaseTrialWithoutPayment(activeUserId);
 
-      this.orgId = response.id;
-      this.billingSubLabel = response.name.toString();
-    } catch (e: unknown) {
-      this.validationService.showError(e);
-      this.loading = false;
-      return;
+        this.orgId = response.id;
+        this.billingSubLabel = response.name.toString();
+      } catch (e: unknown) {
+        this.validationService.showError(e);
+        this.loading = false;
+        return;
+      }
+
+      this.isSecretsManagerFree
+        ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
+        : this.showCompletionToast("trialStarted", "trialActive");
     }
-
-    this.isSecretsManagerFree
-      ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
-      : this.showCompletionToast("trialStarted", "trialActive");
     try {
       await this.navigateToOrganization();
     } catch (e: unknown) {
@@ -369,34 +373,37 @@ export class CompleteTrialInitiationComponent {
     }
 
     this.loading = true;
-    try {
-      const response = await this.organizationBillingService.startFree(
-        {
-          organization: {
-            name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
-            billingEmail:
-              this.orgInfoFormGroup.value.billingEmail == null
-                ? ""
-                : this.orgInfoFormGroup.value.billingEmail,
-            initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+    if (this.orgId === "") {
+      try {
+        const response = await this.organizationBillingService.startFree(
+          {
+            organization: {
+              name:
+                this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
+              billingEmail:
+                this.orgInfoFormGroup.value.billingEmail == null
+                  ? ""
+                  : this.orgInfoFormGroup.value.billingEmail,
+              initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+            },
+            plan: {
+              type: 0,
+              subscribeToSecretsManager: true,
+              isFromSecretsManagerTrial: true,
+            },
           },
-          plan: {
-            type: 0,
-            subscribeToSecretsManager: true,
-            isFromSecretsManagerTrial: true,
-          },
-        },
-        activeUserId,
-      );
+          activeUserId,
+        );
 
-      this.orgId = response.id;
-    } catch (e: unknown) {
-      this.validationService.showError(e);
-      this.loading = false;
-      return;
+        this.orgId = response.id;
+      } catch (e: unknown) {
+        this.validationService.showError(e);
+        this.loading = false;
+        return;
+      }
+
+      this.showCompletionToast("organizationCreated", "organizationReadyToGo");
     }
-
-    this.showCompletionToast("organizationCreated", "organizationReadyToGo");
     try {
       await this.navigateToOrganization();
     } catch (e: unknown) {

@@ -58,6 +58,8 @@ export class TrialBillingStepComponent implements OnInit {
 
   protected prices$!: Observable<Prices>;
 
+  private createdOrganization: OrganizationCreatedEvent | undefined;
+
   protected formGroup = new FormGroup({
     cadence: new FormControl<Cadence>(Cadences.Annually, {
       nonNullable: true,
@@ -137,48 +139,52 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   submit = async (): Promise<void> => {
-    this.formGroup.markAllAsTouched();
-    if (this.formGroup.invalid) {
-      return;
-    }
-
-    const paymentMethod = await this.enterPaymentMethodComponent().tokenize();
-    if (!paymentMethod) {
-      return;
-    }
-
-    const billingAddress = this.formGroup.controls.billingAddress.getRawValue();
-
-    const cadence = this.formGroup.value.cadence!;
-
-    const prices = await firstValueFrom(this.prices$);
-
-    let organization: OrganizationResponse;
-    try {
-      organization = await this.trialBillingStepService.startTrial(
-        this.trial(),
-        cadence,
-        billingAddress,
-        paymentMethod,
-        this.eligibleCouponIds(),
-      );
-    } catch (e: unknown) {
-      if (this.subscriptionDiscountService.isDiscountExpiredError(e)) {
-        this.subscriptionDiscountService.refresh();
-        this.toastService.showToast({
-          variant: "warning",
-          title: "",
-          message: this.i18nService.t("discountExpiredOnPurchase"),
-        });
+    if (this.createdOrganization == null) {
+      this.formGroup.markAllAsTouched();
+      if (this.formGroup.invalid) {
         return;
       }
-      throw e;
+
+      const paymentMethod = await this.enterPaymentMethodComponent().tokenize();
+      if (!paymentMethod) {
+        return;
+      }
+
+      const billingAddress = this.formGroup.controls.billingAddress.getRawValue();
+
+      const cadence = this.formGroup.value.cadence!;
+
+      const prices = await firstValueFrom(this.prices$);
+
+      let organization: OrganizationResponse;
+      try {
+        organization = await this.trialBillingStepService.startTrial(
+          this.trial(),
+          cadence,
+          billingAddress,
+          paymentMethod,
+          this.eligibleCouponIds(),
+        );
+      } catch (e: unknown) {
+        if (this.subscriptionDiscountService.isDiscountExpiredError(e)) {
+          this.subscriptionDiscountService.refresh();
+          this.toastService.showToast({
+            variant: "warning",
+            title: "",
+            message: this.i18nService.t("discountExpiredOnPurchase"),
+          });
+          return;
+        }
+        throw e;
+      }
+
+      this.createdOrganization = {
+        organizationId: organization.id,
+        planDescription: this.describeCadence(cadence, prices[cadence]!),
+      };
     }
 
-    await this.organizationCreated()({
-      organizationId: organization.id,
-      planDescription: this.describeCadence(cadence, prices[cadence]!),
-    });
+    await this.organizationCreated()(this.createdOrganization);
   };
 
   protected stepBack = () => this.steppedBack.emit();
