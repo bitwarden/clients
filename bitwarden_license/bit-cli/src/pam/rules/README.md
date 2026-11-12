@@ -2,18 +2,18 @@
 
 Access rule administration, mounted by `registerRules` as `bw pam rule`. Conventions are in [`../README.md`](../README.md).
 
-| Command                                                         | Needs                      | SDK                                           |
-| --------------------------------------------------------------- | -------------------------- | --------------------------------------------- |
-| `list --organizationid <id> [--names]`                          | any confirmed member       | `access_rules().list`                         |
-| `get <ruleId> --organizationid <id> [--names]`                  | any confirmed member       | `access_rules().get`                          |
-| `template`                                                      | feature flag only          | none                                          |
-| `create (<json>\|--file <path>) --organizationid <id>`          | `canManageAccessRules`     | `access_rules().create`                       |
-| `update <ruleId> (<json>\|--file <path>) --organizationid <id>` | `canManageAccessRules`     | `access_rules().update`, `bypassable_ciphers` |
-| `enable <ruleId> --organizationid <id>`                         | `canManageAccessRules`     | `get`, `set_enabled`                          |
-| `disable <ruleId> --organizationid <id> --yes`                  | `canManageAccessRules`     | `get`, `set_enabled`, `bypassable_ciphers`    |
-| `delete <ruleId> --organizationid <id> --yes`                   | `canManageAccessRules`     | `get`, `bypassable_ciphers`, `delete`         |
-| `bypassable <ruleId> --organizationid <id> [--names]`           | any confirmed member       | `bypassable_ciphers`                          |
-| `validate-cidr <cidr...>`                                       | feature flag only, offline | `is_valid_cidr`                               |
+| Command                                                                 | Needs                      | SDK                                                  |
+| ----------------------------------------------------------------------- | -------------------------- | ---------------------------------------------------- |
+| `list --organizationid <id> [--names]`                                  | any confirmed member       | `access_rules().list`                                |
+| `get <ruleId> --organizationid <id> [--names]`                          | any confirmed member       | `access_rules().get`                                 |
+| `template`                                                              | feature flag only          | none                                                 |
+| `create (<json>\|--file <path>) --organizationid <id>`                  | `canManageAccessRules`     | `access_rules().create`                              |
+| `update <ruleId> (<json>\|--file <path>) --organizationid <id> [--yes]` | `canManageAccessRules`     | `get`, `access_rules().update`, `bypassable_ciphers` |
+| `enable <ruleId> --organizationid <id>`                                 | `canManageAccessRules`     | `get`, `set_enabled`                                 |
+| `disable <ruleId> --organizationid <id> --yes`                          | `canManageAccessRules`     | `get`, `set_enabled`, `bypassable_ciphers`           |
+| `delete <ruleId> --organizationid <id> --yes`                           | `canManageAccessRules`     | `get`, `bypassable_ciphers`, `delete`                |
+| `bypassable <ruleId> --organizationid <id> [--names]`                   | any confirmed member       | `bypassable_ciphers`                                 |
+| `validate-cidr <cidr...>`                                               | feature flag only, offline | `is_valid_cidr`                                      |
 
 `canManageAccessRules` is Owner or Admin, or a custom role with `manageAccessRules`, in an organization that uses PAM and where the caller is not a provider user. Reads need no admin right, but every command that takes `--organizationid`, reads included, is refused before any SDK call when the organization is not one of yours ("Organization not found, or you are not a member of it.", which does not reveal whether it exists), does not use Privileged Controls ("This organization does not use Privileged Controls."), or the caller is a provider user. The server decides the rest.
 
@@ -31,7 +31,7 @@ A collection can have one rule. `create` and `update` check this against `rule l
 
 ## Disabling, updating and deleting
 
-A disabled or deleted rule stops gating its collections, which become bypass paths. `disable` and `delete` need `--yes` and never prompt. After `disable` and `update` the command runs `bypassable_ciphers` and prints a stderr warning listing collection ids (also `bypassableCollectionIds` in the response). `delete` reads the paths and the rule's collections before the delete, because a deleted rule answers an empty list, and lists them in the warning and in `ungovernedCollectionIds`. A failed bypass read never fails a write that landed. `enable` and `disable` do nothing when the rule is already in that state.
+A disabled or deleted rule stops gating its collections, which become bypass paths. `disable` and `delete` need `--yes` and never prompt. So does an `update` that weakens governance: one that disables the rule (`"enabled": false`), leaves out a collection the rule governs (so `"collections": []` from the template clears them all), or removes or loosens a condition (a dropped human approval, a dropped allowlist, or an allowlist that admits a range the old one did not). Without `--yes` the refusal names the weakening and lists the collection ids that would stop being governed, and nothing is written. An update that only adds collections or conditions, or changes other fields such as the name or lease durations, needs no `--yes`. `update` reads the rule first, and an update identical to the stored rule writes nothing and reports no warning. After `disable` and `update` the command runs `bypassable_ciphers` and prints a stderr warning listing collection ids (also `bypassableCollectionIds` in the response); for `update` the warning also lists the collections it left ungoverned. `delete` reads the paths and the rule's collections before the delete, because a deleted rule answers an empty list, and lists them in the warning and in `ungovernedCollectionIds`. A failed bypass read never fails a write that landed. `enable` and `disable` do nothing when the rule is already in that state.
 
 ## Output
 
@@ -39,4 +39,4 @@ A disabled or deleted rule stops gating its collections, which become bypass pat
 
 ## bw serve
 
-Routes under `/pam`, with `organizationid` as a query parameter: `GET /rule`, `GET /rule/:ruleId`, `GET /rule/:ruleId/bypassable`; `POST /rule` (body is the rule JSON), `POST /rule/:ruleId` (body is the rule JSON), `POST /rule/:ruleId/enable`, `POST /rule/:ruleId/disable` and `POST /rule/:ruleId/delete` (the last two need body `{"yes": true}`). Reads make the same organization pre-check as the commands (the refusal is a 400 with the message above, and no SDK call is made); writes also run the `canManageAccessRules` pre-check. There is no `--names` over serve.
+Routes under `/pam`, with `organizationid` as a query parameter: `GET /rule`, `GET /rule/:ruleId`, `GET /rule/:ruleId/bypassable`; `POST /rule` (body is the rule JSON), `POST /rule/:ruleId` (body is the rule JSON; an update that weakens governance also needs `"yes": true` in that body, which is not a rule field), `POST /rule/:ruleId/enable`, `POST /rule/:ruleId/disable` and `POST /rule/:ruleId/delete` (the last two need body `{"yes": true}`). Reads make the same organization pre-check as the commands (the refusal is a 400 with the message above, and no SDK call is made); writes also run the `canManageAccessRules` pre-check. There is no `--names` over serve.

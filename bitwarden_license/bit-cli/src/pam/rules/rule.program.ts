@@ -25,6 +25,7 @@ import { bypassWarning, RuleOperations } from "./rule-operations";
 
 type ReadOptions = PamOrganizationOptions & PamNamesOptions;
 type WriteOptions = PamOrganizationOptions & RuleInputOptions;
+type UpdateOptions = WriteOptions & PamYesOptions;
 type DestructiveOptions = PamOrganizationOptions & PamYesOptions;
 
 /**
@@ -137,13 +138,18 @@ export class RuleProgram extends PamBaseProgram {
   }
 
   private updateCommand(): Command {
-    const command = addOrganizationIdOption(
-      new Command("update")
-        .description("Replace an access rule with the given JSON.")
-        .argument("<ruleId>")
-        .argument("[json]", "The rule as JSON, or base64 of JSON. Omit it to read standard input.")
-        .option("--file <path>", "Read the rule from a file."),
-    ).action(async (ruleId: string, json: string | undefined, options: WriteOptions) => {
+    const command = addYesOption(
+      addOrganizationIdOption(
+        new Command("update")
+          .description("Replace an access rule with the given JSON.")
+          .argument("<ruleId>")
+          .argument(
+            "[json]",
+            "The rule as JSON, or base64 of JSON. Omit it to read standard input.",
+          )
+          .option("--file <path>", "Read the rule from a file."),
+      ),
+    ).action(async (ruleId: string, json: string | undefined, options: UpdateOptions) => {
       await this.runPam(
         {
           organizationId: options.organizationid,
@@ -156,9 +162,10 @@ export class RuleProgram extends PamBaseProgram {
             ctx.organizationId!,
             ruleId,
             input,
+            options.yes === true,
           );
           if (result.changed) {
-            this.warn(bypassWarning("updated", result.bypassable));
+            this.warn(bypassWarning("updated", result.bypassable, result.ungoverned));
           }
           return result.response;
         },
@@ -167,8 +174,12 @@ export class RuleProgram extends PamBaseProgram {
     return addPamHelp(command, {
       notes: [
         "The JSON replaces the whole rule, including its collections: any collection left out is no longer governed. Every field except the optional durations and description must be stated.",
+        "An update that disables the rule, removes collections, or removes or loosens a condition weakens governance and needs --yes. Any other update does not.",
       ],
-      examples: ["bw pam rule update <ruleId> --file rule.json --organizationid <organizationId>"],
+      examples: [
+        "bw pam rule update <ruleId> --file rule.json --organizationid <organizationId>",
+        "bw pam rule update <ruleId> --file rule.json --organizationid <organizationId> --yes",
+      ],
     });
   }
 

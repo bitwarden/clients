@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccessRulesService } from "@bitwarden/bit-common/pam/rules";
+import { PamSdkService } from "@bitwarden/bit-common/pam/shared/pam-sdk.service";
 import {
   createPamSdkTestKit,
   PAM_TEST_ORGANIZATION_ID,
@@ -34,10 +35,14 @@ describe("rules serve routes", () => {
   let get: jest.SpyInstance;
   let bypassable: jest.SpyInstance;
 
-  const call = async (key: string, query: Record<string, string>): Promise<Reply> => {
+  const call = async (
+    key: string,
+    query: Record<string, string>,
+    body: unknown = {},
+  ): Promise<Reply> => {
     const response: Reply = {};
     await handlers.get(key)!(
-      { response, params: { ruleId: RULE_ID }, query, request: { body: {} } },
+      { response, params: { ruleId: RULE_ID }, query, request: { body } },
       async () => undefined,
     );
     return response;
@@ -110,6 +115,75 @@ describe("rules serve routes", () => {
     const reply = await call("POST /pam/rule/:ruleId/enable", query);
 
     expect(reply.body?.message).toBe("This organization does not use Privileged Controls.");
+  });
+
+  describe("POST /pam/rule/:ruleId", () => {
+    const C1 = "33333333-3333-4333-8333-333333333333";
+    const rule = (overrides: Record<string, unknown> = {}) => ({
+      name: "r",
+      enabled: true,
+      conditions: [{ kind: "human_approval" }],
+      singleActiveLease: false,
+      allowsExtensions: false,
+      collections: [C1],
+      ...overrides,
+    });
+    let write: jest.SpyInstance;
+
+    beforeEach(() => {
+      organization = pamTestOrganization({ type: OrganizationUserType.Admin });
+      jest.spyOn(AccessRulesService.prototype, "get").mockResolvedValue({
+        ...rule(),
+        id: RULE_ID,
+        organizationId: PAM_TEST_ORGANIZATION_ID,
+      } as never);
+      list.mockResolvedValue([]);
+      bypassable.mockResolvedValue([]);
+      write = jest.spyOn(PamSdkService.prototype, "run").mockResolvedValue({
+        ...rule(),
+        id: RULE_ID,
+        organizationId: PAM_TEST_ORGANIZATION_ID,
+        collections: [],
+      } as never);
+    });
+
+    it('requires "yes": true for an update that weakens governance, and writes nothing', async () => {
+      const reply = await call("POST /pam/rule/:ruleId", query, rule({ collections: [] }));
+
+      expect(reply.status).toBe(400);
+      expect(reply.body?.message).toContain("--yes");
+      expect(reply.body?.message).toContain(C1);
+      expect(write).not.toHaveBeenCalled();
+    });
+
+    it("does not take a non-true yes as confirmation", async () => {
+      const reply = await call(
+        "POST /pam/rule/:ruleId",
+        query,
+        rule({ enabled: false, yes: "true" }),
+      );
+
+      expect(reply.body?.success).toBe(false);
+      expect(write).not.toHaveBeenCalled();
+    });
+
+    it('applies a weakening update with "yes": true, which is not a rule field', async () => {
+      const reply = await call(
+        "POST /pam/rule/:ruleId",
+        query,
+        rule({ collections: [], yes: true }),
+      );
+
+      expect(reply.body?.success).toBe(true);
+      expect(write).toHaveBeenCalled();
+    });
+
+    it("applies a non-weakening update without yes", async () => {
+      const reply = await call("POST /pam/rule/:ruleId", query, rule({ name: "renamed" }));
+
+      expect(reply.body?.success).toBe(true);
+      expect(write).toHaveBeenCalled();
+    });
   });
 
   it("lets a PAM organization read", async () => {

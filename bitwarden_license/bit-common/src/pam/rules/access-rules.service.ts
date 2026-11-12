@@ -23,6 +23,94 @@ export interface AccessRuleWriteResult {
   bypassable: string[] | undefined;
 }
 
+/** What an update takes away from a rule's governance. Empty `weakenings` means it takes nothing away. */
+export interface AccessRuleUpdateImpact {
+  /** Human-readable reasons, one per way the update weakens the rule. */
+  weakenings: string[];
+  /** Collections that stop being governed: the removed ones, or all of them when the rule is disabled. */
+  ungoverned: string[];
+  /** True when the request equals the current rule, so there is nothing to write. */
+  unchanged: boolean;
+}
+
+/** An update, or the weakenings it needs confirmation for before anything is written. */
+export type AccessRuleUpdateResult =
+  | { needsConfirmation: AccessRuleUpdateImpact }
+  | (AccessRuleWriteResult & { ungoverned: string[] });
+
+function conditionKey(condition: { kind: string; cidrs?: readonly string[] }): string {
+  return condition.kind === "ip_allowlist"
+    ? `ip_allowlist:${[...(condition.cidrs ?? [])]
+        .map((c) => c.toLowerCase())
+        .sort()
+        .join(",")}`
+    : condition.kind;
+}
+
+/**
+ * Compares `request` with the rule it replaces. An update weakens governance when it disables the
+ * rule, drops a collection, or removes or loosens a condition: a human approval that is gone, an
+ * allowlist that is gone or admits a range the old one did not, or a kind this CLI cannot carry
+ * over. Other changes, such as lease durations, are not judged.
+ */
+export function assessRuleUpdate(
+  current: AccessRuleView,
+  request: AccessRuleAddEditRequest,
+): AccessRuleUpdateImpact {
+  const weakenings: string[] = [];
+  const currentCollections = current.collections.map((c) => String(c).toLowerCase());
+  const requested = new Set(request.collections.map((c) => String(c).toLowerCase()));
+  const removed = currentCollections.filter((c) => !requested.has(c));
+  const disables = current.enabled && !request.enabled;
+
+  if (disables) {
+    weakenings.push("disables the rule");
+  }
+  if (removed.length > 0) {
+    weakenings.push(`removes ${removed.length} collection(s) from the rule`);
+  }
+
+  const requestedAllowlists = request.conditions.flatMap((c) =>
+    c.kind === "ip_allowlist" ? [new Set(c.cidrs.map((x) => x.toLowerCase()))] : [],
+  );
+  const requestedHumanApproval = request.conditions.some((c) => c.kind === "human_approval");
+  const loosened = current.conditions.some((c) => {
+    if (c.kind === "human_approval") {
+      return !requestedHumanApproval;
+    }
+    if (c.kind === "ip_allowlist") {
+      const old = new Set(c.cidrs.map((x) => x.toLowerCase()));
+      return !requestedAllowlists.some((list) => [...list].every((cidr) => old.has(cidr)));
+    }
+    return true;
+  });
+  if (loosened) {
+    weakenings.push("removes or loosens a condition");
+  }
+
+  const same =
+    current.name === request.name &&
+    (current.description ?? undefined) === (request.description ?? undefined) &&
+    current.enabled === request.enabled &&
+    current.singleActiveLease === request.singleActiveLease &&
+    (current.defaultLeaseDurationSeconds ?? undefined) ===
+      (request.defaultLeaseDurationSeconds ?? undefined) &&
+    (current.maxLeaseDurationSeconds ?? undefined) ===
+      (request.maxLeaseDurationSeconds ?? undefined) &&
+    current.allowsExtensions === request.allowsExtensions &&
+    (current.maxExtensionDurationSeconds ?? undefined) ===
+      (request.maxExtensionDurationSeconds ?? undefined) &&
+    [...requested].sort().join() === [...new Set(currentCollections)].sort().join() &&
+    current.conditions.map(conditionKey).sort().join("|") ===
+      request.conditions.map(conditionKey).sort().join("|");
+
+  return {
+    weakenings,
+    ungoverned: disables ? currentCollections : removed,
+    unchanged: same,
+  };
+}
+
 /**
  * The collections of `request` that another rule already governs, as `[collectionId, ruleId]`.
  * A collection is governed by at most one rule, so a create or update that names one would be
@@ -89,21 +177,36 @@ export class AccessRulesService {
     return await this.pam.run(userId, (pam) => pam.access_rules().create(org, request));
   }
 
-  /** Updates a rule, replacing its whole collection set, then reads the bypass paths. */
+  /**
+   * Updates a rule, replacing its whole collection set, then reads the bypass paths. The current
+   * rule is read first: an identical request writes nothing, and one that weakens governance
+   * (see `assessRuleUpdate`) is returned as `needsConfirmation` unless `confirmed`, with nothing
+   * written.
+   */
   async update(
     userId: UserId,
     organizationId: string,
     ruleId: string,
     request: AccessRuleAddEditRequest,
-  ): Promise<AccessRuleWriteResult> {
+    confirmed: boolean,
+  ): Promise<AccessRuleUpdateResult> {
     const org = toSdkId<OrganizationId>(organizationId, "organization id");
     const id = toSdkId<AccessRuleId>(ruleId, "rule id");
+    const current = await this.get(userId, organizationId, ruleId);
+    const impact = assessRuleUpdate(current, request);
+    if (impact.unchanged) {
+      return { rule: current, changed: false, bypassable: undefined, ungoverned: [] };
+    }
     await this.refuseGovernedCollections(userId, organizationId, request.collections, ruleId);
+    if (impact.weakenings.length > 0 && !confirmed) {
+      return { needsConfirmation: impact };
+    }
     const rule = await this.pam.run(userId, (pam) => pam.access_rules().update(org, id, request));
     return {
       rule,
       changed: true,
       bypassable: await this.tryBypassable(userId, organizationId, ruleId),
+      ungoverned: impact.ungoverned,
     };
   }
 

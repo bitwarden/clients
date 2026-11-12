@@ -25,7 +25,7 @@ function bodyObject(body: unknown): Record<string, unknown> {
  * Registers the `bw serve` routes of the rules group, under `/pam`. The organization is the
  * `organizationid` query parameter. `GET` reads and `POST` writes; `create` and `update` take the
  * rule JSON as the body. `disable` and `delete` need `{"yes": true}` in the body, as the commands
- * need `--yes`. Nothing here returns a secret.
+ * need `--yes`, and so does an `update` that weakens governance. Nothing here returns a secret.
  *
  * - `GET /pam/rule`, `GET /pam/rule/:ruleId`, `GET /pam/rule/:ruleId/bypassable`
  * - `POST /pam/rule`, `POST /pam/rule/:ruleId`, `POST /pam/rule/:ruleId/enable`,
@@ -87,7 +87,15 @@ export function registerServeRoutes(router: Router, container: ServiceContainer)
     method: "POST",
     path: "/rule/:ruleId",
     handler: write(async (r, org) => {
-      const result = await operations.update(r.userId, org, r.params.ruleId, r.body);
+      // `yes` rides in the rule body, but is not a field of a rule, which the parser would refuse.
+      const { yes, ...rule } = bodyObject(r.body);
+      const result = await operations.update(
+        r.userId,
+        org,
+        r.params.ruleId,
+        typeof r.body === "object" && r.body !== null && !Array.isArray(r.body) ? rule : r.body,
+        yes === true,
+      );
       return result.response;
     }),
   });

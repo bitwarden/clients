@@ -23,6 +23,7 @@ import {
   createPamNameResolver,
   createPamSdkService,
   PamOrganizationRequirement,
+  requireYes,
 } from "../shared";
 
 import { isValidCidr } from "./cidr";
@@ -110,23 +111,41 @@ export class RuleOperations {
     return Response.success(this.toResponse(rule, PAM_IDS_ONLY, false));
   }
 
+  /**
+   * Updates a rule. An update that weakens governance (disables the rule, drops collections, or
+   * removes or loosens a condition) is refused with the `--yes` message unless `yes`, and nothing
+   * is written; any other update needs no confirmation.
+   */
   async update(
     userId: UserId,
     organizationId: string,
     ruleId: string,
     input: unknown,
-  ): Promise<{ response: Response; bypassable?: string[]; changed: boolean }> {
+    yes: boolean,
+  ): Promise<{
+    response: Response;
+    bypassable?: string[];
+    changed: boolean;
+    ungoverned: string[];
+  }> {
     const request = parseAccessRuleRequest(input, isValidCidr);
-    const { rule, bypassable, changed } = await this.service.update(
-      userId,
-      organizationId,
-      ruleId,
-      request,
-    );
+    const result = await this.service.update(userId, organizationId, ruleId, request, yes);
+    if ("needsConfirmation" in result) {
+      const { weakenings, ungoverned } = result.needsConfirmation;
+      const exposed =
+        ungoverned.length > 0 ? ` (no longer governed: ${ungoverned.join(", ")})` : "";
+      const refusal = requireYes(
+        { yes: false },
+        `update this rule, which weakens its governance: ${weakenings.join("; ")}${exposed}`,
+      );
+      return { response: refusal!, changed: false, ungoverned: [] };
+    }
+    const { rule, bypassable, changed, ungoverned } = result;
     return {
       response: Response.success(this.toResponse(rule, PAM_IDS_ONLY, false, bypassable)),
       bypassable,
       changed,
+      ungoverned,
     };
   }
 
@@ -230,9 +249,20 @@ export function bypassWarning(
   if (exposed.length === 0) {
     return undefined;
   }
-  const why =
-    action === "deleted"
-      ? "are no longer governed, so their ciphers need no lease"
-      : "can give access to the rule's ciphers without a lease";
-  return `Warning: the rule was ${action}. These collections ${why}: ${exposed.join(", ")}.`;
+  if (action === "deleted") {
+    return `Warning: the rule was deleted. These collections are no longer governed, so their ciphers need no lease: ${exposed.join(", ")}.`;
+  }
+  const sentences: string[] = [];
+  if (ungoverned.length > 0) {
+    sentences.push(
+      `These collections are no longer governed, so their ciphers need no lease: ${ungoverned.join(", ")}.`,
+    );
+  }
+  const others = (bypassable ?? []).filter((c) => !ungoverned.includes(c));
+  if (others.length > 0) {
+    sentences.push(
+      `These collections can give access to the rule's ciphers without a lease: ${[...new Set(others)].join(", ")}.`,
+    );
+  }
+  return `Warning: the rule was ${action}. ${sentences.join(" ")}`;
 }

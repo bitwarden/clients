@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccessRulesService } from "@bitwarden/bit-common/pam/rules";
+import { PamSdkService } from "@bitwarden/bit-common/pam/shared/pam-sdk.service";
 import {
   PAM_TEST_ORGANIZATION_ID,
   PAM_TEST_USER_ID,
@@ -143,6 +144,66 @@ describe("RuleProgram", () => {
       await run(verb, "44444444-4444-4444-8444-444444444444", ...org);
       expect(stderr).toHaveBeenCalledWith(expect.stringContaining("--yes"));
     }
+  });
+
+  describe("update", () => {
+    const RULE_ID = "44444444-4444-4444-8444-444444444444";
+    const C1 = "33333333-3333-4333-8333-333333333333";
+    const rule = (overrides: Record<string, unknown> = {}) =>
+      JSON.stringify({
+        name: "r",
+        enabled: true,
+        conditions: [{ kind: "human_approval" }],
+        singleActiveLease: false,
+        allowsExtensions: false,
+        collections: [C1],
+        ...overrides,
+      });
+    const current = {
+      id: RULE_ID,
+      organizationId: PAM_TEST_ORGANIZATION_ID,
+      name: "r",
+      enabled: true,
+      conditions: [{ kind: "human_approval" }],
+      singleActiveLease: false,
+      allowsExtensions: false,
+      collections: [C1],
+    };
+    // The only SDK call left unmocked is the write itself, so this is the write spy.
+    let write: jest.SpyInstance;
+
+    beforeEach(() => {
+      organization = pamTestOrganization({ type: OrganizationUserType.Admin });
+      jest.spyOn(AccessRulesService.prototype, "get").mockResolvedValue(current as never);
+      jest.spyOn(AccessRulesService.prototype, "list").mockResolvedValue([]);
+      jest.spyOn(AccessRulesService.prototype, "bypassable").mockResolvedValue([]);
+      write = jest.spyOn(PamSdkService.prototype, "run").mockResolvedValue({
+        ...current,
+        collections: [],
+      } as never);
+    });
+
+    it("refuses a weakening update without --yes and writes nothing", async () => {
+      await run("update", RULE_ID, rule({ collections: [] }), ...org);
+      expect(process.exitCode).toBe(1);
+      expect(stderr.mock.calls.join("")).toContain("--yes");
+      expect(stderr.mock.calls.join("")).toContain(C1);
+      expect(write).not.toHaveBeenCalled();
+    });
+
+    it("allows a weakening update with --yes and warns with the ungoverned collections", async () => {
+      await run("update", RULE_ID, rule({ collections: [] }), ...org, "--yes");
+      expect(process.exitCode).not.toBe(1);
+      expect(write).toHaveBeenCalled();
+      expect(stderr.mock.calls.join("")).toContain("no longer governed");
+      expect(stderr.mock.calls.join("")).toContain(C1);
+    });
+
+    it("needs no --yes for a non-weakening update", async () => {
+      await run("update", RULE_ID, rule({ name: "renamed" }), ...org);
+      expect(process.exitCode).not.toBe(1);
+      expect(write).toHaveBeenCalled();
+    });
   });
 
   it("requires --organizationid", async () => {

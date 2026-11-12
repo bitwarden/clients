@@ -52,19 +52,131 @@ describe("AccessRulesService", () => {
     expect(client.create).toHaveBeenCalled();
   });
 
-  it("skips the rule being updated in the conflict check, then reads bypass paths", async () => {
-    client.list.mockResolvedValue([view({ collections: [C1 as never] })]);
-    client.update.mockResolvedValue(view());
-    client.bypassable_ciphers.mockResolvedValue([C2 as never]);
-    const result = await service.update(user, org, RULE_ID, request([C1]));
-    expect(result).toMatchObject({ changed: true, bypassable: [C2] });
-  });
+  describe("update", () => {
+    const ALLOWLIST = { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] };
+    const current = (overrides: Partial<AccessRuleView> = {}) =>
+      view({
+        name: "r",
+        enabled: true,
+        collections: [C1 as never],
+        conditions: [{ kind: "human_approval" }, ALLOWLIST] as never,
+        singleActiveLease: false,
+        allowsExtensions: false,
+        ...overrides,
+      });
+    const next = (overrides: Record<string, unknown> = {}) =>
+      ({
+        name: "r",
+        enabled: true,
+        collections: [C1],
+        conditions: [{ kind: "human_approval" }, ALLOWLIST],
+        singleActiveLease: false,
+        allowsExtensions: false,
+        ...overrides,
+      }) as unknown as AccessRuleAddEditRequest;
 
-  it("keeps a landed update when the bypass read fails", async () => {
-    client.list.mockResolvedValue([]);
-    client.update.mockResolvedValue(view());
-    client.bypassable_ciphers.mockRejectedValue(new Error("x"));
-    expect((await service.update(user, org, RULE_ID, request([]))).bypassable).toBeUndefined();
+    beforeEach(() => {
+      client.list.mockResolvedValue([]);
+      client.update.mockResolvedValue(view());
+      client.bypassable_ciphers.mockResolvedValue([]);
+    });
+
+    it("skips the rule being updated in the conflict check, then reads bypass paths", async () => {
+      client.get.mockResolvedValue(current());
+      client.list.mockResolvedValue([view({ collections: [C1 as never] })]);
+      client.bypassable_ciphers.mockResolvedValue([C2 as never]);
+      const result = await service.update(user, org, RULE_ID, next({ name: "renamed" }), false);
+      expect(result).toMatchObject({ changed: true, bypassable: [C2], ungoverned: [] });
+    });
+
+    it("keeps a landed update when the bypass read fails", async () => {
+      client.get.mockResolvedValue(current());
+      client.bypassable_ciphers.mockRejectedValue(new Error("x"));
+      const result = await service.update(user, org, RULE_ID, next({ name: "n" }), false);
+      expect(result).toMatchObject({ changed: true, bypassable: undefined });
+    });
+
+    it("writes nothing and reports unchanged for an identical request", async () => {
+      client.get.mockResolvedValue(current());
+      const result = await service.update(user, org, RULE_ID, next(), false);
+      expect(result).toMatchObject({ changed: false });
+      expect(client.update).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["disables the rule", { enabled: false }],
+      ["removes 1 collection(s)", { collections: [] }],
+      ["removes or loosens a condition", { conditions: [{ kind: "human_approval" }] }],
+      ["removes or loosens a condition", { conditions: [ALLOWLIST] }],
+      [
+        "removes or loosens a condition",
+        {
+          conditions: [
+            { kind: "human_approval" },
+            { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "0.0.0.0/0"] },
+          ],
+        },
+      ],
+    ])("needs confirmation when it %s, and writes nothing", async (reason, change) => {
+      client.get.mockResolvedValue(current());
+      const result = await service.update(user, org, RULE_ID, next(change), false);
+      expect(result).toMatchObject({
+        needsConfirmation: { weakenings: [expect.stringContaining(reason)] },
+      });
+      expect(client.update).not.toHaveBeenCalled();
+    });
+
+    it("lists the removed collections as ungoverned, and all of them when it disables", async () => {
+      client.get.mockResolvedValue(current({ collections: [C1 as never, C2 as never] }));
+      const removed = await service.update(user, org, RULE_ID, next({ collections: [C2] }), false);
+      expect(removed).toMatchObject({ needsConfirmation: { ungoverned: [C1] } });
+      const disabled = await service.update(
+        user,
+        org,
+        RULE_ID,
+        next({ enabled: false, collections: [C1, C2] }),
+        false,
+      );
+      expect(disabled).toMatchObject({ needsConfirmation: { ungoverned: [C1, C2] } });
+    });
+
+    it("writes a weakening update when confirmed, and reports what it ungoverned", async () => {
+      client.get.mockResolvedValue(current());
+      const result = await service.update(user, org, RULE_ID, next({ collections: [] }), true);
+      expect(client.update).toHaveBeenCalled();
+      expect(result).toMatchObject({ changed: true, ungoverned: [C1] });
+    });
+
+    it("lets a non-weakening change through without confirmation", async () => {
+      client.get.mockResolvedValue(current({ collections: [] }));
+      const result = await service.update(
+        user,
+        org,
+        RULE_ID,
+        next({
+          collections: [C2],
+          conditions: [
+            { kind: "human_approval" },
+            ALLOWLIST,
+            { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
+          ],
+          singleActiveLease: true,
+        }),
+        false,
+      );
+      expect(result).toMatchObject({ changed: true });
+      expect(client.update).toHaveBeenCalled();
+    });
+
+    it("refuses a collection another rule governs before asking for confirmation", async () => {
+      client.get.mockResolvedValue(current());
+      client.list.mockResolvedValue([
+        view({ id: OTHER_RULE_ID as never, collections: [C2 as never] }),
+      ]);
+      await expect(
+        service.update(user, org, RULE_ID, next({ enabled: false, collections: [C2] }), false),
+      ).rejects.toThrow(/already governed/);
+    });
   });
 
   it("disables via set_enabled after a get and reports bypass paths", async () => {
