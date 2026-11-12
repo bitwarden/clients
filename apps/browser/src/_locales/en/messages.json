@@ -9316,5 +9316,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Access requested"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Not now",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "month"
   }
 }

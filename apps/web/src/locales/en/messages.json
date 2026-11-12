@@ -21873,5 +21873,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

@@ -1,0 +1,111 @@
+<ng-template #body>
+  @if (image; as image) {
+    <img
+      class="tw-mx-auto tw-mb-4 tw-block tw-max-w-full"
+      alt=""
+      [src]="image.light"
+      [appDarkImgSrc]="image.dark"
+    />
+  }
+  <p bitTypography="body1" class="tw-text-muted">{{ options.descriptionKey | i18n }}</p>
+  @if (options.unlockedFeatureKeys?.length) {
+    <ul class="tw-m-0 tw-mb-3 tw-list-none tw-p-0">
+      @for (key of options.unlockedFeatureKeys; track key) {
+        <li class="tw-mb-2 tw-flex tw-items-center tw-gap-3">
+          <bit-icon name="bwi-check" class="tw-text-xl tw-text-main"></bit-icon>
+          <span bitTypography="body1">{{ key | i18n }}</span>
+        </li>
+      }
+    </ul>
+  }
+</ng-template>
+
+<ng-template #priceLine>
+  @if (monthlyPrice(); as price) {
+    <p
+      class="tw-mb-0 tw-text-muted"
+      [bitTypography]="sheet ? 'helper' : 'body2'"
+      data-testid="premium-upgrade-nudge-price"
+      [class.tw-text-center]="sheet"
+    >
+      <span [class.tw-font-semibold]="sheet">{{ price | currency: "$" }}</span>
+      / {{ "month" | i18n }}
+      <span aria-hidden="true">&middot;</span>
+      {{ "cancelAnytime" | i18n }}
+      @if (externalCheckout) {
+        <span aria-hidden="true">&middot;</span>
+        {{ "secureCheckoutViaStripe" | i18n }}
+      }
+    </p>
+  }
+</ng-template>
+
+<bit-dialog [title]="options.titleKey | i18n">
+  <span
+    bitDialogTitle
+    bitBadge
+    variant="primary"
+    startIcon="bwi-premium"
+    class="tw-ms-2 tw-align-middle"
+    [truncate]="false"
+  >
+    {{ "premium" | i18n }}
+  </span>
+  <div bitDialogContent>
+    <ng-container [ngTemplateOutlet]="body" />
+    @if (sheet) {
+      <button
+        id="premium-upgrade-nudge_button_upgrade"
+        type="button"
+        bitButton
+        buttonType="primary"
+        endIcon="bwi-external-link"
+        [block]="true"
+        [bitAction]="upgrade"
+      >
+        {{ "upgradeToPremium" | i18n }}
+      </button>
+      <div class="tw-my-3">
+        <ng-container [ngTemplateOutlet]="priceLine" />
+      </div>
+      <button
+        id="premium-upgrade-nudge_button_dismiss"
+        type="button"
+        bitButton
+        buttonType="subtleGhost"
+        [block]="true"
+        (click)="dismiss()"
+      >
+        {{ "notNow" | i18n }}
+      </button>
+    } @else {
+      <ng-container [ngTemplateOutlet]="priceLine" />
+      <div
+        class="tw--mx-6 tw-mt-4 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-100"
+      ></div>
+    }
+  </div>
+  @if (!sheet) {
+    <ng-container bitDialogFooter>
+      <button
+        id="premium-upgrade-nudge_button_upgrade"
+        type="button"
+        bitButton
+        buttonType="primary"
+        [endIcon]="externalCheckout ? 'bwi-external-link' : undefined"
+        [bitAction]="upgrade"
+      >
+        {{ "upgradeToPremium" | i18n }}
+      </button>
+      <button
+        id="premium-upgrade-nudge_button_dismiss"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        (click)="dismiss()"
+      >
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  }
+</bit-dialog>
