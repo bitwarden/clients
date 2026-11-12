@@ -22,6 +22,7 @@ import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   GroupApiService,
   GroupView,
+  OrganizationUserView,
 } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
@@ -409,6 +410,33 @@ describe("MemberAccessReportService", () => {
             usesKeyConnector: true,
           }),
         ]),
+      );
+    });
+
+    it("includes each member's full organization user view for the edit member dialog", async () => {
+      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([]));
+      mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [
+          createMockOrganizationUser("user-1", "user1@test.com", "User One", {
+            usesKeyConnector: true,
+            groups: ["group-1"],
+          }),
+        ],
+      } as ListResponse<OrganizationUserUserDetailsResponse>);
+      mockCipherService.getAllFromApiForOrganization.mockResolvedValue([] as CipherView[]);
+
+      const [row] =
+        await memberAccessReportService.generateMemberAccessReportViewV2(mockOrganizationId);
+
+      expect(row.member).toBeInstanceOf(OrganizationUserView);
+      expect(row.member).toEqual(
+        expect.objectContaining({
+          id: "user-1",
+          email: "user1@test.com",
+          name: "User One",
+          usesKeyConnector: true,
+          groups: ["group-1"],
+        }),
       );
     });
 

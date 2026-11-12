@@ -2,7 +2,7 @@
   <span bitDialogTitle>
     {{ (readonly ? "viewMember" : "editMember") | i18n }}
     @if (!loading()) {
-      <span class="tw-text-sm tw-normal-case tw-text-muted">{{ memberInfo.name }}</span>
+      <span class="tw-text-sm tw-normal-case tw-text-muted">{{ memberName }}</span>
     }
   </span>
   @if (isRevoked()) {
@@ -35,7 +35,7 @@
             @if (!readonly) {
               @if (emailEditable()) {
                 <bit-hint>{{ "emailUpdateOnSave" | i18n }}</bit-hint>
-              } @else if (!memberInfo.claimedByOrganization) {
+              } @else if (!member.claimedByOrganization) {
                 <bit-hint>{{ "emailNotClaimedHint" | i18n }}</bit-hint>
               } @else {
                 <bit-hint>{{ "emailHasMasterPasswordHint" | i18n }}</bit-hint>
@@ -333,7 +333,7 @@
             {{ "revokeMember" | i18n }}
           </button>
         }
-        @if (!memberInfo.claimedByOrganization) {
+        @if (!member.claimedByOrganization) {
           <button
             type="button"
             bitMenuItem
@@ -344,7 +344,7 @@
             {{ "removeMember" | i18n }}
           </button>
         }
-        @if (memberInfo.claimedByOrganization) {
+        @if (member.claimedByOrganization) {
           <button
             type="button"
             bitMenuItem

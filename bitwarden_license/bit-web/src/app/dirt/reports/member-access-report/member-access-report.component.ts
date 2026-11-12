@@ -10,9 +10,13 @@ import {
   CollectionAdminService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
-import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -80,6 +84,8 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 })
 export class MemberAccessReportComponent implements OnInit {
   private readonly configService = inject(ConfigService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
 
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
@@ -100,7 +106,6 @@ export class MemberAccessReportComponent implements OnInit {
     protected reportService: MemberAccessReportService,
     protected fileDownloadService: FileDownloadService,
     protected dialogService: DialogService,
-    protected userNamePipe: UserNamePipe,
     protected billingApiService: BillingApiServiceAbstraction,
     protected organizationMetadataService: OrganizationMetadataServiceAbstraction,
     private logService: LogService,
@@ -178,12 +183,21 @@ export class MemberAccessReportComponent implements OnInit {
   };
 
   edit = async (user: MemberAccessReportView): Promise<void> => {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
+
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
-        name: this.userNamePipe.transform(user),
+        // The report loads for admins who can recover accounts but not manage users. They can
+        // view the member but not edit them, and can't read a single member, so the dialog
+        // reads the member from the report instead.
+        member: user.member,
+        readonly: !organization.canManageUsers,
         organizationId: this.organizationId,
-        organizationUserId: user.userGuid,
-        usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: MemberDialogTab.Details,
       },

@@ -51,9 +51,7 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
 import {
-  EditMemberByIdDialogParams,
   EditMemberDialogParams,
-  EditMemberFromListDialogParams,
   MemberDialogResult,
   MemberDialogTab,
 } from "../member-dialog/member-dialog.types";
@@ -101,8 +99,8 @@ function buildUserDetails(
     groups: [],
     type: overrides.type ?? OrganizationUserType.User,
     status: OrganizationUserStatusType.Confirmed,
-    externalId: overrides.externalId ?? "",
-    ssoExternalId: overrides.ssoExternalId ?? "",
+    externalId: overrides.externalId,
+    ssoExternalId: overrides.ssoExternalId,
     permissions: overrides.permissions ?? new PermissionsApi(),
     accessSecretsManager: false,
     accessPam: false,
@@ -138,9 +136,9 @@ function buildListMember(overrides: MemberOverrides = {}): OrganizationUserView 
 }
 
 function defaultParams(
-  overrides: Partial<EditMemberFromListDialogParams> = {},
+  overrides: Partial<EditMemberDialogParams> = {},
   memberOverrides: MemberOverrides = {},
-): EditMemberFromListDialogParams {
+): EditMemberDialogParams {
   return {
     organizationId: ORG_ID,
     member: buildListMember(memberOverrides),
@@ -666,22 +664,12 @@ describe("EditMemberDialogComponent", () => {
       expect((component as any).formGroup.controls.name.value).toBe("Profile Name");
     });
 
-    it("loads the member by ID and leaves name and email empty when opened without a member", async () => {
-      const params: EditMemberByIdDialogParams = {
-        organizationId: ORG_ID,
-        organizationUserId: USER_ID,
-        name: "Test User",
-        usesKeyConnector: false,
-        isOnSecretsManagerStandalone: false,
-        initialTab: MemberDialogTab.Details,
-      };
-      const { component, mocks } = await createComponent(params);
+    it("loads the member's details by their ID when not readonly", async () => {
+      const { mocks } = await createComponent(defaultParams());
 
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mocks.userAdminService.get).toHaveBeenCalledWith(ORG_ID, USER_ID);
-      expect((component as any).formGroup.controls.name.value).toBe("");
-      expect((component as any).formGroup.controls.email.value).toBe("");
     });
 
     it("submit error toast uses 'details' tab label when form invalid and not on Details tab", async () => {
@@ -1104,6 +1092,13 @@ describe("EditMemberDialogComponent", () => {
       expect(mocks.userAdminService.get).not.toHaveBeenCalled();
       expect(component.loading()).toBe(false);
       expect((component as any).formGroup.controls.type.value).toBe(OrganizationUserType.Admin);
+    });
+
+    it("hides the external ID fields, since the members list doesn't carry them", async () => {
+      const { fixture } = await createReadonly();
+
+      expect(fixture.nativeElement.querySelector("#edit-member_input_external-id")).toBeNull();
+      expect(fixture.nativeElement.querySelector("#edit-member_input_sso-external-id")).toBeNull();
     });
 
     it("reads group names instead of group details", async () => {

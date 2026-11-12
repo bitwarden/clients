@@ -35,11 +35,7 @@ import {
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
-import {
-  EditMemberDialogParams,
-  EditMemberFromListDialogParams,
-  MemberDialogTab,
-} from "../member-dialog/member-dialog.types";
+import { EditMemberDialogParams, MemberDialogTab } from "../member-dialog/member-dialog.types";
 
 import { EditMemberDialogComponent } from "./edit-member-dialog.component";
 
@@ -107,9 +103,9 @@ function listMember(
 }
 
 function defaultParams(
-  overrides: Partial<EditMemberFromListDialogParams> = {},
+  overrides: Partial<EditMemberDialogParams> = {},
   memberOverrides: Parameters<typeof listMember>[0] = {},
-): EditMemberFromListDialogParams {
+): EditMemberDialogParams {
   return {
     organizationId: ORG_ID,
     member: listMember(memberOverrides),

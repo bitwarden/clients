@@ -22,7 +22,10 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
-import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import {
+  GroupApiService,
+  OrganizationUserView,
+} from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
   getPermissionList,
   convertToPermission,
@@ -31,7 +34,10 @@ import {
 
 import { MemberAccessResponse } from "../response/member-access-report.response";
 import { MemberAccessExportItem } from "../view/member-access-export.view";
-import { MemberAccessReportView } from "../view/member-access-report.view";
+import {
+  MemberAccessReportView,
+  MemberAccessReportViewV1,
+} from "../view/member-access-report.view";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 
@@ -53,6 +59,7 @@ interface OrganizationUserData {
   usesKeyConnector: boolean;
   resetPasswordEnrolled: boolean;
   userIdFromOrgUser: string | null; // userId from organization user endpoint (may be null for some users, e.g. pending invites)
+  member: OrganizationUserView;
 }
 
 interface MemberCipherAccess {
@@ -96,7 +103,7 @@ export class MemberAccessReportService {
    */
   async generateMemberAccessReportView(
     organizationId: OrganizationId,
-  ): Promise<MemberAccessReportView[]> {
+  ): Promise<MemberAccessReportViewV1[]> {
     const memberAccessData = await this.reportApiService.getMemberAccessData(organizationId);
 
     // group member access data by userGuid
@@ -110,7 +117,7 @@ export class MemberAccessReportService {
     });
 
     // aggregate user data
-    const memberAccessReportViewCollection: MemberAccessReportView[] = [];
+    const memberAccessReportViewCollection: MemberAccessReportViewV1[] = [];
     userMap.forEach((userDataArray, userGuid) => {
       const collectionCount = this.getDistinctCount<string>(
         userDataArray.map((data) => data.collectionId).filter((id) => !!id),
@@ -305,6 +312,7 @@ export class MemberAccessReportService {
           usesKeyConnector: orgUser.usesKeyConnector || false,
           resetPasswordEnrolled: orgUser.resetPasswordEnrolled || false,
           userIdFromOrgUser: orgUser.userId || null,
+          member: OrganizationUserView.fromResponse(orgUser),
         });
       }
 
@@ -619,6 +627,7 @@ export class MemberAccessReportService {
         itemsCount: data.items.size,
         usesKeyConnector: metadata.usesKeyConnector,
         userIdFromOrgUser: metadata.userIdFromOrgUser,
+        member: metadata.member,
       });
     }
 

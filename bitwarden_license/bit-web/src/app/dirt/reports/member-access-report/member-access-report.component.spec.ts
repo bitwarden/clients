@@ -25,10 +25,11 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
+import { OrganizationUserType, RevocationReasonType } from "@bitwarden/common/admin-console/enums";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
@@ -52,9 +53,13 @@ import {
 // Imported only as a DI token to mock out — MemberActionsService injects it. No crypto runs here.
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
-import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import {
+  GroupApiService,
+  OrganizationUserView,
+} from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { EditMemberDialogComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/edit-member-dialog";
 import { MemberDialogResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog/member-dialog.types";
 import { DeleteManagedMemberWarningService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services";
@@ -78,6 +83,17 @@ function buildRow(): MemberAccessReportView {
     userGuid: ORGANIZATION_USER_ID,
     usesKeyConnector: false,
     userIdFromOrgUser: USER_ID,
+    member: new OrganizationUserView({
+      id: ORGANIZATION_USER_ID,
+      userId: USER_ID,
+      email: "test@example.com",
+      type: OrganizationUserType.User,
+      revocationReason: RevocationReasonType.Unknown,
+      status: OrganizationUserStatusType.Confirmed,
+      permissions: new PermissionsApi(),
+      avatarColor: "#000000",
+      name: "Test User",
+    }),
   };
 }
 
@@ -91,7 +107,9 @@ function buildRow(): MemberAccessReportView {
  * resolves them for real. Scoping any of them to an NgModule or to a component's `providers`
  * again puts it outside the injector chain the dialog resolves against, and this test fails.
  */
-function environmentProviders(): (Provider | EnvironmentProviders)[] {
+function environmentProviders(
+  { canManageUsers }: { canManageUsers: boolean } = { canManageUsers: true },
+): (Provider | EnvironmentProviders)[] {
   const accountService = mock<AccountService>();
   const account: Account = {
     id: USER_ID,
@@ -110,7 +128,8 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
         useGroups: false,
         canEditAnyCollection: true,
         allowAdminAccessToAllCollectionItems: true,
-        permissions: { manageUsers: true },
+        permissions: { manageUsers: canManageUsers },
+        canManageUsers,
         productTierType: 3,
         useCustomPermissions: true,
       },
@@ -134,9 +153,6 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
 
   const i18nService = mock<I18nService>();
   i18nService.t.mockReturnValue("translated");
-
-  const userNamePipe = mock<UserNamePipe>();
-  userNamePipe.transform.mockReturnValue("Test User");
 
   const reportService = mock<MemberAccessReportService>();
   reportService.generateMemberAccessReportViewV2.mockResolvedValue([]);
@@ -164,7 +180,6 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
     { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
     { provide: ConfigService, useValue: configService },
     { provide: I18nService, useValue: i18nService },
-    { provide: UserNamePipe, useValue: userNamePipe },
     { provide: MemberAccessReportService, useValue: reportService },
     { provide: GroupApiService, useValue: mock<GroupApiService>() },
     { provide: OrganizationUserApiService, useValue: mock<OrganizationUserApiService>() },
@@ -195,14 +210,14 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
 
 describe("MemberAccessReportComponent", () => {
   describe("edit", () => {
-    it("opens EditMemberDialogComponent with every dialog dependency resolvable", async () => {
+    async function setup(options?: { canManageUsers: boolean }) {
       await TestBed.configureTestingModule({
         imports: [MemberAccessReportComponent],
         // TestBed `providers` land in the environment injector — the same kind of injector the
         // dialog resolves against in the running app, since DialogService parents the dialog's
         // injector to the environment injector DialogService itself was created in. Nothing here
         // provides the dialog's own services; they have to come from root.
-        providers: environmentProviders(),
+        providers: environmentProviders(options),
       })
         // The dialog's own template drags in tab groups, access selectors and select boxes that are
         // irrelevant here. Its `inject()` calls — the DI surface under test — still all run.
@@ -217,13 +232,26 @@ describe("MemberAccessReportComponent", () => {
       const dialogService = fixture.debugElement.injector.get(DialogService);
       const open = jest.spyOn(dialogService, "open");
 
-      // `edit()` does not settle until the dialog closes. If a dialog dependency cannot be
-      // resolved, `EditMemberDialogComponent.open()` throws while `edit()` is still running
-      // synchronously, so the returned promise is already rejected by the time we race it.
-      const stillOpen = Symbol("dialog still open");
-      await expect(
-        Promise.race([component.edit(buildRow()), Promise.resolve(stillOpen)]),
-      ).resolves.toBe(stillOpen);
+      return { component, dialogService, open };
+    }
+
+    /**
+     * Starts `edit()`, which does not settle until the dialog closes, and waits for it to open the
+     * dialog. Fails if `edit()` rejects first, e.g. because a dialog dependency can't be resolved.
+     */
+    async function startEdit(component: MemberAccessReportComponent, row: MemberAccessReportView) {
+      let error: unknown;
+      component.edit(row).catch((e: unknown) => (error = e));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(error).toBeUndefined();
+    }
+
+    afterEach(() => TestBed.inject(DialogService).closeAll());
+
+    it("opens EditMemberDialogComponent with every dialog dependency resolvable", async () => {
+      const { component, open } = await setup();
+
+      await startEdit(component, buildRow());
 
       expect(open).toHaveBeenCalledWith(EditMemberDialogComponent, expect.anything());
 
@@ -236,8 +264,34 @@ describe("MemberAccessReportComponent", () => {
       expect(dialogRef.cdkDialogRefBase.componentRef?.instance).toBeInstanceOf(
         EditMemberDialogComponent,
       );
+    });
 
-      dialogService.closeAll();
+    it("opens the dialog with the report's member, editable for admins who can manage users", async () => {
+      const { component, open } = await setup({ canManageUsers: true });
+      const row = buildRow();
+
+      await startEdit(component, row);
+
+      expect(open).toHaveBeenCalledWith(
+        EditMemberDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ member: row.member, readonly: false }),
+        }),
+      );
+    });
+
+    it("opens the dialog readonly for admins who can't manage users", async () => {
+      const { component, open } = await setup({ canManageUsers: false });
+      const row = buildRow();
+
+      await startEdit(component, row);
+
+      expect(open).toHaveBeenCalledWith(
+        EditMemberDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ member: row.member, readonly: true }),
+        }),
+      );
     });
   });
 
