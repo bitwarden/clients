@@ -533,6 +533,43 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /** @inheritdoc */
+  async decryptByIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const requested = new Set(ids);
+    const ciphers = (await this.getAll(userId)).filter((cipher) => requested.has(cipher.id));
+
+    const decryptable = await this.excludeCiphersMissingOrgKey(ciphers, userId);
+    // Observables reacting to key changes may attempt to decrypt with a stale SDK reference.
+    if (decryptable.length === 0) {
+      return [];
+    }
+
+    const [successes, failures] = await this.cipherEncryptionService.decryptManyFullWithFailures(
+      decryptable,
+      userId,
+    );
+    if (failures.length > 0) {
+      this.logService.warning(`Failed to decrypt ${failures.length} requested ciphers.`);
+    }
+
+    // The SDK does not populate the client-only `localData`; take it from the encrypted ciphers.
+    const localData: Record<CipherId, LocalData> = {};
+    for (const cipher of decryptable) {
+      if (cipher.localData != null) {
+        localData[cipher.id as CipherId] = cipher.localData;
+      }
+    }
+    const views = new Map(
+      hydrateCiphersWithLocalData(successes, localData).map((view) => [view.id, view]),
+    );
+
+    return ids.map((id) => views.get(id)).filter((view) => view != null);
+  }
+
+  /** @inheritdoc */
   async getAllDecryptedForIdsIncludingRestricted(
     userId: UserId,
     ids: string[],

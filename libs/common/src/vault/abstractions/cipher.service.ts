@@ -112,6 +112,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
+   * Decrypts only the requested ciphers into full cipher views, without decrypting the
+   * rest of the vault.
+   *
+   * @param userId The user whose ciphers to decrypt
+   * @param ids The ids of the ciphers to decrypt
+   */
+  abstract decryptByIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
+  /**
    * Like {@link getAllDecryptedForIds}, but keeps restricted ciphers, which carry only the
    * name and, for logins, the URIs. Only for surfaces that must name a restricted cipher.
    */
