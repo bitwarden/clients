@@ -651,10 +651,20 @@ describe("AutofillOptionsComponent", () => {
   describe("desktop app pairings", () => {
     const pairingUri = createPairingUri("Notepad");
 
-    const getUriOptions = () =>
+    beforeEach(() => {
+      // The feature flag is read once, when the form opens
+      gaFeatureFlagSubject.next(true);
+      fixture = TestBed.createComponent(AutofillOptionsComponent);
+      component = fixture.componentInstance;
+    });
+
+    const getUriLocks = () =>
       fixture.debugElement
         .queryAll(By.directive(UriOptionComponent))
-        .map((debugElement) => debugElement.componentInstance as UriOptionComponent);
+        .map(
+          (debugElement) =>
+            (debugElement.componentInstance as UriOptionComponent)["uriForm"].controls.uri.disabled,
+        );
 
     const getSavedUris = () => {
       const patchFn = cipherFormContainer.patchCipher.mock.lastCall[0];
@@ -682,7 +692,7 @@ describe("AutofillOptionsComponent", () => {
     it("locks desktop apps already on the cipher", () => {
       initWithSavedPairing();
 
-      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true]);
+      expect(getUriLocks()).toEqual([false, true]);
     });
 
     it("locks desktop apps on a cloned cipher", () => {
@@ -690,7 +700,7 @@ describe("AutofillOptionsComponent", () => {
 
       initWithSavedPairing();
 
-      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true]);
+      expect(getUriLocks()).toEqual([false, true]);
     });
 
     it("does not lock desktop apps added by the user", async () => {
@@ -699,7 +709,7 @@ describe("AutofillOptionsComponent", () => {
       await component.addDesktopAppUriFromUser();
       fixture.detectChanges();
 
-      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true, false]);
+      expect(getUriLocks()).toEqual([false, true, false]);
     });
 
     it("keeps a desktop app locked after it is reordered", () => {
@@ -708,7 +718,7 @@ describe("AutofillOptionsComponent", () => {
       component.onUriItemDrop(dropEvent(1, 0));
       fixture.detectChanges();
 
-      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([true, false]);
+      expect(getUriLocks()).toEqual([true, false]);
     });
 
     it("saves a locked desktop app unchanged when the URIs are reordered", () => {

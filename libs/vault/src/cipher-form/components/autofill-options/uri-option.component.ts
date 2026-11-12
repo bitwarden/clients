@@ -200,15 +200,10 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   /**
    * How this row was created, when it's a desktop app row. The parent sets it when it creates the
-   * row, so typing a desktop app URI into a website row doesn't make it a desktop app row.
+   * row, so typing a desktop app URI into a website row doesn't make it a desktop app row. Desktop
+   * apps saved on the cipher are locked: they can be removed and reordered, but not changed.
    */
   readonly desktopAppRow = input<DesktopAppRow | null>(null);
-
-  /**
-   * When true and the URI is shown as a desktop app, the desktop app can't be changed. The URI can
-   * still be removed and reordered. Desktop apps already saved on the cipher are locked.
-   */
-  readonly appUriLocked = input(false);
 
   /** Whether the whole row is disabled, e.g. because the cipher form is disabled. */
   private rowDisabled = false;
@@ -292,7 +287,6 @@ export class UriOptionComponent implements ControlValueAccessor {
     });
 
     effect(() => {
-      this.appUriLocked();
       this.recognizeDesktopApps();
       this.desktopAppRow();
       untracked(() => this.applyAppUriLock());
@@ -415,12 +409,13 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   /**
-   * Disables only the URI of a locked desktop app, so the desktop app can't be changed but the row
-   * can still be removed and reordered.
+   * Disables only the URI of a desktop app saved on the cipher, so the desktop app can't be changed
+   * but the row can still be removed and reordered.
    */
   private applyAppUriLock() {
     const uriControl = this.uriForm.controls.uri;
-    const disabled = this.rowDisabled || (this.appUriLocked() && this.isAppUri);
+    const disabled =
+      this.rowDisabled || (this.desktopAppRow() === DesktopAppRow.Saved && this.isAppUri);
     if (disabled === uriControl.disabled) {
       return;
     }

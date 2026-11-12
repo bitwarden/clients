@@ -493,19 +493,32 @@ describe("UriOptionComponent", () => {
 
   describe("locked desktop app URIs", () => {
     const pairingUri = createPairingUri("Notepad");
+    const invalidPairingUri = "desktopapp://autotype?version=1.0.0&data=invalid";
 
     const getUriControl = () => component["uriForm"].controls.uri;
 
-    function renderUri(uri: string, { locked = true, recognizeDesktopApps = true } = {}) {
+    function renderUri(
+      uri: string,
+      {
+        desktopAppRow = DesktopAppRow.Saved,
+        recognizeDesktopApps = true,
+      }: { desktopAppRow?: DesktopAppRow | null; recognizeDesktopApps?: boolean } = {},
+    ) {
       fixture.componentRef.setInput("recognizeDesktopApps", recognizeDesktopApps);
-      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
-      fixture.componentRef.setInput("appUriLocked", locked);
+      fixture.componentRef.setInput("desktopAppRow", desktopAppRow);
       component.writeValue({ uri, matchDetection: UriMatchStrategy.Never });
       fixture.detectChanges();
     }
 
-    it("disables the dropdown of a locked desktop app", () => {
+    it("disables the dropdown of a desktop app saved on the cipher", () => {
       renderUri(pairingUri);
+
+      expect(getUriControl().disabled).toBe(true);
+      expect(component["appSelect"]().disabled()).toBe(true);
+    });
+
+    it("disables the dropdown of an invalid pairing saved on the cipher", () => {
+      renderUri(invalidPairingUri);
 
       expect(getUriControl().disabled).toBe(true);
       expect(component["appSelect"]().disabled()).toBe(true);
@@ -519,31 +532,31 @@ describe("UriOptionComponent", () => {
       expect(getRemoveButton()).toBeTruthy();
     });
 
-    it("does not disable a desktop app that is not locked", () => {
-      renderUri(pairingUri, { locked: false });
+    it("does not disable a desktop app added by the user", () => {
+      renderUri(pairingUri, { desktopAppRow: DesktopAppRow.New });
 
       expect(getUriControl().enabled).toBe(true);
     });
 
-    it("does not disable a locked URI when recognizeDesktopApps is false", () => {
+    it("does not disable a desktop app URI typed into a website row", () => {
+      renderUri(pairingUri, { desktopAppRow: null });
+
+      expect(getUriControl().enabled).toBe(true);
+    });
+
+    it("does not disable a saved desktop app when recognizeDesktopApps is false", () => {
       renderUri(pairingUri, { recognizeDesktopApps: false });
 
       expect(getUriControl().enabled).toBe(true);
     });
 
-    it("does not disable a locked website URI", () => {
-      renderUri("https://example.com");
+    it("locks a saved desktop app when desktop apps are recognized after it loads", () => {
+      renderUri(pairingUri, { recognizeDesktopApps: false });
 
-      expect(getUriControl().enabled).toBe(true);
-    });
-
-    it("enables the dropdown when the desktop app is unlocked", () => {
-      renderUri(pairingUri);
-
-      fixture.componentRef.setInput("appUriLocked", false);
+      fixture.componentRef.setInput("recognizeDesktopApps", true);
       fixture.detectChanges();
 
-      expect(getUriControl().enabled).toBe(true);
+      expect(getUriControl().disabled).toBe(true);
     });
 
     it("keeps a locked desktop app disabled when the row is enabled", () => {
@@ -556,11 +569,11 @@ describe("UriOptionComponent", () => {
       expect(component["uriForm"].controls.matchDetection.enabled).toBe(true);
     });
 
-    it("keeps a disabled row disabled when the desktop app is unlocked", () => {
-      renderUri(pairingUri);
+    it("keeps a disabled row disabled when desktop apps are recognized", () => {
+      renderUri(pairingUri, { desktopAppRow: DesktopAppRow.New, recognizeDesktopApps: false });
       component.setDisabledState(true);
 
-      fixture.componentRef.setInput("appUriLocked", false);
+      fixture.componentRef.setInput("recognizeDesktopApps", true);
       fixture.detectChanges();
 
       expect(getUriControl().disabled).toBe(true);

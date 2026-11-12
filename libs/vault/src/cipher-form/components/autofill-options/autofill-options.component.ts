@@ -120,12 +120,6 @@ export class AutofillOptionsComponent implements OnInit {
    */
   private focusOnNewInput$ = new Subject<void>();
 
-  /**
-   * The URI inputs of desktop apps that were already on the cipher when the form was initialized.
-   * Those desktop apps are locked: they can be removed and reordered, but not changed.
-   */
-  protected readonly existingAppUriControls = new WeakSet<AbstractControl>();
-
   private readonly isWindowsDesktop =
     this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
@@ -286,9 +280,6 @@ export class AutofillOptionsComponent implements OnInit {
         uri.uri?.startsWith(DESKTOP_APP_URI_PREFIX) ? DesktopAppRow.Saved : null,
       );
     });
-    this.uriControls
-      .filter((control) => control.value?.uri?.startsWith(DESKTOP_APP_URI_PREFIX))
-      .forEach((control) => this.existingAppUriControls.add(control));
     this.autofillOptionsForm.patchValue({
       autofillOnPageLoad: existingLogin.autofillOnPageLoad,
     });
