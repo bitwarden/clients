@@ -384,6 +384,72 @@ describe("BrowserPopupUtils", () => {
         url: `chrome-extension://id/${url}?uilocation=popout`,
       });
     });
+
+    it("returns the created window without retrying when the positioned window is created", async () => {
+      const url = "popup/index.html";
+      const createdWindow = { id: 5 } as chrome.windows.Window;
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      jest.spyOn(BrowserApi, "createWindow").mockResolvedValueOnce(createdWindow);
+
+      const result = await BrowserPopupUtils.openPopout(url);
+
+      expect(result).toBe(createdWindow);
+      expect(BrowserApi.createWindow).toHaveBeenCalledTimes(1);
+    });
+
+    it("retries without a position when the browser rejects the positioned window", async () => {
+      const url = "popup/index.html";
+      const createdWindow = { id: 6 } as chrome.windows.Window;
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      jest
+        .spyOn(BrowserApi, "createWindow")
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(createdWindow);
+
+      const result = await BrowserPopupUtils.openPopout(url);
+
+      expect(result).toBe(createdWindow);
+      expect(BrowserApi.createWindow).toHaveBeenCalledTimes(2);
+      expect(BrowserApi.createWindow).toHaveBeenNthCalledWith(1, {
+        type: "popup",
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        left: 85,
+        top: 190,
+        url: `chrome-extension://id/${url}?uilocation=popout`,
+      });
+      expect(BrowserApi.createWindow).toHaveBeenNthCalledWith(2, {
+        type: "popup",
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        url: `chrome-extension://id/${url}?uilocation=popout`,
+      });
+    });
+
+    it("does not retry when an unpositioned window could not be created", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserApi, "getWindow").mockReset().mockResolvedValueOnce({
+        id: 2,
+        left: 0,
+        top: 0,
+        focused: false,
+        alwaysOnTop: false,
+        incognito: false,
+        width: PopupWidthOptions.default,
+      });
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "linux",
+      } as chrome.runtime.PlatformInfo);
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      jest.spyOn(BrowserApi, "createWindow").mockResolvedValueOnce(undefined);
+
+      const result = await BrowserPopupUtils.openPopout(url);
+
+      expect(result).toBeUndefined();
+      expect(BrowserApi.createWindow).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("openCurrentPagePopout", () => {
