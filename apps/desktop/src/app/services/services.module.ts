@@ -532,6 +532,7 @@ const safeProviders: SafeProvider[] = [
       DesktopFido2UserVerificationService,
       PasswordRepromptService,
       DomainSettingsService,
+      MessageListener,
     ],
   }),
   safeProvider({
