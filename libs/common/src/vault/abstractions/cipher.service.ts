@@ -110,6 +110,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     /** When true, will override the match strategy for the cipher if it is Never. */
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
+  /**
+   * @deprecated Use {@link decryptByIds}. It keeps restricted ciphers, so filter them with
+   * `CipherViewLikeUtils.isRestricted`, and it doesn't wait for the vault to load first.
+   */
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
    * Decrypts only the requested ciphers into full cipher views, without decrypting the
