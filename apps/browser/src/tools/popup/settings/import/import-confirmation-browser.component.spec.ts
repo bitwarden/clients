@@ -116,43 +116,55 @@ describe("ImportConfirmationBrowserComponent", () => {
       fixture.detectChanges();
     };
 
-    it("keeps the spinner for 2 seconds when the popup is already open", async () => {
+    it("keeps the spinner for 1 second, then opens the popup and shows the celebration", async () => {
       isPopupOpen.mockResolvedValue(true);
       await create({ settled: false });
 
-      await elapse(1999);
+      await elapse(999);
+      expect(actionsService.openPopup).not.toHaveBeenCalled();
       expect(text()).toContain("importingItemsTitle");
       expect(text()).not.toContain("openedExtensionTitle");
 
       await elapse(1);
+      expect(actionsService.openPopup).toHaveBeenCalledTimes(1);
       expect(text()).toContain("openedExtensionTitle");
       expect(text()).not.toContain("importingItemsTitle");
     });
 
-    it("keeps the spinner for 2 seconds when the popup does not open", async () => {
+    it("keeps the spinner through the 1 second wait and the popup check when the popup does not open", async () => {
       isPopupOpen.mockResolvedValue(false);
       await create({ settled: false });
 
-      await elapse(1999);
+      await elapse(999);
+      expect(actionsService.openPopup).not.toHaveBeenCalled();
+      expect(text()).toContain("importingItemsTitle");
+
+      // Five checks, 200 ms apart, after the wait.
+      await elapse(999);
       expect(text()).toContain("importingItemsTitle");
       expect(button("import-confirmation_button_open-extension")).toBeNull();
 
-      await elapse(1);
+      await elapse(2);
       expect(text()).not.toContain("importingItemsTitle");
       expect(button("import-confirmation_button_open-extension")).not.toBeNull();
     });
 
-    it("keeps the button loading for 2 seconds on a retry before showing the toolbar instructions", async () => {
+    it("tries the popup at once on a retry and keeps the button for 1 second before showing the result", async () => {
       isPopupOpen.mockResolvedValue(false);
       await create();
+      actionsService.openPopup.mockClear();
+      isPopupOpen.mockResolvedValue(true);
 
       button("import-confirmation_button_open-extension")!.click();
-      await elapse(1999);
+      await elapse(0);
+      expect(actionsService.openPopup).toHaveBeenCalledTimes(1);
+
+      await elapse(999);
       expect(button("import-confirmation_button_open-extension")).not.toBeNull();
-      expect(text()).not.toContain("openingExtensionToolbarErrorPart1");
+      expect(text()).not.toContain("openedExtensionTitle");
 
       await elapse(1);
-      expect(text()).toContain("openingExtensionToolbarErrorPart1");
+      expect(text()).toContain("openedExtensionTitle");
       expect(button("import-confirmation_button_open-extension")).toBeNull();
     });
   });

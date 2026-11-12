@@ -18,7 +18,7 @@ import {
 
 const POPUP_POLL_ATTEMPTS = 5;
 const POPUP_POLL_INTERVAL_MS = 200;
-const MIN_OPENING_DURATION_MS = 2000;
+const MIN_OPENING_DURATION_MS = 1000;
 
 // Where opening the popup from a page can work. BrowserActionsService only handles Chrome,
 // DuckDuckGo, Firefox and Safari, and Firefox fails from a page
@@ -60,24 +60,30 @@ export class ImportConfirmationBrowserComponent {
       return;
     }
 
-    void this.tryOpenExtension(this.canOpenPopup ? "button" : "toolbar");
+    void this.tryOpenExtension(this.canOpenPopup ? "button" : "toolbar", true);
   }
 
   protected async onOpenExtension(): Promise<void> {
     this.retrying.set(true);
     try {
-      await this.tryOpenExtension("toolbar");
+      await this.tryOpenExtension("toolbar", false);
     } finally {
       this.retrying.set(false);
     }
   }
 
-  // The spinner card stays up at least MIN_OPENING_DURATION_MS so a fast result doesn't flash it.
-  private async tryOpenExtension(onFailure: "button" | "toolbar"): Promise<void> {
-    const [opened] = await Promise.all([
-      this.openPopup(),
-      new Promise((resolve) => setTimeout(resolve, MIN_OPENING_DURATION_MS)),
-    ]);
+  // The next phase waits out MIN_OPENING_DURATION_MS so the card doesn't flash. The first attempt
+  // also opens the popup after it, so the popup's dialog and the celebration appear together.
+  private async tryOpenExtension(
+    onFailure: "button" | "toolbar",
+    openAfterMinimum: boolean,
+  ): Promise<void> {
+    const minimum = new Promise((resolve) => setTimeout(resolve, MIN_OPENING_DURATION_MS));
+    if (openAfterMinimum) {
+      await minimum;
+    }
+    const opened = await this.openPopup();
+    await minimum;
     this.phase.set(opened ? "opened" : onFailure);
   }
 
