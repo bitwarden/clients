@@ -1,0 +1,447 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Colors" />
+
+# Color System
+
+Bitwarden uses a three-tier color token architecture:
+
+- **Primitive Colors** - Raw color values from the Figma design system
+- **Semantic Tokens** - Meaningful names that reference primitives
+- **Tailwind Utilities** - CSS classes for components
+
+The tokens are CSS custom properties defined in `libs/components/src/tw-theme.css`, which this
+library loads through `src/styles/document.css`. Custom properties inherit into shadow roots, so the
+same tokens style both the page and every component.
+
+## Color Token Structure
+
+### Primitive Colors (Hex format)
+
+- 10 color families: `brand`, `gray`, `red`, `orange`, `yellow`, `green`, `pink`, `coral`, `teal`,
+  `purple`
+- 11 shades each: `050`, `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`, `950`
+- Format: `--color-{family}-{shade}` (e.g., `--color-brand-600`)
+
+### Semantic Foreground Tokens
+
+- **Neutral**: `fg-white`, `fg-dark`, `fg-contrast`, `fg-heading`, `fg-body`, `fg-body-subtle`,
+  `fg-inactive`
+- **Brand**: `fg-brand-soft`, `fg-brand`, `fg-brand-strong`
+- **Status**: `fg-success`, `fg-success-strong`, `fg-danger`, `fg-danger-strong`, `fg-warning`,
+  `fg-warning-strong`, `fg-sensitive`
+- **Accent**: `fg-accent-primary`, `fg-accent-secondary`, `fg-accent-tertiary` (with `-soft` and
+  `-strong` variants)
+- Format: `--color-fg-{name}`
+
+### Semantic Background Tokens
+
+- **Neutral**: `bg-white`, `bg-dark`, `bg-contrast`, `bg-contrast-strong`, `bg-primary`,
+  `bg-secondary`, `bg-tertiary`, `bg-quaternary`, `bg-gray`, `bg-inactive`
+- **Brand**: `bg-brand-softer`, `bg-brand-soft`, `bg-brand-medium`, `bg-brand`, `bg-brand-strong`
+- **Status**: `bg-success-soft`, `bg-success-medium`, `bg-success`, `bg-success-strong`,
+  `bg-danger-soft`, `bg-danger-medium`, `bg-danger`, `bg-danger-strong`, `bg-warning-soft`,
+  `bg-warning-medium`, `bg-warning`, `bg-warning-strong`
+- **Accent**: `bg-accent-primary-soft`, `bg-accent-primary-medium`, `bg-accent-primary`,
+  `bg-accent-secondary-soft`, `bg-accent-secondary-medium`, `bg-accent-secondary`,
+  `bg-accent-tertiary-soft`, `bg-accent-tertiary-medium`, `bg-accent-tertiary`
+- **Special**: `bg-hover`, `bg-overlay`
+- Format: `--color-bg-{name}`
+
+### Semantic Border Tokens
+
+- **Neutral**: `border-muted`, `border-light`, `border-base`, `border-strong`, `border-buffer`
+- **Brand**: `border-brand-soft`, `border-brand`, `border-brand-strong`
+- **Status**: `border-success-soft`, `border-success`, `border-success-strong`,
+  `border-danger-soft`, `border-danger`, `border-danger-strong`, `border-warning-soft`,
+  `border-warning`, `border-warning-strong`
+- **Accent**: `border-accent-primary-soft`, `border-accent-primary`, `border-accent-secondary-soft`,
+  `border-accent-secondary`, `border-accent-tertiary-soft`, `border-accent-tertiary`
+- **Focus**: `border-focus`
+- Format: `--color-border-{name}`
+
+## Semantic Color Tokens
+
+> **Note:** Due to Tailwind's utility naming and our semantic token structure, class names will
+> appear repetitive (e.g., `tw-bg-bg-primary`). This repetition is intentional:
+>
+> - `tw-` = Tailwind prefix
+> - `bg-` = Tailwind utility type (background)
+> - `bg-primary` = Our semantic token name
+
+{/* Swatches read the custom properties: Tailwind can't generate dynamic `tw-bg-${name}` classes. */}
+
+export const Swatch = ({ color }) => (
+  <div
+    className="tw-h-10 tw-w-10 tw-shrink-0 tw-rounded-lg tw-border tw-border-solid tw-border-border-base"
+    style={{ background: color }}
+  />
+);
+
+export const ColorCard = ({ label, note, color }) => (
+  <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-p-4 tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary">
+    <div className="tw-flex-1 tw-min-w-0">
+      <div className="tw-font-mono tw-text-sm tw-font-semibold tw-text-fg-heading">{label}</div>
+      <div className="tw-text-xs tw-text-fg-body-subtle tw-mt-0.5">({note})</div>
+    </div>
+    <Swatch color={color} />
+  </div>
+);
+
+export const ModePanel = ({ dark, children }) => (
+  <div
+    className={`${dark ? "theme_dark" : "tw-border tw-border-solid tw-border-border-base"} tw-bg-bg-primary tw-p-6 tw-rounded-lg`}
+  >
+    <h3 className="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">
+      {dark ? "Dark mode" : "Light mode"}
+    </h3>
+    {children}
+  </div>
+);
+
+export const Group = ({ title, children }) => (
+  <div className="sb-unstyled tw-mb-6">
+    <h4 className="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">
+      {title}
+    </h4>
+    <div className="tw-grid tw-grid-cols-1 tw-gap-2">{children}</div>
+  </div>
+);
+
+{/* Each token is `[name, light primitive, dark primitive]`. */}
+
+export const TokenGrid = ({ prefix, groups }) => (
+  <div className="sb-unstyled tw-grid tw-grid-cols-2 tw-gap-8 tw-my-6">
+    {[false, true].map((dark) => (
+      <ModePanel dark={dark} key={String(dark)}>
+        {groups.map(([title, tokens]) => (
+          <Group title={title} key={title}>
+            {tokens.map(([name, light, darkValue]) => (
+              <ColorCard
+                key={name}
+                label={`${prefix}-${name}`}
+                note={dark ? darkValue : light}
+                color={`var(--color-${prefix}-${name})`}
+              />
+            ))}
+          </Group>
+        ))}
+      </ModePanel>
+    ))}
+  </div>
+);
+
+### Background Colors
+
+Use `tw-bg-bg-*` for background colors. These tokens automatically adapt to dark mode.
+
+<TokenGrid
+  prefix="bg"
+  groups={[
+    [
+      "Neutral",
+      [
+        ["white", "white", "white"],
+        ["dark", "gray-800", "gray-800"],
+        ["contrast", "gray-800", "gray-050"],
+        ["contrast-strong", "gray-950", "gray-950"],
+        ["primary", "white", "gray-900"],
+        ["secondary", "gray-050", "gray-800"],
+        ["tertiary", "gray-050", "gray-950"],
+        ["quaternary", "gray-100", "gray-950"],
+        ["gray", "gray-300", "gray-600"],
+        ["inactive", "gray-100", "gray-950"],
+      ],
+    ],
+    [
+      "Brand",
+      [
+        ["brand-softer", "brand-050", "brand-950"],
+        ["brand-soft", "brand-100", "brand-900"],
+        ["brand-medium", "brand-200", "brand-800"],
+        ["brand", "brand-700", "brand-400"],
+        ["brand-strong", "brand-800", "brand-300"],
+      ],
+    ],
+    [
+      "Status",
+      [
+        ["success-soft", "green-050", "green-950"],
+        ["success-medium", "green-100", "green-900"],
+        ["success", "green-600", "green-400"],
+        ["success-strong", "green-700", "green-300"],
+        ["danger-soft", "red-050", "red-950"],
+        ["danger-medium", "red-100", "red-900"],
+        ["danger", "red-600", "red-400"],
+        ["danger-strong", "red-700", "red-300"],
+        ["warning-soft", "orange-050", "orange-950"],
+        ["warning-medium", "orange-100", "orange-900"],
+        ["warning", "orange-600", "orange-400"],
+        ["warning-strong", "orange-700", "orange-300"],
+      ],
+    ],
+    [
+      "Accent",
+      [
+        ["accent-primary-soft", "teal-050", "teal-950"],
+        ["accent-primary-medium", "teal-100", "teal-900"],
+        ["accent-primary", "teal-400", "teal-400"],
+        ["accent-secondary-soft", "coral-050", "coral-950"],
+        ["accent-secondary-medium", "coral-100", "coral-900"],
+        ["accent-secondary", "coral-400", "coral-400"],
+        ["accent-tertiary-soft", "purple-050", "purple-950"],
+        ["accent-tertiary-medium", "purple-100", "purple-900"],
+        ["accent-tertiary", "purple-600", "purple-600"],
+      ],
+    ],
+    ["Hover", [["hover", "rgba", "rgba"]]],
+    ["Overlay", [["overlay", "rgba", "rgba"]]],
+  ]}
+/>
+
+---
+
+### Foreground Colors
+
+Use `tw-text-fg-*` for text colors. These tokens automatically adapt to dark mode.
+
+<TokenGrid
+  prefix="fg"
+  groups={[
+    [
+      "Neutral",
+      [
+        ["white", "#ffffff", "#ffffff"],
+        ["dark", "gray-900", "gray-900"],
+        ["contrast", "white", "gray-900"],
+        ["heading", "gray-900", "gray-050"],
+        ["body", "gray-600", "gray-200"],
+        ["body-subtle", "gray-500", "gray-400"],
+        ["inactive", "gray-400", "gray-600"],
+      ],
+    ],
+    [
+      "Brand",
+      [
+        ["brand-soft", "brand-200", "brand-500"],
+        ["brand", "brand-700", "brand-400"],
+        ["brand-strong", "brand-900", "brand-200"],
+      ],
+    ],
+    [
+      "Status",
+      [
+        ["success", "green-700", "green-400"],
+        ["success-strong", "green-900", "green-100"],
+        ["danger", "red-700", "red-400"],
+        ["danger-strong", "red-900", "red-100"],
+        ["warning", "orange-600", "orange-400"],
+        ["warning-strong", "orange-900", "orange-100"],
+        ["sensitive", "pink-600", "pink-300"],
+      ],
+    ],
+    [
+      "Accent",
+      [
+        ["accent-primary-soft", "teal-200", "teal-400"],
+        ["accent-primary", "teal-400", "teal-300"],
+        ["accent-primary-strong", "teal-800", "teal-100"],
+        ["accent-secondary-soft", "coral-200", "coral-500"],
+        ["accent-secondary", "coral-400", "coral-400"],
+        ["accent-secondary-strong", "coral-900", "coral-100"],
+        ["accent-tertiary-soft", "purple-200", "purple-500"],
+        ["accent-tertiary", "purple-700", "purple-400"],
+        ["accent-tertiary-strong", "purple-900", "purple-100"],
+      ],
+    ],
+  ]}
+/>
+
+---
+
+### Border Colors
+
+Use `tw-border-border-*` for border colors. These tokens automatically adapt to dark mode.
+
+<TokenGrid
+  prefix="border"
+  groups={[
+    [
+      "Neutral",
+      [
+        ["muted", "gray-100", "gray-800"],
+        ["light", "gray-200", "gray-700"],
+        ["base", "gray-200", "gray-700"],
+        ["strong", "gray-300", "gray-600"],
+        ["buffer", "gray-100", "gray-900"],
+      ],
+    ],
+    [
+      "Brand",
+      [
+        ["brand-soft", "brand-200", "brand-800"],
+        ["brand", "brand-700", "brand-700"],
+        ["brand-strong", "brand-900", "brand-600"],
+      ],
+    ],
+    [
+      "Status",
+      [
+        ["success-soft", "green-200", "green-800"],
+        ["success", "green-700", "green-400"],
+        ["success-strong", "green-900", "green-200"],
+        ["danger-soft", "red-200", "red-800"],
+        ["danger", "red-700", "red-400"],
+        ["danger-strong", "red-900", "red-200"],
+        ["warning-soft", "orange-200", "orange-800"],
+        ["warning", "orange-600", "orange-400"],
+        ["warning-strong", "orange-900", "orange-200"],
+      ],
+    ],
+    [
+      "Accent",
+      [
+        ["accent-primary-soft", "teal-200", "teal-800"],
+        ["accent-primary", "teal-600", "teal-600"],
+        ["accent-secondary-soft", "coral-200", "coral-800"],
+        ["accent-secondary", "coral-600", "coral-500"],
+        ["accent-tertiary-soft", "purple-200", "purple-800"],
+        ["accent-tertiary", "purple-600", "purple-500"],
+      ],
+    ],
+    ["Focus", [["focus", "#000000", "#ffffff"]]],
+  ]}
+/>
+
+---
+
+## Usage Guidelines
+
+### ✅ DO - Use semantic tokens via Tailwind
+
+In templates rendered by this library (component shadow roots, which share the library's Tailwind
+sheet) and in host pages built with the Bitwarden Tailwind config:
+
+```html
+<!-- Text colors -->
+<h1 class="tw-text-fg-heading">Heading text</h1>
+<p class="tw-text-fg-body">Body text</p>
+<span class="tw-text-fg-danger">Error message</span>
+
+<!-- Background colors -->
+<div class="tw-bg-bg-primary">Primary background</div>
+<div class="tw-bg-bg-danger-soft tw-text-fg-danger">Danger alert</div>
+
+<!-- Border colors -->
+<div class="tw-border tw-border-border-base">Base border</div>
+<div class="tw-border-2 tw-border-border-brand">Brand border</div>
+
+<!-- Combined -->
+<div
+  class="tw-bg-bg-success-soft tw-text-fg-success tw-border tw-border-border-success-soft tw-rounded tw-p-4"
+>
+  Success alert with matching colors
+</div>
+
+<!-- Hover states and overlays -->
+<div class="hover:tw-bg-bg-hover">Hover effect</div>
+<div class="tw-bg-bg-overlay">Modal overlay</div>
+```
+
+Write class names as complete literals: Tailwind generates only the classes it finds in the source,
+so map values to full class strings instead of building them (`tw-bg-${name}`).
+
+Component CSS (`static styles`) and custom properties a component exposes can use the semantic
+custom properties directly:
+
+```ts
+css`
+  .panel {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border-base);
+  }
+`;
+```
+
+### ❌ DON'T - Use primitive colors directly
+
+```html
+<!-- Bad: These Tailwind classes don't exist (primitives not exposed) -->
+<p class="tw-text-brand-900">Text</p>
+<div class="tw-bg-brand-600">Background</div>
+
+<!-- Bad: Using primitives with Tailwind bracket notation -->
+<p class="tw-text-[var(--color-brand-600)]">Text</p>
+
+<!-- Bad: Using primitive CSS variables bypasses the semantic layer -->
+<span style="color: var(--color-brand-600)">Text</span>
+```
+
+**Why this is wrong:** Primitives aren't semantic and may change. Always use semantic tokens like
+`tw-text-fg-brand`, `tw-bg-bg-success`, etc.
+
+---
+
+## Dark Mode
+
+- Semantic tokens automatically adapt to dark mode via the `.theme_dark` class on an ancestor
+  (usually `<html>`); the custom properties inherit through shadow boundaries
+- No component changes needed when theme switches
+- The same semantic token name works in both light and dark themes
+
+---
+
+## Migration Strategy
+
+- **New components:** Use semantic tokens (`fg-*`, `bg-*`, `border-*`) exclusively
+- **Existing components:** Keep legacy tokens until refactoring
+- **When refactoring:** Replace legacy tokens with semantic equivalents
+
+---
+
+## Legacy Colors
+
+**Legacy colors (RGB format)** still exist for backwards compatibility:
+
+- `primary-*`, `secondary-*`, `success-*`, `danger-*`, `warning-*`, etc.
+- Their custom properties hold space-separated RGB channels (`--color-primary-600: 23 93 220`), so
+  wrap them in `rgb()` when reading them directly
+- Use these only when updating existing components
+- Migrate to new semantic tokens when refactoring
+
+The following legacy colors are displayed below with both light and dark mode values:
+
+export const legacyGroups = [
+  [
+    "General",
+    ["background", "background-alt", "background-alt2", "background-alt3", "background-alt4"],
+  ],
+  ["Primary", ["primary-100", "primary-300", "primary-600", "primary-700"]],
+  [
+    "Secondary",
+    ["secondary-100", "secondary-300", "secondary-500", "secondary-600", "secondary-700"],
+  ],
+  ["Success", ["success-100", "success-600", "success-700"]],
+  ["Danger", ["danger-100", "danger-600", "danger-700"]],
+  ["Warning", ["warning-100", "warning-600", "warning-700"]],
+  ["Info", ["info-100", "info-600", "info-700"]],
+];
+
+<div className="sb-unstyled tw-grid tw-grid-cols-2 tw-gap-8 tw-my-6">
+  {[false, true].map((dark) => (
+    <ModePanel dark={dark} key={String(dark)}>
+      {legacyGroups.map(([title, names]) => (
+        <Group title={title} key={title}>
+          {names.map((name) => (
+            <ColorCard
+              key={name}
+              label={name}
+              note="legacy RGB format"
+              color={`rgb(var(--color-${name}))`}
+            />
+          ))}
+        </Group>
+      ))}
+    </ModePanel>
+  ))}
+</div>

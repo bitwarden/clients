@@ -1,0 +1,68 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./item.stories";
+
+<Meta of={stories} />
+
+# Item
+
+`bit-item` is a horizontal card that contains one or more interactive actions. Use it for standalone
+content, as an alternative to tables, or to list nav links.
+
+<Canvas of={stories.Default} />
+
+## Primary Content
+
+The primary content is a `bit-item-content`. Set `href` for a link, `button` for a button (listen
+for `click`), or neither for static content.
+
+```html
+<bit-item><bit-item-content href="/settings">Hi, I am a link.</bit-item-content></bit-item>
+<bit-item><bit-item-content button>And I am a button.</bit-item-content></bit-item>
+<bit-item><bit-item-content>I'm just static :(</bit-item-content></bit-item>
+```
+
+<Canvas of={stories.ContentTypes} />
+
+### Content Slots
+
+| Slot                      | Description                                                       |
+| ------------------------- | ----------------------------------------------------------------- |
+| default                   | primary text or arbitrary content                                 |
+| `slot="secondary"`        | supporting text; under the default slot                           |
+| `slot="start"`            | commonly an icon or avatar; before the default slot               |
+| `slot="default-trailing"` | content after the default slot that isn't truncated, e.g. a badge |
+| `slot="end"`              | commonly an icon; placed at the far end                           |
+
+`bit-item` has its own `end` slot: put interactive secondary actions there and non-interactive
+content (such as icons) in `bit-item-content`.
+
+<Canvas of={stories.ContentSlots} />
+
+## Sizes
+
+`size` controls the item's padding: `base` (8px vertical, 12px horizontal) or `lg` (12px / 16px).
+The trailing edge tightens to 8px when the end slot ends in an icon button. Compact mode overrides
+both sizes.
+
+<Canvas of={stories.Sizes} />
+
+## Secondary Actions
+
+Wrap each action in `<bit-item-action slot="end">`. Spacing in the end slot is applied per content
+type (8px text and links, 4px buttons/badges/chips, 0 icon buttons, on each side), however deeply
+the content is wrapped, so don't add your own margins.
+
+<Canvas of={stories.EndSlotSpacing} />
+
+## Text Overflow
+
+Long text truncates by default. Set `no-truncate` on `bit-item-content` to wrap instead.
+
+<Canvas of={stories.TextOverflowWrap} />
+
+## Item Groups
+
+Wrap items in `<bit-item-group>` (a list) and give it an accessible name with `aria-label`.
+
+<Canvas of={stories.MultipleActionList} />

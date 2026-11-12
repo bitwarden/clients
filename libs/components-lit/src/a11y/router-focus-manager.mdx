@@ -1,0 +1,42 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./a11y.stories";
+
+<Meta title="Documentation/Router Focus Management" />
+
+# Router Focus Management
+
+In a single-page app, a route change doesn't reload the page, so focus stays on the trigger (or is
+lost) and screen reader users get no signal that the page changed. `createRouterFocusManager()`
+moves focus at the end of each SPA navigation. It has no router dependency; the app calls it.
+
+```ts
+import { createRouterFocusManager } from "@bitwarden/components-lit";
+
+const focusManager = createRouterFocusManager();
+
+// Angular
+router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => {
+  void focusManager.onNavigationEnd(router.currentNavigation()?.extras.state?.focusAfterNav);
+});
+
+// Navigation API
+navigation.addEventListener("navigatesuccess", () => {
+  void focusManager.onNavigationEnd(navigation.currentEntry?.getState()?.focusAfterNav);
+});
+```
+
+## Behavior
+
+- The first navigation (initial page load) is skipped so users aren't moved past navigation content.
+- By default the `main` element is focused (give it `tabindex="-1"`).
+- Pass a selector string as `focusAfterNav` to focus something else. If it isn't found, nothing is
+  focused and a warning is logged.
+- Pass `false` to opt out, e.g. when a tab component handles focus itself.
+- If `main` contains an element with `autofocus()` / `bit-autofocus`, that takes precedence.
+- Pass a promise as the second argument to wait for the new view to render first.
+
+Store `focusAfterNav` in history state (e.g. Angular's `[state]` / `navigate(..., { state })`) so it
+applies on back/forward too.
+
+<Canvas of={stories.RouterFocusManager} />

@@ -1,0 +1,19 @@
+import { Meta, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./base-card.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitBaseCard, baseCardClasses } from "@bitwarden/components-lit";
+```
+
+<Title />
+<Description />
+
+<Canvas of={stories.Default} />
+
+## baseCardClasses
+
+Components that need the card surface on an element in their own shadow root can apply the exported
+`baseCardClasses` string instead of wrapping in `<bit-base-card>`.

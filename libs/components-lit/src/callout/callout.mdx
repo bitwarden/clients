@@ -1,0 +1,71 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./callout.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitCallout } from "@bitwarden/components-lit";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+### With Inline Link
+
+If only a single link or CTA is needed, use the **Info** variant with an inline link. If more CTAs
+are needed, or if a single CTA needs more prominence, use footer buttons.
+
+<Canvas of={stories.WithInlineLink} />
+
+### With Footer Buttons
+
+Add `slot="end"` to each button. Match each button's `button-type` to the callout `type` (e.g.
+`primary` + `primaryOutline` on an info callout, `warning` + `warningOutline` on a warning callout).
+
+<Canvas of={stories.WithFooterButtons} />
+
+## Variants
+
+Icons should remain consistent across these types. Do not change the icon without consulting a
+designer.
+
+<Canvas of={stories.AllVariants} />
+
+- **Info**: important information with low risk if missed.
+- **Subtle**: like info, when content does not need to be as prominent.
+- **Success**: positive messaging. Also used for premium membership info with `icon="bwi-star"`.
+- **Warning**: the user is about to perform an action that may have unintended or irreversible
+  results.
+- **Danger**: a dangerous, typically irreversible action, or errors such as failed requests.
+
+## Icons
+
+`icon` overrides the type's default icon. Set `icon=""` to hide the icon.
+
+<Canvas of={stories.CustomIcon} />
+<Canvas of={stories.NoIcon} />
+
+## No Title
+
+`warning` and `danger` callouts get a default heading. Set `heading=""` to hide it.
+
+<Canvas of={stories.NoTitle} />
+
+## Close Button
+
+Set `dismissible` to show a close button; it fires a `dismiss` event.
+
+<Canvas of={stories.WithCloseButton} />
+
+## Accessibility
+
+Callouts render an `aside` landmark, which needs a unique accessible name when there's more than one
+on a page. Without a heading, provide `accessible-name`; otherwise the callout falls back to
+"Callout \{number\}, \{type\}".
+
+Ensure color contrast stays WCAG compliant on the callout's colored background, especially for links
+and buttons placed in the content.

@@ -1,0 +1,40 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./simple-dialog.stories";
+
+<Meta of={stories} />
+
+# Simple Dialogs
+
+For simple alerts or confirmations such as speedbumps. For forms or content wider than 384px, use
+the [Dialog component](?path=/docs/component-library-dialogs-dialog--docs).
+
+<Primary />
+<Controls />
+
+## Configurable simple dialog
+
+`openSimpleDialog(options)` resolves `true` when the user accepts:
+
+- `title`, `content`: string, or `{ key, placeholders }` to translate
+- `type`: `primary | success | info | warning | danger`
+- `icon`: inferred from `type` if empty
+- `acceptButtonText`: defaults to "Yes"
+- `cancelButtonText`: defaults to "No", or "Cancel" if `acceptButtonText` is set; `null` hides it
+- `acceptAction`: async work while the accept button shows a spinner
+
+| type    | icon                     | color       |
+| ------- | ------------------------ | ----------- |
+| primary | bwi-business             | primary-600 |
+| success | bwi-star                 | success-600 |
+| info    | bwi-info-circle          | info-600    |
+| warning | bwi-exclamation-triangle | warning-600 |
+| danger  | bwi-error                | danger-600  |
+
+## Scrolling content
+
+<Canvas of={stories.ScrollingContent} />
+
+## Using forms with dialogs
+
+Wrap the dialog in a `<form>`: `<form><bit-simple-dialog>…</bit-simple-dialog></form>`.

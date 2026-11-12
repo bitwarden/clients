@@ -1,0 +1,11 @@
+/**
+ * Document-level styles for pages hosting `@bitwarden/components-lit`: theme variables, fonts and
+ * the icon font face. Custom properties inherit into shadow roots; `@font-face` must live here
+ * because browsers ignore it inside shadow roots.
+ */
+@import "../../../components/src/tw-theme-preflight.css";
+@import "../../../angular/src/scss/bwicons/styles/style.css";
+
+.bit-compact {
+  --bit-compact: 1;
+}

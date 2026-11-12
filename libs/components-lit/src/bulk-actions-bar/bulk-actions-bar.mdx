@@ -1,0 +1,75 @@
+import { Canvas, Controls, Meta, Primary } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./bulk-actions-bar.stories";
+
+<Meta of={stories} />
+
+# Bulk Actions Bar
+
+A floating toolbar pinned to the bottom of the viewport that acts on the current selection.
+
+<Primary />
+<Controls />
+
+## Declaring actions
+
+Add one `bit-bulk-action` per action. Each is a data holder: it renders nothing itself; the bar
+renders the toolbar button.
+
+```html
+<bit-bulk-actions-bar selected-count="3">
+  <bit-bulk-action icon="bwi-folder" label="Move"></bit-bulk-action>
+  <bit-bulk-action icon="bwi-trash" label="Delete" disabled></bit-bulk-action>
+</bit-bulk-actions-bar>
+```
+
+- `action` (property) — callback invoked when the user activates the action. A `click` event also
+  fires on the `bit-bulk-action` element, so either can be used.
+- `label` — visible text, and the tooltip / `aria-label` in compact mode.
+- `icon` — required, so compact mode has something to show.
+- `disabled` — propagates to the rendered button and menu item.
+
+## Visibility
+
+The bar slides in while `selected-count` is above `0` and slides away at `0`. It stays in the DOM,
+so its live region can announce the transition to "Selection cleared".
+
+## Clearing the selection
+
+A built-in **Clear** button follows the count. Listen for `clear` to reset your selection state.
+
+<Canvas of={stories.WithTableSelection} />
+
+## Additional actions
+
+`bit-bulk-additional-action` entries live only in the "Additional actions" menu. The ellipsis
+trigger shows whenever there's something to put in the menu: overflowed primary actions first, then
+a divider, then the additional actions. `icon` is optional here.
+
+<Canvas of={stories.WithAdditionalActions} />
+
+## Compact mode
+
+In a narrow container the bar collapses labels to icons, with the labels as tooltips.
+
+<Canvas of={stories.Compact} />
+
+## Responsive packing
+
+When compact isn't enough, trailing primary actions move into the menu. The count, **Clear** and the
+trigger always stay in the row. Declare actions most-important-first.
+
+<Canvas of={stories.WithOverflow} />
+
+## Keyboard shortcut
+
+While the bar is visible, <kbd>Cmd+B</kbd> (Mac) or <kbd>Ctrl+B</kbd> (Windows/Linux) moves focus to
+the first item in the bar. Pressing it again returns focus to where it was.
+
+## Accessibility
+
+- `role="toolbar"` with a localized label. Roving tabindex: arrow keys move between items,
+  <kbd>Home</kbd>/<kbd>End</kbd> jump to the ends, and navigation wraps. The toolbar stays in the
+  tab order even when the focused item packs into the menu.
+- Count changes are announced through a live region.
+- While hidden, the bar is `inert` and `aria-hidden`.

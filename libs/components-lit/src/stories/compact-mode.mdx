@@ -1,0 +1,68 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as itemStories from "../item/item.stories";
+
+<Meta title="Documentation/Compact Mode" />
+
+# Compact Mode
+
+The Bitwarden browser extension has a global compact mode setting for users who prefer a more
+information-dense UI.
+
+## Enabling
+
+Add the `bit-compact` class to an ancestor, usually `<html>` or the app root.
+`src/styles/document.css` turns it into an inherited custom property, `--bit-compact: 1`:
+
+```html
+<body class="bit-compact">
+  …
+</body>
+```
+
+Custom properties inherit through shadow boundaries, so components pick up compact mode wherever
+they render. A plain `.bit-compact &` selector can't: it would never match from inside a shadow
+root.
+
+Setting the property yourself (`style="--bit-compact: 1"`) works too, and so does resetting it
+(`--bit-compact: 0`) to opt a subtree back out.
+
+## Tailwind
+
+Component authors hook into this setting with the `bit-compact` Tailwind variant. It compiles to a
+style container query, `@container style(--bit-compact: 1)`, so it works both in component templates
+and in pages using this library's Tailwind config. In the following example, the paragraph's padding
+is reduced when compact mode is enabled.
+
+```html
+<p class="tw-bg-primary-100 tw-p-4 bit-compact:tw-p-0.5">Lorem impsum doggo dolor...</p>
+
+<div class="bit-compact">
+  <p class="tw-bg-primary-100 tw-p-4 bit-compact:tw-p-0.5">Lorem impsum doggo dolor...</p>
+</div>
+```
+
+<p className="tw-bg-primary-100 tw-p-4 bit-compact:tw-p-0.5">Lorem impsum doggo dolor...</p>
+
+<div className="bit-compact">
+  <p className="tw-bg-primary-100 tw-p-4 bit-compact:tw-p-0.5">Lorem impsum doggo dolor...</p>
+</div>
+
+A style query matches against the element's parent, so put the class on an ancestor, not on the
+element that uses the variant.
+
+## Reading it in TypeScript
+
+There's no `CompactModeService`. When code needs the value, read the computed custom property:
+
+```ts
+const compact = getComputedStyle(element).getPropertyValue("--bit-compact").trim() === "1";
+```
+
+Prefer the Tailwind variant when possible: it needs no change detection and is more performant.
+
+## Examples
+
+### [Item](?path=/story/component-library-item--compact-mode)
+
+<Canvas of={itemStories.CompactMode} />

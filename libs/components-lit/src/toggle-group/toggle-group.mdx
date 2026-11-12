@@ -1,0 +1,47 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./toggle-group.stories";
+
+<Meta of={stories} />
+
+# Toggle Group
+
+Toggle groups are quick filters for a data set, e.g. filtering members by status. They behave as a
+radio group; a toggle can show a `bit-berry` count.
+
+```html
+<bit-toggle-group label="People list filter" selected="all">
+  <bit-toggle value="all">All <bit-berry value="3"></bit-berry></bit-toggle>
+  <bit-toggle value="invited">Invited</bit-toggle>
+</bit-toggle-group>
+```
+
+Listen for `selectedChange` (detail is the value) or `change`. The group is form-associated and
+submits `selected` under `name`.
+
+<Canvas of={stories.Default} />
+
+## Full width
+
+Set `full-width` to span the container, sizing each toggle equally.
+
+<Canvas of={stories.FullWidth} />
+
+## Inline
+
+Set `inline` to stay inline at all breakpoints, e.g. inside a card.
+
+<Canvas of={stories.Inline} />
+
+## Responsive overflow
+
+When the container is narrower than the toggles' natural width, the group collapses into a dropdown,
+and returns when there's room again. `selectedChange` fires the same way in every mode.
+
+<Canvas of={stories.Overflow} />
+
+## Accessibility
+
+- The group is a `radiogroup` labelled by `label`; in dropdown mode the same label is a
+  screen-reader-only `<label>` for the select.
+- Arrow keys move and select; only the selected toggle is in the tab order.

@@ -1,0 +1,49 @@
+import { Canvas, Controls, Description, Meta, Primary, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./banner.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitBanner } from "@bitwarden/components-lit";
+```
+
+<Title />
+<Description />
+<Primary />
+<Controls />
+
+## Banner With Heading
+
+<Canvas of={stories.TitleBannerBase} />
+
+## Content Slots
+
+- **Default slot**: plain text or inline elements, such as links.
+- **`slot="actions"`**: only rendered when `heading` is set. Right-aligned at wide widths, below the
+  body text at narrow widths. Match each button's `button-type` to the banner `variant`.
+
+## Variants
+
+<Canvas of={stories.AllVariantsNoTitle} />
+
+<Canvas of={stories.AllVariantsWithTitle} />
+
+## Icons
+
+Icons should remain consistent across these types. Do not change the icon without consulting
+designers. Override the default with `icon`, or set `icon=""` to hide it.
+
+<Canvas of={stories.AllVariantsCustomIcon} />
+
+## Dismissibility
+
+The close button is only rendered when `dismissible` is set. Clicking it fires `dismiss`; the
+consumer removes the banner.
+
+<Canvas of={stories.NotDismissible} />
+
+## Accessibility
+
+Banners set `role="status"` and `aria-live="polite"` so screen readers announce their content. Set
+`disable-alert-role` to turn this off.

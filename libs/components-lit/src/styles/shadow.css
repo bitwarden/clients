@@ -1,0 +1,13 @@
+/**
+ * Shared stylesheet adopted by every component's shadow root. Lit dedupes it into a single
+ * constructable stylesheet, so it's parsed once regardless of instance count.
+ */
+@import "../../../angular/src/scss/bwicons/styles/style.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[hidden] {
+  display: none !important;
+}

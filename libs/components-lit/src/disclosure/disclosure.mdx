@@ -1,0 +1,38 @@
+import { Meta, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./disclosure.stories";
+
+<Meta of={stories} />
+
+```ts
+import {
+  attachDisclosureTrigger,
+  BitDisclosure,
+  BitDisclosureTrigger,
+  disclosureTriggerFor,
+} from "@bitwarden/components-lit";
+```
+
+<Title />
+<Description />
+
+<Canvas of={stories.DisclosureOpen} />
+
+## Connecting a trigger
+
+- Plain HTML: wrap the trigger in `<bit-disclosure-trigger for="disclosure-id">`.
+- Lit templates: `disclosureTriggerFor(disclosureElement)` on the trigger.
+- Anything else: `attachDisclosureTrigger(trigger, disclosure)`, which returns a handle to
+  `destroy()`.
+
+Set `open` on `bit-disclosure` for its initial state (default closed). Toggling via the trigger
+fires `openChange`.
+
+<Canvas of={stories.LitDirective} />
+
+## Accessibility
+
+Follows the WAI-ARIA Disclosure (Show/Hide) pattern: the trigger gets `aria-expanded` and
+`aria-controls`. For components whose button lives in a shadow root (e.g. `bit-icon-button`),
+they're set on that inner button, using element reflection for `aria-controls` since ids don't
+resolve across shadow roots. The trigger must be a button with an accessible label.

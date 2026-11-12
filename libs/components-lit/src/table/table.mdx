@@ -1,0 +1,52 @@
+import { Meta, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./table.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/table";
+```
+
+# Table
+
+> **`bit-table` is deprecated.** Use `bit-table-v2` for new tables.
+
+`bit-table` renders a native `<table>` in its shadow root. Describe the columns with `columns`
+(`{ id, header, cell(row), sortable, defaultSort, sortFn, width }`) and supply rows through a
+`TableDataSource` (sorting and filtering) or a plain `rows` array.
+
+<Primary />
+<Controls />
+
+## Guidelines
+
+- Always include a header for each column; screen readers use it to contextualize the data.
+- Avoid spanning data across cells.
+- Make repeated actions unique, e.g. an "Edit" button labelled "Edit, Netflix".
+- Use `bit-table-scroll` (virtual scrolling) for large data sets.
+
+## Data source
+
+`TableDataSource` filters and sorts `data` into `renderData` and fires `change`:
+
+```ts
+const dataSource = new TableDataSource<Row>();
+dataSource.data = rows;
+dataSource.filter = "search term"; // or (row) => boolean
+dataSource.sort = { column: "name", direction: "asc" };
+```
+
+Sortable headers toggle `dataSource.sort`; the header carries `aria-sort` and the button
+`aria-pressed`.
+
+## Virtual scrolling
+
+`bit-table-scroll` takes the same inputs plus `row-size` (px). Only rows near the viewport render;
+it scrolls with its nearest scrolling ancestor, or with itself when given a bounded height and
+`overflow: auto`. Every row must render at exactly `row-size`.
+
+## Styling your own table
+
+`tableClasses()`, `tableHeadClasses`, `tableRowClasses()` and `tableCellClasses` are exported for
+components that render their own `<table>` in a shadow root.

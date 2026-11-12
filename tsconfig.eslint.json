@@ -4,7 +4,10 @@
     ".storybook/main.ts",
     ".storybook/manager.js",
     ".storybook/test-runner.ts",
-    "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
+    "apps/browser/src/autofill/content/components/.lit-storybook/main.ts",
+    "libs/components-lit/.storybook/main.ts",
+    "libs/components-lit/.storybook/preview.ts",
+    "libs/components-lit/.storybook/storybook-i18n.ts"
   ],
   "include": ["apps/**/*", "e2e/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
   "exclude": ["**/build", "**/dist"]

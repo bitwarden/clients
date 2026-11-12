@@ -1,0 +1,34 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./progress-bar.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitProgressBar } from "@bitwarden/components-lit";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Slots
+
+- `slot="label"` — visible label; also the bar's accessible name.
+- `slot="start"` — hint under the start of the bar. Defaults to "N% complete"; hide it with
+  `hide-start-hint`.
+- `slot="end"` — hint under the end of the bar.
+
+<Canvas of={stories.WithLabelAndHelperHint} />
+<Canvas of={stories.StartHint} />
+
+## Accessibility
+
+The bar has `role="progressbar"` with `aria-valuenow` from 0 to 100, labelled by the label slot.
+Without a label, set `accessible-name`; otherwise it falls back to "Progress bar \{number\}". Use
+`aria-value-text` to override the announced value. To reference the bar from outside (e.g.
+`aria-describedby`), use its `ariaTarget` with element reflection.
+
+<Canvas of={stories.WithAccessibleNameFallback} />

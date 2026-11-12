@@ -1,0 +1,23 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./nav-section.stories";
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+`bit-nav-section` groups related navigation items beneath an uppercased heading. Provide the heading
+via `label` and an optional leading `icon`. When the side nav is collapsed the heading is visually
+hidden (`sr-only`) while the grouped items keep their icons in the rail.
+
+<Primary />
+<Controls />
+
+## Empty State
+
+A section with no items renders an empty state via `bit-nav-section-empty`. Slot the message as
+content; set `dismissible` to show a close button, which fires `dismiss`. The consumer owns hiding
+and persistence. The empty state is hidden while the side nav is collapsed.
+
+<Canvas of={stories.EmptyState} />

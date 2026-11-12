@@ -1,0 +1,29 @@
+import { Meta, Story } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./anon-layout.stories";
+
+<Meta of={stories} />
+
+# Anon Layout
+
+`bit-anon-layout` is used primarily for unauthenticated pages, where we don't know who the user is
+(with a few exceptions such as Unlock and View Send).
+
+Pages don't use it directly. The app renders a single `bit-anon-layout-wrapper` around its anonymous
+routes and passes each route's data as `routeData`; the page's content goes in the default slot,
+with optional `secondary`, `environment-selector` and `header-actions` slots (the Angular named
+router outlets).
+
+```ts
+wrapper.routeData = {
+  pageTitle: { key: "logIn" }, // a Translation is translated; a string is shown as is
+  pageSubtitle: { key: "loginWithMasterPassword" },
+  pageIcon: LockIcon,
+  showReadonlyHostname: true,
+} satisfies AnonLayoutWrapperData;
+```
+
+All `AnonLayoutWrapperData` fields are optional. `showReadonlyHostname` shows "Accessing {hostname}"
+(set `hostname` on the wrapper) instead of the environment selector slot.
+
+<Story of={stories.SecondaryContent} />

@@ -1,0 +1,15 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./kitchen-sink.stories";
+
+<Meta of={stories} />
+
+# Kitchen Sink
+
+The purpose of this story is to compose together all of our components. When snapshot tests run,
+we'll be able to spot-check visual changes in a more app-like environment than just the isolated
+stories. The stories for the Kitchen Sink exist to be tested by the Chromatic UI tests.
+
+The page-level composites (`bit-kitchen-sink-*`) live next to the stories. They render into light
+DOM like Angular component templates, and route with the URL hash (`#/bitwarden`, `#/empty`,
+`#/virtual-scroll`) in place of the Angular router. The `legacy` arg selects the pre-VFO1 design.

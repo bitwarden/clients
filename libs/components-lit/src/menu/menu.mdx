@@ -1,0 +1,57 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./menu.stories";
+
+<Meta of={stories} />
+
+# Menu
+
+A list of actions, selections or navigation options in a floating overlay, opened from a trigger.
+
+<Canvas of={stories.ClosedMenu} />
+
+## Composition
+
+`bit-menu` contains `bit-menu-item`s (buttons, or links when `href` is set) and `bit-menu-divider`s.
+Items may be nested in other markup.
+
+```html
+<bit-button id="options">Open menu</bit-button>
+<bit-menu trigger="options">
+  <bit-menu-item href="#">Anchor link</bit-menu-item>
+  <bit-menu-item>Button</bit-menu-item>
+  <bit-menu-divider></bit-menu-divider>
+  <bit-menu-item variant="danger">Delete</bit-menu-item>
+</bit-menu>
+```
+
+Connect a trigger with the `trigger` attribute (an id in the same root), the `menuTrigger(menu)` Lit
+directive, or `attachMenuTrigger(trigger, menu, { position })`. `position` is one of `below-start`
+(default), `below-end`, `above-start`, `above-end`; the others are tried if it doesn't fit.
+
+### Menu items
+
+| Slot           | Description                              |
+| -------------- | ---------------------------------------- |
+| default        | primary text or arbitrary content        |
+| `slot="start"` | an icon or `bit-icon-tile` (`size="xs"`) |
+| `slot="end"`   | an icon or hint                          |
+
+Use a leading visual for every item or none. Use the `danger` variant for destructive actions.
+
+<Canvas of={stories.IconTileMenu} />
+
+<Canvas of={stories.ActionMenu} />
+
+### Interactive content
+
+`menu-role="dialog"` keeps Tab inside the menu. Clicking a `bit-menu-item` or an element with
+`data-bit-menu-close` closes the menu; other content leaves it open.
+
+<Canvas of={stories.DialogRole} />
+
+## Accessibility
+
+Triggers get `aria-haspopup` and `aria-expanded`. Arrow keys, Home/End and typing move between
+items; Escape, Tab, an item click or an outside click close the menu and return focus to the
+trigger. Set `label` on menus that need a distinguishing accessible name.

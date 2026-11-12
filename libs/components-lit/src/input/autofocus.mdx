@@ -1,0 +1,12 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./autofocus.stories";
+
+<Meta of={stories} />
+
+# Autofocus
+
+Add `autofocus` to a field to focus it once when it first renders. Mobile browsers are skipped so
+the on-screen keyboard doesn't pop up unexpectedly.
+
+<Canvas of={stories.AutofocusField} />
