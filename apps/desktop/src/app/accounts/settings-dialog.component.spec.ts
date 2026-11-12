@@ -1298,8 +1298,11 @@ describe("SettingsDialogComponent", () => {
           if (flag === FeatureFlag.WindowsDesktopAutotype) {
             return of(mvpEnabled);
           }
-          // Other flags (e.g. the premium-badge rollout flag) default off.
-          return of(false);
+          // The rendered premium badge queries its rollout flag; keep it off here.
+          if (flag === FeatureFlag.PM42214_FeatureBasedUpgradePaths) {
+            return of(false);
+          }
+          throw new Error(`Unexpected feature flag requested in test: ${flag}`);
         });
       }
 
