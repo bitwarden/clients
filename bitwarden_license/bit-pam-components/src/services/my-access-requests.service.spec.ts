@@ -117,6 +117,43 @@ describe("MyAccessRequestsService", () => {
     expect(logService.error).toHaveBeenCalled();
   });
 
+  it("drops the previous account's list on a switch, before the new account's read lands", async () => {
+    requestsApi.listMyAccessRequests.mockResolvedValueOnce([pending("cipher-1")]);
+    const seen: ReadonlyMap<string, unknown>[] = [];
+    const subscription = service.badges$.subscribe((badges) => seen.push(badges));
+    await settle();
+
+    let resolveSecond!: (requests: AccessRequestView[]) => void;
+    requestsApi.listMyAccessRequests.mockReturnValueOnce(
+      new Promise((resolve) => (resolveSecond = resolve)),
+    );
+    account$.next({ id: "user-2" });
+
+    expect(seen.map((badges) => [...badges.keys()])).toEqual([["cipher-1"], []]);
+    expect(await firstValueFrom(service.requests$)).toEqual([]);
+
+    resolveSecond([pending("cipher-2")]);
+    await settle();
+    subscription.unsubscribe();
+
+    expect(seen.map((badges) => [...badges.keys()])).toEqual([["cipher-1"], [], ["cipher-2"]]);
+  });
+
+  it("keeps the new account's list empty when its first read fails", async () => {
+    requestsApi.listMyAccessRequests.mockResolvedValueOnce([pending("cipher-1")]);
+    const seen: (readonly AccessRequestView[])[] = [];
+    const subscription = service.requests$.subscribe((requests) => seen.push(requests));
+    await settle();
+
+    requestsApi.listMyAccessRequests.mockRejectedValueOnce(new Error("boom"));
+    account$.next({ id: "user-2" });
+    await settle();
+    subscription.unsubscribe();
+
+    expect(seen.map((requests) => requests.map((r) => r.cipherId))).toEqual([["cipher-1"], []]);
+    expect(logService.error).toHaveBeenCalled();
+  });
+
   it("reads nothing for a signed-out account", async () => {
     account$.next(null);
 

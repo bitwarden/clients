@@ -36,7 +36,7 @@ import { AccessBadgeTickerService } from "../access-state-badge/access-badge-tic
  * The caller's own requests (`listMyAccessRequests`), one read shared by the nav count and the vault
  * list's badges. Read again on every access change, and when a window or a lease that gives a badge
  * ends, since nothing announces that. Dropped once nothing listens. A failed read logs and keeps the
- * last good list.
+ * active account's last good list, which is empty after an account switch.
  */
 @Injectable()
 export class MyAccessRequestsService {
@@ -58,11 +58,15 @@ export class MyAccessRequestsService {
     this.requests$ = this.accountService.activeAccount$.pipe(
       getOptionalUserId,
       distinctUntilChanged(),
-      switchMap((userId) =>
+      switchMap((userId, index) =>
         userId == null
           ? of([])
-          : merge(of(undefined), this.accessRefreshService.accessChanged$()).pipe(
-              switchMap(() => this.read$()),
+          : concat(
+              // After a switch, drop the previous account's list before this account's read lands.
+              index === 0 ? EMPTY : of([]),
+              merge(of(undefined), this.accessRefreshService.accessChanged$()).pipe(
+                switchMap(() => this.read$()),
+              ),
             ),
       ),
       // A consumer swapping its inputs unsubscribes and subscribes again in one task.
