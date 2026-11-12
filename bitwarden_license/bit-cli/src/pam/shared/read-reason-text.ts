@@ -85,7 +85,6 @@ export async function readReasonText(
   return trimmed;
 }
 
-/** Adds `--reason`, `--reasonfile` and `--reasonstdin`. */
 export function addReasonOptions(command: Command): Command {
   return command
     .option("--reason <reason>", "The reason, as text.")

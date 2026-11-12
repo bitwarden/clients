@@ -21,7 +21,6 @@ import { PamSdkService } from "../pam-sdk.service";
 export const PAM_TEST_USER_ID = "11111111-1111-4111-8111-111111111111" as UserId;
 export const PAM_TEST_ORGANIZATION_ID = "22222222-2222-4222-8222-222222222222" as OrganizationId;
 
-/** An account service whose active account is {@link PAM_TEST_USER_ID}. */
 export function pamTestAccountService(userId: UserId = PAM_TEST_USER_ID): FakeAccountService {
   return mockAccountServiceWith(userId, { email: "user@example.com", name: "Test User" });
 }

@@ -13,7 +13,6 @@ export interface PamNames {
   organization(id: string): string;
 }
 
-/** The lookup that answers every id with itself. */
 export const PAM_IDS_ONLY: PamNames = Object.freeze({
   cipher: (id: string) => id,
   collection: (id: string) => id,

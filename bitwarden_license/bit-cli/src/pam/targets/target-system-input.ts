@@ -55,7 +55,6 @@ export async function readTargetSystemInput(
   return parseTargetSystemJson(text);
 }
 
-/** Validates `--method` for `template`. */
 export function parseTemplateMethod(value: string | undefined): "automatic" | "manual" {
   const method = (value ?? "automatic").toLowerCase();
   if (method !== "automatic" && method !== "manual") {

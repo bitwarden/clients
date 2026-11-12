@@ -26,7 +26,6 @@ export function toSdkId<T extends Uuid>(value: string | null | undefined, label:
   return asUuid<T>(parseGuid(value, label));
 }
 
-/** The string form of an SDK id. */
 export function sdkIdToString<T extends Uuid>(id: T): string {
   return uuidAsString(id);
 }

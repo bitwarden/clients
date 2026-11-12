@@ -18,7 +18,7 @@ All but `template` need `--organizationid <id>`.
 | `bw pam target disable <id> --organizationid <id>`                            | Stops new rotation jobs. Jobs in flight keep running. |
 | `bw pam target delete <id> --organizationid <id> --yes`                       | Deletes it for good. Needs `--yes`, never prompts.    |
 
-`--stdin` is an addition to the planned surface: it reads the request from standard input. Give exactly one of the JSON argument, `--file` or `--stdin`. Prefer `--file` or `--stdin`, which keep the password policy out of shell history.
+`--stdin` reads the request from standard input. Give exactly one of the JSON argument, `--file` or `--stdin`. Prefer `--file` or `--stdin`, which keep the password policy out of shell history.
 
 ## The request
 

@@ -210,7 +210,6 @@ export function describePamError(e: unknown): PamErrorInfo {
   return { kind: "unexpected", message: "The operation failed unexpectedly." };
 }
 
-/** The printable message of {@link describePamError}. */
 export function pamErrorMessage(e: unknown): string {
   return describePamError(e).message;
 }

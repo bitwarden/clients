@@ -29,7 +29,6 @@ export function parseIdOption(value: string | undefined, label: string): string 
   return parseGuid(value, label);
 }
 
-/** Validates and lowercases `--organizationid`. */
 export function parseOrganizationIdOption(value: string | undefined): string {
   return parseGuid(value, "organization id");
 }

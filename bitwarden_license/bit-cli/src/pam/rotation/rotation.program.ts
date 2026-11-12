@@ -327,7 +327,6 @@ function orgOf(ctx: PamContext): string {
   return ctx.organizationId;
 }
 
-/** Parses `--jobs`. */
 function parseJobs(value: string | undefined): number {
   if (value == null) {
     return DEFAULT_JOBS;
