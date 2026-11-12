@@ -21,11 +21,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DEFAULT_KDF_CONFIG,
-  EncryptService,
-  LegacyCompatKeyService,
-} from "@bitwarden/legacy-crypto";
+import { DEFAULT_KDF_CONFIG, EncryptService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopSetInitialPasswordService } from "./desktop-set-initial-password.service";
@@ -38,7 +34,6 @@ describe("DesktopSetInitialPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
-  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -55,7 +50,6 @@ describe("DesktopSetInitialPasswordService", () => {
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
-    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
@@ -72,7 +66,6 @@ describe("DesktopSetInitialPasswordService", () => {
       i18nService,
       kdfConfigService,
       keyService,
-      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
