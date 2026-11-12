@@ -11,11 +11,10 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
-  InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
   GroupsComponentRefactor = "pm-43419-groups-table-v2",
   MembersTableV2 = "pm-37463-members-table-v2",
+  OrganizationMembershipSdk = "pm-41568-org-memberships-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -55,6 +54,7 @@ export enum FeatureFlag {
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
   PamBillingSupport = "pm-39883-pam-billing-support",
+  PM42214_FeatureBasedUpgradePaths = "pm-42214-feature-based-upgrade-paths",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -124,11 +124,10 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
-  [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
   [FeatureFlag.GroupsComponentRefactor]: FALSE,
   [FeatureFlag.MembersTableV2]: FALSE,
+  [FeatureFlag.OrganizationMembershipSdk]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -190,6 +189,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
   [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
+  [FeatureFlag.PM42214_FeatureBasedUpgradePaths]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
