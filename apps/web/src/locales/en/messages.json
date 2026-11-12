@@ -1083,7 +1083,7 @@
   },
   "clearSearchTooltip": {
     "message": "Clear by clicking here or pressing Esc.",
-    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard. Use the abbreviation printed on local keyboards."
   },
   "allItems": {
     "message": "All items"
@@ -13589,11 +13589,11 @@
   },
   "memberDecryptionOptionTdeDescVfo1Part2": {
     "message": ",",
-    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link, rendered tight against the preceding </a> tag to prevent a leading space."
   },
   "memberDecryptionOptionTdeDescVfo1Part3": {
     "message": ", and",
-    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links, rendered tight against the preceding </a> tag to prevent a leading space."
   },
   "memberDecryptionOptionTdeDescVfo1Link3": {
     "message": "Account recovery administration",
@@ -18509,6 +18509,9 @@
     "message": "No shared folders to filter by",
     "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
   },
+  "pamMyRequestsHistoryEmpty": {
+    "message": "No request history"
+  },
   "pamMyRequestsEmptyTitle": {
     "message": "You have no requests"
   },
@@ -19188,6 +19191,18 @@
       }
     }
   },
+  "cipherLeaseExpiresInV2": {
+    "message": "Leased: expires in $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "47m"
+      }
+    }
+  },
+  "cipherLeaseRequiresApproval": {
+    "message": "Requires approval to view"
+  },
   "pendingStateCancelRequest": {
     "message": "Cancel request"
   },
@@ -19209,8 +19224,14 @@
   "pendingStateCancelError": {
     "message": "Couldn't cancel the request."
   },
+  "requestAccessModalTitle": {
+    "message": "Request access"
+  },
   "requestAccessModalSubmitV2": {
     "message": "Send request"
+  },
+  "requestAccessModalDismiss": {
+    "message": "Cancel"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Pick a duration. You'll get immediate access for that long."
@@ -19863,6 +19884,9 @@
         "example": "3"
       }
     }
+  },
+  "pamMyAccess": {
+    "message": "My access"
   },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
@@ -21053,6 +21077,9 @@
   "pamRotationDetailDueSchedule": {
     "message": "Due schedule"
   },
+  "pamRotationHistoryColumnTrigger": {
+    "message": "Trigger"
+  },
   "pamRotationHistoryColumnRotationTrigger": {
     "message": "Rotation trigger"
   },
@@ -21146,8 +21173,14 @@
   "pamRotationAddAccessConnector": {
     "message": "Access connector"
   },
+  "pamRotationConfigInProgress": {
+    "message": "Rotation in progress"
+  },
   "pamRotationConfigRotatingBadge": {
     "message": "Rotating"
+  },
+  "pamRotationConfigManualDue": {
+    "message": "Manual rotation due"
   },
   "pamRotationConfigRotationDueBadge": {
     "message": "Rotation due"
@@ -21155,11 +21188,17 @@
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
   },
+  "pamRotationConfigRecordManual": {
+    "message": "Record manual rotation"
+  },
   "pamRotationConfigMarkRotated": {
     "message": "Mark as rotated"
   },
   "pamRotationConfigRecordManualDisabledTitle": {
     "message": "Nothing to mark yet. This becomes available when the next manual rotation is due."
+  },
+  "pamRotationConfigRecordManualTitle": {
+    "message": "Record manual rotation"
   },
   "pamRotationConfigMarkRotatedTitle": {
     "message": "Mark as rotated"
@@ -21170,6 +21209,9 @@
   "pamRotationConfigRemoveFromRotation": {
     "message": "Remove from rotation"
   },
+  "pamRotationConfigPause": {
+    "message": "Pause"
+  },
   "pamRotationConfigPauseRotation": {
     "message": "Pause rotation"
   },
@@ -21178,6 +21220,9 @@
   },
   "pamRotationConfigPauseFailed": {
     "message": "Rotation wasn't paused. Try again."
+  },
+  "pamRotationConfigResume": {
+    "message": "Resume"
   },
   "pamRotationConfigResumeRotation": {
     "message": "Resume rotation"
@@ -21562,6 +21607,15 @@
   "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
     "message": "This target system and its access connector assignments will be deleted. To stop rotations but keep it, deactivate it instead."
   },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Schedule"
+  },
+  "privateAccessBanner": {
+    "message": "This is a Privileged Controls preview environment. Do not use real credentials."
+  },
+  "viewUserGuide": {
+    "message": "View user guide"
+  },
   "pamRotationConfigVaultItem": {
     "message": "Vault item"
   },
@@ -21604,9 +21658,6 @@
   "pamRotationConfigAfterRotationHeading": {
     "message": "After rotation"
   },
-  "pamRotationConfigScheduleLabel": {
-    "message": "Schedule"
-  },
   "pamRotationConfigRotateOnAccessEndHintAdd": {
     "message": "Changes the password when someone's access ends, so the old password stops working."
   },
@@ -21622,11 +21673,20 @@
   "pamRotationConfigEndSessionsAvailableOnce": {
     "message": "Available once you select a target system that supports it."
   },
+  "pamRotationConfigAdded": {
+    "message": "Managed credential added"
+  },
   "pamRotationConfigAddedSuccess": {
     "message": "Managed credential added."
   },
+  "pamTargetSystemAdded": {
+    "message": "Target system added"
+  },
   "pamTargetSystemAddedSuccess": {
     "message": "Target system added."
+  },
+  "pamTargetSystemNameHint": {
+    "message": "Use a name your team will recognize, for example Entra ID production. It shows wherever you choose a target system."
   },
   "pamTargetSystemNameHelp": {
     "message": "Use a name your team will recognize, e.g. Entra ID production. It shows wherever you choose a target system."
@@ -21669,6 +21729,12 @@
   },
   "pamTargetSystemAccessConnectorsHint": {
     "message": "Choose the access connectors that can rotate passwords on this target system. Choose more than one for a backup."
+  },
+  "pamTargetSystemCalloutNoneConnected": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save it."
+  },
+  "pamTargetSystemCalloutNoConnectors": {
+    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
   },
   "pamTargetSystemCalloutNoConnectorConnected": {
     "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save."
