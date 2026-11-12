@@ -921,10 +921,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if ((currentParams.itemId || currentParams.cipherId) && newExperienceResult == null) {
       const id = currentParams.itemId ?? currentParams.cipherId;
       const userId = await firstValueFrom(this.userId$);
-      const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, id));
-      if (cipher) {
-        await this.viewCipher(cipher);
-      }
+      await this.openDeepLinkedCipher(userId, id);
     }
     if (newExperienceResult != null) {
       this.sideNavService.open.set(true);
@@ -1270,6 +1267,23 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private dirtyInput(): boolean {
     return document.querySelectorAll("vault-cipher-form .ng-dirty").length > 0;
+  }
+
+  /**
+   * Opens the cipher a deep link points at.
+   */
+  private async openDeepLinkedCipher(userId: UserId, id: string): Promise<void> {
+    const views: CipherViewLike[] = await firstValueFrom(
+      this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+    );
+    if (!views.some((view) => CipherViewLikeUtils.getId(view) === id)) {
+      return;
+    }
+
+    const [cipher] = await this.cipherService.decryptByIds(userId, [id]);
+    if (cipher) {
+      await this.viewCipher(cipher);
+    }
   }
 
   private async wantsToSaveChanges(): Promise<boolean> {
