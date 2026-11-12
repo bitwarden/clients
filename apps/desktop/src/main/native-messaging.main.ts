@@ -502,6 +502,7 @@ export class NativeMessagingMain {
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
       Arbalete: `${this.homedir()}/Library/Application\ Support/Arbalete/`,
+      "Arbalete Dev": `${this.homedir()}/Library/Application\ Support/Arbalete\ Dev/`,
       Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
       "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
       "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,
