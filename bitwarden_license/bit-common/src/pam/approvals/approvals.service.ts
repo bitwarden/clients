@@ -124,8 +124,11 @@ export function deriveManagedLeases(rows: AccessRequestView[], nowMs: number): M
 
 /**
  * The approver's operations. Audience is anyone with Manage on a governed collection, or an
- * admin; nothing here gates on a role, because the server decides who is an approver and answers
- * a non-approver with an empty inbox. Comments and reasons are passed through and never logged.
+ * admin who can edit all items. This service does not gate on a role itself: the CLI refuses
+ * approval commands before they reach it, from the locally synced organizations and collections
+ * (`ApproverPrivilegeService`, applied by the CLI's approver guard). That check is local and
+ * fails closed, so a user who has just been granted Manage must `bw sync` before the commands
+ * work; the server is not asked. Comments and reasons are passed through and never logged.
  */
 export class ApprovalsService {
   constructor(
