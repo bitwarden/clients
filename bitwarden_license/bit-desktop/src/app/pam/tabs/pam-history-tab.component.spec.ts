@@ -24,6 +24,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { stubTabWidth } from "../testing/stub-tab-width";
+
 import { PamHistoryTabComponent } from "./pam-history-tab.component";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
@@ -124,31 +126,7 @@ describe("PamHistoryTabComponent", () => {
   let myLoadError$: BehaviorSubject<unknown | null>;
   let lastSync$: BehaviorSubject<Date | null>;
   let canApprove$: BehaviorSubject<boolean>;
-  let viewportWidth: number;
-  let mediaListeners: Array<() => void>;
-
-  function matchesWidth(query: string): boolean {
-    return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
-  }
-
-  /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
-  function stubMatchMedia(): void {
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      writable: true,
-      value: (query: string) => ({
-        matches: matchesWidth(query),
-        media: query,
-        addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
-          mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
-        ),
-        removeEventListener: jest.fn(),
-        // The CDK's high-contrast detector still uses the deprecated listener API.
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-      }),
-    });
-  }
+  let tabWidth: ReturnType<typeof stubTabWidth>;
 
   function create(): void {
     fixture = TestBed.createComponent(PamHistoryTabComponent);
@@ -226,9 +204,7 @@ describe("PamHistoryTabComponent", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     jest.setSystemTime(NOW);
-    viewportWidth = 1440;
-    mediaListeners = [];
-    stubMatchMedia();
+    tabWidth = stubTabWidth(1200);
     myRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     managedRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     managedLoading$ = new BehaviorSubject(false);
@@ -284,7 +260,7 @@ describe("PamHistoryTabComponent", () => {
 
   afterEach(() => {
     fixture?.destroy();
-    delete (window as { matchMedia?: unknown }).matchMedia;
+    tabWidth.restore();
     jest.useRealTimers();
   });
 
@@ -304,9 +280,9 @@ describe("PamHistoryTabComponent", () => {
       ]);
     });
 
-    it("drops Resolved by below md, leaving the request dialog to carry it", () => {
+    it("drops Resolved by first when the tab is too narrow for it, leaving the request dialog to carry it", () => {
       fixture.destroy();
-      viewportWidth = 700;
+      tabWidth.setWidth(821);
       create();
 
       expect(headers().map(text)).toEqual([
@@ -316,16 +292,15 @@ describe("PamHistoryTabComponent", () => {
         "pamColumnResolved",
       ]);
 
-      viewportWidth = 800;
-      mediaListeners.forEach((notify) => notify());
+      tabWidth.setWidth(822);
       fixture.detectChanges();
 
       expect(headers().map(text)).toContain("pamColumnResolvedBy");
     });
 
-    it("also drops Requester at the 600px minimum, naming the requester under the item", () => {
+    it("drops Requester next, naming the requester under the item", () => {
       fixture.destroy();
-      viewportWidth = 600;
+      tabWidth.setWidth(661);
       create();
 
       expect(headers().map(text)).toEqual([
@@ -338,6 +313,24 @@ describe("PamHistoryTabComponent", () => {
           query('[data-testid="my-access-history-stripe"] [data-testid="history-item-requester"]'),
         ),
       ).not.toBe("");
+
+      tabWidth.setWidth(662);
+      fixture.detectChanges();
+
+      expect(headers().map(text)).toContain("pamInboxRequester");
+      expect(query('[data-testid="history-item-requester"]')).toBeNull();
+    });
+
+    it("keeps Item, Status and Resolved in the 633px the default 950px window leaves", () => {
+      fixture.destroy();
+      tabWidth.setWidth(633);
+      create();
+
+      expect(headers().map(text)).toEqual([
+        "pamColumnItem",
+        "pamColumnStatus",
+        "pamColumnResolved",
+      ]);
     });
 
     it("does not repeat the requester under the item while its column shows", () => {

@@ -30,6 +30,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { stubTabWidth } from "../testing/stub-tab-width";
+
 import { PamApprovalsTabComponent } from "./pam-approvals-tab.component";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
@@ -113,31 +115,7 @@ describe("PamApprovalsTabComponent", () => {
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
-  let viewportWidth: number;
-  let mediaListeners: Array<() => void>;
-
-  function matchesWidth(query: string): boolean {
-    return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
-  }
-
-  /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
-  function stubMatchMedia(): void {
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      writable: true,
-      value: (query: string) => ({
-        matches: matchesWidth(query),
-        media: query,
-        addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
-          mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
-        ),
-        removeEventListener: jest.fn(),
-        // The CDK's high-contrast detector still uses the deprecated listener API.
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-      }),
-    });
-  }
+  let tabWidth: ReturnType<typeof stubTabWidth>;
 
   function create(): void {
     fixture = TestBed.createComponent(PamApprovalsTabComponent);
@@ -201,9 +179,7 @@ describe("PamApprovalsTabComponent", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     jest.setSystemTime(NOW);
-    viewportWidth = 1440;
-    mediaListeners = [];
-    stubMatchMedia();
+    tabWidth = stubTabWidth(1200);
 
     inbox = {
       approverRows$: new BehaviorSubject<ApproverRow[]>([]),
@@ -248,7 +224,7 @@ describe("PamApprovalsTabComponent", () => {
 
   afterEach(() => {
     fixture?.destroy();
-    delete (window as { matchMedia?: unknown }).matchMedia;
+    tabWidth.restore();
     jest.useRealTimers();
     jest.restoreAllMocks();
   });
@@ -332,9 +308,9 @@ describe("PamApprovalsTabComponent", () => {
       ]);
     });
 
-    it("drops the window below md, leaving the request page to carry it", () => {
+    it("drops the window first when the tab is too narrow for it, leaving the request page to carry it", () => {
       inbox.approverRows$.next([pending()]);
-      viewportWidth = 700;
+      tabWidth.setWidth(757);
 
       create();
 
@@ -345,18 +321,59 @@ describe("PamApprovalsTabComponent", () => {
         "pamColumnActions",
       ]);
 
-      viewportWidth = 800;
-      mediaListeners.forEach((notify) => notify());
+      tabWidth.setWidth(758);
       fixture.detectChanges();
 
       expect(headings()).toContain("pamColumnRequestedWindow");
     });
 
-    it("keeps every column at the default 950px window", () => {
+    it("fits Actions in the 633px the default 950px window leaves beside the side nav", () => {
       inbox.approverRows$.next([pending()]);
-      viewportWidth = 950;
+      tabWidth.setWidth(633);
 
       create();
+
+      expect(headings()).toEqual([
+        "pamColumnItem",
+        "pamColumnStatus",
+        "pamInboxRequester",
+        "pamColumnActions",
+      ]);
+      expect(query('[data-testid="approvals-item-requester"]')).toBeNull();
+    });
+
+    it("drops the requester column next, naming the requester under the item", () => {
+      inbox.approverRows$.next([pending()]);
+      tabWidth.setWidth(597);
+
+      create();
+
+      expect(headings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnActions"]);
+      expect(text(query('[data-testid="approvals-item-requester"]'))).toBe("Grace");
+
+      tabWidth.setWidth(598);
+      fixture.detectChanges();
+
+      expect(headings()).toContain("pamInboxRequester");
+      expect(query('[data-testid="approvals-item-requester"]')).toBeNull();
+    });
+
+    it("keeps Item, Status and Actions however narrow the tab gets", () => {
+      inbox.approverRows$.next([pending()]);
+      tabWidth.setWidth(283);
+
+      create();
+
+      expect(headings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnActions"]);
+    });
+
+    it("follows the tab's width, not the window's, as the side nav opens and closes", () => {
+      inbox.approverRows$.next([pending()]);
+      tabWidth.setWidth(283);
+      create();
+
+      tabWidth.setWidth(1000);
+      fixture.detectChanges();
 
       expect(headings()).toEqual([
         "pamColumnItem",
@@ -365,16 +382,6 @@ describe("PamApprovalsTabComponent", () => {
         "pamColumnRequestedWindow",
         "pamColumnActions",
       ]);
-    });
-
-    it("also drops the requester column at the 600px minimum, naming it under the item", () => {
-      inbox.approverRows$.next([pending()]);
-      viewportWidth = 600;
-
-      create();
-
-      expect(headings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnActions"]);
-      expect(text(query('[data-testid="approvals-item-requester"]'))).toBe("Grace");
     });
 
     it("does not repeat the requester under the item while its column shows", () => {

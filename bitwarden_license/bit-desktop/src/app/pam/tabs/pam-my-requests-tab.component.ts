@@ -74,9 +74,10 @@ import {
   ToastService,
   TypographyModule,
   defineTable,
-  isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { pamFittingColumns } from "./pam-table-columns";
 
 type FilterOption = { label: string; value: string; iconTile?: IconTileOptions };
 
@@ -102,6 +103,7 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
   selector: "pam-my-requests-tab",
   templateUrl: "./pam-my-requests-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: "tw-block" },
   imports: [
     ReactiveFormsModule,
     RouterModule,
@@ -272,18 +274,21 @@ export class PamMyRequestsTabComponent {
     buildMyRequestRows(this.allLeases(), this.allPending(), this.allExtensions()),
   );
 
-  private readonly atLeastMd = isAtOrLargerThanBreakpointSignal("md");
-
   /**
-   * A v2 column is a grid track, so narrow windows drop a column by omission rather than hiding
-   * its cells. The desktop window runs from 600px up: Requested window goes below 768px, and the
-   * table scrolls sideways if what is left still does not fit. The request dialog, reached from
-   * the item, carries whatever is dropped.
+   * A v2 column is a grid track, so a narrow tab drops a column by omission rather than hiding its
+   * cells. What fits is measured against the tab's own width, not the window's, since the side nav
+   * takes a fixed share of it: Item (240px), Status (160px) and Actions (144px) always show, and
+   * Requested window (200px) while it fits. The minimums match the `bit-column` widths in the
+   * template. The request dialog, reached from the item, carries whatever is dropped.
    */
+  private readonly fittingColumns = pamFittingColumns(240 + 160 + 144, [
+    { column: "window", minWidth: 200 },
+  ]);
+
   protected readonly displayedColumns = computed<MyRequestsColumn[]>(() => [
     "cipherName",
     "status",
-    ...(this.atLeastMd() ? (["window"] as const) : []),
+    ...(this.fittingColumns().has("window") ? (["window"] as const) : []),
     "actions",
   ]);
 

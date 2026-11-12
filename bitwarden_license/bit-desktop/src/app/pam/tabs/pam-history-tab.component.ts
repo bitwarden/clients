@@ -63,9 +63,10 @@ import {
   TooltipDirective,
   TypographyModule,
   defineTable,
-  isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { pamFittingColumns } from "./pam-table-columns";
 
 /** A History row with its Resolved label, which moves with the clock. */
 type HistoryTableRow = HistoryRow & { elapsed: ElapsedLabel };
@@ -100,6 +101,7 @@ const minuteMs = 60_000;
   selector: "pam-history-tab",
   templateUrl: "./pam-history-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: "tw-block" },
   imports: [
     RouterModule,
     BitCellComponent,
@@ -268,25 +270,29 @@ export class PamHistoryTabComponent {
   /** Five rows fill the table's space without implying a real row count. */
   protected readonly skeletonRows = 5;
 
-  private readonly atLeastSm = isAtOrLargerThanBreakpointSignal("sm");
-  private readonly atLeastMd = isAtOrLargerThanBreakpointSignal("md");
-
   /**
-   * A v2 column is a grid track, so narrow windows drop columns by omission. The desktop window
-   * runs from 600px up: Resolved by goes below 768px and Requester below 640px, with the requester
-   * carried under the item. The table scrolls sideways if what is left still does not fit, and the
-   * request dialog, reached from the item, carries whatever is dropped.
+   * A v2 column is a grid track, so a narrow tab drops columns by omission. What fits is measured
+   * against the tab's own width, not the window's, since the side nav takes a fixed share of it:
+   * Item (240px), Status (140px) and Resolved (120px) always show, then Requester (160px) and
+   * Resolved by (160px) while they fit, Resolved by going first. The minimums match the
+   * `bit-column` widths in the template. The requester is carried under the item once its column
+   * goes, and the request dialog, reached from the item, carries whatever is dropped.
    */
+  private readonly fittingColumns = pamFittingColumns(240 + 140 + 120, [
+    { column: "requester", minWidth: 160 },
+    { column: "resolvedBy", minWidth: 160 },
+  ]);
+
   protected readonly displayedColumns = computed<HistoryColumn[]>(() => [
     "cipherName",
     "status",
-    ...(this.atLeastSm() ? (["requester"] as const) : []),
-    ...(this.atLeastMd() ? (["resolvedBy"] as const) : []),
+    ...(this.fittingColumns().has("requester") ? (["requester"] as const) : []),
+    ...(this.fittingColumns().has("resolvedBy") ? (["resolvedBy"] as const) : []),
     "resolvedAtMs",
   ]);
 
   /** Whether the Requester column is showing; when it is not, the item cell names the requester. */
-  protected readonly showRequesterColumn = this.atLeastSm;
+  protected readonly showRequesterColumn = computed(() => this.fittingColumns().has("requester"));
 
   constructor() {
     effect((onCleanup) => {

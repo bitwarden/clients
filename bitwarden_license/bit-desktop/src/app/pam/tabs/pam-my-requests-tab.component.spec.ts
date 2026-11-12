@@ -24,6 +24,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { stubTabWidth } from "../testing/stub-tab-width";
+
 import { PamMyRequestsTabComponent } from "./pam-my-requests-tab.component";
 
 const LEASE_END = "2026-08-20T12:00:00.000Z";
@@ -101,36 +103,8 @@ describe("PamMyRequestsTabComponent", () => {
   let toastService: MockProxy<ToastService>;
   let dialogService: MockProxy<DialogService>;
   let leaseExtension: MockProxy<LeaseExtensionService>;
-  let viewportWidth: number;
-  let mediaListeners: Array<() => void>;
+  let tabWidth: ReturnType<typeof stubTabWidth>;
 
-  function matchesWidth(query: string): boolean {
-    return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
-  }
-
-  /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
-  function stubMatchMedia(): void {
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      writable: true,
-      value: (query: string) => ({
-        matches: matchesWidth(query),
-        media: query,
-        addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
-          mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
-        ),
-        removeEventListener: jest.fn(),
-        // The CDK's high-contrast detector still uses the deprecated listener API.
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-      }),
-    });
-  }
-
-  /**
-   * The chip as the table itself sees it. Reading the registered control keeps the spec on the
-   * page's own seam rather than a view child the component never uses.
-   */
   function chipControl(key: string): FilterControl {
     const table = fixture.debugElement.query(By.directive(BitTableV2Component))
       .componentInstance as BitTableV2Component;
@@ -154,9 +128,7 @@ describe("PamMyRequestsTabComponent", () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2026-08-20T11:30:00.000Z"));
-    viewportWidth = 1440;
-    mediaListeners = [];
-    stubMatchMedia();
+    tabWidth = stubTabWidth(1200);
     pendingRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     extensionRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     leases$ = new BehaviorSubject<MyAccessLeaseRow[]>([]);
@@ -203,7 +175,7 @@ describe("PamMyRequestsTabComponent", () => {
 
   afterEach(() => {
     fixture?.destroy();
-    delete (window as { matchMedia?: unknown }).matchMedia;
+    tabWidth.restore();
     jest.useRealTimers();
     jest.restoreAllMocks();
   });
@@ -502,33 +474,36 @@ describe("PamMyRequestsTabComponent", () => {
       expect(text(actionsHeader)).toContain("pamColumnActions");
     });
 
-    it("drops the window column below md, leaving the request dialog to carry it", () => {
+    it("drops the window column when the tab is too narrow for it, leaving the request dialog to carry it", () => {
       oneOfEach();
-      viewportWidth = 700;
+      tabWidth.setWidth(745);
 
       create();
 
       expect(headings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnActions"]);
 
-      viewportWidth = 800;
-      mediaListeners.forEach((notify) => notify());
+      tabWidth.setWidth(746);
       fixture.detectChanges();
 
       expect(headings()).toContain("pamColumnRequestedWindow");
     });
 
-    it("keeps every column at the default 950px window", () => {
+    it("fits Actions in the 633px the default 950px window leaves beside the side nav", () => {
       oneOfEach();
-      viewportWidth = 950;
+      tabWidth.setWidth(633);
 
       create();
 
-      expect(headings()).toEqual([
-        "pamColumnItem",
-        "pamColumnStatus",
-        "pamColumnRequestedWindow",
-        "pamColumnActions",
-      ]);
+      expect(headings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnActions"]);
+    });
+
+    it("keeps Item, Status and Actions however narrow the tab gets", () => {
+      oneOfEach();
+      tabWidth.setWidth(283);
+
+      create();
+
+      expect(headings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnActions"]);
     });
 
     it("links each item to its request dialog", () => {

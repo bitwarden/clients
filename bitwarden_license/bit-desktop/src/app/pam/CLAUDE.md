@@ -19,9 +19,8 @@
   state says the rule allows it (`LeaseExtensionService.maxExtensionSeconds`), and runs the shared
   extend dialog. Mutations go through `MyAccessService`, which announces them with
   `AccessRefreshService.notifyAccessChanged`. Columns drop by omission, as on Approvals: Requested
-  window below 768px on My requests; Resolved by below 768px and Requester below 640px on History
-  (the requester then shows under the item); the table scrolls sideways past that. Items link to
-  `/pam/requests/:id`.
+  window on My requests; Resolved by, then Requester, on History (the requester then shows under
+  the item). Items link to `/pam/requests/:id`.
 - `request/pam-request-route.component.*`: the `/pam/requests/:id` host, the desktop counterpart of
   bit-web's `access-request-route`. It opens the shared `AccessRequestDialogComponent` through
   `DialogService` over the tab the caller came from (read off the previous navigation) and, on
@@ -37,9 +36,16 @@
   `approvals-tab.component` (same inbox rows, filters, copy and test ids; keep the two behaving
   alike). `ApproverActionsService` is provided on the component; the decide and withdraw dialogs and
   the status badge come from `@bitwarden/bit-pam-components`. Ready, in-use and ending-soon grants
-  share the one table, as on web, so there is no separate leases section. Columns drop by omission
-  with the window: Requested window below 768px, Requester below 640px (shown under the item), and
-  the table scrolls sideways past that. A `/pam/approvals` notification click lands here.
+  share the one table, as on web, so there is no separate leases section. Columns drop by omission:
+  Requested window, then Requester (shown under the item). A `/pam/approvals` notification click
+  lands here.
+- `tabs/pam-table-columns.ts`: how all three tabs choose columns. `pamFittingColumns` measures the
+  tab host's own width (a `ResizeObserver`; the host is `tw-block`), not the window's, since the
+  side nav takes a fixed share of the window, and keeps the droppable columns, most important
+  first, while their minimum track widths fit. Each tab passes the minimums of its `bit-column`
+  widths, so keep the two in step when changing a column. Item, Status and Actions (Resolved on
+  History) always show; the table scrolls sideways only when even those do not fit (the 600px
+  minimum window with the side nav open). Specs stub the width with `testing/stub-tab-width.ts`.
 - Shared code comes from `@bitwarden/bit-pam` and `@bitwarden/bit-pam-components`; strings live in
   `apps/desktop/src/locales/en/messages.json`.
 - `notifications/`: system notifications for access requests and decisions.

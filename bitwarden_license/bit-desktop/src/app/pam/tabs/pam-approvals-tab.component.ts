@@ -55,9 +55,10 @@ import {
   SvgComponent,
   TypographyModule,
   defineTable,
-  isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { pamFittingColumns } from "./pam-table-columns";
 
 type ApprovalsColumn = ColumnName<ApproverRow, "status" | "window" | "actions">;
 
@@ -98,6 +99,7 @@ const STATUS_OPTIONS: ReadonlyArray<{
   selector: "pam-approvals-tab",
   templateUrl: "./pam-approvals-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: "tw-block" },
   imports: [
     RouterModule,
     AccessStateBadgeComponent,
@@ -245,26 +247,30 @@ export class PamApprovalsTabComponent {
    */
   protected readonly table = defineTable<ApproverRow, "status" | "window" | "actions">(this.rows);
 
-  private readonly atLeastSm = isAtOrLargerThanBreakpointSignal("sm");
-  private readonly atLeastMd = isAtOrLargerThanBreakpointSignal("md");
-
   /**
    * A v2 column is a grid track, so a breakpoint class on its cells would leave an empty track
-   * behind; narrow windows drop columns by omission instead. The desktop window runs from 600px to
-   * whatever the user drags it to: the Requested window column goes below 768px and Requester below
-   * 640px, with the requester carried under the item. The table scrolls sideways if what is left
-   * still does not fit. The request page, reached from the item, carries whatever is dropped.
+   * behind; a narrow tab drops columns by omission instead. What fits is measured against the
+   * tab's own width, not the window's, since the side nav takes a fixed share of it: Item (200px),
+   * Status (150px) and Actions (96px) always show, then Requester (150px) and Requested window
+   * (160px) while they fit, the window going first. The minimums match the `bit-column` widths in
+   * the template. The requester is carried under the item once its column goes, and the request
+   * page, reached from the item, carries whatever is dropped.
    */
+  private readonly fittingColumns = pamFittingColumns(200 + 150 + 96, [
+    { column: "requester", minWidth: 150 },
+    { column: "window", minWidth: 160 },
+  ]);
+
   protected readonly displayedColumns = computed<ApprovalsColumn[]>(() => [
     "cipherName",
     "status",
-    ...(this.atLeastSm() ? (["requester"] as const) : []),
-    ...(this.atLeastMd() ? (["window"] as const) : []),
+    ...(this.fittingColumns().has("requester") ? (["requester"] as const) : []),
+    ...(this.fittingColumns().has("window") ? (["window"] as const) : []),
     "actions",
   ]);
 
   /** Whether the Requester column is showing; when it is not, the item cell names the requester. */
-  protected readonly showRequesterColumn = this.atLeastSm;
+  protected readonly showRequesterColumn = computed(() => this.fittingColumns().has("requester"));
 
   /** Memoised per row so each badge's input keeps its identity across ticks. */
   private readonly badgeStates = computed(
