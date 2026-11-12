@@ -840,7 +840,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionEncryptionService,
     useClass: DefaultCollectionEncryptionService,
-    deps: [SdkService, LogService, ConfigService],
+    deps: [SdkService, LogService],
   }),
   safeProvider({
     provide: CollectionService,
