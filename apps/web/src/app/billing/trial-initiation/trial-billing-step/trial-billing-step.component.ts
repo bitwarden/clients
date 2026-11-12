@@ -55,12 +55,10 @@ export class TrialBillingStepComponent implements OnInit {
   /** Emitted once the org exists; the container navigates. Duplicate submits are stopped by the created guards. */
   protected readonly organizationCreated = output<OrganizationCreatedEvent>();
 
-  /** The org the container already created; set so a remounted billing step won't call startTrial again. */
+  /** The org the container already created, so a remounted step navigates instead of creating again. */
   protected readonly existingOrganization = input<OrganizationCreatedEvent | undefined>(undefined);
 
   protected prices$!: Observable<Prices>;
-
-  private createdOrganization: OrganizationCreatedEvent | undefined;
 
   protected formGroup = new FormGroup({
     cadence: new FormControl<Cadence>(Cadences.Annually, {
@@ -141,53 +139,54 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   submit = async (): Promise<void> => {
-    this.createdOrganization ??= this.existingOrganization();
-    if (this.createdOrganization == null) {
-      this.formGroup.markAllAsTouched();
-      if (this.formGroup.invalid) {
-        return;
-      }
-
-      const paymentMethod = await this.enterPaymentMethodComponent().tokenize();
-      if (!paymentMethod) {
-        return;
-      }
-
-      const billingAddress = this.formGroup.controls.billingAddress.getRawValue();
-
-      const cadence = this.formGroup.value.cadence!;
-
-      const prices = await firstValueFrom(this.prices$);
-
-      let organization: OrganizationResponse;
-      try {
-        organization = await this.trialBillingStepService.startTrial(
-          this.trial(),
-          cadence,
-          billingAddress,
-          paymentMethod,
-          this.eligibleCouponIds(),
-        );
-      } catch (e: unknown) {
-        if (this.subscriptionDiscountService.isDiscountExpiredError(e)) {
-          this.subscriptionDiscountService.refresh();
-          this.toastService.showToast({
-            variant: "warning",
-            title: "",
-            message: this.i18nService.t("discountExpiredOnPurchase"),
-          });
-          return;
-        }
-        throw e;
-      }
-
-      this.createdOrganization = {
-        organizationId: organization.id,
-        planDescription: this.describeCadence(cadence, prices[cadence]!),
-      };
+    const existingOrganization = this.existingOrganization();
+    if (existingOrganization != null) {
+      this.organizationCreated.emit(existingOrganization);
+      return;
     }
 
-    this.organizationCreated.emit(this.createdOrganization);
+    this.formGroup.markAllAsTouched();
+    if (this.formGroup.invalid) {
+      return;
+    }
+
+    const paymentMethod = await this.enterPaymentMethodComponent().tokenize();
+    if (!paymentMethod) {
+      return;
+    }
+
+    const billingAddress = this.formGroup.controls.billingAddress.getRawValue();
+
+    const cadence = this.formGroup.value.cadence!;
+
+    const prices = await firstValueFrom(this.prices$);
+
+    let organization: OrganizationResponse;
+    try {
+      organization = await this.trialBillingStepService.startTrial(
+        this.trial(),
+        cadence,
+        billingAddress,
+        paymentMethod,
+        this.eligibleCouponIds(),
+      );
+    } catch (e: unknown) {
+      if (this.subscriptionDiscountService.isDiscountExpiredError(e)) {
+        this.subscriptionDiscountService.refresh();
+        this.toastService.showToast({
+          variant: "warning",
+          title: "",
+          message: this.i18nService.t("discountExpiredOnPurchase"),
+        });
+        return;
+      }
+      throw e;
+    }
+
+    this.organizationCreated.emit({
+      organizationId: organization.id,
+      planDescription: this.describeCadence(cadence, prices[cadence]!),
+    });
   };
 
   protected stepBack = () => this.steppedBack.emit();

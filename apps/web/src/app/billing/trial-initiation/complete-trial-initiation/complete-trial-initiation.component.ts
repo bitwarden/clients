@@ -210,7 +210,6 @@ export class CompleteTrialInitiationComponent {
     }
   }
 
-  /** The created org, passed to the billing step so a remounted step won't create a second one. */
   get existingOrganization(): OrganizationCreatedEvent | undefined {
     return this.orgId === ""
       ? undefined
