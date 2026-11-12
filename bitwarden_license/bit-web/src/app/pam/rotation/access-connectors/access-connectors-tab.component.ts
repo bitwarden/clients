@@ -6,16 +6,17 @@ import {
   effect,
   inject,
   signal,
+  viewChildren,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
 
-import { NoResults } from "@bitwarden/assets/svg";
 import {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,25 +27,20 @@ import {
   BadgeModule,
   BitCellComponent,
   BitCellDefDirective,
-  BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
   ButtonModule,
-  ChipActionComponent,
   DialogService,
+  FilterMenuComponent,
   FilterMenuModule,
   IconButtonModule,
   IconModule,
   LinkModule,
   MenuModule,
-  PopoverModule,
   SearchModule,
-  SkeletonComponent,
-  SkeletonTextComponent,
   StatusLockupComponent,
-  SvgComponent,
   ToastService,
   TooltipDirective,
   defineTable,
@@ -54,21 +50,33 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { assignableTargetSystems } from "../assignable";
 import { filterOptions } from "../filter-options";
 import { AccessConnectorId, TargetSystemId, TargetSystemView } from "../rotation";
-import { rotationErrorMessage } from "../rotation-error";
+import { rotationActionErrorMessage, rotationErrorMessage } from "../rotation-error";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
+import { lastSeenText, relativeTimeLabel } from "../rotation-relative-time";
 import { RowBusyTracker } from "../row-busy-tracker";
-import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
-import { accessConnectorConnectionLabelKey } from "./access-connector-label";
+import {
+  ACCESS_CONNECTOR_STATUS_BADGES,
+  AccessConnectorDisplayStatus,
+  AccessConnectorStatusBadge,
+  accessConnectorDisplayStatus,
+  accessConnectorStatusBadge,
+} from "./access-connector-label";
 import { AccessConnectorRegisterDialogComponent } from "./access-connector-register-dialog.component";
 import { AccessConnectorRow, AccessConnectorsService } from "./access-connectors.service";
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
 
 export type AccessConnectorTabRow = AccessConnectorRow & {
+  /** The one status badge the row shows: Inactive, else Disconnected, else Connected. */
+  readonly statusBadge: AccessConnectorStatusBadge;
+  /** The target systems cell: "None", or how many are assigned. */
+  readonly targetSystemsLabel: string;
   /** The i18n key for why the menu can't assign a target system now, or null when it can. */
   readonly assignTargetsBlockedKey: string | null;
+  /** The relative last-seen wording, or null when the design shows none and the cell shows a date. */
+  readonly lastSeenLabel: string | null;
 };
 
 @Component({
@@ -76,29 +84,24 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
   templateUrl: "./access-connectors-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TimestampPipe,
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
     ButtonModule,
-    ChipActionComponent,
     FilterMenuModule,
     IconButtonModule,
     IconModule,
     LinkModule,
     MenuModule,
-    PopoverModule,
     SearchModule,
-    SkeletonComponent,
-    SkeletonTextComponent,
     StatusLockupComponent,
-    SvgComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
     BitCellComponent,
     BitCellDefDirective,
-    BitCellLoadingDirective,
     TooltipDirective,
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
@@ -106,8 +109,6 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
   ],
 })
 export class AccessConnectorsTabComponent {
-  protected readonly noItemsIcon = NoResults;
-
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -123,13 +124,6 @@ export class AccessConnectorsTabComponent {
   protected readonly loadError = toSignal(this.accessConnectorsService.loadError$, {
     initialValue: null,
   });
-
-  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
-  protected readonly showSkeleton = showSkeletonWhile(this.loading);
-
-  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
-
-  protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   private readonly serviceRows = toSignal(this.accessConnectorsService.rows$, {
     initialValue: [] as AccessConnectorRow[],
@@ -157,40 +151,68 @@ export class AccessConnectorsTabComponent {
   private readonly rows = computed<AccessConnectorTabRow[]>(() => {
     const eligible = this.automaticSystems();
     const known = this.targetSystemsKnown();
+    // Read once per rows change, so relative labels such as "5m ago" are not live-updating.
+    const now = Date.now();
+    const unavailable = this.targetSystemsUnavailable();
     return this.serviceRows().map((row) => ({
       ...row,
-      assignTargetsBlockedKey: this.assignTargetsBlockedKey(row, eligible, known),
+      statusBadge: accessConnectorStatusBadge(accessConnectorDisplayStatus(row.accessConnector)),
+      targetSystemsLabel: this.targetSystemsLabel(row.assignmentNames.length),
+      assignTargetsBlockedKey: this.assignTargetsBlockedKey(row, eligible, known, unavailable),
+      lastSeenLabel:
+        row.lastSeenAtMs == null
+          ? null
+          : relativeTimeLabel(this.i18nService, lastSeenText(row.lastSeenAtMs, now)),
     }));
   });
 
   protected readonly table = defineTable<AccessConnectorTabRow, "actions">(this.rows);
+
   /**
-   * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
-   * through before the skeleton's delay.
+   * Urgency first (Disconnected, Inactive, Connected), then most target systems, then name. The
+   * two tie-breaks hold whichever way the column is sorted.
    */
-  protected readonly loadingTable = defineTable<AccessConnectorTabRow, "actions">(
-    signal<AccessConnectorTabRow[]>([]),
+  protected readonly sortByStatus = (
+    a: AccessConnectorTabRow,
+    b: AccessConnectorTabRow,
+    direction?: "asc" | "desc",
+  ): number => {
+    const flip = direction === "desc" ? -1 : 1;
+    return (
+      a.statusBadge.sortOrder - b.statusBadge.sortOrder ||
+      flip * (b.assignmentNames.length - a.assignmentNames.length) ||
+      flip * a.name.localeCompare(b.name)
+    );
+  };
+
+  protected readonly sortByLastSeen = withNameTieBreak(
+    (a, b) => (a.lastSeenAtMs ?? -Infinity) - (b.lastSeenAtMs ?? -Infinity) || 0,
   );
+
+  protected readonly sortByAssignments = withNameTieBreak(
+    (a, b) => a.assignmentNames.length - b.assignmentNames.length,
+  );
+
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 
-  protected readonly statusOptions = computed(() =>
-    filterOptions(
-      this.rows().map(
-        (row) => [row.statusLabelKey, this.i18nService.t(row.statusLabelKey)] as const,
-      ),
-    ),
-  );
+  private readonly filterMenus = viewChildren(FilterMenuComponent);
 
-  protected readonly connectionOptions = computed(() =>
-    filterOptions(
-      this.rows().map(
-        (row) =>
-          [
-            row.isConnected,
-            this.i18nService.t(accessConnectorConnectionLabelKey(row.isConnected)),
-          ] as const,
+  /** The status filter offers every status, in urgency order, named and iconed like its badge. */
+  protected readonly statusBadges = ACCESS_CONNECTOR_STATUS_BADGES.map((badge) => ({
+    ...badge,
+    iconTile: { icon: badge.icon, variant: badge.tileVariant },
+  }));
+
+  /** Every target system a connector serves or could be assigned, so an unserved one counts 0. */
+  protected readonly targetSystemOptions = computed(() =>
+    filterOptions<string>([
+      ...this.automaticSystems().map((system) => [String(system.id), system.name] as const),
+      ...this.rows().flatMap((row) =>
+        row.accessConnector.assignedTargetSystemIds.map(
+          (id, i) => [String(id), row.assignmentNames[i]] as const,
+        ),
       ),
-    ),
+    ]),
   );
 
   private readonly organizationId = toSignal(
@@ -216,13 +238,43 @@ export class AccessConnectorsTabComponent {
 
   protected readonly totalRows = computed(() => this.rows().length);
 
+  /** Resets every chip and the search box, for the empty state shown when they match nothing. */
+  protected readonly clearFilters = (): void => {
+    this.filterMenus().forEach((menu) => menu.clear());
+    this.searchControl.setValue("");
+  };
+
+  private targetSystemsLabel(count: number): string {
+    if (count === 0) {
+      return this.i18nService.t("pamAccessConnectorAssignmentsNone");
+    }
+    return this.i18nService.t(
+      count === 1
+        ? "pamAccessConnectorTargetSystemCountSingular"
+        : "pamAccessConnectorTargetSystemCount",
+      count,
+    );
+  }
+
+  /**
+   * Why this connector can take no target-system assignment, as the i18n key the menu item's
+   * reason line states, or null when it can.
+   *
+   * A failed read is stated here rather than only on the click, mirroring the target-systems tab's
+   * `assignConnectorsBlockedKey`: the item is live while the read is in flight, so
+   * {@link openAssignDialog}'s toast covers only the click that arrives before the failure does.
+   */
   private assignTargetsBlockedKey(
     row: AccessConnectorRow,
     eligible: readonly TargetSystemView[],
     targetSystemsKnown: boolean,
+    targetSystemsUnavailable: boolean,
   ): string | null {
     if (!row.canAssign) {
-      return "pamAccessConnectorAssignTargetDisabled";
+      return "pamAccessConnectorAssignTargetSystemsDisabled";
+    }
+    if (targetSystemsUnavailable) {
+      return "pamAccessConnectorTargetSystemsLoadError";
     }
     if (!targetSystemsKnown) {
       return null;
@@ -254,7 +306,7 @@ export class AccessConnectorsTabComponent {
   protected readonly openDetail = (row: AccessConnectorRow): Promise<boolean> =>
     this.router.navigate(["..", "access-connectors", row.id], { relativeTo: this.route });
 
-  /** Bound to the empty state and the table toolbar. */
+  /** Bound to the empty state's register button. */
   protected readonly registerAccessConnector = async (): Promise<void> => {
     const orgId = this.organizationId();
     const ref = AccessConnectorRegisterDialogComponent.open(this.dialogService, {
@@ -263,10 +315,6 @@ export class AccessConnectorsTabComponent {
     const result = await ref.closed.toPromise();
     if (result) {
       await this.accessConnectorsService.registerCompleted(orgId);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamAccessConnectorRegistered"),
-      });
     }
   };
 
@@ -327,37 +375,10 @@ export class AccessConnectorsTabComponent {
       }
     });
 
-  protected readonly unassign = (
-    row: AccessConnectorRow,
-    targetSystemId: TargetSystemId,
-    targetName: string,
-  ): Promise<void> =>
-    this.busyRows.run(row.id, async () => {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamAccessConnectorUnassignConfirmTitle" },
-        content: { key: "pamAccessConnectorUnassignConfirmContent", placeholders: [targetName] },
-        acceptButtonText: { key: "remove" },
-        cancelButtonText: { key: "cancel" },
-        type: "warning",
-      });
-      if (!confirmed) {
-        return;
-      }
-      try {
-        await this.accessConnectorsService.unassign(row.accessConnector, targetSystemId);
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("pamAccessConnectorUnassigned"),
-        });
-      } catch (e) {
-        this.showError(e);
-      }
-    });
-
   protected readonly disable = (row: AccessConnectorRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog(
-        accessConnectorDeactivateConfirmOptions(row.name),
+        accessConnectorDeactivateConfirmOptions(),
       );
       if (!confirmed) {
         return;
@@ -369,7 +390,7 @@ export class AccessConnectorsTabComponent {
           message: this.i18nService.t("pamAccessConnectorDeactivated"),
         });
       } catch (e) {
-        this.showError(e);
+        this.showActionError(e, "pamAccessConnectorDeactivateFailed");
       }
     });
 
@@ -389,7 +410,7 @@ export class AccessConnectorsTabComponent {
   protected readonly confirmDelete = (row: AccessConnectorRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog(
-        accessConnectorDeleteConfirmOptions(row.name),
+        accessConnectorDeleteConfirmOptions(),
       );
       if (!confirmed) {
         return;
@@ -401,7 +422,7 @@ export class AccessConnectorsTabComponent {
           message: this.i18nService.t("pamAccessConnectorDeleted"),
         });
       } catch (e) {
-        this.showError(e);
+        this.showActionError(e, "pamAccessConnectorDeleteFailed");
       }
     });
 
@@ -412,40 +433,64 @@ export class AccessConnectorsTabComponent {
       this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
+
+  /** The server's reason for refusing a row action, else that action's own failure copy. */
+  private showActionError(e: unknown, fallbackKey: string): void {
+    const message = rotationActionErrorMessage(e) ?? this.i18nService.t(fallbackKey);
+    this.toastService.showToast({ variant: "error", message });
+  }
 }
 
 /** The toolbar's raw values by filter key, untyped because each chip reports its own shape. */
 type AccessConnectorFilterValues = {
   search?: string;
   status?: unknown;
-  connection?: unknown;
+  targetSystem?: unknown;
 };
 
 type AccessConnectorFilter = {
   text: string;
-  statusLabelKey: string | null;
-  isConnected: boolean | null;
+  statuses: AccessConnectorDisplayStatus[];
+  targetSystemIds: string[];
 };
 
-/** Uses `??` because the connection chip's `false` (disconnected) is a chosen filter. */
+/** A multi-select chip reports an array and a single-select one a scalar or `null`. */
+function toArray<T>(value: unknown): T[] {
+  if (value == null) {
+    return [];
+  }
+  return Array.isArray(value) ? (value as T[]) : [value as T];
+}
+
 function toAccessConnectorFilter(values: AccessConnectorFilterValues): AccessConnectorFilter {
   return {
     text: (values.search ?? "").trim().toLowerCase(),
-    statusLabelKey: (values.status ?? null) as string | null,
-    isConnected: (values.connection ?? null) as boolean | null,
+    statuses: toArray<AccessConnectorDisplayStatus>(values.status),
+    targetSystemIds: toArray<string>(values.targetSystem),
   };
 }
 
 function matchesFilter(row: AccessConnectorTabRow, filter: AccessConnectorFilter): boolean {
-  const { text, statusLabelKey, isConnected } = filter;
+  const { text, statuses, targetSystemIds } = filter;
   if (text !== "" && !row.name.toLowerCase().includes(text)) {
     return false;
   }
-  if (statusLabelKey != null && row.statusLabelKey !== statusLabelKey) {
+  if (statuses.length > 0 && !statuses.includes(row.statusBadge.status)) {
     return false;
   }
-  if (isConnected != null && row.isConnected !== isConnected) {
+  if (
+    targetSystemIds.length > 0 &&
+    !row.accessConnector.assignedTargetSystemIds.some((id) => targetSystemIds.includes(String(id)))
+  ) {
     return false;
   }
   return true;
+}
+
+type RowComparator = (a: AccessConnectorTabRow, b: AccessConnectorTabRow) => number;
+
+/** Ties sort A to Z by name, flipped for descending so they stay A to Z either way. */
+function withNameTieBreak(compare: RowComparator) {
+  return (a: AccessConnectorTabRow, b: AccessConnectorTabRow, direction?: "asc" | "desc"): number =>
+    compare(a, b) || a.name.localeCompare(b.name) * (direction === "desc" ? -1 : 1);
 }

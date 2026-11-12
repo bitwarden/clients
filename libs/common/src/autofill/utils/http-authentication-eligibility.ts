@@ -25,7 +25,8 @@ export function isRepromptOff(reprompt: CipherRepromptType): boolean {
 
 /**
  * Whether a cipher may answer an HTTP authentication challenge: a login with at least one URI, every URI
- * with an explicit match strategy, and master password reprompt off.
+ * with an explicit match strategy, and master password reprompt off. This does not check whether HTTP
+ * authentication is turned on for the login; see {@link hasOptedInToHTTPAuthentication}.
  */
 export function isEligibleForHTTPAuthentication(cipher: CipherView): boolean {
   if (cipher.type !== CipherType.Login || !cipher.login?.hasUris) {
@@ -36,4 +37,15 @@ export function isEligibleForHTTPAuthentication(cipher: CipherView): boolean {
     everyUriHasExplicitMatchStrategy(cipher.login.uris.map((uri) => uri.match)) &&
     isRepromptOff(cipher.reprompt)
   );
+}
+
+/**
+ * Whether a login has HTTP authentication turned on in its own settings.
+ *
+ * A login stored with both this setting and master password reprompt on still fails
+ * {@link isEligibleForHTTPAuthentication}. The stored value is left as it is; the cipher form corrects
+ * it the next time the login is saved.
+ */
+export function hasOptedInToHTTPAuthentication(cipher: CipherView): boolean {
+  return cipher.type === CipherType.Login && cipher.login?.httpAuthenticationEnabled === true;
 }

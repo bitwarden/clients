@@ -55,6 +55,13 @@ export abstract class PinServiceAbstraction {
   abstract logout(userId: UserId): Promise<void>;
 
   /**
+   * Gets the number of characters in the user's PIN, readable while locked.
+   * @returns The length, or undefined when no PIN is set, or for a PIN set before its length was
+   * stored that hasn't unlocked since.
+   */
+  abstract getPinLength(userId: UserId): Promise<number | undefined>;
+
+  /**
    * Verifies the validity of the provided PIN for the user.
    * @returns A promise resolving to true if the PIN is valid, false otherwise.
    * @throws If the pin lock type is ephemeral but the ephemeral pin protected user key envelope is not available

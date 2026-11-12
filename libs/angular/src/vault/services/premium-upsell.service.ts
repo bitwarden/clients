@@ -25,9 +25,11 @@ export class PremiumUpsellService {
       return this.billingAccountService.hasPremiumFromAnySource$(userId);
     }),
   );
-  private ciphers$ = this.cipherService.ciphers$(this.activeUserId());
+  private cipherCount$ = this.cipherService
+    .cipherListViewsIncludingRestricted$(this.activeUserId())
+    .pipe(map((ciphers) => ciphers?.length ?? 0));
 
-  private readonly ciphers = toSignal(this.ciphers$, { initialValue: {} });
+  private readonly cipherCount = toSignal(this.cipherCount$, { initialValue: 0 });
   private readonly hasPremium = toSignal(this.hasPremium$, { initialValue: true });
   private readonly accountAgeFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32180PremiumUpsellAccountAge),
@@ -47,11 +49,9 @@ export class PremiumUpsellService {
   private readonly accountAgeInDays = toSignal(this.accountAgeInDays$, { initialValue: -1 });
 
   showUpsell() {
-    const cipherCount = Object.keys(this.ciphers()).length;
-
     return (
       this.accountAgeInDays() >= this.accountAgeFeatureFlag() &&
-      cipherCount >= 5 &&
+      this.cipherCount() >= 5 &&
       !this.hasPremium()
     );
   }

@@ -2,16 +2,16 @@
  * The access-rule edit form's lease duration presets, wider than a requester's since an admin can
  * grant longer windows.
  */
-export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
-  { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
-  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
-  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
-  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
-  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
-  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration1d" },
-  { seconds: 2 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration2d" },
-  { seconds: 7 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration7d" },
-  { seconds: 30 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration30d" },
+export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number }> = [
+  { seconds: 15 * 60 },
+  { seconds: 30 * 60 },
+  { seconds: 60 * 60 },
+  { seconds: 4 * 60 * 60 },
+  { seconds: 8 * 60 * 60 },
+  { seconds: 24 * 60 * 60 },
+  { seconds: 2 * 24 * 60 * 60 },
+  { seconds: 7 * 24 * 60 * 60 },
+  { seconds: 30 * 24 * 60 * 60 },
 ];
 
 /** Default lease duration (1h) for a new access rule with no stored value. */
@@ -21,16 +21,13 @@ export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
  * The requester's duration presets. Topping out at a day is a default, not a limit, since
  * {@link requestDurationOptions} still offers a rule's higher cap.
  */
-export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
-  seconds: number;
-  labelKey: string;
-}> = [
-  { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
-  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
-  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
-  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
-  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
-  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration1d" },
+export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{ seconds: number }> = [
+  { seconds: 15 * 60 },
+  { seconds: 30 * 60 },
+  { seconds: 60 * 60 },
+  { seconds: 4 * 60 * 60 },
+  { seconds: 8 * 60 * 60 },
+  { seconds: 24 * 60 * 60 },
 ];
 
 /** The automatic form's placeholder until the pre-check supplies the rule's own default. */
@@ -39,8 +36,8 @@ export const DEFAULT_REQUEST_ACCESS_DURATION_SECONDS = 60 * 60;
 /** The server's ceiling, which its pre-check reports as the cap of a rule with no maximum. */
 const GLOBAL_MAX_LEASE_SECONDS = 365 * 24 * 60 * 60;
 
-/** A requester duration option; one without a `labelKey` is formatted from its value. */
-export type RequestDurationOption = { seconds: number; labelKey?: string };
+/** A requester duration option. */
+export type RequestDurationOption = { seconds: number };
 
 /**
  * The presets under `maxSeconds`, plus the cap and default themselves, so the picker is never empty
@@ -68,17 +65,31 @@ export function requestDurationOptions(
   return [...options.values()].sort((a, b) => a.seconds - b.seconds);
 }
 
-/** Admin-selectable maximum extension lengths, in seconds. */
-export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
-  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
-  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
-  { seconds: 2 * 60 * 60, labelKey: "pamAccessRuleDuration2h" },
-  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
-  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
+/** Extension lengths, in seconds: the choices for a rule's cap, and a requester's up to the cap. */
+export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number }> = [
+  { seconds: 30 * 60 },
+  { seconds: 60 * 60 },
+  { seconds: 2 * 60 * 60 },
+  { seconds: 4 * 60 * 60 },
+  { seconds: 8 * 60 * 60 },
 ];
 
 /** Default maximum extension length offered when a rule first enables extensions (1h). */
 export const DEFAULT_MAX_EXTENSION_DURATION_SECONDS = 60 * 60;
+
+/**
+ * The extension presets up to the rule's cap, plus the cap itself when no preset matches it, so the
+ * picker offers only lengths the server accepts and is never empty.
+ */
+export function extensionDurationOptions(maxSeconds: number): RequestDurationOption[] {
+  const options: RequestDurationOption[] = EXTENSION_DURATION_OPTIONS.filter(
+    (preset) => preset.seconds <= maxSeconds,
+  );
+  if (!options.some((option) => option.seconds === maxSeconds)) {
+    options.push({ seconds: maxSeconds });
+  }
+  return options;
+}
 
 /**
  * Snaps to the nearest option, so a value persisted outside the set still renders. Assumes a
