@@ -8,18 +8,14 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { DAY, HOUR, MINUTE, liveFromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import {
-  DAY,
-  HOUR,
-  MINUTE,
   accessLease,
   accessRequest,
-  liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
-  startClockAtStoryNow,
   storyNames,
 } from "../testing/story-fixtures";
 
@@ -163,21 +159,22 @@ export default {
 
 type Story = StoryObj<MyRequestsTabComponent>;
 
-/** All three sections populated; the startable grant sits with the leases, not under Pending. */
+/** Every row kind at once: held access, a startable grant, and an undecided request. */
 export const Default: Story = {
   decorators: [myAccess()],
 };
 
 /**
- * A Collection filter applied, which shows the toolbar's applied state and narrows the other two
+ * A Shared folders filter applied, which shows the toolbar's applied state and narrows the other two
  * sections from outside its table.
  */
 export const Filtered: Story = {
   decorators: [myAccess()],
   play: async ({ canvasElement }) => {
-    const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
+    const trigger = await within(canvasElement).findByRole("button", { name: /^Shared folders/ });
     await userEvent.click(trigger);
-    await userEvent.click(await within(document.body).findByRole("radio", { name: /^Production/ }));
+    const menu = await within(document.body).findByRole("dialog", { name: "Shared folders" });
+    await userEvent.click(await within(menu).findByRole("treeitem", { name: /^Production/ }));
     await userEvent.keyboard("{Escape}");
   },
 };

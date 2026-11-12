@@ -1,7 +1,16 @@
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, input, Input } from "@angular/core";
+import { booleanAttribute, Component, inject, input, Input } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  switchMap,
+} from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -13,10 +22,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -24,6 +35,10 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import {
   DialogService,
   IconButtonModule,
@@ -33,7 +48,12 @@ import {
   IconModule,
 } from "@bitwarden/components";
 import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
-import { PasswordRepromptService, Vfo1I18nPipe } from "@bitwarden/vault";
+import {
+  PasswordRepromptService,
+  uniqueContributedActions,
+  VAULT_ROW_ACTIONS,
+  Vfo1I18nPipe,
+} from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
@@ -41,6 +61,20 @@ import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
 } from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
+
+/** IDs of the menu's own actions. Contributed action IDs must differ. */
+const BUILT_IN_ACTION_IDS: ReadonlySet<string> = new Set([
+  "autofill",
+  "view",
+  "addFavorite",
+  "removeFavorite",
+  "edit",
+  "clone",
+  "addToSharedFolder",
+  "shareViaLink",
+  "archive",
+  "delete",
+]);
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -93,6 +127,29 @@ export class ItemMoreOptionsComponent {
   readonly showViewOption = input(false, { transform: booleanAttribute });
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
+
+  protected readonly RestrictedCipherAction = RestrictedCipherAction;
+  private readonly revealedCipherService = inject(RevealedCipherService);
+
+  /** Actions another feature adds (`VAULT_ROW_ACTIONS`), shown after View. */
+  protected readonly contributedActions = uniqueContributedActions(
+    inject(VAULT_ROW_ACTIONS, { optional: true }) ?? [],
+    BUILT_IN_ACTION_IDS,
+  );
+
+  /** The live revealed view of this row's restricted cipher, if any. */
+  private readonly revealedView = toSignal(
+    combineLatest([this._cipher$, this.accountService.activeAccount$.pipe(getUserId)]).pipe(
+      switchMap(([cipher, userId]) =>
+        cipher?.id == null
+          ? of(undefined)
+          : this.revealedCipherService
+              .revealed$(userId)
+              .pipe(map((revealed) => revealed.get(cipher.id as CipherId))),
+      ),
+    ),
+    { initialValue: undefined },
+  );
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
@@ -157,8 +214,29 @@ export class ItemMoreOptionsComponent {
     private domainSettingsService: DomainSettingsService,
   ) {}
 
+  /**
+   * A restricted item arrives as a reduced partial envelope: there is nothing to edit or fill until
+   * it is revealed, and the form and autofill paths do not exclude partials themselves.
+   */
+  get isPartial() {
+    return RestrictedCipherPolicy.isRestricted(this.cipher);
+  }
+
+  /**
+   * True for a restricted item with no live revealed view: only the view option remains. While a
+   * reveal is live, the restricted-cipher policy decides each action instead.
+   */
+  protected get isLocked() {
+    return this.isPartial && this.revealedView() == null;
+  }
+
   get canEdit() {
-    return this.cipher.edit;
+    return this.cipher.edit && this.allows(RestrictedCipherAction.Edit);
+  }
+
+  /** False when the restricted-cipher rule blocks the action. */
+  protected allows(action: RestrictedCipherAction): boolean {
+    return RestrictedCipherPolicy.allows(this.cipher, action, this.revealedView());
   }
 
   get canViewPassword() {
@@ -173,9 +251,13 @@ export class ItemMoreOptionsComponent {
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
+    // A restricted cipher without a revealed view has nothing to fill.
     return (
-      [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
-    ).includes(CipherViewLikeUtils.getType(this.cipher));
+      !this.isLocked &&
+      (
+        [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
+      ).includes(CipherViewLikeUtils.getType(this.cipher))
+    );
   }
 
   get isLogin() {
@@ -226,7 +308,11 @@ export class ItemMoreOptionsComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
-        viewOnly: !this.cipher.edit,
+        // Adding the URL saves the cipher outside the edit form, which a restricted cipher refuses.
+        viewOnly:
+          !this.cipher.edit ||
+          RestrictedCipherPolicy.isRestricted(this.cipher) ||
+          this.revealedView() != null,
       },
     });
 
@@ -269,14 +355,18 @@ export class ItemMoreOptionsComponent {
    * Toggles the favorite status of the cipher and updates it on the server.
    */
   async toggleFavorite() {
-    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    // Change the stored copy, not the row: a revealed row is the shared revealed view.
+    const stored = await this.cipherService.get(uuidAsString(this.cipher.id!), activeUserId);
+    const cipher = await this.cipherService.decrypt(stored, activeUserId);
 
     cipher.favorite = !cipher.favorite;
-    const activeUserId = (await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    )) as UserId;
-
     await this.cipherService.updateWithServer(cipher, activeUserId);
+
+    if (this.revealedView() != null) {
+      await this.revealedCipherService.refresh(activeUserId, cipher.id as CipherId);
+    }
+
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(

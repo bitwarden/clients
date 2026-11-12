@@ -45,7 +45,7 @@
       <ng-content select="bit-hint"></ng-content>
     }
     @case (true) {
-      <bit-error [error]="input()?.error"></bit-error>
+      <bit-error [error]="input()?.error()"></bit-error>
     }
   }
 </div>

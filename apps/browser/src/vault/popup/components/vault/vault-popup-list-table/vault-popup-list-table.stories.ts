@@ -18,7 +18,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  NEVER,
   of,
   startWith,
   timer,
@@ -42,6 +41,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
@@ -49,6 +49,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CalloutModule,
@@ -58,6 +59,7 @@ import {
   ScrollLayoutService,
   ToastService,
 } from "@bitwarden/components";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
@@ -416,7 +418,7 @@ const buildProviders = (args: StoryArgs) => {
   // The all-items list narrows as the user searches; keep the unfiltered set to search against.
   const allItems = args.filteredCiphers;
   const filteredCiphers$ = new BehaviorSubject(allItems);
-  const searchText$ = new BehaviorSubject("");
+  const searchText = signal("");
   const hasSearchText$ = new BehaviorSubject(false);
 
   // Mirrors the real service: the list counts as filtered when search text or any restored filter
@@ -427,9 +429,9 @@ const buildProviders = (args: StoryArgs) => {
   const hasFilterApplied$ = new BehaviorSubject(filtersApplied);
 
   // Minimal stand-in for the real search service so the toolbar search folds the list live.
-  const applyFilter = (text: string) => {
+  const applyScopedFilter = (text: string) => {
     const term = (text ?? "").trim().toLowerCase();
-    searchText$.next(text ?? "");
+    searchText.set(text ?? "");
     hasSearchText$.next(term.length > 0);
     hasFilterApplied$.next(filtersApplied || term.length > 0);
     filteredCiphers$.next(
@@ -456,9 +458,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         restoreFilters$: () => of(args.appliedFilters ?? {}),
         saveFilters: () => {},
-        clearVaultScopedFilters: () => {},
         filterDialogOpen: signal(false),
-        vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
           cipherType: null,
@@ -482,14 +482,14 @@ const buildProviders = (args: StoryArgs) => {
         // The folder chip's options come from the unsearched list, not the rendered rows.
         activeCiphers$: filteredCiphers$.asObservable(),
         loading$: loading$.asObservable(),
-        searchText$: searchText$.asObservable(),
+        searchText,
         hasSearchText$: hasSearchText$.asObservable(),
         hasFilterApplied$: hasFilterApplied$.asObservable(),
         // No story exercises the suspended-organization notice.
         showDeactivatedOrg$: of(false),
         // Mirrors the real service: whether the account has any items at all, ignoring search/filters.
         emptyVault$: of(allItems.length === 0),
-        applyFilter,
+        applyScopedFilter,
       },
     },
     {
@@ -671,6 +671,7 @@ const buildProviders = (args: StoryArgs) => {
             "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
         }),
     },
+    { provide: LogService, useFactory: () => new ConsoleLogService(true) },
     {
       provide: EnvironmentService,
       useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
@@ -696,6 +697,7 @@ const buildProviders = (args: StoryArgs) => {
         getUser: () => ({ update: async () => {} }),
       },
     },
+    { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
     {
       provide: RestrictedItemTypesService,
       useValue: { restricted$: of([]) },

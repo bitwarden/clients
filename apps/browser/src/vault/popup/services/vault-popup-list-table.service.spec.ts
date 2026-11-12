@@ -42,7 +42,7 @@ describe("VaultPopupListTableService", () => {
   const loading$ = new BehaviorSubject<boolean>(false);
   const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
   const autofillAllowed$ = new BehaviorSubject<boolean>(true);
-  const applyFilter = jest.fn();
+  const applyScopedFilter = jest.fn();
 
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
   /** The chip selection, as the table's `filterValues` reports it. */
@@ -96,7 +96,7 @@ describe("VaultPopupListTableService", () => {
             searchText$: searchText$.asObservable(),
             emptyVault$: emptyVault$.asObservable(),
             hasFilterApplied$: hasFilterApplied$.asObservable(),
-            applyFilter,
+            applyScopedFilter,
           },
         },
         {
@@ -481,6 +481,41 @@ describe("VaultPopupListTableService", () => {
       });
     });
 
+    describe("a restricted row", () => {
+      const gatedAutofillRow = () => {
+        autoFillCiphers$.next([makeCipher({ id: "gated", partial: true })]);
+        return latestRows()[0].actions;
+      };
+      const gatedAllItemsRow = () => {
+        filteredCiphers$.next([makeCipher({ id: "gated", partial: true })]);
+        return latestRows().find((r) => r._section === "allItems")!.actions;
+      };
+
+      it("never autofills, even in the autofill section where a normal row would", async () => {
+        currentTabIsOnBlocklist$.next(false);
+
+        expect(autofillRow()).toMatchObject({ primaryAutofill: true });
+        expect(gatedAutofillRow()).toMatchObject({
+          primaryAutofill: false,
+          showFillOnHover: false,
+          showAutofillInMenu: false,
+          titleKey: expect.stringMatching(/^viewItemTitle/),
+        });
+      });
+
+      it("offers no copy actions", async () => {
+        expect(sectionRow("allItems")).toMatchObject({ showCopyActions: true });
+        expect(gatedAllItemsRow()).toMatchObject({ showCopyActions: false });
+      });
+
+      it("never offers launch", async () => {
+        currentTabIsOnBlocklist$.next(false);
+
+        expect(sectionRow("allItems")).toMatchObject({ showLaunch: true });
+        expect(gatedAllItemsRow()).toMatchObject({ showLaunch: false });
+      });
+    });
+
     describe("titleKey", () => {
       it("uses the autofill title (named field when a username is present) for fill-on-click rows", async () => {
         jest.spyOn(CipherViewLikeUtils, "getLogin").mockReturnValue({ username: "user" } as any);
@@ -549,10 +584,10 @@ describe("VaultPopupListTableService", () => {
       const sub = service.applyFilterOnInput(input$).subscribe();
 
       input$.next("git");
-      expect(applyFilter).not.toHaveBeenCalled();
+      expect(applyScopedFilter).not.toHaveBeenCalled();
 
       tick(SearchTextDebounceInterval);
-      expect(applyFilter).toHaveBeenCalledWith("git");
+      expect(applyScopedFilter).toHaveBeenCalledWith("git");
 
       sub.unsubscribe();
     }));
@@ -564,7 +599,7 @@ describe("VaultPopupListTableService", () => {
 
       input$.next("git");
       tick(0);
-      expect(applyFilter).toHaveBeenCalledWith("git");
+      expect(applyScopedFilter).toHaveBeenCalledWith("git");
 
       sub.unsubscribe();
     }));
@@ -677,6 +712,17 @@ describe("VaultPopupListTableService", () => {
 
       expect(cipherService.updateLastLaunchedDate).toHaveBeenCalledWith("c1", "user-1");
       expect(newTab).toHaveBeenCalledWith("https://example.com");
+    });
+
+    it("does nothing for a restricted cipher", async () => {
+      jest.spyOn(CipherViewLikeUtils, "canLaunch").mockReturnValue(true);
+      jest.spyOn(CipherViewLikeUtils, "getLaunchUri").mockReturnValue("https://example.com");
+      const newTab = jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue({} as any);
+
+      await service.launchCipher(makeCipher({ id: "c1", partial: true }));
+
+      expect(cipherService.updateLastLaunchedDate).not.toHaveBeenCalled();
+      expect(newTab).not.toHaveBeenCalled();
     });
   });
 });

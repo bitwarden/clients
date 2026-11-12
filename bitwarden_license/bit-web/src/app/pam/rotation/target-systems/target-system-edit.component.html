@@ -1,24 +1,228 @@
 <bit-header [title]="titleText()" icon="bwi-desktop">
   <pam-detail-breadcrumb
     slot="breadcrumbs"
-    [route]="['..']"
-    parentLabelKey="pamRotationTabTargetSystems"
+    [route]="breadcrumbParentRoute"
+    [parentLabelKey]="breadcrumbParentKey"
+    [parentIcon]="breadcrumbParentIcon"
+    [step]="breadcrumbStep"
     [current]="titleText()"
   />
+  @if (statusBadge(); as badge) {
+    <span
+      bitBadge
+      size="small"
+      slot="title-suffix"
+      class="tw-ms-2 tw-inline-flex tw-items-center"
+      [variant]="badge.variant"
+      [startIcon]="badge.icon"
+      id="target-system-edit_status"
+      >{{ badge.labelKey | i18n }}</span
+    >
+  }
+
+  @if (editing && existing() != null && activeTab() === "configuration") {
+    @if (isDisabled()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        [bitAction]="activate"
+        id="target-system-edit_button_activate"
+      >
+        {{ "pamTargetSystemActivate" | i18n }}
+      </button>
+    }
+    <button
+      type="button"
+      bitIconButton="bwi-ellipsis-v"
+      [bitMenuTriggerFor]="moreMenu"
+      [label]="'moreOptions' | i18n"
+      id="target-system-edit_button_more"
+    ></button>
+    <bit-menu #moreMenu>
+      @if (isActive()) {
+        <button
+          type="button"
+          bitMenuItem
+          (click)="deactivate()"
+          id="target-system-edit_button_deactivate"
+        >
+          <bit-icon slot="start" name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
+          {{ "pamTargetSystemDeactivate" | i18n }}
+        </button>
+      }
+      <button
+        type="button"
+        bitMenuItem
+        variant="danger"
+        (click)="deleteSystem()"
+        id="target-system-edit_button_delete"
+      >
+        <bit-icon slot="start" name="bwi-trash"></bit-icon>
+        {{ "pamTargetSystemDeleteTarget" | i18n }}
+      </button>
+    </bit-menu>
+  }
+
+  @if (editing) {
+    <bit-tab-nav-bar slot="tabs" [label]="'pamTargetSystemEditTitle' | i18n">
+      <bit-tab-link [route]="configurationTabRoute" [queryParams]="tabQueryParams">{{
+        "pamTargetSystemTabConfiguration" | i18n
+      }}</bit-tab-link>
+      <bit-tab-link
+        [route]="managedCredentialsTabRoute"
+        [queryParams]="tabQueryParams"
+        [berryValue]="managedCredentialBerry()"
+        >{{ "pamRotationTabManagedCredentials" | i18n }}</bit-tab-link
+      >
+    </bit-tab-nav-bar>
+  }
 </bit-header>
 
-<!-- Shared by create and edit; its controls gate themselves on the method. -->
+<ng-template #footer>
+  <div
+    class="tw-pointer-events-auto tw-absolute tw-inset-x-0 tw-bottom-0 tw-flex tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-bg-bg-primary tw-px-10 tw-py-4"
+    data-testid="target-system-edit-footer"
+  >
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="submitEdit"
+      id="target-system-edit_button_save"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="discardEdits()"
+      id="target-system-edit_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #createFooter>
+  <div
+    class="tw-pointer-events-auto tw-absolute tw-inset-x-0 tw-bottom-0 tw-flex tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-bg-bg-primary tw-px-10 tw-py-4"
+    data-testid="target-system-edit-create-footer"
+  >
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="submitCreate"
+      id="target-system-edit_button_save"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="cancel()"
+      id="target-system-edit_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #connectorsField>
+  <bit-form-field>
+    <bit-label>{{ "pamTargetSystemAccessConnectors" | i18n }}</bit-label>
+    <bit-multi-select
+      class="tw-w-full"
+      id="target-system-edit_multi-select_connectors"
+      [baseItems]="createConnectorOptions()"
+      [removeSelectedItems]="false"
+      [formControl]="connectorsControl"
+      [placeholder]="
+        orgHasNoConnectors() ? '' : ('pamTargetSystemAccessConnectorsPlaceholder' | i18n)
+      "
+    />
+    <bit-hint>{{ "pamTargetSystemAccessConnectorsHint" | i18n }}</bit-hint>
+  </bit-form-field>
+
+  @if (chosenConnectorRows().length > 0) {
+    <ul
+      class="tw-m-0 tw-mb-4 tw-list-none tw-divide-x-0 tw-divide-y tw-divide-solid tw-divide-border-base tw-rounded-lg tw-border tw-border-solid tw-border-border-base tw-p-0"
+      data-testid="target-system-edit-chosen-connectors"
+    >
+      @for (connector of chosenConnectorRows(); track connector.id) {
+        <li class="tw-flex tw-items-center tw-gap-3 tw-px-3 tw-py-2">
+          <bit-icon-tile size="sm" icon="bwi-access-connector" [variant]="connector.tileVariant" />
+          <span
+            class="tw-min-w-0 tw-flex-1 tw-truncate tw-text-sm tw-font-medium tw-text-fg-heading"
+            >{{ connector.name }}</span
+          >
+          <span
+            bitBadge
+            size="small"
+            [variant]="connector.badgeVariant"
+            [startIcon]="connector.badgeIcon"
+            >{{ connector.badgeLabelKey | i18n }}</span
+          >
+          <button
+            type="button"
+            bitIconButton="bwi-close"
+            buttonType="subtleGhost"
+            size="small"
+            [label]="'pamTargetSystemRemoveConnector' | i18n: connector.name"
+            [id]="'target-system-edit_button_remove-connector-' + connector.id"
+            (click)="removeChosenConnector(connector.id)"
+          ></button>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (noneAssigned() && !orgHasNoConnectors()) {
+    <bit-callout
+      type="warning"
+      [title]="null"
+      [accessibleName]="'warning' | i18n"
+      id="target-system-edit_callout_none-assigned"
+    >
+      {{ "pamTargetSystemCalloutNoneAssigned" | i18n }}
+    </bit-callout>
+  }
+  @if (noneChosenConnected()) {
+    <bit-callout
+      type="warning"
+      [title]="null"
+      [accessibleName]="'warning' | i18n"
+      id="target-system-edit_callout_none-connected"
+    >
+      {{
+        (editing
+          ? "pamTargetSystemCalloutNoConnectorConnectedEditing"
+          : "pamTargetSystemCalloutNoConnectorConnected"
+        ) | i18n
+      }}
+    </bit-callout>
+  }
+  @if (orgHasNoConnectors()) {
+    <bit-callout
+      type="warning"
+      [title]="null"
+      [accessibleName]="'warning' | i18n"
+      id="target-system-edit_callout_no-connectors"
+    >
+      {{ "pamTargetSystemCalloutNoConnectorsExist" | i18n }}
+    </bit-callout>
+  }
+</ng-template>
+
 <ng-template #policyCard>
   <bit-section [formGroup]="policyForm">
     <bit-section-header>
-      <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
+      <h2 bitTypography="h4">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
-      @if (isManual()) {
-        <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
-          {{ "pamTargetSystemPolicyManualHint" | i18n }}
-        </p>
-      }
       <div class="tw-grid tw-grid-cols-2 tw-gap-4">
         <bit-form-field>
           <bit-label>{{ "pamTargetSystemPolicyMinLength" | i18n }}</bit-label>
@@ -47,42 +251,49 @@
         <bit-error>{{ "pamTargetSystemPolicyMinExceedsMax" | i18n }}</bit-error>
       }
 
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          formControlName="includeUppercase"
-          id="target-system-edit_checkbox_uppercase"
-        />
-        <bit-label>{{ "pamTargetSystemPolicyUppercase" | i18n }}</bit-label>
-      </bit-form-control>
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          formControlName="includeLowercase"
-          id="target-system-edit_checkbox_lowercase"
-        />
-        <bit-label>{{ "pamTargetSystemPolicyLowercase" | i18n }}</bit-label>
-      </bit-form-control>
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          formControlName="includeDigits"
-          id="target-system-edit_checkbox_digits"
-        />
-        <bit-label>{{ "pamTargetSystemPolicyDigits" | i18n }}</bit-label>
-      </bit-form-control>
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          formControlName="includeSymbols"
-          id="target-system-edit_checkbox_symbols"
-        />
-        <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
-      </bit-form-control>
+      <fieldset class="tw-m-0 tw-border-0 tw-p-0">
+        <legend bitTypography="body2" class="tw-mb-2 tw-p-0 tw-font-medium tw-text-fg-heading">
+          {{ "pamTargetSystemPolicyCharacters" | i18n }}
+        </legend>
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          <bit-form-control disableMargin>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="includeUppercase"
+              id="target-system-edit_checkbox_uppercase"
+            />
+            <bit-label>{{ "pamTargetSystemPolicyUppercaseLetters" | i18n }}</bit-label>
+          </bit-form-control>
+          <bit-form-control disableMargin>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="includeLowercase"
+              id="target-system-edit_checkbox_lowercase"
+            />
+            <bit-label>{{ "pamTargetSystemPolicyLowercaseLetters" | i18n }}</bit-label>
+          </bit-form-control>
+          <bit-form-control disableMargin>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="includeDigits"
+              id="target-system-edit_checkbox_digits"
+            />
+            <bit-label>{{ "pamTargetSystemPolicyDigitsOption" | i18n }}</bit-label>
+          </bit-form-control>
+          <bit-form-control disableMargin>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="includeSymbols"
+              id="target-system-edit_checkbox_symbols"
+            />
+            <bit-label>{{ "pamTargetSystemPolicySymbolsOption" | i18n }}</bit-label>
+          </bit-form-control>
+        </div>
+      </fieldset>
       @if (policyForm.errors?.["noCharacterClass"] && policyForm.touched) {
         <div id="target-system-edit_error_character-class">
           <bit-error>{{ "pamTargetSystemPolicyNoCharacterClass" | i18n }}</bit-error>
@@ -93,64 +304,29 @@
           <bit-error>{{ "pamTargetSystemPolicyBelowStrengthFloor" | i18n }}</bit-error>
         </div>
       }
-
-      <!-- Session termination: intrinsic for native integrations, opt-in for custom scripts. -->
-      @if (isAutomatic()) {
-        @if (isNativeIntegration()) {
-          <div>
-            <p bitTypography="body2" class="tw-mb-1 tw-font-semibold">
-              {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
-            </p>
-            <span
-              bitTypography="body2"
-              class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success"
-            >
-              <bit-icon name="bwi-check"></bit-icon>
-              {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
-            </span>
-            <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
-              {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
-            </p>
-          </div>
-        } @else {
-          <bit-form-control disableMargin>
-            <input
-              type="checkbox"
-              bitCheckbox
-              formControlName="supportsSessionTermination"
-              id="target-system-edit_checkbox_session-termination"
-            />
-            <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
-            <bit-hint>{{
-              "pamTargetSystemSupportsSessionTerminationHintConnector" | i18n
-            }}</bit-hint>
-          </bit-form-control>
-
-          @if (showTerminationWarning()) {
-            <bit-callout type="warning" class="tw-mt-4">
-              {{ "pamTargetSystemTerminationWithdrawalCredentialWarning" | i18n }}
-            </bit-callout>
-          }
-        }
-      }
     </bit-card>
   </bit-section>
 </ng-template>
 
-<pam-rotation-loading-announcer
-  [loading]="loading()"
-  [failed]="loadError() != null || (editing && existing() == null)"
-  loadedKey="pamRotationPageLoaded"
-/>
+@if (editing && activeTab() === "managed-credentials") {
+  <app-managed-credentials-tab
+    [targetSystemId]="targetSystemId"
+    (credentialCount)="updateManagedCredentialCount($event)"
+  />
+} @else {
+  <pam-rotation-loading-announcer
+    [loading]="loading()"
+    [failed]="loadError() != null || (editing && !loading() && existing() == null)"
+    loadedKey="pamRotationPageLoaded"
+  />
 
-@if (loadError()) {
-  <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
-} @else if (loadingVisible()) {
-  <div aria-hidden="true" data-testid="target-system-edit-loading" class="tw-max-w-4xl">
-    @if (showSkeleton()) {
+  @if (loadError()) {
+    <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
+  } @else if (loading()) {
+    <div aria-hidden="true" data-testid="target-system-edit-loading" class="tw-max-w-4xl">
       <bit-section>
         <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
+          <h2 bitTypography="h4">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
           <div class="tw-mb-4">
@@ -163,7 +339,7 @@
 
       <bit-section>
         <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
+          <h2 bitTypography="h4">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
           <div class="tw-grid tw-grid-cols-2 tw-gap-4">
@@ -179,285 +355,325 @@
 
       <bit-section>
         <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemConnectorAssignments" | i18n }}</h2>
+          <h2 bitTypography="h4">{{ "pamTargetSystemConnectorAssignments" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
           <bit-skeleton-text [lines]="3" class="tw-w-full"></bit-skeleton-text>
         </bit-card>
       </bit-section>
-    }
-  </div>
-} @else {
-  @if (!editing) {
-    <form [formGroup]="createForm" [bitSubmit]="submitCreate" class="tw-max-w-4xl">
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <bit-form-field>
-            <bit-label>{{ "name" | i18n }}</bit-label>
-            <input
-              bitInput
-              type="text"
-              id="target-system-edit_input_name"
-              formControlName="name"
-              [placeholder]="'pamTargetSystemNamePlaceholder' | i18n"
-            />
-          </bit-form-field>
-
-          <bit-radio-group formControlName="method" [block]="true">
-            <bit-label>{{ "pamTargetSystemMethodLabel" | i18n }}</bit-label>
-            <bit-radio-button
-              id="target-system-edit_radio_automatic"
-              [value]="TargetSystemMethod.Automatic"
-            >
-              <bit-label>{{ "pamTargetSystemMethodAutomatic" | i18n }}</bit-label>
-              <bit-hint>{{ "pamTargetSystemMethodAutomaticHint" | i18n }}</bit-hint>
-            </bit-radio-button>
-            <bit-radio-button
-              id="target-system-edit_radio_manual"
-              [value]="TargetSystemMethod.Manual"
-            >
-              <bit-label>{{ "pamTargetSystemMethodManual" | i18n }}</bit-label>
-              <bit-hint>{{ "pamTargetSystemMethodManualHint" | i18n }}</bit-hint>
-            </bit-radio-button>
-          </bit-radio-group>
-        </bit-card>
-      </bit-section>
-
-      @if (isAutomatic()) {
-        <bit-section [formGroup]="policyForm">
+    </div>
+  } @else {
+    @if (!editing) {
+      <form
+        [formGroup]="createForm"
+        [bitSubmit]="submitCreate"
+        class="tw-max-w-4xl"
+        [class.tw-pb-20]="showFooter()"
+      >
+        <bit-section>
           <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamTargetSystemTypeHeading" | i18n }}</h2>
+            <h2 bitTypography="h4">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
           </bit-section-header>
           <bit-card>
             <bit-form-field>
-              <bit-label>{{ "pamTargetSystemTypeLabel" | i18n }}</bit-label>
-              <select
+              <bit-label>{{ "name" | i18n }}</bit-label>
+              <input
                 bitInput
-                id="target-system-edit_select_kind"
-                [formControl]="createForm.controls.kind"
-              >
-                @for (opt of kindOptions; track opt.value) {
-                  <option [ngValue]="opt.value">{{ opt.label | i18n }}</option>
-                }
-              </select>
+                type="text"
+                id="target-system-edit_input_name"
+                formControlName="name"
+                [placeholder]="'pamTargetSystemNamePlaceholder' | i18n"
+              />
+              <bit-hint>{{ "pamTargetSystemNameHelp" | i18n }}</bit-hint>
             </bit-form-field>
-          </bit-card>
-        </bit-section>
-      }
 
-      @if (showPolicyCard()) {
-        <ng-container *ngTemplateOutlet="policyCard"></ng-container>
-      }
+            <bit-radio-group formControlName="method" [block]="true">
+              <bit-label>{{ "pamTargetSystemMethodLabel" | i18n }}</bit-label>
+              <bit-radio-button
+                id="target-system-edit_radio_automatic"
+                [value]="TargetSystemMethod.Automatic"
+              >
+                <bit-label>{{ "pamTargetSystemMethodAutomatic" | i18n }}</bit-label>
+                <bit-hint>{{ "pamTargetSystemMethodAutomaticDescription" | i18n }}</bit-hint>
+              </bit-radio-button>
+              <bit-radio-button
+                id="target-system-edit_radio_manual"
+                [value]="TargetSystemMethod.Manual"
+              >
+                <bit-label>{{ "pamTargetSystemMethodManual" | i18n }}</bit-label>
+                <bit-hint>{{ "pamTargetSystemMethodManualDescription" | i18n }}</bit-hint>
+              </bit-radio-button>
+            </bit-radio-group>
 
-      <div class="tw-flex tw-gap-2">
-        <button
-          type="submit"
-          bitButton
-          buttonType="primary"
-          bitFormButton
-          id="target-system-edit_button_save"
-        >
-          {{ "save" | i18n }}
-        </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          bitFormButton
-          (click)="cancel()"
-          id="target-system-edit_button_cancel"
-        >
-          {{ "cancel" | i18n }}
-        </button>
-      </div>
-    </form>
-  } @else {
-    <div class="tw-max-w-4xl">
-      @if (sealIssue(); as issue) {
-        @if (issue !== "ok") {
-          <bit-callout
-            type="warning"
-            [accessibleName]="
-              (issue === 'pending'
-                ? 'pamTargetSystemSetupIncompleteTitle'
-                : 'pamTargetSystemIntegrityCheckFailedTitle'
-              ) | i18n
-            "
-            id="target-system-edit_callout_seal-issue"
-          >
-            {{
-              (issue === "pending"
-                ? "pamTargetSystemSetupIncompleteContent"
-                : "pamTargetSystemIntegrityCheckFailedContent"
-              ) | i18n
-            }}
-          </bit-callout>
-        }
-      }
-
-      @let setupSteps = outstandingSetupSteps();
-      @if (setupSteps.length > 0) {
-        <bit-callout
-          type="subtle"
-          [accessibleName]="'pamTargetSystemSetupGuidanceTitle' | i18n"
-          id="target-system-edit_callout_setup-guidance"
-        >
-          @if (setupSteps.length === 1) {
-            <p class="tw-mb-0">{{ setupSteps[0] | i18n }}</p>
-          } @else {
-            <ol class="tw-mb-0 tw-ps-4">
-              @for (step of setupSteps; track step) {
-                <li>{{ step | i18n }}</li>
-              }
-            </ol>
-          }
-        </bit-callout>
-      }
-
-      <bit-section [formGroup]="nameForm">
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          @if (existing()?.method === TargetSystemMethod.Automatic) {
-            @if (showEditKindPicker()) {
+            @if (isAutomatic()) {
               <bit-form-field>
-                <bit-label>{{ "pamTargetSystemTypeLabel" | i18n }}</bit-label>
-                <select
-                  bitInput
+                <bit-label>{{ "pamTargetSystemSystemTypeLabel" | i18n }}</bit-label>
+                <bit-select
                   id="target-system-edit_select_kind"
-                  [formControl]="editKindControl"
+                  [formControl]="createForm.controls.kind"
+                  [placeholder]="'pamTargetSystemSystemTypePlaceholder' | i18n"
+                  required
                 >
                   @for (opt of kindOptions; track opt.value) {
-                    <option [ngValue]="opt.value">{{ opt.label | i18n }}</option>
+                    <bit-option [value]="opt.value" [label]="opt.label | i18n"></bit-option>
                   }
-                </select>
-                <bit-hint>{{ "pamTargetSystemTypeUnverifiedHint" | i18n }}</bit-hint>
+                </bit-select>
+                <bit-hint>{{ "pamTargetSystemSystemTypeHint" | i18n }}</bit-hint>
               </bit-form-field>
-            } @else {
-              <p bitTypography="body2" class="tw-text-muted">
-                {{ "pamTargetSystemMethodAutomatic" | i18n }}
-                @if (kindLabelKey(); as kindKey) {
-                  ·
-                  {{ kindKey | i18n }}
+
+              <div
+                class="tw-mb-4 tw-flex tw-flex-col tw-items-start tw-gap-2"
+                data-testid="target-system-edit-ending-sessions"
+              >
+                <p bitTypography="body2" class="tw-mb-0 tw-font-medium tw-text-fg-heading">
+                  {{ "pamTargetSystemEndingSessions" | i18n }}
+                </p>
+                @if (sessionTerminationAlways()) {
+                  <span bitBadge size="small" variant="success" startIcon="bwi-check-circle">{{
+                    "pamTargetSystemSessionTerminationSupported" | i18n
+                  }}</span>
+                  <p bitTypography="helper" class="tw-mb-0 tw-text-fg-body">
+                    {{ "pamTargetSystemEndingSessionsEntraHint" | i18n }}
+                  </p>
+                } @else if (isCustomScript()) {
+                  <span bitBadge size="small" variant="warning" startIcon="bwi-warning">{{
+                    "pamTargetSystemSessionTerminationNo" | i18n
+                  }}</span>
+                  <p bitTypography="helper" class="tw-mb-0 tw-text-fg-body">
+                    {{ "pamTargetSystemEndingSessionsCustomScriptHint" | i18n }}
+                  </p>
+                } @else if (sessionTerminationNever()) {
+                  <span bitBadge size="small" variant="warning" startIcon="bwi-warning">{{
+                    "pamTargetSystemSessionTerminationNo" | i18n
+                  }}</span>
+                  <p
+                    bitTypography="helper"
+                    class="tw-mb-0 tw-text-fg-body"
+                    id="target-system-edit_session-termination-unsupported"
+                  >
+                    {{ "pamTargetSystemSessionTerminationUnsupportedHint" | i18n }}
+                  </p>
+                } @else {
+                  <p bitTypography="helper" class="tw-mb-0 tw-text-fg-body">
+                    {{ "pamTargetSystemEndingSessionsUnsetHint" | i18n }}
+                  </p>
                 }
-              </p>
-            }
-          } @else {
-            <p bitTypography="body2" class="tw-text-muted">
-              {{ "pamTargetSystemMethodManual" | i18n }}
-            </p>
-          }
-
-          <bit-form-field>
-            <bit-label>{{ "name" | i18n }}</bit-label>
-            <input bitInput type="text" id="target-system-edit_input_name" formControlName="name" />
-          </bit-form-field>
-
-          @if (systemIdText(); as systemId) {
-            <div data-testid="target-system-edit-system-id">
-              <p class="tw-mb-0 tw-text-sm tw-font-bold tw-text-muted">
-                {{ "pamTargetSystemIdLabel" | i18n }}
-              </p>
-              <div class="tw-flex tw-items-center tw-gap-1">
-                <span class="tw-font-mono tw-text-sm tw-break-all">{{ systemId }}</span>
-                <button
-                  type="button"
-                  bitIconButton="bwi-clone"
-                  buttonType="subtleGhost"
-                  size="small"
-                  id="target-system-edit_button_copy-id"
-                  [appCopyClick]="systemId"
-                  showToast
-                  [valueLabel]="'pamTargetSystemIdLabel' | i18n"
-                  [label]="'pamTargetSystemCopyId' | i18n"
-                ></button>
               </div>
-            </div>
-          }
-        </bit-card>
-      </bit-section>
 
-      @if (showPolicyCard()) {
-        <ng-container *ngTemplateOutlet="policyCard"></ng-container>
-      }
-
-      @if (isAutomatic()) {
-        <ng-template #connectorRow let-row>
-          <bit-cell>
-            <span [class.tw-line-through]="row.removing" [class.tw-text-muted]="row.removing">{{
-              row.connector.name
-            }}</span>
-            @if (row.stagedLabelKey !== null) {
-              <span slot="end" bitBadge variant="subtle">{{ row.stagedLabelKey | i18n }}</span>
+              <ng-container *ngTemplateOutlet="connectorsField"></ng-container>
             }
-          </bit-cell>
-          <bit-cell>
-            <span bitBadge [variant]="row.enabled ? 'success' : 'secondary'">{{
-              row.statusLabelKey | i18n
-            }}</span>
-          </bit-cell>
-          <bit-cell>
-            <span bitBadge [variant]="row.connector.isConnected ? 'success' : 'secondary'">{{
-              row.connectionLabelKey | i18n
-            }}</span>
-          </bit-cell>
-        </ng-template>
+          </bit-card>
+        </bit-section>
 
-        <pam-assignment-picker
-          idPrefix="target-system-edit"
-          headingKey="pamTargetSystemConnectorAssignments"
-          selectLabelKey="pamTargetSystemAssignConnectors"
-          unassignLabelKey="pamAccessConnectorUnassign"
-          emptyKey="pamTargetSystemConnectorAssignmentsEmpty"
-          goToLabelKey="pamTargetSystemAssignGoToConnectors"
-          [options]="connectorOptions()"
-          [assignments]="assignedConnectorRows()"
-          [columns]="connectorColumns"
-          [rowTemplate]="connectorRow"
-          [hints]="connectorHints"
-          [assign]="stageAssign"
-          [unassign]="stageUnassign"
-          [loadError]="connectorsUnavailable()"
-          [noneEligible]="noConnectorsEligible()"
-          [goToRoute]="connectorsRoute"
-        />
-      }
+        @if (showPolicyCard()) {
+          <ng-container *ngTemplateOutlet="policyCard"></ng-container>
+        }
+      </form>
+    } @else {
+      <div class="tw-max-w-4xl" [class.tw-pb-20]="showFooter()">
+        @if (isDisabled()) {
+          <bit-callout
+            type="info"
+            [accessibleName]="'pamTargetSystemStatusInactive' | i18n"
+            id="target-system-edit_callout_inactive"
+          >
+            {{ "pamTargetSystemInactiveCallout" | i18n }}
+          </bit-callout>
+        }
 
-      <div class="tw-flex tw-items-center tw-gap-2">
-        <button
-          type="button"
-          bitButton
-          buttonType="primary"
-          [bitAction]="submitEdit"
-          id="target-system-edit_button_save"
-        >
-          {{ "save" | i18n }}
-        </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          (click)="cancel()"
-          id="target-system-edit_button_cancel"
-        >
-          {{ "cancel" | i18n }}
-        </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="danger"
-          startIcon="bwi-trash"
-          [bitAction]="deleteSystem"
-          id="target-system-edit_button_delete"
-          class="tw-ms-auto"
-        >
-          {{ "pamTargetSystemDeleteTarget" | i18n }}
-        </button>
+        @if (sealIssue(); as issue) {
+          @if (issue !== "ok") {
+            <bit-callout
+              type="warning"
+              [accessibleName]="
+                (issue === 'pending'
+                  ? 'pamTargetSystemSetupIncompleteTitle'
+                  : 'pamTargetSystemIntegrityCheckFailedTitle'
+                ) | i18n
+              "
+              id="target-system-edit_callout_seal-issue"
+            >
+              {{
+                (issue === "pending"
+                  ? "pamTargetSystemSetupIncompleteContent"
+                  : "pamTargetSystemIntegrityCheckFailedContent"
+                ) | i18n
+              }}
+            </bit-callout>
+          }
+        }
+
+        @let setupSteps = outstandingSetupSteps();
+        @if (setupSteps.length > 0) {
+          <bit-callout
+            type="subtle"
+            [accessibleName]="'pamTargetSystemSetupGuidanceTitle' | i18n"
+            id="target-system-edit_callout_setup-guidance"
+          >
+            @if (setupSteps.length === 1) {
+              <p class="tw-mb-0">{{ setupSteps[0] | i18n }}</p>
+            } @else {
+              <ol class="tw-mb-0 tw-ps-4">
+                @for (step of setupSteps; track step) {
+                  <li>{{ step | i18n }}</li>
+                }
+              </ol>
+            }
+          </bit-callout>
+        }
+
+        <bit-section [formGroup]="nameForm">
+          <bit-section-header>
+            <h2 bitTypography="h4">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <bit-form-field>
+              <bit-label>{{ "name" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                id="target-system-edit_input_name"
+                formControlName="name"
+                required
+              />
+              <bit-hint>{{ "pamTargetSystemNameHelp" | i18n }}</bit-hint>
+            </bit-form-field>
+
+            <div class="tw-mb-4" data-testid="target-system-edit-method">
+              <p bitTypography="body2" class="tw-mb-0 tw-font-medium tw-text-fg-body">
+                {{ "pamTargetSystemMethodLabel" | i18n }}
+              </p>
+              <p bitTypography="body1" class="tw-mb-0 tw-text-fg-heading">
+                {{
+                  (existing()?.method === TargetSystemMethod.Automatic
+                    ? "pamTargetSystemMethodAutomatic"
+                    : "pamTargetSystemMethodManual"
+                  ) | i18n
+                }}
+              </p>
+            </div>
+
+            @if (systemIdText(); as systemId) {
+              <div data-testid="target-system-edit-system-id">
+                <p bitTypography="body2" class="tw-mb-0 tw-font-medium tw-text-fg-body">
+                  {{ "pamTargetSystemIdLabel" | i18n }}
+                </p>
+                <div class="tw-flex tw-items-center tw-gap-1">
+                  <span
+                    bitTypography="body1"
+                    class="tw-font-mono tw-break-all tw-text-fg-heading"
+                    >{{ systemId }}</span
+                  >
+                  <button
+                    type="button"
+                    bitIconButton="bwi-clone"
+                    buttonType="subtleGhost"
+                    size="small"
+                    class="tw-ms-auto"
+                    id="target-system-edit_button_copy-id"
+                    [appCopyClick]="systemId"
+                    showToast
+                    [valueLabel]="'pamTargetSystemIdLabel' | i18n"
+                    [label]="'pamTargetSystemCopyId' | i18n"
+                  ></button>
+                </div>
+              </div>
+            }
+          </bit-card>
+        </bit-section>
+
+        @if (isAutomatic()) {
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h4">{{ "pamTargetSystemAutomaticRotationHeading" | i18n }}</h2>
+            </bit-section-header>
+            <bit-card>
+              @if (showEditKindPicker()) {
+                <bit-form-field>
+                  <bit-label>{{ "pamTargetSystemSystemTypeLabel" | i18n }}</bit-label>
+                  <select
+                    bitInput
+                    id="target-system-edit_select_kind"
+                    [formControl]="editKindControl"
+                  >
+                    @for (opt of kindOptions; track opt.value) {
+                      <option [ngValue]="opt.value">{{ opt.label | i18n }}</option>
+                    }
+                  </select>
+                  <bit-hint>{{ "pamTargetSystemTypeUnverifiedHint" | i18n }}</bit-hint>
+                </bit-form-field>
+              } @else {
+                <div class="tw-mb-4" data-testid="target-system-edit-system-type">
+                  <p bitTypography="body2" class="tw-mb-0 tw-font-medium tw-text-fg-body">
+                    {{ "pamTargetSystemSystemTypeLabel" | i18n }}
+                  </p>
+                  <p bitTypography="body1" class="tw-mb-0 tw-text-fg-heading">
+                    @if (kindLabelKey(); as kindKey) {
+                      {{ kindKey | i18n }}
+                    } @else {
+                      {{ "pamTargetSystemNone" | i18n }}
+                    }
+                  </p>
+                </div>
+              }
+
+              <div
+                class="tw-mb-4 tw-flex tw-flex-col tw-items-start tw-gap-2"
+                data-testid="target-system-edit-ending-sessions"
+              >
+                <p bitTypography="body2" class="tw-mb-0 tw-font-medium tw-text-fg-heading">
+                  {{ "pamTargetSystemEndingSessions" | i18n }}
+                </p>
+                @if (endsSessions()) {
+                  <span bitBadge size="small" variant="success" startIcon="bwi-check-circle">{{
+                    "pamTargetSystemSessionTerminationSupported" | i18n
+                  }}</span>
+                  <p bitTypography="helper" class="tw-mb-0 tw-text-fg-body">
+                    {{
+                      (sessionTerminationAlways()
+                        ? "pamTargetSystemEndingSessionsEntraHint"
+                        : "pamTargetSystemEndingSessionsCustomScriptSupportedHint"
+                      ) | i18n
+                    }}
+                  </p>
+                } @else {
+                  <span bitBadge size="small" variant="warning" startIcon="bwi-warning">{{
+                    "pamTargetSystemSessionTerminationNo" | i18n
+                  }}</span>
+                  @if (sessionTerminationNever()) {
+                    <p
+                      bitTypography="helper"
+                      class="tw-mb-0 tw-text-fg-body"
+                      id="target-system-edit_session-termination-unsupported"
+                    >
+                      {{ "pamTargetSystemSessionTerminationUnsupportedHint" | i18n }}
+                    </p>
+                    @if (showRetainedTermination()) {
+                      <p
+                        bitTypography="helper"
+                        class="tw-mb-0 tw-text-fg-body"
+                        id="target-system-edit_session-termination-retained"
+                      >
+                        {{ "pamTargetSystemSessionTerminationRetainedHint" | i18n }}
+                      </p>
+                    }
+                  } @else {
+                    <p bitTypography="helper" class="tw-mb-0 tw-text-fg-body">
+                      {{ "pamTargetSystemEndingSessionsCustomScriptHint" | i18n }}
+                    </p>
+                  }
+                }
+              </div>
+
+              <ng-container *ngTemplateOutlet="connectorsField"></ng-container>
+            </bit-card>
+          </bit-section>
+        }
+
+        @if (showPolicyCard()) {
+          <ng-container *ngTemplateOutlet="policyCard"></ng-container>
+        }
       </div>
-    </div>
+    }
   }
 }

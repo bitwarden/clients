@@ -1,7 +1,8 @@
+<!-- Cut the status gap out of the avatar instead of drawing a ring, so it works on any background -->
 <svg
   xmlns="http://www.w3.org/2000/svg"
   pointer-events="none"
-  class="tw-rounded-full tw-size-full tw-min-w-full tw-bg-[--avatar-bg] group-aria-disabled/avatar:tw-bg-bg-inactive [&:is(button:not([aria-disabled='true'])_*)]:group-hover/avatar:tw-bg-[--avatar-bg-hover] [&:is(button:not([aria-disabled='true'])_*)]:group-focus-visible/avatar:tw-bg-[--avatar-bg-hover]"
+  class="tw-rounded-full tw-size-full tw-min-w-full tw-bg-[--avatar-bg] [--avatar-status-x:calc(100%_-_var(--avatar-status-r))] rtl:[--avatar-status-x:var(--avatar-status-r)] group-has-[[slot=status]]/avatar:[mask-image:radial-gradient(circle_at_var(--avatar-status-x)_var(--avatar-status-r),transparent_var(--avatar-status-cutout),#000_calc(var(--avatar-status-cutout)_+_0.5px))] group-aria-disabled/avatar:tw-bg-bg-inactive [&:is(button:not([aria-disabled='true'])_*)]:group-hover/avatar:tw-bg-[--avatar-bg-hover] [&:is(button:not([aria-disabled='true'])_*)]:group-focus-visible/avatar:tw-bg-[--avatar-bg-hover]"
   attr.viewBox="0 0 {{ svgSize }} {{ svgSize }}"
 >
   <title>{{ title() || text() }}</title>
@@ -21,3 +22,9 @@
     {{ displayChars() }}
   </text>
 </svg>
+<!-- Overrides the berry's own status size to match the avatar -->
+<span
+  class="tw-absolute tw-top-0 tw-end-0 tw-flex tw-size-[calc(var(--avatar-status-r)*2)] [&>bit-berry]:tw-size-full"
+>
+  <ng-content select="[slot=status]" />
+</span>

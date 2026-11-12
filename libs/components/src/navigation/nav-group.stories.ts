@@ -214,6 +214,33 @@ export const NestedGroupsVfo1: StoryObj<NavGroupComponent> = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
+/** Leaf rows reserve the toggle's width only when a row in their own group or section has one. */
+export const NestedGroupsInSectionsVfo1: StoryObj<NavGroupComponent> = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="Organization" [open]="true">
+          <bit-nav-item text="All items" route="t1" icon="bwi-list-alt"></bit-nav-item>
+          <bit-nav-item text="Shared folders" route="t2" icon="bwi-shared-folder"></bit-nav-item>
+          <bit-nav-section label="Pinned">
+            <bit-nav-item text="No children" route="t3" icon="bwi-shared-folder"></bit-nav-item>
+            <bit-nav-item text="No children" route="t3"></bit-nav-item>
+            <bit-nav-group text="With children" route="t4" icon="bwi-shared-folder" [open]="true">
+              <bit-nav-item text="Child" route="t5" icon="bwi-shared-folder"></bit-nav-item>
+            </bit-nav-group>
+          </bit-nav-section>
+          <bit-nav-section label="Recent">
+            <bit-nav-item text="Folder A" route="t6" icon="bwi-shared-folder"></bit-nav-item>
+            <bit-nav-item text="Folder B" route="t7" icon="bwi-shared-folder"></bit-nav-item>
+          </bit-nav-section>
+        </bit-nav-group>
+      </bit-side-nav>
+    `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const ForcedActive: StoryObj<NavGroupComponent> = {
   render: (args) => ({
     props: args,

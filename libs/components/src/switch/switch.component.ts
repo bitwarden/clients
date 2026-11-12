@@ -1,5 +1,6 @@
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -21,10 +22,9 @@ let nextId = 0;
 /**
  * Switch component for toggling between two states. Switch actions are meant to take place immediately and are not to be used in a form where saving/submiting actions are required.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-switch",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -162,8 +162,8 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
   }
 
   // ControlValueAccessor functions
-  private notifyOnChange: (value: boolean) => void = () => {};
-  private notifyOnTouch: () => void = () => {};
+  private readonly notifyOnChange = signal<(value: boolean) => void>(() => {});
+  private readonly notifyOnTouch = signal<() => void>(() => {});
 
   writeValue(value: boolean): void {
     this.selected.set(value);
@@ -172,23 +172,19 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
   onChange(value: boolean): void {
     this.selected.set(value);
 
-    if (this.notifyOnChange != undefined) {
-      this.notifyOnChange(value);
-    }
+    this.notifyOnChange()(value);
   }
 
   onTouch() {
-    if (this.notifyOnTouch != undefined) {
-      this.notifyOnTouch();
-    }
+    this.notifyOnTouch()();
   }
 
   registerOnChange(fn: (value: boolean) => void): void {
-    this.notifyOnChange = fn;
+    this.notifyOnChange.set(fn);
   }
 
   registerOnTouched(fn: () => void): void {
-    this.notifyOnTouch = fn;
+    this.notifyOnTouch.set(fn);
   }
 
   setDisabledState(isDisabled: boolean) {
