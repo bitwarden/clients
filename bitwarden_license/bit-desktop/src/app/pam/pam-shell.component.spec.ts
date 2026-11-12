@@ -87,6 +87,15 @@ describe("PamShellComponent", () => {
     expect(labels[2]).toContain("pamTabHistory");
   });
 
+  it("pads the header and the routed tab inside one page gutter", () => {
+    const host = create();
+
+    const gutter = host.querySelector('[data-testid="pam-shell-gutter"]');
+    expect(gutter?.classList).toContain("tw-px-8");
+    expect(gutter?.querySelector("app-header")).not.toBeNull();
+    expect(gutter?.querySelector("router-outlet")).not.toBeNull();
+  });
+
   it("hides Approvals from a requester who cannot approve", () => {
     canApprove$.next(false);
     const host = create();
