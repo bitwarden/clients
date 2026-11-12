@@ -583,13 +583,13 @@ export class ServiceContainer {
       activeUserAccessor,
     );
 
-    this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.accountService,
     );
+    this.kdfConfigService = new DefaultKdfConfigService(this.masterPasswordService);
 
     this.ipcService = new CliIpcService(this.logService);
     this.biometricsService = new CliBiometricsService(
@@ -940,7 +940,6 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
-      this.kdfConfigService,
       this.configService,
       this.accountCryptographicStateService,
       this.passwordPreloginService,

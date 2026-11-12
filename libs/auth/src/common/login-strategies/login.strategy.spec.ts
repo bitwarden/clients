@@ -43,7 +43,7 @@ import {
 } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
@@ -103,7 +103,6 @@ describe("LoginStrategy", () => {
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
@@ -128,7 +127,6 @@ describe("LoginStrategy", () => {
     logService = mock<LogService>();
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
-    kdfConfigService = mock<KdfConfigService>();
     policyService = mock<PolicyService>();
     passwordStrengthService = mock<PasswordStrengthService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
@@ -168,7 +166,6 @@ describe("LoginStrategy", () => {
       userDecryptionOptionsService,
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
-      kdfConfigService,
       environmentService,
       configService,
       accountCryptographicStateService,
@@ -491,7 +488,6 @@ describe("LoginStrategy", () => {
         userDecryptionOptionsService,
         billingAccountProfileStateService,
         vaultTimeoutSettingsService,
-        kdfConfigService,
         environmentService,
         configService,
         accountCryptographicStateService,
@@ -559,7 +555,6 @@ describe("LoginStrategy", () => {
         userDecryptionOptionsService,
         billingAccountProfileStateService,
         vaultTimeoutSettingsService,
-        kdfConfigService,
         environmentService,
         configService,
         accountCryptographicStateService,
@@ -594,7 +589,6 @@ describe("LoginStrategy", () => {
         userDecryptionOptionsService,
         billingAccountProfileStateService,
         vaultTimeoutSettingsService,
-        kdfConfigService,
         environmentService,
         configService,
         accountCryptographicStateService,

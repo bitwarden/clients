@@ -40,14 +40,13 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey, UserPrivateKey, UserPublicKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
   EncryptedString,
   EncryptService,
   EncString,
-  fromSdkKdfConfig,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
@@ -74,7 +73,6 @@ describe("DefaultSetInitialPasswordService", () => {
   let apiService: MockProxy<ApiService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
   let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
@@ -95,7 +93,6 @@ describe("DefaultSetInitialPasswordService", () => {
     apiService = mock<ApiService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
-    kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
     legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
@@ -115,7 +112,6 @@ describe("DefaultSetInitialPasswordService", () => {
       apiService,
       encryptService,
       i18nService,
-      kdfConfigService,
       keyService,
       legacyCompatKeyService,
       masterPasswordApiService,
@@ -414,7 +410,6 @@ describe("DefaultSetInitialPasswordService", () => {
             userId,
             userDecryptionOptions,
           );
-          expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
           expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             userId,
             masterKeyEncryptedUserKey[0],
@@ -647,7 +642,6 @@ describe("DefaultSetInitialPasswordService", () => {
             userId,
             userDecryptionOptions,
           );
-          expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
           expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             userId,
             masterKeyEncryptedUserKey[0],
@@ -1019,11 +1013,6 @@ describe("DefaultSetInitialPasswordService", () => {
         userId,
         expect.objectContaining({ hasMasterPassword: true }),
       );
-
-      expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(
-        userId,
-        fromSdkKdfConfig(sdkRegistrationResult.master_password_unlock.kdf),
-      );
     });
 
     describe("input validation", () => {
@@ -1302,7 +1291,6 @@ describe("DefaultSetInitialPasswordService", () => {
           userId,
           expect.objectContaining({ hasMasterPassword: true }),
         );
-        expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
       });
 
       describe("given resetPasswordAutoEnroll is false", () => {

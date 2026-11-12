@@ -30,12 +30,11 @@ import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
   EncString,
-  fromSdkKdfConfig,
   KdfConfig,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
@@ -57,7 +56,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected apiService: ApiService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
-    protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
     protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
@@ -194,7 +192,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(kdfConfig, userId);
+    await this.updateAccountDecryptionProperties(userId);
 
     // Set master password unlock data for unlock path pointed to with
     // MasterPasswordUnlockData feature development
@@ -354,10 +352,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
     await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
 
-    await this.updateLegacyState(
-      fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
-      userId,
-    );
+    await this.updateLegacyState(userId);
 
     // Unlocking initializes the SDK from state, so it has to run after the state written above -
     // in particular the new KDF config - has been persisted.
@@ -445,7 +440,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     // User now has a password so update decryption state
     await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
-    await this.updateLegacyState(unlockData.kdf, userId);
+    await this.updateLegacyState(userId);
 
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnroll(
@@ -483,7 +478,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   /**
    * @deprecated along with `setInitialPassword()` deprecation
    */
-  private async updateAccountDecryptionProperties(kdfConfig: KdfConfig, userId: UserId) {
+  private async updateAccountDecryptionProperties(userId: UserId) {
     const userDecryptionOpts = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
@@ -492,11 +487,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       userDecryptionOpts,
     );
-    await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
   }
 
   // Deprecated legacy support - to be removed in future
-  private async updateLegacyState(kdfConfig: KdfConfig, userId: UserId) {
+  private async updateLegacyState(userId: UserId) {
     // TODO Remove HasMasterPassword from UserDecryptionOptions https://bitwarden.atlassian.net/browse/PM-23475
     const userDecryptionOpts = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
@@ -506,9 +500,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       userDecryptionOpts,
     );
-
-    // TODO Remove KDF state https://bitwarden.atlassian.net/browse/PM-30661
-    await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
   }
 
   /**

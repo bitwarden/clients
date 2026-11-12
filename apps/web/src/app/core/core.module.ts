@@ -388,7 +388,6 @@ const safeProviders: SafeProvider[] = [
       ApiService,
       EncryptService,
       I18nServiceAbstraction,
-      KdfConfigService,
       KeyServiceAbstraction,
       LegacyCompatKeyService,
       MasterPasswordApiService,

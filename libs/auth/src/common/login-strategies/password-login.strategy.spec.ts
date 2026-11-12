@@ -37,7 +37,7 @@ import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitw
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
@@ -104,7 +104,6 @@ describe("PasswordLoginStrategy", () => {
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
@@ -134,7 +133,6 @@ describe("PasswordLoginStrategy", () => {
     passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-    kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
@@ -181,7 +179,6 @@ describe("PasswordLoginStrategy", () => {
       userDecryptionOptionsService,
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
-      kdfConfigService,
       environmentService,
       configService,
       accountCryptographicStateService,

@@ -682,7 +682,6 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       BillingAccountProfileStateService,
       VaultTimeoutSettingsService,
-      KdfConfigService,
       ConfigService,
       AccountCryptographicStateService,
       PasswordPreloginService,
@@ -1850,7 +1849,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: KdfConfigService,
     useClass: DefaultKdfConfigService,
-    deps: [StateProvider],
+    deps: [InternalMasterPasswordServiceAbstraction],
   }),
   safeProvider({
     provide: OrganizationInviteService,
@@ -1864,7 +1863,6 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       EncryptService,
       I18nServiceAbstraction,
-      KdfConfigService,
       KeyService,
       LegacyCompatKeyService,
       MasterPasswordApiServiceAbstraction,

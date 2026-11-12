@@ -31,7 +31,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
 
@@ -81,7 +81,6 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    protected KdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
     protected configService: ConfigService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
@@ -232,8 +231,6 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
       vaultTimeout,
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
-
-    await this.KdfConfigService.setKdfConfig(userId as UserId, tokenResponse.kdfConfig);
 
     await this.billingAccountProfileStateService.setHasPremium(
       accountInformation.premium ?? false,
