@@ -1,3 +1,4 @@
+import { sanitizeUntrusted } from "@bitwarden/bit-common/pam/shared";
 import type {
   PamCollectionSummary,
   PamOrganizationStatus,
@@ -64,7 +65,7 @@ export class PamCollectionResponse extends PamResponse {
     super("pam-collection");
     this.id = c.id;
     this.organizationId = c.organizationId;
-    this.name = c.name;
+    this.name = sanitizeUntrusted(c.name, 200);
     this.hasEnabledAccessRule = c.hasEnabledAccessRule;
   }
 }

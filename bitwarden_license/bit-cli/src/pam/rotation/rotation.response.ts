@@ -53,7 +53,7 @@ export class RotationConfigResponse extends PamResponse {
     if (names != null) {
       const name = names.cipher(this.cipherId);
       if (name !== this.cipherId) {
-        this.cipherName = name;
+        this.cipherName = sanitizeUntrusted(name, 200);
       }
     }
     this.targetSystemId = String(config.targetSystemId);

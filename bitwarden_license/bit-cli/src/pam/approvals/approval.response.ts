@@ -3,7 +3,7 @@ import type {
   ApprovalRow,
   ManagedLeaseRow,
 } from "@bitwarden/bit-common/pam/approvals";
-import type { PamNames } from "@bitwarden/bit-common/pam/shared";
+import { sanitizeUntrusted, type PamNames } from "@bitwarden/bit-common/pam/shared";
 
 import { isoDate, PamObject, PamResponse } from "../shared";
 
@@ -40,10 +40,10 @@ export class ApprovalRowResponse extends PamResponse {
     this.collectionId = row.collectionId;
     this.organizationId = row.organizationId;
     if (names != null) {
-      this.cipherName = names.cipher(row.cipherId);
-      this.collectionName = names.collection(row.collectionId);
+      this.cipherName = sanitizeUntrusted(names.cipher(row.cipherId), 200);
+      this.collectionName = sanitizeUntrusted(names.collection(row.collectionId), 200);
       if (row.organizationId != null) {
-        this.organizationName = names.organization(row.organizationId);
+        this.organizationName = sanitizeUntrusted(names.organization(row.organizationId), 200);
       }
     }
     this.requesterId = row.requesterId;
@@ -99,8 +99,8 @@ export class ManagedLeaseResponse extends PamResponse {
     this.cipherId = row.cipherId;
     this.collectionId = row.collectionId;
     if (names != null) {
-      this.cipherName = names.cipher(row.cipherId);
-      this.collectionName = names.collection(row.collectionId);
+      this.cipherName = sanitizeUntrusted(names.cipher(row.cipherId), 200);
+      this.collectionName = sanitizeUntrusted(names.collection(row.collectionId), 200);
     }
     this.organizationId = row.organizationId;
     this.requesterId = row.requesterId;

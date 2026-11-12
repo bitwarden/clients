@@ -1,5 +1,5 @@
 import { FoldedAccessRequest } from "@bitwarden/bit-common/pam/requests";
-import { liveActiveLease, PamNames } from "@bitwarden/bit-common/pam/shared";
+import { liveActiveLease, PamNames, sanitizeUntrusted } from "@bitwarden/bit-common/pam/shared";
 import type {
   AccessLeaseView,
   AccessPreCheckView,
@@ -45,9 +45,9 @@ export class AccessRequestResponse extends PamResponse {
     this.collectionId = String(view.collectionId);
     this.organizationId = view.organizationId == null ? undefined : String(view.organizationId);
     if (names != null) {
-      this.cipherName = names.cipher(this.cipherId);
+      this.cipherName = sanitizeUntrusted(names.cipher(this.cipherId), 200);
       if (this.organizationId != null) {
-        this.organizationName = names.organization(this.organizationId);
+        this.organizationName = sanitizeUntrusted(names.organization(this.organizationId), 200);
       }
     }
     this.ruleId = view.ruleId == null ? undefined : String(view.ruleId);
@@ -166,7 +166,7 @@ export class CipherAccessStateResponse extends PamResponse {
     super(PamObject.AccessState);
     this.cipherId = String(state.cipherId);
     if (options.names != null) {
-      this.cipherName = options.names.cipher(this.cipherId);
+      this.cipherName = sanitizeUntrusted(options.names.cipher(this.cipherId), 200);
     }
     if (typeof state.badgeState === "string") {
       this.badgeState = state.badgeState;

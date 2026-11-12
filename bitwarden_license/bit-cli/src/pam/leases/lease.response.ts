@@ -1,5 +1,5 @@
 import { LeaseExtensionResult } from "@bitwarden/bit-common/pam/leases";
-import { sdkIdToString } from "@bitwarden/bit-common/pam/shared";
+import { sanitizeUntrusted, sdkIdToString } from "@bitwarden/bit-common/pam/shared";
 import type { AccessLeaseView } from "@bitwarden/sdk-internal";
 
 import { isoDate, PamObject, PamResponse } from "../shared";
@@ -28,7 +28,7 @@ export class LeaseResponse extends PamResponse {
     this.status = lease.status;
     this.notBefore = isoDate(lease.notBefore);
     this.notAfter = isoDate(lease.notAfter);
-    this.cipherName = cipherName;
+    this.cipherName = cipherName == null ? undefined : sanitizeUntrusted(cipherName, 200);
   }
 }
 

@@ -42,6 +42,14 @@ describe("RotationConfigResponse", () => {
     const ids = { cipher: (id: string) => id } as never;
     expect(new RotationConfigResponse({ config, actions }, ids).cipherName).toBeUndefined();
   });
+
+  it("strips control characters from the cipher name", () => {
+    const names = {
+      cipher: (id: string) => (id === "ci" ? "Prod\u001b[2K\r\u202eroot\u0007" : id),
+    };
+    const response = new RotationConfigResponse({ config, actions }, names as never);
+    expect(response.cipherName).toBe("Prod[2K root");
+  });
 });
 
 describe("RotationJobResponse", () => {
