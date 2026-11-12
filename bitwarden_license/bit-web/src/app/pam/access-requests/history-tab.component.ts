@@ -90,7 +90,7 @@ const SDK_STATUS: Readonly<Record<HistoryStatus, AccessRequestHistoryStatus>> = 
 
 /**
  * A read-only record of every request that reached an end state, on collections the caller
- * manages and among their own. The server pages, filters and orders it, newest end first.
+ * manages and among their own. The server pages, filters and orders it, newest request first.
  */
 @Component({
   selector: "pam-history-tab",
@@ -211,7 +211,7 @@ export class HistoryTabComponent {
     () => this.skeletonShown() && !this.skeletonVisible() && this.loadError() == null,
   );
 
-  /** The page's rows in the server's order, newest end first. */
+  /** The page's rows in the server's order, newest request first. */
   protected readonly rows = computed<HistoryTableRow[]>(() => {
     const nowMs = this.nowMs();
     const now = new Date(nowMs);

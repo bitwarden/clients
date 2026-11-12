@@ -281,7 +281,7 @@ describe("HistoryTabComponent", () => {
       ]);
     });
 
-    it("sorts on no column, since the server orders the rows newest end first", () => {
+    it("sorts on no column, since the server orders the rows newest request first", () => {
       expect(headers().filter((header) => header.querySelector("button") != null)).toEqual([]);
     });
 
