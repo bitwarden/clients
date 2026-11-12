@@ -31,6 +31,12 @@ describe("targetSystemQualifierKey", () => {
     );
   });
 
+  it("names Active Directory as itself rather than as Entra", () => {
+    expect(targetSystemQualifierKey(systemWithKind(TargetSystemKind.ActiveDirectory))).toBe(
+      "pamTargetSystemTypeActiveDirectory",
+    );
+  });
+
   it("falls back to the method for a manual target, which has no integration", () => {
     expect(
       targetSystemQualifierKey(systemWithKind(undefined, { method: TargetSystemMethod.Manual })),

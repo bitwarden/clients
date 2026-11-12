@@ -8,22 +8,33 @@ import {
   StoryObj,
 } from "@storybook/angular";
 import { of } from "rxjs";
+import { userEvent, within } from "storybook/test";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import type { AccessConnector, RotationConfigDetailView } from "../rotation";
 import { QuartzSchedulePreset } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
+  CIPHER_ID,
   ORGANIZATION_ID,
+  TARGET_SYSTEM_ID,
+  accessConnector,
+  attemptId,
   id,
   jobId,
+  rotationAttempt,
   rotationConfig,
+  rotationConfigActions,
+  rotationConfigDescription,
   rotationConfigDetail,
   rotationJob,
   sysId,
@@ -47,10 +58,16 @@ const SAMPLE_DETAIL = rotationConfigDetail({
   jobs: [rotationJob(), rotationJob({ id: jobId("j-2") })],
 });
 
-/** An active target and a retired one, so the create picker offers exactly one of them. */
+/** Active targets of each kind and a retired one the create picker leaves out. */
 const TARGET_SYSTEMS = [
   targetSystem({ id: sysId("1"), name: "Prod Entra" }),
+  targetSystem({ id: sysId("2"), name: "Finance Reporting DB", method: "manual" }),
+  targetSystem({ id: sysId("3"), name: "AWS Production" }),
   targetSystem({ id: sysId("4"), name: "Retired Entra sandbox", status: "disabled" }),
+];
+
+const CONNECTORS = [
+  accessConnector({ name: "East datacenter", assignedTargetSystemIds: [TARGET_SYSTEM_ID] }),
 ];
 
 function loginCipher(cipherId: string, name: string): CipherView {
@@ -64,15 +81,29 @@ function loginCipher(cipherId: string, name: string): CipherView {
 }
 
 const CIPHERS = [
+  loginCipher(String(CIPHER_ID), "Splunk forwarder account"),
   loginCipher(id("6"), "svc-rotation@corp"),
   loginCipher(id("7"), "sql-admin@reporting"),
 ];
 
-function rotationSdkFor(systems = TARGET_SYSTEMS): Partial<RotationSdkService> {
+function rotationSdkFor(
+  systems = TARGET_SYSTEMS,
+  detail: RotationConfigDetailView = SAMPLE_DETAIL,
+  connectors: AccessConnector[] = CONNECTORS,
+  actions = rotationConfigActions(),
+): Partial<RotationSdkService> {
   return {
     listTargetSystems: () => Promise.resolve(systems),
     listConfigs: () => Promise.resolve([]),
-    getConfig: () => Promise.resolve(SAMPLE_DETAIL),
+    listConnectors: () => Promise.resolve(connectors),
+    describeConfigs: (configs) =>
+      Promise.resolve(new Map(configs.map((c) => [c.id, rotationConfigDescription({ actions })]))),
+    pauseConfig: () => Promise.resolve(),
+    resumeConfig: () => Promise.resolve(),
+    rotateNow: () => Promise.resolve(),
+    recordManualRotation: () => Promise.resolve(),
+    assignTarget: () => Promise.resolve(),
+    getConfig: () => Promise.resolve(detail),
     createConfig: () => Promise.resolve(SAMPLE_DETAIL),
     updateConfig: () => Promise.resolve(SAMPLE_DETAIL),
     deleteConfig: () => Promise.resolve(),
@@ -121,6 +152,11 @@ export default {
         provideRouter(routes, withHashLocation()),
         { provide: RotationSdkService, useValue: rotationSdkFor() },
         { provide: ToastService, useValue: { showToast: () => {} } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
+        {
+          provide: CollectionAdminService,
+          useValue: { collectionAdminViews$: () => of([]) },
+        },
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
         {
           provide: AccountService,
@@ -143,7 +179,7 @@ export default {
 
 type Story = StoryObj<RotationConfigEditComponent>;
 
-/** The Configuration tab; the breadcrumb trail ends in "Edit managed credential". */
+/** The Configuration tab of an active credential; the title is the vault item's name. */
 export const Edit: Story = {
   decorators: [
     atUrl(
@@ -178,3 +214,156 @@ export const CreateWithNoActiveTargetSystems: Story = {
     }),
   ],
 };
+
+const EDIT_URL = `/organizations/${ORGANIZATION_ID}/pam/rotation/managed-credentials/${SAMPLE_DETAIL.config.id}/configuration`;
+
+function editStory(
+  detail: RotationConfigDetailView,
+  connectors: AccessConnector[] = CONNECTORS,
+  actions = rotationConfigActions(),
+  url = EDIT_URL,
+): Story {
+  return {
+    decorators: [
+      atUrl(url),
+      applicationConfig({
+        providers: [
+          {
+            provide: RotationSdkService,
+            useValue: rotationSdkFor(TARGET_SYSTEMS, detail, connectors, actions),
+          },
+        ],
+      }),
+    ],
+  };
+}
+
+const withConfig = (overrides: Parameters<typeof rotationConfig>[0], jobs = SAMPLE_DETAIL.jobs) =>
+  rotationConfigDetail({
+    config: rotationConfig({
+      scheduleCron: PRESET_CRONS[QuartzSchedulePreset.Weekly],
+      lastRotationAt: "2026-09-19T19:00:00Z",
+      nextRotationAt: "2026-10-10T19:00:00Z",
+      ...overrides,
+    }),
+    jobs,
+  });
+
+export const Paused: Story = editStory(
+  withConfig({ enabled: false }),
+  CONNECTORS,
+  rotationConfigActions({ canRotateNow: false, canPause: false, canResume: true }),
+);
+
+async function openHeaderMenu(canvasElement: HTMLElement): Promise<void> {
+  await userEvent.click(await within(canvasElement).findByRole("button", { name: "Options" }));
+}
+
+/** An active credential's header menu: Pause rotation and Remove from rotation. */
+export const HeaderMenuActive: Story = {
+  ...Edit,
+  play: async ({ canvasElement }) => openHeaderMenu(canvasElement),
+};
+
+/** A paused credential's header menu: Rotate now locked with its reason, then Resume rotation. */
+export const HeaderMenuPaused: Story = {
+  ...Paused,
+  play: async ({ canvasElement }) => openHeaderMenu(canvasElement),
+};
+
+export const RotatingAfterAFailedAttempt: Story = editStory(
+  withConfig({ hasActiveJob: true }, [
+    rotationJob({
+      status: "claimed",
+      attempts: [
+        rotationAttempt({ status: "errored", failureReason: "target_unreachable" }),
+        rotationAttempt({ id: attemptId("a-2"), status: "executing" }),
+      ],
+    }),
+  ]),
+  CONNECTORS,
+  rotationConfigActions({ canRotateNow: false }),
+);
+
+export const ManualRotationDue: Story = editStory(
+  withConfig({
+    targetSystemMethod: "manual",
+    awaitingManualRotation: true,
+    nextRotationAt: new Date(Date.now() - 3 * 86_400_000).toISOString(),
+  }),
+  [],
+  rotationConfigActions({ canRotateNow: false, canRecordManual: true, canPause: false }),
+);
+
+/** While a job runs, Rotate now and Remove from rotation are locked with their reasons. */
+export const HeaderMenuRotating: Story = {
+  ...RotatingAfterAFailedAttempt,
+  play: async ({ canvasElement }) => openHeaderMenu(canvasElement),
+};
+
+export const FailedTimedOut: Story = editStory(
+  withConfig({}, [rotationJob({ status: "timed_out", attempts: [] })]),
+);
+
+export const NotConnectedNoConnector: Story = editStory(withConfig({}), []);
+
+export const NotConnectedDisconnected: Story = editStory(withConfig({}), [
+  accessConnector({
+    name: "East datacenter",
+    isConnected: false,
+    assignedTargetSystemIds: [TARGET_SYSTEM_ID],
+  }),
+]);
+
+const HISTORY_URL = `/organizations/${ORGANIZATION_ID}/pam/rotation/managed-credentials/${SAMPLE_DETAIL.config.id}/history`;
+
+/** No rotations yet: the job table keeps its header over the empty state. */
+export const EditHistoryEmpty: Story = editStory(
+  withConfig({}, []),
+  CONNECTORS,
+  rotationConfigActions(),
+  HISTORY_URL,
+);
+
+/** Retrying: the running job reads Retrying, and Details names the attempt that failed. */
+export const EditHistoryRetrying: Story = editStory(
+  withConfig({ hasActiveJob: true }, [
+    rotationJob({
+      status: "claimed",
+      attempts: [
+        rotationAttempt({ status: "errored", failureReason: "target_unreachable" }),
+        rotationAttempt({ id: attemptId("a-2"), status: "executing" }),
+      ],
+    }),
+  ]),
+  CONNECTORS,
+  rotationConfigActions({ canRotateNow: false }),
+  HISTORY_URL,
+);
+
+/** Not connected, with repeated timeouts no access connector picked up. */
+export const EditHistoryNoConnector: Story = editStory(
+  withConfig({}, [
+    rotationJob({
+      id: jobId("j-1"),
+      status: "timed_out",
+      attempts: [],
+      createdAt: "2026-10-04T19:00:00Z",
+    }),
+    rotationJob({
+      id: jobId("j-2"),
+      status: "timed_out",
+      attempts: [],
+      createdAt: "2026-10-03T19:00:00Z",
+    }),
+    rotationJob({
+      id: jobId("j-3"),
+      status: "timed_out",
+      attempts: [],
+      createdAt: "2026-10-02T19:00:00Z",
+    }),
+  ]),
+  [],
+  rotationConfigActions(),
+  HISTORY_URL,
+);

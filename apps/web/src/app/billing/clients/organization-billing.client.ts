@@ -7,6 +7,11 @@ import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/o
 
 type ChurnMitigationOfferDuration = "once" | "repeating";
 
+export type PurchasePrivilegedControlsRequest = {
+  seats: number;
+  maxAutoscaleSeats: number | null;
+};
+
 export type UpdatePrivilegedControlsSubscriptionRequest = {
   seatAdjustment: number;
   maxAutoscaleSeats: number | null;
@@ -106,6 +111,19 @@ export class OrganizationBillingClient {
     );
   };
 
+  purchasePrivilegedControls = async (
+    organizationId: OrganizationId,
+    request: PurchasePrivilegedControlsRequest,
+  ): Promise<void> => {
+    await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/billing/subscription/privileged-controls/purchase`,
+      request,
+      true,
+      false,
+    );
+  };
+
   updatePrivilegedControlsSubscription = async (
     organizationId: OrganizationId,
     request: UpdatePrivilegedControlsSubscriptionRequest,
@@ -114,6 +132,16 @@ export class OrganizationBillingClient {
       "PUT",
       `/organizations/${organizationId}/billing/subscription/privileged-controls`,
       request,
+      true,
+      false,
+    );
+  };
+
+  removePrivilegedControls = async (organizationId: OrganizationId): Promise<void> => {
+    await this.apiService.send(
+      "DELETE",
+      `/organizations/${organizationId}/billing/subscription/privileged-controls`,
+      null,
       true,
       false,
     );
