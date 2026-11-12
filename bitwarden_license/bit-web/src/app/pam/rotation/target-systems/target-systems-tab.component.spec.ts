@@ -1781,13 +1781,15 @@ describe("TargetSystemsTabComponent table", () => {
     expect(document.querySelector(".bit-menu-panel bit-menu-divider")).toBeNull();
   });
 
-  it("links the managed credentials count to the tab scoped to that target", async () => {
+  it("links the managed credentials count to that target's own Managed credentials tab", async () => {
     const el = await render();
 
     const link = el.querySelector<HTMLAnchorElement>("bit-table-v2 bit-row a[bitLink]")!;
 
     expect(text(link)).toBe("2");
-    expect(link.getAttribute("href")).toContain(`targetSystemId=${uuidAsString(entraActive.id)}`);
+    const href = link.getAttribute("href")!;
+    expect(href).toContain(`target-systems/${uuidAsString(entraActive.id)}/managed-credentials`);
+    expect(href).not.toContain("?");
   });
 
   it("routes a row action through the shared component method", async () => {

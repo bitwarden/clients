@@ -105,8 +105,8 @@
         } @else {
           <a
             bitLink
-            [routerLink]="['..', 'managed-credentials']"
-            [queryParams]="r.managedCredentialsQueryParams"
+            linkType="secondary"
+            [routerLink]="r.managedCredentialsRoute"
             id="target-systems-tab_link_managed-credentials-{{ r.id }}"
             >{{ r.managedCredentialCount }}</a
           >
