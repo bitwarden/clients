@@ -81,10 +81,11 @@ If the desktop app is installed in a non-standard location, set
 
 ### Privileged Controls (commercial builds only)
 
-The commercial CLI adds the `bw pam` commands for Privileged Controls: access requests, leases, approvals, access rules, and credential rotation. They are not in the open-source build, and need the Privileged Controls license and feature flags to be turned on for your organization.
+The commercial CLI adds the `bw pam` commands, also available as `bw pc`, for Privileged Controls: access requests, leases, approvals, access rules, and credential rotation. They are not in the open-source build, and need the Privileged Controls license and feature flags to be turned on for your organization.
 
 ```bash
 bw pam --help
+bw pc --help
 ```
 
 Each group of commands has its own documentation. The conventions they share, including output, exit codes, secret handling and `bw serve`, are in the [overview](../../bitwarden_license/bit-cli/src/pam/README.md).

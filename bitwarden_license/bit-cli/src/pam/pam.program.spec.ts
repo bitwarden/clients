@@ -61,6 +61,13 @@ describe("PamProgram", () => {
     expect(order).toEqual([...order].sort((a, b) => a - b));
   });
 
+  it("answers to the short alias `pc`", () => {
+    new PamProgram(container).register();
+    const pam = program.commands.find((c) => c.name() === "pam") as Command;
+
+    expect(pam.aliases()).toEqual(["pc"]);
+  });
+
   it("describes the command for --help", () => {
     new PamProgram(container).register();
     const pam = program.commands.find((c) => c.name() === "pam") as Command;

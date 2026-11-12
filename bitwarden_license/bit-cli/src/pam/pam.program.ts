@@ -28,9 +28,11 @@ export class PamProgram extends BaseProgram {
   }
 
   private pamCommand(): Command {
-    const pam = new Command("pam").description(
-      "Manage Privileged Controls: access requests, leases, approvals, access rules, and credential rotation.",
-    );
+    const pam = new Command("pam")
+      .alias("pc")
+      .description(
+        "Manage Privileged Controls: access requests, leases, approvals, access rules, and credential rotation.",
+      );
 
     registerRequests(pam, this.serviceContainer);
     registerLeases(pam, this.serviceContainer);

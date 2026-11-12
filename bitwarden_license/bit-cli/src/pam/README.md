@@ -1,6 +1,6 @@
 # bw pam
 
-The `bw pam` commands manage Privileged Controls (PAM) from the command line: access requests, leases, approvals, access rules, and credential rotation. They are part of the commercial CLI only, built from `bitwarden_license/bit-cli`, and are not in the open-source build.
+The `bw pam` commands, also available as `bw pc`, manage Privileged Controls from the command line: access requests, leases, approvals, access rules, and credential rotation. They are part of the commercial CLI only, built from `bitwarden_license/bit-cli`, and are not in the open-source build.
 
 Most commands call the SDK's PAM clients (`sdk.commercial().pam()`). Every call goes through the SDK; the CLI makes no plain HTTP requests. Audit and governance are not part of the CLI yet and will arrive when the SDK exposes clients for them.
 
