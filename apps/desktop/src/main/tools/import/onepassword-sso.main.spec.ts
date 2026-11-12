@@ -161,6 +161,7 @@ describe("OnePasswordSsoMain", () => {
           width: 520,
           height: 720,
           autoHideMenuBar: true,
+          fullscreenable: false,
           webPreferences: {
             partition: expect.stringMatching(/^onepassword-sso-.+/),
             sandbox: true,
@@ -537,6 +538,7 @@ describe("OnePasswordSsoMain", () => {
         action: "allow",
         overrideBrowserWindowOptions: {
           parent: loginWindow(),
+          fullscreenable: false,
           webPreferences: loginWindow().options.webPreferences,
         },
       });

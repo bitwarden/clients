@@ -186,6 +186,9 @@ export class OnePasswordSsoMain {
       height: 720,
       title: "1Password",
       autoHideMenuBar: true,
+      // On macOS a fullscreenable child of a fullscreen window takes over the screen and leaves it
+      // black when it closes.
+      fullscreenable: false,
       webPreferences,
     });
   }
@@ -246,7 +249,10 @@ export class OnePasswordSsoMain {
       if (!isAllowedPage(url)) {
         return { action: "deny" };
       }
-      return { action: "allow", overrideBrowserWindowOptions: { parent: window, webPreferences } };
+      return {
+        action: "allow",
+        overrideBrowserWindowOptions: { parent: window, fullscreenable: false, webPreferences },
+      };
     });
     contents.on("did-create-window", (popup) =>
       this.watch(popup, redirectTo, settle, webPreferences),
