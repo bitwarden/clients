@@ -111,16 +111,23 @@ const CHOOSE_CUSTOM_RANGE = "chooseCustomRange";
 type TimePeriodChoice = AuditTimePeriod | typeof CHOOSE_CUSTOM_RANGE;
 
 /**
- * A chip date per the content style guide: abbreviated month with no period ("Sept" for September),
- * no ordinal day, and the year when asked for.
+ * A chip date per the content style guide: Gregorian with Latin digits like the table timestamps,
+ * an abbreviated month, no ordinal day, and the year when asked for. English drops the month's
+ * period and says "Sept" for September.
  */
-function formatChipDate(locale: string, date: Date, withYear: boolean): string {
-  const parts = new Intl.DateTimeFormat(locale, {
+export function formatChipDate(locale: string, date: Date, withYear: boolean): string {
+  const formatter = new Intl.DateTimeFormat(locale, {
+    calendar: "gregory",
+    numberingSystem: "latn",
     month: "short",
     day: "numeric",
     ...(withYear ? { year: "numeric" } : {}),
-  }).formatToParts(date);
-  return parts
+  });
+  if (!formatter.resolvedOptions().locale.startsWith("en")) {
+    return formatter.format(date);
+  }
+  return formatter
+    .formatToParts(date)
     .map((part) => {
       if (part.type !== "month") {
         return part.value;

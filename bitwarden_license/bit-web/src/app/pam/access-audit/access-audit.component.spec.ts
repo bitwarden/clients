@@ -34,7 +34,7 @@ import {
 import { stubToolbarWidth } from "../testing/toolbar-width";
 
 import { UNEMITTED_AUDIT_KINDS, auditRangeValue } from "./access-audit-row";
-import { AccessAuditComponent } from "./access-audit.component";
+import { AccessAuditComponent, formatChipDate } from "./access-audit.component";
 import { AuditApiService, AuditTrailFilter, AuditTrailPage } from "./audit-api.service";
 import {
   AccessAuditEventKind,
@@ -2376,5 +2376,25 @@ describe("AccessAuditComponent", () => {
     const timestamp = (iso: string) => formatTimestamp("en-US", Date.parse(iso), "second");
     expect(text(0, 0)).toBe(timestamp("2026-08-18T09:00:00.000Z"));
     expect(text(0, 2)).toBe(timestamp("2026-08-18T07:00:00.000Z"));
+  });
+});
+
+describe("formatChipDate", () => {
+  const march = new Date(2026, 2, 5);
+  const september = new Date(2026, 8, 5);
+
+  it("abbreviates September as Sept, without a period, in English", () => {
+    expect(formatChipDate("en-US", september, false)).toBe("Sept 5");
+    expect(formatChipDate("en-US", september, true)).toBe("Sept 5, 2026");
+  });
+
+  it("leaves other locales' month abbreviations as the locale writes them", () => {
+    expect(formatChipDate("fr", new Date(2026, 0, 5), false)).toBe("5 janv.");
+  });
+
+  it.each(["th", "fa", "ar"])("prints the Gregorian year in Latin digits for %s", (locale) => {
+    const label = formatChipDate(locale, march, true);
+    expect(label).toContain("2026");
+    expect(label).not.toMatch(/[\u0660-\u0669\u06f0-\u06f9\u0e50-\u0e59]/);
   });
 });
