@@ -103,8 +103,9 @@ export class WebLoginComponentService
          *    would require both a stashed open org invite and a pending direct-invite
          *    row on the server for the same org.
          *
-         * No match → warning toast. Covers: no invite stashed, a stashed invite
-         * for a different org, or a stashed direct invite with an email mismatch.
+         * No match → navigate to the terminal error page. Covers: no invite stashed,
+         * a stashed invite for a different org, or a stashed direct invite with an
+         * email mismatch.
          */
         if (await this.hasMatchingStashedOrgInvite(params)) {
           return this.autoProgressToMpEntry(params);
@@ -132,8 +133,8 @@ export class WebLoginComponentService
          *    normally trigger `InviteAcceptanceRequired` instead; direct+match
          *    lands here only if the row was revoked between click and SSO attempt.
          *
-         * No match → warning toast. Covers: no invite stashed, or a stashed
-         * invite for a different org.
+         * No match → navigate to the terminal error page. Covers: no invite stashed,
+         * or a stashed invite for a different org.
          */
         if (await this.hasMatchingStashedOrgInvite(params)) {
           return this.autoProgressToMpEntry(params);
