@@ -7,8 +7,9 @@ Inert hooks a commercial build fills; this folder and the rest of `apps/desktop`
 - `pam-routes.token.ts`: `PAM_DESKTOP_ROUTES`, the lazy loader mounted at `/pam` as a child of
   `DesktopLayoutComponent` (route in `app-routing.module.ts`). Unprovided, `canMatch` declines and
   `/pam` is not a route.
-- `pam-nav-slot.component.ts`: the "Access requests" item in the VFO1 manage nav section. Shows only
-  when `PAM_DESKTOP_ROUTES` is provided, `FeatureFlag.Pam` is on and an organization has `usePam`.
+- `pam-nav-slot.component.ts`: the "Access requests" item, first in the VFO1 manage nav section
+  (above My folders, Archive and Trash, as on web). Shows only when `PAM_DESKTOP_ROUTES` is
+  provided, `FeatureFlag.Pam` is on and an organization has `usePam`.
 - `pam-nav-badge.service.ts`: optional abstract badge count for the nav item; falls back to `0`.
 - Vault seams that live elsewhere: `vault-v3/vault-gated-collection-banner.token.ts` (banner above
   a shared folder's items, unprovided renders nothing) and the shared `@bitwarden/vault` tokens

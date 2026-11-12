@@ -22,8 +22,8 @@
       </bit-nav-section>
 
       <bit-nav-section [label]="'manage' | i18n">
-        <vault-manage-nav />
         <app-pam-nav-slot />
+        <vault-manage-nav />
       </bit-nav-section>
     } @else {
       <app-vault-filter />

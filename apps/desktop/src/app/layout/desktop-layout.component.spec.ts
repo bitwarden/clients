@@ -7,6 +7,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -36,6 +37,7 @@ import {
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
+import { PAM_DESKTOP_ROUTES } from "../pam/pam-routes.token";
 import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
 import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
@@ -111,6 +113,8 @@ describe("DesktopLayoutComponent", () => {
   });
   const canArchive$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+  /** Set by a `beforeAll` to configure the module as a commercial build with a PAM organization. */
+  let pamBuild = false;
 
   const i18nService = mock<I18nService>();
   const vaultNavService = mock<VaultNavService>();
@@ -170,8 +174,11 @@ describe("DesktopLayoutComponent", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         {
           provide: OrganizationService,
-          useValue: mock<OrganizationService>({ organizations$: () => of([]) }),
+          useValue: mock<OrganizationService>({
+            organizations$: () => of(pamBuild ? [{ usePam: true } as Organization] : []),
+          }),
         },
+        ...(pamBuild ? [{ provide: PAM_DESKTOP_ROUTES, useValue: () => [] }] : []),
         {
           provide: CollectionService,
           useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),
@@ -280,6 +287,40 @@ describe("DesktopLayoutComponent", () => {
     it("renders no PAM nav item when the build provides no PAM routes", () => {
       expect(fixture.nativeElement.querySelector("app-pam-nav-slot")).not.toBeNull();
       expect(navText()).not.toContain("pamAccessRequestsTitle");
+    });
+
+    describe("in a commercial build with a PAM organization", () => {
+      // Runs before the outer `beforeEach`, so the module is configured with the PAM routes.
+      beforeAll(() => (pamBuild = true));
+      afterAll(() => (pamBuild = false));
+
+      it("puts Access requests first in Manage, above the vault's manage items, as on web", () => {
+        expect(navText()).toEqual([
+          "allItems",
+          "vaults",
+          "myVault",
+          "Acme",
+          "tools",
+          "generator",
+          "exportNoun",
+          "manage",
+          "pamAccessRequestsTitle",
+          "myFolders",
+          "archiveNoun",
+          "trash",
+        ]);
+      });
+
+      it("renders the PAM item ahead of the vault manage nav in the DOM", () => {
+        const pamItem = fixture.nativeElement.querySelector("app-pam-nav-slot bit-nav-item");
+        const manageNav = fixture.nativeElement.querySelector("vault-manage-nav");
+
+        expect(pamItem).not.toBeNull();
+        expect(manageNav).not.toBeNull();
+        expect(pamItem.compareDocumentPosition(manageNav) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+          Node.DOCUMENT_POSITION_FOLLOWING,
+        );
+      });
     });
 
     it("keeps Send in Tools", () => {
