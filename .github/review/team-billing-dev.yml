@@ -1,0 +1,19 @@
+# Owner review list for @bitwarden/team-billing-dev
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  ## Billing team files ##
+  - apps/browser/src/billing
+  - apps/desktop/src/billing
+  - apps/web/src/app/billing
+  - libs/angular/src/billing
+  - libs/common/src/billing
+  - libs/billing
+  - libs/pricing
+  - libs/subscription
+  - bitwarden_license/bit-web/src/app/billing

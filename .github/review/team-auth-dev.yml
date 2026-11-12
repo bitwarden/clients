@@ -1,0 +1,23 @@
+# Owner review list for @bitwarden/team-auth-dev
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  # Web connectors
+  - apps/web/src/connectors
+
+  ## Auth team files ##
+  - apps/browser/src/auth
+  - apps/cli/src/auth
+  - apps/desktop/src/auth
+  - apps/web/src/app/auth
+  - apps/web/src/app/components/environment-selector
+  - libs/auth
+  - libs/user-core
+  - bitwarden_license/bit-web/src/app/auth
+  - libs/angular/src/auth
+  - libs/common/src/auth

@@ -1,0 +1,17 @@
+# Owner review list for @bitwarden/team-data-insights-and-reporting-dev
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  ## Dirt (Data Insights & Reporting) team files ##
+  - apps/browser/src/dirt
+  - apps/web/src/app/dirt
+  - apps/cli/src/dirt
+  - bitwarden_license/bit-common/src/dirt
+  - bitwarden_license/bit-web/src/app/dirt
+  - libs/dirt
+  - libs/common/src/dirt

@@ -8,26 +8,26 @@
 .github/CODEOWNERS  @bitwarden/tech-leads
 
 ## Always-review lists are owned by their teams
-.github/review/dept-bre                                 @bitwarden/dept-bre
-.github/review/team-admin-console-dev                   @bitwarden/team-admin-console-dev
-.github/review/team-ai-sme                              @bitwarden/team-ai-sme
-.github/review/team-appsec                              @bitwarden/team-appsec
-.github/review/team-auth-dev                            @bitwarden/team-auth-dev
-.github/review/team-autofill-dev                        @bitwarden/team-autofill-dev
-.github/review/team-billing-dev                         @bitwarden/team-billing-dev
-.github/review/team-data-insights-and-reporting-dev     @bitwarden/team-data-insights-and-reporting-dev
-.github/review/team-desktop-native-dev                  @bitwarden/team-desktop-native-dev
-.github/review/team-key-management-dev                  @bitwarden/team-key-management-dev
-.github/review/team-pam-dev                             @bitwarden/team-pam-dev
-.github/review/team-platform-dev                        @bitwarden/team-platform-dev
-.github/review/team-provider-business-unit-portals-dev  @bitwarden/team-provider-business-unit-portals-dev
-.github/review/team-secrets-manager-dev                 @bitwarden/team-secrets-manager-dev
-.github/review/team-skunkworks                          @bitwarden/team-skunkworks
-.github/review/team-tools-dev                           @bitwarden/team-tools-dev
-.github/review/team-ui-foundation                       @bitwarden/team-ui-foundation
-.github/review/team-vault-dev                           @bitwarden/team-vault-dev
-.github/review/tech-leads                               @bitwarden/tech-leads
-.github/review/wg-ssh-keys                              @bitwarden/wg-ssh-keys
+.github/review/dept-bre.yml                                 @bitwarden/dept-bre
+.github/review/team-admin-console-dev.yml                   @bitwarden/team-admin-console-dev
+.github/review/team-ai-sme.yml                              @bitwarden/team-ai-sme
+.github/review/team-appsec.yml                              @bitwarden/team-appsec
+.github/review/team-auth-dev.yml                            @bitwarden/team-auth-dev
+.github/review/team-autofill-dev.yml                        @bitwarden/team-autofill-dev
+.github/review/team-billing-dev.yml                         @bitwarden/team-billing-dev
+.github/review/team-data-insights-and-reporting-dev.yml     @bitwarden/team-data-insights-and-reporting-dev
+.github/review/team-desktop-native-dev.yml                  @bitwarden/team-desktop-native-dev
+.github/review/team-key-management-dev.yml                  @bitwarden/team-key-management-dev
+.github/review/team-pam-dev.yml                             @bitwarden/team-pam-dev
+.github/review/team-platform-dev.yml                        @bitwarden/team-platform-dev
+.github/review/team-provider-business-unit-portals-dev.yml  @bitwarden/team-provider-business-unit-portals-dev
+.github/review/team-secrets-manager-dev.yml                 @bitwarden/team-secrets-manager-dev
+.github/review/team-skunkworks.yml                          @bitwarden/team-skunkworks
+.github/review/team-tools-dev.yml                           @bitwarden/team-tools-dev
+.github/review/team-ui-foundation.yml                       @bitwarden/team-ui-foundation
+.github/review/team-vault-dev.yml                           @bitwarden/team-vault-dev
+.github/review/tech-leads.yml                               @bitwarden/tech-leads
+.github/review/wg-ssh-keys.yml                              @bitwarden/wg-ssh-keys
 
 ## Global styles are owned by UIF
 *.scss  @bitwarden/team-ui-foundation

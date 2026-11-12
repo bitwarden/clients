@@ -1,0 +1,15 @@
+# Owner review list for @bitwarden/team-ai-sme
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  # Claude related files
+  - .claude/
+  - .github/workflows/respond.yml
+  - .github/workflows/review-code.yml
+  - .github/workflows/sdlc-sdk-update-evaluate.yml
+  - .mcp.json

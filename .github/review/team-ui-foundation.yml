@@ -1,0 +1,28 @@
+# Owner review list for @bitwarden/team-ui-foundation
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  ## Global styles are owned by UIF
+  - "*.scss"
+  - "*.css"
+
+  # ESLint custom rules
+  - libs/eslint/components
+
+  ## UI Foundation ##
+  - .github/workflows/chromatic.yml
+  - .storybook
+  - libs/components
+  - libs/storybook
+  - libs/assets
+  - libs/ui
+  - libs/angular/src/scss
+  - apps/browser/src/platform/popup/layout
+  - apps/browser/src/popup/app-routing.animations.ts
+  - apps/browser/src/popup/components/extension-anon-layout-wrapper
+  - apps/web/src/app/layouts
