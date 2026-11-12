@@ -128,8 +128,7 @@ export function providePam(): SafeProvider[] {
       provide: CIPHER_VIEW_BANNER_LAYOUT,
       useValue: "popup",
     }),
-    // One per-row state read per list, shared by every option's count and the selection.
-    // The filter's badges come off the caller's own requests.
+    // One read of the caller's requests behind every chip option's count and the selection.
     safeProvider({
       provide: MyAccessRequestsService,
       useClass: MyAccessRequestsService,

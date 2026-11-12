@@ -141,7 +141,7 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_GATED_COLLECTION_BANNER,
       useValue: GatedCollectionBannerComponent,
     }),
-    // One instance behind the table chip and the column, so they share one per-row state cache.
+    // One instance behind the table chip and the column, so they share one PAM-organization read.
     safeProvider({
       provide: ControlledAccessVaultFilterService,
       useClass: ControlledAccessVaultFilterService,

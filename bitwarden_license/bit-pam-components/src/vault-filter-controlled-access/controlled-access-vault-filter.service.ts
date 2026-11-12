@@ -171,7 +171,7 @@ export class ControlledAccessVaultFilterService {
           .sort(),
       ),
       // `organizations$` re-emits on every sync, so dedupe on content to keep an unrelated sync
-      // from re-reading every row's access state.
+      // from rebuilding every list's states.
       distinctUntilChanged((a, b) => a.length === b.length && a.every((id, i) => id === b[i])),
       map((ids) => new Set(ids)),
       shareReplay({ refCount: true, bufferSize: 1 }),
