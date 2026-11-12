@@ -9,7 +9,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { rulesGoverningCollection } from "../collection-access-rule-callout/access-rule-summary";
+import { rulesGoverningCollection } from "../helpers/access-rule-summary";
 
 import { GovernedCollectionsService } from "./governed-collections.service";
 

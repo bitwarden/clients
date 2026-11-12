@@ -4,6 +4,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
+import { toLeaseRow, toRequestRow, MyAccessService } from "@bitwarden/bit-pam-components";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -19,8 +20,6 @@ import {
   storyNames,
 } from "../testing/story-fixtures";
 
-import { toLeaseRow, toRequestRow } from "./my-access-row";
-import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
 const names = storyNames();

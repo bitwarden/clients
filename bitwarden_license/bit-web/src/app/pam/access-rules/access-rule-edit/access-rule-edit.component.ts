@@ -39,7 +39,11 @@ import {
   resolveCollectionNames,
   snapToNearestAccessRuleDuration,
 } from "@bitwarden/bit-pam";
-import { accessRuleDeleteConfirmOptions, DurationLongPipe } from "@bitwarden/bit-pam-components";
+import {
+  accessRuleDeleteConfirmOptions,
+  DurationLongPipe,
+  GovernedCollectionsService,
+} from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -73,7 +77,6 @@ import {
 import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 

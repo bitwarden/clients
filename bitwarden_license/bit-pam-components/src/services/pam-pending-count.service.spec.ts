@@ -8,7 +8,6 @@ import {
   DefaultAccessRefreshService,
 } from "@bitwarden/bit-pam";
 import type { AccessRequestStatus, AccessRequestView } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,9 +15,10 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 
-import { DefaultPamNavBadgeService } from "./pam-nav-badge.service";
+import { PamPendingCountService } from "./pam-pending-count.service";
 
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
@@ -36,7 +36,7 @@ function request(
 const pamOrg = { usePam: true } as Organization;
 const nonPamOrg = { usePam: false } as Organization;
 
-describe("DefaultPamNavBadgeService", () => {
+describe("PamPendingCountService", () => {
   let requestsApi: MockProxy<AccessRequestSdkService>;
   let approvalsApi: MockProxy<ApprovalSdkService>;
   let configService: MockProxy<ConfigService>;
@@ -50,7 +50,7 @@ describe("DefaultPamNavBadgeService", () => {
   let accessEvents: AccessEventService;
   let accessRefresh: DefaultAccessRefreshService;
   let approvalPrivileges: ApprovalPrivilegeService;
-  let service: DefaultPamNavBadgeService;
+  let service: PamPendingCountService;
   const subscriptions: Subscription[] = [];
 
   function watch(): number[] {
@@ -85,7 +85,7 @@ describe("DefaultPamNavBadgeService", () => {
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
     approvalsApi.listInbox.mockResolvedValue([]);
 
-    service = new DefaultPamNavBadgeService(
+    service = new PamPendingCountService(
       requestsApi,
       approvalsApi,
       approvalPrivileges,

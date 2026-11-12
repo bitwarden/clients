@@ -3,16 +3,16 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { combineLatest, filter, map, take } from "rxjs";
 
+import {
+  ApprovalPrivilegeService,
+  ApproverInboxService,
+  MyAccessService,
+} from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { TabsModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
-
-import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-
-import { MyAccessService } from "./my-access.service";
 
 /**
  * The "Access requests" shell at `/pam`, over the Approvals, My requests and History tab routes.

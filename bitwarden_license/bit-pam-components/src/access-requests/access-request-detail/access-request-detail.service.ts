@@ -32,13 +32,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { ApprovalRow } from "../../approvals/approval-row";
-import { ApproverInboxService } from "../../approvals/approver-inbox.service";
 import {
+  ApprovalRow,
+  ApproverInboxService,
   AccessNameResolverService,
   ResolvedNames,
   emptyResolvedNames,
-} from "../access-name-resolver.service";
+} from "../..";
 
 /** Who is looking at the request, since the requester and approvers open the same link. */
 export type AccessRequestViewer = "requester" | "approver";

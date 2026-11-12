@@ -4,11 +4,10 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 
 import type { AccessRuleView } from "@bitwarden/bit-pam";
+import { GovernedCollectionsService } from "@bitwarden/bit-pam-components";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
-
-import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";
 

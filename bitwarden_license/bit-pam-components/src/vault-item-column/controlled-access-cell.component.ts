@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
-import { VaultRowLeaseBadgeComponent } from "../vault-row-lease-badge/vault-row-lease-badge.component";
+import { VaultRowLeaseBadgeComponent } from "..";
 
 /**
  * The Controlled access column's cell. A thin wrapper, because the shared row badge keeps a

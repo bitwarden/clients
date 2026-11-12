@@ -9,7 +9,6 @@ import {
   cipherAccessBadgeState,
   rereadOnLapse,
 } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService, AccessStateBadgeComponent } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
@@ -20,6 +19,8 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+
+import { AccessBadgeTickerService, AccessStateBadgeComponent } from "..";
 
 /**
  * Structural, since the host passes its own `CollectionView`/`CollectionAdminView`, which this

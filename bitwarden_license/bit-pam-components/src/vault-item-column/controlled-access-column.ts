@@ -1,12 +1,13 @@
 import { map, Observable } from "rxjs";
 
-import { ControlledAccessVaultFilterService } from "@bitwarden/bit-pam-components";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { VaultItemColumn, VaultItemColumnScope } from "@bitwarden/vault";
+
+import { ControlledAccessVaultFilterService } from "..";
 
 import { ControlledAccessCellComponent } from "./controlled-access-cell.component";
 

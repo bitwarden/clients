@@ -9,7 +9,8 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `bit-pam/src/` (`abstractions/`, `helpers/`, `date/`, `services/`), the framework-agnostic
   contract layer: domain types and error helpers (`abstractions/access-rule.ts`,
   `abstractions/access-lease.ts`), the abstract service contracts, pure helpers, and the SDK-backed
-  services. Re-exported via `bit-pam/src/index.ts`. No
+  services. Re-exported via `bit-pam/src/index.ts`. Also holds the pure approver logic
+  (`approvals/approval-privileges.ts`, `approvals/inbox-request-filter.ts`). No
   Angular runtime APIs here; keep it that way so this stays unit-testable without a
   TestBed. Type-only imports of component-library option shapes (e.g.
   `SimpleDialogOptions`) are fine, since they are erased at compile time.
@@ -35,7 +36,8 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `access-request-route.component` is the host (opens the dialog, renders the tab the
   caller came from behind it, and on close REPLACES the URL with `/pam/<that tab>`, so a
   dismissed dialog is never left addressable and never stacked on top of), and
-  `access-request-dialog.component` is the view. The same link serves both sides, so the
+  `access-request-dialog.component` (now in `bit-pam-components/src/access-requests/access-request-detail/`,
+  with `AccessRequestDetailService`, so desktop opens the same dialog) is the view. The same link serves both sides, so the
   dialog's footer follows `viewer$`: Start / Cancel / End for the requester, Approve /
   Deny, Withdraw approval or Revoke for an approver, never the other side's. Approver
   actions go through the shell's `ApproverInboxService`, which also decides whether the
@@ -56,10 +58,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   the route's environment injector, where that lookup falls through to the root route.
   The host hands the service to the dialog through `DIALOG_DATA` for the same reason:
   `DialogService` builds the dialog's injector from the root one.
-- `approvals/`, the approver side: the SDK-backed inbox data service, the decide
-  dialog, the privilege check, and the route guard.
-- `request-summary/`, the item and "Request details" cards shared by the decide dialog
-  and the `/pam/requests/:id` dialog.
+- `approvals/`, now only the decide and withdraw-approval dialogs' stories; the approver side moved out so the desktop app can use it (see "Shared with other clients" below).
+- `request-summary/` (now in `bit-pam-components`), the item and "Request details" cards shared by
+  the decide dialog and the `/pam/requests/:id` dialog.
 - `access-audit/`, the Admin Console's PAM audit log at `audit`: the page, the event
   drawer, and export. It reads over HTTP through `AuditApiService` (see "SDK-first").
 - `rotation/`, the Admin Console's rotation pages at `rotation` (access connectors and
@@ -107,11 +108,11 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   the flag instead works identically for members and providers, and in both the
   individual vault and the Admin Console org sidebar (the same
   `VaultFilterSectionComponent` hosts it in both).
-- `gated-collection-banner/`, the notice above the vault's item list while a governed
+- `bit-pam-components/src/gated-collection-banner/` (moved out of this folder for desktop), the notice above the vault's item list while a governed
   collection is the active filter, carrying the sidebar lock's sentence verbatim. It
   cannot read the flag the way the sidebar lock and the collection-row badge do, because
   it is handed ids alone, never a collection: it decides "governed" through
-  `services/gated-collection.ts`, which wraps the same `GovernedCollectionsService` /
+  `bit-pam-components/src/services/gated-collection.ts`, which wraps the same `GovernedCollectionsService` /
   `rulesGoverningCollection` pair the collection dialog uses, and narrows to the
   collection's own PAM-enabled organization before reading at all. A new surface that is
   likewise handed no collection belongs on that helper, not on a re-derived check.
@@ -129,8 +130,8 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/`: the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
   name row. The pill and the item-details host live in `bit-pam-components`, and the badge model
-  (`access-badge-state.ts`) in `bit-pam`; only `vault-row-lease-badge/` and the pill's stories are
-  here. Both hosts re-read on `AccessRefreshService` so neither can contradict a mutation
+  (`access-badge-state.ts`) in `bit-pam`; the row badge (`VaultRowLeaseBadgeComponent`) lives in `bit-pam-components` too, and only the
+  stories of the pill and the row badge are here. Both hosts re-read on `AccessRefreshService` so neither can contradict a mutation
   made beside it: the row badge because canceling a request from that row's own menu
   otherwise left the old pill standing until a reload (PAM-200). The item-details host
   also drops the `active` state, because the banner heading under it already runs that
@@ -150,9 +151,51 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `collection-access-rule-callout/`, the callout naming the rules that govern a collection,
   inside the collection edit dialog.
 - `services/`, this folder's own services, among them `AccessRulesService`,
-  `GovernedCollectionsService`, `PamRevealedCipherService` and the nav badge. The SDK-backed
+  `PamRevealedCipherService`, `DefaultPamNavBadgeService`, a thin subclass of `PamPendingCountService`
+  (in `bit-pam-components`, shared with desktop), and `DefaultVaultRowAccessActionsService`, a thin
+  subclass of `GatedRequestActionsService` (also shared) that adds the web vault's abstract-class
+  binding. `GovernedCollectionsService` moved to `bit-pam-components` for the desktop banner. The SDK-backed
   implementations of the `abstractions/` contracts are in `bit-pam/src/services/`.
-- `testing/`, builders shared across specs (`decision-builders.ts`).
+- `testing/`, fixtures shared across specs (`story-fixtures.ts`). The decision builders
+  (`humanDecision`, `automaticDecision`, `selfEndDecision`) live in `bit-pam/src/testing/` and are
+  exported from the spec-only entry point `@bitwarden/bit-pam/testing` (not the production barrel),
+  because specs in both `bit-pam-components` and here use them.
+
+## Shared with other clients
+
+The request and approval view-models and data services were moved out of this folder so a second
+client (desktop, through `bitwarden_license/bit-desktop`; `apps/**` is lint-banned from importing
+either lib) can reuse them. Import them from the package barrels, not from this folder:
+
+- `@bitwarden/bit-pam` (Angular-free): `hasApprovalPrivileges` (`approvals/approval-privileges.ts`),
+  `isActionableInboxRequest` (`approvals/inbox-request-filter.ts`), and the notification logic in
+  `notifications/`: `diffPamState` (what changed between two reads of the inbox, own requests and
+  leases, as ids and statuses), `PamNotificationSink`, event grouping and the click-through routes.
+  Only the desktop app uses it today. The decision builders
+  (`testing/decision-builders.ts`) are spec-only and come from `@bitwarden/bit-pam/testing`.
+- `@bitwarden/bit-pam-components`:
+  - `access-requests/`: `AccessNameResolverService`, `MyAccessService`, and the row models
+    (`my-access-row`, `my-request-row`, `history-row`, `request-status-look`).
+  - `approvals/`: `ApproverInboxService`, `ApproverActionsService`, `ApprovalPrivilegeService`, the
+    `canViewApprovalsGuard`, the row models (`approval-row`, `approver-row`, `managed-lease-row`), and
+    the decide and
+    withdraw-approval dialogs. Their stories stay in this folder because they use web-vault test
+    helpers.
+  - `request-summary/`: `RequestSummaryComponent` and `SummaryFieldComponent`.
+  - `access-requests/access-request-detail/`: `AccessRequestDetailService` and
+    `AccessRequestDialogComponent`, the `/pam/requests/:id` view. The route host that opens it stays
+    per client (it names that client's tabs and routes). Its stories stay here.
+  - `services/`: `PamPendingCountService`, the badge count (own actionable requests unioned with the
+    approver inbox); `GovernedCollectionsService` and `gatedCollection()`; `GatedRequestActionsService`
+    (is a request withdrawable, withdraw it); `LeaseExtensionService` (read a lease's extension cap,
+    run the extend dialog and report); `AccessRequestCancelService` and `MyLeasesService`.
+  - `gated-collection-banner/`, `vault-row-lease-badge/`, `vault-item-column/` (the Controlled access
+    column and its cell): the vault surfaces both clients bind. `helpers/`: `access-rule-summary`,
+    `announcementHoldMs` (how long a tab's "loaded" announcement stays in its live region).
+
+Still web-only here: the page shell and the three tab components (`access-requests/`), the route
+host (`access-request-route/`), `provide-pam.ts` and the routing modules. Desktop has its own copies
+of the three tabs in `bit-desktop/src/app/pam/tabs/`; keep the pairs behaving alike.
 
 ## SDK-first
 

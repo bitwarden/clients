@@ -3,11 +3,14 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import {
+  ApprovalPrivilegeService,
+  ApproverInboxService,
+  MyAccessService,
+} from "@bitwarden/bit-pam-components";
 import { ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
   provideStoryChangeDetection,
   provideStoryLogService,
@@ -15,7 +18,6 @@ import {
 } from "../testing/story-fixtures";
 
 import { AccessRequestsComponent } from "./access-requests.component";
-import { MyAccessService } from "./my-access.service";
 
 type ShellOptions = {
   pending?: number;

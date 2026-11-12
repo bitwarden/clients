@@ -26,12 +26,6 @@ import {
   relativeStart,
 } from "@bitwarden/bit-pam";
 import type { AccessApprover, AccessDecisionVerdict, AccessBadgeState } from "@bitwarden/bit-pam";
-import {
-  AccessStateBadgeComponent,
-  DurationShortPipe,
-  RemainingTimePipe,
-  TimestampPipe,
-} from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -53,12 +47,22 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ApproverActionsService } from "../../approvals/approver-actions.service";
-import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
-import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
-import { SummaryFieldComponent } from "../../request-summary/summary-field.component";
-import { emptyResolvedNames, organizationNameFor } from "../access-name-resolver.service";
-import { TerminalStatusBadge, historyDisplayStatus, lapsedGrantBadge } from "../my-access-row";
+import {
+  AccessStateBadgeComponent,
+  DurationShortPipe,
+  RemainingTimePipe,
+  TimestampPipe,
+  ApproverActionsService,
+  isLiveManagedLease,
+  isUnstartedApproval,
+  RequestSummaryComponent,
+  SummaryFieldComponent,
+  emptyResolvedNames,
+  organizationNameFor,
+  TerminalStatusBadge,
+  historyDisplayStatus,
+  lapsedGrantBadge,
+} from "../..";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 

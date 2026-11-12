@@ -5,17 +5,20 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import type { AccessRequestView } from "@bitwarden/bit-pam";
+import { automaticDecision, humanDecision, selfEndDecision } from "@bitwarden/bit-pam/testing";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
-import { ApprovalRow } from "../../approvals/approval-row";
-import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
-import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
-import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
-import { lapsedGrantBadge } from "../my-access-row";
+import {
+  ApprovalRow,
+  DecideDialogComponent,
+  ResolvedNames,
+  emptyResolvedNames,
+  lapsedGrantBadge,
+} from "../..";
 
 import { AccessRequestDetailService, AccessRequestViewer } from "./access-request-detail.service";
 import {

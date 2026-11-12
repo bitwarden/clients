@@ -13,13 +13,13 @@ import {
 import type { AccessLeaseId, AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
-import { ApprovalRow } from "../../approvals/approval-row";
-import { ApproverInboxService } from "../../approvals/approver-inbox.service";
 import {
+  ApprovalRow,
+  ApproverInboxService,
   AccessNameResolverService,
   ResolvedNames,
   emptyResolvedNames,
-} from "../access-name-resolver.service";
+} from "../..";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 

@@ -9,14 +9,15 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, PRIMARY_OUTLET, Router, UrlTree } from "@angular/router";
 
+import {
+  AccessRequestDetailService,
+  AccessRequestDialogComponent,
+} from "@bitwarden/bit-pam-components";
 import { DialogService } from "@bitwarden/components";
 
 import { ApprovalsTabComponent } from "../approvals-tab.component";
 import { HistoryTabComponent } from "../history-tab.component";
 import { MyRequestsTabComponent } from "../my-requests-tab.component";
-
-import { AccessRequestDetailService } from "./access-request-detail.service";
-import { AccessRequestDialogComponent } from "./access-request-dialog.component";
 
 /** Opens the dialog on the withdraw confirmation. */
 const WITHDRAW_QUERY_PARAM = "action";

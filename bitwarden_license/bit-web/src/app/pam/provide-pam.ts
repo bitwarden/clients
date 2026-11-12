@@ -24,6 +24,11 @@ import {
   controlledAccessItemFilter,
   ControlledAccessVaultFilterService,
   MyLeasesService,
+  ApprovalPrivilegeService,
+  GatedCollectionBannerComponent,
+  GovernedCollectionsService,
+  VaultRowLeaseBadgeComponent,
+  controlledAccessColumn,
 } from "@bitwarden/bit-pam-components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -58,19 +63,14 @@ import { AuditApiService } from "./access-audit/audit-api.service";
 import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
-import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
-import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
 import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
 import { RotationSdkService } from "./rotation/rotation-sdk.service";
-import { GovernedCollectionsService } from "./services/governed-collections.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
 import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
-import { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
-import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
 
 /** PAM's root-level providers, including every OSS seam it fills. */
 export function providePam(): SafeProvider[] {

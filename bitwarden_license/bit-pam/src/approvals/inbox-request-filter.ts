@@ -1,4 +1,4 @@
-import type { AccessRequestView } from "@bitwarden/bit-pam";
+import type { AccessRequestView } from "../abstractions/access-lease";
 
 type TimeBoundedRequest = Pick<AccessRequestView, "leaseNotAfter">;
 

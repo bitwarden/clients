@@ -7,6 +7,18 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import type { AccessLeaseId, AccessRequestView } from "@bitwarden/bit-pam";
+import {
+  toApprovalRow,
+  ApproverInboxService,
+  ApproverRow,
+  fromApprovalRow,
+  fromManagedLease,
+  fromUnstartedApproval,
+  toManagedLeaseRow,
+  WithdrawApprovalDialogComponent,
+  emptyResolvedNames,
+  REQUEST_STATUS_LOOK,
+} from "@bitwarden/bit-pam-components";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,20 +30,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { toApprovalRow } from "../approvals/approval-row";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import {
-  ApproverRow,
-  fromApprovalRow,
-  fromManagedLease,
-  fromUnstartedApproval,
-} from "../approvals/approver-row";
-import { toManagedLeaseRow } from "../approvals/managed-lease-row";
-import { WithdrawApprovalDialogComponent } from "../approvals/withdraw-approval-dialog/withdraw-approval-dialog.component";
-
-import { emptyResolvedNames } from "./access-name-resolver.service";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
-import { REQUEST_STATUS_LOOK } from "./request-status-look";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 const MINUTE = 60_000;

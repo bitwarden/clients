@@ -7,6 +7,11 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
 import { ACCESS_BADGE_LOOK, formatCalendarDate } from "@bitwarden/bit-pam";
+import {
+  MyAccessLeaseRow,
+  MyAccessRequestRow,
+  MyAccessService,
+} from "@bitwarden/bit-pam-components";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,8 +23,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
-import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
 const LEASE_END = "2026-08-20T12:00:00.000Z";

@@ -12,14 +12,17 @@ import {
   AccessRequestSdkService,
   AccessRequestView,
 } from "@bitwarden/bit-pam";
+import {
+  AccessNameResolverService,
+  ResolvedNames,
+  MyAccessService,
+} from "@bitwarden/bit-pam-components";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { AccessNameResolverService, ResolvedNames } from "./access-name-resolver.service";
-import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
 const HOUR = 60 * 60 * 1000;

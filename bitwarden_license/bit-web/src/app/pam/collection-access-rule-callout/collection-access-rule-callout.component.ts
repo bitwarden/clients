@@ -4,16 +4,17 @@ import { RouterLink } from "@angular/router";
 import { combineLatest, map, of, switchMap } from "rxjs";
 
 import { AccessRuleView } from "@bitwarden/bit-pam";
+import {
+  GovernedCollectionsService,
+  accessRuleSummaryKeys,
+  rulesGoverningCollection,
+} from "@bitwarden/bit-pam-components";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { GovernedCollectionsService } from "../services/governed-collections.service";
-
-import { accessRuleSummaryKeys, rulesGoverningCollection } from "./access-rule-summary";
 
 /**
  * Names the rule gating a collection inside its edit dialog, where the member list alone isn't the

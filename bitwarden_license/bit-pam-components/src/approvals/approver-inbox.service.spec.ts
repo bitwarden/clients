@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject, firstValueFrom, of } from "rxjs";
 
+import type { AccessLeaseId, AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
 import {
   AccessEventService,
   AccessLeaseSdkService,
@@ -9,7 +10,7 @@ import {
   ApprovalSdkService,
   DECIDE_ACCESS_SERVER_ERRORS,
 } from "@bitwarden/bit-pam";
-import type { AccessLeaseId, AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
+import { humanDecision } from "@bitwarden/bit-pam/testing";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -18,7 +19,6 @@ import {
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
-import { humanDecision } from "../testing/decision-builders";
 
 import { ApproverInboxService } from "./approver-inbox.service";
 
