@@ -6,27 +6,105 @@
     parentIcon="bwi-access-connector"
     [current]="titleText()"
   />
-  <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">
-    @if (accessConnector()) {
+  <!-- Named-slot projection through control flow only works when the block has a single root
+       element, so the title suffix keeps its own block, apart from the actions. -->
+  @if (statusBadge(); as badge) {
+    <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-1">
       <span class="tw-sr-only">{{ "status" | i18n }}:</span>
       <span
         bitBadge
-        [variant]="enabled() ? 'success' : 'secondary'"
+        size="small"
+        [variant]="badge.variant"
+        [startIcon]="badge.icon"
         id="access-connector-detail_badge_status"
-        >{{ (enabled() ? "active" : "inactive") | i18n }}</span
+        >{{ badge.labelKey | i18n }}</span
       >
+    </span>
+  }
+
+  @if (accessConnector() && activeTab() === "configuration") {
+    @if (!enabled()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        [bitAction]="activate"
+        [disabled]="statusBusy()"
+        id="access-connector-detail_button_activate"
+      >
+        {{ "pamAccessConnectorActivate" | i18n }}
+      </button>
     }
-  </span>
+    <button
+      type="button"
+      bitIconButton="bwi-ellipsis-v"
+      [bitMenuTriggerFor]="moreMenu"
+      [label]="'moreOptions' | i18n"
+      id="access-connector-detail_button_more"
+    ></button>
+    <bit-menu #moreMenu>
+      @if (enabled()) {
+        <button
+          type="button"
+          bitMenuItem
+          [disabled]="statusBusy()"
+          (click)="deactivate()"
+          id="access-connector-detail_button_deactivate"
+        >
+          <bit-icon slot="start" name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
+          {{ "pamAccessConnectorDeactivate" | i18n }}
+        </button>
+      }
+      <button
+        type="button"
+        bitMenuItem
+        variant="danger"
+        [disabled]="statusBusy()"
+        (click)="deleteAccessConnector()"
+        id="access-connector-detail_button_delete"
+      >
+        <bit-icon slot="start" name="bwi-trash"></bit-icon>
+        {{ "pamAccessConnectorDeleteAccessConnector" | i18n }}
+      </button>
+    </bit-menu>
+  }
 
   <bit-tab-nav-bar slot="tabs" [label]="'pamAccessConnectorDetailTitle' | i18n">
     <bit-tab-link [route]="configurationTabRoute">{{
       "pamAccessConnectorTabConfiguration" | i18n
     }}</bit-tab-link>
     <bit-tab-link [route]="historyTabRoute">{{
-      "pamAccessConnectorTabHistory" | i18n
+      "pamAccessConnectorTabRotationHistory" | i18n
     }}</bit-tab-link>
   </bit-tab-nav-bar>
 </bit-header>
+
+<!-- Pinned to the layout's footer region by the component while an assignment change is unsaved. -->
+<ng-template #footer>
+  <div
+    class="tw-pointer-events-auto tw-absolute tw-inset-x-0 tw-bottom-0 tw-flex tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-bg-bg-primary tw-px-10 tw-py-4"
+    data-testid="access-connector-detail-footer"
+  >
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="submit"
+      id="access-connector-detail_button_save"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="discardEdits()"
+      id="access-connector-detail_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </div>
+</ng-template>
 
 <pam-rotation-loading-announcer
   [loading]="loading()"
@@ -36,41 +114,19 @@
 
 @if (loadError()) {
   <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
-} @else if (loadingVisible()) {
-  <div
-    aria-hidden="true"
-    data-testid="access-connector-detail-loading"
-    [class.tw-max-w-4xl]="activeTab() !== 'history'"
-  >
-    @if (showSkeleton()) {
-      @switch (activeTab()) {
-        @case ("history") {
+} @else if (loading()) {
+  <div aria-hidden="true" data-testid="access-connector-detail-loading">
+    @switch (activeTab()) {
+      @case ("history") {
+        <app-rotation-history-skeleton [showCredential]="true" />
+      }
+      @default {
+        <div class="tw-max-w-4xl">
           <bit-section>
             <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorTabHistory" | i18n }}</h2>
-            </bit-section-header>
-            <app-rotation-history-skeleton [showCredential]="true" />
-          </bit-section>
-        }
-        @default {
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "status" | i18n }}</h2>
+              <h2 bitTypography="h4">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
             </bit-section-header>
             <bit-card>
-              <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
-            </bit-card>
-          </bit-section>
-
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
-            </bit-section-header>
-            <bit-card>
-              <div class="tw-mb-4">
-                <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
-                <bit-skeleton class="tw-h-6 tw-w-24" edgeShape="circle"></bit-skeleton>
-              </div>
               <div class="tw-mb-4">
                 <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
                 <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
@@ -84,96 +140,99 @@
 
           <bit-section>
             <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorAssignments" | i18n }}</h2>
+              <h2 bitTypography="h4">{{ "pamAccessConnectorRotationHeading" | i18n }}</h2>
             </bit-section-header>
             <bit-card>
+              <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
+              <bit-skeleton class="tw-mb-4 tw-h-10 tw-w-full"></bit-skeleton>
               <bit-skeleton-text [lines]="3" class="tw-w-full"></bit-skeleton-text>
             </bit-card>
           </bit-section>
-        }
+        </div>
       }
     }
   </div>
 } @else if (accessConnector(); as d) {
-  <form [formGroup]="formGroup" [bitSubmit]="submit">
-    <div [class.tw-max-w-4xl]="activeTab() !== 'history'">
-      @switch (activeTab()) {
-        @case ("history") {
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorTabHistory" | i18n }}</h2>
-            </bit-section-header>
-            @if (d.jobs.length > 0) {
-              <app-rotation-history
-                [jobs]="d.jobs"
-                [showCredential]="true"
-                [credentialNames]="credentialNames()"
-              ></app-rotation-history>
-            } @else {
-              <bit-card>
-                <p bitTypography="body2" class="tw-m-0 tw-text-muted">
-                  {{ "pamAccessConnectorActivityEmpty" | i18n }}
-                </p>
-              </bit-card>
+  @switch (activeTab()) {
+    @case ("history") {
+      <app-rotation-history
+        [jobs]="d.jobs"
+        [showCredential]="true"
+        [credentialNames]="credentialNames()"
+      ></app-rotation-history>
+    }
+    @default {
+      <div [class.tw-pb-20]="showFooter()">
+        <!-- Spaces the callouts from the sections like the sections from each other. -->
+        <div class="tw-mb-12 empty:tw-hidden">
+          @if (saveFailed()) {
+            <bit-callout
+              type="danger"
+              [title]="null"
+              [accessibleName]="'pamAccessConnectorSaveFailed' | i18n"
+              id="access-connector-detail_callout_save-failed"
+            >
+              {{ "pamAccessConnectorSaveFailedCallout" | i18n }}
+            </bit-callout>
+          }
+          @switch (callout()) {
+            @case ("never-connected") {
+              <bit-callout
+                type="warning"
+                [title]="null"
+                [icon]="null"
+                [accessibleName]="'pamAccessConnectorDisconnected' | i18n"
+                id="access-connector-detail_callout_never-connected"
+              >
+                {{ "pamAccessConnectorNeverConnectedCallout" | i18n }}
+              </bit-callout>
             }
-          </bit-section>
-        }
-        @default {
+            @case ("disconnected") {
+              <bit-callout
+                type="warning"
+                [title]="null"
+                [icon]="null"
+                [accessibleName]="'pamAccessConnectorDisconnected' | i18n"
+                id="access-connector-detail_callout_disconnected"
+              >
+                {{ "pamAccessConnectorDisconnectedCallout" | i18n }}
+              </bit-callout>
+            }
+          }
+        </div>
+
+        <div class="tw-max-w-4xl">
           <bit-section>
             <bit-section-header>
-              <h2 bitTypography="h5">{{ "status" | i18n }}</h2>
+              <h2 bitTypography="h4">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
             </bit-section-header>
             <bit-card>
-              <bit-form-control disableMargin>
-                <input
-                  type="checkbox"
-                  bitCheckbox
-                  id="access-connector-detail_checkbox_active"
-                  formControlName="active"
-                />
-                <bit-label>{{ "active" | i18n }}</bit-label>
-                <bit-hint>{{ "pamAccessConnectorActiveHint" | i18n }}</bit-hint>
-              </bit-form-control>
-            </bit-card>
-          </bit-section>
-
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
-            </bit-section-header>
-            <bit-card>
-              <div class="tw-mb-4">
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                  {{ "pamAccessConnectorConnection" | i18n }}
-                </p>
-                <span bitBadge [variant]="d.connector.isConnected ? 'success' : 'secondary'">{{
-                  (d.connector.isConnected
-                    ? "pamAccessConnectorConnected"
-                    : "pamAccessConnectorDisconnected"
-                  ) | i18n
-                }}</span>
-              </div>
-
-              <div class="tw-mb-4">
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+              <div class="tw-mb-6">
+                <p bitTypography="body2" class="tw-mb-1 tw-font-medium tw-text-fg-body">
                   {{ "pamAccessConnectorLastSeen" | i18n }}
                 </p>
                 <p bitTypography="body1" class="tw-m-0" data-testid="connector-last-seen">
-                  @if (d.connector.lastHeartbeatAt) {
-                    {{ d.connector.lastHeartbeatAt | date: "medium" }}
+                  @if (lastSeenAtMs() != null) {
+                    <span
+                      tabindex="0"
+                      [bitTooltip]="lastSeenAtMs() | timestamp"
+                      [addTooltipToDescribedby]="true"
+                    >
+                      {{ lastSeenLabel() ?? (lastSeenAtMs() | timestamp) }}
+                    </span>
                   } @else {
-                    <span class="tw-text-muted">{{ "never" | i18n }}</span>
+                    {{ "never" | i18n }}
                   }
                 </p>
               </div>
 
               <div>
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                <p bitTypography="body2" class="tw-mb-1 tw-font-medium tw-text-fg-body">
                   {{ "dateCreated" | i18n }}
                 </p>
                 <p bitTypography="body1" class="tw-m-0" data-testid="connector-created">
                   @if (d.connector.creationDate) {
-                    {{ d.connector.creationDate | date: "medium" }}
+                    {{ d.connector.creationDate | timestamp }}
                   } @else {
                     <span class="tw-text-muted">&mdash;</span>
                   }
@@ -182,94 +241,102 @@
             </bit-card>
           </bit-section>
 
-          <pam-assignment-picker
-            idPrefix="access-connector-detail"
-            headingKey="pamAccessConnectorAssignments"
-            selectLabelKey="pamAccessConnectorAssignSelectLabel"
-            unassignLabelKey="pamAccessConnectorUnassign"
-            emptyKey="pamAccessConnectorAssignmentsEmpty"
-            goToLabelKey="pamAccessConnectorAssignGoToTargetSystems"
-            disabledTooltipKey="pamAccessConnectorAssignTargetDisabled"
-            [options]="assignOptions()"
-            [assignments]="assignments()"
-            [columns]="assignmentColumns"
-            [rowTemplate]="assignmentRow"
-            [hints]="assignmentHints"
-            [assign]="assignTargets"
-            [unassign]="unassignTarget"
-            [disabled]="!stagedActive()"
-            [loadError]="targetSystemsLoadError() != null"
-            [noneEligible]="noEligibleTargetSystems()"
-            [goToRoute]="targetSystemsRoute"
-          />
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h4">{{ "pamAccessConnectorRotationHeading" | i18n }}</h2>
+            </bit-section-header>
+            <bit-card>
+              <bit-form-field disableMargin>
+                <bit-label>{{ "pamAccessConnectorAssignTargetLabel" | i18n }}</bit-label>
+                <bit-multi-select
+                  class="tw-w-full"
+                  id="access-connector-detail_multi-select_target-systems"
+                  [baseItems]="selectOptions()"
+                  [removeSelectedItems]="false"
+                  [placeholder]="'pamAccessConnectorTargetSystemsPlaceholder' | i18n"
+                  [disabled]="targetSystemsLoadError() != null"
+                  [ngModel]="selectedItems()"
+                  (ngModelChange)="onSelectionChanged($event)"
+                />
+                <bit-hint>{{ pickerHintKey() | i18n }}</bit-hint>
+              </bit-form-field>
 
-          <ng-template #assignmentRow let-assignment>
-            <bit-cell>
-              <span
-                [class.tw-line-through]="assignment.pending === 'remove'"
-                [class.tw-text-muted]="assignment.pending === 'remove'"
-                >{{ assignment.name }}</span
-              >
-              @switch (assignment.pending) {
-                @case ("add") {
-                  <span slot="end" bitBadge variant="subtle">{{
-                    "pamRotationAssignmentPendingAssign" | i18n
-                  }}</span>
-                }
-                @case ("remove") {
-                  <span slot="end" bitBadge variant="subtle">{{
-                    "pamRotationAssignmentPendingUnassign" | i18n
-                  }}</span>
-                }
+              @if (assignments().length > 0) {
+                <bit-table-v2
+                  class="tw-mt-4 tw-block"
+                  data-testid="access-connector-assignments"
+                  [tableDef]="assignmentsTable"
+                >
+                  <bit-column width="minmax(10rem, 2fr)">
+                    <bit-header-cell>{{
+                      "pamAccessConnectorAssignTargetLabel" | i18n
+                    }}</bit-header-cell>
+                    <bit-cell *bitCellDef="assignmentsTable.columns.name; let a">
+                      <span class="tw-text-base tw-font-medium tw-text-fg-heading">{{
+                        a.name
+                      }}</span>
+                    </bit-cell>
+                  </bit-column>
+                  <bit-column width="minmax(7rem, 1fr)">
+                    <bit-header-cell>{{ "pamTargetSystemSystemTypeLabel" | i18n }}</bit-header-cell>
+                    <bit-cell *bitCellDef="assignmentsTable.columns.typeKey; let a">
+                      @if (a.typeKey) {
+                        <span class="tw-text-sm">{{ a.typeKey | i18n }}</span>
+                      }
+                    </bit-cell>
+                  </bit-column>
+                  <bit-column width="minmax(9.5rem, 1fr)">
+                    <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
+                    <bit-cell
+                      *bitCellDef="assignmentsTable.columns.statusBadge; let a"
+                      [truncate]="false"
+                    >
+                      @if (a.statusBadge; as badge) {
+                        <span
+                          bitBadge
+                          size="small"
+                          [variant]="badge.variant"
+                          [startIcon]="badge.icon"
+                          >{{ badge.labelKey | i18n }}</span
+                        >
+                      }
+                    </bit-cell>
+                  </bit-column>
+                  <bit-column width="minmax(8rem, 1.5fr)">
+                    <bit-header-cell>{{ "pamTargetSystemIdLabel" | i18n }}</bit-header-cell>
+                    <bit-cell *bitCellDef="assignmentsTable.columns.idText; let a">
+                      <span class="tw-font-mono tw-text-sm">{{ a.idText }}</span>
+                    </bit-cell>
+                  </bit-column>
+                  <bit-column width="7.5rem">
+                    <bit-header-cell>{{ "options" | i18n }}</bit-header-cell>
+                    <bit-cell *bitCellDef="assignmentsTable.columns.actions; let a">
+                      <div slot="end" class="tw-flex tw-items-center tw-gap-1">
+                        <button
+                          type="button"
+                          bitIconButton="bwi-clone"
+                          [appCopyClick]="a.idText"
+                          showToast
+                          [valueLabel]="'pamTargetSystemIdLabel' | i18n"
+                          [label]="'pamTargetSystemCopyId' | i18n"
+                          id="access-connector-detail_button_copy-target-id-{{ a.id }}"
+                        ></button>
+                        <button
+                          type="button"
+                          bitIconButton="bwi-close"
+                          label="{{ 'pamAccessConnectorUnassign' | i18n: a.label }}"
+                          (click)="unassignTarget(a)"
+                          id="access-connector-detail_button_unassign-{{ a.id }}"
+                        ></button>
+                      </div>
+                    </bit-cell>
+                  </bit-column>
+                </bit-table-v2>
               }
-            </bit-cell>
-            <bit-cell class="tw-text-muted">
-              @if (assignment.qualifierKey) {
-                {{ assignment.qualifierKey | i18n }}
-              }
-            </bit-cell>
-            <bit-cell [truncate]="false">
-              <div class="tw-flex tw-items-center tw-gap-1">
-                <span class="tw-font-mono tw-text-sm tw-break-all">{{ assignment.id }}</span>
-                <button
-                  type="button"
-                  bitIconButton="bwi-clone"
-                  buttonType="subtleGhost"
-                  size="small"
-                  [appCopyClick]="assignment.id"
-                  showToast
-                  [valueLabel]="'pamTargetSystemIdLabel' | i18n"
-                  [label]="'pamTargetSystemCopyId' | i18n"
-                  id="access-connector-detail_button_copy-target-id-{{ assignment.id }}"
-                ></button>
-              </div>
-            </bit-cell>
-          </ng-template>
-        }
-      }
-
-      <div class="tw-flex tw-max-w-4xl tw-items-center tw-gap-2">
-        <button
-          type="submit"
-          bitButton
-          buttonType="primary"
-          bitFormButton
-          id="access-connector-detail_button_save"
-        >
-          {{ "save" | i18n }}
-        </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="danger"
-          bitFormButton
-          [bitAction]="deleteAccessConnector"
-          class="tw-ms-auto"
-          id="access-connector-detail_button_delete"
-        >
-          {{ "delete" | i18n }}
-        </button>
+            </bit-card>
+          </bit-section>
+        </div>
       </div>
-    </div>
-  </form>
+    }
+  }
 }

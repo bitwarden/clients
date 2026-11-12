@@ -55,8 +55,14 @@ export const rotationRoutes: Routes = [
   },
   {
     path: `${ROTATION_TABS.targetSystems}/:targetSystemId`,
+    pathMatch: "full",
+    redirectTo: `${ROTATION_TABS.targetSystems}/:targetSystemId/configuration`,
+  },
+  {
+    path: `${ROTATION_TABS.targetSystems}/:targetSystemId/:tab`,
     component: TargetSystemEditComponent,
     canDeactivate: [unsavedChangesDialogGuard],
+    runGuardsAndResolvers: recordChanged("targetSystemId"),
     data: { titleId: "pamTargetSystemEditTitle" },
   },
   {

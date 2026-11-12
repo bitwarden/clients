@@ -85,6 +85,8 @@ export enum EventType {
   OrganizationUser_InviteLinkAccepted = 1524,
   OrganizationUser_AdminChangedEmail = 1525,
   OrganizationUser_InviteLinkConfirmed = 1526,
+  OrganizationUser_InviteReminderSent = 1527,
+  OrganizationUser_Reinvited = 1528,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
