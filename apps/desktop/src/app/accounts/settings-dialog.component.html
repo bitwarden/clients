@@ -326,6 +326,10 @@
           </div>
         }
 
+        @for (extra of settingsExtras; track extra) {
+          <ng-container *ngComponentOutlet="extra" />
+        }
+
         <bit-form-field>
           <bit-label>{{ "theme" | i18n }}</bit-label>
           <bit-select formControlName="theme" [items]="themeOptions" />

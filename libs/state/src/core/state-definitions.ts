@@ -242,6 +242,8 @@ export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
 });
 // Session memory only: `RevealedCipherService` forbids `memory-large-object` and disk.
 export const PAM_LEASED_CIPHERS_MEMORY = new StateDefinition("pamLeasedCiphers", "memory");
+// Desktop's PAM system notifications: the global on/off setting and each user's last-seen ids.
+export const PAM_NOTIFICATIONS_DISK = new StateDefinition("pamNotifications", "disk");
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {

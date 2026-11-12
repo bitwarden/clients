@@ -277,6 +277,11 @@ describe("DesktopLayoutComponent", () => {
       ]);
     });
 
+    it("renders no PAM nav item when the build provides no PAM routes", () => {
+      expect(fixture.nativeElement.querySelector("app-pam-nav-slot")).not.toBeNull();
+      expect(navText()).not.toContain("pamAccessRequestsTitle");
+    });
+
     it("keeps Send in Tools", () => {
       expect(fixture.nativeElement.querySelector("app-send-filters-nav")).toBeTruthy();
     });

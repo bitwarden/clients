@@ -1,5 +1,5 @@
 import { inject, NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { LoadChildrenCallback, RouterModule, Routes } from "@angular/router";
 import { map } from "rxjs";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -77,6 +77,7 @@ import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folde
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
+import { PAM_DESKTOP_ROUTES } from "./pam/pam-routes.token";
 import { ImportShellDesktopComponent } from "./tools/import/import-shell-desktop.component";
 import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
 import { SendComponent } from "./tools/send/send.component";
@@ -560,6 +561,20 @@ export const routes: Routes = [
           vaultFilterRestoreGuard,
         ],
         data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
+      },
+      {
+        // A child of the shared layout, since a second layout instance would re-base the side
+        // nav's relative links. Unprovided, `/pam` never matches.
+        path: "pam",
+        canMatch: [() => inject(PAM_DESKTOP_ROUTES, { optional: true }) != null],
+        // VFO1 only: the PAM nav entry and vault surfaces exist solely in that layout.
+        canActivate: [
+          canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
+          canAccessFeature(FeatureFlag.Pam, true, "/vault"),
+        ],
+        // inject() infers `unknown` from a SafeInjectionToken, hence the explicit type argument.
+        loadChildren: () => inject<LoadChildrenCallback>(PAM_DESKTOP_ROUTES)(),
+        data: { pageTitle: { key: "pamAccessRequestsTitle" } } satisfies RouteDataProperties,
       },
       {
         path: "send",

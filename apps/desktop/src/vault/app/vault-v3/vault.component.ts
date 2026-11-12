@@ -13,6 +13,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
+  Type,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -167,6 +168,11 @@ import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
+import { gatedBannerTarget } from "./gated-banner-target";
+import {
+  VAULT_GATED_COLLECTION_BANNER,
+  VaultGatedCollectionBanner,
+} from "./vault-gated-collection-banner.token";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
 import { vaultListCiphers$ } from "./vault-list-ciphers";
 import { VaultListTableComponent } from "./vault-list-table/vault-list-table.component";
@@ -475,6 +481,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
+
+  /** The shared folder in view, as the gated banner's inputs; unset on every other page. */
+  protected readonly gatedBannerTarget = computed(() => gatedBannerTarget(this.vaultScope()));
+
+  protected readonly gatedCollectionBanner: Type<VaultGatedCollectionBanner> | null = inject(
+    VAULT_GATED_COLLECTION_BANNER,
+    { optional: true },
+  );
 
   protected get collectionMenu(): CollectionMenuTarget | undefined {
     if (!this.vfo1Foundation()) {
