@@ -5,7 +5,10 @@ import { badgesFromMyRequests, nextRequestListChangeMs } from "./request-list-ba
 const NOW = Date.parse("2026-11-11T12:00:00Z");
 const at = (minutes: number) => new Date(NOW + minutes * 60_000).toISOString();
 
-function request(fields: Partial<AccessRequestView>): AccessRequestView {
+// The SDK tags its IDs over `unknown`, so plain strings stand in for them here.
+type RequestFields = { [K in keyof AccessRequestView]?: unknown };
+
+function request(fields: RequestFields): AccessRequestView {
   return {
     cipherId: "cipher-1",
     status: "pending",
@@ -24,7 +27,7 @@ const activated = (leaseEnd: string) =>
     producedLeaseId: "lease-1",
     producedLeaseStatus: "active",
     producedLeaseNotAfter: leaseEnd,
-  } as Partial<AccessRequestView>);
+  });
 
 describe("badgesFromMyRequests", () => {
   it("gives active with the lease's current end, which an extension moves past the window", () => {
@@ -60,7 +63,7 @@ describe("badgesFromMyRequests", () => {
     ["an open request whose window has ended", request({ leaseNotAfter: at(-1) })],
     [
       "an approved extension, which never produces a lease of its own",
-      request({ status: "approved", extensionOfLeaseId: "lease-1" } as Partial<AccessRequestView>),
+      request({ status: "approved", extensionOfLeaseId: "lease-1" }),
     ],
     ["a denied request", request({ status: "denied" })],
     ["a canceled request", request({ status: "canceled" })],
@@ -70,10 +73,7 @@ describe("badgesFromMyRequests", () => {
 
   it("keys each badge by its own cipher", () => {
     const badges = badgesFromMyRequests(
-      [
-        request({ cipherId: "a" } as Partial<AccessRequestView>),
-        request({ cipherId: "b", status: "approved" } as Partial<AccessRequestView>),
-      ],
+      [request({ cipherId: "a" }), request({ cipherId: "b", status: "approved" })],
       NOW,
     );
 
