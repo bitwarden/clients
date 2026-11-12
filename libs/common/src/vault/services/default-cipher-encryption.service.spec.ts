@@ -101,6 +101,7 @@ describe("DefaultCipherEncryptionService", () => {
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
         decrypt_list_with_failures: jest.fn(),
+        decrypt_list_full_with_failures: jest.fn(),
         move_to_organization: jest.fn(),
       }),
       attachments: jest.fn().mockReturnValue({
@@ -580,6 +581,66 @@ describe("DefaultCipherEncryptionService", () => {
         .ciphers()
         .decrypt_list_with_failures.mock.calls.map(([batch]: [unknown[]]) => batch.length);
       expect(batches).toEqual([250, 250, 100]);
+    });
+  });
+
+  describe("decryptManyFullWithFailures", () => {
+    const cipher1_id = "11111111-1111-1111-1111-111111111111";
+    const cipher2_id = "22222222-2222-2222-2222-222222222222";
+
+    it("maps successes to cipher views and failures to ciphers", async () => {
+      const ciphers = [
+        new Cipher({ ...cipherData, id: cipher1_id as CipherId }),
+        new Cipher({ ...cipherData, id: cipher2_id as CipherId }),
+      ];
+      const successView = { ...sdkCipherView, id: cipher1_id } as unknown as SdkCipherView;
+      const failedCipher = { id: cipher2_id } as unknown as SdkCipher;
+      const expectedView = new CipherView();
+      const expectedFailed = new Cipher();
+      jest.spyOn(CipherView, "fromSdkCipherView").mockReturnValue(expectedView);
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue(expectedFailed);
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_full_with_failures.mockResolvedValue({
+          successes: [successView],
+          failures: [failedCipher],
+        });
+
+      const result = await cipherEncryptionService.decryptManyFullWithFailures(ciphers, userId);
+
+      expect(result).toEqual([[expectedView], [expectedFailed]]);
+      expect(CipherView.fromSdkCipherView).toHaveBeenCalledWith(successView);
+      expect(Cipher.fromSdkCipher).toHaveBeenCalledWith(failedCipher);
+    });
+
+    it("decrypts all ciphers in a single SDK call", async () => {
+      const ciphers = Array.from(
+        { length: 600 },
+        () => ({ toSdkCipher: () => ({}) }) as unknown as Cipher,
+      );
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_full_with_failures.mockResolvedValue({ successes: [], failures: [] });
+
+      await cipherEncryptionService.decryptManyFullWithFailures(ciphers, userId);
+
+      const calls = mockSdkClient.vault().ciphers().decrypt_list_full_with_failures.mock.calls;
+      expect(calls).toHaveLength(1);
+      expect(calls[0][0]).toHaveLength(600);
+    });
+
+    it("propagates SDK errors", async () => {
+      const ciphers = [new Cipher({ ...cipherData, id: cipher1_id as CipherId })];
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_full_with_failures.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherEncryptionService.decryptManyFullWithFailures(ciphers, userId),
+      ).rejects.toThrow("SDK error");
     });
   });
 

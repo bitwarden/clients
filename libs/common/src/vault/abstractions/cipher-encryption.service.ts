@@ -97,6 +97,23 @@ export abstract class CipherEncryptionService {
     userId: UserId,
   ): Promise<[CipherListView[], Cipher[]]>;
   /**
+   * Decrypts many ciphers into full cipher views using the SDK for the given userId, and
+   * returns a list of failures.
+   *
+   * Unlike `decryptManyWithFailures`, the successes are full `CipherView` objects rather than
+   * `CipherListView` objects. Prefer this only when the full views are needed.
+   *
+   * @param ciphers The encrypted cipher objects
+   * @param userId The user ID whose key will be used for decryption
+   *
+   * @returns A promise that resolves to a tuple containing an array of decrypted
+   * cipher views, and an array of ciphers that failed to decrypt.
+   */
+  abstract decryptManyFullWithFailures(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherView[], Cipher[]]>;
+  /**
    * Decrypts an attachment's content from a response object.
    *
    * @param cipher The encrypted cipher object that owns the attachment
