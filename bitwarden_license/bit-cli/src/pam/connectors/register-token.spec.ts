@@ -42,4 +42,18 @@ describe("TokenFileReservation", () => {
     TokenFileReservation.reserve(file).discard();
     expect(fs.existsSync(file)).toBe(false);
   });
+
+  it("removes the file it created when the write fails, so the path can be reused", () => {
+    const file = path.join(dir, "t");
+    const reservation = TokenFileReservation.reserve(file);
+    const spy = jest.spyOn(fs, "writeSync").mockImplementation(() => {
+      throw new Error("ENOSPC");
+    });
+
+    expect(reservation.write("abc")).toBe(false);
+    spy.mockRestore();
+
+    expect(fs.existsSync(file)).toBe(false);
+    expect(() => TokenFileReservation.reserve(file)).not.toThrow();
+  });
 });

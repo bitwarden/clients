@@ -17,7 +17,7 @@ Rotation configs, the managed credentials of an organization. Each links a vault
 
 ## Request
 
-`{ cipherId, targetSystemId, accountIdentity, terminateSessions, scheduleCron?, rotateOnAccessEnd }`, as inline JSON, `--file` or `--stdin` (exactly one). `accountIdentity` is sensitive, so prefer `--file` or `--stdin`, which keep it out of shell history. Unknown fields are refused. On `create`, `terminateSessions` and `rotateOnAccessEnd` default to `false`. On `update`, any field left out keeps its current value, which is read in-process and never printed. `cipherId` and `targetSystemId` must match the existing config.
+`{ cipherId, targetSystemId, accountIdentity, terminateSessions, scheduleCron?, rotateOnAccessEnd }`, as inline JSON, `--file` or `--stdin` (exactly one). `accountIdentity` is sensitive, so give the request with `--file` or `--stdin`, which keep it out of the process list and shell history. Inline JSON still works, but one that names `accountIdentity` prints a warning on stderr (not under `BW_QUIET`). Unknown fields are refused. On `create`, `terminateSessions` and `rotateOnAccessEnd` default to `false`. On `update`, any field left out keeps its current value, which is read in-process and never printed. `cipherId` and `targetSystemId` must match the existing config.
 
 ## Schedule
 

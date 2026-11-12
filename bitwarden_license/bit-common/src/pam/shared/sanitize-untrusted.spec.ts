@@ -13,6 +13,12 @@ describe("sanitizeUntrusted", () => {
     expect(sanitizeUntrusted("a\u202Eb\u200Bc\uFEFFd")).toBe("abcd");
   });
 
+  it("removes the Arabic letter mark, word joiner, invisible operators and Mongolian vowel separator", () => {
+    expect(sanitizeUntrusted("a\u061Cb\u2060c\u2061d\u2062e\u2063f\u2064g\u180Eh")).toBe(
+      "abcdefgh",
+    );
+  });
+
   it("truncates with an ellipsis at the limit", () => {
     expect(sanitizeUntrusted("abcdefghij", 5)).toBe("abcd…");
   });

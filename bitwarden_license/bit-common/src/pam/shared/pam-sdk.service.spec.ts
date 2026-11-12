@@ -35,9 +35,12 @@ describe("PamSdkService", () => {
       expect(kit.freed).not.toHaveBeenCalled();
     });
 
-    it("logs only the error's own text when the callback fails, then rethrows it", async () => {
+    it("logs the error name and catalog-safe fields when the callback fails, then rethrows it", async () => {
       const kit = createPamSdkTestKit();
-      const error = Object.assign(new Error("status code 403"), { name: "AccessLeaseError" });
+      const error = Object.assign(
+        new Error('error in response: status code 403 Forbidden: {"message":"denied"}'),
+        { name: "AccessLeaseError", variant: "Api" },
+      );
 
       await expect(
         kit.pamSdkService.run(PAM_TEST_USER_ID, async () => {
@@ -47,8 +50,32 @@ describe("PamSdkService", () => {
 
       expect(kit.logService.error).toHaveBeenCalledTimes(1);
       expect(kit.logService.error).toHaveBeenCalledWith(
-        "PAM SDK call failed: AccessLeaseError: status code 403",
+        "PAM SDK call failed: AccessLeaseError kind=forbidden variant=Api status=403",
       );
+    });
+
+    it("never logs the message or response body of a failure", async () => {
+      const kit = createPamSdkTestKit();
+      const marker = "SECRET-BODY-MARKER-9f3a";
+      const failures = [
+        Object.assign(new Error(`error in response: status code 500: {"message":"${marker}"}`), {
+          name: "RotationError",
+          variant: "Api",
+        }),
+        new Error(`plain failure ${marker}`),
+        marker,
+      ];
+
+      for (const failure of failures) {
+        await expect(
+          kit.pamSdkService.run(PAM_TEST_USER_ID, async () => {
+            throw failure;
+          }),
+        ).rejects.toBe(failure);
+      }
+
+      expect(kit.logService.error).toHaveBeenCalledTimes(failures.length);
+      expect(JSON.stringify(kit.logService.error.mock.calls)).not.toContain(marker);
     });
 
     it("does not log what the callback received or returned", async () => {

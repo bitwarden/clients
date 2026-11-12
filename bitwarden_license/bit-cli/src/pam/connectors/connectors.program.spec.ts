@@ -298,6 +298,21 @@ describe("ConnectorsProgram", () => {
       expect(stdout.join("") + stderr.join("")).not.toContain(TOKEN);
     });
 
+    it("removes the token file when the write fails and prints the token instead", async () => {
+      service.register.mockResolvedValue(registration());
+      const file = path.join(tmp, "edge.token");
+      const spy = jest.spyOn(fs, "writeSync").mockImplementation(() => {
+        throw new Error("ENOSPC");
+      });
+
+      await run("register", "edge-1", ...org, "--token-file", file);
+      spy.mockRestore();
+
+      expect(fs.existsSync(file)).toBe(false);
+      expect(stdout.join("")).toContain(TOKEN);
+      expect(stderr.join("")).not.toContain(TOKEN);
+    });
+
     it("refuses to register under BW_QUIET without a token file, so the token is not lost", async () => {
       process.env.BW_QUIET = "true";
 

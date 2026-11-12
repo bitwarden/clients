@@ -59,6 +59,23 @@ describe("parseRotationRequest", () => {
     expect(parseRotationRequest('{"scheduleCron":null}', existing).scheduleCron).toBeUndefined();
   });
 
+  it("refuses an update that omits terminateSessions when the existing one could not be read", () => {
+    const unreadable = { ...existing, sealed: undefined } as unknown as RotationConfigView;
+    const body = JSON.stringify({ accountIdentity: "new-identity" });
+
+    expect(() => parseRotationRequest(body, unreadable)).toThrow(PamInputError);
+    expect(() => parseRotationRequest(body, unreadable)).toThrow(/terminateSessions/);
+  });
+
+  it("accepts an explicit terminateSessions when the existing sealed data could not be read", () => {
+    const unreadable = { ...existing, sealed: undefined } as unknown as RotationConfigView;
+    const request = parseRotationRequest(
+      JSON.stringify({ accountIdentity: "new-identity", terminateSessions: false }),
+      unreadable,
+    );
+    expect(request.terminateSessions).toBe(false);
+  });
+
   it("refuses bad input without repeating the account identity", () => {
     const secret = "very-secret-identity";
     const bodies = [

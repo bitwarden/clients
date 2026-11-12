@@ -48,3 +48,18 @@ export async function readRotationJson(
   }
   return text;
 }
+
+/** What the operator is told, on stderr, when the account identity is given as an argument. */
+export const INLINE_IDENTITY_WARNING =
+  "Warning: the account identity was given as an argument, so it is visible in the process list and shell history. Use --file or --stdin instead.";
+
+/**
+ * Warns on stderr, unless the run is quiet, when the request came inline and names an account
+ * identity. The request is only searched, never parsed or echoed. The inline form stays accepted
+ * so existing scripts keep working.
+ */
+export function warnInlineIdentity(inline: string | undefined): void {
+  if (inline != null && inline.includes("accountIdentity") && process.env.BW_QUIET !== "true") {
+    CliUtils.writeLn(INLINE_IDENTITY_WARNING, true, true);
+  }
+}

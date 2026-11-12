@@ -24,7 +24,7 @@ import {
   requireYes,
 } from "../shared";
 
-import { readRotationJson, RotationInputOptions } from "./rotation-input";
+import { readRotationJson, RotationInputOptions, warnInlineIdentity } from "./rotation-input";
 import {
   RotationActionResponse,
   RotationConfigResponse,
@@ -40,7 +40,7 @@ const MAX_JOBS = 100;
 const SCHEDULE_NOTE =
   "--schedule takes a preset (none, hourly, every6_hours, daily, weekly, monthly) or a raw Quartz cron expression. The server decides whether a cron is valid.";
 const REQUEST_NOTE =
-  'The request is {"cipherId", "targetSystemId", "accountIdentity", "terminateSessions", "scheduleCron", "rotateOnAccessEnd"}. The account identity is sensitive: prefer --file or --stdin, which keep it out of shell history.';
+  'The request is {"cipherId", "targetSystemId", "accountIdentity", "terminateSessions", "scheduleCron", "rotateOnAccessEnd"}. The account identity is sensitive: give the request with --file or --stdin, which keep it out of the process list and shell history. An inline JSON argument that names it prints a warning.';
 
 /**
  * `bw pam rotation`: the managed credentials of an organization, each a link between a cipher and
@@ -146,6 +146,7 @@ export class RotationProgram extends PamBaseProgram {
       .action(async (json: string | undefined, options: WriteOptions) => {
         await this.runPam(this.guard(options), async (ctx) => {
           const text = await readRotationJson(json, options);
+          warnInlineIdentity(json);
           const { result } = await this.service().create(
             ctx.userId,
             orgOf(ctx),
@@ -173,6 +174,7 @@ export class RotationProgram extends PamBaseProgram {
         await this.runPam(this.guard(options), async (ctx) => {
           const id = parseIdOption(configId, "config id");
           const text = await readRotationJson(json, options);
+          warnInlineIdentity(json);
           const { result } = await this.service().update(
             ctx.userId,
             orgOf(ctx),

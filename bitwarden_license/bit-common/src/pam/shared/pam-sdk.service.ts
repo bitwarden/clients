@@ -7,6 +7,22 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { UserId } from "@bitwarden/common/types/guid";
 import type { PamClient } from "@bitwarden/sdk-internal";
 
+import { describePamError } from "./pam-error-message";
+
+function describeForLog(error: unknown): string {
+  const { kind, variant, status, code } = describePamError(error);
+  const name = error instanceof Error ? error.name : typeof error;
+  return [
+    name,
+    `kind=${kind}`,
+    variant != null ? `variant=${variant}` : undefined,
+    status != null ? `status=${status}` : undefined,
+    code != null ? `code=${code}` : undefined,
+  ]
+    .filter((part) => part != null)
+    .join(" ");
+}
+
 /**
  * The only place in the PAM code that touches the SDK client. Every group calls the SDK through
  * {@link run}, so the client is always taken and released inside the observable, as
@@ -27,8 +43,9 @@ export class PamSdkService {
   /**
    * Runs `fn` against the PAM client of `userId`.
    *
-   * A failure is logged as `${error}` only, which is the error's name and message, never the
-   * request or the response, and is then rethrown for the caller to decode with `pamErrorMessage`.
+   * A failure is logged as its error name and the catalog-safe fields of `describePamError` (kind,
+   * variant, status, code), never the error message, the request or the response body, which can
+   * carry server text. It is then rethrown for the caller to decode with `pamErrorMessage`.
    */
   async run<T>(userId: UserId, fn: (pam: PamClient) => Promise<T>): Promise<T> {
     return await firstValueFrom(
@@ -38,7 +55,7 @@ export class PamSdkService {
           return await fn(ref.value.commercial().pam());
         }),
         catchError((error: unknown) => {
-          this.logService.error(`PAM SDK call failed: ${error}`);
+          this.logService.error(`PAM SDK call failed: ${describeForLog(error)}`);
           throw error;
         }),
       ),

@@ -44,12 +44,17 @@ export class TokenFileReservation {
     return new TokenFileReservation(fd, resolved);
   }
 
-  /** Writes the token and closes the file. Returns false when the write failed. */
+  /**
+   * Writes the token and closes the file. Returns false when the write failed, after removing the
+   * file: this class created it exclusively, so it is never a file that pre-existed, and leaving
+   * it would make a retry with the same path fail as "already exists".
+   */
   write(token: string): boolean {
     try {
       fs.writeSync(this.fd, token);
       return true;
     } catch {
+      this.discard();
       return false;
     } finally {
       this.close();
@@ -62,7 +67,7 @@ export class TokenFileReservation {
     try {
       fs.unlinkSync(this.filePath);
     } catch {
-      // Nothing more to do: the file is empty.
+      // Nothing more to do: the file is empty or partial, and holds no usable token.
     }
   }
 

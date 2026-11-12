@@ -6,11 +6,13 @@ const WHITESPACE_CONTROLS = /[\t\n\r\v\f\u0085\u{2028}\u{2029}]+/gu;
 
 /**
  * Every other C0 and C1 control (which covers the escape character behind terminal sequences),
- * the bidirectional overrides and isolates that reorder printed text, and zero-width characters.
+ * the bidirectional overrides, isolates and Arabic letter mark that reorder printed text, and
+ * zero-width and invisible format characters (word joiner, invisible operators, Mongolian vowel
+ * separator).
  */
 const OTHER_CONTROLS =
   // eslint-disable-next-line no-control-regex -- matching control characters is the purpose
-  /[\u0000-\u001F\u007F-\u009F\u{200B}-\u{200F}\u{202A}-\u{202E}\u{2066}-\u{2069}\u{FEFF}]/gu;
+  /[\u0000-\u001F\u007F-\u009F\u{061C}\u{180E}\u{200B}-\u{200F}\u{202A}-\u{202E}\u{2060}-\u{2064}\u{2066}-\u{2069}\u{FEFF}]/gu;
 
 /**
  * Makes text from the server or the vault safe to print: control characters are removed and the

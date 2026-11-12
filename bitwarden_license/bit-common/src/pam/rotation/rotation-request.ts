@@ -61,11 +61,7 @@ export function parseRotationRequest(
     "targetSystemId",
   );
   const accountIdentity = pickAccountIdentity(body.accountIdentity, existing);
-  const terminateSessions = pickBoolean(
-    body.terminateSessions,
-    existing?.sealed?.terminateSessions ?? false,
-    "terminateSessions",
-  );
+  const terminateSessions = pickTerminateSessions(body.terminateSessions, existing);
   const rotateOnAccessEnd = pickBoolean(
     body.rotateOnAccessEnd,
     existing?.rotateOnAccessEnd ?? false,
@@ -122,6 +118,18 @@ function pickAccountIdentity(value: unknown, existing: RotationConfigView | unde
     );
   }
   return candidate;
+}
+
+function pickTerminateSessions(value: unknown, existing: RotationConfigView | undefined): boolean {
+  if (
+    value === undefined &&
+    existing != null &&
+    typeof existing.sealed?.terminateSessions !== "boolean"
+  ) {
+    // Defaulting to false here would silently turn session termination off.
+    throw new PamInputError("`terminateSessions` is required: the existing one could not be read.");
+  }
+  return pickBoolean(value, existing?.sealed?.terminateSessions ?? false, "terminateSessions");
 }
 
 function pickBoolean(value: unknown, fallback: boolean, label: string): boolean {

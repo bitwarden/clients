@@ -148,14 +148,16 @@ describe("ConnectorService", () => {
       expect(kit.logService.debug).not.toHaveBeenCalled();
     });
 
-    it("does not put anything but the error text in the log when the call fails", async () => {
+    it("logs only the error kind, never the error text, when the call fails", async () => {
       connectors.register.mockRejectedValue(new Error("boom"));
 
       await expect(
         service.register(PAM_TEST_USER_ID, PAM_TEST_ORGANIZATION_ID, "edge-1"),
       ).rejects.toThrow("boom");
 
-      expect(kit.logService.error).toHaveBeenCalledWith("PAM SDK call failed: Error: boom");
+      expect(kit.logService.error).toHaveBeenCalledWith(
+        "PAM SDK call failed: Error kind=unexpected",
+      );
     });
   });
 });
