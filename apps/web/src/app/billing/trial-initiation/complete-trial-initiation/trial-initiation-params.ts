@@ -1,7 +1,7 @@
 import { Params } from "@angular/router";
 
 import { ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
-import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
+import { MARKETING_SALES_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 
 /** Products a trial link can request. */
 const trialProducts: ProductType[] = [
@@ -59,7 +59,7 @@ export function parseTrialInitiationParams(queryParams: Params): TrialInitiation
     product: baseProduct(products),
     privilegedControlsRequested: products.includes(ProductType.PrivilegedControls),
     productTier: toOptionalInt(queryParams.productTier) as ProductTierType | undefined,
-    trialLength: toOptionalInt(queryParams.trialLength) ?? DEFAULT_TRIAL_LENGTH_DAYS,
+    trialLength: toOptionalInt(queryParams.trialLength) ?? MARKETING_SALES_TRIAL_LENGTH_DAYS,
     paymentOptional: queryParams.paymentOptional === "true",
     sponsorshipToken: queryParams.sponsorshipToken ?? undefined,
   };

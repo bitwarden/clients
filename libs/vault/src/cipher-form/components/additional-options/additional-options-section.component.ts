@@ -7,8 +7,7 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { combineLatest, concatMap, filter, firstValueFrom, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -53,7 +52,7 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   @ViewChild(CustomFieldsComponent) customFieldsComponent: CustomFieldsComponent;
 
   private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
-  private configService = inject(ConfigService);
+  private autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
   private platformUtilsService = inject(PlatformUtilsService);
 
   additionalOptionsForm = this.formBuilder.group({
@@ -67,16 +66,16 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   );
 
   /**
-   * Emits true when the HTTP authentication setting is shown. It is shown on every client that edits logins,
-   * including the Safari extension, which can't answer HTTP authentication challenges itself. The
-   * cipher-level controls are also gated behind a dev flag until the challenge handler reads the setting.
+   * Emits true when the HTTP authentication setting is shown: for logins, while HTTP authentication is
+   * available. It is shown on every client that edits logins, including the Safari extension, which can't
+   * answer HTTP authentication challenges itself. The cipher-level controls are also gated behind a dev
+   * flag until every cipher format saves the setting.
    */
-  private readonly showHTTPAuthenticationCipherSetting$ = this.configService
-    .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
-    .pipe(
+  private readonly showHTTPAuthenticationCipherSetting$ =
+    this.autofillSettingsService.httpAuthenticationAvailable$.pipe(
       map(
-        (httpAuthenticationEnabled) =>
-          httpAuthenticationEnabled &&
+        (httpAuthenticationAvailable) =>
+          httpAuthenticationAvailable &&
           devFlagEnabled("httpAuthenticationCipherControls") &&
           this.cipherFormContainer.config.cipherType === CipherType.Login,
       ),
