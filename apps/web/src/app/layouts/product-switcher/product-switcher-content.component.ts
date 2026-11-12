@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, inject, viewChild } from "@angular/core";
 
 import { MenuComponent } from "@bitwarden/components";

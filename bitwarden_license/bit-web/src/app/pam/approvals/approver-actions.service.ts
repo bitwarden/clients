@@ -80,10 +80,20 @@ export class ApproverActionsService {
   }
 
   /**
-   * Confirm and withdraw an approval the requester has not started. The dialog collects the
-   * reason the server requires from an approver, and `run` gets it.
+   * Runs an already-confirmed withdrawal and reports it. Resolves whether it succeeded, so the
+   * caller can keep its confirmation open for a retry.
    */
-  async withdrawApproval(
+  async withdrawApproval(run: () => Promise<void>, busy: ApproverActionBusy): Promise<boolean> {
+    return await this.perform(
+      run,
+      busy,
+      "pamInboxApprovalWithdrawnToast",
+      () => "pamInboxWithdrawApprovalFailed",
+    );
+  }
+
+  /** Confirm and withdraw an approval from a surface with no confirmation of its own. */
+  async confirmWithdrawApproval(
     params: WithdrawApprovalDialogParams,
     run: (reason: string) => Promise<void>,
     busy: ApproverActionBusy,
@@ -94,31 +104,31 @@ export class ApproverActionsService {
     if (!result?.confirmed) {
       return;
     }
-    await this.perform(
-      () => run(result.reason),
-      busy,
-      "pamInboxApprovalWithdrawnToast",
-      () => "pamInboxWithdrawApprovalFailed",
-    );
+    await this.withdrawApproval(() => run(result.reason), busy);
   }
 
-  /** `failureKey` reads what was thrown, so a refusal the server worded gets its own copy. */
+  /**
+   * `failureKey` reads what was thrown, so a refusal the server worded gets its own copy.
+   * Resolves `true` once `run` succeeded, `false` after the failure toast.
+   */
   private async perform(
     run: () => Promise<void>,
     busy: ApproverActionBusy,
     successKey: string,
     failureKey: (e: unknown) => string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     busy(true);
     try {
       await run();
       this.toastService.showToast({ variant: "success", message: this.i18nService.t(successKey) });
+      return true;
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t(failureKey(e)),
       });
+      return false;
     } finally {
       busy(false);
     }

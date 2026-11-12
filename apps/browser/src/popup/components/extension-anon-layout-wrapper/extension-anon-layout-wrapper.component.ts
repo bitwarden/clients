@@ -1,13 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
-} from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { filter, map, of, switchMap, tap } from "rxjs";
@@ -46,16 +37,16 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
 }
 
 interface ExtensionAnonLayoutWrapperState {
-  showAcctSwitcher: boolean;
-  showBackButton: boolean;
-  showLogo: boolean;
-  pageTitle: string;
-  pageSubtitle: string;
-  pageIcon: BitSvg;
-  showReadonlyHostname: boolean;
-  maxWidth: LandingContentMaxWidthType;
-  hideFooter: boolean;
-  hideCardWrapper: boolean;
+  showAcctSwitcher: boolean | null;
+  showBackButton: boolean | null;
+  showLogo: boolean | null;
+  pageTitle: string | null;
+  pageSubtitle: string | null;
+  pageIcon: BitSvg | null;
+  showReadonlyHostname: boolean | null;
+  maxWidth: LandingContentMaxWidthType | null;
+  hideFooter: boolean | null;
+  hideCardWrapper: boolean | null;
   hidePageIcon?: boolean;
   contentVerticalPadding?: ContentVerticalPaddingType;
   footerVerticalPadding?: FooterVerticalPaddingType;
@@ -82,8 +73,9 @@ const INITIAL_STATE: ExtensionAnonLayoutWrapperState = {
   hideCardWrapper: false,
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush once routed pages no longer rely on Default CD
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "extension-anon-layout-wrapper.component.html",
   imports: [
     AnonLayoutComponent,
@@ -117,7 +109,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit {
 
   ngOnInit(): void {
     // Set the initial page data on load
-    this.setAnonLayoutWrapperDataFromRouteData(this.route.snapshot.firstChild?.data);
+    this.setAnonLayoutWrapperDataFromRouteData(this.route.snapshot.firstChild?.data ?? null);
 
     // Listen for page changes and update the page data appropriately
     this.listenForPageDataChanges();

@@ -116,12 +116,12 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(component.trialLength).toBe(7);
     });
 
-    it("should default trialLength to 7 when not provided", async () => {
+    it("should default trialLength to 14 when not provided", async () => {
       mockActivatedRoute.queryParams.next({
         product: ProductType.PasswordManager,
         productTier: ProductTierType.Enterprise,
       });
-      expect(component.trialLength).toBe(7);
+      expect(component.trialLength).toBe(14);
     });
 
     it("should read salesAssistedToken from query params", async () => {

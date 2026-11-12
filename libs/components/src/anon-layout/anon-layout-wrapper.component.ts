@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
-} from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { filter, of, switchMap, tap } from "rxjs";
@@ -110,8 +103,9 @@ interface AnonLayoutWrapperState {
 
 const EMPTY_STATE: AnonLayoutWrapperState = { pageIcon: null };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush once routed pages no longer rely on Default CD
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "anon-layout-wrapper.component.html",
   imports: [AnonLayoutComponent, RouterModule],
 })

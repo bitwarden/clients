@@ -742,7 +742,6 @@ const safeProviders: SafeProvider[] = [
       accountService: AccountServiceAbstraction,
       logService: LogService,
       cipherEncryptionService: CipherEncryptionService,
-      messagingService: MessagingServiceAbstraction,
       cipherSdkService: CipherSdkService,
     ) =>
       new CipherService(
@@ -759,7 +758,6 @@ const safeProviders: SafeProvider[] = [
         accountService,
         logService,
         cipherEncryptionService,
-        messagingService,
         cipherSdkService,
       ),
     deps: [
@@ -776,7 +774,6 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       LogService,
       CipherEncryptionService,
-      MessagingServiceAbstraction,
       CipherSdkService,
     ],
   }),
@@ -845,7 +842,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionEncryptionService,
     useClass: DefaultCollectionEncryptionService,
-    deps: [SdkService, LogService, ConfigService],
+    deps: [SdkService, LogService],
   }),
   safeProvider({
     provide: CollectionService,
