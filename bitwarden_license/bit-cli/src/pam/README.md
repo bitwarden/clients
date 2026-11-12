@@ -97,7 +97,7 @@ Every command returns a `Response`, printed by `processResponse`, so `BW_RESPONS
 ## Secret policy
 
 - Never log, print or return a decrypted vault secret, a key, a token or a sealed field.
-- Never write `reason`, `comment`, `accountIdentity`, `failureReason` or any other free text a person or a server supplied into a response or a log. Server text is shown only if it matches the catalog in `bit-common/src/pam/shared/pam-error-catalog.ts`, since other server text can carry filesystem paths. Run anything else through `sanitizeUntrusted`.
+- Never write `reason`, `comment`, `accountIdentity`, `failureReason` or any other free text a person or a server supplied into a response or a log. Server text is shown only if it matches the catalog in `bit-common/src/pam/shared/pam-error-catalog.ts`, since other server text can carry filesystem paths. Run anything else through `sanitizeUntrusted`. The one exception is the approver's inbox and history rows, which carry the requester's name and email and the request reason as the web vault shows them, sanitized and capped and never logged.
 - `--names` prints decrypted cipher, collection and organization names to stdout, and only there, and only when asked.
 - Reasons and comments are never asked for with an interactive prompt. Use `readReasonText`, which reads one of `--reason`, `--reasonfile` or `--reasonstdin`. This keeps them out of shell history when a file or stdin is used, and makes the commands work under `--nointeraction`.
 - Only the verbs that cannot be done another way return a secret: `lease reveal` and `connector register`. Neither has a serve route.

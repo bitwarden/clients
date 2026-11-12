@@ -44,4 +44,54 @@ describe("approval responses", () => {
     expect(response.collectionName).toBe("collection[2K]0;x");
     expect(JSON.stringify(response)).not.toMatch(CONTROLS);
   });
+
+  describe("requester and reason", () => {
+    const baseRow = {
+      id: "a",
+      cipherId: "c",
+      collectionId: "col",
+      requesterId: "u",
+      status: "pending",
+      awaitingActivation: false,
+    };
+
+    it("carries the requester and reason, sanitized", () => {
+      const row = {
+        ...baseRow,
+        requesterName: hostile("Ada"),
+        requesterEmail: hostile("ada@example.com"),
+        reason: hostile("need it"),
+      } as unknown as ApprovalRow;
+      const response = new ApprovalRowResponse(row);
+      expect(response.requesterName).toBe("Ada[2K]0;x");
+      expect(response.requesterEmail).toBe("ada@example.com[2K]0;x");
+      expect(response.reason).toBe("need it[2K]0;x");
+      expect(JSON.stringify(response)).not.toMatch(CONTROLS);
+    });
+
+    it("caps the name and email at 200 and the reason at 1000 characters", () => {
+      const row = {
+        ...baseRow,
+        requesterName: "n".repeat(500),
+        requesterEmail: "e".repeat(500),
+        reason: "r".repeat(5000),
+      } as unknown as ApprovalRow;
+      const response = new ApprovalRowResponse(row);
+      expect(Array.from(response.requesterName!)).toHaveLength(200);
+      expect(Array.from(response.requesterEmail!)).toHaveLength(200);
+      expect(Array.from(response.reason!)).toHaveLength(1000);
+    });
+
+    it("omits the fields when the row has none", () => {
+      const json = JSON.parse(JSON.stringify(new ApprovalRowResponse(baseRow as ApprovalRow)));
+      expect(json).not.toHaveProperty("requesterName");
+      expect(json).not.toHaveProperty("requesterEmail");
+      expect(json).not.toHaveProperty("reason");
+    });
+
+    it("omits a field that sanitizes to nothing", () => {
+      const row = { ...baseRow, reason: "\u202e\u001b" } as unknown as ApprovalRow;
+      expect(new ApprovalRowResponse(row).reason).toBeUndefined();
+    });
+  });
 });

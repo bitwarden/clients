@@ -61,15 +61,37 @@ describe("ApprovalsService", () => {
     service = new ApprovalsService(kit.pamSdkService, () => NOW);
   });
 
-  it("drops inbox rows whose window has passed and never exposes free text", async () => {
+  it("drops inbox rows whose window has passed", async () => {
     approvals.list_inbox.mockResolvedValue([
       view(),
       view({ id: LEASE as never, leaseNotAfter: "2026-06-01T11:59:00Z" }),
     ]);
     const rows = await service.inbox(PAM_TEST_USER_ID);
     expect(rows.map((r) => r.id)).toEqual([ID]);
-    expect(JSON.stringify(rows)).not.toContain("secret reason");
-    expect(JSON.stringify(rows)).not.toContain("example.com");
+  });
+
+  it("carries the requester and trimmed reason from the SDK view", async () => {
+    approvals.list_inbox.mockResolvedValue([view({ reason: "  need it  " })]);
+    const [row] = await service.inbox(PAM_TEST_USER_ID);
+    expect(row.requesterName).toBe("Someone");
+    expect(row.requesterEmail).toBe("someone@example.com");
+    expect(row.reason).toBe("need it");
+  });
+
+  it("falls back from the requester's name to their email, then to nothing", async () => {
+    approvals.list_history.mockResolvedValue([
+      view({ requesterName: undefined }),
+      view({ requesterName: "", requesterEmail: undefined, reason: "   " }),
+      view({ requesterName: undefined, requesterEmail: undefined, reason: undefined }),
+    ]);
+    const rows = await service.history(PAM_TEST_USER_ID);
+    expect(rows[0].requesterName).toBe("someone@example.com");
+    expect(rows[0].requesterEmail).toBe("someone@example.com");
+    expect(rows[1].requesterName).toBeUndefined();
+    expect(rows[1].requesterEmail).toBeUndefined();
+    expect(rows[1].reason).toBeUndefined();
+    expect(rows[2].requesterName).toBeUndefined();
+    expect(rows[2].reason).toBeUndefined();
   });
 
   it("returns an empty inbox for a non-approver", async () => {

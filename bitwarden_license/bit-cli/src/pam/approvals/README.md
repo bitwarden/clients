@@ -26,7 +26,7 @@ Every command, and every approvals `bw serve` route, checks this first and makes
 - `managed-leases` has no SDK call of its own, because the SDK has no organization-wide lease list. It reads `producedLeaseId`, `producedLeaseStatus` and `producedLeaseNotAfter` from history rows, so it covers only requests the caller can manage. `liveness` is `live` when the status is `active` and the window is open.
 - There is no bulk approve-all.
 - `ApprovalsClient` in the pinned SDK (0.2.0-main.1175) has only `decide`, `list_history` and `list_inbox`. Revoking a lease uses `LeasesClient.end`.
-- Comments and reasons are sent to the server and never logged or printed. Responses carry ids, states and ISO timestamps; requester names and emails and request reasons are never written.
+- Decision comments and revoke reasons are sent to the server and never logged or printed. Inbox and history rows carry ids, states and ISO timestamps, plus `requesterName` (the name, else the email), `requesterEmail` and `reason`, because the web vault shows an approver the same. These three are untrusted free text, so they are run through `sanitizeUntrusted` (200 characters for the name and email, 1000 for the reason) and are omitted when absent. They are never logged and appear in no other response. A decision comment is never written.
 
 ## bw serve
 

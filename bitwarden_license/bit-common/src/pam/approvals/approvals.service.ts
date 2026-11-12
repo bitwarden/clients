@@ -8,13 +8,21 @@ export type ApprovalLeaseLiveness = "live" | "ended";
 
 export type ApprovalVerdict = "approve" | "deny";
 
-/** An access request as the approver sees it. Ids, states and timestamps only. */
+/**
+ * An access request as the approver sees it: ids, states and timestamps, plus the requester and
+ * reason the web vault shows the same approver. The requester and reason are untrusted free text.
+ */
 export interface ApprovalRow {
   id: string;
   cipherId: string;
   collectionId: string;
   organizationId?: string;
   requesterId: string;
+  /** The requester's name, falling back to their email, as the web vault's approvals tab does. */
+  requesterName?: string;
+  requesterEmail?: string;
+  /** The requester's reason, trimmed; absent when blank, as `reasonText` in the web vault. */
+  reason?: string;
   ruleId?: string;
   status: string;
   leaseNotBefore: string;
@@ -74,6 +82,9 @@ export function toApprovalRow(view: AccessRequestView): ApprovalRow {
     collectionId: sdkIdToString(view.collectionId),
     organizationId: view.organizationId == null ? undefined : sdkIdToString(view.organizationId),
     requesterId: sdkIdToString(view.requesterId),
+    requesterName: view.requesterName || view.requesterEmail || undefined,
+    requesterEmail: view.requesterEmail || undefined,
+    reason: view.reason?.trim() || undefined,
     ruleId: view.ruleId == null ? undefined : sdkIdToString(view.ruleId),
     status: view.status,
     leaseNotBefore: view.leaseNotBefore,
@@ -128,7 +139,7 @@ export function deriveManagedLeases(rows: AccessRequestView[], nowMs: number): M
  * approval commands before they reach it, from the locally synced organizations and collections
  * (`ApproverPrivilegeService`, applied by the CLI's approver guard). That check is local and
  * fails closed, so a user who has just been granted Manage must `bw sync` before the commands
- * work; the server is not asked. Comments and reasons are passed through and never logged.
+ * work; the server is not asked. Requesters, comments and reasons are passed through and never logged.
  */
 export class ApprovalsService {
   constructor(

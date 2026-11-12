@@ -7,9 +7,17 @@ import { sanitizeUntrusted, type PamNames } from "@bitwarden/bit-common/pam/shar
 
 import { isoDate, PamObject, PamResponse } from "../shared";
 
+const REASON_MAX_LENGTH = 1000;
+
+function untrustedOrUndefined(text: string | undefined, maxLength: number): string | undefined {
+  return text == null ? undefined : sanitizeUntrusted(text, maxLength) || undefined;
+}
+
 /**
- * One request in the inbox or history. Ids, states and ISO timestamps only: never the requester's
- * reason, a decision comment, or the requester's name or email. Names appear only with `--names`.
+ * One request in the inbox or history. Ids, states and ISO timestamps, plus the requester's name
+ * and email and the request reason, which the web vault shows the same approver. Those three are
+ * untrusted free text, so they are sanitized and capped, and they are never logged. A decision
+ * comment is never written. Vault names appear only with `--names`.
  */
 export class ApprovalRowResponse extends PamResponse {
   id: string;
@@ -20,6 +28,9 @@ export class ApprovalRowResponse extends PamResponse {
   organizationId?: string;
   organizationName?: string;
   requesterId: string;
+  requesterName?: string;
+  requesterEmail?: string;
+  reason?: string;
   ruleId?: string;
   status: string;
   leaseNotBefore?: string;
@@ -47,6 +58,9 @@ export class ApprovalRowResponse extends PamResponse {
       }
     }
     this.requesterId = row.requesterId;
+    this.requesterName = untrustedOrUndefined(row.requesterName, 200);
+    this.requesterEmail = untrustedOrUndefined(row.requesterEmail, 200);
+    this.reason = untrustedOrUndefined(row.reason, REASON_MAX_LENGTH);
     this.ruleId = row.ruleId;
     this.status = row.status;
     this.leaseNotBefore = isoDate(row.leaseNotBefore);
