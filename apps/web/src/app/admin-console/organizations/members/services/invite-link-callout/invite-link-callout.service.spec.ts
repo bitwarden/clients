@@ -7,7 +7,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import {
@@ -35,7 +34,6 @@ describe("InviteLinkCalloutService", () => {
   const userId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
-  let configService: MockProxy<ConfigService>;
   let memberDialogManager: MockProxy<MemberDialogManagerService>;
   let organizationMembersService: MockProxy<OrganizationMembersService>;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
@@ -64,8 +62,6 @@ describe("InviteLinkCalloutService", () => {
   beforeEach(() => {
     accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag.mockResolvedValue(true);
     memberDialogManager = mock<MemberDialogManagerService>();
     memberDialogManager.openInviteDialog.mockResolvedValue(MemberDialogResult.Saved);
     organizationMembersService = mock<OrganizationMembersService>();
@@ -85,7 +81,6 @@ describe("InviteLinkCalloutService", () => {
         InviteLinkCalloutService,
         { provide: AccountService, useValue: accountService },
         { provide: StateProvider, useValue: stateProvider },
-        { provide: ConfigService, useValue: configService },
         { provide: MemberDialogManagerService, useValue: memberDialogManager },
         { provide: OrganizationMembersService, useValue: organizationMembersService },
         { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
@@ -139,15 +134,6 @@ describe("InviteLinkCalloutService", () => {
   it("showIfEligible() returns early without opening a dialog when the org is already dismissed", async () => {
     const organization = createOrganization();
     await service.dismiss(organization.id as OrganizationId);
-
-    await service.showIfEligible(organization);
-
-    expect(dialogService.open).not.toHaveBeenCalled();
-  });
-
-  it("showIfEligible() returns early without opening a dialog when the feature flag is disabled", async () => {
-    configService.getFeatureFlag.mockResolvedValue(false);
-    const organization = createOrganization();
 
     await service.showIfEligible(organization);
 

@@ -24,15 +24,18 @@ const fakeUserState = () =>
     state$: of(null),
   }) as unknown as FakeSingleUserState<AtRiskPasswordCalloutData>;
 
+/** The fields of a `CipherListView` the service reads. */
 class MockCipherView {
+  type = { login: {} };
+  deletedDate?: string;
+
   constructor(
     public id: string,
-    private deleted: boolean,
+    deleted: boolean,
     public edit: boolean = true,
     public viewPassword: boolean = true,
-  ) {}
-  get isDeleted() {
-    return this.deleted;
+  ) {
+    this.deletedDate = deleted ? new Date().toISOString() : undefined;
   }
 }
 
@@ -42,7 +45,7 @@ describe("AtRiskPasswordCalloutService", () => {
     pendingTasks$: jest.fn(),
     completedTasks$: jest.fn(),
   };
-  const mockCipherService = { cipherViews$: jest.fn() };
+  const mockCipherService = { cipherListViews$: jest.fn() };
   const mockStateProvider = { getUser: jest.fn().mockReturnValue(fakeUserState()) };
   const userId: UserId = "user1" as UserId;
   beforeEach(() => {
@@ -207,7 +210,7 @@ describe("AtRiskPasswordCalloutService", () => {
       },
     ])("$description", async ({ tasks, ciphers, expectedLength, expectedFirstId }) => {
       jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
-      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+      jest.spyOn(mockCipherService, "cipherListViews$").mockReturnValue(of(ciphers));
 
       const result = await firstValueFrom(service.pendingTasks$(userId));
 
@@ -259,7 +262,7 @@ describe("AtRiskPasswordCalloutService", () => {
       ];
 
       jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
-      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+      jest.spyOn(mockCipherService, "cipherListViews$").mockReturnValue(of(ciphers));
 
       const result = await firstValueFrom(service.pendingTasks$(userId));
 
@@ -287,7 +290,7 @@ describe("AtRiskPasswordCalloutService", () => {
       },
     ])("$description", async ({ tasks, ciphers }) => {
       jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of(tasks));
-      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+      jest.spyOn(mockCipherService, "cipherListViews$").mockReturnValue(of(ciphers));
 
       const result = await firstValueFrom(service.pendingTasks$(userId));
 
@@ -337,7 +340,7 @@ describe("AtRiskPasswordCalloutService", () => {
     beforeEach(() => {
       jest.spyOn(mockTaskService, "pendingTasks$").mockReturnValue(of([]));
       jest.spyOn(mockTaskService, "completedTasks$").mockReturnValue(of([]));
-      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of([]));
+      jest.spyOn(mockCipherService, "cipherListViews$").mockReturnValue(of([]));
     });
 
     it("returns false if banner has been dismissed", async () => {
@@ -369,7 +372,7 @@ describe("AtRiskPasswordCalloutService", () => {
       };
 
       jest.spyOn(mockTaskService, "completedTasks$").mockReturnValue(of(completedTasks));
-      jest.spyOn(mockCipherService, "cipherViews$").mockReturnValue(of(ciphers));
+      jest.spyOn(mockCipherService, "cipherListViews$").mockReturnValue(of(ciphers));
       mockStateProvider.getUser.mockReturnValue({ state$: of(state) });
 
       const result = await firstValueFrom(service.showCompletedTasksBanner$(userId));
