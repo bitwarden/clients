@@ -56,6 +56,9 @@ export class TrialBillingStepComponent implements OnInit {
   protected readonly organizationCreated =
     input.required<(event: OrganizationCreatedEvent) => Promise<void>>();
 
+  /** The org the container already created; set so a remounted billing step won't call startTrial again. */
+  protected readonly existingOrganization = input<OrganizationCreatedEvent | undefined>(undefined);
+
   protected prices$!: Observable<Prices>;
 
   private createdOrganization: OrganizationCreatedEvent | undefined;
@@ -139,6 +142,7 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   submit = async (): Promise<void> => {
+    this.createdOrganization ??= this.existingOrganization();
     if (this.createdOrganization == null) {
       this.formGroup.markAllAsTouched();
       if (this.formGroup.invalid) {

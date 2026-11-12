@@ -537,5 +537,25 @@ describe("TrialBillingStepComponent", () => {
       expect(mockTrialBillingStepService.startTrial).toHaveBeenCalledTimes(1);
       expect(onCreated).toHaveBeenCalledTimes(2);
     });
+
+    it("skips startTrial when the container already created an org (remounted step)", async () => {
+      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+      setupSubmit();
+      fixture.componentRef.setInput("existingOrganization", {
+        organizationId: "org-123",
+        planDescription: "Annual",
+      });
+
+      const onCreated = jest.fn<Promise<void>, [OrganizationCreatedEvent]>().mockResolvedValue();
+      fixture.componentRef.setInput("organizationCreated", onCreated);
+
+      await component["submit"]();
+
+      expect(mockTrialBillingStepService.startTrial).not.toHaveBeenCalled();
+      expect(onCreated).toHaveBeenCalledWith({
+        organizationId: "org-123",
+        planDescription: "Annual",
+      });
+    });
   });
 });

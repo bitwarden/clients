@@ -210,6 +210,13 @@ export class CompleteTrialInitiationComponent {
     }
   }
 
+  /** The created org, passed to the billing step so a remounted step won't create a second one. */
+  get existingOrganization(): OrganizationCreatedEvent | undefined {
+    return this.orgId === ""
+      ? undefined
+      : { organizationId: this.orgId, planDescription: this.billingSubLabel };
+  }
+
   /** Awaited by the billing step: shows the success toast and navigates once the org is created. */
   createdOrganization = async (event: OrganizationCreatedEvent): Promise<void> => {
     if (this.orgId === "") {
