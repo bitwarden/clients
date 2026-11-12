@@ -1,0 +1,21 @@
+# Always-review list for @bitwarden/team-billing-dev
+#
+# BitReview reads this file to decide when this team's owner must review a change.
+# It applies only to files that CODEOWNERS assigns to this team. A changed file that matches a
+# line here always requires review from this team. Other files the team owns are routed by change kind.
+#
+# The syntax is the same as CODEOWNERS, and the last matching line wins. To stop always reviewing
+# a path, delete its line, or add the path below the broader line with no owner.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+## Billing team files ##
+apps/browser/src/billing  @bitwarden/team-billing-dev
+apps/desktop/src/billing  @bitwarden/team-billing-dev
+apps/web/src/app/billing  @bitwarden/team-billing-dev
+libs/angular/src/billing  @bitwarden/team-billing-dev
+libs/common/src/billing  @bitwarden/team-billing-dev
+libs/billing  @bitwarden/team-billing-dev
+libs/pricing  @bitwarden/team-billing-dev
+libs/subscription  @bitwarden/team-billing-dev
+bitwarden_license/bit-web/src/app/billing  @bitwarden/team-billing-dev

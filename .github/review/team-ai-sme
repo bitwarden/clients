@@ -1,0 +1,17 @@
+# Always-review list for @bitwarden/team-ai-sme
+#
+# BitReview reads this file to decide when this team's owner must review a change.
+# It applies only to files that CODEOWNERS assigns to this team. A changed file that matches a
+# line here always requires review from this team. Other files the team owns are routed by change kind.
+#
+# The syntax is the same as CODEOWNERS, and the last matching line wins. To stop always reviewing
+# a path, delete its line, or add the path below the broader line with no owner.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+# Claude related files
+.claude/  @bitwarden/team-ai-sme
+.github/workflows/respond.yml  @bitwarden/team-ai-sme
+.github/workflows/review-code.yml  @bitwarden/team-ai-sme
+.github/workflows/sdlc-sdk-update-evaluate.yml  @bitwarden/team-ai-sme
+.mcp.json  @bitwarden/team-ai-sme

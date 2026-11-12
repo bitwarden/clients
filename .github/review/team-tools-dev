@@ -1,0 +1,24 @@
+# Always-review list for @bitwarden/team-tools-dev
+#
+# BitReview reads this file to decide when this team's owner must review a change.
+# It applies only to files that CODEOWNERS assigns to this team. A changed file that matches a
+# line here always requires review from this team. Other files the team owns are routed by change kind.
+#
+# The syntax is the same as CODEOWNERS, and the last matching line wins. To stop always reviewing
+# a path, delete its line, or add the path below the broader line with no owner.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+## Tools team files ##
+apps/browser/src/tools  @bitwarden/team-tools-dev
+apps/cli/src/tools  @bitwarden/team-tools-dev
+apps/desktop/desktop_native/bitwarden_chromium_import_helper  @bitwarden/team-tools-dev
+apps/desktop/desktop_native/chromium_importer  @bitwarden/team-tools-dev
+apps/desktop/desktop_native/objc/src/native/chromium_importer  @bitwarden/team-tools-dev
+apps/desktop/src/app/tools  @bitwarden/team-tools-dev
+apps/web/src/app/tools  @bitwarden/team-tools-dev
+libs/angular/src/tools  @bitwarden/team-tools-dev
+libs/common/src/models/export  @bitwarden/team-tools-dev
+libs/common/src/tools  @bitwarden/team-tools-dev
+libs/importer  @bitwarden/team-tools-dev
+libs/tools  @bitwarden/team-tools-dev

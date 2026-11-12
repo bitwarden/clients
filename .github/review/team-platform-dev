@@ -1,0 +1,102 @@
+# Always-review list for @bitwarden/team-platform-dev
+#
+# BitReview reads this file to decide when this team's owner must review a change.
+# It applies only to files that CODEOWNERS assigns to this team. A changed file that matches a
+# line here always requires review from this team. Other files the team owns are routed by change kind.
+#
+# The syntax is the same as CODEOWNERS, and the last matching line wins. To stop always reviewing
+# a path, delete its line, or add the path below the broader line with no owner.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+## Desktop native module ##
+apps/desktop/desktop_native  @bitwarden/team-platform-dev
+
+# Web connectors
+apps/web/src/connectors/platform  @bitwarden/team-platform-dev
+
+## Localization/Crowdin (Platform team)
+apps/browser/src/_locales  @bitwarden/team-platform-dev
+apps/browser/store/locales  @bitwarden/team-platform-dev
+apps/cli/src/locales  @bitwarden/team-platform-dev
+apps/desktop/src/locales  @bitwarden/team-platform-dev
+apps/web/src/locales  @bitwarden/team-platform-dev
+
+## Platform team files ##
+apps/browser/src/platform  @bitwarden/team-platform-dev
+apps/cli/src/platform  @bitwarden/team-platform-dev
+apps/desktop/macos  @bitwarden/team-platform-dev
+apps/desktop/scripts  @bitwarden/team-platform-dev
+apps/desktop/src/platform  @bitwarden/team-platform-dev
+apps/desktop/resources  @bitwarden/team-platform-dev
+apps/web/src/app/platform  @bitwarden/team-platform-dev
+libs/angular/src/platform  @bitwarden/team-platform-dev
+libs/common/src/platform  @bitwarden/team-platform-dev
+libs/common/spec  @bitwarden/team-platform-dev
+libs/common/src/state-migrations  @bitwarden/team-platform-dev
+libs/platform  @bitwarden/team-platform-dev
+libs/storage-core  @bitwarden/team-platform-dev
+libs/logging  @bitwarden/team-platform-dev
+libs/logging-angular  @bitwarden/team-platform-dev
+libs/managed-settings  @bitwarden/team-platform-dev
+libs/storage-test-utils  @bitwarden/team-platform-dev
+libs/messaging  @bitwarden/team-platform-dev
+libs/serialization  @bitwarden/team-platform-dev
+libs/guid  @bitwarden/team-platform-dev
+libs/client-type  @bitwarden/team-platform-dev
+libs/core-test-utils  @bitwarden/team-platform-dev
+libs/state  @bitwarden/team-platform-dev
+libs/state-internal  @bitwarden/team-platform-dev
+libs/state-test-utils  @bitwarden/team-platform-dev
+libs/scheduling  @bitwarden/team-platform-dev
+
+# Web utils used across app and connectors
+apps/web/src/utils/  @bitwarden/team-platform-dev
+
+# Web core and shared files
+apps/web/src/app/core  @bitwarden/team-platform-dev
+apps/web/src/app/shared  @bitwarden/team-platform-dev
+apps/web/src/translation-constants.ts  @bitwarden/team-platform-dev
+
+# Workflows
+.github/workflows/automatic-issue-responses.yml  @bitwarden/team-platform-dev
+.github/workflows/automatic-pull-request-responses.yml  @bitwarden/team-platform-dev
+.github/workflows/build-browser-target.yml  @bitwarden/team-platform-dev
+.github/workflows/build-browser.yml  @bitwarden/team-platform-dev
+.github/workflows/build-cli-target.yml  @bitwarden/team-platform-dev
+.github/workflows/build-cli.yml  @bitwarden/team-platform-dev
+.github/workflows/build-desktop-target.yml  @bitwarden/team-platform-dev
+.github/workflows/build-desktop.yml  @bitwarden/team-platform-dev
+.github/workflows/build-web-target.yml  @bitwarden/team-platform-dev
+.github/workflows/build-web.yml  @bitwarden/team-platform-dev
+.github/workflows/crowdin-pull.yml  @bitwarden/team-platform-dev
+.github/workflows/enforce-pr-labels-sdlc.yml  @bitwarden/team-platform-dev
+.github/workflows/lint.yml  @bitwarden/team-platform-dev
+.github/workflows/locales-lint.yml  @bitwarden/team-platform-dev
+.github/workflows/repository-management.yml  @bitwarden/team-platform-dev
+.github/workflows/sdk-update.yml  @bitwarden/team-platform-dev
+.github/workflows/stale-bot.yml  @bitwarden/team-platform-dev
+.github/workflows/test.yml  @bitwarden/team-platform-dev
+.github/workflows/cherry-pick.yml  @bitwarden/team-platform-dev
+
+# ESLint custom rules
+libs/eslint  @bitwarden/team-platform-dev
+
+# Typescript tooling
+tsconfig.base.json  @bitwarden/team-platform-dev
+nx.json  @bitwarden/team-platform-dev
+
+## Overrides
+# For the time being platform owns tsconfig and jest config
+# These overrides will be removed after Nx is implemented
+# To track that effort please see https://bitwarden.atlassian.net/browse/PM-21636
+**/tsconfig.json  @bitwarden/team-platform-dev
+**/jest.config.js  @bitwarden/team-platform-dev
+**/project.json  @bitwarden/team-platform-dev
+
+# Platform override specifically for the package-lock.json in
+# native-messaging-test-runner so that Platform can manage all lock file updates
+apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-platform-dev
+
+# Claude related files
+.github/workflows/sdlc-sdk-update-evaluate.yml  @bitwarden/team-platform-dev

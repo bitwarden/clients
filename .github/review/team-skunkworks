@@ -1,0 +1,29 @@
+# Always-review list for @bitwarden/team-skunkworks
+#
+# BitReview reads this file to decide when this team's owner must review a change.
+# It applies only to files that CODEOWNERS assigns to this team. A changed file that matches a
+# line here always requires review from this team. Other files the team owns are routed by change kind.
+#
+# The syntax is the same as CODEOWNERS, and the last matching line wins. To stop always reviewing
+# a path, delete its line, or add the path below the broader line with no owner.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+## Native Passkey files
+apps/desktop/desktop_native/autofill_provider  @bitwarden/team-skunkworks
+apps/desktop/desktop_native/core/src/autofill  @bitwarden/team-skunkworks
+apps/desktop/desktop_native/napi/src/autofill.rs  @bitwarden/team-skunkworks
+apps/desktop/desktop_native/napi/src/passkey_authenticator.rs  @bitwarden/team-skunkworks
+apps/desktop/desktop_native/napi/src/passkey_authenticator_internal  @bitwarden/team-skunkworks
+apps/desktop/desktop_native/objc/src/native/autofill  @bitwarden/team-skunkworks
+apps/desktop/desktop_native/win_webauthn  @bitwarden/team-skunkworks
+apps/desktop/desktop_native/windows_plugin_authenticator  @bitwarden/team-skunkworks
+apps/desktop/macos  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/desktop-autofill.preload.ts  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/main/main-desktop-autofill*  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/modal/credentials  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/models/autofill-*  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/models/ipc-handler.type.ts  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-autofill.service.ts  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-autofill.service.spec.ts  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-fido2*  @bitwarden/team-skunkworks
