@@ -29,8 +29,8 @@ export class PamStatusProgram extends PamBaseProgram {
       });
     addPamHelp(status, {
       notes: [
-        "Reports the PAM feature flags and, per organization, whether it uses PAM, whether you hold a seat, and your provider status. The can* values are client-side hints; the server decides.",
-        "Works when the PAM feature flag is off and when the vault is locked. Calls no PAM service.",
+        "Reports the Privileged Controls feature flags and, per organization, whether it uses Privileged Controls, whether you hold a seat, and your provider status. The can* values are client-side hints; the server decides.",
+        "Works when the Privileged Controls feature flag is off and when the vault is locked. Calls no Privileged Controls service.",
       ],
       examples: ["bw pam status", "bw pam status --organizationid <organizationid>"],
     });

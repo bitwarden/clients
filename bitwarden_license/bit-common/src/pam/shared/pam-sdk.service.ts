@@ -55,7 +55,7 @@ export class PamSdkService {
           return await fn(ref.value.commercial().pam());
         }),
         catchError((error: unknown) => {
-          this.logService.error(`PAM SDK call failed: ${describeForLog(error)}`);
+          this.logService.error(`Privileged Controls SDK call failed: ${describeForLog(error)}`);
           throw error;
         }),
       ),

@@ -50,7 +50,7 @@ describe("PamSdkService", () => {
 
       expect(kit.logService.error).toHaveBeenCalledTimes(1);
       expect(kit.logService.error).toHaveBeenCalledWith(
-        "PAM SDK call failed: AccessLeaseError kind=forbidden variant=Api status=403",
+        "Privileged Controls SDK call failed: AccessLeaseError kind=forbidden variant=Api status=403",
       );
     });
 

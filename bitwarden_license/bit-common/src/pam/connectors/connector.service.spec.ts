@@ -156,7 +156,7 @@ describe("ConnectorService", () => {
       ).rejects.toThrow("boom");
 
       expect(kit.logService.error).toHaveBeenCalledWith(
-        "PAM SDK call failed: Error kind=unexpected",
+        "Privileged Controls SDK call failed: Error kind=unexpected",
       );
     });
   });

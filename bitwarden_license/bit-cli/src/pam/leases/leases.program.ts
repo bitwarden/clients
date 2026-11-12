@@ -124,7 +124,9 @@ export class LeasesProgram extends PamBaseProgram {
     addReasonOptions(command);
     addYesOption(command);
     return addPamHelp(command, {
-      notes: ["Needs no PAM seat, so an approver or admin can also use it to revoke a live lease."],
+      notes: [
+        "Needs no Privileged Controls seat, so an approver or admin can also use it to revoke a live lease.",
+      ],
       examples: [
         "bw pam lease end <leaseId> --yes",
         'bw pam lease end <leaseId> --reason "Done" --yes',
