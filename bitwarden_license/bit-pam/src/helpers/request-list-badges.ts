@@ -82,13 +82,12 @@ export function nextRequestListChangeMs(
   let next: number | undefined;
   for (const request of requests) {
     const badge = listedBadge(request, nowMs);
+    if (badge == null) {
+      continue;
+    }
     const endMs =
-      badge == null
-        ? undefined
-        : badge.kind === "active"
-          ? badge.expiresAt.getTime()
-          : Date.parse(request.leaseNotAfter);
-    if (endMs !== undefined && (next === undefined || endMs < next)) {
+      badge.kind === "active" ? badge.expiresAt.getTime() : Date.parse(request.leaseNotAfter);
+    if (next === undefined || endMs < next) {
       next = endMs;
     }
   }
