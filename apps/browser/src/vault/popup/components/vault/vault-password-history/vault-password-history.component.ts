@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { first, map } from "rxjs/operators";
@@ -9,6 +9,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordHistoryViewComponent } from "@bitwarden/vault";
 
@@ -32,6 +33,7 @@ import { PopupRouterCacheService } from "../../../../../platform/popup/view-cach
 })
 export class PasswordHistoryComponent implements OnInit {
   protected cipher: CipherView;
+  private readonly revealedCipherService = inject(RevealedCipherService);
 
   constructor(
     private browserRouterHistory: PopupRouterCacheService,
@@ -67,8 +69,9 @@ export class PasswordHistoryComponent implements OnInit {
 
     const activeUserId = activeAccount.id as UserId;
 
-    this.cipher = await firstValueFrom(
-      this.cipherService.cipherView$(activeUserId, cipherId as CipherId),
-    );
+    // A restricted cipher's history exists only in its revealed view.
+    this.cipher =
+      (await firstValueFrom(this.cipherService.cipherView$(activeUserId, cipherId as CipherId))) ??
+      this.revealedCipherService.get(activeUserId, cipherId as CipherId);
   }
 }

@@ -200,13 +200,13 @@ describe("CustomRangeDialogComponent", () => {
     expect(document.activeElement).toBe(input("from"));
   });
 
-  it("lays the two ends side by side, stacking only on a narrow viewport", async () => {
+  it("stacks the two ends, so each field shows its full date and time", async () => {
     await create();
 
-    const row = input("from").closest("[bitDialogContent]")!.firstElementChild!;
-    expect(row.classList).toContain("tw-flex-col");
-    expect(row.classList).toContain("sm:tw-flex-row");
-    expect(row.querySelectorAll("bit-form-field")).toHaveLength(2);
+    const stack = input("from").closest("[bitDialogContent]")!.firstElementChild!;
+    expect(stack.classList).toContain("tw-flex-col");
+    expect(stack.classList).not.toContain("sm:tw-flex-row");
+    expect(stack.querySelectorAll("bit-form-field")).toHaveLength(2);
   });
 
   it("closes without a result when canceled, even over an edited range", async () => {

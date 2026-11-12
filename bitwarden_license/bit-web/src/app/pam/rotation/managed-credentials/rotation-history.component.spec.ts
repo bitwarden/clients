@@ -1,9 +1,9 @@
-import { DatePipe } from "@angular/common";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { MockProxy, mock } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
+import { formatTimestamp } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -16,6 +16,7 @@ import {
   SessionTerminationOutcome,
 } from "../rotation";
 import {
+  accessConnector,
   attemptId,
   configId,
   jobId,
@@ -24,7 +25,6 @@ import {
 } from "../testing/rotation-builders";
 
 import { RotationHistoryComponent } from "./rotation-history.component";
-import { RotationJobDrawerComponent } from "./rotation-job-drawer/rotation-job-drawer.component";
 
 describe("RotationHistoryComponent", () => {
   let component: RotationHistoryComponent;
@@ -298,7 +298,12 @@ describe("RotationHistoryComponent", () => {
       expect(view.failed).toBe(true);
       expect(view.causeLabelKey).toBe("pamRotationFailureCauseTargetUnreachable");
       expect(view.reportedReason).toBe("target_unreachable: error kind: ConnectionRefused");
-      expect(view.attempts.every((a: any) => a.divergentFailureReason === null)).toBe(true);
+      expect(view.attempts.every((a: any) => a.failureReason === view.reportedReason)).toBe(true);
+      expect(
+        view.attempts.every(
+          (a: any) => a.causeLabelKey === "pamRotationAttemptCauseTargetUnreachable",
+        ),
+      ).toBe(true);
     });
 
     it("marks a retry set as uniform when every attempt matches the final one", () => {
@@ -323,14 +328,70 @@ describe("RotationHistoryComponent", () => {
       expect(view.attemptsUniform).toBe(false);
     });
 
-    it("carries a divergent reason on the attempt that differs from the job cause", () => {
+    it("gives each failed attempt its own cause and raw reason", () => {
       setup([]);
       const job = failingJob();
       (job.attempts[0] as any).failureReason = "target_rejected: LDAP result code 50";
       const view = (component as any).toJobView(job);
       expect(view.attemptsUniform).toBe(false);
-      expect(view.attempts[0].divergentFailureReason).toBe("target_rejected: LDAP result code 50");
-      expect(view.attempts[1].divergentFailureReason).toBeNull();
+      expect(view.attempts[0].failureReason).toBe("target_rejected: LDAP result code 50");
+      expect(view.attempts[0].causeLabelKey).toBe("pamRotationFailureCauseInsufficientRights");
+      expect(view.attempts[1].causeLabelKey).toBe("pamRotationAttemptCauseTargetUnreachable");
+    });
+
+    it("labels attempts Succeeded or Failed, and In progress while executing", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({
+          status: RotationJobStatus.Succeeded,
+          attempts: [
+            rotationAttempt({
+              id: attemptId("1"),
+              status: RotationAttemptStatus.Errored,
+              startedAt: "2026-01-01T00:00:00Z",
+            }),
+            rotationAttempt({
+              id: attemptId("2"),
+              status: RotationAttemptStatus.Rotated,
+              startedAt: "2026-01-01T00:01:00Z",
+            }),
+            rotationAttempt({
+              id: attemptId("3"),
+              status: RotationAttemptStatus.Executing,
+              startedAt: "2026-01-01T00:02:00Z",
+            }),
+          ],
+        }),
+      );
+      expect(view.attempts.map((a: any) => a.resultLabelKey)).toEqual([
+        "pamRotationAttemptResultFailed",
+        "pamRotationAttemptResultSucceeded",
+        "pamRotationAttemptStatusExecuting",
+      ]);
+      expect(view.retrySucceeded).toBe(true);
+    });
+
+    it("explains a timed-out job's attempt as the target not responding", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({
+          status: RotationJobStatus.TimedOut,
+          attempts: [
+            rotationAttempt({ status: RotationAttemptStatus.Abandoned, failureReason: undefined }),
+          ],
+        }),
+      );
+      expect(view.attempts[0].causeLabelKey).toBe("pamRotationAttemptCauseTargetUnreachable");
+    });
+
+    it("names an attempt's access connector from the supplied map", () => {
+      const fixture = setup([]);
+      fixture.componentRef.setInput(
+        "connectorNames",
+        new Map([[String(accessConnector().id), "East"]]),
+      );
+      const view = (component as any).toJobView(rotationJob());
+      expect(view.attempts[0].connectorName).toBe("East");
     });
 
     it("starts the job at its first attempt rather than when it was queued", () => {
@@ -396,7 +457,6 @@ describe("RotationHistoryComponent", () => {
       );
       expect(view.duration).toBeNull();
       expect(view.running).toBe(true);
-      expect(view.attempts[0].running).toBe(true);
     });
 
     it("does not call a job that timed out before it was claimed running", () => {
@@ -409,7 +469,7 @@ describe("RotationHistoryComponent", () => {
       expect(view.failed).toBe(true);
     });
 
-    it("does not call an abandoned attempt with no recorded end running", () => {
+    it("leaves the duration null for an abandoned attempt with no recorded end", () => {
       setup([]);
       const view = (component as any).toJobView(
         rotationJob({
@@ -424,7 +484,6 @@ describe("RotationHistoryComponent", () => {
         }),
       );
       expect(view.attempts[0].duration).toBeNull();
-      expect(view.attempts[0].running).toBe(false);
     });
 
     it("numbers attempts in the order the server returned them", () => {
@@ -585,41 +644,28 @@ describe("RotationHistoryComponent rendering", () => {
     fixture.detectChanges();
   }
 
-  function drawerParams() {
-    const call = dialogService.openDrawer.mock.calls[0];
-    return call ? ((call[1] as any).data ?? null) : null;
-  }
-
-  it("shows the empty message when there are no jobs", () => {
+  it("keeps the table's header over the empty state when there are no jobs", () => {
     const fixture = render([]);
+    const empty = fixture.debugElement.query(By.css("[data-testid='rotation-history-empty']"));
+
+    expect(fixture.debugElement.query(By.css("bit-table-v2"))).not.toBeNull();
+    expect(empty.nativeElement.textContent).toContain("pamRotationConfigHistoryEmptyTitle");
+    expect(empty.nativeElement.textContent).toContain("pamRotationConfigHistoryEmptyState");
+  });
+
+  it("shows the connector page's empty message when there are no jobs", () => {
+    const fixture = render([], { showCredential: true });
     expect(jobRows(fixture)).toHaveLength(0);
     expect(fixture.debugElement.query(By.css("table"))).toBeNull();
     expect(fixture.nativeElement.textContent).toContain("pamRotationHistoryEmpty");
   });
 
-  it("renders one row per job in a captioned table", () => {
-    const fixture = render([
-      rotationJob({ id: jobId("1"), createdAt: "2026-01-01T00:00:00Z" }),
-      rotationJob({ id: jobId("2"), createdAt: "2026-02-01T00:00:00Z" }),
-    ]);
-
-    expect(jobRows(fixture)).toHaveLength(2);
-    expect(fixture.debugElement.query(By.css("caption")).nativeElement.textContent).toContain(
-      "pamRotationHistoryCaption",
-    );
-  });
-
-  it("keeps the job table inside its own horizontally scrolling container", () => {
-    const fixture = render([rotationJob()]);
-    const table = fixture.debugElement.query(By.css("table")).nativeElement;
-    expect(table.parentElement.className).toContain("tw-overflow-x-auto");
-  });
-
-  it("heads the job columns with what each one holds", () => {
-    const fixture = render([rotationJob()]);
+  it("keeps the connector page's columns when it names the credential", () => {
+    const fixture = render([rotationJob()], { showCredential: true });
 
     expect(jobHeaders(fixture)).toEqual([
       "pamRotationAttemptStarted",
+      "pamRotationConfigColumnCredential",
       "pamRotationHistoryColumnSource",
       "pamRotationHistoryColumnResult",
       "pamRotationHistoryDurationLabel",
@@ -627,83 +673,154 @@ describe("RotationHistoryComponent rendering", () => {
     ]);
   });
 
-  it("gives every job column header a col scope", () => {
-    const fixture = render([rotationJob()]);
-    const headers = fixture.debugElement.queryAll(
-      By.css("[data-testid='rotation-history-columns'] th"),
-    );
-    expect(headers.every((th: any) => th.nativeElement.getAttribute("scope") === "row")).toBe(
-      false,
-    );
-    expect(headers.every((th: any) => th.nativeElement.getAttribute("scope") === "col")).toBe(true);
+  describe("the job table", () => {
+    const headers = (fixture: any) =>
+      fixture.debugElement
+        .queryAll(By.css('bit-table-v2 [role="columnheader"]'))
+        .map((h: any) => h.nativeElement.textContent.trim());
+
+    it("renders a table with Rotation started, Final result, Trigger and Details", () => {
+      const fixture = render([rotationJob()]);
+      expect(fixture.debugElement.query(By.css("bit-table-v2"))).not.toBeNull();
+      expect(headers(fixture)).toEqual([
+        "pamRotationHistoryColumnRotationStarted",
+        "pamRotationHistoryColumnFinalResult",
+        "pamRotationHistoryColumnRotationTrigger",
+        "details",
+      ]);
+    });
+
+    it("leaves the connector page on its own table", () => {
+      const fixture = render([rotationJob()], { showCredential: true });
+      expect(fixture.debugElement.query(By.css("bit-table-v2"))).toBeNull();
+    });
   });
 
-  it("makes the job's start time its row header", () => {
-    const fixture = render([rotationJob({ createdAt: "2026-01-01T00:00:00Z" })]);
+  describe("the Result and Details columns", () => {
+    const detailsOf = (fixture: any) =>
+      fixture.debugElement
+        .query(By.css("[data-testid='rotation-history-job-details']"))
+        .nativeElement.textContent.trim();
 
-    const rowHeader = jobRows(fixture)[0].query(By.css("th"));
-    expect(rowHeader.nativeElement.getAttribute("scope")).toBe("row");
-    expect(rowHeader.nativeElement.textContent.trim()).not.toBe("");
+    it("says none for a job that needed no retry", () => {
+      expect(detailsOf(render([rotationJob()]))).toBe("pamRotationDetailNone");
+    });
+
+    it("says the retry succeeded for a job that needed one", () => {
+      const job = rotationJob({
+        attempts: [
+          rotationAttempt({ id: attemptId("1"), status: RotationAttemptStatus.Errored }),
+          rotationAttempt({ id: attemptId("2"), status: RotationAttemptStatus.Rotated }),
+        ],
+      });
+      expect(detailsOf(render([job]))).toBe("pamRotationHistoryRetrySucceeded");
+    });
+
+    it("explains a failed job by its final attempt's cause", () => {
+      expect(detailsOf(render([retriedFailure()]))).toBe(
+        "pamRotationAttemptCauseTargetUnreachable",
+      );
+    });
+
+    it("says no access connector picked up a job that timed out unclaimed", () => {
+      const job = rotationJob({ status: RotationJobStatus.TimedOut, attempts: [] });
+      expect(detailsOf(render([job]))).toBe("pamRotationHistoryNoConnectorPickedUp");
+    });
+
+    it("leaves a failure with no recognised cause blank", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Failed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: "flaky target",
+          }),
+        ],
+      });
+      expect(detailsOf(render([job]))).toBe("");
+    });
+
+    it("names a retrying job and the attempt that failed", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Claimed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Errored,
+            failureReason: CONNECTION_REFUSED,
+            startedAt: "2026-01-01T00:00:00Z",
+          }),
+          rotationAttempt({
+            id: attemptId("2"),
+            status: RotationAttemptStatus.Executing,
+            startedAt: "2026-01-01T00:05:00Z",
+            endedAt: undefined,
+          }),
+        ],
+      });
+      const fixture = render([job]);
+
+      expect(detailsOf(fixture).replace(/\s+/g, " ")).toBe(
+        "pamRotationHistoryAttemptFailed 1 pamRotationAttemptCauseTargetUnreachable",
+      );
+      expect(fixture.nativeElement.textContent).toContain("pamRotationJobStatusRetrying");
+    });
+
+    it("calls a claimed job with no failure in progress", () => {
+      const job = rotationJob({
+        status: RotationJobStatus.Claimed,
+        attempts: [
+          rotationAttempt({
+            id: attemptId("1"),
+            status: RotationAttemptStatus.Executing,
+            endedAt: undefined,
+          }),
+        ],
+      });
+      const fixture = render([job]);
+
+      expect(detailsOf(fixture)).toBe("pamRotationDetailNone");
+      expect(fixture.nativeElement.textContent).toContain("pamRotationAttemptInProgress");
+    });
+
+    it("says whether a succeeded job's sessions ended", () => {
+      const withTermination = (sessionTermination: SessionTerminationOutcome) =>
+        rotationJob({
+          attempts: [rotationAttempt({ id: attemptId("1"), sessionTermination })],
+        });
+
+      expect(detailsOf(render([withTermination(SessionTerminationOutcome.Terminated)]))).toBe(
+        "pamRotationHistorySessionsEnded",
+      );
+      expect(detailsOf(render([withTermination(SessionTerminationOutcome.TermFailed)]))).toBe(
+        "pamRotationHistorySessionsNotEnded",
+      );
+    });
   });
 
   describe("the started column", () => {
-    const rendered = (iso: string, format: string) => new DatePipe("en-US").transform(iso, format)!;
-
-    it("reports when the job ran, not when it was queued", () => {
-      const fixture = render([retriedFailure()]);
-
-      const rowHeader = jobRows(fixture)[0].query(By.css("th")).nativeElement;
-      expect(rowHeader.textContent.trim()).toBe(rendered("2026-01-01T00:01:00Z", "short"));
-      expect(rowHeader.textContent.trim()).not.toBe(rendered("2026-01-01T00:00:00Z", "short"));
-    });
-
-    it("stays empty rather than dating a job that never started", () => {
-      const fixture = render([
-        rotationJob({ status: RotationJobStatus.Pending, attempts: [], createdAt: QUEUED_AT }),
-      ]);
-
-      expect(jobRows(fixture)).toHaveLength(1);
-      expect(jobRows(fixture)[0].query(By.css("th")).nativeElement.textContent.trim()).toBe("");
-      expect(fixture.nativeElement.textContent).not.toContain(rendered(QUEUED_AT, "short"));
-    });
-
-    it("names the row by its start, and by its outcome alone when it has none", () => {
-      const started = render([retriedFailure()]);
-      expect(resultCell(started).nativeElement.getAttribute("aria-label")).toContain(
-        rendered("2026-01-01T00:01:00Z", "medium"),
+    it("leaves a never-started job undated", () => {
+      const fixture = render(
+        [rotationJob({ status: RotationJobStatus.Pending, attempts: [], createdAt: QUEUED_AT })],
+        { showCredential: true },
       );
-
-      const queued = render([
-        rotationJob({ status: RotationJobStatus.Pending, attempts: [], createdAt: QUEUED_AT }),
-      ]);
-      expect(resultCell(queued).nativeElement.getAttribute("aria-label")).toBe(
-        "pamRotationJobStatusPending",
+      expect(jobRows(fixture)[0].query(By.css("th")).nativeElement.textContent.trim()).toBe("");
+      expect(fixture.nativeElement.textContent).not.toContain(
+        formatTimestamp("en-US", Date.parse(QUEUED_AT)),
       );
     });
   });
 
   it("shows the job duration rather than a second raw timestamp", () => {
-    const fixture = render([retriedFailure()]);
+    const fixture = render([retriedFailure()], { showCredential: true });
 
     expect(jobRows(fixture)[0].nativeElement.textContent).toContain(
       "pamRotationDurationMinutes 4 16",
     );
   });
 
-  it("gives a failed job an ordinary row, with the outcome on the badge alone", () => {
-    const fixture = render([
-      rotationJob({ id: jobId("1"), createdAt: "2026-01-01T00:00:00Z" }),
-      { ...retriedFailure(), id: jobId("2"), createdAt: "2026-02-01T00:00:00Z" },
-    ]);
-
-    const [failed, succeeded] = jobRows(fixture).map((row: any) => row.nativeElement);
-    expect(failed.className).toBe(succeeded.className);
-    expect(failed.querySelector("th").className).toBe(succeeded.querySelector("th").className);
-    expect(failed.className).not.toMatch(/danger/);
-    expect(failed.textContent).toContain("pamRotationJobStatusFailed");
-  });
-
-  it("keeps every explanation off the ledger, however the reason was reported", () => {
+  it("keeps the connector's raw reason and the drawer's explanations off the table", () => {
     const recognised = render([retriedFailure()]);
     expect(recognised.nativeElement.textContent).not.toContain(
       "pamRotationFailureCauseTargetUnreachable",
@@ -728,26 +845,6 @@ describe("RotationHistoryComponent rendering", () => {
     expect(unrecognised.nativeElement.textContent).not.toContain("flaky target");
   });
 
-  it("surfaces a failed session termination on the job row", () => {
-    const fixture = render([
-      rotationJob({
-        attempts: [
-          rotationAttempt({
-            id: attemptId("1"),
-            sessionTermination: SessionTerminationOutcome.TermFailed,
-          }),
-        ],
-      }),
-    ]);
-
-    expect(jobRows(fixture)[0].nativeElement.textContent).toContain(
-      "pamRotationSessionTerminationTermFailed",
-    );
-    expect(resultCell(fixture).nativeElement.getAttribute("aria-label")).toContain(
-      "pamRotationSessionTerminationTermFailed",
-    );
-  });
-
   it("leaves an ordinary session termination to the drawer", () => {
     const fixture = render([
       rotationJob({
@@ -763,6 +860,7 @@ describe("RotationHistoryComponent rendering", () => {
     expect(fixture.nativeElement.textContent).not.toContain(
       "pamRotationSessionTerminationTerminated",
     );
+    expect(resultCell(fixture).nativeElement.getAttribute("aria-describedby")).toBeNull();
   });
 
   describe("the credential column", () => {
@@ -805,20 +903,12 @@ describe("RotationHistoryComponent rendering", () => {
 
   describe("attempts", () => {
     it("counts a job's attempts in the ledger without listing them", () => {
-      const fixture = render([retriedFailure()]);
+      const fixture = render([retriedFailure()], { showCredential: true });
 
       const cell = fixture.debugElement.query(
         By.css("[data-testid='rotation-history-job-attempts']"),
       );
       expect(cell.nativeElement.textContent.trim()).toBe("5");
-    });
-
-    it("never nests a table inside the job table", () => {
-      const fixture = render([retriedFailure()]);
-      const tables = fixture.debugElement.queryAll(By.css("table"));
-
-      expect(tables).toHaveLength(1);
-      expect(tables[0].nativeElement.querySelector("table")).toBeNull();
     });
 
     it("renders no attempt value in the job table", () => {
@@ -830,47 +920,6 @@ describe("RotationHistoryComponent rendering", () => {
   });
 
   describe("opening a job", () => {
-    it("opens the details drawer when the row is clicked", () => {
-      const fixture = render([retriedFailure()]);
-
-      jobRows(fixture)[0].nativeElement.click();
-
-      expect(dialogService.openDrawer).toHaveBeenCalledWith(
-        RotationJobDrawerComponent,
-        expect.objectContaining({ closeOnNavigation: true }),
-      );
-      expect(drawerParams().job.attempts).toHaveLength(5);
-    });
-
-    it("opens the details drawer from the keyboard", () => {
-      const fixture = render([retriedFailure()]);
-
-      resultCell(fixture).triggerEventHandler("keydown.enter", {});
-      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
-
-      resultCell(fixture).triggerEventHandler("keydown.space", { preventDefault: () => {} });
-      expect(dialogService.openDrawer).toHaveBeenCalledTimes(2);
-    });
-
-    it("gives the row's activation control a focusable button role and a name", () => {
-      const fixture = render([rotationJob({ createdAt: "2026-01-01T00:00:00Z" })]);
-
-      const cell = resultCell(fixture).nativeElement;
-      expect(cell.getAttribute("role")).toBe("button");
-      expect(cell.getAttribute("tabindex")).toBe("0");
-      expect(cell.getAttribute("aria-label")).toContain("pamRotationJobStatusSucceeded");
-      expect(cell.getAttribute("aria-label")).not.toBe("pamRotationJobStatusSucceeded ");
-    });
-
-    it("carries only one activation control per row", () => {
-      const fixture = render([
-        rotationJob({ id: jobId("1"), createdAt: "2026-01-01T00:00:00Z" }),
-        rotationJob({ id: jobId("2"), createdAt: "2026-02-01T00:00:00Z" }),
-      ]);
-
-      expect(fixture.debugElement.queryAll(By.css("[tabindex='0']"))).toHaveLength(2);
-    });
-
     it("hands focus back to the row when the drawer closes", async () => {
       const fixture = render([retriedFailure()]);
       const closed = openedDrawer();
@@ -915,7 +964,7 @@ describe("RotationHistoryComponent rendering", () => {
     });
 
     it("stands Source, Duration and Attempts down while the pane is beside the table", async () => {
-      const fixture = render([retriedFailure()]);
+      const fixture = render([retriedFailure()], { showCredential: true });
       const closed = openedDrawer();
       const hidden = () =>
         fixture.debugElement
@@ -937,20 +986,6 @@ describe("RotationHistoryComponent rendering", () => {
       closed.next(undefined);
       fixture.detectChanges();
       expect(hidden()).toEqual([]);
-    });
-
-    it("tells the drawer whether the table named the credential", () => {
-      const withCredential = render([rotationJob({ rotationConfigId: configId("7") })], {
-        showCredential: true,
-        credentialNames: new Map([[configId("7"), "Prod service account"]]),
-      });
-      jobRows(withCredential)[0].nativeElement.click();
-      expect(drawerParams().showCredential).toBe(true);
-      expect(drawerParams().job.credentialName).toBe("Prod service account");
-
-      const withoutCredential = render([rotationJob()]);
-      jobRows(withoutCredential)[0].nativeElement.click();
-      expect(drawerParams().showCredential).toBe(false);
     });
   });
 });

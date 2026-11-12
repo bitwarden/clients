@@ -1,6 +1,14 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { DefaultUrlSerializer, Navigation, NavigationExtras, Router } from "@angular/router";
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  DefaultUrlSerializer,
+  Navigation,
+  NavigationExtras,
+  Params,
+  Router,
+} from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
@@ -23,6 +31,7 @@ describe("AccessRequestRouteComponent", () => {
   let loading$: BehaviorSubject<boolean>;
   let closed$: Subject<void>;
   let close: jest.Mock;
+  let queryParams: Params;
 
   /** The origin tab is read during construction, off the navigation the router is still running. */
   function create(previousNavigation: Navigation | null): void {
@@ -82,6 +91,7 @@ describe("AccessRequestRouteComponent", () => {
       close,
     } as unknown as DialogRef<unknown, unknown>);
     router = mock<Router>();
+    queryParams = {};
     viewer$ = new BehaviorSubject<AccessRequestViewer | null>(null);
     loading$ = new BehaviorSubject<boolean>(true);
     detail = { viewer$, loading$ } as unknown as AccessRequestDetailService;
@@ -91,6 +101,16 @@ describe("AccessRequestRouteComponent", () => {
       providers: [
         { provide: DialogService, useValue: dialogService },
         { provide: Router, useValue: router },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              get queryParamMap() {
+                return convertToParamMap(queryParams);
+              },
+            },
+          },
+        },
       ],
     })
       // The component provides the detail service itself, so the stub replaces it there.
@@ -111,7 +131,26 @@ describe("AccessRequestRouteComponent", () => {
     create(null);
 
     expect(dialogService.open).toHaveBeenCalledWith(AccessRequestDialogComponent, {
-      data: { detail },
+      data: { detail, readOnly: false, intent: undefined },
+      closeOnNavigation: false,
+    });
+  });
+
+  it("opens the dialog read-only over the History tab", () => {
+    create(cameFrom("/pam/history"));
+
+    expect(dialogService.open).toHaveBeenCalledWith(AccessRequestDialogComponent, {
+      data: { detail, readOnly: true, intent: undefined },
+      closeOnNavigation: false,
+    });
+  });
+
+  it("hands the dialog the withdraw intent off the query string", () => {
+    queryParams = { action: "withdraw" };
+    create(cameFrom("/pam/history"));
+
+    expect(dialogService.open).toHaveBeenCalledWith(AccessRequestDialogComponent, {
+      data: { detail, readOnly: true, intent: "withdraw" },
       closeOnNavigation: false,
     });
   });

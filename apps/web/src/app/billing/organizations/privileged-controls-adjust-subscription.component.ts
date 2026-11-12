@@ -22,10 +22,12 @@ import { map } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
@@ -60,6 +62,8 @@ export class PrivilegedControlsAdjustSubscriptionComponent {
   private readonly organizationBillingClient = inject(OrganizationBillingClient);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
+  private readonly dialogService = inject(DialogService);
+  private readonly syncService = inject(SyncService);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly organizationId = input.required<OrganizationId>();
@@ -128,6 +132,30 @@ export class PrivilegedControlsAdjustSubscriptionComponent {
       variant: "success",
       message: this.i18nService.t("subscriptionUpdated"),
     });
+
+    this.adjusted.emit();
+  };
+
+  protected readonly remove = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "removePrivilegedControls" },
+      content: { key: "removePrivilegedControlsConfirmation" },
+      acceptButtonText: { key: "remove" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    await this.organizationBillingClient.removePrivilegedControls(this.organizationId());
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("privilegedControlsRemoved"),
+    });
+
+    await this.syncService.fullSync(true);
 
     this.adjusted.emit();
   };

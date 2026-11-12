@@ -1,12 +1,19 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
+
+import { BerryComponent } from "../berry";
 
 import { AvatarComponent } from "./avatar.component";
 
 export default {
   title: "Component Library/Avatar",
   component: AvatarComponent,
+  decorators: [
+    moduleMetadata({
+      imports: [BerryComponent],
+    }),
+  ],
   args: {
     id: undefined,
     text: "Walt Walterson",
@@ -178,6 +185,47 @@ export const CustomColor: Story = {
   ...ColorByID,
   args: {
     color: "#fbd9fe",
+  },
+};
+
+export const Status: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: /*html*/ `
+        <div class="tw-flex tw-gap-4 tw-mb-10">
+          @for (size of ["sm", "base", "lg", "xl", "2xl"]; track size) {
+            <bit-avatar [color]="'teal'" [text]="'Walt Walterson'" [size]="size">
+              <bit-berry slot="status" type="status" variant="success" role="img" aria-label="Online"></bit-berry>
+            </bit-avatar>
+          }
+        </div>
+
+        <span class="tw-font-bold">On different backgrounds</span>
+        <div class="tw-flex tw-gap-4 tw-mb-10">
+          @for (bg of ["tw-bg-bg-primary", "tw-bg-bg-secondary", "tw-bg-bg-brand-soft", "tw-bg-bg-dark"]; track bg) {
+            <div class="tw-p-3 tw-rounded" [class]="bg">
+              <bit-avatar [color]="'teal'" [text]="'Walt Walterson'" [size]="'2xl'">
+                <bit-berry slot="status" type="status" variant="success" role="img" aria-label="Online"></bit-berry>
+              </bit-avatar>
+            </div>
+          }
+        </div>
+
+        <span class="tw-font-bold">Interactive</span>
+        <div class="tw-flex tw-gap-4">
+          <button bit-avatar [color]="'teal'" [text]="'Walt Walterson'" [size]="'2xl'">
+            <bit-berry slot="status" type="status" variant="success" role="img" aria-label="Online"></bit-berry>
+          </button>
+          <button bit-avatar [color]="'teal'" [text]="'Walt Walterson'" [size]="'2xl'" class="tw-test-hover">
+            <bit-berry slot="status" type="status" variant="success" role="img" aria-label="Online"></bit-berry>
+          </button>
+          <button bit-avatar [color]="'teal'" [text]="'Walt Walterson'" [size]="'2xl'" class="tw-test-focus-visible">
+            <bit-berry slot="status" type="status" variant="success" role="img" aria-label="Online"></bit-berry>
+          </button>
+        </div>
+      `,
+    };
   },
 };
 
