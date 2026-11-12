@@ -79,6 +79,8 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly disabled = model<boolean>();
   readonly placeholder = input<string>();
   readonly autocomplete = input<string>();
+  /** Overrides the input's accessible name, which otherwise reads "Search". */
+  readonly ariaLabel = input<string>();
   readonly size = input<FieldContainerSize>("base");
 
   /**

@@ -14,7 +14,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  LayoutFooterService,
+  SelectItemView,
+  ToastService,
+} from "@bitwarden/components";
 
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
@@ -201,14 +206,13 @@ describe("AccessRuleEditComponent: page furniture", () => {
     const heading = fixture.nativeElement.querySelector("h1");
     expect(heading.textContent).toContain("pamAccessRuleCreateTitle");
 
-    const header = fixture.nativeElement.querySelector("header");
-    expect(header.textContent.split("pamAccessRuleCreateTitle")).toHaveLength(2);
+    expect(fixture.nativeElement.querySelectorAll("h1")).toHaveLength(1);
 
     const trail = fixture.nativeElement.querySelector('[slot="breadcrumbs"]');
     expect(trail.textContent).toContain("pamAccessRules");
   });
 
-  it("badges the saved rule as on, inside the heading", async () => {
+  it("badges the saved rule as active, inside the heading", async () => {
     const fixture = await render(
       { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } },
       {
@@ -222,10 +226,10 @@ describe("AccessRuleEditComponent: page furniture", () => {
 
     const badge = fixture.nativeElement.querySelector("h1 #access-rule-edit_badge_status");
     expect(badge).not.toBeNull();
-    expect(badge.textContent.trim()).toBe("on");
+    expect(badge.textContent.trim()).toBe("pamAccessRuleActive");
   });
 
-  it("badges a deactivated rule as off", async () => {
+  it("badges a deactivated rule as inactive", async () => {
     const fixture = await render(
       { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } },
       {
@@ -238,7 +242,7 @@ describe("AccessRuleEditComponent: page furniture", () => {
     );
 
     const badge = fixture.nativeElement.querySelector("#access-rule-edit_badge_status");
-    expect(badge.textContent.trim()).toBe("off");
+    expect(badge.textContent.trim()).toBe("pamAccessRuleInactive");
   });
 
   it("leaves the badge off create mode, where there is no saved rule to describe", async () => {
@@ -257,6 +261,29 @@ describe("AccessRuleEditComponent: page furniture", () => {
       "pamAccessRuleStatusHeading",
     );
     expect(section.querySelectorAll("input")).toHaveLength(1);
+  });
+
+  it("drops the Status section on edit, where the More menu owns status", async () => {
+    const fixture = await render(
+      { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } },
+      {
+        id: "11111111-1111-1111-1111-111111111111",
+        name: "Production database access",
+        enabled: true,
+        collections: [],
+        conditions: [],
+      } as unknown as AccessRuleView,
+    );
+
+    expect(fixture.nativeElement.querySelector("#access-rule-edit_checkbox_enabled")).toBeNull();
+    expect(fixture.nativeElement.querySelector("#access-rule-edit_button_more")).not.toBeNull();
+    expect(fixture.nativeElement.querySelector("#access-rule-edit_button_save")).toBeNull();
+  });
+
+  it("has no More menu on create", async () => {
+    const fixture = await render({});
+
+    expect(fixture.nativeElement.querySelector("#access-rule-edit_button_more")).toBeNull();
   });
 
   it("hangs the approvers hint off the human-approval checkbox once it is ticked", async () => {
@@ -1291,6 +1318,177 @@ describe("AccessRuleEditComponent: form states", () => {
     });
   });
 
+  describe("sticky footer", () => {
+    const layoutFooter = () => TestBed.inject(LayoutFooterService);
+    const EDIT = { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } };
+
+    it("is hidden until the form is dirty", async () => {
+      await render(EDIT);
+
+      expect(component["showFooter"]()).toBe(false);
+      expect(layoutFooter().portal()).toBeUndefined();
+
+      controls().name.setValue("Renamed");
+      controls().name.markAsDirty();
+      fixture.detectChanges();
+
+      expect(component["showFooter"]()).toBe(true);
+      expect(layoutFooter().portal()).toBeDefined();
+    });
+
+    it("appears on create once Active alone is unchecked", async () => {
+      await render();
+      expect(component["showFooter"]()).toBe(false);
+
+      const checkbox = fixture.nativeElement.querySelector(
+        "#access-rule-edit_checkbox_enabled",
+      ) as HTMLInputElement;
+      checkbox.click();
+      fixture.detectChanges();
+
+      expect(controls().enabled.value).toBe(false);
+      expect(component["showFooter"]()).toBe(true);
+    });
+
+    it("hides again after Cancel discards the edits", async () => {
+      await render(EDIT);
+      controls().name.setValue("Renamed");
+      controls().name.markAsDirty();
+      fixture.detectChanges();
+
+      await component["cancel"]();
+      fixture.detectChanges();
+
+      expect(layoutFooter().portal()).toBeUndefined();
+    });
+
+    it("hides again after a successful save", async () => {
+      await render(EDIT);
+      fillRequiredFields();
+      controls().name.markAsDirty();
+      fixture.detectChanges();
+      expect(component["showFooter"]()).toBe(true);
+
+      await component["submit"]();
+      fixture.detectChanges();
+
+      expect(component["showFooter"]()).toBe(false);
+    });
+  });
+
+  describe("status menu", () => {
+    const EDIT = { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } };
+    const rule = (enabled: boolean) =>
+      ({
+        id: "11111111-1111-1111-1111-111111111111",
+        name: "Existing rule",
+        enabled,
+        collections: [],
+        conditions: [],
+      }) as unknown as AccessRuleView;
+
+    const renderWith = async (enabled: boolean) => {
+      await render(EDIT);
+      pamApi.getAccessRule.mockResolvedValue(rule(enabled));
+      component["existing"].set(rule(enabled));
+      pamApi.updateAccessRule.mockImplementation((_org: string, _id: string, req: any) =>
+        Promise.resolve({ ...rule(enabled), enabled: req.enabled }),
+      );
+      fixture.detectChanges();
+    };
+
+    it("asks before deactivating, and leaves the rule alone when declined", async () => {
+      await renderWith(true);
+      dialog.openSimpleDialog.mockResolvedValue(false);
+
+      await component["toggleStatus"]();
+
+      expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "pamAccessRuleDeactivateConfirmTitle" } }),
+      );
+      expect(pamApi.updateAccessRule).not.toHaveBeenCalled();
+      expect(showToast).not.toHaveBeenCalled();
+      expect(component["existing"]()?.enabled).toBe(true);
+    });
+
+    it("deactivates once confirmed, toasts, and updates the badge", async () => {
+      await renderWith(true);
+
+      await component["toggleStatus"]();
+      fixture.detectChanges();
+
+      expect(pamApi.updateAccessRule).toHaveBeenCalledWith(
+        "org-1",
+        "11111111-1111-1111-1111-111111111111",
+        expect.objectContaining({ enabled: false }),
+      );
+      expect(showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamAccessRuleDeactivateSuccess",
+      });
+      expect(
+        fixture.nativeElement.querySelector("#access-rule-edit_badge_status").textContent.trim(),
+      ).toBe("pamAccessRuleInactive");
+    });
+
+    it("activates at once, with no dialog", async () => {
+      await renderWith(false);
+
+      await component["toggleStatus"]();
+
+      expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
+      expect(pamApi.updateAccessRule).toHaveBeenCalledWith(
+        "org-1",
+        "11111111-1111-1111-1111-111111111111",
+        expect.objectContaining({ enabled: true }),
+      );
+      expect(showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamAccessRuleActivateSuccess",
+      });
+    });
+
+    it("neither saves nor discards other unsaved edits", async () => {
+      await renderWith(true);
+      controls().name.setValue("Unsaved rename");
+      controls().name.markAsDirty();
+
+      await component["toggleStatus"]();
+
+      expect(pamApi.updateAccessRule).toHaveBeenCalledWith(
+        "org-1",
+        expect.anything(),
+        expect.objectContaining({ name: "Existing rule" }),
+      );
+      expect(controls().name.value).toBe("Unsaved rename");
+      expect(component["showFooter"]()).toBe(true);
+    });
+
+    it("keeps the saved status when the form is saved afterwards", async () => {
+      await renderWith(true);
+      await component["toggleStatus"]();
+      fillRequiredFields();
+
+      await component["submit"]();
+
+      expect(pamApi.updateAccessRule).toHaveBeenLastCalledWith(
+        "org-1",
+        expect.anything(),
+        expect.objectContaining({ enabled: false }),
+      );
+    });
+
+    it("toasts an error and keeps the status when the change fails", async () => {
+      await renderWith(false);
+      pamApi.updateAccessRule.mockRejectedValue(new Error("boom"));
+
+      await component["toggleStatus"]();
+
+      expect(showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+      expect(component["existing"]()?.enabled).toBe(false);
+    });
+  });
+
   describe("discard confirmation", () => {
     // The router runs the route's guard on the way out; that is where Cancel is asked about.
     const renderLeavingThroughGuard = async (state?: RouteState) => {
@@ -1325,18 +1523,21 @@ describe("AccessRuleEditComponent: form states", () => {
       expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
     });
 
-    it("confirms the same way when an existing rule is being edited", async () => {
+    it("discards edits in place, without asking, when an existing rule is being edited", async () => {
       await renderLeavingThroughGuard({
         params: { accessRuleId: "11111111-1111-1111-1111-111111111111" },
       });
       controls().name.setValue("Renamed rule");
       controls().name.markAsDirty();
+      expect(component["showFooter"]()).toBe(true);
 
       await component["cancel"]();
 
-      expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({ title: { key: "discardEditsTitle" } }),
-      );
+      expect(controls().name.value).toBe("Existing rule");
+      expect(component.unsavedChanges()).toBe(false);
+      expect(component["showFooter"]()).toBe(false);
+      expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
 
     it("stays on the form with its values intact when the dialog is dismissed", async () => {
@@ -1350,26 +1551,6 @@ describe("AccessRuleEditComponent: form states", () => {
       await expect(navigate.mock.results[0].value).resolves.toBe(false);
       expect(controls().name.value).toBe("Half-finished rule");
       expect(controls().name.dirty).toBe(true);
-    });
-
-    it("disables Cancel while a save is in flight", async () => {
-      await render({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } });
-      fillRequiredFields();
-      let finishSave!: () => void;
-      pamApi.updateAccessRule.mockReturnValue(new Promise<void>((r) => (finishSave = r)));
-      const cancelButton = () =>
-        fixture.nativeElement.querySelector("#access-rule-edit_button_cancel") as HTMLElement;
-      expect(cancelButton().getAttribute("aria-disabled")).toBeNull();
-
-      fixture.nativeElement.querySelector("form").dispatchEvent(new Event("submit"));
-      fixture.detectChanges();
-
-      expect(cancelButton().getAttribute("aria-disabled")).toBe("true");
-
-      finishSave();
-      await fixture.whenStable();
-      fixture.detectChanges();
-      expect(cancelButton().getAttribute("aria-disabled")).toBeNull();
     });
 
     it("asks again when the route is left by any other means", async () => {

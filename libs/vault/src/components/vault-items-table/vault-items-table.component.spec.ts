@@ -1434,6 +1434,26 @@ describe("VaultItemsTableComponent", () => {
       expect(cells().map((cell) => cell.textContent?.trim())).toEqual(["Amazon", "Bank", "Cloud"]);
     });
 
+    it("offers the column in the Customize dialog, labelled, after My folders", () => {
+      renderHost(itemColumnDouble());
+
+      const removable = hostTable()
+        ["removableColumns"]()
+        .map((col: { name(): string | undefined; label(): string | undefined }) => col.name());
+      expect(removable).toContain("status");
+      expect(removable.indexOf("status")).toBe(removable.indexOf("myFolders") + 1);
+      expect(hostTable().canCustomizeColumns()).toBe(true);
+    });
+
+    it("does not offer the column in the Customize dialog while visible$ is false", () => {
+      renderHost(itemColumnDouble({ visible$: () => of(false) }));
+
+      const removable = hostTable()
+        ["removableColumns"]()
+        .map((col: { name(): string | undefined }) => col.name());
+      expect(removable).not.toContain("status");
+    });
+
     it("uses the provider's key, ahead of the actions column", () => {
       renderHost(itemColumnDouble());
 

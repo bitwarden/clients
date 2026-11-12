@@ -1212,9 +1212,17 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
 
     chip("status").toggle("inactive");
     fixture.detectChanges();
-    expect(visibleIds()).toEqual(
-      [uuidAsString(connectorId("c-2")), uuidAsString(connectorId("c-3"))].sort(),
-    );
+    expect(visibleIds()).toEqual([uuidAsString(connectorId("c-3"))]);
+  });
+
+  it("makes Status a single-select chip labelled with All, followed by a divider", () => {
+    setup([enabledConnected]);
+    const status = chip("status");
+    expect(status.multiple()).toBe(false);
+    expect(status.unsetLabel()).toBe("all");
+    const toolbarEl = (fixture.nativeElement as HTMLElement).querySelector("bit-table-toolbar")!;
+    const statusEl = toolbarEl.querySelector('bit-filter-menu[key="status"]')!;
+    expect(statusEl.nextElementSibling?.tagName.toLowerCase()).toBe("bit-filter-divider");
   });
 
   it("narrows rows to connectors serving a selected target system", () => {

@@ -8211,7 +8211,7 @@
   "transferItemsToOrganizationAction": {
     "message": "Click accept to transfer ownership of your items."
   },
-   "openTransferItemsHelpArticle": {
+  "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"
   },
   "acceptTransfer": {
@@ -8926,6 +8926,36 @@
   "requestAccessModalAlreadyPending": {
     "message": "You already have a pending request for this item."
   },
+  "pamAccessRuleDuration15m": {
+    "message": "15 minutes"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 minutes"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 hour"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 hours"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 hours"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 hours"
+  },
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 days"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
+  },
   "pamLeaseExpires": {
     "message": "Expires $DATE$ at $TIME$",
     "placeholders": {
@@ -9202,6 +9232,12 @@
   },
   "requestAccessModalSubmitV2": {
     "message": "Send request"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Pick a duration. You'll get immediate access for that long."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Pick a window and tell the approver why you need access. They'll review and decide."
   },
   "requestAccessModalDurationV2": {
     "message": "How long do you need it?"

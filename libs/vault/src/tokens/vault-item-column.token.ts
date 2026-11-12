@@ -21,10 +21,10 @@ export type VaultItemColumn = {
   /**
    * The column ID. The provider owns it. It must not match a built-in column ID
    * (`VAULT_COLUMNS`); the table throws in dev mode on a clash. Keep it stable across releases:
-   * if the column becomes removable, the table saves the ID in the user's hidden-column state.
+   * the column is removable, so the table saves the ID in the user's hidden-column state.
    */
   readonly key: string;
-  /** Already-translated header text. */
+  /** Already-translated header text. Also the column's label in the Customize dialog. */
   readonly label: string;
   /** Rendered once per row with `cipher` as its only input. */
   readonly component: Type<{ cipher: InputSignal<CipherViewLike> }>;

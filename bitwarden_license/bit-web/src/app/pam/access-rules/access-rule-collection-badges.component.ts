@@ -1,34 +1,30 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { resolveCollectionNames } from "@bitwarden/bit-pam";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { BadgeModule } from "@bitwarden/components";
+import { ChipGroupComponent, ChipGroupItem } from "@bitwarden/components";
 import type { CollectionId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * One count badge for a rule's collections, with their names as its tooltip so the column stays
- * narrow.
+ * A rule's shared folders as action chips, matching the Shared folders column on All items: the
+ * first folder, a "+N" overflow chip, and a popover listing every folder.
+ *
+ * The chips are read-only here: selecting one does nothing.
  */
 @Component({
   selector: "pam-access-rule-collection-badges",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeModule, I18nPipe],
+  imports: [ChipGroupComponent, I18nPipe],
   template: `
-    @if (names().length === 0) {
+    @if (chips().length === 0) {
       <span class="tw-text-muted">{{ "pamAccessRuleCollectionsNone" | i18n }}</span>
     } @else {
-      <span
-        bitBadge
-        variant="primary"
-        startIcon="bwi-shared-folder"
-        tabindex="0"
-        [bitTooltip]="tooltip()"
-        [addTooltipToDescribedby]="true"
-        >{{ label() }}</span
-      >
+      <bit-chip-group
+        class="tw-block tw-w-full tw-min-w-0"
+        [chips]="chips()"
+        [accessibleName]="'pamAccessRuleAppliesTo' | i18n"
+      />
     }
   `,
 })
@@ -36,18 +32,17 @@ export class AccessRuleCollectionBadgesComponent {
   readonly collectionIds = input.required<CollectionId[]>();
   readonly collections = input.required<CollectionAdminView[]>();
 
-  private readonly i18nService = inject(I18nService);
-
-  protected readonly names = computed(() =>
-    resolveCollectionNames(this.collectionIds().map(uuidAsString), this.collections()),
-  );
-
-  protected readonly label = computed(() => {
-    const count = this.names().length;
-    return count === 1
-      ? this.i18nService.t("pamAccessRuleSharedFolderCountSingular")
-      : this.i18nService.t("pamAccessRuleSharedFolderCount", count);
+  /** An id the user can't see falls back to the raw id as its label. */
+  protected readonly chips = computed<ChipGroupItem[]>(() => {
+    const collections = this.collections();
+    return this.collectionIds()
+      .map(uuidAsString)
+      .map((id) => ({
+        id,
+        label: collections.find((c) => c.id === id)?.name ?? id,
+        variant: "subtle" as const,
+        startIcon: "bwi-shared-folder" as const,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   });
-
-  protected readonly tooltip = computed(() => this.names().join(", "));
 }

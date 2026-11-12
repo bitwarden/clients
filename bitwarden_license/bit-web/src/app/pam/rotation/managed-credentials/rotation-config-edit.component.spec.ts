@@ -27,6 +27,7 @@ import {
   LayoutFooterService,
   TabsModule,
   ToastService,
+  OptionComponent,
 } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
@@ -317,6 +318,11 @@ async function renderPage(
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture;
+}
+
+/** The page's protected forms, which the tests drive directly. */
+function pageOf(fixture: ComponentFixture<RotationConfigEditComponent>): any {
+  return fixture.componentInstance;
 }
 
 function actionButton(
@@ -729,17 +735,47 @@ describe("RotationConfigEditComponent: add form", () => {
       expect(el.querySelector("select#rotation-config-edit_select_target-system")).toBeNull();
     });
 
-    it("renders Add target system as a link between the target and the account ID", async () => {
+    it("offers Add target system as the last option in the target menu, not as a link", async () => {
       const { fixture } = await ready({ template: "real" });
       const el = fixture.nativeElement as HTMLElement;
 
-      const button = el.querySelector("#rotation-config-edit_button_new-target-system")!;
-      expect(button.tagName).toBe("BUTTON");
-      expect(button.hasAttribute("bitlink")).toBe(true);
-      const username = el.querySelector("#rotation-config-edit_input_account-identity")!;
-      expect(
-        button.compareDocumentPosition(username) & Node.DOCUMENT_POSITION_FOLLOWING,
-      ).toBeTruthy();
+      expect(el.querySelector("#rotation-config-edit_button_new-target-system")).toBeNull();
+      const select = fixture.debugElement.query(
+        By.css("#rotation-config-edit_select_target-system"),
+      ).componentInstance;
+      const options = select["options"]() as OptionComponent<string>[];
+      expect(options.at(-1)?.label()).toBe("pamRotationConfigAddTargetSystemOption");
+    });
+
+    it("saves the previous target in the draft and leaves for target creation on choosing it", async () => {
+      const { component } = await ready();
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      component.createForm.patchValue({ targetSystemId: uuidAsString(TARGET_SYSTEM_ID) });
+
+      component.createForm.controls.targetSystemId.setValue("__add-target-system__");
+
+      expect(component.createForm.controls.targetSystemId.value).toBe(
+        uuidAsString(TARGET_SYSTEM_ID),
+      );
+      expect(TestBed.inject(ManagedCredentialDraftService).take(ORG_ID)).toEqual(
+        expect.objectContaining({ targetSystemId: uuidAsString(TARGET_SYSTEM_ID) }),
+      );
+      expect(nav).toHaveBeenCalledWith(
+        ["target-systems", "new"],
+        expect.objectContaining({ queryParams: { then: "managed-credential" } }),
+      );
+    });
+
+    it("restores an empty target when Add target system is chosen with nothing selected", async () => {
+      const { component } = await ready();
+      jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+      component.createForm.controls.targetSystemId.setValue("__add-target-system__");
+
+      expect(component.createForm.controls.targetSystemId.value).toBe("");
+      expect(TestBed.inject(ManagedCredentialDraftService).take(ORG_ID)).toEqual(
+        expect.objectContaining({ targetSystemId: "" }),
+      );
     });
 
     it("shows the manual callout without a link, and the not-connected warning for an automatic target", async () => {
@@ -1607,6 +1643,8 @@ describe("RotationConfigEditComponent: tab routes", () => {
 describe("RotationConfigEditComponent: action row", () => {
   it("leaves Remove from rotation out of the form, to the header menu", async () => {
     const fixture = await renderPage();
+    pageOf(fixture).settingsForm.controls.rotateOnAccessEnd.setValue(true);
+    fixture.detectChanges();
 
     expect(actionButton(fixture, "save")).not.toBeNull();
     expect(
@@ -1622,18 +1660,57 @@ describe("RotationConfigEditComponent: action row", () => {
     expect(actionButton(fixture, "delete")).toBeNull();
   });
 
-  it("disables Save while a rotation job is in flight, since the server refuses the update", async () => {
+  it("keeps Save live while a rotation job is in flight, once something has changed", async () => {
     const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
+    pageOf(fixture).settingsForm.controls.rotateOnAccessEnd.setValue(true);
+    fixture.detectChanges();
 
     const save = fixture.debugElement.query(By.css("#rotation-config-edit_button_save"));
-    expect(save.componentInstance.disabled()).toBe(true);
+    expect(save.componentInstance.disabled()).toBe(false);
   });
 
   it("keeps Save live while no job is running", async () => {
     const fixture = await renderPage();
+    pageOf(fixture).settingsForm.controls.rotateOnAccessEnd.setValue(true);
+    fixture.detectChanges();
 
     const save = fixture.debugElement.query(By.css("#rotation-config-edit_button_save"));
     expect(save.componentInstance.disabled()).toBe(false);
+  });
+
+  it("hides Save and Cancel until something changes", async () => {
+    const fixture = await renderPage();
+    const { settingsForm } = pageOf(fixture);
+    expect(actionButton(fixture, "save")).toBeNull();
+
+    settingsForm.controls.rotateOnAccessEnd.setValue(true);
+    fixture.detectChanges();
+    expect(actionButton(fixture, "save")).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("#rotation-config-edit_button_cancel"),
+    ).not.toBeNull();
+
+    settingsForm.controls.rotateOnAccessEnd.setValue(false);
+    fixture.detectChanges();
+    expect(actionButton(fixture, "save")).toBeNull();
+  });
+
+  it("explains why Username waits for the running attempt, and keeps the schedule editable", async () => {
+    const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
+    const component = pageOf(fixture);
+
+    expect(component.accountForm.controls.accountIdentity.disabled).toBe(true);
+    expect(component.settingsForm.controls.scheduleCron.disabled).toBe(false);
+    expect(component.settingsForm.controls.rotateOnAccessEnd.disabled).toBe(false);
+    expect(component.usernameHintKey()).toBe("pamRotationConfigChangeAfterAttempt");
+  });
+
+  it("does not blame the running job for End active sessions on a manual credential", async () => {
+    const fixture = await renderPage({
+      existingConfig: loadedConfig({ hasActiveJob: true, targetSystemMethod: "manual" }),
+    });
+
+    expect(pageOf(fixture).terminateSessionsWaitsForJob()).toBe(false);
   });
 });
 
@@ -2301,6 +2378,8 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
   describe("the footer", () => {
     it("holds Save and Cancel, in that order", async () => {
       const fixture = await renderPage();
+      pageOf(fixture).settingsForm.controls.rotateOnAccessEnd.setValue(true);
+      fixture.detectChanges();
       const row = actionButton(fixture, "save")!.parentElement!;
       expect(Array.from(row.querySelectorAll("button")).map((b) => b.id)).toEqual([
         "rotation-config-edit_button_save",
