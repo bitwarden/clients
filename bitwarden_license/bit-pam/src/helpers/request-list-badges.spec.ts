@@ -1,6 +1,10 @@
 import type { AccessRequestView } from "../abstractions/access-lease";
 
-import { badgesFromMyRequests, nextRequestListChangeMs } from "./request-list-badges";
+import {
+  badgesFromMyRequests,
+  listedBadgeFor,
+  nextRequestListChangeMs,
+} from "./request-list-badges";
 
 const NOW = Date.parse("2026-11-11T12:00:00Z");
 const at = (minutes: number) => new Date(NOW + minutes * 60_000).toISOString();
@@ -61,6 +65,7 @@ describe("badgesFromMyRequests", () => {
     ["a lease an approver revoked", { ...activated(at(90)), producedLeaseStatus: "revoked" }],
     ["an approval whose window has ended", request({ status: "approved", leaseNotAfter: at(-1) })],
     ["an open request whose window has ended", request({ leaseNotAfter: at(-1) })],
+    ["an open request whose window end does not parse", request({ leaseNotAfter: "not a date" })],
     [
       "an approved extension, which never produces a lease of its own",
       request({ status: "approved", extensionOfLeaseId: "lease-1" }),
@@ -81,6 +86,18 @@ describe("badgesFromMyRequests", () => {
       ["a", { kind: "pending" }],
       ["b", { kind: "ready" }],
     ]);
+  });
+});
+
+describe("listedBadgeFor", () => {
+  it("is the cipher's badge from the list", () => {
+    const badges = badgesFromMyRequests([request({})], NOW);
+
+    expect(listedBadgeFor(badges, "cipher-1")).toEqual({ kind: "pending" });
+  });
+
+  it("is privileged for a cipher the list gives no badge", () => {
+    expect(listedBadgeFor(new Map(), "cipher-1")).toEqual({ kind: "privileged" });
   });
 });
 

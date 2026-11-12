@@ -10,7 +10,12 @@ import {
   switchMap,
 } from "rxjs";
 
-import { ACCESS_BADGE_LOOK, AccessBadgeState, ENDING_SOON_THRESHOLD_MS } from "@bitwarden/bit-pam";
+import {
+  ACCESS_BADGE_LOOK,
+  AccessBadgeState,
+  ENDING_SOON_THRESHOLD_MS,
+  listedBadgeFor,
+} from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
@@ -100,9 +105,6 @@ type AccessKind = AccessBadgeState["kind"];
  * pending → privileged), so the rows needing the user's attention lead.
  */
 const SORT_ORDER: readonly AccessKind[] = ["active", "ready", "pending", "privileged"];
-
-/** A gated row the caller holds no lease or request on reads Privileged. */
-const RESTING: AccessBadgeState = { kind: "privileged" };
 
 /**
  * Whether a row in `state` belongs under a table option at `now`. A lease past its end belongs
@@ -292,10 +294,10 @@ export class ControlledAccessVaultFilterService {
           map(
             (badges) =>
               new Map(
-                candidates.map((cipher) => [
-                  String(cipher.id),
-                  badges.get(String(cipher.id)) ?? RESTING,
-                ]),
+                candidates.map((cipher) => {
+                  const id = String(cipher.id);
+                  return [id, listedBadgeFor(badges, id)];
+                }),
               ),
           ),
         );

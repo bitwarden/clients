@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
-import { AccessBadgeState } from "@bitwarden/bit-pam";
+import { AccessBadgeState, listedBadgeFor } from "@bitwarden/bit-pam";
 import { AccessStateBadgeComponent, MyAccessRequestsService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -113,7 +113,7 @@ export class VaultRowLeaseBadgeComponent {
     }
     const cipherId = String(cipher.id);
     return this.myAccessRequestsService.badges$.pipe(
-      map((badges): LeaseBadgeCell => badges.get(cipherId) ?? { kind: "privileged" }),
+      map((badges): LeaseBadgeCell => listedBadgeFor(badges, cipherId)),
     );
   }
 

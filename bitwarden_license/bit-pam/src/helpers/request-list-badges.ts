@@ -8,6 +8,8 @@ const RANK: Readonly<Record<"active" | "ready" | "pending", number>> = {
   pending: 2,
 };
 
+const PRIVILEGED: AccessBadgeState = { kind: "privileged" };
+
 /** The badges the caller's own requests can give; a subset of {@link AccessBadgeState}. */
 type ListedBadge =
   { readonly kind: "ready" | "pending" } | { readonly kind: "active"; readonly expiresAt: Date };
@@ -22,7 +24,9 @@ function listedBadge(request: AccessRequestView, nowMs: number): ListedBadge | u
   ) {
     return { kind: "active", expiresAt: new Date(leaseEnd) };
   }
-  if (Date.parse(request.leaseNotAfter) <= nowMs) {
+  // An unparseable end counts as ended, failing closed.
+  const windowOpen = Date.parse(request.leaseNotAfter) > nowMs;
+  if (!windowOpen) {
     return undefined;
   }
   // An approved extension pushes its lease's end out and never produces a lease of its own.
@@ -58,10 +62,18 @@ export function badgesFromMyRequests(
   return badges;
 }
 
+/** `cipherId`'s badge in `badges` from {@link badgesFromMyRequests}; a gated cipher left out is Privileged. */
+export function listedBadgeFor(
+  badges: ReadonlyMap<string, AccessBadgeState>,
+  cipherId: string,
+): AccessBadgeState {
+  return badges.get(cipherId) ?? PRIVILEGED;
+}
+
 /**
  * When a badge from `requests` next changes on its own, as a window or a lease ends, in epoch ms;
- * `undefined` without one. Only an end still ahead counts, so a server clock that trails cannot
- * cause a read on every tick.
+ * `undefined` without one. Only a request whose end is still ahead gives a badge, so a server clock
+ * that trails cannot cause a read on every tick.
  */
 export function nextRequestListChangeMs(
   requests: readonly AccessRequestView[],
@@ -76,7 +88,7 @@ export function nextRequestListChangeMs(
         : badge.kind === "active"
           ? badge.expiresAt.getTime()
           : Date.parse(request.leaseNotAfter);
-    if (endMs !== undefined && endMs > nowMs && (next === undefined || endMs < next)) {
+    if (endMs !== undefined && (next === undefined || endMs < next)) {
       next = endMs;
     }
   }
