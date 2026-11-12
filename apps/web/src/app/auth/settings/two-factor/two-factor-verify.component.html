@@ -14,7 +14,13 @@
     ></app-user-verification-form-input>
   </ng-container>
   <ng-container bitDialogFooter>
-    <button bitButton bitFormButton type="submit" buttonType="primary">
+    <button
+      bitButton
+      bitFormButton
+      type="submit"
+      buttonType="primary"
+      data-testid="two-factor-verify-submit-button"
+    >
       {{ "continue" | i18n }}
     </button>
     <button bitButton type="button" buttonType="secondary" bitDialogClose>

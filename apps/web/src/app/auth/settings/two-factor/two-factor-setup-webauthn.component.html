@@ -52,7 +52,12 @@
     <div class="tw-flex">
       <bit-form-field class="tw-basis-1/2">
         <bit-label>{{ "name" | i18n }}</bit-label>
-        <input bitInput type="text" formControlName="name" />
+        <input
+          bitInput
+          type="text"
+          formControlName="name"
+          data-testid="two-factor-webauthn-name-input"
+        />
       </bit-form-field>
     </div>
     <button
@@ -65,6 +70,7 @@
         $any(readKeyBtn).loading() || webAuthnListening || !keyIdAvailable || formGroup.invalid
       "
       class="tw-mr-2"
+      data-testid="two-factor-webauthn-read-key-button"
       #readKeyBtn
     >
       {{ "readKey" | i18n }}
@@ -102,6 +108,7 @@
       type="submit"
       buttonType="primary"
       [disabled]="!webAuthnResponse"
+      data-testid="two-factor-webauthn-save-button"
     >
       {{ "save" | i18n }}
     </button>

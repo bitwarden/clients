@@ -58,7 +58,12 @@
     {{ "twoStepLoginPolicyUserWarning" | i18n }}
   </bit-callout>
   <bit-item-group [attr.aria-label]="'providers' | i18n">
-    <bit-item *ngFor="let p of providers" class="tw-py-4">
+    <bit-item
+      *ngFor="let p of providers"
+      class="tw-py-4"
+      data-testid="two-factor-provider"
+      [attr.data-provider-type]="p.type"
+    >
       <div slot="start" class="tw-min-w-[120px] tw-flex tw-justify-center">
         <auth-two-factor-icon class="tw-flex tw-items-center" [provider]="p.type" [name]="p.name" />
       </div>
@@ -75,6 +80,7 @@
               name="bwi-check"
               class="tw-text-success-600 bwi-fw tw-ml-2"
               [ariaLabel]="'enabled' | i18n"
+              data-testid="two-factor-provider-enabled"
             ></bit-icon>
           </ng-container>
           <app-premium-badge class="tw-ml-2" *ngIf="p.premium"></app-premium-badge>
@@ -98,6 +104,7 @@
             buttonType="secondary"
             [disabled]="!(canAccessPremium$ | async) && p.premium"
             (click)="manage(p.type)"
+            data-testid="two-factor-provider-manage-button"
           >
             {{ "manage" | i18n }}
           </button>
