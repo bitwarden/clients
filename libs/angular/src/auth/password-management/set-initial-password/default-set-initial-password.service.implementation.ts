@@ -355,8 +355,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
               organization_sso_identifier: orgSsoIdentifier,
               user_id: asUuid<SdkUserId>(userId),
               reset_password_enroll: resetPasswordAutoEnroll,
-              // TODO PM-45010: pass credentials.acceptOrganizationInvite as accept_organization_invite
-              // after the sdk-internal bump.
+              accept_organization_invite: credentials.acceptOrganizationInvite,
             });
         }),
       ),
