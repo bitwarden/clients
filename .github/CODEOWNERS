@@ -35,7 +35,6 @@
 
 ## Desktop native module ##
 apps/desktop/desktop_native                @bitwarden/team-platform-dev
-apps/desktop/desktop_native/secure_memory  @bitwarden/team-key-management-dev
 
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
@@ -129,7 +128,6 @@ bitwarden_license/bit-web/src/app/secrets-manager  @bitwarden/team-secrets-manag
 ## Platform team files ##
 apps/browser/src/platform         @bitwarden/team-platform-dev
 apps/cli/src/platform             @bitwarden/team-platform-dev
-apps/desktop/macos                @bitwarden/team-platform-dev
 apps/desktop/scripts              @bitwarden/team-platform-dev
 apps/desktop/src/platform         @bitwarden/team-platform-dev
 apps/desktop/resources            @bitwarden/team-platform-dev
@@ -200,7 +198,6 @@ libs/common/src/desktop-native                        @bitwarden/team-desktop-na
 libs/angular/src/desktop-native                       @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
-apps/desktop/desktop_native/ssh_agent                          @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/ssh_agent                          @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/napi/src/sshagent.rs               @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/src/autofill/services/ssh-agent.service.ts        @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys

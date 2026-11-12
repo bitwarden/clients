@@ -25,7 +25,6 @@ apps/web/src/locales  @bitwarden/team-platform-dev
 ## Platform team files ##
 apps/browser/src/platform  @bitwarden/team-platform-dev
 apps/cli/src/platform  @bitwarden/team-platform-dev
-apps/desktop/macos  @bitwarden/team-platform-dev
 apps/desktop/scripts  @bitwarden/team-platform-dev
 apps/desktop/src/platform  @bitwarden/team-platform-dev
 apps/desktop/resources  @bitwarden/team-platform-dev

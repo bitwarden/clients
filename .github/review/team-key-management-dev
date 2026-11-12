@@ -9,9 +9,6 @@
 #
 # Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
 
-## Desktop native module ##
-apps/desktop/desktop_native/secure_memory  @bitwarden/team-key-management-dev
-
 ## Key management team files ##
 e2e  @bitwarden/team-key-management-dev
 .github/workflows/test-e2e-usdev.yml  @bitwarden/team-key-management-dev

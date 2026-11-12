@@ -18,7 +18,6 @@ libs/angular/src/desktop-native  @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/ssh_agent  @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/ssh_agent  @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/napi/src/sshagent.rs  @bitwarden/team-desktop-native-dev
 apps/desktop/src/autofill/services/ssh-agent.service.ts  @bitwarden/team-desktop-native-dev
 apps/desktop/src/autofill/services/ssh-agent.service.spec.ts  @bitwarden/team-desktop-native-dev
