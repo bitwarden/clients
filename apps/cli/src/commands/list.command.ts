@@ -87,7 +87,11 @@ export class ListCommand {
     if (options.url != null && options.url.trim() !== "") {
       ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
     } else {
-      ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+      // The cached stream, so repeated requests (`bw serve`) do not decrypt the vault each time.
+      // Null once a write failed after clearing it: nothing re-emits, so decrypt directly.
+      ciphers =
+        (await firstValueFrom(this.cipherService.cipherViews$(activeUserId))) ??
+        (await this.cipherService.getAllDecrypted(activeUserId));
     }
 
     if (
