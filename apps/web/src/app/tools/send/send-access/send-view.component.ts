@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -50,7 +48,7 @@ export class SendViewComponent implements OnInit {
   readonly key = input.required<string>();
   readonly accessToken = input<SendAccessToken | null>(null);
 
-  authRequired = output<void>();
+  readonly authRequired = output<void>();
 
   readonly send = signal<SendAccessView | null>(null);
   readonly expirationDate = computed<Date | null>(() => this.send()?.expirationDate ?? null);
@@ -64,15 +62,15 @@ export class SendViewComponent implements OnInit {
   readonly unavailable = signal<boolean>(false);
   readonly error = signal<boolean>(false);
 
-  sendType = SendType;
-  decKey!: SymmetricCryptoKey;
+  readonly sendType = SendType;
+  readonly decKey = signal<SymmetricCryptoKey | null>(null);
 
   constructor(
-    private sendApiService: SendApiService,
-    private toastService: ToastService,
-    private i18nService: I18nService,
-    private layoutWrapperDataService: AnonLayoutWrapperDataService,
-    private sendDecryptionService: SendDecryptionService,
+    private readonly sendApiService: SendApiService,
+    private readonly toastService: ToastService,
+    private readonly i18nService: I18nService,
+    private readonly layoutWrapperDataService: AnonLayoutWrapperDataService,
+    private readonly sendDecryptionService: SendDecryptionService,
   ) {}
 
   ngOnInit() {
@@ -99,7 +97,7 @@ export class SendViewComponent implements OnInit {
         response,
         keyArray,
       );
-      this.decKey = decKey;
+      this.decKey.set(decKey);
       this.send.set(decSend);
     } catch (e) {
       this.send.set(null);
