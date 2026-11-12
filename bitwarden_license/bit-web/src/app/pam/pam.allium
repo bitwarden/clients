@@ -2383,11 +2383,12 @@ invariant OrgUniqueRuleNames {
 -- export, which mints no lease and so keeps working under a freeze.
 --
 -- Governance dashboard: epic PAM-115, story PAM-85, design in PAM-140. The server
--- already serves the scope-wide lease lists (GET /leases/active and
--- /leases/history, scoped to the collections the caller manages); the SDK wraps
--- list_active only, and there is no summary read and no client. The surface below
--- is the POC's design, to be re-derived from PAM-140 once it is groomed, audience
--- included.
+-- serves the scope-wide active lease list (GET /leases/active, scoped to the
+-- collections the caller manages), which the SDK wraps as list_active. It no longer
+-- serves the recently-ended list: PAM-581 removed GET /leases/history, which was
+-- unpaged and had no caller, so the dashboard needs a new paged read for it. There
+-- is no summary read and no client. The surface below is the POC's design, to be
+-- re-derived from PAM-140 once it is groomed, audience included.
 
 -- An org-wide block on starting new leases, engaged by an admin (typically
 -- alongside the kill switch). While one exists for an organization, no approved
@@ -2436,8 +2437,8 @@ invariant AtMostOneLeasingFreezePerOrg {
 surface GovernanceDashboard {
     -- The POC's design: a per-collection summary table for org admins (rule,
     -- pending counts, active counts, last activity) and the scope-wide active and
-    -- recently-ended lease lists. The lease lists are the part the server already
-    -- serves (GET /leases/active, /leases/history).
+    -- recently-ended lease lists. Of these the server serves only the active list
+    -- (GET /leases/active); the recently-ended list needs a new paged read.
     facing admin: OrgAdmin
 
     context org: Organization
@@ -2450,8 +2451,9 @@ surface GovernanceDashboard {
         -- All active leases in scope, surfaced by GET /leases/active.
         AccessLease where collection.organization = org and status = active
         -- All recently-ended leases (expired, revoked or canceled) in scope, within the
-        -- shared history window, surfaced by GET /leases/history. A lease's end is its
-        -- ended_at (revoked or canceled) or its not_after (expired).
+        -- shared history window. No endpoint serves this since PAM-581 removed
+        -- GET /leases/history. A lease's end is its ended_at (revoked or canceled) or
+        -- its not_after (expired).
         AccessLease where collection.organization = org
                      and ((status in {revoked, canceled} and ended_at >= now - config.history_window)
                           or (status = expired and not_after >= now - config.history_window))

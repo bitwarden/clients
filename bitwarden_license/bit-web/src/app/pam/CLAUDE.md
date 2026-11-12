@@ -169,8 +169,12 @@ SDK has no audit client yet (see `access-audit/README.md`).
 `AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
 `ApprovalSdkService` are the abstract contracts; `bit-pam/src/services/*-sdk.service.ts` compose the
 SDK client. `ApprovalSdkService` (`bit-pam/src/services/approvals-sdk.service.ts`) covers the
-approver-facing surface (the pending inbox, the decided history, recording a
-decision, and withdrawing an approval) via `commercial().pam().approvals()`.
+approver-facing surface (the pending inbox, the approved requests that can still give access, the
+ended history a page at a time, recording a decision, and withdrawing an approval) via
+`commercial().pam().approvals()`. The Approvals tab reads the inbox and the approved requests,
+never the history. The History tab's `HistoryPageService` reads one page: the server filters,
+orders (newest request first) and counts it, and also returns the Requester and Shared folders options,
+so the tab has no client-side search, filter or sort.
 
 **If a PAM capability turns out to be missing from the SDK, that is SDK work, not a
 raw-HTTP route.** An approver ending a lease and an approver withdrawing an approval go

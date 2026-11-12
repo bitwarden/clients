@@ -99,13 +99,6 @@ type TerminalRequestStatus = Exclude<AccessRequestStatus, "pending" | "approved"
 /** Time an extension (or sum of extensions) added to a lease, and the resulting end (ms). */
 export type LeaseExtensionSummary = { addedSeconds: number; latestEndMs: number };
 
-/** The sort key every history list orders by. */
-export function resolvedOrSubmittedMs(
-  row: Pick<MyAccessRequestRow, "resolvedAt" | "submittedAt">,
-): number {
-  return Date.parse(row.resolvedAt ?? row.submittedAt);
-}
-
 /**
  * An approved, unactivated request whose window is still open, since the server refuses to activate
  * past `leaseNotAfter`.
@@ -124,27 +117,11 @@ export function isRedeemableGrant(
 /**
  * The badge for access that is over but whose server record has not caught up,
  * {@link historyDisplayStatus} cannot see the clock, so it still reads "Approved" or "Active".
- * See {@link lapsedInHistory}.
  */
 export const lapsedGrantBadge: TerminalStatusBadge = {
   labelKey: "pamStatusExpired",
   variant: "danger",
 };
-
-/**
- * True for an approved row that reached a terminal list with its access already over: a grant
- * nobody started, or a lease that lapsed since the load. A row only joins History once its lease
- * has stopped running, so a record still reading `active` there has run out, and "Active" is
- * something a terminal list cannot mean.
- */
-export function lapsedInHistory(
-  row: Pick<MyAccessRequestRow, "status" | "producedLeaseId" | "producedLeaseStatus">,
-): boolean {
-  return (
-    row.status === "approved" &&
-    (row.producedLeaseId == null || row.producedLeaseStatus === "active")
-  );
-}
 
 /** Exported for tests. */
 export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStatusBadge {
