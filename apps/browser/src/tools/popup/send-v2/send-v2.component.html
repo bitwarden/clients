@@ -19,17 +19,17 @@
       <app-current-account></app-current-account>
     </ng-container>
   </popup-header>
-  @if (sendsDisabled()) {
-    <ng-container slot="above-scroll-area">
+  <ng-container slot="above-scroll-area">
+    @if (sendsDisabled()) {
       <bit-callout [title]="'sendDisabled' | i18n">
         {{ "sendDisabledWarning" | i18n }}
       </bit-callout>
-      @if (!vfo1Enabled() && listState !== sendState.Empty) {
-        <tools-send-search></tools-send-search>
-        <app-send-list-filters></app-send-list-filters>
-      }
-    </ng-container>
-  }
+    }
+    @if (!vfo1Enabled() && listState !== sendState.Empty) {
+      <tools-send-search></tools-send-search>
+      <app-send-list-filters></app-send-list-filters>
+    }
+  </ng-container>
   @if (vfo1Enabled()) {
     <!-- This is needed to offset popup-page's padding -->
     <tools-send-table-v2
