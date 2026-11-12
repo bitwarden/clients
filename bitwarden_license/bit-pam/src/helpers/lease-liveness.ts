@@ -1,6 +1,8 @@
-import { concat, filter, Observable, of, switchMap, take } from "rxjs";
+import { Observable } from "rxjs";
 
 import type { AccessLeaseView, CipherAccessStateView } from "../abstractions/access-lease";
+
+import { rereadAt } from "./reread-at";
 
 /** Whether the lease's window is still open. An unparseable `notAfter` counts as lapsed, failing closed. */
 export function isLeaseLive(lease: Pick<AccessLeaseView, "notAfter">, nowMs: number): boolean {
@@ -27,20 +29,12 @@ export function rereadOnLapse<T extends CipherAccessStateView | null | undefined
   read$: () => Observable<T>,
   ticks$: Observable<number>,
 ): Observable<T> {
-  const next$ = (): Observable<T> =>
-    read$().pipe(
-      switchMap((state) =>
-        liveActiveLease(state, Date.now()) == null
-          ? of(state)
-          : concat(
-              of(state),
-              ticks$.pipe(
-                filter((nowMs) => liveActiveLease(state, nowMs) == null),
-                take(1),
-                switchMap(next$),
-              ),
-            ),
-      ),
-    );
-  return next$();
+  return rereadAt(
+    read$,
+    (state, nowMs) => {
+      const lease = liveActiveLease(state, nowMs);
+      return lease == null ? undefined : Date.parse(lease.notAfter);
+    },
+    ticks$,
+  );
 }

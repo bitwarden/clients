@@ -23,6 +23,7 @@ import {
   AccessRequestCancelService,
   controlledAccessItemFilter,
   ControlledAccessVaultFilterService,
+  MyAccessRequestsService,
   MyLeasesService,
 } from "@bitwarden/bit-pam-components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -140,7 +141,7 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_GATED_COLLECTION_BANNER,
       useValue: GatedCollectionBannerComponent,
     }),
-    // One instance behind the table chip and the column, so they share one per-row state cache.
+    // One instance behind the table chip and the column, so they share one PAM-organization read.
     safeProvider({
       provide: ControlledAccessVaultFilterService,
       useClass: ControlledAccessVaultFilterService,
@@ -173,6 +174,18 @@ export function providePam(): SafeProvider[] {
       provide: MyLeasesService,
       useClass: MyLeasesService,
       deps: [AccessLeaseSdkService, LogService],
+    }),
+    // One read of the caller's requests behind the nav count, the vault list's badges and the filter.
+    safeProvider({
+      provide: MyAccessRequestsService,
+      useClass: MyAccessRequestsService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccountService,
+        AccessBadgeTickerService,
+        LogService,
+      ],
     }),
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
@@ -207,7 +220,7 @@ export function providePam(): SafeProvider[] {
       provide: PamNavBadgeService,
       useClass: DefaultPamNavBadgeService,
       deps: [
-        AccessRequestSdkService,
+        MyAccessRequestsService,
         ApprovalSdkService,
         ApprovalPrivilegeService,
         AccessEventService,

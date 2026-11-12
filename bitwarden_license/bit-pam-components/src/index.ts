@@ -27,6 +27,7 @@ export { accessRuleDeleteConfirmOptions } from "./helpers/access-rule-delete-con
 export { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 export { AccessRequestCancelService } from "./services/access-request-cancel.service";
 export { MyLeasesService } from "./services/my-leases.service";
+export { MyAccessRequestsService } from "./services/my-access-requests.service";
 export { controlledAccessItemFilter } from "./vault-filter-controlled-access/controlled-access-item-filter";
 export {
   ControlledAccessVaultFilterService,
