@@ -1,11 +1,9 @@
 import {
   catchError,
   combineLatest,
-  concat,
   defer,
   EMPTY,
   distinctUntilChanged,
-  filter,
   map,
   merge,
   Observable,
@@ -13,15 +11,14 @@ import {
   shareReplay,
   startWith,
   switchMap,
-  take,
 } from "rxjs";
 
 import {
   AccessEventService,
   AccessRefreshService,
-  AccessRequestView,
   ApprovalSdkService,
   isActionableRequest,
+  rereadAt,
 } from "@bitwarden/bit-pam";
 import { AccessBadgeTickerService, MyAccessRequestsService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -109,14 +106,7 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
               of(undefined),
               this.accessEventService.approverInboxChanged$(),
               this.accessRefreshService.accessChanged$(),
-            ).pipe(
-              switchMap(() =>
-                this.actionableIds$(
-                  () => this.approvalSdkService.listInbox(),
-                  isActionableInboxRequest,
-                ),
-              ),
-            )
+            ).pipe(switchMap(() => this.countedInboxIds$()))
           : of<string[]>([]),
       ),
       startWith<string[]>([]),
@@ -129,35 +119,32 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
    * can't re-read on every tick. A failure logs and emits nothing, so `combineLatest` keeps this
    * half's last good value.
    */
-  private actionableIds$(
-    read: () => Promise<AccessRequestView[]>,
-    needsAttention: (request: AccessRequestView, now: Date) => boolean,
-  ): Observable<string[]> {
-    return defer(read).pipe(
-      switchMap((requests) => {
+  private countedInboxIds$(): Observable<string[]> {
+    return rereadAt(
+      () =>
+        defer(() => this.approvalSdkService.listInbox()).pipe(
+          catchError((error: unknown) => {
+            this.logService.error(error);
+            return EMPTY;
+          }),
+        ),
+      (requests, nowMs) => {
+        const now = new Date(nowMs);
+        return requests
+          .filter((request) => isActionableInboxRequest(request, now))
+          .map((request) => Date.parse(request.leaseNotAfter))
+          .reduce<number | undefined>(
+            (next, endMs) => (next === undefined || endMs < next ? endMs : next),
+            undefined,
+          );
+      },
+      this.accessBadgeTickerService.ticks$,
+    ).pipe(
+      map((requests) => {
         const now = new Date();
-        const counted = requests.filter((request) => needsAttention(request, now));
-        const ids = counted.map((request) => uuidAsString(request.id));
-        const nextEndMs = Math.min(
-          ...counted
-            .map((request) => Date.parse(request.leaseNotAfter))
-            .filter((endMs) => endMs > now.getTime()),
-        );
-        if (!Number.isFinite(nextEndMs)) {
-          return of(ids);
-        }
-        return concat(
-          of(ids),
-          this.accessBadgeTickerService.ticks$.pipe(
-            filter((nowMs) => nowMs >= nextEndMs),
-            take(1),
-            switchMap(() => this.actionableIds$(read, needsAttention)),
-          ),
-        );
-      }),
-      catchError((error: unknown) => {
-        this.logService.error(error);
-        return EMPTY;
+        return requests
+          .filter((request) => isActionableInboxRequest(request, now))
+          .map((request) => uuidAsString(request.id));
       }),
     );
   }

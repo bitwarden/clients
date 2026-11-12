@@ -5,7 +5,6 @@ import {
   defer,
   distinctUntilChanged,
   EMPTY,
-  filter,
   map,
   merge,
   Observable,
@@ -14,7 +13,6 @@ import {
   share,
   shareReplay,
   switchMap,
-  take,
   timer,
 } from "rxjs";
 
@@ -24,6 +22,7 @@ import {
   AccessRequestSdkService,
   badgesFromMyRequests,
   nextRequestListChangeMs,
+  rereadAt,
 } from "@bitwarden/bit-pam";
 import type { AccessRequestView } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -83,24 +82,16 @@ export class MyAccessRequestsService {
   }
 
   private read$(): Observable<readonly AccessRequestView[]> {
-    return defer(() => this.accessRequestSdkService.listMyAccessRequests()).pipe(
-      switchMap((requests) => {
-        const next = nextRequestListChangeMs(requests, Date.now());
-        return next === undefined
-          ? of(requests)
-          : concat(
-              of(requests),
-              this.ticker.ticks$.pipe(
-                filter((nowMs) => nowMs >= next),
-                take(1),
-                switchMap(() => this.read$()),
-              ),
-            );
-      }),
-      catchError((error: unknown) => {
-        this.logService.error(error);
-        return EMPTY;
-      }),
+    return rereadAt(
+      () =>
+        defer(() => this.accessRequestSdkService.listMyAccessRequests()).pipe(
+          catchError((error: unknown) => {
+            this.logService.error(error);
+            return EMPTY;
+          }),
+        ),
+      nextRequestListChangeMs,
+      this.ticker.ticks$,
     );
   }
 }
