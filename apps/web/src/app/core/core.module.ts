@@ -427,8 +427,6 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
       Router,
-      ToastService,
-      I18nServiceAbstraction,
     ],
   }),
   safeProvider({
