@@ -229,11 +229,28 @@ const ROTATION_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
+/** A member with no name, so the Actor and Requester links show their email. */
+const EMAIL_ONLY_MEMBER = {
+  userId: "user-4",
+  email: "platform-reliability-oncall+escalations@example.com",
+};
+
 /**
- * A rule name past sixty characters, and a token longer than the column cap, which must break
- * mid-word.
+ * A rule name past sixty characters, and tokens longer than the column cap (one of them an
+ * email in a link), which must break mid-word.
  */
 const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
+  event({
+    kind: AccessAuditEventKind.LeaseActivated,
+    occurredAt: fromNow(-5 * MINUTE),
+    leaseId: "lease-4",
+    actorId: EMAIL_ONLY_MEMBER.userId,
+    actorName: null,
+    actorEmail: EMAIL_ONLY_MEMBER.email,
+    requesterId: EMAIL_ONLY_MEMBER.userId,
+    requesterName: null,
+    requesterEmail: EMAIL_ONLY_MEMBER.email,
+  }),
   event({
     kind: AccessAuditEventKind.RuleDeleted,
     occurredAt: fromNow(-10 * MINUTE),
@@ -273,6 +290,12 @@ const MEMBERS = [
   { userId: "user-1", id: "org-user-1", name: "Grace Hopper", email: "grace@example.com" },
   { userId: "user-2", id: "org-user-2", name: "Ada Lovelace", email: "ada@example.com" },
   { userId: "user-3", id: "org-user-3", name: "Katherine Johnson", email: "katherine@example.com" },
+  {
+    userId: EMAIL_ONLY_MEMBER.userId,
+    id: "org-user-4",
+    name: null,
+    email: EMAIL_ONLY_MEMBER.email,
+  },
 ];
 
 /** A member who has left the organization, so the member lookup cannot resolve them. */
@@ -388,7 +411,7 @@ const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
-/** Spread out in time, so each Time period preset keeps a different subset. */
+/** Spread out in time, so each Date preset keeps a different subset. */
 function presetEvents(): AccessAuditEventResponse[] {
   return [
     event({ kind: AccessAuditEventKind.CredentialAccessed, occurredAt: fromNow(-HOUR) }),
@@ -588,15 +611,15 @@ export const EmptyFields: Story = {
 export const NoMatches: Story = {
   decorators: [audit()],
   play: async ({ canvasElement }) => {
-    await selectChipOption(canvasElement, "Time period", "Today");
+    await selectChipOption(canvasElement, "Date", "Today");
   },
 };
 
-/** A preset in force; the Time period chip shows its selection like the other chips. */
+/** A preset in force; the Date chip shows its selection like the other chips. */
 export const TimePeriodFiltered: Story = {
   decorators: [audit({ events: presetEvents() })],
   play: async ({ canvasElement }) => {
-    await selectChipOption(canvasElement, "Time period", "Past 7 days");
+    await selectChipOption(canvasElement, "Date", "Past 7 days");
   },
 };
 
@@ -607,7 +630,7 @@ export const TimePeriodFiltered: Story = {
 export const FiltersActive: Story = {
   decorators: [audit({ events: presetEvents() })],
   play: async ({ canvasElement }) => {
-    await selectChipOption(canvasElement, "Time period", "Past 30 days");
+    await selectChipOption(canvasElement, "Date", "Past 30 days");
     await selectChipOption(canvasElement, "Event", "Request approved");
   },
 };

@@ -16,6 +16,8 @@
           linkType="secondary"
           class="!tw-font-medium"
           [id]="'rotation-history_button_details-' + job.id"
+          [attr.aria-label]="'pamRotationViewRotation' | i18n: (job.displayStartedAt | timestamp)"
+          [attr.data-row-selected]="selectedJobId() === job.id ? '' : null"
           data-testid="rotation-history-job-result"
           (click)="openJob(job, $any($event.currentTarget))"
         >
@@ -122,6 +124,7 @@
             bitRow
             alignContent="top"
             class="tw-cursor-pointer"
+            [class.tw-bg-bg-brand-soft]="selectedJobId() === job.id"
             (click)="openJob(job, resultCell)"
             data-testid="rotation-history-job"
           >

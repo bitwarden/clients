@@ -920,6 +920,30 @@ describe("RotationHistoryComponent rendering", () => {
   });
 
   describe("opening a job", () => {
+    it("names the row's button for a screen reader, with the start it opens", () => {
+      const fixture = render([retriedFailure()]);
+
+      const button = resultCell(fixture).nativeElement as HTMLElement;
+      expect(button.tagName).toBe("BUTTON");
+      expect(button.getAttribute("aria-label")).toContain("pamRotationViewRotation");
+    });
+
+    it("keeps the row selected while its drawer is open, and clears it on close", async () => {
+      const fixture = render([retriedFailure()]);
+      const closed = openedDrawer();
+      const selected = () => fixture.nativeElement.querySelector("[data-row-selected]");
+
+      expect(selected()).toBeNull();
+
+      (resultCell(fixture).nativeElement as HTMLElement).click();
+      await settle(fixture);
+      expect(selected()).not.toBeNull();
+
+      closed.next(undefined);
+      fixture.detectChanges();
+      expect(selected()).toBeNull();
+    });
+
     it("hands focus back to the row when the drawer closes", async () => {
       const fixture = render([retriedFailure()]);
       const closed = openedDrawer();

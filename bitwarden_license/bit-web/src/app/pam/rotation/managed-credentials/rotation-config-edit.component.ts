@@ -112,6 +112,8 @@ const ROTATION_CONFIG_EDIT_TABS = ["configuration", "history"] as const;
 
 export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
 
+const ADD_TARGET_SYSTEM_OPTION = "__add-target-system__";
+
 /**
  * Create and edit page for a rotation config. It provides its own `OrgCiphersService` and
  * `TargetSystemsService`, since the shell route's providers don't reach a sibling page.
@@ -321,6 +323,11 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     rotateOnAccessEnd: [false],
   });
 
+  /** Sentinel value of the picker's last option; it launches target creation and is never kept. */
+  protected readonly addTargetSystemOption = ADD_TARGET_SYSTEM_OPTION;
+
+  private readonly lastTargetId = signal("");
+
   private readonly selectedTargetId = toSignal(
     this.createForm.controls.targetSystemId.valueChanges,
     { initialValue: "" },
@@ -375,8 +382,11 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   /**
    * The two edit cards as one form, since the server takes schedule and account in one write.
-   * While a job runs the account half is disabled and Save is off, since every update re-seals
-   * the config and the server refuses that until the job ends.
+   * While a job runs the account half is disabled, since changing it re-seals the config and the
+   * server refuses that until the job ends. The schedule and rotate-on-access-end stay editable and
+   * Save stays live, though the SDK re-seals on every update, so the server may still refuse the
+   * write while the job runs and its message is shown. Save and Cancel only show once something
+   * has changed.
    */
   protected readonly editForm = this.formBuilder.group({
     settings: this.settingsForm,
@@ -500,7 +510,18 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       : { kind: sealed.kind, supported: sealed.supportsSessionTermination === true };
   });
 
+  /** End active sessions is held back by the running job, not by the target, so say so. */
+  protected readonly terminateSessionsWaitsForJob = computed(
+    () =>
+      this.config()?.hasActiveJob === true &&
+      !this.isManual() &&
+      this.configTargetSystem()?.sealed?.supportsSessionTermination === true,
+  );
+
   protected readonly usernameHintKey = computed(() => {
+    if (this.config()?.hasActiveJob) {
+      return "pamRotationConfigChangeAfterAttempt";
+    }
     if (this.isManual()) {
       return "pamRotationDetailUsernameHintManual";
     }
@@ -674,7 +695,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     this.connectors.set(connectors);
     await this.loadDescriptionsAndApplyDetail(detail);
     this.settingsForm.patchValue({
-      scheduleCron: detail.config.scheduleCron,
+      scheduleCron: detail.config.scheduleCron ?? null,
       rotateOnAccessEnd: detail.config.rotateOnAccessEnd,
     });
     const sealed = detail.config.sealed;
@@ -770,7 +791,16 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private coupleTargetControls(): void {
     this.createForm.controls.targetSystemId.valueChanges
       .pipe(takeUntilDestroyed())
-      .subscribe(() => this.applyTargetCoupling());
+      .subscribe((value) => {
+        if (value === ADD_TARGET_SYSTEM_OPTION) {
+          // Put the previous choice back first, so the draft never holds the sentinel.
+          this.createForm.controls.targetSystemId.setValue(this.lastTargetId());
+          void this.createTargetSystem();
+          return;
+        }
+        this.lastTargetId.set(value ?? "");
+        this.applyTargetCoupling();
+      });
   }
 
   private applyTargetCoupling(): void {
@@ -1038,10 +1068,14 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private markSaved(): void {
     this.savedValue.set(JSON.stringify(this.liveForm().getRawValue()));
     this.createDirty.set(false);
+    this.editDirty.set(false);
   }
 
   /** Whether the add form holds input not yet saved, which is what shows its Save bar. */
   private readonly createDirty = signal(false);
+
+  /** Whether the edit form holds changes not yet saved, which is what shows its Save and Cancel. */
+  protected readonly editDirty = signal(false);
 
   protected readonly showCreateFooter = computed(
     () => !this.editing && this.loadError() == null && this.createDirty(),
@@ -1057,6 +1091,9 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
    */
   private pinCreateFooter(): void {
     if (this.editing) {
+      this.editForm.valueChanges
+        .pipe(takeUntilDestroyed())
+        .subscribe(() => this.editDirty.set(this.unsavedChanges()));
       return;
     }
     let portal: TemplatePortal | null = null;
@@ -1083,9 +1120,13 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   /**
    * Read by the CanDeactivate guard, which a `:tab` change doesn't trigger. Nothing is unsaved
-   * while loading, since `savedValue` has no snapshot until `initialize()` settles.
+   * while loading, since `savedValue` has no snapshot until `initialize()` settles, and the
+   * read-only history tab never asks.
    */
   unsavedChanges(): boolean {
+    if (this.editing && this.activeTab() === "history") {
+      return false;
+    }
     return !this.loading() && JSON.stringify(this.liveForm().getRawValue()) !== this.savedValue();
   }
 

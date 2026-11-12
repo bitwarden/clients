@@ -989,6 +989,15 @@ describe("AccessRulesComponent: toolbar", () => {
     expect(el(fixture).querySelectorAll("bit-filter-menu")).toHaveLength(2);
   });
 
+  it("separates the status and shared folders filters with a divider", async () => {
+    const fixture = await render();
+    const order = Array.from(
+      toolbar(fixture)!.querySelectorAll("bit-filter-menu, bit-filter-divider"),
+    ).map((n) => n.tagName.toLowerCase());
+
+    expect(order).toEqual(["bit-filter-menu", "bit-filter-divider", "bit-filter-menu"]);
+  });
+
   it("renders the chips unset, showing every rule", async () => {
     const fixture = await render();
     const chips = Array.from(toolbar(fixture)!.querySelectorAll("bit-filter-menu"));
@@ -999,12 +1008,12 @@ describe("AccessRulesComponent: toolbar", () => {
     expect(rowNames(fixture)).toEqual(["VPN", "SSH", "Backup"]);
   });
 
-  it("gives the search its placeholder", async () => {
+  it("shows the default Search placeholder and names the input for access rules", async () => {
     const fixture = await render();
+    const input = toolbar(fixture)!.querySelector("bit-search input")!;
 
-    expect(toolbar(fixture)!.querySelector("bit-search input")!.getAttribute("placeholder")).toBe(
-      "pamSearchRules",
-    );
+    expect(input.getAttribute("placeholder")).toBe("search");
+    expect(input.getAttribute("aria-label")).toBe("pamSearchRules");
   });
 
   it("puts the create action in the toolbar's end slot", async () => {

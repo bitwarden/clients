@@ -22,6 +22,7 @@
     (ngModelChange)="onChange($event)"
     [disabled]="disabled()"
     [attr.autocomplete]="autocomplete()"
+    [attr.aria-label]="ariaLabel() ?? null"
     (blur)="onTouch()"
     [attr.aria-keyshortcuts]="useKeyShortcuts() && !disabled() ? 'Control+f Meta+f' : null"
   />
