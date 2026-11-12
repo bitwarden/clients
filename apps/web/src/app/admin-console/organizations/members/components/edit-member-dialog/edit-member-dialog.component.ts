@@ -481,7 +481,7 @@ export class EditMemberDialogComponent {
    * Reading a single member requires Manage users, so a readonly dialog fills the member from
    * their members list row and their direct collection access from the collections instead.
    */
-  private loadUserDetails$(): Observable<OrganizationUserAdminView> {
+  private loadUserDetails$(): Observable<OrganizationUserAdminView | undefined> {
     const member = this.memberInfo.member;
     if (this.readonly && member != undefined) {
       return this.collections$.pipe(
