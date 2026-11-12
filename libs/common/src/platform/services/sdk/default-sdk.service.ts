@@ -15,6 +15,7 @@ import {
   throwIfEmpty,
   firstValueFrom,
   filter,
+  of,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -138,6 +139,12 @@ export class DefaultSdkService implements SdkService {
       filter((client) => !client.isMarkedForDisposal),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
     );
+  }
+
+  cryptoReady$(userId: UserId): Observable<boolean> {
+    // Per-user clients are rebuilt from the same state their consumers read, so there is no
+    // window in which the state shows a user key that the client cannot decrypt with.
+    return of(true);
   }
 
   async unlock(

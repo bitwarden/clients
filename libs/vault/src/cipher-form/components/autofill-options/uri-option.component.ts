@@ -22,6 +22,7 @@ import {
 import { concatMap, EMPTY, ObservableInput } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -35,7 +36,6 @@ import {
   SelectModule,
 } from "@bitwarden/components";
 
-import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
@@ -143,7 +143,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   @Input({ required: true }) index: number;
 
   /**
-   * When true, URIs prefixed with the desktop app scheme will display the "App (URI)" label
+   * When true, URIs prefixed with the desktop app scheme will display the "Desktop app" label
    * instead of "Website (URI)". Should only be true when the WindowsDesktopAutotypeGA feature
    * flag is enabled.
    */
@@ -176,15 +176,19 @@ export class UriOptionComponent implements ControlValueAccessor {
     }
   }
 
-  protected get uriLabel() {
-    const isAppUri =
+  /** Returns true if this URI is a desktop app pairing */
+  protected get isAppUri(): boolean {
+    return (
       this.showAppLabel() &&
-      (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false);
+      (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false)
+    );
+  }
 
-    if (isAppUri) {
+  protected get uriLabel() {
+    if (this.isAppUri) {
       return this.index === 0
-        ? this.i18nService.t("appUri")
-        : this.i18nService.t("appUriCount", this.index + 1);
+        ? this.i18nService.t("desktopApp")
+        : this.i18nService.t("desktopAppCount", this.index + 1);
     }
 
     return this.index === 0

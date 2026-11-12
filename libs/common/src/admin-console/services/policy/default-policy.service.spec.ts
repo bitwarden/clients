@@ -22,7 +22,6 @@ import { asUuid, SdkService } from "../../../platform/abstractions/sdk/sdk.servi
 import { MockSdkService } from "../../../platform/spec/mock-sdk.service";
 import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 
 import { DefaultPolicyService } from "./default-policy.service";
 import { POLICIES } from "./policy-state";
@@ -31,7 +30,6 @@ describe("PolicyService", () => {
   const userId = newGuid() as UserId;
   let stateProvider: FakeStateProvider;
   let organizationService: MockProxy<OrganizationService>;
-  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let sdkService: MockSdkService;
   let singleUserState: FakeSingleUserState<Record<PolicyId, PolicyData>>;
   const accountService = mockAccountServiceWith(userId);
@@ -41,19 +39,16 @@ describe("PolicyService", () => {
   beforeEach(() => {
     stateProvider = new FakeStateProvider(accountService);
     organizationService = mock<OrganizationService>();
-    newPolicyService = mock<InternalNewPolicyService>();
     sdkService = new MockSdkService();
     singleUserState = stateProvider.singleUser.getFake(userId, POLICIES);
 
     organizationService.organizations$.calledWith(userId).mockReturnValue(of([]));
     organizationService.acceptedOrganizations$.calledWith(userId).mockReturnValue(of([]));
-    newPolicyService.policies$.calledWith(userId).mockReturnValue(of([]));
 
     policyService = new DefaultPolicyService(
       stateProvider,
       organizationService,
       accountService,
-      newPolicyService,
       () => sdkService,
     );
   });
@@ -73,8 +68,6 @@ describe("PolicyService", () => {
 
     await policyService.upsert(newPolicy, userId);
 
-    // upsert writes to the legacy POLICIES state; assert against it directly since
-    // policies$ now reads from the new state (`policiesNew`).
     expect(await firstValueFrom(singleUserState.state$)).toEqual(
       arrayToRecord([existingPolicy, newPolicy]),
     );
@@ -90,8 +83,6 @@ describe("PolicyService", () => {
     const replacementPolicy = policyData("2", "test-organization", PolicyType.DisableSend, true);
     await policyService.replace({ "2": replacementPolicy }, userId);
 
-    // replace writes to the legacy POLICIES state; assert against it directly since
-    // policies$ now reads from the new state (`policiesNew`).
     expect(await firstValueFrom(singleUserState.state$)).toEqual({ "2": replacementPolicy });
   });
 
@@ -207,11 +198,12 @@ describe("PolicyService", () => {
     const orgId2 = newGuid();
 
     it("delegates filtering to the SDK and maps the result back to Policy", async () => {
-      const policies = [
-        policyData(policyId1, orgId1, PolicyType.MaximumVaultTimeout, true, { minutes: 30 }),
-        policyData(policyId2, orgId1, PolicyType.DisableSend, true),
-      ];
-      newPolicyService.policies$.calledWith(userId).mockReturnValue(of(policies));
+      singleUserState.nextState(
+        arrayToRecord([
+          policyData(policyId1, orgId1, PolicyType.MaximumVaultTimeout, true, { minutes: 30 }),
+          policyData(policyId2, orgId1, PolicyType.DisableSend, true),
+        ]),
+      );
 
       const confirmed = [
         organization(orgId1, true, true, OrganizationUserStatusType.Confirmed, false),
@@ -258,9 +250,9 @@ describe("PolicyService", () => {
     });
 
     it("passes undefined to the SDK when a policy has no data", async () => {
-      newPolicyService.policies$
-        .calledWith(userId)
-        .mockReturnValue(of([policyData(policyId1, orgId1, PolicyType.DisableSend, true, null)]));
+      singleUserState.nextState(
+        arrayToRecord([policyData(policyId1, orgId1, PolicyType.DisableSend, true, null)]),
+      );
       organizationService.organizations$
         .calledWith(userId)
         .mockReturnValue(
@@ -277,9 +269,9 @@ describe("PolicyService", () => {
     });
 
     it("maps an SDK Policy with no data back to a Policy with null data", async () => {
-      newPolicyService.policies$
-        .calledWith(userId)
-        .mockReturnValue(of([policyData(policyId1, orgId1, PolicyType.DisableSend, true)]));
+      singleUserState.nextState(
+        arrayToRecord([policyData(policyId1, orgId1, PolicyType.DisableSend, true)]),
+      );
 
       sdkService.client.policies.mockReturnValue({
         filter_by_type: jest.fn().mockReturnValue([
@@ -349,9 +341,7 @@ describe("PolicyService", () => {
         PolicyType.ActivateAutofill,
         true,
       );
-      newPolicyService.policies$
-        .calledWith(userId)
-        .mockReturnValue(of([confirmedPolicy, acceptedPolicy]));
+      singleUserState.nextState(arrayToRecord([confirmedPolicy, acceptedPolicy]));
       organizationService.organizations$
         .calledWith(userId)
         .mockReturnValue(
@@ -371,7 +361,6 @@ describe("PolicyService", () => {
     });
 
     it("returns an empty array when there are no policies", async () => {
-      newPolicyService.policies$.calledWith(userId).mockReturnValue(of([]));
       organizationService.organizations$
         .calledWith(userId)
         .mockReturnValue(
@@ -396,7 +385,6 @@ describe("PolicyService", () => {
         stateProvider,
         organizationService,
         accountService,
-        mock<InternalNewPolicyService>(),
         () => mock<SdkService>(),
       );
     });

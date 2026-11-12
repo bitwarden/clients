@@ -1609,6 +1609,167 @@
       }
     }
   },
+  "selectVault": {
+    "message": "Vybrat trezor",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Vybrat místo",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Vybrat trezor"
+  },
+  "selectALocationTitle": {
+    "message": "Vybrat místo"
+  },
+  "importDestinationDescription": {
+    "message": "Vyberte kam importovat tyto položky."
+  },
+  "importMyItemsOption": {
+    "message": "Moje položky",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Viditelné jen pro Vás"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Vlastněno $ORGANIZATION$, ale viditelné jen pro Vás",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Trezor organizace"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Sdíleno s jednou osobou"
+  },
+  "importFamilyVault": {
+    "message": "Trezor rodiny"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Přesunout všechny položky do sdílené složky $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Přesunout všechny položky do sdílené složky $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Přesunout vše do nadřazené složky, vnořená struktura složek bude zachována."
+  },
+  "importSharedFolderRequired": {
+    "message": "Je vyžadována sdílená složka."
+  },
+  "importIntoOrganization": {
+    "message": "Položky budou importovány do $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Přesunout všechny položky do sdílené složky"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Položky nelze importovat do $ORGANIZATION$ bez sdílené složky a žádné v ní nespravujete. Zvolte jiné umístění.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Importovat $COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Importovat 1 položku"
+  },
+  "importToOrganization": {
+    "message": "Importovat do $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Vaše data mohou být sdílena s členy této organizace."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ Vám nedovoluje importovat $ITEM_TYPES$. Pokud jsou ve Vašem importu, budou přeskočeny.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "přihlašovací údaje",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "zabezpečené poznámky",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "karty",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identity",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH klíče",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bankovní účty",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "řidičské průkazy",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "pasy",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Přejít do Access Intelligence"
+  },
   "importItems": {
     "message": "Importovat položky"
   },
@@ -6547,6 +6708,9 @@
   "myItems": {
     "message": "Moje položky"
   },
+  "myItemsV2": {
+    "message": "Moje položky"
+  },
   "adminConsole": {
     "message": "Konzole správce"
   },
@@ -8081,17 +8245,11 @@
   "sharedUnlock": {
     "message": "Sdílené odemknutí"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Synchronizovat odemknutí s desktopovou aplikací"
+  "syncUnlockWithDesktop1": {
+    "message": "Synchronizovat odemknutí v aplikaci pro počítač"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Rozšíření prohlížeče Bitwarden a zámek na desktopu se odemknou společně."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Synchronizovat odemknutí s webovou aplikací"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Rozšíření prohlížeče Bitwarden a webový zámek se odemknou společně."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Rozšíření prohlížeče Bitwarden a zamykání a odemykání podle desktopové aplikace dohromady. Pokud je dostupná biometrika, použije se."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Sdílené odemknutí není k dispozici, protože jste se rozhodli nepamatovat si toto zařízení. Chcete-li toto nastavení povolit, zkuste se znovu přihlásit."

@@ -1609,6 +1609,167 @@
       }
     }
   },
+  "selectVault": {
+    "message": "保管庫を選択",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "場所を選択",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "保管庫を選択してください"
+  },
+  "selectALocationTitle": {
+    "message": "場所を選択してください"
+  },
+  "importDestinationDescription": {
+    "message": "アイテムをインポートする場所を選択してください。"
+  },
+  "importMyItemsOption": {
+    "message": "マイアイテム",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "あなただけが見られます"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "$ORGANIZATION$ が所有していますが、あなただけが見られます",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "組織の保管庫"
+  },
+  "importSharedWithOnePerson": {
+    "message": "1人と共有"
+  },
+  "importFamilyVault": {
+    "message": "ファミリー用の保管庫"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "すべてのアイテムを $ORGANIZATION$ 共有フォルダーに移動",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "すべてのアイテムを $ORGANIZATION$ 共有フォルダーに移動",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "すべてを親フォルダーに移動すると、ネストされたフォルダー構造が維持されます。"
+  },
+  "importSharedFolderRequired": {
+    "message": "共有フォルダーが必要です。"
+  },
+  "importIntoOrganization": {
+    "message": "アイテムは $ORGANIZATION$ にインポートされます。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "すべてのアイテムを共有フォルダーに移動"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "共有フォルダーがないと、$ORGANIZATION$ にアイテムをインポートすることはできません。また、現在管理している共有フォルダーもありません。別の場所を選択してください。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "$COUNT$ アイテムをインポート",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "1 アイテムをインポート"
+  },
+  "importToOrganization": {
+    "message": "$ORGANIZATION$ にインポート",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "あなたのデータはこの組織のメンバーと共有される可能性があります。"
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ は $ITEM_TYPES$ のインポートを許可していません。インポートに含まれている場合はスキップされます。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "ログイン",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "セキュアメモ",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "カード",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "ID",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH キー",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "銀行口座",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "ライセンス",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "パスポート",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "アクセスインテリジェンスに移動"
+  },
   "importItems": {
     "message": "アイテムのインポート"
   },
@@ -6547,6 +6708,9 @@
   "myItems": {
     "message": "マイアイテム"
   },
+  "myItemsV2": {
+    "message": "マイアイテム"
+  },
   "adminConsole": {
     "message": "管理コンソール"
   },
@@ -8081,17 +8245,11 @@
   "sharedUnlock": {
     "message": "共有ロック解除"
   },
-  "syncUnlockWithDesktop": {
-    "message": "デスクトップアプリとロック解除を同期"
+  "syncUnlockWithDesktop1": {
+    "message": "デスクトップアプリとロック解除を連動させる"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Bitwarden ブラウザ拡張機能とデスクトップアプリを同時にロックまたはロック解除します。"
-  },
-  "syncUnlockWithWeb": {
-    "message": "ウェブアプリとロック解除を同期"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Bitwarden ブラウザ拡張機能とウェブアプリを同時にロックまたはロック解除します。"
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Bitwarden ブラウザー拡張機能とデスクトップアプリのロック・ロック解除を一緒に行います。利用可能な場合は生体認証を使用します。"
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "このデバイスを記憶しないことを選択したため、共有ロック解除は利用できません。この設定を有効にするには、再度ログインしてください。"

@@ -399,7 +399,7 @@ describe("VaultComponent", () => {
         { provide: VaultPopupListTableFiltersService, useValue: listTableFiltersSvc },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
-        { provide: ActivatedRoute, useValue: { paramMap: routeParams$ } },
+        { provide: ActivatedRoute, useValue: { paramMap: routeParams$, data: of({}) } },
         { provide: AuthService, useValue: mock<AuthService>() },
         { provide: AutofillService, useValue: mock<AutofillService>() },
         {
@@ -687,6 +687,21 @@ describe("VaultComponent", () => {
         const fixture = createWithFlag(true);
 
         expect(title(fixture)).toBe("vault");
+
+        flush();
+        fixture.destroy();
+      }));
+
+      /** The organization and its "My items" are two destinations, so the switcher renders. */
+      it("drops the title for a lone organization with My items", fakeAsync(() => {
+        vaultNav$.next({
+          vaults: [{ id: "org-1", defaultUserCollectionId: "my-items-1" }],
+          organizationDataOwnership: true,
+        });
+
+        const fixture = createWithFlag(true);
+
+        expect(title(fixture)).toBe("");
 
         flush();
         fixture.destroy();

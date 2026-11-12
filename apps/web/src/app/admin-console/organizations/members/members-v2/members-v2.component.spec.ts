@@ -8,11 +8,14 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -32,6 +35,7 @@ import {
 } from "../services";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 
+import { AccountRecoveryFilter, MemberProductFilter, TwoFactorFilter } from "./members-filter";
 import { MembersV2Component } from "./members-v2.component";
 
 const ORG_ID = "org-1" as OrganizationId;
@@ -44,8 +48,12 @@ function member(overrides: Partial<OrganizationUserView> = {}): OrganizationUser
     email: "alice@example.com",
     status: OrganizationUserStatusType.Confirmed,
     type: OrganizationUserType.User,
+    groups: [],
+    collections: [],
     groupNames: [],
     collectionNames: [],
+    accessSecretsManager: false,
+    accessPam: false,
     ...overrides,
   } as OrganizationUserView;
 }
@@ -68,9 +76,19 @@ describe("MembersV2Component", () => {
     organization: Partial<Organization>,
     members: OrganizationUserView[],
     queryParams: Params = {},
+    {
+      accessNames = new Map<string, string>(),
+      pamFlag = false,
+      resetPasswordPolicyEnabled = false,
+    } = {},
   ) {
     memberService = mock<OrganizationMembersService>();
-    memberService.loadUsers.mockResolvedValue(members);
+    memberService.loadMembers.mockResolvedValue({ users: members, accessNames });
+
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation((flag) =>
+      of((flag === FeatureFlag.Pam && pamFlag) as any),
+    );
 
     i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string, ...args: unknown[]) => [key, ...args].join(" "));
@@ -89,7 +107,15 @@ describe("MembersV2Component", () => {
     const organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
     organizationMetadataService.getOrganizationMetadata$.mockReturnValue(of(billingMetadata));
     const policyService = mock<PolicyService>();
-    policyService.policies$.mockReturnValue(of([]));
+    policyService.policies$.mockReturnValue(
+      of([
+        {
+          type: PolicyType.ResetPassword,
+          organizationId: ORG_ID,
+          enabled: resetPasswordPolicyEnabled,
+        } as Policy,
+      ]),
+    );
     const userNamePipe = mock<UserNamePipe>();
     userNamePipe.transform.mockReturnValue("Alice");
 
@@ -124,6 +150,7 @@ describe("MembersV2Component", () => {
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: UserNamePipe, useValue: userNamePipe },
+        { provide: ConfigService, useValue: configService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -140,7 +167,7 @@ describe("MembersV2Component", () => {
     const members = [member()];
     await setup({ canManageUsers: true, useGroups: true }, members);
 
-    expect(memberService.loadUsers).toHaveBeenCalledWith(expect.objectContaining({ id: ORG_ID }));
+    expect(memberService.loadMembers).toHaveBeenCalledWith(expect.objectContaining({ id: ORG_ID }));
     expect(component.members()).toEqual(members);
     expect(component.firstLoaded()).toBe(true);
   });
@@ -256,44 +283,254 @@ describe("MembersV2Component", () => {
     });
   });
 
-  describe("membership chips", () => {
+  describe("groups filter", () => {
+    const accessNames = new Map([
+      ["g-sales", "Sales"],
+      ["g-admins", "Admins"],
+      ["g-admins-2", "Admins"],
+      ["g-empty", "Empty"],
+    ]);
     const members = [
-      member({ id: "a" as Guid, groupNames: ["Sales", "Admins"] }),
-      member({ id: "b" as Guid, groupNames: ["Admins"] }),
-      member({ id: "c" as Guid, groupNames: [] }),
+      member({ id: "a" as Guid, groups: ["g-sales", "g-admins"] }),
+      member({ id: "b" as Guid, groups: ["g-admins-2"] }),
+      member({ id: "c" as Guid, groups: [] }),
+    ];
+    const ids = (filters: object) =>
+      members.filter((m) => component.filter(m, filters)).map((m) => m.id);
+
+    beforeEach(async () => {
+      await setup({ useGroups: true }, members, {}, { accessNames });
+    });
+
+    it("offers every group in the organization by ID, sorted by name", () => {
+      expect(component.accessOptions()).toEqual([
+        { id: "g-admins", name: "Admins" },
+        { id: "g-admins-2", name: "Admins" },
+        { id: "g-empty", name: "Empty" },
+        { id: "g-sales", name: "Sales" },
+      ]);
+    });
+
+    it("builds a chip per group for each member, keyed by ID and sorted by name", () => {
+      expect(component.accessChips().get(members[0])).toEqual([
+        { id: "g-admins", label: "Admins", startIcon: "bwi-users" },
+        { id: "g-sales", label: "Sales", startIcon: "bwi-users" },
+      ]);
+      expect(component.accessChips().get(members[2])).toEqual([]);
+    });
+
+    it("keeps every member when no group is checked", () => {
+      expect(ids({})).toEqual(["a", "b", "c"]);
+      expect(ids({ access: [] })).toEqual(["a", "b", "c"]);
+    });
+
+    it("keeps members in any checked group, telling apart groups that share a name", () => {
+      expect(ids({ access: ["g-admins"] })).toEqual(["a"]);
+      expect(ids({ access: ["g-admins", "g-admins-2"] })).toEqual(["a", "b"]);
+    });
+  });
+
+  describe("collections filter", () => {
+    const members = [
+      member({ id: "a" as Guid, collections: [{ id: "c-1" }] as any }),
+      member({ id: "b" as Guid, collections: [{ id: "c-2" }] as any }),
     ];
 
     beforeEach(async () => {
-      await setup({ useGroups: true }, members);
+      await setup(
+        { useGroups: false },
+        members,
+        {},
+        { accessNames: new Map([["c-1", "Finance"]]) },
+      );
     });
 
-    it("offers each group once, sorted, as a filter option", () => {
-      expect(component.groupNames()).toEqual(["Admins", "Sales"]);
-    });
-
-    it("builds a chip per group for each member", () => {
-      expect(component.groupChips().get(members[0])).toEqual([
-        { id: "Sales", label: "Sales", startIcon: "bwi-users" },
-        { id: "Admins", label: "Admins", startIcon: "bwi-users" },
-      ]);
-      expect(component.groupChips().get(members[2])).toEqual([]);
-    });
-
-    it("keeps every member when no group is selected", () => {
-      expect(members.filter((m) => component.filter(m, {}))).toEqual(members);
-      expect(members.filter((m) => component.filter(m, { groupNames: [] }))).toEqual(members);
-    });
-
-    it("keeps members in any selected group", () => {
+    it("keeps members who can access any checked collection", () => {
       expect(
-        members.filter((m) => component.filter(m, { groupNames: ["Sales"] })).map((m) => m.id),
+        members.filter((m) => component.filter(m, { access: ["c-1"] })).map((m) => m.id),
       ).toEqual(["a"]);
+    });
+
+    it("builds collection chips", () => {
+      expect(component.accessChips().get(members[0])).toEqual([
+        { id: "c-1", label: "Finance", startIcon: "bwi-collection-shared" },
+      ]);
+    });
+  });
+
+  describe("role filter", () => {
+    const members = [
+      member({ id: "owner" as Guid, type: OrganizationUserType.Owner }),
+      member({ id: "admin" as Guid, type: OrganizationUserType.Admin }),
+      member({ id: "user" as Guid, type: OrganizationUserType.User }),
+      member({ id: "custom" as Guid, type: OrganizationUserType.Custom }),
+    ];
+
+    beforeEach(async () => {
+      await setup({}, members);
+    });
+
+    it("keeps only members with a checked role", () => {
       expect(
         members
-          .filter((m) => component.filter(m, { groupNames: ["Sales", "Admins"] }))
+          .filter((m) =>
+            component.filter(m, {
+              role: [OrganizationUserType.Owner, OrganizationUserType.Custom],
+            }),
+          )
           .map((m) => m.id),
-      ).toEqual(["a", "b"]);
+      ).toEqual(["owner", "custom"]);
     });
+  });
+
+  describe("products filter", () => {
+    const members = [
+      member({ id: "sm" as Guid, accessSecretsManager: true }),
+      member({ id: "pam" as Guid, accessPam: true }),
+      member({ id: "none" as Guid }),
+    ];
+    const ids = (product: MemberProductFilter[]) =>
+      members.filter((m) => component.filter(m, { product })).map((m) => m.id);
+
+    it("keeps members with any checked product", async () => {
+      await setup({}, members);
+
+      expect(ids([MemberProductFilter.SecretsManager])).toEqual(["sm"]);
+      expect(ids([MemberProductFilter.PrivilegedControls])).toEqual(["pam"]);
+      expect(
+        ids([MemberProductFilter.SecretsManager, MemberProductFilter.PrivilegedControls]),
+      ).toEqual(["sm", "pam"]);
+    });
+
+    it("offers Secrets Manager when the organization has it", async () => {
+      await setup({ useSecretsManager: true }, []);
+
+      expect(component.canUseSecretsManager()).toBe(true);
+      expect(component.canUsePrivilegedControls()).toBe(false);
+    });
+
+    it.each([
+      [true, true, true],
+      [true, false, false],
+      [false, true, false],
+    ])(
+      "offers Privileged controls when usePam is %s and the flag is %s: %s",
+      async (usePam, pamFlag, expected) => {
+        await setup({ usePam }, [], {}, { pamFlag });
+
+        expect(component.canUsePrivilegedControls()).toBe(expected);
+      },
+    );
+  });
+
+  describe("policies filter", () => {
+    const members = [
+      member({ id: "both" as Guid, resetPasswordEnrolled: true, twoFactorEnabled: true }),
+      member({ id: "enrolled" as Guid, resetPasswordEnrolled: true }),
+      member({ id: "two-step" as Guid, twoFactorEnabled: true }),
+      member({ id: "neither" as Guid }),
+    ];
+    const ids = (policies: (AccountRecoveryFilter | TwoFactorFilter)[]) =>
+      members.filter((m) => component.filter(m, { policies })).map((m) => m.id);
+
+    it("narrows within a section and across sections", async () => {
+      await setup({}, members);
+
+      expect(ids([])).toEqual(["both", "enrolled", "two-step", "neither"]);
+      expect(ids([AccountRecoveryFilter.Enrolled])).toEqual(["both", "enrolled"]);
+      expect(ids([TwoFactorFilter.Inactive])).toEqual(["enrolled", "neither"]);
+      expect(ids([AccountRecoveryFilter.Enrolled, TwoFactorFilter.Inactive])).toEqual(["enrolled"]);
+    });
+
+    it.each([
+      [true, true, true],
+      [true, false, false],
+      [false, true, false],
+    ])(
+      "offers Account recovery when useResetPassword is %s and the policy is %s: %s",
+      async (useResetPassword, resetPasswordPolicyEnabled, expected) => {
+        await setup({ useResetPassword }, [], {}, { resetPasswordPolicyEnabled });
+
+        expect(component.showAccountRecoverySection()).toBe(expected);
+      },
+    );
+
+    it("offers Account recovery to admins who can't manage users", async () => {
+      await setup(
+        { useResetPassword: true, canManageUsers: false },
+        [],
+        {},
+        { resetPasswordPolicyEnabled: true },
+      );
+
+      expect(component.showAccountRecoverySection()).toBe(true);
+    });
+
+    it("shows the key icon only for enrolled members when account recovery is on", async () => {
+      await setup({ useResetPassword: true }, members, {}, { resetPasswordPolicyEnabled: true });
+
+      expect(members.filter((m) => component.showEnrolledStatus(m)).map((m) => m.id)).toEqual([
+        "both",
+        "enrolled",
+      ]);
+    });
+
+    it("hides the key icon when the account recovery policy is off", async () => {
+      await setup({ useResetPassword: true }, members);
+
+      expect(members.some((m) => component.showEnrolledStatus(m))).toBe(false);
+    });
+  });
+
+  it("requires a member to match every filter and the search", async () => {
+    const members = [
+      member({
+        id: "match" as Guid,
+        name: "Alice",
+        type: OrganizationUserType.Admin,
+        groups: ["g-1"],
+        accessSecretsManager: true,
+      }),
+      member({
+        id: "wrong-role" as Guid,
+        name: "Alice",
+        type: OrganizationUserType.User,
+        groups: ["g-1"],
+        accessSecretsManager: true,
+      }),
+      member({
+        id: "no-product" as Guid,
+        name: "Alice",
+        type: OrganizationUserType.Admin,
+        groups: ["g-1"],
+      }),
+      member({
+        id: "revoked" as Guid,
+        name: "Alice",
+        status: OrganizationUserStatusType.Revoked,
+        type: OrganizationUserType.Admin,
+        groups: ["g-1"],
+        accessSecretsManager: true,
+      }),
+      member({
+        id: "other-name" as Guid,
+        name: "Bob",
+        email: "bob@example.com",
+        type: OrganizationUserType.Admin,
+        groups: ["g-1"],
+        accessSecretsManager: true,
+      }),
+    ];
+    await setup({ useGroups: true }, members);
+
+    const filters = {
+      search: "ali",
+      role: [OrganizationUserType.Admin],
+      access: ["g-1"],
+      product: [MemberProductFilter.SecretsManager],
+    };
+
+    expect(members.filter((m) => component.filter(m, filters)).map((m) => m.id)).toEqual(["match"]);
   });
 
   describe("search", () => {
@@ -414,7 +651,7 @@ describe("MembersV2Component", () => {
     beforeEach(async () => {
       await setup({ canManageUsers: true }, members);
       organization = component.organization();
-      memberService.loadUsers.mockClear();
+      memberService.loadMembers.mockClear();
     });
 
     it("exports every member and toasts the success", () => {
@@ -450,7 +687,7 @@ describe("MembersV2Component", () => {
         billingMetadata,
         members,
       );
-      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+      expect(memberService.loadMembers).toHaveBeenCalledTimes(1);
     });
 
     it("doesn't invite when the seat limit blocks it", async () => {
@@ -503,7 +740,7 @@ describe("MembersV2Component", () => {
     beforeEach(async () => {
       await setup({ canManageUsers: true, useGroups: true }, [user]);
       organization = component.organization();
-      memberService.loadUsers.mockClear();
+      memberService.loadMembers.mockClear();
     });
 
     it("opens the edit dialog on the given tab", async () => {
@@ -538,7 +775,7 @@ describe("MembersV2Component", () => {
 
       await component.edit(user, organization);
 
-      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+      expect(memberService.loadMembers).toHaveBeenCalledTimes(1);
     });
 
     it("doesn't reload when the edit dialog is dismissed", async () => {
@@ -546,7 +783,7 @@ describe("MembersV2Component", () => {
 
       await component.edit(user, organization);
 
-      expect(memberService.loadUsers).not.toHaveBeenCalled();
+      expect(memberService.loadMembers).not.toHaveBeenCalled();
     });
 
     it("revokes after confirmation, toasts and reloads", async () => {
@@ -560,7 +797,7 @@ describe("MembersV2Component", () => {
         variant: "success",
         message: "revokedUserId Alice",
       });
-      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+      expect(memberService.loadMembers).toHaveBeenCalledTimes(1);
     });
 
     it("does nothing when the revoke confirmation is cancelled", async () => {
@@ -569,7 +806,7 @@ describe("MembersV2Component", () => {
       await component.revoke(user, organization);
 
       expect(memberActionsService.revokeUser).not.toHaveBeenCalled();
-      expect(memberService.loadUsers).not.toHaveBeenCalled();
+      expect(memberService.loadMembers).not.toHaveBeenCalled();
     });
 
     it("reloads after removing a member", async () => {
@@ -578,7 +815,7 @@ describe("MembersV2Component", () => {
 
       await component.remove(user, organization);
 
-      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+      expect(memberService.loadMembers).toHaveBeenCalledTimes(1);
     });
 
     it("reloads after deleting a member", async () => {
@@ -588,7 +825,7 @@ describe("MembersV2Component", () => {
       await component.deleteUser(user, organization);
 
       expect(memberActionsService.deleteUser).toHaveBeenCalledWith(organization, user.id);
-      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+      expect(memberService.loadMembers).toHaveBeenCalledTimes(1);
     });
 
     it("toasts the error and doesn't reload when an action fails", async () => {
@@ -597,7 +834,7 @@ describe("MembersV2Component", () => {
       await component.reinvite(user, organization);
 
       expect(toastService.showToast).toHaveBeenCalledWith({ variant: "error", message: "Oops" });
-      expect(memberService.loadUsers).not.toHaveBeenCalled();
+      expect(memberService.loadMembers).not.toHaveBeenCalled();
     });
 
     it("doesn't send an invite when the seat limit blocks it", async () => {
@@ -619,7 +856,7 @@ describe("MembersV2Component", () => {
         "restore",
       );
       expect(memberActionsService.restoreUser).toHaveBeenCalledWith(organization, user.id);
-      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+      expect(memberService.loadMembers).toHaveBeenCalledTimes(1);
     });
 
     it("doesn't confirm when the member has no public key", async () => {

@@ -1,5 +1,4 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -29,6 +28,7 @@ import {
   accessRuleDeleteConfirmOptions,
   DurationLongPipe,
   RelativeTimePipe,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -75,7 +75,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
-    DatePipe,
+    TimestampPipe,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
     BadgeModule,
@@ -216,7 +216,7 @@ export class AccessRulesComponent {
     // Outside the try, so a failed navigation can't follow the success toast with an error.
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("pamAccessRuleCopyCreated"),
+      message: this.i18nService.t("pamAccessRuleCopyCreatedSharedFolder"),
     });
     // `renaming` opens the edit page with the name field focused.
     await this.router.navigate([created.id], {

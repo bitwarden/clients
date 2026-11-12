@@ -18,8 +18,8 @@ export default {
             return new I18nMockService({
               upgradeYourPlan: "Upgrade your plan",
               upgradeNow: "Upgrade now",
-              getAdvancedOnlineSecurityWithBitwardenPremium:
-                "Get advanced online security with Bitwarden premium.",
+              getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized:
+                "Get advanced online security with Bitwarden Premium.",
               close: "Close",
             });
           },

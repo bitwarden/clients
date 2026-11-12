@@ -216,6 +216,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       childList: true,
       subtree: true,
     });
+    document.addEventListener("transitionend", this.handleOpacityTransitionEnd, true);
   }
 
   /**
@@ -231,6 +232,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
     this.mutationObserver.disconnect();
+    document.removeEventListener("transitionend", this.handleOpacityTransitionEnd, true);
     this.clearFieldCache();
     // Shadow-host tracking is monitoring-scoped; clear it so restart drops stale deadlines.
     this.shadowTracker.reset();
@@ -1575,6 +1577,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           if (this.shouldListenToTopLayerCandidate(node)) {
             this.pendingTopLayerTargets.add(node);
           }
+          // A popover or dialog nested under a non-candidate added node is still promoted to
+          // the top layer, so it can obscure the inline menu. The added node itself is the only
+          // thing checked above, so walk its descendants to register nested candidates too.
+          for (const descendant of node.querySelectorAll("[popover], dialog")) {
+            if (this.shouldListenToTopLayerCandidate(descendant)) {
+              this.pendingTopLayerTargets.add(descendant);
+            }
+          }
         }
       }
     }
@@ -1989,6 +1999,35 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.setupOverlayOnField(formFieldElement, cachedAutofillFieldElement);
 
       this.intersectionObserver.unobserve(entry.target);
+    }
+  };
+
+  /**
+   * Handles the end of an opacity transition. Re-evaluates the visibility of non-viewable
+   * fields within the transitioned element, as a field collected while fading in will not
+   * trigger the IntersectionObserver once it becomes visible.
+   *
+   * @param event - The transitionend event
+   */
+  private handleOpacityTransitionEnd = async (event: TransitionEvent) => {
+    const target = event.target;
+    if (event.propertyName !== "opacity" || !(target instanceof Element)) {
+      return;
+    }
+
+    for (const [formFieldElement, autofillField] of this.autofillFieldElements) {
+      if (
+        autofillField.viewable ||
+        !target.contains(formFieldElement) ||
+        !(await this.domElementVisibilityService.isElementViewable(formFieldElement))
+      ) {
+        continue;
+      }
+
+      autofillField.viewable = true;
+      this.setupOverlayOnField(formFieldElement, autofillField);
+
+      this.intersectionObserver.unobserve(formFieldElement);
     }
   };
 

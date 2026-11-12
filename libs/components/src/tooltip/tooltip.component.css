@@ -1,5 +1,5 @@
 :root {
-  --tooltip-shadow: rgb(0 0 0 / 0.1);
+  --tooltip-shadow: rgba(var(--color-gray-800-rgb), 0.1);
 }
 
 .cdk-overlay-pane:has(.bit-tooltip[data-visible="false"]) {
@@ -120,10 +120,10 @@
 }
 
 .bit-tooltip {
+  color: var(--color-fg-contrast);
+  background-color: var(--color-bg-contrast);
   width: max-content;
   max-width: 13rem;
-  background-color: rgb(var(--color-text-main));
-  color: rgb(var(--color-text-contrast));
   padding: 0.5rem 0.75rem;
   border-radius: 0.75rem;
   font-size: 0.875rem;

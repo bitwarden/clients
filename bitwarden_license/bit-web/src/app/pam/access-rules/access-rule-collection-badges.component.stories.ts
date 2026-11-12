@@ -33,8 +33,8 @@ export default {
           useFactory: () =>
             new I18nMockService({
               pamAccessRuleCollectionsNone: "Unassigned",
-              pamAccessRuleCollectionCountSingular: "1 collection",
-              pamAccessRuleCollectionCount: (count) => `${count} collections`,
+              pamAccessRuleSharedFolderCountSingular: "1 shared folder",
+              pamAccessRuleSharedFolderCount: (count) => `${count} shared folders`,
             }),
         },
       ],

@@ -1,7 +1,12 @@
 import { NgModule } from "@angular/core";
 
-import { BannerModule, FileUploadComponent } from "@bitwarden/components";
-import { DiscountBadgeComponent } from "@bitwarden/pricing";
+import {
+  AccordionComponent,
+  BannerModule,
+  FileUploadComponent,
+  SpinnerComponent,
+} from "@bitwarden/components";
+import { CartSummaryComponent, DiscountBadgeComponent } from "@bitwarden/pricing";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
   EnterBillingAddressComponent,
@@ -15,7 +20,6 @@ import { AdjustStorageDialogComponent } from "./adjust-storage-dialog/adjust-sto
 import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
 import { PlanCardComponent } from "./plan-card/plan-card.component";
-import { PricingSummaryComponent } from "./pricing-summary/pricing-summary.component";
 import { IndividualSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/individual-self-hosting-license-uploader.component";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
 import { SecretsManagerSubscribeComponent } from "./sm-subscribe.component";
@@ -25,13 +29,16 @@ import { UpdateLicenseComponent } from "./update-license.component";
 
 @NgModule({
   imports: [
+    AccordionComponent,
     BannerModule,
+    CartSummaryComponent,
     DiscountBadgeComponent,
     EnterBillingAddressComponent,
     EnterPaymentMethodComponent,
     FileUploadComponent,
     HeaderModule,
     SharedModule,
+    SpinnerComponent,
     Vfo1I18nPipe,
   ],
   declarations: [
@@ -45,7 +52,6 @@ import { UpdateLicenseComponent } from "./update-license.component";
     OrganizationSelfHostingLicenseUploaderComponent,
     TrialPaymentDialogComponent,
     PlanCardComponent,
-    PricingSummaryComponent,
   ],
   exports: [
     SharedModule,

@@ -2645,6 +2645,9 @@
   "noItemsMatchSelectedFilters": {
     "message": "沒有項目符合所選篩選條件"
   },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "No items match the selected filters"
+  },
   "noItemsMatchSearchTerm": {
     "message": "沒有項目符合「$SEARCH_TERM$」",
     "placeholders": {
@@ -3632,6 +3635,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Select vault",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Select location",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Select a vault"
+  },
+  "selectALocationTitle": {
+    "message": "Select a location"
+  },
+  "importDestinationDescription": {
+    "message": "Choose where to import these items."
+  },
+  "importMyItemsOption": {
+    "message": "My items",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible only to you"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organization vault"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "Family vault"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+  },
+  "importSharedFolderRequired": {
+    "message": "A shared folder is required."
+  },
+  "importIntoOrganization": {
+    "message": "Items will be imported into $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Move all items into a shared folder"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Import $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Import 1 item"
+  },
+  "importToOrganization": {
+    "message": "Import to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "secure notes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cards",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH keys",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bank accounts",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "licenses",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "passports",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "選擇檔案"
@@ -4908,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "顯示價格摘要"
-  },
-  "hidePricingSummary": {
-    "message": "隱藏價格摘要"
-  },
   "summary": {
     "message": "摘要"
   },
@@ -4992,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "訂閱到期時間"
-  },
-  "subscriptionCanceled": {
-    "message": "已取消訂閱"
   },
   "pendingCancellation": {
     "message": "待取消"
@@ -5215,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "至 $DATE$ 為止",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -6195,6 +6338,70 @@
       }
     }
   },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ disabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ enabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Created item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Edited item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Deleted item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Accessed item Send$SENDID$ created by $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
   "sendAccessExternal": {
     "message": "外部"
   },
@@ -6678,6 +6885,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "拒絕將項目移轉至組織"
+  },
+  "revocationReasonByAdmin": {
+    "message": "By admin",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "No reason recorded",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "因不符合組織的雙重驗證政策，已撤銷 $ID$ 的組織存取權限。",
@@ -7531,10 +7746,6 @@
     "message": "升級方案",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "為了將您的帳戶升級至另一個方案，請提供以下資訊。同時請確保您的帳戶已經有一個有效的付款方式。",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "帳單 #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7609,6 +7820,18 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "為您的機密管理員訂閲設定席位限制。達到此限制後，就無法邀請新成員。"
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
+  },
+  "maximumSeatsCount": {
+    "message": "Maximum $COUNT$ seats",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "席位限制（選用）",
@@ -9228,6 +9451,15 @@
   "desktopAutotypePolicyDescVfo1": {
     "message": "為成員啟用桌面自動輸入。"
   },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Desktop app autofill"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Turn on desktop autofill by default for all members."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
+  },
   "disableSend": {
     "message": "停用 Send"
   },
@@ -9377,6 +9609,9 @@
   },
   "estimatedTax": {
     "message": "估計稅額"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
   },
   "subtotal": {
     "message": "小計"
@@ -11868,10 +12103,6 @@
     "message": "服務帳戶",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "服務帳戶",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "機密",
     "description": "The title for the section of the application that deals with secrets."
@@ -14097,9 +14328,6 @@
     "message": "請說明取消原因",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "免費 1 年"
-  },
   "newWebApp": {
     "message": "歡迎使用全新改良的網頁應用程式。瞭解更多變更內容。"
   },
@@ -14902,15 +15130,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ 折扣",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "取得 Secrets Manager"
   },
@@ -15130,9 +15349,6 @@
     "message": "請聯絡 Bitwarden 支援。",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "贊助"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "在 Bitwarden 雲端伺服器完成更新後，請上傳你的授權檔以套用最新變更。"
   },
@@ -15343,9 +15559,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "可使用進階版功能"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB 額外儲存空間"
   },
   "sshKeyAlgorithm": {
     "message": "金鑰演算法"
@@ -16742,9 +16955,6 @@
   "familiesUpdated": {
     "message": "你已升級為家庭方案！"
   },
-  "taxCalculationError": {
-    "message": "計算你所在地區的稅額時發生錯誤。請再試一次。"
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "歡迎使用 Bitwarden"
   },
@@ -16766,8 +16976,8 @@
   "upgradeNow": {
     "message": "立即升級"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
-    "message": "透過 Bitwarden Premium 取得進階線上安全防護。"
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
+    "message": "Get advanced online security with Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "填寫此表單將建立新的家庭組織。你可以從管理主控台升級你的免費組織。"
@@ -18964,14 +19174,26 @@
   "pamInboxRevokeConfirm": {
     "message": "這將立即撤銷該成員的存取權限。成員必須重新取得核准才能恢復存取權限。"
   },
-  "pamInboxWithdrawApprovalConfirm": {
-    "message": "這將撤回該成員對 $ITEM$ 的存取核准。成員將無法開始存取，必須重新取得核准。",
-    "placeholders": {
-      "item": {
-        "content": "$1",
-        "example": "Prod database"
-      }
-    }
+  "pamWithdrawApprovalWarningOne": {
+    "message": "This withdraws your approval for",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Access won't start, and",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "will need a new approval to get it.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Reason"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Keep it brief. The requester reads this directly."
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "存取規則"

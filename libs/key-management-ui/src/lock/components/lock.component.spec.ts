@@ -111,6 +111,7 @@ describe("LockComponent", () => {
     mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(null));
     mockUnlockService.unlocked$ = EMPTY;
     mockSyncService.fullSync.mockResolvedValue(true);
+    mockEncryptedMigrator.runMigrations.mockResolvedValue();
     mockDeviceTrustService.trustDeviceIfRequired.mockResolvedValue();
     mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded.mockResolvedValue();
     mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => {});
@@ -367,6 +368,45 @@ describe("LockComponent", () => {
         component.activeAccount!.id,
       );
     }
+  });
+
+  describe("encrypted migrations", () => {
+    const previousUrl = "/fido2?sessionId=test-session";
+    let resolveMigrations: () => void;
+
+    beforeEach(async () => {
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+      component.clientType = ClientType.Browser;
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+      mockLockComponentService.getPreviousUrl.mockReturnValue(previousUrl);
+      mockPolicyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+      mockEncryptedMigrator.runMigrations.mockReturnValue(
+        new Promise((resolve) => (resolveMigrations = resolve)),
+      );
+    });
+
+    it("continues to the previous url while migrations without the master password are pending", async () => {
+      await (component as any).continueAfterSettingUserKey();
+
+      expect(mockEncryptedMigrator.runMigrations).toHaveBeenCalledWith(userId, null);
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(previousUrl);
+    });
+
+    it("waits for migrations that use the master password", fakeAsync(() => {
+      void component.successfulMasterPasswordUnlock({
+        userKey: new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+        masterPassword: "test-password",
+      });
+      tick();
+
+      expect(mockEncryptedMigrator.runMigrations).toHaveBeenCalledWith(userId, "test-password");
+      expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+
+      resolveMigrations();
+      tick();
+
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(previousUrl);
+    }));
   });
 
   describe("onPrfUnlockSuccess", () => {

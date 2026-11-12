@@ -1,28 +1,14 @@
 import { Component, computed, input, OnInit, output, viewChild } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
-import {
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  firstValueFrom,
-  map,
-  Observable,
-  shareReplay,
-  startWith,
-  switchMap,
-} from "rxjs";
+import { debounceTime, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 import { Discount, DiscountBadgeComponent } from "@bitwarden/pricing";
 import {
-  BillingAddressControls,
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
 } from "@bitwarden/web-vault/app/billing/payment/components";
@@ -67,15 +53,6 @@ export class TrialBillingStepComponent implements OnInit {
   protected organizationCreated = output<OrganizationCreatedEvent>();
 
   protected prices$!: Observable<Prices>;
-
-  protected selectionPrice$!: Observable<number>;
-  protected selectionCosts$!: Observable<{
-    tax: number;
-    total: number;
-  }>;
-
-  /** Whether the preview-driven pricing is enabled — both cart flags on. */
-  protected previewPricingEnabled$!: Observable<boolean>;
 
   protected formGroup = new FormGroup({
     cadence: new FormControl<Cadence>(Cadences.Annually, {
@@ -125,14 +102,11 @@ export class TrialBillingStepComponent implements OnInit {
     this.eligibleDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId),
   );
 
-  private readonly eligibleDiscounts$ = toObservable(this.eligibleDiscounts);
-
   constructor(
     private i18nService: I18nService,
     private toastService: ToastService,
     private trialBillingStepService: TrialBillingStepService,
     private subscriptionDiscountService: SubscriptionDiscountService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -140,49 +114,6 @@ export class TrialBillingStepComponent implements OnInit {
       this.trial().product,
       this.trial().tier,
       this.trial().privilegedControls != null,
-    );
-
-    const billingAddressChanged$ = this.formGroup.controls.billingAddress.valueChanges.pipe(
-      startWith(this.formGroup.controls.billingAddress.value),
-      filter(
-        (billingAddress): billingAddress is BillingAddressControls =>
-          !!billingAddress.country && !!billingAddress.postalCode,
-      ),
-    );
-
-    this.selectionPrice$ = this.getSelectionPrice$(this.cadenceSelected$);
-    this.selectionCosts$ = this.getSelectionCosts$(this.cadenceSelected$, billingAddressChanged$);
-    this.previewPricingEnabled$ = this.getPreviewPricingEnabled$();
-  }
-
-  private getSelectionPrice$(cadenceSelected$: Observable<Cadence>): Observable<number> {
-    return combineLatest([this.prices$, cadenceSelected$]).pipe(
-      map(([prices, cadence]) => prices[cadence]),
-      filter((price): price is number => !!price),
-    );
-  }
-
-  private getSelectionCosts$(
-    cadenceSelected$: Observable<Cadence>,
-    billingAddressChanged$: Observable<BillingAddressControls>,
-  ): Observable<{ tax: number; total: number }> {
-    return combineLatest([cadenceSelected$, billingAddressChanged$, this.eligibleDiscounts$]).pipe(
-      debounceTime(500),
-      switchMap(([cadence, billingAddress]) =>
-        this.trialBillingStepService.getCosts(
-          this.trial().product,
-          this.trial().tier,
-          cadence,
-          billingAddress,
-          this.trial().privilegedControls,
-          this.eligibleCouponIds(),
-        ),
-      ),
-      startWith({
-        tax: 0,
-        total: 0,
-      }),
-      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
@@ -193,17 +124,6 @@ export class TrialBillingStepComponent implements OnInit {
       case Cadences.Monthly:
         return `${this.i18nService.t("monthly")} ($${price}/${this.i18nService.t("monthAbbr")})`;
     }
-  }
-
-  /** Gate the preview-driven pricing on both flags; the endpoint also requires PM36631 server-side. */
-  private getPreviewPricingEnabled$(): Observable<boolean> {
-    return combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
-      this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
-    ]).pipe(
-      map(([pamBillingSupport, previewDrivenCart]) => pamBillingSupport && previewDrivenCart),
-      distinctUntilChanged(),
-    );
   }
 
   /** Submit is allowed unless a rendered preview cart is still loading, erroring, or empty. */

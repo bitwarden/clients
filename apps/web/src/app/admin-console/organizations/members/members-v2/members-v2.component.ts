@@ -34,6 +34,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -58,6 +60,7 @@ import {
   SvgComponent,
   type TableRowRange,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -83,10 +86,17 @@ import { MemberActionsService } from "../services/member-actions/member-actions.
 import { MemberActionResult } from "../services/member-actions/member-actions.types";
 
 import {
+  AccountRecoveryFilter,
+  matchesAccess,
+  matchesPolicies,
+  matchesProduct,
+  matchesRole,
   matchesStatus,
   MemberFilters,
-  MembershipKey,
+  MemberProductFilter,
   REVOCATION_REASON_OPTIONS,
+  ROLE_OPTIONS,
+  TwoFactorFilter,
 } from "./members-filter";
 
 /** Badge text and variant per status, listed in the order the Status column sorts. */
@@ -122,6 +132,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
     SharedOrganizationModule,
     StatusLockupComponent,
     SvgComponent,
+    TooltipDirective,
     Vfo1I18nPipe,
     Vfo1IconPipe,
   ],
@@ -145,12 +156,17 @@ export class MembersV2Component {
   private readonly validationService = inject(ValidationService);
   private readonly memberExportService = inject(MemberExportService);
   private readonly userNamePipe = inject(UserNamePipe);
+  private readonly configService = inject(ConfigService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly emptyIcon = RegistrationUserAddIcon;
   protected readonly noMatchesIcon = SearchFolder;
   protected readonly revocationReasons = REVOCATION_REASON_OPTIONS;
+  protected readonly roleOptions = ROLE_OPTIONS;
+  protected readonly productFilter = MemberProductFilter;
+  protected readonly accountRecoveryFilter = AccountRecoveryFilter;
+  protected readonly twoFactorFilter = TwoFactorFilter;
   protected readonly memberTab = MemberDialogTab;
   protected readonly userStatusType = OrganizationUserStatusType;
 
@@ -169,6 +185,8 @@ export class MembersV2Component {
   protected readonly organization = toSignal(this.organization$);
 
   protected readonly members = signal<OrganizationUserView[]>([]);
+  /** The name of every group in the organization by ID, or of every collection without groups. */
+  private readonly accessNames = signal<Map<string, string>>(new Map());
   protected readonly firstLoaded = signal(false);
   protected readonly isProcessing = this.memberActionsService.isProcessing;
   protected readonly table = defineTable<OrganizationUserView, "options">(this.members);
@@ -228,6 +246,15 @@ export class MembersV2Component {
     { initialValue: false },
   );
 
+  /**
+   * The Account recovery section of the Policies filter shows when the organization uses account
+   * recovery and its policy is on: the same check as the v1 page's `showEnrolledStatus`. Admins
+   * without manage users permission still get it, though the server only returns enrolled members.
+   */
+  protected readonly showAccountRecoverySection = computed(
+    () => !!this.organization()?.useResetPassword && this.resetPasswordPolicyEnabled(),
+  );
+
   private readonly billingMetadata$: Observable<OrganizationBillingMetadataResponse> =
     this.organization$.pipe(
       switchMap((organization) =>
@@ -236,18 +263,48 @@ export class MembersV2Component {
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
-  /** Every group a member belongs to, offered as options in the Groups filter. */
-  protected readonly groupNames = computed(() => this.distinctNames("groupNames"));
+  /**
+   * The organization's groups, or its collections without groups, as options in the Groups or
+   * Collections filter, sorted by name. Keyed by ID, so two groups sharing a name stay separate.
+   */
+  protected readonly accessOptions = computed(() =>
+    [...this.accessNames()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => this.compareText(a.name, b.name) || this.compareText(a.id, b.id)),
+  );
 
-  /** Every collection a member can access, offered as options in the Collections filter. */
-  protected readonly collectionNames = computed(() => this.distinctNames("collectionNames"));
+  /**
+   * Each member's groups, or collections without groups, as action chips sorted by name. Built
+   * once per load, so chip groups don't remeasure.
+   */
+  protected readonly accessChips = computed(() => {
+    const useGroups = this.organization()?.useGroups ?? false;
+    const startIcon: BitwardenIcon = useGroups ? "bwi-users" : "bwi-collection-shared";
+    const names = this.accessNames();
+    return new Map<OrganizationUserView, ChipGroupItem[]>(
+      this.members().map((member) => [
+        member,
+        (useGroups ? member.groups : member.collections.map((c) => c.id))
+          .flatMap((id) => {
+            const label = names.get(id);
+            return label == null ? [] : [{ id, label, startIcon }];
+          })
+          .sort((a, b) => this.compareText(a.label, b.label)),
+      ]),
+    );
+  });
 
-  /** Each member's groups as action chips. Built once per load, so chip groups don't remeasure. */
-  protected readonly groupChips = computed(() => this.chipsByMember("groupNames", "bwi-users"));
+  private readonly privilegedControlsFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    { initialValue: false },
+  );
 
-  /** Each member's collections as action chips. */
-  protected readonly collectionChips = computed(() =>
-    this.chipsByMember("collectionNames", "bwi-collection-shared"),
+  protected readonly canUseSecretsManager = computed(
+    () => this.organization()?.useSecretsManager ?? false,
+  );
+
+  protected readonly canUsePrivilegedControls = computed(
+    () => (this.organization()?.usePam ?? false) && this.privilegedControlsFlag(),
   );
 
   /** The Staged option only shows for organizations with staged members. */
@@ -270,14 +327,16 @@ export class MembersV2Component {
     : {};
 
   /**
-   * Members matching the search on name, email or id, the Status filter, and in any of the
-   * selected groups or collections. Names stand in for ids, as on the chips.
+   * Members matching the search on name, email or id and every filter: Status, Role, in any of
+   * the checked groups or collections, with any of the checked products, and matching Policies.
    */
   protected readonly filter = (row: OrganizationUserView, filters: MemberFilters) =>
     this.matchesSearch(row, filters.search) &&
     matchesStatus(row, filters.status) &&
-    this.matchesAny(row.groupNames, filters.groupNames) &&
-    this.matchesAny(row.collectionNames, filters.collectionNames);
+    matchesRole(row, filters.role) &&
+    matchesAccess(row, filters.access, this.organization()?.useGroups ?? false) &&
+    matchesProduct(row, filters.product) &&
+    matchesPolicies(row, filters.policies);
 
   constructor() {
     this.organization$
@@ -299,8 +358,9 @@ export class MembersV2Component {
    * an active column sort. This keeps the sort out of the URL until the user picks one.
    */
   async load(organization: Organization) {
-    const members = await this.memberService.loadUsers(organization);
-    this.members.set([...members].sort(this.sortByName));
+    const { users, accessNames } = await this.memberService.loadMembers(organization);
+    this.accessNames.set(accessNames);
+    this.members.set([...users].sort(this.sortByName));
     this.firstLoaded.set(true);
   }
 
@@ -419,6 +479,11 @@ export class MembersV2Component {
     this.memberDialogManager.openEventsDialog(user, organization);
   }
 
+  /** Whether the key icon follows a member's name, as in the v1 page's Policies column. */
+  protected showEnrolledStatus(user: OrganizationUserView): boolean {
+    return this.showAccountRecoverySection() && user.resetPasswordEnrolled;
+  }
+
   allowResetPassword(user: OrganizationUserView, organization: Organization): boolean {
     return this.memberActionsService.allowResetPassword(
       user,
@@ -516,10 +581,10 @@ export class MembersV2Component {
   }
 
   /** Narrows the table to members of the chip's group or collection, replacing any prior choice. */
-  protected filterBy(key: MembershipKey, name: string) {
+  protected filterByAccess(id: string) {
     this.filterMenus()
-      .find((menu) => menu.key() === key)
-      ?.setValue([name]);
+      .find((menu) => menu.key() === "access")
+      ?.setValue([id]);
   }
 
   /** Resets the search and every filter, so Status returns to its default. */
@@ -564,32 +629,11 @@ export class MembersV2Component {
     );
   };
 
-  private distinctNames(key: MembershipKey): string[] {
-    const names = new Set(this.members().flatMap((member) => member[key]));
-    return [...names].sort((a, b) => this.compareText(a, b));
-  }
-
-  private chipsByMember(
-    key: MembershipKey,
-    startIcon: BitwardenIcon,
-  ): Map<OrganizationUserView, ChipGroupItem[]> {
-    return new Map(
-      this.members().map((member) => [
-        member,
-        member[key].map((name) => ({ id: name, label: name, startIcon })),
-      ]),
-    );
-  }
-
   private matchesSearch(row: OrganizationUserView, search: string | undefined): boolean {
     const text = search?.toLowerCase();
     return (
       !text || [row.name, row.email, row.id].some((value) => value?.toLowerCase().includes(text))
     );
-  }
-
-  private matchesAny(names: string[], selected: string[] | undefined): boolean {
-    return !selected?.length || selected.some((name) => names.includes(name));
   }
 
   private compareText(a: string, b: string): number {

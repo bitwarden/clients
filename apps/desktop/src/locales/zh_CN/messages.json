@@ -944,10 +944,10 @@
     "message": "编辑"
   },
   "editInfo": {
-    "message": "Edit info"
+    "message": "编辑信息"
   },
   "editAccess": {
-    "message": "Edit access"
+    "message": "编辑访问权限"
   },
   "authenticatorKeyTotp": {
     "message": "验证器密钥 (TOTP)"
@@ -1236,7 +1236,7 @@
     "message": "此项目受到限制。您的更改未被保存。"
   },
   "controlledAccess": {
-    "message": "Controlled access"
+    "message": "受控访问"
   },
   "overwritePasswordConfirmation": {
     "message": "确定要覆盖当前密码吗？"
@@ -2189,10 +2189,10 @@
     "message": "使用 Bitwarden 保存通行密钥并使用通行密钥在其他 App 中登录。"
   },
   "turnedOn": {
-    "message": "已启用"
+    "message": "已开启"
   },
   "turnedOff": {
-    "message": "已停用"
+    "message": "已关闭"
   },
   "manageInSystemSettings": {
     "message": "在系统设置中管理"
@@ -4771,6 +4771,167 @@
       }
     }
   },
+  "selectVault": {
+    "message": "选择密码库",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "选择位置",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "选择一个密码库"
+  },
+  "selectALocationTitle": {
+    "message": "选择一个位置"
+  },
+  "importDestinationDescription": {
+    "message": "选择这些项目的导入位置。"
+  },
+  "importMyItemsOption": {
+    "message": "我的项目",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "仅您可见"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "由 $ORGANIZATION$ 拥有，但仅您可见",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "组织密码库"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "家庭密码库"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将被保留。"
+  },
+  "importSharedFolderRequired": {
+    "message": "必须选择共享文件夹。"
+  },
+  "importIntoOrganization": {
+    "message": "项目将被导入到 $ORGANIZATION$。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "将所有项目移动到共享文件夹"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "项目无法导入到没有共享文件夹且您在其中无任何管理权限的 $ORGANIZATION$ 中。请选择其他位置。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "导入 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "导入 1 个项目"
+  },
+  "importToOrganization": {
+    "message": "导入到 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "您的数据可能会与此​​组织的成员共享。"
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ 不允许您导入 $ITEM_TYPES$。如果您的导入内容中包含这些项目，它们将被跳过。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "登录",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "安全笔记",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "支付卡",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "身份",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH 密钥",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "银行账户",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "驾驶证",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "护照",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "前往 Access Intelligence"
+  },
   "chooseFile": {
     "message": "选择文件"
   },
@@ -5274,10 +5435,10 @@
     "message": "导出过程中跳过了 1 个损坏的附件。其余所有密码库数据和附件均已成功导出。"
   },
   "exportExcludedGatedItem": {
-    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+    "message": "1 个项目未包含在此导出中。该项目受特权访问规则保护，因此其凭据在此设备上不可用。"
   },
   "exportExcludedGatedItems": {
-    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "message": "$COUNT$ 个项目未包含在此导出中。这些项目受特权访问规则保护，因此其凭据在此设备上不可用。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5843,7 +6004,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricUnlockOnRestartTurnedOff": {
-    "message": "App 重启时使用生物识别解锁已停用。在设置中将其重新启用。"
+    "message": "App 重启时使用生物识别解锁已关闭。在设置中将其重新开启。"
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "生物识别解锁不可用，因为需要先使用 PIN 码或密码解锁。"
@@ -5969,7 +6130,7 @@
     "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
+    "message": "开启两步登录"
   },
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
@@ -7562,40 +7723,40 @@
     "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
   },
   "httpAuthenticationSettingDescription": {
-    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+    "message": "响应匹配此登录项目的网站的基本 HTTP 身份验证提示。"
   },
   "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open help article on autofilling browser login prompts"
+    "message": "打开浏览器登录自动填充提示帮助文章"
   },
   "httpAuthenticationSettingWarning": {
-    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
     "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+    "message": "要使用此设置，请为此登录项目的每个网站选择「默认」以外的匹配检测选项。"
   },
   "turnOnHttpAuthenticationTitle": {
-    "message": "Turn on autofill for browser login prompts?"
+    "message": "开启浏览器登录自动填充提示吗？"
   },
   "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+    "message": "此项目的主密码二次验证将被关闭。这两项设置无法同时开启。"
   },
   "turnOnPasswordRepromptTitle": {
-    "message": "Turn on master password re-prompt?"
+    "message": "开启主密码二次验证吗？"
   },
   "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+    "message": "此项目的浏览器登录自动填充提示将被关闭。这两项设置无法同时开启。"
   },
   "useDefaultMatchDetectionTitle": {
-    "message": "Use default match detection?"
+    "message": "使用默认匹配检测吗？"
   },
   "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+    "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被关闭。"
   },
   "httpAuthenticationTurnedOffTitle": {
-    "message": "Autofill for browser login prompts turned off"
+    "message": "浏览器登录自动填充提示已关闭"
   },
   "httpAuthenticationTurnedOffNotice": {
-    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存此条目以保留此更改。"
   }
 }

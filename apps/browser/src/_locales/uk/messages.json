@@ -561,7 +561,7 @@
     "message": "У моєму сховищі немає записів"
   },
   "noItemsInFolder": {
-    "message": "Немає записів в $FOLDER_NAME$",
+    "message": "Немає записів у $FOLDER_NAME$",
     "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
     "placeholders": {
       "folder_name": {
@@ -1608,6 +1608,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Вибрати сховище",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Вибрати розташування",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Вибір сховища"
+  },
+  "selectALocationTitle": {
+    "message": "Вибір розташування"
+  },
+  "importDestinationDescription": {
+    "message": "Виберіть, куди імпортувати ці записи."
+  },
+  "importMyItemsOption": {
+    "message": "Мої записи",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Доступно лише вам"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Належить $ORGANIZATION$, але доступний для перегляду лише вам",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Сховище організації"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Спільний доступ для одного користувача"
+  },
+  "importFamilyVault": {
+    "message": "Сімейне сховище"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Перемістити всі записи до спільної теки $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Перемістити всі записи до спільної теки $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Перемістіть усе до теки верхнього рівня. Структуру вкладених тек буде збережено."
+  },
+  "importSharedFolderRequired": {
+    "message": "Необхідна спільна тека."
+  },
+  "importIntoOrganization": {
+    "message": "Записи будуть імпортовані до $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Перемістити всі записи до спільної теки"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Без спільної теки неможливо імпортувати записи до $ORGANIZATION$, а ви не керуєте жодною такою текою. Виберіть інше місце.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Імпортувати $COUNT$ записів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Імпортувати 1 запис"
+  },
+  "importToOrganization": {
+    "message": "Імпортувати до $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Ваші дані можуть бути доступні учасникам цієї організації."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ не дозволяє імпортувати $ITEM_TYPES$. Якщо вони є у ваших імпортованих даних, їх буде пропущено.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "записи входу",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "захищені нотатки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "картки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "посвідчення",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "Ключі SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "банківські рахунки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "ліцензії",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "паспорти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Перейти до Access Intelligence"
   },
   "importItems": {
     "message": "Імпортувати записи"
@@ -5422,10 +5583,10 @@
     "message": "Цей процес наскрізно зашифрований. Файл експорту не потрібен."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "Все, що вам потрібно, - це ваш вхід"
+    "message": "Вам потрібно лише ввійти до системи"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "На наступному кроці вам потрібно буде ввести свої облікові дані для $VENDOR$.",
+    "message": "На наступному кроці потрібно буде ввести свої облікові дані для $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5434,10 +5595,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "Що буде передано"
+    "message": "Що буде перенесено"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Ваші облікові записи, інші елементи та теки будуть перенесені. Паролі та вкладення можуть бути виключені."
+    "message": "Буде перенесено ваші записи входу, інші записи й теки. Ключі доступу та вкладення можуть бути виключені."
   },
   "importAcceptedFormats": {
     "message": "Прийнято: $FORMATS$",
@@ -5721,10 +5882,10 @@
     "message": "Під час експорту пропущено 1 пошкоджене вкладення. Усі інші дані сховища та вкладення успішно експортовано."
   },
   "exportExcludedGatedItem": {
-    "message": "1 запис не було включено до цього експорту. Він захищений правилом привілейованого доступу, тому його облікові дані недоступні на цьому пристрої."
+    "message": "1 запис не включено до цього експорту. Він захищений правилом привілейованого доступу, тому його облікові дані недоступні на цьому пристрої."
   },
   "exportExcludedGatedItems": {
-    "message": "$COUNT$ записів не було включено до цього експорту. Вони захищені правилами привілейованого доступу, тому їхні облікові дані недоступні на цьому пристрої.",
+    "message": "$COUNT$ записів не включено до цього експорту. Вони захищені правилами привілейованого доступу, тому їхні облікові дані недоступні на цьому пристрої.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5835,13 +5996,13 @@
     "message": "Електронна пошта LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Електронна пошта є обов'язковою."
+    "message": "Необхідно вказати е-пошту."
   },
   "lastPassLoginEmailInvalid": {
     "message": "Введіть дійсну адресу електронної пошти."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Пароль є обов'язковим."
+    "message": "Необхідно ввести пароль."
   },
   "lastPassLoginPasswordInvalid": {
     "message": "Введіть дійсний пароль"
@@ -5850,16 +6011,16 @@
     "message": "Введіть дійсний код підтвердження."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Будь ласка, введіть головний пароль LastPass."
+    "message": "Введіть свій головний пароль LastPass."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Будь ласка, введіть нижче код підтвердження."
+    "message": "Введіть нижче код підтвердження."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Очікування аутентифікації SSO"
+    "message": "Очікування автентифікації SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Після входу в систему ми автоматично продовжимо імпорт."
+    "message": "Після входу в систему імпортування автоматично продовжиться."
   },
   "importingYourAccount": {
     "message": "Ваш обліковий запис імпортується..."
@@ -5868,16 +6029,16 @@
     "message": "Сервер"
   },
   "keeperLoginEmailRequired": {
-    "message": "Електронна пошта є обов'язковою."
+    "message": "Необхідно вказати е-пошту."
   },
   "keeperLoginEmailInvalid": {
     "message": "Введіть дійсну адресу електронної пошти."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Цей метод двофакторної аутентифікації не підтримується. Змініть метод або імпортуйте дані вручну."
+    "message": "Непідтримуваний спосіб двоетапної перевірки. Змініть спосіб або імпортуйте вручну."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Метод затвердження пристрою"
+    "message": "Спосіб схвалення пристрою"
   },
   "keeperLoginCodeInvalid": {
     "message": "Введіть дійсний код підтвердження."
@@ -5886,40 +6047,40 @@
     "message": "Повторно надіслати код підтвердження"
   },
   "keeperLoginPushSentDesc": {
-    "message": "На затверджений пристрій надіслано push-повідомлення від Keeper."
+    "message": "Сповіщення Keeper Push надіслано на схвалений пристрій."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Затвердіть цей пристрій, вибравши один із наведених нижче способів."
+    "message": "Схваліть цей пристрій, вибравши спосіб нижче."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Будь ласка, перевірте свою електронну пошту та введіть код підтвердження нижче."
+    "message": "Перевірте свою електронну пошту та введіть код підтвердження нижче."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Будь ласка, введіть код із вашого застосунку для аутентифікації."
+    "message": "Введіть код з вашої програми для автентифікації."
   },
   "keeperLoginSmsDesc": {
-    "message": "Будь ласка, введіть код, надісланий у текстовому повідомленні."
+    "message": "Введіть код, надісланий у текстовому повідомленні."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Будь ласка, введіть головний пароль Keeper."
+    "message": "Введіть свій головний пароль Keeper."
   },
   "keeperLoginDnaSent": {
-    "message": "ДНК Keeper надіслано"
+    "message": "Keeper DNA надіслано"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Підтвердьте сповіщення від Keeper DNA на своєму пристрої."
+    "message": "Схваліть сповіщення Keeper DNA на вашому пристрої."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Ваш запит на затвердження буде скасовано. Ви впевнені, що хочете продовжити?"
+    "message": "Ваш запит на схвалення буде скасовано. Ви дійсно хочете продовжити?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "Ми надіслали запит на затвердження адміністратору вашого сайту."
+    "message": "Ми надіслали вашому адміністратору запит на схвалення."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Пароль є обов'язковим."
+    "message": "Необхідно ввести пароль."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Введіть дійсний пароль."
+    "message": ""
   },
   "lastPassMFARequired": {
     "message": "Необхідно пройти багатофакторну автентифікацію LastPass"
@@ -6545,6 +6706,9 @@
     "message": "Копіювати адресу"
   },
   "myItems": {
+    "message": "Мої записи"
+  },
+  "myItemsV2": {
     "message": "Мої записи"
   },
   "adminConsole": {
@@ -8081,17 +8245,11 @@
   "sharedUnlock": {
     "message": "Спільне розблокування"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Синхронізація з комп'ютерною програмою"
+  "syncUnlockWithDesktop1": {
+    "message": "Синхронізувати розблокування з комп'ютером"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Розширення браузера Bitwarden блокується і розблоковується разом з комп'ютерною програмою."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Синхронізація з вебпрограмою"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Розширення браузера Bitwarden блокується і розблоковується разом з вебпрограмою."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Розширення браузера та комп'ютерна програма Bitwarden блокуються та розблоковуються разом. За можливості буде використовуватись біометрія."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Функція спільного розблокування недоступна, оскільки ви вирішили не запам'ятовувати цей пристрій. Щоб увімкнути цю функцію, спробуйте ввійти ще раз."
@@ -8474,10 +8632,10 @@
     "message": "Виключити зі списку"
   },
   "excludeFromListDesc": {
-    "message": "Виключення не усуває ризик, пов’язаний із вашим паролем. Щоб захистити свій обліковий запис, спочатку змініть пароль."
+    "message": "Виключення не усуває ризик, пов'язаний із вашим паролем. Щоб захистити свій обліковий запис, спочатку змініть пароль."
   },
   "excludeAnyway": {
-    "message": "Виключити все одно"
+    "message": "Все одно виключити"
   },
   "reused": {
     "message": "Повторно використано",
@@ -8600,13 +8758,13 @@
     "message": "Невідомий запис. Можливо, вам необхідно запитати дозвіл для доступу до нього."
   },
   "viewSharedItem": {
-    "message": "Перегляд спільного запису"
+    "message": "Переглянути спільний запис"
   },
   "copyShareLink": {
-    "message": "Копіювати посилання для спільного доступу"
+    "message": "Копіювати посилання на спільний доступ"
   },
   "unableToDetermineItemId": {
-    "message": "Не вдалося визначити ідентифікатор запису"
+    "message": "Не вдалося визначити ID запису"
   },
   "newExperienceDialogTitle": {
     "message": "Bitwarden має новий вигляд",
@@ -8641,13 +8799,13 @@
     "message": "Перемикання між сховищами"
   },
   "coachmarkVaultSwitcherDescription": {
-    "message": "За допомогою нового перемикача сховищ ви можете швидко переглянути особисті записи або записи у сховищі, яке ви використовуєте спільно з іншими."
+    "message": "За допомогою нового перемикача сховищ можна швидко переглядати записи з особистого або спільного сховища."
   },
   "coachmarkFiltersTitle": {
-    "message": "Комбінуйте фільтри"
+    "message": "Використання різних фільтрів"
   },
   "coachmarkFiltersDescription": {
-    "message": "Виберіть одразу кілька фільтрів, щоб звузити пошук саме до тих результатів, які вам потрібні. Вони залишатимуться активними навіть після переходу на іншу сторінку."
+    "message": "Застосовуйте декілька фільтрів одночасно, щоб звузити результати. Фільтри зберігаються навіть якщо ви переходите до інших розділів меню."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Збірки й теки мають нові назви"
@@ -8668,44 +8826,44 @@
     "message": "Відновити типові налаштування"
   },
   "httpAuthenticationSettingLabel": {
-    "message": "Автозаповнення полів входу в браузері",
+    "message": "Автозаповнення запитів на вхід у браузері",
     "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
   },
   "httpAuthenticationSettingDescription": {
-    "message": "Відповідайте на запити щодо базової HTTP-аутентифікації від вебсайтів, які відповідають цьому запису входу."
+    "message": "Відповідати на основні запити про HTTP-автентифікацію від вебсайтів, що збігаються з цим записом входу."
   },
   "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Відкрити статтю довідки про автозаповнення полів входу в браузері"
+    "message": "Відкрити статтю довідки про автозаповнення запитів на вхід у браузері"
   },
   "httpAuthenticationSettingWarning": {
-    "message": "Вебсайти можуть активувати ці запити без вашого відома, що може призвести до витоку ваших облікових даних.",
+    "message": "Вебсайти можуть ініціювати ці запити без вашого відома, що може призвести до розкриття ваших облікових даних.",
     "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Щоб скористатися цим параметром, для кожного вебсайту цього запису входу виберіть варіант виявлення збігів, відмінний від «За замовчуванням»."
+    "message": "Щоб скористатися цим параметром, виберіть варіант виявлення збігів, відмінний від \"Типово\" для кожного вебсайту цього запису входу."
   },
   "turnOnHttpAuthenticationTitle": {
-    "message": "Увімкнути автозаповнення у вікнах входу в браузері?"
+    "message": "Увімкнути автозаповнення запитів на вхід у браузері?"
   },
   "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Для цього запису буде вимкнено повторне запитування головного пароля. Обидва параметри не можуть бути увімкнені одночасно."
+    "message": "Для цього запису буде вимкнено повторний запит головного пароля. Не можна ввімкнути обидва параметри одночасно."
   },
   "turnOnPasswordRepromptTitle": {
-    "message": "Увімкнути повторне запитування головного пароля?"
+    "message": "Увімкнути повторний запит головного пароля?"
   },
   "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Для цього запису буде вимкнено автозаповнення у вікнах входу в браузері. Обидва параметри не можуть бути увімкнені одночасно."
+    "message": "Для цього запису буде вимкнено автозаповнення запитів на вхід у браузері. Не можна ввімкнути обидва параметри одночасно."
   },
   "useDefaultMatchDetectionTitle": {
-    "message": "Використовувати стандартне виявлення збігів?"
+    "message": "Використовувати типове виявлення збігів?"
   },
   "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Вебсайти, що використовують стандартне виявлення збігів, не можна використовувати разом із вікнами входу в браузері. Функція автозаповнення для вікон входу в браузері буде вимкнена для цього запису."
+    "message": "Вебсайти, для яких використовується типове виявлення збігів, не можна використовувати із запитами на вхід у браузері. Для цього запису буде вимкнено автозаповнення запитів на вхід у браузері."
   },
   "httpAuthenticationTurnedOffTitle": {
-    "message": "Функція автозаповнення у вікнах входу в браузері вимкнена"
+    "message": "Автозаповнення запитів на вхід у браузері вимкнено"
   },
   "httpAuthenticationTurnedOffNotice": {
-    "message": "Для цього елемента увімкнено повторне запитування головного пароля, тому автозаповнення полів входу в браузері було вимкнено. Збережіть запис, щоб зберегти цю зміну."
+    "message": "Для цього запису ввімкнено повторний запит головного пароля, тому автозаповнення запитів на вхід у браузері вимкнено. Збережіть запис, щоб застосувати цю зміну."
   }
 }

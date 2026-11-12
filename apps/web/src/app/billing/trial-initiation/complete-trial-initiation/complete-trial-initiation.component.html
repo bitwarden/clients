@@ -38,6 +38,25 @@
           >
             {{ "trialIncludesPrivilegedControls" | i18n }}
           </bit-callout>
+        } @else if (showPrivilegedControlsSalesCallout) {
+          <bit-callout
+            type="info"
+            [title]="null"
+            [accessibleName]="'privilegedControls' | i18n"
+            class="tw-mb-3 tw-block"
+            id="privileged-controls-sales-callout"
+          >
+            {{ "trialPrivilegedControlsThroughSales" | i18n }}
+            <a
+              bitLink
+              href="https://bitwarden.com/contact/"
+              target="_blank"
+              rel="noreferrer"
+              id="complete-trial-initiation_link_privileged-controls-contact-sales"
+            >
+              {{ "contactSales" | i18n }}
+            </a>
+          </bit-callout>
         }
         <app-org-info [nameOnly]="true" [formGroup]="orgInfoFormGroup"></app-org-info>
         <button

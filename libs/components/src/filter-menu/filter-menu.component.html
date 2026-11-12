@@ -120,12 +120,13 @@
     </div>
   }
   @if (multiple()) {
+    <!-- Grid so every row takes the widest row's width; deep rows scroll sideways with aligned counts. -->
     <div
       role="tree"
       aria-multiselectable="true"
       [attr.aria-label]="placeholderText()"
       tabindex="-1"
-      class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+      class="tw-grid tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
       data-filter-card-list
       data-filter-scroll
       (keydown)="onTreeKeydown($event)"
@@ -157,7 +158,6 @@
           [attr.aria-expanded]="expandable ? node.expanded : null"
           [attr.aria-checked]="checked"
           [attr.aria-disabled]="node.row.disabled() ? true : null"
-          [bitTooltip]="node.row.label()"
           (click)="node.row.disabled() ? null : activateNode(node)"
           (focus)="onRowFocus(row)"
           #row="bitFilterTreeRow"
@@ -209,17 +209,23 @@
               />
             }
           }
+          <!-- Clamped, not `truncate`: a `nowrap` label's min-content is its full text, so the grid never shrinks it.
+               Tooltipped here, not on the row, which overflows the clipped tree; the row opens it on keyboard focus. -->
           @if (node.row.kind === "section") {
             <span
               data-filter-row-label
               bitTypography="helper"
-              class="tw-min-w-0 tw-flex-1 tw-truncate tw-font-semibold"
+              class="tw-me-auto tw-min-w-0 tw-line-clamp-1 tw-break-all tw-font-semibold"
+              [bitTooltip]="node.row.label()"
               >{{ node.row.label() }}</span
             >
           } @else {
-            <span data-filter-row-label class="tw-min-w-0 tw-flex-1 tw-truncate">{{
-              node.row.label()
-            }}</span>
+            <span
+              data-filter-row-label
+              class="tw-me-auto tw-min-w-16 tw-line-clamp-1 tw-break-all"
+              [bitTooltip]="node.row.label()"
+              >{{ node.row.label() }}</span
+            >
           }
           @if (asSection(node.row); as section) {
             <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
@@ -345,9 +351,10 @@
 </ng-template>
 
 <bit-menu #menu ariaRole="dialog" [ariaLabel]="placeholderText()" (closed)="onMenuClosed()">
-  <!-- The list bleeds into the menu's padding so its scrollbar and dividers reach the popover's edge. -->
+  <!-- The list bleeds into the menu's padding so its scrollbars and dividers reach the popover's edge.
+       The 3.25rem keeps the menu, padding and border included, inside the 1rem viewport margins. -->
   <div
-    class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col [&_[data-filter-scroll]]:-tw-mx-2 [&_[data-filter-scroll]]:tw-px-2"
+    class="tw-flex tw-max-h-96 tw-min-w-72 tw-max-w-[min(32rem,calc(100vw-3.25rem))] tw-flex-col [&_[data-filter-scroll]]:-tw-mx-2 [&_[data-filter-scroll]]:-tw-mb-2 [&_[data-filter-scroll]]:tw-px-2 [&_[data-filter-scroll]]:tw-pb-2"
   >
     <!-- Gated on open: the overlay keeps this view alive between openings, so ungated rows would
          outlive their popover and still count as the menu's once the dialog owns the options. -->

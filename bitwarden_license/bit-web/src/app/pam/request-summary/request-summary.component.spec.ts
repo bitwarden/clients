@@ -14,9 +14,9 @@ import { RequestSummaryComponent } from "./request-summary.component";
       [organizationName]="organizationName()"
       [collectionName]="collectionName()"
       [requesterName]="requesterName()"
-      [requesterEmail]="requesterEmail()"
-      [duration]="{ key: 'pamInboxDuration1Hour', value: null }"
+      duration="1 hour"
       [relativeStart]="{ key: 'pamInboxStartTomorrow', value: null }"
+      [exactWindow]="exactWindow()"
       [reason]="reason()"
     >
       <div data-testid="host-row">Resolved</div>
@@ -28,8 +28,8 @@ class HostComponent {
   readonly organizationName = signal<string | null>("Meridian Group");
   readonly collectionName = signal<string | null>("Production");
   readonly requesterName = signal("Grace Hopper");
-  readonly requesterEmail = signal<string | null>("grace@example.com");
   readonly reason = signal<string | null>("prod incident");
+  readonly exactWindow = signal<string>("");
 }
 
 describe("RequestSummaryComponent", () => {
@@ -64,15 +64,15 @@ describe("RequestSummaryComponent", () => {
     expect(card("item").textContent).toContain("Meridian Group");
     expect(card("item").textContent).toContain("Production");
     expect(card("item").querySelector(".bwi-business")).not.toBeNull();
-    expect(card("item").querySelector(".bwi-collection")).not.toBeNull();
+    expect(card("item").querySelector(".bwi-shared-folder")).not.toBeNull();
   });
 
   it("says which of the two item-card names is the organization and which is the collection", () => {
     expect(card("item").querySelector(".bwi-business")!.getAttribute("aria-label")).toBe(
       "organization",
     );
-    expect(card("item").querySelector(".bwi-collection")!.getAttribute("aria-label")).toBe(
-      "collection",
+    expect(card("item").querySelector(".bwi-shared-folder")!.getAttribute("aria-label")).toBe(
+      "sharedFolder",
     );
   });
 
@@ -86,25 +86,33 @@ describe("RequestSummaryComponent", () => {
     fixture.detectChanges();
 
     expect(card("item").querySelector(".bwi-business")).toBeNull();
-    expect(card("item").querySelector(".bwi-collection")).toBeNull();
+    expect(card("item").querySelector(".bwi-shared-folder")).toBeNull();
   });
 
-  it("shows the requester's name with their email beside it", () => {
+  it("names the requester without their email beside it", () => {
     expect(card("details").textContent).toContain("Grace Hopper");
-    expect(card("details").textContent).toContain("<grace@example.com>");
-  });
-
-  it("does not repeat the email when it is already standing in for the name", () => {
-    fixture.componentInstance.requesterName.set("grace@example.com");
-    fixture.detectChanges();
-
-    expect(card("details").textContent).not.toContain("<grace@example.com>");
+    expect(card("details").textContent).not.toContain("grace@example.com");
   });
 
   it("joins the window's duration and start into one requested-access line", () => {
     expect(fieldValue("pam-request-summary_value_access-requested")).toBe(
-      "pamInboxDuration1Hour, pamInboxStartTomorrow",
+      "1 hour, pamInboxStartTomorrow",
     );
+  });
+
+  it("shows the exact window as visible text under the coarse label", () => {
+    fixture.componentInstance.exactWindow.set("9/19/26, 2:00 PM – 9/19/26, 6:00 PM");
+    fixture.detectChanges();
+
+    expect(fieldValue("pam-request-summary_value_exact-window")).toBe(
+      "9/19/26, 2:00 PM – 9/19/26, 6:00 PM",
+    );
+  });
+
+  it("shows no exact-window line when none is given", () => {
+    expect(
+      fixture.nativeElement.querySelector("#pam-request-summary_value_exact-window"),
+    ).toBeNull();
   });
 
   it("quotes the reason", () => {

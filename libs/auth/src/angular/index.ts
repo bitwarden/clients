@@ -2,9 +2,6 @@
  * This barrel file should only contain Angular exports
  */
 
-// fingerprint dialog
-export * from "./fingerprint-dialog/fingerprint-dialog.component";
-
 // input password
 export * from "./input-password/input-password.component";
 export * from "./input-password/password-input-result";

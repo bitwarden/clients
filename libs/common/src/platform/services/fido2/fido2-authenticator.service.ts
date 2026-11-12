@@ -6,7 +6,7 @@ import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
-import { CipherId } from "../../../types/guid";
+import { CipherId, UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
@@ -14,6 +14,8 @@ import { CipherType } from "../../../vault/enums/cipher-type";
 import { Cipher } from "../../../vault/models/domain/cipher";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
+import { CipherViewLikeUtils } from "../../../vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "../../../vault/utils/observable-utilities";
 import {
   Fido2AlgorithmIdentifier,
   Fido2AuthenticatorError,
@@ -417,14 +419,11 @@ export class Fido2AuthenticatorService<
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    const ciphers = await this.passkeyCiphers(activeUserId);
     return ciphers
       .filter(
         (cipher) =>
-          !cipher.isDeleted &&
           cipher.organizationId == undefined &&
-          cipher.type === CipherType.Login &&
-          cipher.login.hasFido2Credentials &&
           ids.includes(cipher.login.fido2Credentials[0].credentialId),
       )
       .map((cipher) => cipher.id);
@@ -439,12 +438,9 @@ export class Fido2AuthenticatorService<
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    const ciphers = await this.passkeyCiphers(activeUserId);
     return ciphers.filter(
       (cipher) =>
-        !cipher.isDeleted &&
-        cipher.type === CipherType.Login &&
-        cipher.login.hasFido2Credentials &&
         cipher.login.fido2Credentials[0].rpId === rpId &&
         credentials.some((credential) =>
           compareCredentialIds(
@@ -455,14 +451,32 @@ export class Fido2AuthenticatorService<
     );
   }
 
+  /**
+   * Non-deleted login ciphers holding a passkey, fully decrypted. Picked on list views first,
+   * so a passkey lookup never decrypts the whole vault.
+   */
+  private async passkeyCiphers(userId: UserId): Promise<CipherView[]> {
+    const listViews = await firstValueFrom(
+      this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+    );
+    const ids = listViews
+      .filter(
+        (cipher) =>
+          CipherViewLikeUtils.getType(cipher) === CipherType.Login &&
+          CipherViewLikeUtils.hasFido2Credentials(cipher) &&
+          !CipherViewLikeUtils.isDeleted(cipher),
+      )
+      .map((cipher) => CipherViewLikeUtils.getId(cipher))
+      .filter((id) => id != null);
+
+    return this.cipherService.getAllDecryptedForIds(userId, ids);
+  }
+
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    const ciphers = await this.passkeyCiphers(activeUserId);
     return ciphers.filter(
       (cipher) =>
-        !cipher.isDeleted &&
-        cipher.type === CipherType.Login &&
-        cipher.login.hasFido2Credentials &&
         cipher.login.fido2Credentials[0].rpId === rpId &&
         cipher.login.fido2Credentials[0].discoverable,
     );

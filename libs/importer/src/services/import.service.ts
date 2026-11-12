@@ -139,7 +139,7 @@ export class ImportService implements ImportServiceAbstraction {
     private encryptService: EncryptService,
     private keyGenerationService: KeyGenerationService,
     private accountService: AccountService,
-    private restrictedItemTypesService: RestrictedItemTypesService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
     private sdkService: SdkService,
   ) {}
@@ -184,35 +184,9 @@ export class ImportService implements ImportServiceAbstraction {
     selectedImportTarget: FolderView | CollectionView = null,
     canAccessImportExport: boolean = false,
   ): Promise<ImportResult> {
-    if (!importResult.success) {
-      if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
-        throw new Error(importResult.errorMessage);
-      }
-      throw new Error(this.i18nService.t("importFormatError"));
-    }
+    this.validateImportResult(importResult);
 
-    if (importResult.folders.length === 0 && importResult.ciphers.length === 0) {
-      throw new Error(this.i18nService.t("importNothingError"));
-    }
-
-    if (importResult.ciphers.length > 0) {
-      const halfway = Math.floor(importResult.ciphers.length / 2);
-      const last = importResult.ciphers.length - 1;
-
-      if (
-        this.badData(importResult.ciphers[0]) &&
-        this.badData(importResult.ciphers[halfway]) &&
-        this.badData(importResult.ciphers[last])
-      ) {
-        throw new Error(this.i18nService.t("importFormatError"));
-      }
-    }
-
-    const restrictedItemTypes = await firstValueFrom(
-      this.restrictedItemTypesService.restricted$.pipe(
-        map((restrictedItemTypes) => restrictedItemTypes.map((r) => r.cipherType)),
-      ),
-    );
+    const restrictedItemTypes = await this.restrictedTypesFor(organizationId);
 
     // Filter out restricted item types from the import result
     importResult.ciphers = importResult.ciphers.filter(
@@ -240,6 +214,47 @@ export class ImportService implements ImportServiceAbstraction {
       throw this.handleServerError(errorResponse, importResult);
     }
     return importResult;
+  }
+
+  /**
+   * The cipher types removed from an import. Legacy rule: every restricted type, whatever the
+   * destination; ImportUpgradeService narrows it to what the destination org allows.
+   */
+  protected async restrictedTypesFor(
+    _organizationId: OrganizationId | null,
+  ): Promise<CipherType[]> {
+    return firstValueFrom(
+      this.restrictedItemTypesService.restricted$.pipe(
+        map((restricted) => restricted.map((r) => r.cipherType)),
+      ),
+    );
+  }
+
+  /** Throws if a parsed result failed, is empty, or looks like unparseable data. Never imports. */
+  protected validateImportResult(importResult: ImportResult): void {
+    if (!importResult.success) {
+      if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
+        throw new Error(importResult.errorMessage);
+      }
+      throw new Error(this.i18nService.t("importFormatError"));
+    }
+
+    if (importResult.folders.length === 0 && importResult.ciphers.length === 0) {
+      throw new Error(this.i18nService.t("importNothingError"));
+    }
+
+    if (importResult.ciphers.length > 0) {
+      const halfway = Math.floor(importResult.ciphers.length / 2);
+      const last = importResult.ciphers.length - 1;
+
+      if (
+        this.badData(importResult.ciphers[0]) &&
+        this.badData(importResult.ciphers[halfway]) &&
+        this.badData(importResult.ciphers[last])
+      ) {
+        throw new Error(this.i18nService.t("importFormatError"));
+      }
+    }
   }
 
   getImporter(
@@ -288,11 +303,7 @@ export class ImportService implements ImportServiceAbstraction {
       throw new Error(this.i18nService.t("importUnassignedItemsError"));
     }
 
-    const restrictedTypes = await firstValueFrom(
-      this.restrictedItemTypesService.restricted$.pipe(
-        map((restricted) => restricted.map((r) => r.cipherType)),
-      ),
-    );
+    const restrictedTypes = await this.restrictedTypesFor(organizationId);
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     return await firstValueFrom(
@@ -329,11 +340,7 @@ export class ImportService implements ImportServiceAbstraction {
       throw new Error(this.i18nService.t("importUnassignedItemsError"));
     }
 
-    const restrictedTypes = await firstValueFrom(
-      this.restrictedItemTypesService.restricted$.pipe(
-        map((restricted) => restricted.map((r) => r.cipherType)),
-      ),
-    );
+    const restrictedTypes = await this.restrictedTypesFor(organizationId);
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     return await firstValueFrom(

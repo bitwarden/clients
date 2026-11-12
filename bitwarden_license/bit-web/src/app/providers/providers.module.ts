@@ -12,7 +12,6 @@ import {
   SearchModule,
 } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
-import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -41,7 +40,6 @@ import { WebProviderService } from "./services/web-provider.service";
     OssModule,
     JslibModule,
     ProvidersRoutingModule,
-    OrganizationPlansComponent,
     IconModule,
     SearchModule,
     ProvidersLayoutComponent,

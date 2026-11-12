@@ -2645,6 +2645,9 @@
   "noItemsMatchSelectedFilters": {
     "message": "Няма елементи отговарящи на избраните филтри"
   },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "Няма елементи отговарящи на избраните филтри"
+  },
   "noItemsMatchSearchTerm": {
     "message": "Няма елементи отговарящи на „$SEARCH_TERM$“",
     "placeholders": {
@@ -3632,6 +3635,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Изберете трезор",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Изберете местоположение",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Изберете трезор"
+  },
+  "selectALocationTitle": {
+    "message": "Изберете местоположение"
+  },
+  "importDestinationDescription": {
+    "message": "Изберете къде да бъдат внесени тези елементи."
+  },
+  "importMyItemsOption": {
+    "message": "Моите елементи",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Видимо само за Вас"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Притежание на $ORGANIZATION$, но видимо само за Вас",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Трезор на организацията"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Споделено с един човек"
+  },
+  "importFamilyVault": {
+    "message": "Семеен трезор"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Преместване на всички елементи в споделена папка на $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Преместване на всички елементи в споделена папка на $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Преместване на всичко към по-горна папка. Структурата от вложени папки ще бъде запазена."
+  },
+  "importSharedFolderRequired": {
+    "message": "Необходима е споделена папка."
+  },
+  "importIntoOrganization": {
+    "message": "Елементите ще бъдат внесени в $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Преместване на всички елементи в споделена папка"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Елементите не могат да бъдат внесени в $ORGANIZATION$ без споделена папка, а Вие не управлявате никакви подобни в организацията. Изберете друго местоположение.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Внасяне на $COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Внасяне на 1 елемент"
+  },
+  "importToOrganization": {
+    "message": "Внасяне в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Вашите данни може да бъдат споделени с членовете на тази организация."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ не позволява внасянето на $ITEM_TYPES$. Ако има такива елементи в данните за внасяне, те ще бъдат пропуснати.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "данни за вписване",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "защитени бележки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "карти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "самоличности",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH ключове",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "банкови сметки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "лицензи",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "паспорти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "Изберете файл"
@@ -4908,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Показване на резюме за цените"
-  },
-  "hidePricingSummary": {
-    "message": "Скриване на резюмето за цените"
-  },
   "summary": {
     "message": "Обобщено"
   },
@@ -4992,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "Изтичане на абонамента"
-  },
-  "subscriptionCanceled": {
-    "message": "Абонаментът е прекратен."
   },
   "pendingCancellation": {
     "message": "Предстоящо прекратяване на абонамента"
@@ -5215,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "до $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -6195,6 +6338,70 @@
       }
     }
   },
+  "sendDisabledByPolicy": {
+    "message": "Изпращане $SENDID$ е изключено заради политика",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Изпращане $SENDID$ е включено заради политика",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Създадено е изпращане на елемент $SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Редактирано е изпращане на елемент $SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Изтрито е изпращане на елемент $SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Осъществен е достъп до изпращане на елемент $SENDID$ създадено чрез $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
   "sendAccessExternal": {
     "message": "Външно"
   },
@@ -6678,6 +6885,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Отказано прехвърляне на елементите към организацията"
+  },
+  "revocationReasonByAdmin": {
+    "message": "От администратор",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "Няма записана причина",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Достъпът до организацията е отнет от $ID$, поради несъответствие с политиката за двустепенно удостоверяване на организацията.",
@@ -7531,10 +7746,6 @@
     "message": "Смяна на плана",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Може да обновите плана си, като въведете изисканата информация по-долу. Уверете се, че имате действащ платежен метод към абонамента си.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Фактура № $NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7609,6 +7820,18 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "Задайте ограничение на броя потребители за абонамента си за Управлението на тайни. Когато то бъде достигнато, няма да можете да каните нови членове."
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Задайте ограничение на броя места за Вашия абонамент за Разширено управление. Когато това ограничение бъде достигнато, няма да можете да давате привилегирован достъп на повече членове."
+  },
+  "maximumSeatsCount": {
+    "message": "Най-много $COUNT$ места",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "Максимален брой потребители (по избор)",
@@ -9228,6 +9451,15 @@
   "desktopAutotypePolicyDescVfo1": {
     "message": "Включете автоматичното попълване за работен плот за членовете."
   },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Автоматично попълване чрез настолното приложение"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Включване на автоматичното попълване чрез настолното приложение за всички членове."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Включване на автоматичното попълване чрез настолното приложение по подразбиране за всички членове. Можете да зададете клавишна комбинация и да изберете дали членовете да трябва да потвърдят преди попълването. Тази функционалност е в състояние на бета-версия."
+  },
   "disableSend": {
     "message": "Без изпращане"
   },
@@ -9377,6 +9609,9 @@
   },
   "estimatedTax": {
     "message": "Приблизителен данък"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "Крайната сума може да има малка разлика, тъй като пропорционалното таксуване са изчислява в момента на изпращането."
   },
   "subtotal": {
     "message": "Междинна сума"
@@ -11868,10 +12103,6 @@
     "message": "Сервизен акаунт",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "Сервизни акаунти",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "Тайни",
     "description": "The title for the section of the application that deals with secrets."
@@ -14097,9 +14328,6 @@
     "message": "Опишете причината си за анулирането",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Безплатно за 1 година"
-  },
   "newWebApp": {
     "message": "Добре дошли в новото и подобрено уеб приложение. Научете повече за това какво се е променило."
   },
@@ -14902,15 +15130,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ отстъпка",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Възползвайте се от Управлението на тайни"
   },
@@ -15130,9 +15349,6 @@
     "message": "свържете се с поддръжката на Битуорден.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "Спонсорирано"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "След като направите промени в облачния сървър на Битуорден, качете файла с лиценза си, за да приложите последните промени."
   },
@@ -15343,9 +15559,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Достъп до платените функционалности"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB допълнително място за съхранение"
   },
   "sshKeyAlgorithm": {
     "message": "Алгоритъм на ключа"
@@ -16742,9 +16955,6 @@
   "familiesUpdated": {
     "message": "Вече ползвате Семейния абонамент!"
   },
-  "taxCalculationError": {
-    "message": "Възникна грешка при изчисляването на данъка за Вашето местоположение. Моля, опитайте отново."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Добре дошли в Битуорден"
   },
@@ -16766,7 +16976,7 @@
   "upgradeNow": {
     "message": "Надграждане сега"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
     "message": "Възползвайте се от допълнителна сигурност в Интернет чрез платената версия на Битуорден."
   },
   "formWillCreateNewFamiliesOrgMessage": {
@@ -18964,14 +19174,26 @@
   "pamInboxRevokeConfirm": {
     "message": "Това отнема достъпа на потребителя незабавно. Ако потребителят отново има нужда от достъп, трябва отново да получи одобрение."
   },
-  "pamInboxWithdrawApprovalConfirm": {
-    "message": "Това оттегля одобрението на потребителя за $ITEM$. Достъпът няма да може да стартира, и ще е необходимо ново одобрение, ако потребителят отново има нужда от достъп.",
-    "placeholders": {
-      "item": {
-        "content": "$1",
-        "example": "Prod database"
-      }
-    }
+  "pamWithdrawApprovalWarningOne": {
+    "message": "Това оттегля одобрението Ви за",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Достъпът няма да стартира и",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "ще има нужда от ново одобрение, за да получи достъп.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Причина"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Показва се на заявителя, в журнала на решенията."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Нека бъде кратко. Заявителят ще може да прочете това."
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "Правило за достъп"
@@ -19201,7 +19423,7 @@
     "message": "Изтриване на правилото за достъп?"
   },
   "pamAccessRuleDeleteConfirmDescription": {
-    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+    "message": "Това ще премахне това правило завинаги. Потребителите в колекциите свързани с него ще си възвърнат нормалния достъп."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Деактивиране на правилото за достъп"

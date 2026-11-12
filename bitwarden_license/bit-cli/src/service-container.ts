@@ -4,6 +4,7 @@ import {
   OrganizationAuthRequestService,
   OrganizationAuthRequestApiService,
 } from "@bitwarden/bit-common/admin-console/auth-requests";
+import { CliLicenseType } from "@bitwarden/cli/platform/cli-license-type";
 import { ServiceContainer as OssServiceContainer } from "@bitwarden/cli/service-container/service-container";
 
 /**
@@ -11,6 +12,8 @@ import { ServiceContainer as OssServiceContainer } from "@bitwarden/cli/service-
  * Any Bitwarden-licensed services should be registered here.
  */
 export class ServiceContainer extends OssServiceContainer {
+  override readonly licenseType: CliLicenseType = CliLicenseType.Bit;
+
   organizationAuthRequestApiService: OrganizationAuthRequestApiService;
   organizationAuthRequestService: OrganizationAuthRequestService;
 

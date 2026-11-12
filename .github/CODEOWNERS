@@ -254,6 +254,7 @@ apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-
 
 ## PAM
 apps/web/src/app/pam                   @bitwarden/team-pam-dev
+bitwarden_license/bit-browser/src/pam  @bitwarden/team-pam-dev
 bitwarden_license/bit-pam              @bitwarden/team-pam-dev
 bitwarden_license/bit-pam-components   @bitwarden/team-pam-dev
 bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev

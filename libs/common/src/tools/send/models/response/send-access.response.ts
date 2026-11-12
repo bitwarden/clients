@@ -78,11 +78,11 @@ export class SendAccessResponse extends BaseResponse {
               data: obj.data?.data ?? undefined,
               metadata: {
                 itemId: asUuid(obj.data?.metadata?.itemId),
-                folderName: undefined,
-                collectionNames: undefined,
-                organizationName: undefined,
-                creationDate: undefined,
-                revisionDate: undefined,
+                folderName: obj.data.metadata.folderName,
+                collectionNames: obj.data.metadata.collectionNames,
+                organizationName: obj.data.metadata.organizationName,
+                creationDate: obj.data.metadata.creationDate,
+                revisionDate: obj.data.metadata.revisionDate,
               },
             }
           : undefined,

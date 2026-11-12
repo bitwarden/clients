@@ -180,10 +180,6 @@ type RenderItem<T> =
   | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
   | { kind: "groupDescription"; group: BitRowGroupComponent<T>; level: number };
 
-/**
- * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
- * without approval from the UI Foundation team.
- */
 @Component({
   selector: "bit-table-v2",
   exportAs: "bitTableV2",

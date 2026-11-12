@@ -1071,6 +1071,111 @@ describe("adaptInvoicePreviewToCart", () => {
     });
   });
 
+  describe("proration note", () => {
+    const proration = (credit: number, charge: number) => ({
+      reference: "pm-seat" as const,
+      credit,
+      charge,
+      tax: 0,
+      total: charge - credit,
+      months: 1,
+    });
+
+    const previewWith = (prorations: ReturnType<typeof proration>[]) =>
+      basePreview({
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 5, cost: 50 },
+          prorations,
+        },
+        planTier: "enterprise",
+      });
+
+    it.each([
+      [InvoicePreviewFlowContext.OrganizationPlanChange, proration(7, 13.99)],
+      [InvoicePreviewFlowContext.PremiumOrgUpgrade, proration(7, 13.99)],
+      [InvoicePreviewFlowContext.OrganizationPlanChange, proration(7, 0)],
+      [InvoicePreviewFlowContext.PremiumOrgUpgrade, proration(0, 13.99)],
+    ])("should show the note for %s with a charged or credited proration", (flow, item) => {
+      const cart = adaptInvoicePreviewToCart(previewWith([item]), flow, logService);
+
+      expect(cart.showProrationNote).toBe(true);
+    });
+
+    it.each([
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      InvoicePreviewFlowContext.PremiumOrgUpgrade,
+    ])("should not show the note for %s when every proration is zero", (flow) => {
+      const cart = adaptInvoicePreviewToCart(previewWith([proration(0, 0)]), flow, logService);
+
+      expect(cart.showProrationNote).toBeUndefined();
+    });
+
+    it.each([
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      InvoicePreviewFlowContext.PremiumOrgUpgrade,
+    ])("should not show the note for %s when the preview has no prorations", (flow) => {
+      const cart = adaptInvoicePreviewToCart(basePreview(), flow, logService);
+
+      expect(cart.showProrationNote).toBeUndefined();
+    });
+
+    it.each([
+      InvoicePreviewFlowContext.OrganizationCheckout,
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+      InvoicePreviewFlowContext.PersonalCheckout,
+      InvoicePreviewFlowContext.PremiumSubscriptionPage,
+      InvoicePreviewFlowContext.RestartSubscription,
+    ])("should not show the note for %s even with real prorations", (flow) => {
+      const cart = adaptInvoicePreviewToCart(previewWith([proration(7, 13.99)]), flow, logService);
+
+      expect(cart.showProrationNote).toBeUndefined();
+    });
+
+    it("should show the note when only a secrets manager proration has an amount", () => {
+      const preview = basePreview({
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 5, cost: 50 },
+          prorations: [proration(0, 0)],
+        },
+        secretsManager: {
+          seats: { reference: "sm-seat", quantity: 3, cost: 30 },
+          prorations: [{ ...proration(4, 0), reference: "sm-seat" as const }],
+        },
+        planTier: "enterprise",
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationPlanChange,
+        logService,
+      );
+
+      expect(cart.showProrationNote).toBe(true);
+    });
+
+    it("should show the note when only a privileged controls proration has an amount", () => {
+      const preview = basePreview({
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 5, cost: 50 },
+          prorations: [proration(0, 0)],
+        },
+        privilegedControls: {
+          seats: { reference: "pam-seat", quantity: 4, cost: 20 },
+          prorations: [{ ...proration(4, 0), reference: "pam-seat" as const }],
+        },
+        planTier: "enterprise",
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationPlanChange,
+        logService,
+      );
+
+      expect(cart.showProrationNote).toBe(true);
+    });
+  });
+
   describe("privileged controls", () => {
     const pcSeats = { reference: "pam-seat" as const, quantity: 4, cost: 20 };
 
