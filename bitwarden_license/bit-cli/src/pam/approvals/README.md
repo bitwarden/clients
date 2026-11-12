@@ -1,4 +1,4 @@
-# bw pam approval
+# bw privileged-controls approval
 
 The approver's side of Privileged Controls. Follows the conventions in [`../README.md`](../README.md).
 
@@ -6,15 +6,15 @@ Follows the web, which hides Approvals from anyone who is not an approver. An ap
 
 Every command, and every approvals `bw serve` route, checks this first and makes no SDK call for a non-approver. It prints `You are not an approver. Approving requests needs Manage on a governed collection, or the ability to edit all items in the organization.` and fails, instead of showing an empty inbox. The check reads the synced vault (organizations and decrypted collections, including each collection's `manage` flag), so run `bw sync` after a role or collection permission changes. No command is gated on `canManageAccessRules` or any other admin permission.
 
-| Command                                                          | SDK call                   | Notes                                                                     |
-| ---------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------- |
-| `bw pam approval inbox [--names]`                                | `approvals().list_inbox`   | Rows whose `leaseNotAfter` is in the past are dropped.                    |
-| `bw pam approval history [--names]`                              | `approvals().list_history` |                                                                           |
-| `bw pam approval approve <requestId> [--comment <text>]`         | `approvals().decide`       | The comment is optional.                                                  |
-| `bw pam approval deny <requestId> --comment <text>`              | `approvals().decide`       | The comment is required, and checked locally to be not blank.             |
-| `bw pam approval withdraw <requestId> --yes`                     | `access_requests().cancel` | Only an approved request that was not started. See below.                 |
-| `bw pam approval revoke-lease <leaseId> [--reason <text>] --yes` | `leases().end`             | Called directly through `PamSdkService`; no import from the leases group. |
-| `bw pam approval managed-leases [--all] [--names]`               | `approvals().list_history` | Derived from history. Live leases only unless `--all`.                    |
+| Command                                                                          | SDK call                   | Notes                                                                     |
+| -------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------- |
+| `bw privileged-controls approval inbox [--names]`                                | `approvals().list_inbox`   | Rows whose `leaseNotAfter` is in the past are dropped.                    |
+| `bw privileged-controls approval history [--names]`                              | `approvals().list_history` |                                                                           |
+| `bw privileged-controls approval approve <requestId> [--comment <text>]`         | `approvals().decide`       | The comment is optional.                                                  |
+| `bw privileged-controls approval deny <requestId> --comment <text>`              | `approvals().decide`       | The comment is required, and checked locally to be not blank.             |
+| `bw privileged-controls approval withdraw <requestId> --yes`                     | `access_requests().cancel` | Only an approved request that was not started. See below.                 |
+| `bw privileged-controls approval revoke-lease <leaseId> [--reason <text>] --yes` | `leases().end`             | Called directly through `PamSdkService`; no import from the leases group. |
+| `bw privileged-controls approval managed-leases [--all] [--names]`               | `approvals().list_history` | Derived from history. Live leases only unless `--all`.                    |
 
 ## Behaviors
 

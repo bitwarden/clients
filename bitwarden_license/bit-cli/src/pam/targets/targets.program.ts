@@ -43,7 +43,7 @@ const TARGET_FLAGS = [FeatureFlag.PamAccessConnector];
 type WriteOptions = PamOrganizationOptions & Omit<TargetSystemInputOptions, "json">;
 
 /**
- * `bw pam target`: the target systems an organization rotates credentials against. Needs the
+ * `bw privileged-controls target`: the target systems an organization rotates credentials against. Needs the
  * `PamAccessConnector` flag, and for every verb but `template` a caller who may manage rotation.
  */
 export class TargetsProgram extends PamBaseProgram {
@@ -89,7 +89,9 @@ export class TargetsProgram extends PamBaseProgram {
       notes: [
         "Prints id, name, method, status and whether the sealed data unsealed. The kind, password policy and session termination setting are sealed and are never printed.",
       ],
-      examples: ["bw pam target list --organizationid 00000000-0000-0000-0000-000000000000"],
+      examples: [
+        "bw privileged-controls target list --organizationid 00000000-0000-0000-0000-000000000000",
+      ],
     });
   }
 
@@ -113,8 +115,8 @@ export class TargetsProgram extends PamBaseProgram {
         'An automatic request is {name, kind: "entra" | "custom_script", passwordPolicy, supportsSessionTermination}. A manual request is {name, passwordPolicy}. The method cannot be changed after creation.',
       ],
       examples: [
-        "bw pam target template > target.json",
-        "bw pam target template --method manual > target.json",
+        "bw privileged-controls target template > target.json",
+        "bw privileged-controls target template --method manual > target.json",
       ],
     });
   }
@@ -147,13 +149,13 @@ export class TargetsProgram extends PamBaseProgram {
     });
     return addPamHelp(command, {
       notes: [
-        "Creation is two steps. If sealing fails, the target system stays pending_seal and the error gives its id: retry with `bw pam target update <id>` and the same request, or run `bw pam target delete <id> --yes`.",
+        "Creation is two steps. If sealing fails, the target system stays pending_seal and the error gives its id: retry with `bw privileged-controls target update <id>` and the same request, or run `bw privileged-controls target delete <id> --yes`.",
         "Prefer --file or --stdin, so the password policy stays out of shell history.",
         "Only the entra and custom_script kinds are supported.",
       ],
       examples: [
-        "bw pam target create --file target.json --organizationid <orgId>",
-        "bw pam target template | bw pam target create --stdin --organizationid <orgId>",
+        "bw privileged-controls target create --file target.json --organizationid <orgId>",
+        "bw privileged-controls target template | bw privileged-controls target create --stdin --organizationid <orgId>",
       ],
     });
   }
@@ -191,7 +193,9 @@ export class TargetsProgram extends PamBaseProgram {
         "The method cannot be changed, and the kind cannot be changed once the target system has been sealed and verified.",
         "This is also how a pending_seal target system left by a failed create is finished.",
       ],
-      examples: ["bw pam target update <id> --file target.json --organizationid <orgId>"],
+      examples: [
+        "bw privileged-controls target update <id> --file target.json --organizationid <orgId>",
+      ],
     });
   }
 
@@ -248,7 +252,7 @@ export class TargetsProgram extends PamBaseProgram {
       );
     });
     return addPamHelp(command, {
-      examples: [`bw pam target ${name} <id> --organizationid <orgId>`],
+      examples: [`bw privileged-controls target ${name} <id> --organizationid <orgId>`],
     });
   }
 
@@ -285,7 +289,7 @@ export class TargetsProgram extends PamBaseProgram {
       notes: [
         "The server refuses while a rotation config still names the target system. Delete those first, or use `disable` for a target system that is only unavailable.",
       ],
-      examples: ["bw pam target delete <id> --organizationid <orgId> --yes"],
+      examples: ["bw privileged-controls target delete <id> --organizationid <orgId> --yes"],
     });
   }
 
@@ -304,7 +308,7 @@ export function targetSystemFailure(e: unknown, organizationId: string | undefin
     const info = describeTargetSystemError(e.cause);
     const org = organizationId ?? "<orgId>";
     return Response.error(
-      `The target system was created but sealing failed (${info.message}) so it is left as pending_seal with id ${e.id}. Retry with \`bw pam target update ${e.id} --file <request.json> --organizationid ${org}\` and the same request, or run \`bw pam target delete ${e.id} --organizationid ${org} --yes\`.`,
+      `The target system was created but sealing failed (${info.message}) so it is left as pending_seal with id ${e.id}. Retry with \`bw privileged-controls target update ${e.id} --file <request.json> --organizationid ${org}\` and the same request, or run \`bw privileged-controls target delete ${e.id} --organizationid ${org} --yes\`.`,
       new TargetSystemPendingSealResponse(info, e.id),
     );
   }

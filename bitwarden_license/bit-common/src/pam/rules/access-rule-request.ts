@@ -43,7 +43,7 @@ const REQUIRED_KEYS: readonly string[] = [
   "collections",
 ];
 
-/** The skeleton `bw pam rule template` prints: a valid request to copy and edit. */
+/** The skeleton `bw privileged-controls rule template` prints: a valid request to copy and edit. */
 export function accessRuleTemplate(): AccessRuleAddEditRequest {
   return {
     name: "Example rule",
@@ -127,7 +127,9 @@ export function parseAccessRuleRequest(
   isValidCidr: CidrValidator,
 ): AccessRuleAddEditRequest {
   if (!isRecord(input)) {
-    throw new PamInputError("The rule must be a JSON object. Run `bw pam rule template` for one.");
+    throw new PamInputError(
+      "The rule must be a JSON object. Run `bw privileged-controls rule template` for one.",
+    );
   }
   for (const key of Object.keys(input)) {
     if (!ALLOWED_KEYS.has(key)) {
@@ -139,7 +141,7 @@ export function parseAccessRuleRequest(
   for (const key of REQUIRED_KEYS) {
     if (input[key] === undefined) {
       throw new PamInputError(
-        `The rule is missing \`${key}\`. Run \`bw pam rule template\` for one.`,
+        `The rule is missing \`${key}\`. Run \`bw privileged-controls rule template\` for one.`,
       );
     }
   }

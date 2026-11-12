@@ -29,7 +29,7 @@ type UpdateOptions = WriteOptions & PamYesOptions;
 type DestructiveOptions = PamOrganizationOptions & PamYesOptions;
 
 /**
- * `bw pam rule`: access rule administration. Reads (`list`, `get`, `bypassable`) are open to any
+ * `bw privileged-controls rule`: access rule administration. Reads (`list`, `get`, `bypassable`) are open to any
  * confirmed member of an organization that uses Privileged Controls and carry no admin pre-check;
  * writes need `canManageAccessRules`. The server stays the authority for both.
  */
@@ -73,7 +73,7 @@ export class RuleProgram extends PamBaseProgram {
       });
     });
     return addPamHelp(command, {
-      examples: ["bw pam rule list --organizationid <organizationId>"],
+      examples: ["bw privileged-controls rule list --organizationid <organizationId>"],
     });
   }
 
@@ -93,7 +93,9 @@ export class RuleProgram extends PamBaseProgram {
       });
     });
     return addPamHelp(command, {
-      examples: ["bw pam rule get <ruleId> --organizationid <organizationId> --names"],
+      examples: [
+        "bw privileged-controls rule get <ruleId> --organizationid <organizationId> --names",
+      ],
     });
   }
 
@@ -104,7 +106,7 @@ export class RuleProgram extends PamBaseProgram {
         await this.exitIfFeatureFlagDisabled(FeatureFlag.Pam);
         this.processResponse(this.operations.template());
       });
-    return addPamHelp(command, { examples: ["bw pam rule template > rule.json"] });
+    return addPamHelp(command, { examples: ["bw privileged-controls rule template > rule.json"] });
   }
 
   private createCommand(): Command {
@@ -127,12 +129,12 @@ export class RuleProgram extends PamBaseProgram {
     });
     return addPamHelp(command, {
       notes: [
-        "The rule is the JSON `bw pam rule template` prints. `collections` is the whole set of collections the rule governs, and a collection can have one rule.",
+        "The rule is the JSON `bw privileged-controls rule template` prints. `collections` is the whole set of collections the rule governs, and a collection can have one rule.",
         "Durations are exact seconds, up to 365 days.",
       ],
       examples: [
-        "bw pam rule create --file rule.json --organizationid <organizationId>",
-        "cat rule.json | bw pam rule create --organizationid <organizationId>",
+        "bw privileged-controls rule create --file rule.json --organizationid <organizationId>",
+        "cat rule.json | bw privileged-controls rule create --organizationid <organizationId>",
       ],
     });
   }
@@ -177,8 +179,8 @@ export class RuleProgram extends PamBaseProgram {
         "An update that disables the rule, removes collections, or removes or loosens a condition weakens governance and needs --yes. Any other update does not.",
       ],
       examples: [
-        "bw pam rule update <ruleId> --file rule.json --organizationid <organizationId>",
-        "bw pam rule update <ruleId> --file rule.json --organizationid <organizationId> --yes",
+        "bw privileged-controls rule update <ruleId> --file rule.json --organizationid <organizationId>",
+        "bw privileged-controls rule update <ruleId> --file rule.json --organizationid <organizationId> --yes",
       ],
     });
   }
@@ -196,7 +198,7 @@ export class RuleProgram extends PamBaseProgram {
       );
     });
     return addPamHelp(command, {
-      examples: ["bw pam rule enable <ruleId> --organizationid <organizationId>"],
+      examples: ["bw privileged-controls rule enable <ruleId> --organizationid <organizationId>"],
     });
   }
 
@@ -231,7 +233,9 @@ export class RuleProgram extends PamBaseProgram {
       notes: [
         "A disabled rule no longer gates its collections, so their ciphers can be read without a lease. Needs --yes.",
       ],
-      examples: ["bw pam rule disable <ruleId> --organizationid <organizationId> --yes"],
+      examples: [
+        "bw privileged-controls rule disable <ruleId> --organizationid <organizationId> --yes",
+      ],
     });
   }
 
@@ -262,7 +266,9 @@ export class RuleProgram extends PamBaseProgram {
     });
     return addPamHelp(command, {
       notes: ["A delete is permanent: there is no undo. Needs --yes."],
-      examples: ["bw pam rule delete <ruleId> --organizationid <organizationId> --yes"],
+      examples: [
+        "bw privileged-controls rule delete <ruleId> --organizationid <organizationId> --yes",
+      ],
     });
   }
 
@@ -285,7 +291,9 @@ export class RuleProgram extends PamBaseProgram {
     });
     return addPamHelp(command, {
       notes: ["A rule that does not exist answers with an empty list."],
-      examples: ["bw pam rule bypassable <ruleId> --organizationid <organizationId>"],
+      examples: [
+        "bw privileged-controls rule bypassable <ruleId> --organizationid <organizationId>",
+      ],
     });
   }
 
@@ -304,7 +312,7 @@ export class RuleProgram extends PamBaseProgram {
         this.processResponse(response);
       });
     return addPamHelp(command, {
-      examples: ["bw pam rule validate-cidr 10.0.0.0/8 2001:db8::/32"],
+      examples: ["bw privileged-controls rule validate-cidr 10.0.0.0/8 2001:db8::/32"],
     });
   }
 

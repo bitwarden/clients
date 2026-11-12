@@ -27,7 +27,7 @@ type CommentOptions = { comment?: string };
 type RevokeOptions = PamYesOptions & { reason?: string };
 
 /**
- * `bw pam approval`: the approver's side of Privileged Controls. Follows the web: an approver is
+ * `bw privileged-controls approval`: the approver's side of Privileged Controls. Follows the web: an approver is
  * a member of an organization that uses PAM, not a provider user, with Manage on at least one of
  * its collections or the ability to edit all of its items (`hasApproverPrivileges`). Every command
  * refuses anyone else up front, with no SDK call, rather than showing an empty inbox. No command is
@@ -79,10 +79,13 @@ export class ApprovalsProgram extends PamBaseProgram {
     addNamesOption(command);
     return addPamHelp(command, {
       notes: [
-        "Only approvers can use `bw pam approval`: members of an organization that uses Privileged Controls who have Manage on one of its collections, or who can edit all items in it (an owner or admin, only where the organization gives them access to all collection items). Anyone else is refused with a message, in every organization, like the web, which hides Approvals from them.",
+        "Only approvers can use `bw privileged-controls approval`: members of an organization that uses Privileged Controls who have Manage on one of its collections, or who can edit all items in it (an owner or admin, only where the organization gives them access to all collection items). Anyone else is refused with a message, in every organization, like the web, which hides Approvals from them.",
         "Requests whose window has already ended are not listed.",
       ],
-      examples: ["bw pam approval inbox", "bw pam approval inbox --names"],
+      examples: [
+        "bw privileged-controls approval inbox",
+        "bw privileged-controls approval inbox --names",
+      ],
     });
   }
 
@@ -99,7 +102,7 @@ export class ApprovalsProgram extends PamBaseProgram {
         });
       });
     addNamesOption(command);
-    return addPamHelp(command, { examples: ["bw pam approval history"] });
+    return addPamHelp(command, { examples: ["bw privileged-controls approval history"] });
   }
 
   private approveCommand(): Command {
@@ -119,8 +122,8 @@ export class ApprovalsProgram extends PamBaseProgram {
         "If another approver decided first, or the window ended, this prints a notice and exits 0.",
       ],
       examples: [
-        "bw pam approval approve <requestId>",
-        'bw pam approval approve <requestId> --comment "ok"',
+        "bw privileged-controls approval approve <requestId>",
+        'bw privileged-controls approval approve <requestId> --comment "ok"',
       ],
     });
   }
@@ -138,7 +141,7 @@ export class ApprovalsProgram extends PamBaseProgram {
       });
     return addPamHelp(command, {
       notes: ["You cannot deny your own request; the server refuses it."],
-      examples: ['bw pam approval deny <requestId> --comment "not needed"'],
+      examples: ['bw privileged-controls approval deny <requestId> --comment "not needed"'],
     });
   }
 
@@ -162,7 +165,7 @@ export class ApprovalsProgram extends PamBaseProgram {
         "Only an approved request that has not been started can be withdrawn.",
         "The server records a withdrawal as your denial, with no reason.",
       ],
-      examples: ["bw pam approval withdraw <requestId> --yes"],
+      examples: ["bw privileged-controls approval withdraw <requestId> --yes"],
     });
   }
 
@@ -183,8 +186,8 @@ export class ApprovalsProgram extends PamBaseProgram {
       });
     addYesOption(command);
     return addPamHelp(command, {
-      notes: ["Find lease ids with `bw pam approval managed-leases`."],
-      examples: ["bw pam approval revoke-lease <leaseId> --yes"],
+      notes: ["Find lease ids with `bw privileged-controls approval managed-leases`."],
+      examples: ["bw privileged-controls approval revoke-lease <leaseId> --yes"],
     });
   }
 
@@ -206,7 +209,10 @@ export class ApprovalsProgram extends PamBaseProgram {
       notes: [
         "Derived from the request history, since there is no organization-wide lease list. It covers requests you can manage.",
       ],
-      examples: ["bw pam approval managed-leases", "bw pam approval managed-leases --all"],
+      examples: [
+        "bw privileged-controls approval managed-leases",
+        "bw privileged-controls approval managed-leases --all",
+      ],
     });
   }
 }

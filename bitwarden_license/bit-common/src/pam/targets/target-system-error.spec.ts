@@ -20,7 +20,7 @@ describe("describeTargetSystemError", () => {
 
     expect(info.code).toBe("target-system-has-rotation-configs");
     expect(info.message).toContain("rotation configs");
-    expect(info.message).toContain("bw pam target disable");
+    expect(info.message).toContain("bw privileged-controls target disable");
     expect(info.message).not.toContain("/srv");
   });
 

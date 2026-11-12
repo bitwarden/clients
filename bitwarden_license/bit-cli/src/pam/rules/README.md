@@ -1,6 +1,6 @@
-# bw pam rule
+# bw privileged-controls rule
 
-Access rule administration, mounted by `registerRules` as `bw pam rule`. Conventions are in [`../README.md`](../README.md).
+Access rule administration, mounted by `registerRules` as `bw privileged-controls rule`. Conventions are in [`../README.md`](../README.md).
 
 | Command                                                                 | Needs                      | SDK                                                  |
 | ----------------------------------------------------------------------- | -------------------------- | ---------------------------------------------------- |

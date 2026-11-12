@@ -30,7 +30,7 @@ import { targetSystemFailure } from "./targets.program";
 const FLAGS = [FeatureFlag.PamAccessConnector];
 
 /**
- * Registers the `bw serve` routes of `bw pam target`, under the policy in `../shared/serve-route.ts`.
+ * Registers the `bw serve` routes of `bw privileged-controls target`, under the policy in `../shared/serve-route.ts`.
  * `GET` reads and `POST` mutates, and the organization comes from `?organizationid=`. A request
  * body is the same JSON the commands take, and `delete` needs `{"yes": true}` in its body.
  */

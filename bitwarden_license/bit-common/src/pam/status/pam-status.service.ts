@@ -38,7 +38,7 @@ export interface PamStatus {
 /**
  * Reports PAM readiness. It makes no SDK call and no request: feature flags come from the server
  * config the client already holds, and organizations from the synced state. It needs neither the
- * PAM flag nor an unlocked vault, so it can explain why other `bw pam` commands refuse.
+ * PAM flag nor an unlocked vault, so it can explain why other `bw privileged-controls` commands refuse.
  */
 export class PamStatusService {
   constructor(

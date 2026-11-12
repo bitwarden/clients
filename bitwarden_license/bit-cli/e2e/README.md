@@ -1,4 +1,4 @@
-# `bw pam` end-to-end test
+# `bw privileged-controls` end-to-end test
 
 `pam.e2e.mjs` drives the built commercial CLI against a **local** Bitwarden server and checks the
 Privileged Controls flows for end users and admins. It is a manual, opt-in check, not part of

@@ -219,8 +219,8 @@ describe("TargetsProgram", () => {
     expect(out.success).toBe(false);
     expect(out.message).toContain(TARGET_ID);
     expect(out.message).toContain("pending_seal");
-    expect(out.message).toContain(`bw pam target update ${TARGET_ID}`);
-    expect(out.message).toContain(`bw pam target delete ${TARGET_ID}`);
+    expect(out.message).toContain(`bw privileged-controls target update ${TARGET_ID}`);
+    expect(out.message).toContain(`bw privileged-controls target delete ${TARGET_ID}`);
     expect(out.data).toMatchObject({ object: "pam-error", pendingId: TARGET_ID });
   });
 

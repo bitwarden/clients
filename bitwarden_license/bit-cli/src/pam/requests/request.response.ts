@@ -103,8 +103,8 @@ export class AccessRequestCreatedResponse extends PamResponse {
     this.submittedAt = isoDate(summary.submittedAt);
     this.nextStep =
       approvalMode === "automatic"
-        ? `Request created. No lease exists yet. Run \`bw pam request activate ${this.id}\` to start it.`
-        : `Request created and waiting for an approver. No lease exists yet. Once it is approved, run \`bw pam request activate ${this.id}\`.`;
+        ? `Request created. No lease exists yet. Run \`bw privileged-controls request activate ${this.id}\` to start it.`
+        : `Request created and waiting for an approver. No lease exists yet. Once it is approved, run \`bw privileged-controls request activate ${this.id}\`.`;
     this.warning = warning;
   }
 }

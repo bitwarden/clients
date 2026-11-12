@@ -5,7 +5,7 @@ import type { TargetSystemCreateRequest } from "@bitwarden/sdk-internal";
 import { isoDate, PamErrorResponse, PamObject, PamResponse } from "../shared";
 
 /**
- * A target system as `bw pam target` prints it. Flat, with ids, states and timestamps and the
+ * A target system as `bw privileged-controls target` prints it. Flat, with ids, states and timestamps and the
  * name. The sealed fields (kind, password policy, session termination) are never printed:
  * `sealed` says only whether the server's blob unsealed.
  */

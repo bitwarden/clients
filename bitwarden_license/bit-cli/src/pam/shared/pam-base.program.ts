@@ -17,7 +17,7 @@ import {
 import { pamErrorResponse } from "./pam-response";
 
 /**
- * What a `bw pam` verb needs before it may run. The checks run in a fixed order: the feature
+ * What a `bw privileged-controls` verb needs before it may run. The checks run in a fixed order: the feature
  * flags, then the vault being unlocked, then the cheap organization pre-checks.
  */
 export interface PamGuard {
@@ -44,7 +44,7 @@ export interface PamContext {
 }
 
 /**
- * Small helpers shared by the `bw pam` group programs, not a framework: each group still defines
+ * Small helpers shared by the `bw privileged-controls` group programs, not a framework: each group still defines
  * its own commands. A group program extends this and calls {@link runPam} from each action.
  *
  * Approver commands and rule reads are not gated on admin permissions, since an approver may hold

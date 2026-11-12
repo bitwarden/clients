@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// End-to-end test of the `bw pam` commands against a LOCAL Bitwarden server.
+// End-to-end test of the `bw privileged-controls` commands against a LOCAL Bitwarden server.
 //
 // It drives the built commercial CLI as separate users (owner, admin, member, reports-only member,
 // and an owner of an org without Privileged Controls), creates its own uniquely named rule, and
@@ -141,7 +141,7 @@ async function submitRequest(reason, startInMs = 15_000) {
   const r = bw(
     "user",
     [
-      "pam",
+      "privileged-controls",
       "request",
       "create",
       state.cipherId,
@@ -201,7 +201,14 @@ function setup() {
   state.collectionId = collection.id;
 
   const rules = list(
-    bw("owner", ["pam", "rule", "list", "--organizationid", config.orgId, "--response"]),
+    bw("owner", [
+      "privileged-controls",
+      "rule",
+      "list",
+      "--organizationid",
+      config.orgId,
+      "--response",
+    ]),
   );
   const clash = rules.find((x) => x.collectionIds.includes(state.collectionId));
   assert(
@@ -224,16 +231,16 @@ function teardown() {
     }
   };
   for (const id of state.requests ?? []) {
-    bw("user", ["pam", "request", "cancel", id]); // fails harmlessly when already decided
+    bw("user", ["privileged-controls", "request", "cancel", id]); // fails harmlessly when already decided
   }
   for (const id of state.leases ?? []) {
-    bw("user", ["pam", "lease", "end", id, "--yes"]);
+    bw("user", ["privileged-controls", "lease", "end", id, "--yes"]);
   }
   if (state.ruleId) {
     attempt(
       "delete rule",
       bw("admin", [
-        "pam",
+        "privileged-controls",
         "rule",
         "delete",
         state.ruleId,
@@ -256,7 +263,9 @@ function teardown() {
 async function suite() {
   // A. Entitlements -------------------------------------------------------------------------------
   const statusOf = (persona, orgId = config.orgId) =>
-    bw(persona, ["pam", "status", "--response"]).data?.organizations?.find((o) => o.id === orgId);
+    bw(persona, ["privileged-controls", "status", "--response"]).data?.organizations?.find(
+      (o) => o.id === orgId,
+    );
 
   await test(
     "A1",
@@ -293,7 +302,7 @@ async function suite() {
   });
   await test("A5", "request status in an org without PAM is refused with a clear message", () => {
     refused(
-      bw("other", ["pam", "request", "status", state.cipherId, "--response"]),
+      bw("other", ["privileged-controls", "request", "status", state.cipherId, "--response"]),
       /do(es)? not use Privileged Controls|None of your organizations/i,
       "other-org status",
     );
@@ -306,7 +315,7 @@ async function suite() {
       for (const verb of [["list"], ["get", anyId], ["bypassable", anyId]]) {
         refused(
           bw("other", [
-            "pam",
+            "privileged-controls",
             "rule",
             ...verb,
             "--organizationid",
@@ -318,7 +327,14 @@ async function suite() {
         );
       }
       refused(
-        bw("owner", ["pam", "rule", "list", "--organizationid", anyId, "--response"]),
+        bw("owner", [
+          "privileged-controls",
+          "rule",
+          "list",
+          "--organizationid",
+          anyId,
+          "--response",
+        ]),
         /not found, or you are not a member/i,
         "unknown organization",
       );
@@ -331,11 +347,18 @@ async function suite() {
     "validate-cidr succeeds when all are valid; fails but reports every verdict when one is not",
     () => {
       succeeded(
-        bw("owner", ["pam", "rule", "validate-cidr", "10.0.0.0/8", "192.168.1.0/24", "--response"]),
+        bw("owner", [
+          "privileged-controls",
+          "rule",
+          "validate-cidr",
+          "10.0.0.0/8",
+          "192.168.1.0/24",
+          "--response",
+        ]),
         "all valid",
       );
       const mixed = bw("owner", [
-        "pam",
+        "privileged-controls",
         "rule",
         "validate-cidr",
         "10.0.0.0/8",
@@ -364,7 +387,15 @@ async function suite() {
   await test("B2", "a member and a reports-only member cannot create rules", () => {
     for (const p of ["user", "custom"]) {
       refused(
-        bw(p, ["pam", "rule", "create", ruleJson, "--organizationid", config.orgId, "--response"]),
+        bw(p, [
+          "privileged-controls",
+          "rule",
+          "create",
+          ruleJson,
+          "--organizationid",
+          config.orgId,
+          "--response",
+        ]),
         /permission/i,
         `${p} create`,
       );
@@ -373,7 +404,7 @@ async function suite() {
   await test("B3", "admin creates a human-approval rule on the target collection", () => {
     const r = bw(
       "admin",
-      ["pam", "rule", "create", "--organizationid", config.orgId, "--response"],
+      ["privileged-controls", "rule", "create", "--organizationid", config.orgId, "--response"],
       { stdin: ruleJson },
     );
     succeeded(r, "rule create");
@@ -387,7 +418,7 @@ async function suite() {
   await test("B4", "rule get and list return the new rule", () => {
     need(state.ruleId, "B3");
     const got = bw("admin", [
-      "pam",
+      "privileged-controls",
       "rule",
       "get",
       state.ruleId,
@@ -398,7 +429,14 @@ async function suite() {
     succeeded(got, "rule get");
     assert(got.data.id === state.ruleId, "get returned a different rule");
     const all = list(
-      bw("admin", ["pam", "rule", "list", "--organizationid", config.orgId, "--response"]),
+      bw("admin", [
+        "privileged-controls",
+        "rule",
+        "list",
+        "--organizationid",
+        config.orgId,
+        "--response",
+      ]),
     );
     assert(
       all.some((x) => x.id === state.ruleId),
@@ -407,13 +445,20 @@ async function suite() {
   });
   await test("B5", "disable and delete need --yes; disable then enable round-trips", () => {
     need(state.ruleId, "B3");
-    const base = ["pam", "rule", "disable", state.ruleId, "--organizationid", config.orgId];
+    const base = [
+      "privileged-controls",
+      "rule",
+      "disable",
+      state.ruleId,
+      "--organizationid",
+      config.orgId,
+    ];
     refused(bw("admin", [...base, "--response"]), /--yes/i, "disable without --yes");
     const off = bw("admin", [...base, "--yes", "--response"]);
     succeeded(off, "disable");
     assert(off.data.enabled === false, "rule still enabled after disable");
     const on = bw("admin", [
-      "pam",
+      "privileged-controls",
       "rule",
       "enable",
       state.ruleId,
@@ -425,7 +470,7 @@ async function suite() {
     assert(on.data.enabled === true, "rule not enabled after enable");
     refused(
       bw("admin", [
-        "pam",
+        "privileged-controls",
         "rule",
         "delete",
         state.ruleId,
@@ -441,7 +486,7 @@ async function suite() {
     need(state.ruleId, "B3");
     succeeded(
       bw("admin", [
-        "pam",
+        "privileged-controls",
         "rule",
         "bypassable",
         state.ruleId,
@@ -456,7 +501,13 @@ async function suite() {
   // C. Request, approve, lease -------------------------------------------------------------------
   await test("C1", "request status shows a gated item with no request as privileged", () => {
     need(state.ruleId, "B3");
-    const r = bw("user", ["pam", "request", "status", state.cipherId, "--response"]);
+    const r = bw("user", [
+      "privileged-controls",
+      "request",
+      "status",
+      state.cipherId,
+      "--response",
+    ]);
     succeeded(r, "request status");
     assert(r.data.badgeState === "privileged", `badgeState=${r.data.badgeState}`);
   });
@@ -464,7 +515,7 @@ async function suite() {
     need(state.ruleId, "B3");
     refused(
       bw("user", [
-        "pam",
+        "privileged-controls",
         "request",
         "create",
         state.cipherId,
@@ -488,12 +539,14 @@ async function suite() {
   });
   await test("C4", "request list/get show the pending request", () => {
     need(state.requestId, "C3");
-    const rows = list(bw("user", ["pam", "request", "list", "--status", "pending", "--response"]));
+    const rows = list(
+      bw("user", ["privileged-controls", "request", "list", "--status", "pending", "--response"]),
+    );
     assert(
       rows.some((x) => x.id === state.requestId),
       "missing from request list",
     );
-    const g = bw("user", ["pam", "request", "get", state.requestId, "--response"]);
+    const g = bw("user", ["privileged-controls", "request", "get", state.requestId, "--response"]);
     succeeded(g, "request get");
     assert(g.data.status === "pending", `status=${g.data.status}`);
   });
@@ -502,7 +555,7 @@ async function suite() {
   // Approver status follows the web (`hasApprovalPrivileges`): Manage on a collection of the org, or
   // the ability to edit all items. A non-approver is refused up front, not shown an empty inbox.
   const inboxOf = (p) => {
-    const r = bw(p, ["pam", "approval", "inbox", "--response"]);
+    const r = bw(p, ["privileged-controls", "approval", "inbox", "--response"]);
     if (!r.ok) {
       assert(
         NOT_AN_APPROVER.test(r.text),
@@ -543,10 +596,10 @@ async function suite() {
   await test("C5c", "every approval command refuses a non-approver before doing anything", () => {
     need(state.requestId, "C3");
     const refusedAll = [
-      ["pam", "approval", "history"],
-      ["pam", "approval", "managed-leases"],
-      ["pam", "approval", "approve", state.requestId],
-      ["pam", "approval", "deny", state.requestId, "--comment", "x"],
+      ["privileged-controls", "approval", "history"],
+      ["privileged-controls", "approval", "managed-leases"],
+      ["privileged-controls", "approval", "approve", state.requestId],
+      ["privileged-controls", "approval", "deny", state.requestId, "--comment", "x"],
     ];
     for (const args of refusedAll) {
       refused(bw("custom", [...args, "--response"]), NOT_AN_APPROVER, `custom ${args[2]}`);
@@ -555,7 +608,7 @@ async function suite() {
   await test("C6", "the requester cannot approve their own request", () => {
     need(state.requestId, "C3");
     refused(
-      bw("user", ["pam", "approval", "approve", state.requestId, "--response"]),
+      bw("user", ["privileged-controls", "approval", "approve", state.requestId, "--response"]),
       /not an approver|not found|do not have access|cannot approve/i,
       "self-approve",
     );
@@ -563,7 +616,7 @@ async function suite() {
   await test("C7", "the owner approves; the request awaits activation", () => {
     need(state.requestId, "C3");
     const r = bw("owner", [
-      "pam",
+      "privileged-controls",
       "approval",
       "approve",
       state.requestId,
@@ -573,7 +626,7 @@ async function suite() {
     ]);
     succeeded(r, "approve");
     assert(r.data.status === "approved" && r.data.verdict === "approve", JSON.stringify(r.data));
-    const g = bw("user", ["pam", "request", "get", state.requestId, "--response"]);
+    const g = bw("user", ["privileged-controls", "request", "get", state.requestId, "--response"]);
     assert(g.data.awaitingActivation === true, "awaitingActivation should be true");
   });
   await test(
@@ -584,7 +637,13 @@ async function suite() {
       if (Date.now() >= Date.parse(state.windowStart)) {
         skip("the window opened before this check ran; raise the start offset in C3");
       }
-      const r = bw("user", ["pam", "request", "activate", state.requestId, "--response"]);
+      const r = bw("user", [
+        "privileged-controls",
+        "request",
+        "activate",
+        state.requestId,
+        "--response",
+      ]);
       assert(!r.ok, "activation succeeded before the window");
       assert(
         r.json?.data?.code === "window-not-started",
@@ -598,7 +657,13 @@ async function suite() {
     if (wait > 0) {
       await sleep(wait);
     }
-    const r = bw("user", ["pam", "request", "activate", state.requestId, "--response"]);
+    const r = bw("user", [
+      "privileged-controls",
+      "request",
+      "activate",
+      state.requestId,
+      "--response",
+    ]);
     succeeded(r, "activate");
     state.leaseId = r.data.leaseId;
     (state.leases ??= []).push(r.data.leaseId);
@@ -606,14 +671,16 @@ async function suite() {
   });
   await test("C10", "lease list shows the active lease", () => {
     need(state.leaseId, "C9");
-    const rows = list(bw("user", ["pam", "lease", "list", "--response"]));
+    const rows = list(bw("user", ["privileged-controls", "lease", "list", "--response"]));
     assert(
       rows.some((x) => x.id === state.leaseId && x.status === "active"),
       "lease not listed as active",
     );
     // Regression: --active once read the SDK's list_active, which is the approver view and is empty
     // for an ordinary lease holder.
-    const live = list(bw("user", ["pam", "lease", "list", "--active", "--response"]));
+    const live = list(
+      bw("user", ["privileged-controls", "lease", "list", "--active", "--response"]),
+    );
     assert(
       live.some((x) => x.id === state.leaseId),
       "lease holder's own lease missing from --active",
@@ -627,15 +694,19 @@ async function suite() {
       need(state.leaseId, "C9");
       const sizes = [];
       for (const field of ["username", "password", "uri"]) {
-        const r = bw("user", ["pam", "lease", "reveal", state.cipherId, "--field", field], {
-          redact: true,
-        });
+        const r = bw(
+          "user",
+          ["privileged-controls", "lease", "reveal", state.cipherId, "--field", field],
+          {
+            redact: true,
+          },
+        );
         assert(r.ok && r.bytes > 0, `reveal ${field} failed or was empty: ${r.text.slice(0, 120)}`);
         sizes.push(`${field}=${r.bytes}b`);
       }
       const nolease = bw(
         "custom",
-        ["pam", "lease", "reveal", state.cipherId, "--field", "password"],
+        ["privileged-controls", "lease", "reveal", state.cipherId, "--field", "password"],
         { redact: true },
       );
       assert(!nolease.ok && nolease.bytes === 0, "a member without a lease received output");
@@ -648,14 +719,22 @@ async function suite() {
     () => {
       need(state.leaseId, "C9");
       refused(
-        bw("user", ["pam", "lease", "extend", state.leaseId, "--duration", "10m", "--response"]),
+        bw("user", [
+          "privileged-controls",
+          "lease",
+          "extend",
+          state.leaseId,
+          "--duration",
+          "10m",
+          "--response",
+        ]),
         /reason/i,
         "extend without reason",
       );
       const r = bw(
         "user",
         [
-          "pam",
+          "privileged-controls",
           "lease",
           "extend",
           state.leaseId,
@@ -675,7 +754,7 @@ async function suite() {
         bw(
           "user",
           [
-            "pam",
+            "privileged-controls",
             "lease",
             "extend",
             state.leaseId,
@@ -694,7 +773,9 @@ async function suite() {
   );
   await test("C13", "the owner's managed-leases lists the live lease", () => {
     need(state.leaseId, "C9");
-    const rows = list(bw("owner", ["pam", "approval", "managed-leases", "--response"]));
+    const rows = list(
+      bw("owner", ["privileged-controls", "approval", "managed-leases", "--response"]),
+    );
     assert(
       rows.some((x) => (x.id ?? x.leaseId) === state.leaseId),
       "lease not in managed-leases",
@@ -703,12 +784,12 @@ async function suite() {
   await test("C14", "the owner revokes the lease; reveal is refused afterwards", () => {
     need(state.leaseId, "C9");
     refused(
-      bw("owner", ["pam", "approval", "revoke-lease", state.leaseId, "--response"]),
+      bw("owner", ["privileged-controls", "approval", "revoke-lease", state.leaseId, "--response"]),
       /--yes/i,
       "revoke without --yes",
     );
     const r = bw("owner", [
-      "pam",
+      "privileged-controls",
       "approval",
       "revoke-lease",
       state.leaseId,
@@ -718,9 +799,13 @@ async function suite() {
       "--response",
     ]);
     succeeded(r, "revoke-lease");
-    const after = bw("user", ["pam", "lease", "reveal", state.cipherId, "--field", "password"], {
-      redact: true,
-    });
+    const after = bw(
+      "user",
+      ["privileged-controls", "lease", "reveal", state.cipherId, "--field", "password"],
+      {
+        redact: true,
+      },
+    );
     assert(!after.ok && after.bytes === 0, "reveal still works after the lease was revoked");
   });
 
@@ -733,15 +818,23 @@ async function suite() {
       const d = await submitRequest("CLI e2e: deny flow");
       (state.requests ??= []).push(d.id);
       refused(
-        bw("owner", ["pam", "approval", "deny", d.id, "--response"]),
+        bw("owner", ["privileged-controls", "approval", "deny", d.id, "--response"]),
         /comment/i,
         "deny without comment",
       );
       succeeded(
-        bw("owner", ["pam", "approval", "deny", d.id, "--comment", "not needed", "--response"]),
+        bw("owner", [
+          "privileged-controls",
+          "approval",
+          "deny",
+          d.id,
+          "--comment",
+          "not needed",
+          "--response",
+        ]),
         "deny",
       );
-      const g = bw("user", ["pam", "request", "get", d.id, "--response"]);
+      const g = bw("user", ["privileged-controls", "request", "get", d.id, "--response"]);
       assert(g.data.status === "denied", `status=${g.data.status}`);
       state.deniedId = d.id;
     },
@@ -750,13 +843,16 @@ async function suite() {
     need(state.ruleId, "B3");
     const d = await submitRequest("CLI e2e: cancel flow");
     (state.requests ??= []).push(d.id);
-    succeeded(bw("user", ["pam", "request", "cancel", d.id, "--response"]), "cancel");
-    const g = bw("user", ["pam", "request", "get", d.id, "--response"]);
+    succeeded(
+      bw("user", ["privileged-controls", "request", "cancel", d.id, "--response"]),
+      "cancel",
+    );
+    const g = bw("user", ["privileged-controls", "request", "get", d.id, "--response"]);
     assert(g.data.status === "canceled", `status=${g.data.status}`);
   });
   await test("D3", "approval history lists the decided requests", () => {
     need(state.deniedId, "D1");
-    const rows = list(bw("owner", ["pam", "approval", "history", "--response"]));
+    const rows = list(bw("owner", ["privileged-controls", "approval", "history", "--response"]));
     for (const id of [state.requestId, state.deniedId]) {
       assert(
         rows.some((x) => x.id === id),

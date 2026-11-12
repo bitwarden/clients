@@ -24,7 +24,7 @@ const POLICY_KEYS = [
 const MANUAL_KEYS = ["method", "name", "passwordPolicy"];
 const AUTOMATIC_KEYS = [...MANUAL_KEYS, "kind", "supportsSessionTermination"];
 
-/** The request template printed by `bw pam target template`. */
+/** The request template printed by `bw privileged-controls target template`. */
 export function targetSystemTemplate(method: TargetSystemMethodInput): TargetSystemCreateRequest {
   const passwordPolicy: PasswordPolicy = {
     minLength: 20,
@@ -64,7 +64,7 @@ export function parseTargetSystemJson(text: string): Record<string, unknown> {
     parsed = JSON.parse(trimmed);
   } catch {
     throw new PamInputError(
-      "The target system request is not valid JSON. Run `bw pam target template` for the shape.",
+      "The target system request is not valid JSON. Run `bw privileged-controls target template` for the shape.",
     );
   }
   if (parsed == null || typeof parsed !== "object" || Array.isArray(parsed)) {

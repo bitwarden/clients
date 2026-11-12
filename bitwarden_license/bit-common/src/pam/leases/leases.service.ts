@@ -26,7 +26,7 @@ export interface LeaseExtensionResult {
   notAfter: string;
 }
 
-/** The lease operations of `bw pam lease`, over the SDK's `leases()` and read-only access state. */
+/** The lease operations of `bw privileged-controls lease`, over the SDK's `leases()` and read-only access state. */
 export class LeasesService {
   constructor(
     private pamSdk: PamSdkService,

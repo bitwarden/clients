@@ -39,7 +39,7 @@ const SLOT_BUSY_WARNING =
   "Another member currently holds this item's single active lease. The request was still created; activation may be refused until that lease ends.";
 
 /**
- * What each `bw pam request` verb does, shared by the commander commands and the `bw serve`
+ * What each `bw privileged-controls request` verb does, shared by the commander commands and the `bw serve`
  * routes so both behave alike. Every method returns a `Response`; a thrown error is turned into
  * a failed response by the caller.
  */

@@ -3,7 +3,7 @@ import { Response } from "@bitwarden/cli/models/response";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
 
 /**
- * The response conventions every `bw pam` group follows:
+ * The response conventions every `bw privileged-controls` group follows:
  *
  * - `object` is a `pam-` discriminator such as `pam-request`, `pam-lease` or `pam-rule`.
  * - Dates are ISO 8601 UTC strings; see {@link isoDate}.
@@ -30,7 +30,7 @@ export const PamObject = Object.freeze({
   Error: "pam-error",
 } as const satisfies Record<string, PamObjectName>);
 
-/** Base class for a `bw pam` response object. */
+/** Base class for a `bw privileged-controls` response object. */
 export abstract class PamResponse implements BaseResponse {
   protected constructor(readonly object: PamObjectName) {}
 }

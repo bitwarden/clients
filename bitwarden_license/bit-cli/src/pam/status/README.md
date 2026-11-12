@@ -1,15 +1,15 @@
-# bw pam status
+# bw privileged-controls status
 
 Scope: the caller's own PAM readiness, and the governed marker on collections. Read only.
 
-| Command                                    | Needs                                             |
-| ------------------------------------------ | ------------------------------------------------- |
-| `bw pam status [--organizationid <id>]`    | A logged-in user for organizations. Nothing else. |
-| `bw pam collections --organizationid <id>` | `FeatureFlag.Pam`, unlocked vault, `usePam`       |
+| Command                                                    | Needs                                             |
+| ---------------------------------------------------------- | ------------------------------------------------- |
+| `bw privileged-controls status [--organizationid <id>]`    | A logged-in user for organizations. Nothing else. |
+| `bw privileged-controls collections --organizationid <id>` | `FeatureFlag.Pam`, unlocked vault, `usePam`       |
 
 ## status
 
-The one `bw pam` command that runs with the Pam flag off, and with the vault locked. It makes no
+The one `bw privileged-controls` command that runs with the Pam flag off, and with the vault locked. It makes no
 SDK call and no request. It reports:
 
 - `featurePam`, `featurePamAccessConnector`: the flag values this client

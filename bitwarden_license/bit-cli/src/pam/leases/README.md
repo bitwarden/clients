@@ -1,14 +1,14 @@
-# bw pam lease
+# bw privileged-controls lease
 
 Your privileged access leases: list, extend, end and reveal. Conventions are in
 [`../README.md`](../README.md). Code lives here and in `bit-common/src/pam/leases/`.
 
-| Command                                                        | Needs             | SDK                                                                                          |
-| -------------------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------- |
-| `bw pam lease list [--active] [--names]`                       | `usePam`          | `leases().list_mine`                                                                         |
-| `bw pam lease extend <leaseId> --duration <d> --reason <text>` | PAM seat          | `leases().list_mine`, `access_requests().cipher_access_state` (read-only), `leases().extend` |
-| `bw pam lease end <leaseId> [--reason <text>] --yes`           | `usePam`, no seat | `leases().end`                                                                               |
-| `bw pam lease reveal <cipherId> --field <field>`               | PAM seat          | `cipher_access_state`, `leases().leased_cipher`                                              |
+| Command                                                                        | Needs             | SDK                                                                                          |
+| ------------------------------------------------------------------------------ | ----------------- | -------------------------------------------------------------------------------------------- |
+| `bw privileged-controls lease list [--active] [--names]`                       | `usePam`          | `leases().list_mine`                                                                         |
+| `bw privileged-controls lease extend <leaseId> --duration <d> --reason <text>` | PAM seat          | `leases().list_mine`, `access_requests().cipher_access_state` (read-only), `leases().extend` |
+| `bw privileged-controls lease end <leaseId> [--reason <text>] --yes`           | `usePam`, no seat | `leases().end`                                                                               |
+| `bw privileged-controls lease reveal <cipherId> --field <field>`               | PAM seat          | `cipher_access_state`, `leases().leased_cipher`                                              |
 
 - `list --active` drops lapsed leases with `isLeaseLive`, since nothing announces a lease running out.
 - `extend` needs a non-empty reason (`--reason`, `--reasonfile` or `--reasonstdin`). It refuses a lapsed lease, a rule that disallows extensions (`extensionsAllowed`) and a `--duration` over `maxExtensionDurationSeconds`, before sending. A late extension resolves with status `denied` instead of throwing; that is reported as `The lease has ended` with a non-zero exit.

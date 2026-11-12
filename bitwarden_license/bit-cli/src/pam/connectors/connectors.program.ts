@@ -34,7 +34,7 @@ import { TokenFileReservation, warnTokenIsOneTime } from "./register-token";
 const CONNECTOR_FLAGS = [FeatureFlag.PamAccessConnector] as const;
 
 /**
- * `bw pam connector`: admin commands for access connectors, the unattended agents that rotate
+ * `bw privileged-controls connector`: admin commands for access connectors, the unattended agents that rotate
  * credentials. Reads need the organization to use PAM; writes also need the caller to be able to
  * manage rotation, which is separate from rule authority and excludes provider users. The server
  * stays the authority.
@@ -77,7 +77,9 @@ export class ConnectorsProgram extends PamBaseProgram {
       });
     });
     return addPamHelp(command, {
-      examples: ["bw pam connector list --organizationid 7ad3e1f5-2b1c-4e5a-9a58-1a2b3c4d5e6f"],
+      examples: [
+        "bw privileged-controls connector list --organizationid 7ad3e1f5-2b1c-4e5a-9a58-1a2b3c4d5e6f",
+      ],
     });
   }
 
@@ -97,7 +99,7 @@ export class ConnectorsProgram extends PamBaseProgram {
       notes: [
         "A job's failure reason is text the connector reported. It is cleaned of control characters and shortened before it is printed, and is never logged.",
       ],
-      examples: ["bw pam connector get <id> --organizationid <organizationid>"],
+      examples: ["bw privileged-controls connector get <id> --organizationid <organizationid>"],
     });
   }
 
@@ -134,8 +136,8 @@ export class ConnectorsProgram extends PamBaseProgram {
         "This command is not available through `bw serve`.",
       ],
       examples: [
-        "bw pam connector register edge-1 --organizationid <organizationid>",
-        "bw pam connector register edge-1 --organizationid <organizationid> --token-file ./edge-1.token",
+        "bw privileged-controls connector register edge-1 --organizationid <organizationid>",
+        "bw privileged-controls connector register edge-1 --organizationid <organizationid> --token-file ./edge-1.token",
       ],
     });
   }
@@ -197,7 +199,7 @@ export class ConnectorsProgram extends PamBaseProgram {
       );
     });
     return addPamHelp(command, {
-      examples: ["bw pam connector enable <id> --organizationid <organizationid>"],
+      examples: ["bw privileged-controls connector enable <id> --organizationid <organizationid>"],
     });
   }
 
@@ -220,9 +222,9 @@ export class ConnectorsProgram extends PamBaseProgram {
     });
     return addPamHelp(command, {
       notes: [
-        "Disabling is reversible with `bw pam connector enable`. It releases the jobs the connector was running.",
+        "Disabling is reversible with `bw privileged-controls connector enable`. It releases the jobs the connector was running.",
       ],
-      examples: ["bw pam connector disable <id> --organizationid <organizationid>"],
+      examples: ["bw privileged-controls connector disable <id> --organizationid <organizationid>"],
     });
   }
 
@@ -251,10 +253,12 @@ export class ConnectorsProgram extends PamBaseProgram {
     });
     return addPamHelp(command, {
       notes: [
-        "Deleting is permanent and needs --yes. Use `bw pam connector disable` for a reversible stop.",
+        "Deleting is permanent and needs --yes. Use `bw privileged-controls connector disable` for a reversible stop.",
         "The connector held the plaintext organization key. If you suspect it was compromised, deleting it is not enough: the organization key still needs to be rotated.",
       ],
-      examples: ["bw pam connector delete <id> --organizationid <organizationid> --yes"],
+      examples: [
+        "bw privileged-controls connector delete <id> --organizationid <organizationid> --yes",
+      ],
     });
   }
 
@@ -281,7 +285,9 @@ export class ConnectorsProgram extends PamBaseProgram {
       notes: [
         "The target system id is only checked to be a GUID. It is not looked up, so the server rejects an id that does not exist.",
       ],
-      examples: ["bw pam connector assign <id> <targetSystemId> --organizationid <organizationid>"],
+      examples: [
+        "bw privileged-controls connector assign <id> <targetSystemId> --organizationid <organizationid>",
+      ],
     });
   }
 
@@ -307,7 +313,7 @@ export class ConnectorsProgram extends PamBaseProgram {
     return addPamHelp(command, {
       notes: ["The target system id is only checked to be a GUID. It is not looked up."],
       examples: [
-        "bw pam connector unassign <id> <targetSystemId> --organizationid <organizationid>",
+        "bw privileged-controls connector unassign <id> <targetSystemId> --organizationid <organizationid>",
       ],
     });
   }

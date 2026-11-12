@@ -14,13 +14,13 @@ const TARGET_SYSTEM_REFUSALS: ReadonlyArray<{
     code: "target-system-has-rotation-configs",
     sentence: "This target system still has rotation configs.",
     message:
-      "This target system still has rotation configs. Delete them first, or run `bw pam target disable` to stop new rotation jobs for it.",
+      "This target system still has rotation configs. Delete them first, or run `bw privileged-controls target disable` to stop new rotation jobs for it.",
   },
   {
     code: "target-system-not-sealed",
     sentence: "This target system has not been sealed yet and cannot be enabled or disabled.",
     message:
-      "This target system has not been sealed yet, so it cannot be enabled or disabled. Run `bw pam target update` with the full request to finish it, or delete it.",
+      "This target system has not been sealed yet, so it cannot be enabled or disabled. Run `bw privileged-controls target update` with the full request to finish it, or delete it.",
   },
   {
     code: "target-system-already-enabled",

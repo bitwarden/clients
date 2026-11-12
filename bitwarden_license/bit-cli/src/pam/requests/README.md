@@ -1,4 +1,4 @@
-# bw pam request
+# bw privileged-controls request
 
 The end user's access requests for controlled (gated) items: see your state, ask for access, start the lease once approved, and track or cancel requests. Part of the commercial CLI only. Conventions are in [`../README.md`](../README.md).
 
@@ -6,14 +6,14 @@ Everything goes through the SDK's `access_requests()` client. Nothing here calls
 
 ## Commands
 
-| Command                                                                                                                               | SDK call                                                  | Needs a PAM seat |
-| ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ---------------- |
-| `bw pam request status <cipherId> [--precheck] [--names]`                                                                             | `cipher_access_state` (and `pre_check` with `--precheck`) | No               |
-| `bw pam request create <cipherId> [--duration <d>] [--start <iso> --end <iso>] [--reason <text>\|--reasonfile <path>\|--reasonstdin]` | `pre_check`, then `request`                               | Yes              |
-| `bw pam request list [--status <s>] [--names]`                                                                                        | `list_mine`                                               | No               |
-| `bw pam request get <requestId> [--names]`                                                                                            | `get`                                                     | No               |
-| `bw pam request activate <requestId>`                                                                                                 | `activate`                                                | Yes              |
-| `bw pam request cancel <requestId>`                                                                                                   | `cancel`                                                  | No               |
+| Command                                                                                                                                               | SDK call                                                  | Needs a PAM seat |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ---------------- |
+| `bw privileged-controls request status <cipherId> [--precheck] [--names]`                                                                             | `cipher_access_state` (and `pre_check` with `--precheck`) | No               |
+| `bw privileged-controls request create <cipherId> [--duration <d>] [--start <iso> --end <iso>] [--reason <text>\|--reasonfile <path>\|--reasonstdin]` | `pre_check`, then `request`                               | Yes              |
+| `bw privileged-controls request list [--status <s>] [--names]`                                                                                        | `list_mine`                                               | No               |
+| `bw privileged-controls request get <requestId> [--names]`                                                                                            | `get`                                                     | No               |
+| `bw privileged-controls request activate <requestId>`                                                                                                 | `activate`                                                | Yes              |
+| `bw privileged-controls request cancel <requestId>`                                                                                                   | `cancel`                                                  | No               |
 
 Every command needs `FeatureFlag.Pam`, an unlocked vault, and an organization that uses PAM (provider users are refused). "Needs a PAM seat" is the `AccessPam` requirement, checked against any organization the caller belongs to, since these verbs name no organization.
 

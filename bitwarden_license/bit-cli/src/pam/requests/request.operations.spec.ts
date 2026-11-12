@@ -197,7 +197,7 @@ describe("RequestOperations", () => {
         approvalMode: "automatic",
       });
       expect((response.data as unknown as { nextStep: string }).nextStep).toContain(
-        `bw pam request activate ${REQUEST}`,
+        `bw privileged-controls request activate ${REQUEST}`,
       );
       expect((response.data as unknown as { warning?: string }).warning).toBeUndefined();
     });

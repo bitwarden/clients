@@ -43,7 +43,7 @@ const REQUEST_NOTE =
   'The request is {"cipherId", "targetSystemId", "accountIdentity", "terminateSessions", "scheduleCron", "rotateOnAccessEnd"}. The account identity is sensitive: give the request with --file or --stdin, which keep it out of the process list and shell history. An inline JSON argument that names it prints a warning.';
 
 /**
- * `bw pam rotation`: the managed credentials of an organization, each a link between a cipher and
+ * `bw privileged-controls rotation`: the managed credentials of an organization, each a link between a cipher and
  * a target system. Needs the Pam and PamAccessConnector flags and ManageRotation rights.
  * `rotation schedule` is pure and needs no organization.
  */
@@ -100,7 +100,7 @@ export class RotationProgram extends PamBaseProgram {
       });
     return addPamHelp(command, {
       notes: ["Each item shows whether an account identity is set, never the identity itself."],
-      examples: ["bw pam rotation list --organizationid <id>"],
+      examples: ["bw privileged-controls rotation list --organizationid <id>"],
     });
   }
 
@@ -124,7 +124,7 @@ export class RotationProgram extends PamBaseProgram {
       notes: [
         "A job failure shows its failure code. The connector's failure text is untrusted, so it is shown only when there is no usable code, cleaned and cut short.",
       ],
-      examples: ["bw pam rotation get <configId> --organizationid <id> --jobs 10"],
+      examples: ["bw privileged-controls rotation get <configId> --organizationid <id> --jobs 10"],
     });
   }
 
@@ -159,8 +159,8 @@ export class RotationProgram extends PamBaseProgram {
     return addPamHelp(command, {
       notes: [REQUEST_NOTE, SCHEDULE_NOTE],
       examples: [
-        "bw pam rotation create --file request.json --organizationid <id> --schedule weekly",
-        "cat request.json | bw pam rotation create --stdin --organizationid <id>",
+        "bw privileged-controls rotation create --file request.json --organizationid <id> --schedule weekly",
+        "cat request.json | bw privileged-controls rotation create --stdin --organizationid <id>",
       ],
     });
   }
@@ -193,8 +193,8 @@ export class RotationProgram extends PamBaseProgram {
         SCHEDULE_NOTE,
       ],
       examples: [
-        "bw pam rotation update <configId> --file request.json --organizationid <id>",
-        'bw pam rotation update <configId> \'{"cipherId":"<id>","targetSystemId":"<id>"}\' --organizationid <id> --schedule daily',
+        "bw privileged-controls rotation update <configId> --file request.json --organizationid <id>",
+        'bw privileged-controls rotation update <configId> \'{"cipherId":"<id>","targetSystemId":"<id>"}\' --organizationid <id> --schedule daily',
       ],
     });
   }
@@ -221,7 +221,7 @@ export class RotationProgram extends PamBaseProgram {
       notes: [
         "Only the link between the cipher and the target system, and its history, are removed.",
       ],
-      examples: ["bw pam rotation delete <configId> --organizationid <id> --yes"],
+      examples: ["bw privileged-controls rotation delete <configId> --organizationid <id> --yes"],
     });
   }
 
@@ -238,7 +238,7 @@ export class RotationProgram extends PamBaseProgram {
       });
     return addPamHelp(command, {
       notes: ["The command first checks the config's actions and says why when it is refused."],
-      examples: [`bw pam rotation ${name} <configId> --organizationid <id>`],
+      examples: [`bw privileged-controls rotation ${name} <configId> --organizationid <id>`],
     });
   }
 
@@ -262,7 +262,7 @@ export class RotationProgram extends PamBaseProgram {
         "The server limits how often a config can be rotated. A request inside the cooldown is refused.",
         "A manual-method target cannot be rotated here: use record-manual.",
       ],
-      examples: ["bw pam rotation rotate <configId> --organizationid <id> --yes"],
+      examples: ["bw privileged-controls rotation rotate <configId> --organizationid <id> --yes"],
     });
   }
 
@@ -279,7 +279,7 @@ export class RotationProgram extends PamBaseProgram {
       });
     return addPamHelp(command, {
       notes: ["This applies to manual-method targets that are waiting for a rotation."],
-      examples: ["bw pam rotation record-manual <configId> --organizationid <id>"],
+      examples: ["bw privileged-controls rotation record-manual <configId> --organizationid <id>"],
     });
   }
 
@@ -298,7 +298,7 @@ export class RotationProgram extends PamBaseProgram {
       notes: [
         "The actions are the canRotateNow, canRecordManual, mutationsLocked, canPause and canResume fields.",
       ],
-      examples: ["bw pam rotation actions <configId> --organizationid <id>"],
+      examples: ["bw privileged-controls rotation actions <configId> --organizationid <id>"],
     });
   }
 
@@ -316,7 +316,10 @@ export class RotationProgram extends PamBaseProgram {
       notes: [
         "This makes no request and needs no organization. A cron that does not look like Quartz gets a warning only.",
       ],
-      examples: ["bw pam rotation schedule weekly", 'bw pam rotation schedule "0 0 3 * * ?"'],
+      examples: [
+        "bw privileged-controls rotation schedule weekly",
+        'bw privileged-controls rotation schedule "0 0 3 * * ?"',
+      ],
     });
   }
 }

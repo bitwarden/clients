@@ -43,15 +43,15 @@ describe("PamProgram", () => {
     (program.commands as Command[]).splice(0, program.commands.length);
   });
 
-  it("adds `pam` to the root program", () => {
+  it("adds `privileged-controls` to the root program", () => {
     new PamProgram(container).register();
 
-    expect(program.commands.map((c) => c.name())).toContain("pam");
+    expect(program.commands.map((c) => c.name())).toContain("privileged-controls");
   });
 
-  it("mounts every group on the pam command, in a fixed order, with the container", () => {
+  it("mounts every group on the privileged-controls command, in a fixed order, with the container", () => {
     new PamProgram(container).register();
-    const pam = program.commands.find((c) => c.name() === "pam") as Command;
+    const pam = program.commands.find((c) => c.name() === "privileged-controls") as Command;
 
     for (const register of groups) {
       expect(register).toHaveBeenCalledTimes(1);
@@ -63,14 +63,14 @@ describe("PamProgram", () => {
 
   it("answers to the short alias `pc`", () => {
     new PamProgram(container).register();
-    const pam = program.commands.find((c) => c.name() === "pam") as Command;
+    const pam = program.commands.find((c) => c.name() === "privileged-controls") as Command;
 
     expect(pam.aliases()).toEqual(["pc"]);
   });
 
   it("describes the command for --help", () => {
     new PamProgram(container).register();
-    const pam = program.commands.find((c) => c.name() === "pam") as Command;
+    const pam = program.commands.find((c) => c.name() === "privileged-controls") as Command;
 
     expect(pam.description()).toContain("Privileged Controls");
   });

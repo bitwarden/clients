@@ -1,19 +1,19 @@
-# bw pam connector
+# bw privileged-controls connector
 
 Admin commands for access connectors, the unattended agents that rotate credentials. They call `rotation().connectors()` on the SDK's PAM client. Conventions are in [`../README.md`](../README.md).
 
 ## Commands
 
-| Command                                                                        | Gate                | Notes                                                          |
-| ------------------------------------------------------------------------------ | ------------------- | -------------------------------------------------------------- |
-| `bw pam connector list --organizationid <id>`                                  | uses PAM            |                                                                |
-| `bw pam connector get <id> --organizationid <id>`                              | uses PAM            | Adds recent rotation jobs. Failure reasons are untrusted text. |
-| `bw pam connector register <name> --organizationid <id> [--token-file <path>]` | `canManageRotation` | Returns a one-time token. No serve route.                      |
-| `bw pam connector enable <id> --organizationid <id>`                           | `canManageRotation` |                                                                |
-| `bw pam connector disable <id> --organizationid <id>`                          | `canManageRotation` | Reversible. Releases the jobs the connector was running.       |
-| `bw pam connector delete <id> --organizationid <id> --yes`                     | `canManageRotation` | Permanent. Needs `--yes`. No serve route.                      |
-| `bw pam connector assign <id> <targetSystemId> --organizationid <id>`          | `canManageRotation` | The target id is only checked to be a GUID.                    |
-| `bw pam connector unassign <id> <targetSystemId> --organizationid <id>`        | `canManageRotation` | The target id is only checked to be a GUID.                    |
+| Command                                                                                        | Gate                | Notes                                                          |
+| ---------------------------------------------------------------------------------------------- | ------------------- | -------------------------------------------------------------- |
+| `bw privileged-controls connector list --organizationid <id>`                                  | uses PAM            |                                                                |
+| `bw privileged-controls connector get <id> --organizationid <id>`                              | uses PAM            | Adds recent rotation jobs. Failure reasons are untrusted text. |
+| `bw privileged-controls connector register <name> --organizationid <id> [--token-file <path>]` | `canManageRotation` | Returns a one-time token. No serve route.                      |
+| `bw privileged-controls connector enable <id> --organizationid <id>`                           | `canManageRotation` |                                                                |
+| `bw privileged-controls connector disable <id> --organizationid <id>`                          | `canManageRotation` | Reversible. Releases the jobs the connector was running.       |
+| `bw privileged-controls connector delete <id> --organizationid <id> --yes`                     | `canManageRotation` | Permanent. Needs `--yes`. No serve route.                      |
+| `bw privileged-controls connector assign <id> <targetSystemId> --organizationid <id>`          | `canManageRotation` | The target id is only checked to be a GUID.                    |
+| `bw privileged-controls connector unassign <id> <targetSystemId> --organizationid <id>`        | `canManageRotation` | The target id is only checked to be a GUID.                    |
 
 Every command needs `FeatureFlag.Pam` and `FeatureFlag.PamAccessConnector`. `canManageRotation` is separate from rule authority, and provider users are refused. An organization that is not yours, or that does not use Privileged Controls, is refused for every command, reads included, before any SDK call ("Organization not found, or you are not a member of it." or "This organization does not use Privileged Controls."). These are cheap pre-checks; the server stays the authority.
 

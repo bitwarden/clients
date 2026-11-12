@@ -35,7 +35,7 @@ import {
 
 import { LeaseChangeResponse, LeaseResponse } from "./lease.response";
 
-/** `bw pam lease`: list, extend, end and reveal. */
+/** `bw privileged-controls lease`: list, extend, end and reveal. */
 export class LeasesProgram extends PamBaseProgram {
   private readonly leases: LeasesService;
 
@@ -74,7 +74,11 @@ export class LeasesProgram extends PamBaseProgram {
       });
     addNamesOption(command);
     return addPamHelp(command, {
-      examples: ["bw pam lease list", "bw pam lease list --active", "bw pam lease list --names"],
+      examples: [
+        "bw privileged-controls lease list",
+        "bw privileged-controls lease list --active",
+        "bw privileged-controls lease list --names",
+      ],
     });
   }
 
@@ -102,7 +106,9 @@ export class LeasesProgram extends PamBaseProgram {
         "A reason is required. The duration must fit the rule's maximum extension, and the rule must allow extensions.",
         "A lease that has already ended cannot be extended: the command fails with `The lease has ended`.",
       ],
-      examples: ['bw pam lease extend <leaseId> --duration 1h --reason "Deploy is still running"'],
+      examples: [
+        'bw privileged-controls lease extend <leaseId> --duration 1h --reason "Deploy is still running"',
+      ],
     });
   }
 
@@ -128,8 +134,8 @@ export class LeasesProgram extends PamBaseProgram {
         "Needs no Privileged Controls seat, so an approver or admin can also use it to revoke a live lease.",
       ],
       examples: [
-        "bw pam lease end <leaseId> --yes",
-        'bw pam lease end <leaseId> --reason "Done" --yes',
+        "bw privileged-controls lease end <leaseId> --yes",
+        'bw privileged-controls lease end <leaseId> --reason "Done" --yes',
       ],
     });
   }
@@ -156,9 +162,9 @@ export class LeasesProgram extends PamBaseProgram {
     return addPamHelp(command, {
       notes: [
         "Prints only the requested field, to stdout. It needs a live lease and fails with `access not available` otherwise.",
-        "This is the only `bw pam` command that prints a secret. It is not available over `bw serve`.",
+        "This is the only `bw privileged-controls` command that prints a secret. It is not available over `bw serve`.",
       ],
-      examples: ["bw pam lease reveal <cipherId> --field password"],
+      examples: ["bw privileged-controls lease reveal <cipherId> --field password"],
     });
   }
 }

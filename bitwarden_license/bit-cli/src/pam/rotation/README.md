@@ -1,4 +1,4 @@
-# bw pam rotation
+# bw privileged-controls rotation
 
 Rotation configs, the managed credentials of an organization. Each links a vault cipher to a target system. Admin commands. Needs the `Pam` and `PamAccessConnector` flags and `ManageRotation` rights (the same gate as connectors and targets). An organization that is not yours, or that does not use Privileged Controls, is refused for every command that takes `--organizationid` before any SDK call, with "Organization not found, or you are not a member of it." or "This organization does not use Privileged Controls."; provider users are refused too. Built on the SDK's `rotation().configs()` and `rotation().schedule()` clients, through `RotationService` in `bit-common/src/pam/rotation`.
 

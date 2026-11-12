@@ -14,7 +14,7 @@ import { toSdkId } from "../shared/pam-ids";
 import { PamSdkService } from "../shared/pam-sdk.service";
 
 /**
- * The access request SDK calls the `bw pam request` commands make, and nothing else. Ids are
+ * The access request SDK calls the `bw privileged-controls request` commands make, and nothing else. Ids are
  * validated and branded here, so a caller passes the text the operator typed.
  *
  * Nothing here logs a request: `PamSdkService.run` logs only an error's name and message, and

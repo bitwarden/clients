@@ -21,7 +21,7 @@ type CreateOptions = PamTextOptions & { duration?: string; start?: string; end?:
 type ListOptions = PamNamesOptions & { status?: string };
 
 /**
- * `bw pam request`: the end user's access requests. A request never mints a lease; `activate`
+ * `bw privileged-controls request`: the end user's access requests. A request never mints a lease; `activate`
  * does, and neither prints a credential.
  *
  * Gated ciphers may be hidden from the CLI device type by the server, so this group is subject to
@@ -65,8 +65,8 @@ export class RequestsProgram extends PamBaseProgram {
         "The state is the one the server reports for you. An active lease whose window has closed is reported as lapsed.",
       ],
       examples: [
-        "bw pam request status 6bd7a1c4-1f2e-4a5b-9c3d-0e8f7a6b5c4d",
-        "bw pam request status 6bd7a1c4-1f2e-4a5b-9c3d-0e8f7a6b5c4d --precheck",
+        "bw privileged-controls request status 6bd7a1c4-1f2e-4a5b-9c3d-0e8f7a6b5c4d",
+        "bw privileged-controls request status 6bd7a1c4-1f2e-4a5b-9c3d-0e8f7a6b5c4d --precheck",
       ],
     });
   }
@@ -96,11 +96,11 @@ export class RequestsProgram extends PamBaseProgram {
       notes: [
         "The CLI checks how the item is approved first. An automatic item needs --duration, or uses its default. An item that needs human approval needs --start, --end and a reason, and the window may not be longer than the item's maximum or 365 days.",
         "A reason is never printed or logged. Prefer --reasonfile or --reasonstdin to keep it out of shell history.",
-        "Creating a request does not start a lease. Run `bw pam request activate <requestId>` to start it. This needs a Privileged Controls seat.",
+        "Creating a request does not start a lease. Run `bw privileged-controls request activate <requestId>` to start it. This needs a Privileged Controls seat.",
       ],
       examples: [
-        "bw pam request create 6bd7a1c4-1f2e-4a5b-9c3d-0e8f7a6b5c4d --duration 2h",
-        'bw pam request create 6bd7a1c4-1f2e-4a5b-9c3d-0e8f7a6b5c4d --start 2026-03-01T09:00:00Z --end 2026-03-01T11:00:00Z --reason "Quarterly key rotation"',
+        "bw privileged-controls request create 6bd7a1c4-1f2e-4a5b-9c3d-0e8f7a6b5c4d --duration 2h",
+        'bw privileged-controls request create 6bd7a1c4-1f2e-4a5b-9c3d-0e8f7a6b5c4d --start 2026-03-01T09:00:00Z --end 2026-03-01T11:00:00Z --reason "Quarterly key rotation"',
       ],
     });
   }
@@ -122,7 +122,10 @@ export class RequestsProgram extends PamBaseProgram {
       notes: [
         "Extension requests are shown on the request they extend. Activation is not a status: an activated request is approved and shows producedLeaseId and producedLeaseStatus.",
       ],
-      examples: ["bw pam request list", "bw pam request list --status pending"],
+      examples: [
+        "bw privileged-controls request list",
+        "bw privileged-controls request list --status pending",
+      ],
     });
   }
 
@@ -137,7 +140,7 @@ export class RequestsProgram extends PamBaseProgram {
       });
     addNamesOption(command);
     return addPamHelp(command, {
-      examples: ["bw pam request get 0c9d2e3f-4a5b-4c6d-8e7f-1a2b3c4d5e6f"],
+      examples: ["bw privileged-controls request get 0c9d2e3f-4a5b-4c6d-8e7f-1a2b3c4d5e6f"],
     });
   }
 
@@ -156,7 +159,7 @@ export class RequestsProgram extends PamBaseProgram {
         "The request must be approved and inside its window, and no one else may hold the item's lease. This needs a Privileged Controls seat.",
         "Activation never shows the credential.",
       ],
-      examples: ["bw pam request activate 0c9d2e3f-4a5b-4c6d-8e7f-1a2b3c4d5e6f"],
+      examples: ["bw privileged-controls request activate 0c9d2e3f-4a5b-4c6d-8e7f-1a2b3c4d5e6f"],
     });
   }
 
@@ -170,7 +173,7 @@ export class RequestsProgram extends PamBaseProgram {
         );
       });
     return addPamHelp(command, {
-      examples: ["bw pam request cancel 0c9d2e3f-4a5b-4c6d-8e7f-1a2b3c4d5e6f"],
+      examples: ["bw privileged-controls request cancel 0c9d2e3f-4a5b-4c6d-8e7f-1a2b3c4d5e6f"],
     });
   }
 }

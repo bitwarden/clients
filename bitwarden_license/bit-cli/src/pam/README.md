@@ -1,6 +1,6 @@
-# bw pam
+# bw privileged-controls
 
-The `bw pam` commands, also available as `bw pc`, manage Privileged Controls from the command line: access requests, leases, approvals, access rules, and credential rotation. They are part of the commercial CLI only, built from `bitwarden_license/bit-cli`, and are not in the open-source build.
+The `bw privileged-controls` commands, also available as `bw pc`, manage Privileged Controls from the command line: access requests, leases, approvals, access rules, and credential rotation. They are part of the commercial CLI only, built from `bitwarden_license/bit-cli`, and are not in the open-source build.
 
 Most commands call the SDK's PAM clients (`sdk.commercial().pam()`). Every call goes through the SDK; the CLI makes no plain HTTP requests. Audit and governance are not part of the CLI yet and will arrive when the SDK exposes clients for them.
 
@@ -8,7 +8,7 @@ Most commands call the SDK's PAM clients (`sdk.commercial().pam()`). Every call 
 
 | Where                            | What                                                                              |
 | -------------------------------- | --------------------------------------------------------------------------------- |
-| `bit-cli/src/pam/pam.program.ts` | `PamProgram` defines `bw pam` and mounts every group.                             |
+| `bit-cli/src/pam/pam.program.ts` | `PamProgram` defines `bw privileged-controls` and mounts every group.             |
 | `bit-cli/src/pam/shared/`        | Helpers every group uses. Edited only by the foundation, never by a group.        |
 | `bit-cli/src/pam/<group>/`       | One group's commands and `bw serve` routes, with its own README.                  |
 | `bit-common/src/pam/shared/`     | Non-Angular code shared by the groups: SDK access, error decoding, input parsing. |
@@ -33,7 +33,7 @@ Neither package may import from `bit-web`. `bit-common` uses relative imports wi
 
 A group never edits a shared file. It fills in two stubs in its own directory:
 
-- `bit-cli/src/pam/<group>/index.ts` exports `register<Group>(pam: Command, container: ServiceContainer): void`. `PamProgram` calls it with the `bw pam` command. The function builds the group's program and calls `pam.addCommand(...)`.
+- `bit-cli/src/pam/<group>/index.ts` exports `register<Group>(pam: Command, container: ServiceContainer): void`. `PamProgram` calls it with the `bw privileged-controls` command. The function builds the group's program and calls `pam.addCommand(...)`.
 - `bit-cli/src/pam/<group>/serve.ts` exports `registerServeRoutes(router: Router, container: ServiceContainer): void`. `BitServeConfigurator.servePam` calls it. It may stay empty.
 
 The names are `registerRequests`, `registerLeases`, `registerApprovals`, `registerRules`, `registerConnectors`, `registerTargets`, `registerRotation`, and `registerStatus`.

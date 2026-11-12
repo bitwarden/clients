@@ -244,7 +244,7 @@ export function bypassWarning(
 ): string | undefined {
   const exposed = [...new Set([...ungoverned, ...(bypassable ?? [])])];
   if (bypassable == null && ungoverned.length === 0) {
-    return `Warning: the rule was ${action}, but the collections that now bypass leasing could not be read. Run \`bw pam rule bypassable\` to check.`;
+    return `Warning: the rule was ${action}, but the collections that now bypass leasing could not be read. Run \`bw privileged-controls rule bypassable\` to check.`;
   }
   if (exposed.length === 0) {
     return undefined;

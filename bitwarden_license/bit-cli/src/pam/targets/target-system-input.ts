@@ -36,7 +36,7 @@ export async function readTargetSystemInput(
   ).length;
   if (given !== 1) {
     throw new PamInputError(
-      "Give the request as exactly one of a JSON argument, --file <path> or --stdin. Run `bw pam target template` for the shape.",
+      "Give the request as exactly one of a JSON argument, --file <path> or --stdin. Run `bw privileged-controls target template` for the shape.",
     );
   }
   let text: string;

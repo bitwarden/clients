@@ -14,7 +14,7 @@ import { registerStatus } from "./status";
 import { registerTargets } from "./targets";
 
 /**
- * Defines `bw pam` and mounts every group on it. A group is mounted by one fixed
+ * Defines `bw privileged-controls` and mounts every group on it. A group is mounted by one fixed
  * `register<Group>(pam, container)` function exported from its `index.ts`, so adding a group's
  * commands never touches this file.
  */
@@ -28,7 +28,7 @@ export class PamProgram extends BaseProgram {
   }
 
   private pamCommand(): Command {
-    const pam = new Command("pam")
+    const pam = new Command("privileged-controls")
       .alias("pc")
       .description(
         "Manage Privileged Controls: access requests, leases, approvals, access rules, and credential rotation.",
