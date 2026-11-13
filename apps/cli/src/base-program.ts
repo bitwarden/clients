@@ -39,6 +39,9 @@ export abstract class BaseProgram {
       return;
     }
 
+    // eslint-disable-next-line
+    console.log("test");
+
     if (process.env.BW_RESPONSE === "true") {
       writeLn(this.getJson(response), true, false);
     } else if (response.data != null) {
