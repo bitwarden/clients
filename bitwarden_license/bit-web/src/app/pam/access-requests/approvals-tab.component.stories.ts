@@ -5,6 +5,15 @@ import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
 import type { AccessLeaseId, AccessRequestView } from "@bitwarden/bit-pam";
+import {
+  toApprovalRow,
+  ApproverInboxService,
+  ApproverRow,
+  fromApprovalRow,
+  fromManagedLease,
+  fromUnstartedApproval,
+  toManagedLeaseRow,
+} from "@bitwarden/bit-pam-components";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -12,15 +21,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { HOUR, MINUTE, STORY_NOW, fromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { toApprovalRow } from "../approvals/approval-row";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import {
-  ApproverRow,
-  fromApprovalRow,
-  fromManagedLease,
-  fromUnstartedApproval,
-} from "../approvals/approver-row";
-import { toManagedLeaseRow } from "../approvals/managed-lease-row";
 import {
   accessRequest,
   provideStoryChangeDetection,

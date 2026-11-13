@@ -19,7 +19,7 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
 import { formatCalendarDate, selectedFilterStrings } from "@bitwarden/bit-pam";
-import { TimestampPipe } from "@bitwarden/bit-pam-components";
+import { TimestampPipe, AccessNameResolverService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -57,8 +57,6 @@ import {
   isLinkableMember,
 } from "@bitwarden/web-vault/app/dirt/event-logs/components/send-access-member";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
-
-import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
 
 import {
   AUDIT_TIME_PERIOD_LABEL_KEYS,

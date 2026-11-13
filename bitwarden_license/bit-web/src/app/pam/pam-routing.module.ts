@@ -2,12 +2,12 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { AccessNameResolverService } from "@bitwarden/bit-pam-components";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-redirect.guard";
 
 import { AccessAuditComponent } from "./access-audit/access-audit.component";
-import { AccessNameResolverService } from "./access-requests/access-name-resolver.service";
 import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
 import { pamLandingRoute } from "./pam-landing-route";

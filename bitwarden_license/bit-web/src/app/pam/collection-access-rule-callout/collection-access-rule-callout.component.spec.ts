@@ -5,13 +5,12 @@ import { BehaviorSubject } from "rxjs";
 
 import { AccessRuleSdkService } from "@bitwarden/bit-pam";
 import type { AccessRuleView } from "@bitwarden/bit-pam";
+import { GovernedCollectionsService } from "@bitwarden/bit-pam-components";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef } from "@bitwarden/components";
-
-import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";
 

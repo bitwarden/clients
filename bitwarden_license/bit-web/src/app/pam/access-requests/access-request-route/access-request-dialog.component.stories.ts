@@ -3,6 +3,14 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 
 import type { AccessRequestView } from "@bitwarden/bit-pam";
+import {
+  ApprovalRow,
+  toApprovalRow,
+  AccessRequestDetailService,
+  AccessRequestViewer,
+  AccessRequestDialogComponent,
+  AccessRequestDialogParams,
+} from "@bitwarden/bit-pam-components";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -10,7 +18,6 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 import { DAY, HOUR, MINUTE, fromNow, startClockAtStoryNow, STORY_NOW } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { ApprovalRow, toApprovalRow } from "../../approvals/approval-row";
 import {
   accessRequest,
   decision,
@@ -18,12 +25,6 @@ import {
   provideStoryLogService,
   storyNames,
 } from "../../testing/story-fixtures";
-
-import { AccessRequestDetailService, AccessRequestViewer } from "./access-request-detail.service";
-import {
-  AccessRequestDialogComponent,
-  AccessRequestDialogParams,
-} from "./access-request-dialog.component";
 
 const names = storyNames();
 

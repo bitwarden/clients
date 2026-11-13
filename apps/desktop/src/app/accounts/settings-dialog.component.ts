@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, OnInit, computed, inject, signal } from "@angular/core";
+import { NgComponentOutlet } from "@angular/common";
+import { Component, DestroyRef, OnInit, Type, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
@@ -79,6 +80,8 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
+import { DESKTOP_SETTINGS_EXTRAS, DesktopSettingsExtra } from "./settings-extras.token";
+
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "settings-dialog.component.html",
@@ -102,6 +105,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     IconModule,
     I18nPipe,
     LinkModule,
+    NgComponentOutlet,
     RouterModule,
     SectionComponent,
     SectionHeaderComponent,
@@ -115,6 +119,8 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   ],
 })
 export class SettingsDialogComponent implements OnInit {
+  protected readonly settingsExtras: Type<DesktopSettingsExtra>[] =
+    inject(DESKTOP_SETTINGS_EXTRAS, { optional: true }) ?? [];
   private readonly accountService = inject(AccountService);
   private readonly policyService = inject(PolicyService);
   private readonly formBuilder = inject(FormBuilder);

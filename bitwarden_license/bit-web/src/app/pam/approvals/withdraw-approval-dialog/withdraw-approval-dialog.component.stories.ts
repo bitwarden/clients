@@ -2,14 +2,13 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
-import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
-
 import {
   WithdrawApprovalDialogComponent,
   WithdrawApprovalDialogParams,
-} from "./withdraw-approval-dialog.component";
+} from "@bitwarden/bit-pam-components";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 const params: WithdrawApprovalDialogParams = {
   itemName: "Prod database",

@@ -5,16 +5,17 @@ import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import {
+  ApprovalPrivilegeService,
+  ApproverInboxService,
+  MyAccessService,
+} from "@bitwarden/bit-pam-components";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
 
-import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-
 import { AccessRequestsComponent } from "./access-requests.component";
-import { MyAccessService } from "./my-access.service";
 
 describe("AccessRequestsComponent", () => {
   let fixture: ComponentFixture<AccessRequestsComponent>;

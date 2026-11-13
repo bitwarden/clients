@@ -162,6 +162,13 @@ export default {
 
   isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
 
+  /**
+   * Shows a system notification. Clicking it focuses the window and opens `route`, which must be
+   * one of the allowed notification routes. Resolves false when it was not shown.
+   */
+  showNotification: (options: { title: string; body: string; route?: string }): Promise<boolean> =>
+    ipcRenderer.invoke("showNotification", options),
+
   getLanguageFile: (formattedLocale: string): Promise<object> =>
     ipcRenderer.invoke("getLanguageFile", formattedLocale),
 

@@ -11,6 +11,7 @@ import {
   OrganizationUserUserMiniResponse,
 } from "@bitwarden/admin-console/common";
 import { formatTimestamp } from "@bitwarden/bit-pam";
+import { AccessNameResolverService, emptyResolvedNames } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -27,10 +28,6 @@ import {
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import {
-  AccessNameResolverService,
-  emptyResolvedNames,
-} from "../access-requests/access-name-resolver.service";
 import { stubToolbarWidth } from "../testing/toolbar-width";
 
 import { UNEMITTED_AUDIT_KINDS, auditRangeValue } from "./access-audit-row";

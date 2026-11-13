@@ -2,14 +2,16 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import type { AccessRequestView } from "@bitwarden/bit-pam";
+import {
+  emptyResolvedNames,
+  ApprovalRow,
+  toApprovalRow,
+  DecideDialogComponent,
+  DecideDialogParams,
+} from "@bitwarden/bit-pam-components";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 import { STORY_NOW } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
-
-import { emptyResolvedNames } from "../../access-requests/access-name-resolver.service";
-import { ApprovalRow, toApprovalRow } from "../approval-row";
-
-import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog.component";
 
 /** Built through `toApprovalRow` so the summary matches the inbox row's precomputed labels. */
 function approvalRow(

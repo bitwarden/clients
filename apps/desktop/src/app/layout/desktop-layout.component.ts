@@ -14,6 +14,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/vault";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
+import { PamNavSlotComponent } from "../pam/pam-nav-slot.component";
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "../tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
@@ -35,6 +36,7 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
     SendFiltersNavComponent,
     VaultNavSectionComponent,
     VaultManageNavComponent,
+    PamNavSlotComponent,
   ],
   templateUrl: "./desktop-layout.component.html",
 })

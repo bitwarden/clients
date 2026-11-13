@@ -1,0 +1,641 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  LOCALE_ID,
+  NgZone,
+  OnInit,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { RouterModule } from "@angular/router";
+import { filter } from "rxjs";
+
+import { NoResults } from "@bitwarden/assets/svg";
+import {
+  AccessRequestView,
+  activateAccessErrorMessageKey,
+  durationText,
+  exactWindow,
+  humanApprover,
+  reasonText,
+  relativeStart,
+} from "@bitwarden/bit-pam";
+import type { AccessApprover, AccessDecisionVerdict, AccessBadgeState } from "@bitwarden/bit-pam";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  BadgeComponent,
+  ButtonModule,
+  CalloutModule,
+  CardComponent,
+  DIALOG_DATA,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+  StatusLockupComponent,
+  SvgComponent,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import {
+  AccessStateBadgeComponent,
+  DurationShortPipe,
+  RemainingTimePipe,
+  TimestampPipe,
+  ApproverActionsService,
+  isLiveManagedLease,
+  isUnstartedApproval,
+  RequestSummaryComponent,
+  SummaryFieldComponent,
+  emptyResolvedNames,
+  organizationNameFor,
+  TerminalStatusBadge,
+  historyDisplayStatus,
+  lapsedGrantBadge,
+} from "../..";
+
+import { AccessRequestDetailService } from "./access-request-detail.service";
+
+/** What the item card badges with: the shared access pill, or a plain terminal-status chip. */
+type DialogBadge = {
+  readonly badgeState: AccessBadgeState | null;
+  readonly statusBadge: TerminalStatusBadge | null;
+};
+
+/**
+ * Shared instances, since `badge` recomputes on the clock and a fresh object each tick would
+ * restart the pill's own countdown.
+ */
+const READY_BADGE: DialogBadge = { badgeState: { kind: "ready" }, statusBadge: null };
+const LAPSED_BADGE: DialogBadge = { badgeState: null, statusBadge: lapsedGrantBadge };
+
+export type AccessRequestDialogParams = {
+  /**
+   * Handed in rather than injected, since `DialogService` builds the dialog's injector from the
+   * root one, out of reach of route-scoped providers.
+   */
+  detail: AccessRequestDetailService;
+  /**
+   * Opened from the History tab: a record to read, so the footer offers Close alone. History lists
+   * no approval that can still be withdrawn.
+   */
+  readOnly?: boolean;
+  /** Opens straight on the withdraw confirmation, as `?action=withdraw` asks. */
+  intent?: "withdraw";
+};
+
+/**
+ * The view for `/pam/requests/:id`; the host route owns the URL and close navigation. The same
+ * link reaches the requester and approvers, so the footer offers only the viewer's own actions.
+ */
+@Component({
+  selector: "pam-access-request-dialog",
+  templateUrl: "./access-request-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    I18nPipe,
+    TimestampPipe,
+    AccessStateBadgeComponent,
+    BadgeComponent,
+    ButtonModule,
+    CalloutModule,
+    CardComponent,
+    DialogModule,
+    FormFieldModule,
+    ReactiveFormsModule,
+    RouterModule,
+    StatusLockupComponent,
+    SvgComponent,
+    TypographyModule,
+    DurationShortPipe,
+    RemainingTimePipe,
+    RequestSummaryComponent,
+    SummaryFieldComponent,
+  ],
+  providers: [ApproverActionsService],
+})
+export class AccessRequestDialogComponent implements OnInit {
+  protected readonly noResultsSvg = NoResults;
+
+  private readonly params = inject<AccessRequestDialogParams>(DIALOG_DATA);
+  private readonly detail = this.params.detail;
+  /** False on a read-only open, which gates every footer action but Close. */
+  private readonly offersActions = !this.params.readOnly;
+  private readonly dialogService = inject(DialogService);
+  private readonly approverActions = inject(ApproverActionsService);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
+  private readonly locale = inject(LOCALE_ID);
+
+  protected readonly request = toSignal(this.detail.request$, { initialValue: null });
+  protected readonly loading = toSignal(this.detail.loading$, { initialValue: true });
+  protected readonly notFound = toSignal(this.detail.notFound$, { initialValue: false });
+  protected readonly loadError = toSignal(this.detail.loadError$, { initialValue: null });
+  private readonly cipherById = toSignal(this.detail.cipherById$, {
+    initialValue: new Map<string, CipherView>(),
+  });
+  private readonly names = toSignal(this.detail.names$, { initialValue: emptyResolvedNames() });
+  private readonly viewer = toSignal(this.detail.viewer$, { initialValue: null });
+  private readonly approvalRow = toSignal(this.detail.approvalRow$, { initialValue: null });
+  private readonly managed = toSignal(this.detail.managed$, { initialValue: false });
+  private readonly isRequester = computed(() => this.viewer() === "requester");
+  private readonly isApprover = computed(() => this.viewer() === "approver");
+  /** An approver looking at a decided request on a collection they manage. */
+  private readonly approverManages = computed(() => this.isApprover() && this.managed());
+
+  protected readonly cipherName = computed(() => {
+    const request = this.request();
+    return request == null
+      ? null
+      : (this.names().cipherNameById.get(cipherId(request)) ?? cipherId(request));
+  });
+
+  protected readonly collectionName = computed(() => {
+    const request = this.request();
+    return request == null
+      ? null
+      : (this.names().collectionNameById.get(collectionId(request)) ?? null);
+  });
+
+  protected readonly organizationName = computed(() => {
+    const request = this.request();
+    return request == null ? null : organizationNameFor(request, this.names());
+  });
+
+  /** Ticks every second so the countdowns stay live. */
+  protected readonly nowMs = signal(Date.now());
+
+  /** Per-action in-flight flags (prevent double-submit and drive button spinners). */
+  protected readonly cancelling = signal(false);
+  protected readonly starting = signal(false);
+  protected readonly ending = signal(false);
+  protected readonly deciding = signal(false);
+  protected readonly withdrawing = signal(false);
+  protected readonly revoking = signal(false);
+
+  /** The activation deadline as a number, parsed once per request rather than per reader. */
+  private readonly leaseNotAfterMs = computed(() => {
+    const request = this.request();
+    return request == null ? null : Date.parse(request.leaseNotAfter);
+  });
+
+  protected readonly badge = computed(() => {
+    const request = this.request();
+    if (request == null) {
+      return null;
+    }
+    // A running lease badges as its own countdown, which escalates to "ending soon" on the
+    // threshold the pill owns, so the dialog never has to name either state itself.
+    const endsAt = this.leaseEndsAt();
+    if (endsAt != null) {
+      return {
+        badgeState: { kind: "active", expiresAt: new Date(endsAt) } as const,
+        statusBadge: null,
+      };
+    }
+    if (isUnstartedApproval(request)) {
+      // An approval still inside its window badges "Ready to use" on both sides of the dialog.
+      // The tables keep saying "Approved" to an approver, who has nothing to use themselves.
+      return (this.leaseNotAfterMs() ?? 0) <= this.nowMs() ? LAPSED_BADGE : READY_BADGE;
+    }
+    return historyDisplayStatus(request);
+  });
+
+  protected readonly duration = computed(() => {
+    const request = this.request();
+    return request == null ? null : durationText(request, this.locale);
+  });
+
+  protected readonly start = computed(() => {
+    const request = this.request();
+    return request == null ? null : relativeStart(request, new Date(this.nowMs()));
+  });
+
+  protected readonly exactWindowText = computed(() => {
+    const request = this.request();
+    return request == null ? "" : exactWindow(request, this.locale);
+  });
+
+  protected readonly reason = computed(() => {
+    const request = this.request();
+    return request == null ? null : reasonText(request);
+  });
+
+  protected readonly requesterDisplay = computed(() => {
+    const request = this.request();
+    return request == null
+      ? null
+      : request.requesterName || request.requesterEmail || uuidAsString(request.requesterId);
+  });
+
+  /**
+   * The decision that resolved the request, as the "Decision" card reads it: who decided, how to
+   * reach them, and any note they left. The full log stays in the audit trail; this names only the
+   * outcome the viewer is looking at. Null until something has been decided.
+   */
+  protected readonly decisionSummary = computed(() => {
+    const request = this.request();
+    if (request == null) {
+      return null;
+    }
+    // The resolving decision is the last the server recorded; earlier ones are superseded.
+    const decision = request.decisions.at(-1);
+    if (decision == null) {
+      return null;
+    }
+    const approver = humanApprover(decision);
+    // A holder ending their own lease is the requester, whose name the request already carries
+    // when their decision doesn't.
+    const named =
+      approver?.name ||
+      approver?.email ||
+      (approver != null && approver.id === request.requesterId ? this.requesterDisplay() : null);
+    return {
+      byLabelKey: decisionLabelKey(decision.verdict, request.status, approver, request.requesterId),
+      who:
+        decision.decider === "automatic"
+          ? this.i18nService.t("pamDecisionAutomatic")
+          : (named ?? this.i18nService.t("pamResolverUnknown")),
+      // Only worth a row of its own when it isn't already standing in as the name.
+      email: approver?.email && approver.email !== approver.name ? approver.email : null,
+      comment: decision.comment,
+    };
+  });
+
+  /**
+   * The withdraw confirmation is a second face of this dialog rather than a separate one, so the
+   * item it concerns stays on screen while the approver writes the note.
+   */
+  protected readonly confirmingWithdraw = signal(false);
+
+  protected readonly withdrawReason = new FormControl("", {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
+
+  /**
+   * The withdraw warning in runs of plain and bold text. Translated as one sentence, so each
+   * locale keeps its own word order, then split at the item and requester names, which read in
+   * bold. Rendered as text, never HTML, since both names are user-supplied.
+   */
+  protected readonly withdrawWarning = computed(() =>
+    boldRuns(
+      this.i18nService.t(
+        "pamWithdrawApprovalConfirmMessage",
+        WITHDRAW_ITEM_MARK,
+        WITHDRAW_REQUESTER_MARK,
+      ),
+      new Map([
+        [WITHDRAW_ITEM_MARK, this.cipherName() ?? ""],
+        [WITHDRAW_REQUESTER_MARK, this.requesterDisplay() ?? ""],
+      ]),
+    ),
+  );
+
+  private readonly withdrawReasonText = toSignal(this.withdrawReason.valueChanges, {
+    initialValue: "",
+  });
+
+  protected readonly withdrawReasonGiven = computed(
+    () => this.withdrawReasonText().trim().length > 0,
+  );
+
+  protected readonly leaseActive = computed(() => this.request()?.producedLeaseStatus === "active");
+
+  /**
+   * The applied extension's added time and new end; null if never extended. A lease extends at
+   * most once, so the whole delta is that extension's.
+   */
+  protected readonly extension = computed(() => {
+    const request = this.request();
+    if (request?.producedLeaseNotAfter == null) {
+      return null;
+    }
+    const addedMs = Date.parse(request.producedLeaseNotAfter) - Date.parse(request.leaseNotAfter);
+    return addedMs <= 0
+      ? null
+      : { addedSeconds: addedMs / 1000, until: request.producedLeaseNotAfter };
+  });
+
+  /**
+   * The countdown target while the lease is live. Reads `producedLeaseNotAfter` because an
+   * extension never restamps `leaseNotAfter`, falling back to the latter for servers that omit the
+   * field.
+   */
+  protected readonly leaseEndsAt = computed(() => {
+    const request = this.request();
+    if (request == null || !this.leaseActive()) {
+      return null;
+    }
+    const endsAt = request.producedLeaseNotAfter ?? request.leaseNotAfter;
+    return Date.parse(endsAt) > this.nowMs() ? endsAt : null;
+  });
+
+  protected readonly canStart = computed(() => {
+    const request = this.request();
+    return (
+      request != null &&
+      this.offersActions &&
+      this.isRequester() &&
+      request.status === "approved" &&
+      request.producedLeaseId == null &&
+      Date.parse(request.leaseNotAfter) > this.nowMs()
+    );
+  });
+
+  /** Only while the request is still undecided. */
+  protected readonly canCancel = computed(
+    () => this.offersActions && this.isRequester() && this.request()?.status === "pending",
+  );
+
+  /**
+   * A request that was refused or timed out is re-asked rather than revived, so the requester is
+   * sent to the item to raise a fresh one with the old request still on screen behind them.
+   */
+  protected readonly canResubmit = computed(() => {
+    const status = this.request()?.status;
+    const resubmittableStatus = status === "denied" || status === "expired";
+    return this.offersActions && this.isRequester() && resubmittableStatus;
+  });
+
+  /** The item this request was for, as the vault's own deep link opens it. */
+  protected readonly resubmitLink = computed(() => {
+    const request = this.request();
+    return request == null ? null : ["/vault"];
+  });
+
+  protected readonly resubmitParams = computed(() => {
+    const request = this.request();
+    return request == null ? null : { itemId: cipherId(request), action: "view" };
+  });
+
+  protected readonly canEndLease = computed(
+    () => this.offersActions && this.isRequester() && this.leaseActive(),
+  );
+
+  protected readonly canDecide = computed(
+    () => this.offersActions && this.isApprover() && this.approvalRow() != null,
+  );
+
+  /** Whether the viewer may withdraw this approval at all, read-only open or not. */
+  private readonly withdrawable = computed(() => {
+    const request = this.request();
+    return request != null && this.approverManages() && isUnstartedApproval(request);
+  });
+
+  protected readonly canWithdrawApproval = computed(
+    () => this.offersActions && this.withdrawable(),
+  );
+
+  /** No window check, since an extension runs the lease past the request's `leaseNotAfter`. */
+  protected readonly canRevoke = computed(() => {
+    const request = this.request();
+    return (
+      request != null && this.offersActions && this.approverManages() && isLiveManagedLease(request)
+    );
+  });
+
+  constructor() {
+    // A withdraw intent turns the dialog to its confirmation face once the approval is known to
+    // be withdrawable, and only once, so Cancel returns to the request rather than re-entering
+    // it. A stale link to something no longer withdrawable is left on the request alone.
+    let intentApplied = this.params.intent !== "withdraw";
+    effect(() => {
+      if (!intentApplied && this.withdrawable()) {
+        intentApplied = true;
+        this.confirmingWithdraw.set(true);
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    // Kept outside the Angular zone so a periodic in-zone timer never blocks `whenStable()`; the
+    // signal write still drives change detection.
+    this.ngZone.runOutsideAngular(() => {
+      const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
+      this.destroyRef.onDestroy(() => clearInterval(intervalId));
+    });
+
+    // A 404 is the not-found state; any other load failure toasts.
+    this.detail.loadError$
+      .pipe(
+        filter((e) => e != null),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((e) => {
+        this.logService.error(e);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("pamAccessRequestLoadError"),
+        });
+      });
+  }
+
+  protected cipherFor(cipherIdValue: AccessRequestView["cipherId"]): CipherView | undefined {
+    return this.cipherById().get(uuidAsString(cipherIdValue));
+  }
+
+  protected async cancel(): Promise<void> {
+    if (!this.canCancel() || this.cancelling()) {
+      return;
+    }
+    this.cancelling.set(true);
+    try {
+      await this.detail.cancel();
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamMyRequestsCanceledToast"),
+      });
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("pamMyRequestsCancelError"),
+      });
+    } finally {
+      this.cancelling.set(false);
+    }
+  }
+
+  protected async startAccess(): Promise<void> {
+    if (!this.canStart() || this.starting()) {
+      return;
+    }
+    this.starting.set(true);
+    try {
+      await this.detail.activate();
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamStartLeaseSuccess"),
+      });
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(activateAccessErrorMessageKey(e)),
+      });
+    } finally {
+      this.starting.set(false);
+    }
+  }
+
+  protected async endLease(): Promise<void> {
+    const leaseId = this.request()?.producedLeaseId;
+    if (leaseId == null || !this.canEndLease() || this.ending()) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamEndLeaseTitle" },
+      content: { key: "pamEndLeaseConfirm" },
+      acceptButtonText: { key: "pamEndLeaseButton" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    this.ending.set(true);
+    try {
+      await this.detail.endLease(leaseId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamEndLeaseSuccess"),
+      });
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    } finally {
+      this.ending.set(false);
+    }
+  }
+
+  /** Decide through the same dialog, toasts and failure handling as the Approvals inbox. */
+  protected async decide(verdict: AccessDecisionVerdict): Promise<void> {
+    const row = this.approvalRow();
+    if (row == null || !this.canDecide() || this.deciding()) {
+      return;
+    }
+    await this.approverActions.decide(
+      { verdict, row, cipher: this.cipherFor(row.request.cipherId) },
+      (decided, comment) => this.detail.decide(decided, comment),
+      (busy) => this.deciding.set(busy),
+    );
+  }
+
+  /**
+   * Turns the dialog over to its confirmation face; the withdrawal itself waits for a reason. Any
+   * note from an earlier Cancel or failed attempt is still there.
+   */
+  protected withdrawApproval(): void {
+    if (!this.canWithdrawApproval() || this.withdrawing()) {
+      return;
+    }
+    this.confirmingWithdraw.set(true);
+  }
+
+  /** Returns to the request, keeping the note so re-opening the confirmation does not lose it. */
+  protected cancelWithdraw(): void {
+    this.confirmingWithdraw.set(false);
+  }
+
+  protected async confirmWithdraw(): Promise<void> {
+    if (!this.withdrawReasonGiven() || this.withdrawing()) {
+      return;
+    }
+    const reason = this.withdrawReason.value.trim();
+    const withdrawn = await this.approverActions.withdrawApproval(
+      () => this.detail.withdrawApproval(reason),
+      (busy) => this.withdrawing.set(busy),
+    );
+    // A failure keeps the confirmation, and the reason, open so the approver can retry as is.
+    if (withdrawn) {
+      this.withdrawReason.setValue("");
+      this.confirmingWithdraw.set(false);
+    }
+  }
+
+  protected async revoke(): Promise<void> {
+    const leaseId = this.request()?.producedLeaseId;
+    if (leaseId == null || !this.canRevoke() || this.revoking()) {
+      return;
+    }
+    await this.approverActions.revoke(
+      () => this.detail.revokeLease(leaseId),
+      (busy) => this.revoking.set(busy),
+    );
+  }
+
+  /**
+   * `closeOnNavigation` is off because the host route decides when this closes; a CDK close on
+   * back-navigation would send the browser back twice.
+   */
+  static open(
+    dialogService: DialogService,
+    params: AccessRequestDialogParams,
+  ): DialogRef<void, AccessRequestDialogComponent> {
+    return dialogService.open<void, AccessRequestDialogParams, AccessRequestDialogComponent>(
+      AccessRequestDialogComponent,
+      { data: params, closeOnNavigation: false },
+    );
+  }
+}
+
+/** Stand-ins handed to the translation, then swapped for the bold names. */
+const WITHDRAW_ITEM_MARK = "\u0000item\u0000";
+const WITHDRAW_REQUESTER_MARK = "\u0000requester\u0000";
+
+type TextRun = { readonly text: string; readonly bold: boolean };
+
+/** Splits `text` at each mark, replacing the mark with its value as a bold run. */
+function boldRuns(text: string, values: ReadonlyMap<string, string>): TextRun[] {
+  // The marks are fixed NUL-delimited words, so none needs escaping in the pattern.
+  return text
+    .split(new RegExp(`(${[...values.keys()].join("|")})`))
+    .filter((part) => part.length > 0)
+    .map((part) =>
+      values.has(part) ? { text: values.get(part) ?? "", bold: true } : { text: part, bold: false },
+    );
+}
+
+/**
+ * The Decision card's label for the request's last decision. Revoking a lease, ending your own,
+ * and withdrawing an approval all record a deny without the request ending denied, so the label
+ * follows the verdict and, for those lease ends, who recorded it, never the status alone.
+ */
+function decisionLabelKey(
+  verdict: AccessDecisionVerdict,
+  status: AccessRequestView["status"],
+  approver: AccessApprover | undefined,
+  requesterId: AccessRequestView["requesterId"],
+): string {
+  if (verdict !== "deny") {
+    return "pamDecisionApprovedBy";
+  }
+  if (status === "denied") {
+    return "pamDecisionDeniedBy";
+  }
+  return approver?.id === requesterId ? "pamDecisionEndedBy" : "pamDecisionRevokedBy";
+}
+
+function cipherId(request: AccessRequestView): string {
+  return uuidAsString(request.cipherId);
+}
+
+function collectionId(request: AccessRequestView): string {
+  return uuidAsString(request.collectionId);
+}

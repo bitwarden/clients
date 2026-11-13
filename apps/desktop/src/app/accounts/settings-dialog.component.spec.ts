@@ -1618,6 +1618,12 @@ describe("SettingsDialogComponent", () => {
     });
   });
 
+  describe("settings extras seam", () => {
+    it("adds nothing to the app preferences tab when no build provides extras", () => {
+      expect(component["settingsExtras"]).toEqual([]);
+    });
+  });
+
   describe("theme valueChanges", () => {
     it("saves the new theme value when changed", async () => {
       await component.ngOnInit();

@@ -66,6 +66,8 @@ export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";
+export { hasApprovalPrivileges } from "./approvals/approval-privileges";
+export { isActionableInboxRequest } from "./approvals/inbox-request-filter";
 export { unactivatedApprovedRequest } from "./helpers/unactivated-approved-request";
 export { canApprove } from "./helpers/can-approve";
 export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
@@ -134,3 +136,22 @@ export { DefaultAccessEventService } from "./services/default-access-event.servi
 export { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
 export { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
 export { callerOrganizations$, unlicensedForPam } from "./services/pam-membership";
+export {
+  diffPamState,
+  emptyPamSnapshot,
+  nextLeaseBoundaryMs,
+} from "./notifications/pam-notification-diff";
+export type {
+  PamLeasePhase,
+  PamNotificationDiff,
+  PamNotificationEvent,
+  PamNotificationEventKind,
+  PamNotificationInput,
+  PamNotificationSnapshot,
+} from "./notifications/pam-notification-diff";
+export {
+  groupPamNotificationEvents,
+  pamNotificationRoute,
+} from "./notifications/pam-notification-routes";
+export type { PamNotificationGroup } from "./notifications/pam-notification-routes";
+export { PamNotificationSink } from "./notifications/pam-notification-sink";
