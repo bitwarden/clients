@@ -689,6 +689,41 @@ describe("VaultItemDialogComponent", () => {
       expect(cipherSaved).toHaveBeenCalledTimes(1);
       expect(cipherSaved).toHaveBeenCalledWith(savedCipherView);
     });
+
+    it("skips the admin reload and admin mode when an Admin Console clone is saved to a personal vault", async () => {
+      (component as any)._originalFormMode = "clone";
+      component.setTestFormConfig({ isAdminConsole: true, admin: true });
+      const apiService = TestBed.inject(ApiService) as MockProxy<ApiService>;
+
+      const savedCipherView = {
+        id: "new-cipher-id",
+        organizationId: null,
+        collectionIds: [],
+      } as any;
+
+      await component["onCipherSaved"](savedCipherView);
+
+      expect(apiService.getCipherAdmin).not.toHaveBeenCalled();
+      expect(component["formConfig"].admin).toBe(false);
+    });
+
+    it("reloads from the admin endpoint when an Admin Console save stays in the organization", async () => {
+      (component as any)._originalFormMode = "clone";
+      component.setTestFormConfig({ isAdminConsole: true, admin: true });
+      const apiService = TestBed.inject(ApiService) as MockProxy<ApiService>;
+      apiService.getCipherAdmin.mockResolvedValue({ id: "new-cipher-id" } as any);
+
+      const savedCipherView = {
+        id: "new-cipher-id",
+        organizationId: "org-id",
+        collectionIds: [],
+      } as any;
+
+      await component["onCipherSaved"](savedCipherView);
+
+      expect(apiService.getCipherAdmin).toHaveBeenCalledWith("new-cipher-id");
+      expect(component["formConfig"].admin).toBe(true);
+    });
   });
 
   describe("openAttachmentsDialog", () => {
