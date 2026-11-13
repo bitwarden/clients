@@ -40,16 +40,12 @@
   }
 </ng-template>
 
-<bit-dialog [title]="options.titleKey | i18n">
-  <span
-    bitDialogTitle
-    bitBadge
-    variant="primary"
-    startIcon="bwi-premium"
-    class="tw-ms-2 tw-align-middle"
-    [truncate]="false"
-  >
-    {{ "premium" | i18n }}
+<bit-dialog>
+  <span bitDialogTitle class="tw-flex tw-items-start tw-gap-2">
+    <span class="tw-min-w-0">{{ options.titleKey | i18n }}</span>
+    <span bitBadge variant="primary" startIcon="bwi-premium" class="tw-shrink-0" [truncate]="false">
+      {{ "premium" | i18n }}
+    </span>
   </span>
   <div bitDialogContent>
     <ng-container [ngTemplateOutlet]="body" />
