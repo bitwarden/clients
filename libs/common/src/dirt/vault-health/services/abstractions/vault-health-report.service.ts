@@ -10,7 +10,7 @@ import { VaultHealthReportState } from "../../models";
  *
  * The caller owns fetching the ciphers and deciding when to recompute. This service
  * owns the report, the state of generating it, and publishing both to every Health
- * page.
+ * page. It leaves the user's excluded logins out when it publishes.
  *
  * Two ways to recompute: {@link buildVaultHealthReport} for a scan the user asked
  * for, which shows progress, and {@link refreshVaultHealthReport} for a vault
@@ -39,8 +39,8 @@ export abstract class VaultHealthReportService {
   abstract refreshVaultHealthReport(ciphers: CipherView[], userId: UserId): Promise<void>;
 
   /**
-   * The user's scan status and latest report. Starts at `idle` with no report
-   * until a build runs.
+   * The user's scan status and latest report, without the logins the user excluded.
+   * Starts at `idle` with no report until a build runs.
    */
   abstract getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState>;
 }
