@@ -4,6 +4,7 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
+import { toSendItemVaultViews } from "@bitwarden/send-ui";
 import { CipherViewComponent, VaultViewPasswordHistoryService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
@@ -32,7 +33,9 @@ export class SendAccessItemComponent {
   readonly FieldType = FieldType;
 
   readonly send = input.required<SendAccessView>();
-  readonly cipher = computed(() => this.send().data.data);
+
+  /** Vault view models for the item this Send was created from, used to render its item details. */
+  protected readonly itemViews = computed(() => toSendItemVaultViews(this.send().data));
 
   protected readonly CipherType = CipherType;
 }
