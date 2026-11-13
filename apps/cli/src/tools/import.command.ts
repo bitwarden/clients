@@ -44,9 +44,11 @@ export class ImportCommand {
   ): Promise<Response> {
     const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
 
-    if (vfo1Enabled && options.organizationid) {
+    if (vfo1Enabled && options.organizationid && process.env.BW_QUIET !== "true") {
       CliUtils.writeLn(
         "--organizationid is deprecated and will be removed in a future CLI release. Use --vaultid instead",
+        false,
+        true,
       );
     }
 
