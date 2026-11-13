@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { BankAccountType, CipherType, FieldType } from "@bitwarden/common/vault/enums";
 
 import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
@@ -24,7 +25,7 @@ describe("1Password 1Pif Importer", () => {
   });
 
   it("should parse data", async () => {
-    const importer = new OnePassword1PifImporter(configService);
+    const importer = new OnePassword1PifImporter(configService, mock<LogService>());
     const result = await importer.parse(TestData);
     expect(result != null).toBe(true);
 
@@ -38,7 +39,7 @@ describe("1Password 1Pif Importer", () => {
   });
 
   it('should create concealed field as "hidden" type', async () => {
-    const importer = new OnePassword1PifImporter(configService);
+    const importer = new OnePassword1PifImporter(configService, mock<LogService>());
     const result = await importer.parse(TestData);
     expect(result != null).toBe(true);
 
@@ -55,7 +56,7 @@ describe("1Password 1Pif Importer", () => {
   });
 
   it("should create identity records", async () => {
-    const importer = new OnePassword1PifImporter(configService);
+    const importer = new OnePassword1PifImporter(configService, mock<LogService>());
     const result = await importer.parse(IdentityTestData);
     expect(result != null).toBe(true);
     expect(result.ciphers.length).toEqual(1);
@@ -92,7 +93,7 @@ describe("1Password 1Pif Importer", () => {
   });
 
   it("should create password history", async () => {
-    const importer = new OnePassword1PifImporter(configService);
+    const importer = new OnePassword1PifImporter(configService, mock<LogService>());
     const result = await importer.parse(TestData);
     expect(result != null).toBe(true);
     expect(result.ciphers.length).toEqual(1);
@@ -105,7 +106,7 @@ describe("1Password 1Pif Importer", () => {
   });
 
   it("should create password history from windows opvault 1pif format", async () => {
-    const importer = new OnePassword1PifImporter(configService);
+    const importer = new OnePassword1PifImporter(configService, mock<LogService>());
     const result = await importer.parse(WindowsOpVaultTestData);
     expect(result != null).toBe(true);
     expect(result.ciphers.length).toEqual(1);
@@ -131,7 +132,7 @@ describe("1Password 1Pif Importer", () => {
 
   describe("should import bankAccount records", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new OnePassword1PifImporter(configService);
+      const importer = new OnePassword1PifImporter(configService, mock<LogService>());
       const result = await importer.parse(BankAccountTestData);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -157,7 +158,7 @@ describe("1Password 1Pif Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new OnePassword1PifImporter(configService);
+      const importer = new OnePassword1PifImporter(configService, mock<LogService>());
       const result = await importer.parse(BankAccountTestData);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -180,7 +181,7 @@ describe("1Password 1Pif Importer", () => {
 
   describe("should import passport records", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new OnePassword1PifImporter(configService);
+      const importer = new OnePassword1PifImporter(configService, mock<LogService>());
       const result = await importer.parse(PassportTestData);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -205,7 +206,7 @@ describe("1Password 1Pif Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new OnePassword1PifImporter(configService);
+      const importer = new OnePassword1PifImporter(configService, mock<LogService>());
       const result = await importer.parse(PassportTestData);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -230,7 +231,7 @@ describe("1Password 1Pif Importer", () => {
 
   describe("should import drivers license records", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new OnePassword1PifImporter(configService);
+      const importer = new OnePassword1PifImporter(configService, mock<LogService>());
       const result = await importer.parse(DriversLicenseTestData);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -254,7 +255,7 @@ describe("1Password 1Pif Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new OnePassword1PifImporter(configService);
+      const importer = new OnePassword1PifImporter(configService, mock<LogService>());
       const result = await importer.parse(DriversLicenseTestData);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);

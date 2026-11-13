@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -27,7 +30,7 @@ class FakeBaseImporter extends BaseImporter {
 
 describe("processFolder method", () => {
   let result: ImportResult;
-  const importer = new FakeBaseImporter();
+  const importer = new FakeBaseImporter(mock<LogService>());
 
   beforeEach(() => {
     result = {
@@ -205,7 +208,7 @@ describe("processFolder method", () => {
 });
 
 describe("BaseImporter class", () => {
-  const importer = new FakeBaseImporter();
+  const importer = new FakeBaseImporter(mock<LogService>());
   let cipher: CipherView;
 
   describe("setCardExpiration method", () => {

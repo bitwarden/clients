@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -45,7 +48,7 @@ describe("PSONO JSON Importer", () => {
   const ReducedWebsiteLoginsDataJson = JSON.stringify(ReducedWebsiteLoginsData);
 
   it("should parse Website/Password data", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(WebsiteLoginsDataJson);
     expect(result != null).toBe(true);
 
@@ -70,7 +73,7 @@ describe("PSONO JSON Importer", () => {
     validateCustomField(cipher.fields, "callback_pass", "callbackPassword");
   });
   it("should parse Website/Password data with missing fields", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(ReducedWebsiteLoginsDataJson);
     expect(result != null).toBe(true);
 
@@ -88,7 +91,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should parse Application Password data", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(ApplicationPasswordsDataJson);
     expect(result != null).toBe(true);
 
@@ -107,7 +110,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should parse bookmark data", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(BookmarkDataJson);
     expect(result != null).toBe(true);
 
@@ -126,7 +129,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should parse notes", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(NotesDataJson);
     expect(result != null).toBe(true);
 
@@ -141,7 +144,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should parse TOTP", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(TOTPDataJson);
     expect(result != null).toBe(true);
 
@@ -162,7 +165,7 @@ describe("PSONO JSON Importer", () => {
 
   // Skipping this test until we can save GPG into notes/custom fields
   it.skip("should parse GPG data", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(GPGDataJson);
     expect(result != null).toBe(true);
 
@@ -191,7 +194,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should parse Environment variables data", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(EnvVariablesDataJson);
     expect(result != null).toBe(true);
 
@@ -208,7 +211,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should not create empty folders", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(EmptyTestFolderDataJson);
     expect(result != null).toBe(true);
 
@@ -216,7 +219,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should create folders", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(FoldersTestDataJson);
     expect(result != null).toBe(true);
 
@@ -227,7 +230,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should assign entries to folders", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(FoldersTestDataJson);
     expect(result != null).toBe(true);
 
@@ -236,7 +239,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should create collections if part of an organization", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     importer.organizationId = "someOrg" as OrganizationId;
     const result = await importer.parse(FoldersTestDataJson);
     expect(result != null).toBe(true);
@@ -248,7 +251,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should create sub folders on folders with no items", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(SubFoldersTestDataJson);
     expect(result != null).toBe(true);
 
@@ -261,7 +264,7 @@ describe("PSONO JSON Importer", () => {
   });
 
   it("should assign entries to subfolders", async () => {
-    const importer = new PsonoJsonImporter();
+    const importer = new PsonoJsonImporter(mock<LogService>());
     const result = await importer.parse(SubFoldersTestDataJson);
     expect(result != null).toBe(true);
 

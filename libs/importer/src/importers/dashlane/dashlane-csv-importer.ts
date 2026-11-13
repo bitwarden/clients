@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -54,8 +55,11 @@ const _mappedPersonalInfoAsIdentityColumns = new Set([
 const _mappedSecureNoteColumns = new Set(["title", "note"]);
 
 export class DashlaneCsvImporter extends BaseImporter implements Importer {
-  constructor(private configService: ConfigService) {
-    super();
+  constructor(
+    private configService: ConfigService,
+    logService: LogService,
+  ) {
+    super(logService);
   }
 
   async parse(data: string): Promise<ImportResult> {

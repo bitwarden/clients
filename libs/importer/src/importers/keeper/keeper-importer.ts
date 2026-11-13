@@ -1,4 +1,5 @@
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -6,8 +7,11 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { BaseImporter } from "../base-importer";
 
 export abstract class KeeperImporter extends BaseImporter {
-  constructor(protected configService: ConfigService) {
-    super();
+  constructor(
+    protected configService: ConfigService,
+    logService: LogService,
+  ) {
+    super(logService);
   }
 
   protected copyLoginPropertiesAsCustomFields(cipher: CipherView) {

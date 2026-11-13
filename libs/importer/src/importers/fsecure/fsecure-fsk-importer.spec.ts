@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { FSecureFskImporter as Importer } from "./fsecure-fsk-importer";
@@ -5,7 +8,7 @@ import { CreditCardTestEntry, LoginTestEntry } from "./fsk-test-data";
 
 describe("FSecure FSK Importer", () => {
   it("should import data of type login", async () => {
-    const importer = new Importer();
+    const importer = new Importer(mock<LogService>());
     const LoginTestEntryStringified = JSON.stringify(LoginTestEntry);
     const result = await importer.parse(LoginTestEntryStringified);
     expect(result != null).toBe(true);
@@ -26,7 +29,7 @@ describe("FSecure FSK Importer", () => {
   });
 
   it("should import data of type creditCard", async () => {
-    const importer = new Importer();
+    const importer = new Importer(mock<LogService>());
     const CreditCardTestEntryStringified = JSON.stringify(CreditCardTestEntry);
     const result = await importer.parse(CreditCardTestEntryStringified);
     expect(result != null).toBe(true);

@@ -1,3 +1,7 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
 import { LogMeOnceCsvImporter } from "./logmeonce-csv-importer";
 
 const oldFormatCSV = `"name","url","username","password","group","extra"
@@ -10,7 +14,7 @@ describe("LogMeOnce CSV Importer", () => {
   let importer: LogMeOnceCsvImporter;
 
   beforeEach(() => {
-    importer = new LogMeOnceCsvImporter();
+    importer = new LogMeOnceCsvImporter(mock<LogService>());
   });
 
   it.each([oldFormatCSV, newFormatCSV])(

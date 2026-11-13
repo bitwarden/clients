@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -52,7 +55,7 @@ const CipherData = [
 
 describe("Zoho Vault CSV Importer", () => {
   it("should not succeed given no data", async () => {
-    const importer = new ZohoVaultCsvImporter();
+    const importer = new ZohoVaultCsvImporter(mock<LogService>());
     const result = await importer.parse("");
     expect(result != null).toBe(true);
     expect(result.success).toBe(false);
@@ -61,7 +64,7 @@ describe("Zoho Vault CSV Importer", () => {
   CipherData.forEach((data) => {
     it(data.title, async () => {
       jest.useFakeTimers().setSystemTime(data.expected.creationDate);
-      const importer = new ZohoVaultCsvImporter();
+      const importer = new ZohoVaultCsvImporter(mock<LogService>());
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toBeGreaterThan(0);
@@ -80,7 +83,7 @@ describe("Zoho Vault CSV Importer", () => {
   });
 
   it("should create folder and assign ciphers", async () => {
-    const importer = new ZohoVaultCsvImporter();
+    const importer = new ZohoVaultCsvImporter(mock<LogService>());
     const result = await importer.parse(samplezohovaultcsvdata);
     expect(result != null).toBe(true);
     expect(result.success).toBe(true);
@@ -93,7 +96,7 @@ describe("Zoho Vault CSV Importer", () => {
   });
 
   it("should create collection and assign ciphers when importing into an organization", async () => {
-    const importer = new ZohoVaultCsvImporter();
+    const importer = new ZohoVaultCsvImporter(mock<LogService>());
     importer.organizationId = "someOrgId" as OrganizationId;
     const result = await importer.parse(samplezohovaultcsvdata);
     expect(result != null).toBe(true);

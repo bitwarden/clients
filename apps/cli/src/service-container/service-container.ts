@@ -1131,6 +1131,7 @@ export class ServiceContainer {
       this.restrictedItemTypesService,
       this.configService,
       this.sdkService,
+      this.logService,
     );
 
     this.individualExportService = new IndividualVaultExportService(

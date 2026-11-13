@@ -1,3 +1,7 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
 import { KeePassXCsvImporter } from "./keepassx-csv-importer";
 import { keepassxTestData } from "./spec-data/keepassx-csv/testdata.csv";
 
@@ -5,7 +9,7 @@ describe("KeePassX CSV Importer", () => {
   let importer: KeePassXCsvImporter;
 
   beforeEach(() => {
-    importer = new KeePassXCsvImporter();
+    importer = new KeePassXCsvImporter(mock<LogService>());
   });
 
   describe("given login data", () => {

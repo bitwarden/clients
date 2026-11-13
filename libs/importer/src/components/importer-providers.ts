@@ -90,6 +90,7 @@ export const ImporterProviders: SafeProvider[] = [
       RestrictedItemTypesService,
       ConfigService,
       SdkService,
+      LogService,
     ],
   }),
 ];
