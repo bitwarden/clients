@@ -29,32 +29,16 @@
           bitCheckbox
           formControlName="httpAuthentication"
           id="additional-options_input_http-authentication"
+          (click)="handleHTTPAuthenticationClick($event)"
         />
         <bit-label for="additional-options_input_http-authentication">
-          {{ "httpAuthenticationSettingLabel" | i18n }}
+          {{ "fillLoginPopUpPromptsLabel" | i18n }}
         </bit-label>
-        <bit-hint class="tw-text-sm">
-          @if (httpAuthenticationBlockedByMatchStrategy()) {
+        @if (httpAuthenticationBlockedByMatchStrategy()) {
+          <bit-hint class="tw-text-sm">
             {{ "httpAuthenticationSettingRequiresMatchDetectionGuidance" | i18n }}
-          } @else {
-            {{ "httpAuthenticationSettingDescription" | i18n }}
-            <span
-              ><b>{{ "warningCapitalized" | i18n }}</b
-              >: {{ "httpAuthenticationSettingWarning" | i18n }}</span
-            >
-          }
-          {{ " " }}
-          <a
-            bitLink
-            href="#"
-            (click)="openHTTPAuthenticationHelpArticle($event)"
-            endIcon="bwi-external-link"
-            [attr.aria-label]="'openHttpAuthenticationHelpArticleSignpost' | i18n"
-            id="additional-options_link_http-authentication-help"
-          >
-            {{ "learnMore" | i18n }}
-          </a>
-        </bit-hint>
+          </bit-hint>
+        }
       </bit-form-control>
     }
 

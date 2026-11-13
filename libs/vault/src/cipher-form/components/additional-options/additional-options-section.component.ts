@@ -8,12 +8,12 @@ import { combineLatest, concatMap, filter, firstValueFrom, map, shareReplay } fr
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import {
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   LinkModule,
   SectionHeaderComponent,
@@ -25,7 +25,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
 
-const HTTP_AUTHENTICATION_HELP_ARTICLE_URL = "https://bitwarden.com/help/basic-auth-autofill/";
+import { HTTPAuthenticationWarningDialogComponent } from "./http-authentication-warning-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -53,7 +53,7 @@ export class AdditionalOptionsSectionComponent implements OnInit {
 
   private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
   private autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
-  private platformUtilsService = inject(PlatformUtilsService);
+  private dialogService = inject(DialogService);
 
   additionalOptionsForm = this.formBuilder.group({
     notes: [null as string],
@@ -236,10 +236,28 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     }
   }
 
-  /** Opens the help article for the HTTP authentication setting */
-  protected openHTTPAuthenticationHelpArticle(event: Event) {
+  /**
+   * Turning the HTTP authentication setting on always shows a warning first, and the checkbox stays
+   * unchecked until the user confirms. Turning it off needs no confirmation.
+   */
+  protected async handleHTTPAuthenticationClick(event: Event) {
+    const { httpAuthentication } = this.additionalOptionsForm.controls;
+
+    if (httpAuthentication.value) {
+      return;
+    }
+
+    // Keeps the checkbox from checking itself; the value is set only after the user confirms.
     event.preventDefault();
-    this.platformUtilsService.launchUri(HTTP_AUTHENTICATION_HELP_ARTICLE_URL);
+
+    const confirmed = await firstValueFrom(
+      HTTPAuthenticationWarningDialogComponent.open(this.dialogService).closed,
+    );
+
+    if (confirmed === true) {
+      httpAuthentication.setValue(true);
+      httpAuthentication.markAsDirty();
+    }
   }
 
   /** Opens the add custom field dialog */

@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, NEVER, Observable, Subject } from "rxjs";
 
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -12,7 +12,7 @@ import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { PasswordRepromptService } from "../../../services/password-reprompt.service";
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
@@ -21,6 +21,7 @@ import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
+import { HTTPAuthenticationWarningDialogComponent } from "./http-authentication-warning-dialog.component";
 
 jest.mock("@bitwarden/common/platform/misc/flags", () => ({
   ...jest.requireActual("@bitwarden/common/platform/misc/flags"),
@@ -165,6 +166,15 @@ describe("AdditionalOptionsSectionComponent", () => {
     });
   });
 
+  it("styles the add field button as a link", () => {
+    fixture.detectChanges();
+
+    const addFieldButton: HTMLButtonElement =
+      fixture.nativeElement.querySelector("button[bitLink]");
+
+    expect(addFieldButton.className).toContain("tw-text-fg-brand");
+  });
+
   it("hides password reprompt checkbox when disabled", () => {
     passwordRepromptEnabled$.next(true);
     fixture.detectChanges();
@@ -241,17 +251,109 @@ describe("AdditionalOptionsSectionComponent", () => {
       ).not.toBeNull();
     });
 
-    it("opens the HTTP authentication help article from the setting description", () => {
+    it("shows no hint under the setting while every URI has an explicit match strategy", () => {
       fixture.detectChanges();
 
-      const link: HTMLAnchorElement = fixture.nativeElement.querySelector(
-        "#additional-options_link_http-authentication-help",
-      );
-      link.click();
+      expect(fixture.nativeElement.querySelector("bit-hint")).toBeNull();
+    });
 
-      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
-        "https://bitwarden.com/help/basic-auth-autofill/",
-      );
+    it("shows the match detection guidance while a URI uses the default match strategy", () => {
+      httpAuthenticationService.updateUriMatchStrategies([null]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("bit-hint")).not.toBeNull();
+    });
+
+    describe("turning the setting on", () => {
+      const clickHTTPAuthenticationCheckbox = async () => {
+        fixture.detectChanges();
+        getHTTPAuthenticationCheckbox()!.click();
+        await flushPromises();
+      };
+
+      let openWarningDialog: jest.SpyInstance;
+
+      const warningDialogRef = (closed: Observable<boolean | undefined>) =>
+        ({ closed }) as DialogRef<boolean>;
+
+      /** Clicks the unchecked checkbox, then answers the warning as the user would, after the click. */
+      const clickAndRespondToWarning = async (result: boolean | undefined) => {
+        const closed$ = new Subject<boolean | undefined>();
+        openWarningDialog.mockReturnValueOnce(warningDialogRef(closed$.asObservable()));
+
+        await clickHTTPAuthenticationCheckbox();
+        closed$.next(result);
+        closed$.complete();
+        await flushPromises();
+      };
+
+      beforeEach(() => {
+        // A warning the user hasn't answered yet, so no test renders the real dialog.
+        openWarningDialog = jest
+          .spyOn(HTTPAuthenticationWarningDialogComponent, "open")
+          .mockReturnValue(warningDialogRef(NEVER));
+      });
+
+      afterEach(() => {
+        openWarningDialog.mockRestore();
+      });
+
+      it("shows the warning and leaves the setting off until the user responds", async () => {
+        await clickHTTPAuthenticationCheckbox();
+
+        expect(openWarningDialog).toHaveBeenCalledTimes(1);
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(false);
+        expect(getHTTPAuthenticationCheckbox()!.checked).toBe(false);
+      });
+
+      it("turns the setting on when the user confirms", async () => {
+        await clickAndRespondToWarning(true);
+
+        const { httpAuthentication } = component.additionalOptionsForm.controls;
+        expect(httpAuthentication.value).toBe(true);
+        expect(httpAuthentication.dirty).toBe(true);
+        expect(getHTTPAuthenticationCheckbox()!.checked).toBe(true);
+      });
+
+      it.each([
+        ["cancels", false],
+        ["dismisses the warning", undefined],
+      ])("leaves the setting off when the user %s", async (_, result) => {
+        await clickAndRespondToWarning(result);
+
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(false);
+        expect(getHTTPAuthenticationCheckbox()!.checked).toBe(false);
+      });
+
+      it("shows the warning every time the setting is turned on", async () => {
+        await clickAndRespondToWarning(true);
+        await clickHTTPAuthenticationCheckbox();
+        await clickAndRespondToWarning(true);
+
+        expect(openWarningDialog).toHaveBeenCalledTimes(2);
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(true);
+      });
+
+      it("turns the setting off without a warning", async () => {
+        component.additionalOptionsForm.controls.httpAuthentication.setValue(true);
+
+        await clickHTTPAuthenticationCheckbox();
+
+        expect(openWarningDialog).not.toHaveBeenCalled();
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(false);
+      });
+
+      it("does not show the warning when a stored setting is loaded", () => {
+        getInitialCipherView.mockReturnValueOnce({
+          reprompt: CipherRepromptType.None,
+          login: { httpAuthenticationEnabled: true },
+        } as CipherView);
+
+        component.ngOnInit();
+
+        expect(openWarningDialog).not.toHaveBeenCalled();
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(true);
+      });
     });
 
     describe("saving", () => {
