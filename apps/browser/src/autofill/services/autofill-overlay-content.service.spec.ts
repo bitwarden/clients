@@ -1944,6 +1944,27 @@ describe("AutofillOverlayContentService", () => {
         autofillFieldElement,
       );
     });
+
+    it("stamps the TOTP sub-type marker on a targeted oneTimeCode field", async () => {
+      // Without this marker the inline menu background wiring never activates its
+      // TOTP flow for targeted one time code fields, so the menu either fails to
+      // offer the saved cipher or offers it and does not fill.
+      const targetedOtpField = createAutofillFieldMock({
+        opid: "targeted_field_0_oneTimeCode_0",
+        fieldQualifier: "oneTimeCode",
+        formCategory: "account-login",
+        targeted: true,
+        viewable: true,
+      });
+
+      await autofillOverlayContentService.setupOverlayListeners(
+        autofillFieldElement,
+        targetedOtpField,
+        pageDetailsMock,
+      );
+
+      expect(targetedOtpField.accountCreationFieldType).toBe("totp");
+    });
   });
 
   describe("refreshMenuLayerPosition", () => {

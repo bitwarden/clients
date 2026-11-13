@@ -790,8 +790,24 @@ export default class AutofillService implements AutofillServiceInterface {
       ? this.resolveLoginIdentifierQualifier(pageDetails)
       : null;
 
+    // One time code fields are deferred and filled as a group after the loop so
+    // the resolved code can be distributed across multi-input OTP forms (one char
+    // per input), the same way the heuristic path handles them.
+    const totpFields: AutofillField[] = [];
+    const totpToFill =
+      options.allowTotpAutofill && options.canAccessTotp && isLoginCipher
+        ? cipher.login?.totp
+        : undefined;
+
     for (const field of pageDetails.fields) {
       if (!field.targeted || !field.fieldQualifier) {
+        continue;
+      }
+
+      if (field.fieldQualifier === AutofillTargetingRuleTypes.oneTimeCode) {
+        if (totpToFill) {
+          totpFields.push(field);
+        }
         continue;
       }
 
@@ -822,6 +838,20 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       AutofillService.fillByOpid(fillScript, field, value);
+    }
+
+    if (totpToFill && totpFields.length > 0) {
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(totpToFill));
+      const totpValue = totpResponse.code;
+      if (totpValue != null) {
+        totpFields.forEach((field, i) => {
+          // Distribute one char per input when the field count matches the code
+          // length; otherwise fill each with the full value. Mirrors the
+          // heuristic path's TOTP distribution.
+          const totpChar = totpValue.length === totpFields.length ? totpValue.charAt(i) : totpValue;
+          AutofillService.fillByOpid(fillScript, field, totpChar);
+        });
+      }
     }
 
     if (!fillScript.script.length) {
