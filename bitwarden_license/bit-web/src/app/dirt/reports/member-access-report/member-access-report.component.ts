@@ -4,7 +4,7 @@ import { Component, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
+import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom, switchMap } from "rxjs";
 
 import {
   CollectionAdminService,
@@ -183,11 +183,12 @@ export class MemberAccessReportComponent implements OnInit {
   };
 
   edit = async (user: MemberAccessReportView): Promise<void> => {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const organization = await firstValueFrom(
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.organizationId)),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.organizationService.organizations$(userId)),
+        getOrganizationById(this.organizationId),
+      ),
     );
 
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
