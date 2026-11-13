@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
 import { UpgradeImportType } from "../models/import-upgrade-options";
+import { ImportedFile } from "../models/imported-file";
 import { SdkImportCredentials } from "../sdk";
 
 import { ItemTypeCounts } from "./item-type-counts";
@@ -17,11 +18,19 @@ export type StagedImport =
       contents: string;
       filePassword: string | null;
       itemTypeCounts: ItemTypeCounts | undefined;
+      /** Set when the user picked a file, so the confirmation can remind them to delete it. */
+      importedFile?: ImportedFile;
     }
   /** Fetched and converted without an organization*/
   | { kind: "parsed"; importType: UpgradeImportType; result: ImportResult }
   /** Parsed and written by the SDK in one call, so the file and credentials wait for location */
-  | { kind: "sdk"; format: ImportType; file: Uint8Array; credentials: SdkImportCredentials };
+  | {
+      kind: "sdk";
+      format: ImportType;
+      file: Uint8Array;
+      credentials: SdkImportCredentials;
+      importedFile?: ImportedFile;
+    };
 
 export abstract class ImportStagingServiceAbstraction {
   abstract readonly staged$: Observable<StagedImport | undefined>;

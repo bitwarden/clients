@@ -9,10 +9,11 @@ import {
   CollectionTypes,
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -38,6 +39,11 @@ import {
   ImportSkippedItemsDialogComponent,
   ImportSuccessDialogComponent,
 } from "../dialog";
+import {
+  DialogImportOutcomePresenter,
+  ImportConfirmationDialogComponent,
+  ImportOutcomePresenter,
+} from "../import-confirmation";
 
 import { ImportDestinationComponent } from "./import-destination.component";
 
@@ -107,6 +113,8 @@ function cipher(type: CipherType = CipherType.Login): CipherView {
 
 describe("ImportDestinationComponent", () => {
   let fixture: ComponentFixture<ImportDestinationComponent>;
+  const userId = "user-1" as UserId;
+  let activeAccount$: BehaviorSubject<Account | null>;
   let destinations$: BehaviorSubject<ImportDestinations>;
   let destinationService: MockProxy<ImportDestinationServiceAbstraction>;
   let stagingService: DefaultImportStagingService;
@@ -149,6 +157,8 @@ describe("ImportDestinationComponent", () => {
         { provide: ImportStagingServiceAbstraction, useValue: stagingService },
         { provide: ImportUpgradeServiceAbstraction, useValue: importService },
         { provide: DialogService, useValue: dialogService },
+        { provide: ImportOutcomePresenter, useClass: DialogImportOutcomePresenter },
+        { provide: AccountService, useValue: { activeAccount$ } },
         { provide: ToastService, useValue: toastService },
         { provide: SyncService, useValue: syncService },
         { provide: LogService, useValue: logService },
@@ -172,6 +182,7 @@ describe("ImportDestinationComponent", () => {
   };
 
   beforeEach(() => {
+    activeAccount$ = new BehaviorSubject<Account | null>({ id: userId } as unknown as Account);
     destinations$ = new BehaviorSubject<ImportDestinations>({
       options: [myVault, organization("a", "Acme Co")],
       hasStep: true,
@@ -946,6 +957,46 @@ describe("ImportDestinationComponent", () => {
       expect(continueSpy).toHaveBeenCalledTimes(1);
     });
 
+    it("credits the result to the account active when Import was pressed, even if the account changes while it runs", async () => {
+      stageParsed();
+      await setup();
+      const present = jest.spyOn(DialogImportOutcomePresenter.prototype, "present");
+      importService.importImportResult.mockImplementation((result) => {
+        activeAccount$.next({ id: "user-2" } as unknown as Account);
+        return Promise.resolve(result);
+      });
+
+      await submit();
+
+      expect(present).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ userId: "user-1" }),
+      );
+    });
+
+    it("shows the progress in place of the cards while importing, and the cards again if the import fails", async () => {
+      stageParsed();
+      await setup();
+      let finish!: (error: Error) => void;
+      importService.importImportResult.mockReturnValue(
+        new Promise((_resolve, reject) => (finish = reject)),
+      );
+
+      const pending = submit();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css("importer-progress"))).not.toBeNull();
+      expect(cards()).toHaveLength(0);
+
+      finish(new Error("boom"));
+      await pending;
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css("importer-progress"))).toBeNull();
+      expect(cards().length).toBeGreaterThan(0);
+    });
+
     it("disables Import once the items are imported, so a click on a screen that stays can't do nothing", async () => {
       stageParsed();
       await setup();
@@ -1423,6 +1474,12 @@ describe("ImportDestinationComponent", () => {
         const call = dialogService.open.mock.calls.find((c) => c[0] === dialog);
         return (call?.[1] as { data: Record<string, unknown> } | undefined)?.data;
       };
+      // Without a page to return to the confirmation dialog shows, which has no return button.
+      const expectNoReturnButton = () => {
+        expect(dialogDataOf(ImportSuccessDialogComponent)).toBeUndefined();
+        expect(dialogDataOf(ImportConfirmationDialogComponent)).toBeDefined();
+        expect(dialogDataOf(ImportConfirmationDialogComponent)).not.toHaveProperty("returnUrl");
+      };
 
       it("leads the success dialog back to Access Intelligence for an organization import", async () => {
         orgImport();
@@ -1460,7 +1517,7 @@ describe("ImportDestinationComponent", () => {
 
         await submit();
 
-        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+        expectNoReturnButton();
       });
 
       it("adds no button for a returnTo it does not know", async () => {
@@ -1471,7 +1528,7 @@ describe("ImportDestinationComponent", () => {
 
         await submit();
 
-        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+        expectNoReturnButton();
       });
 
       it("imports and finishes normally when returnTo is an inherited object name", async () => {
@@ -1485,7 +1542,7 @@ describe("ImportDestinationComponent", () => {
         await submit();
 
         expect(importService.importImportResult).toHaveBeenCalledTimes(1);
-        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+        expectNoReturnButton();
         expect(stagingService.current()).toBeUndefined();
         expect(continueSpy).toHaveBeenCalledTimes(1);
       });
@@ -1503,7 +1560,7 @@ describe("ImportDestinationComponent", () => {
         await submit();
 
         expect(importService.importImportResult).toHaveBeenCalledTimes(1);
-        expect(logService.error).toHaveBeenCalledWith("Error showing import result:", "Error");
+        expect(logService.error).toHaveBeenCalledWith("Showing the import result failed:", "Error");
         expect(stagingService.current()).toBeUndefined();
         expect(continueSpy).toHaveBeenCalledTimes(1);
       });
@@ -1521,7 +1578,7 @@ describe("ImportDestinationComponent", () => {
 
         await submit();
 
-        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+        expectNoReturnButton();
       });
 
       it("adds no button for an import into My vault", async () => {
@@ -1531,7 +1588,7 @@ describe("ImportDestinationComponent", () => {
 
         await submit();
 
-        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+        expectNoReturnButton();
       });
     });
 
@@ -1740,6 +1797,40 @@ describe("ImportDestinationComponent", () => {
         expect(importService.parse).toHaveBeenCalledWith(importer, "a,b");
         const parsed = await importService.parse.mock.results[0].value;
         expect(importService.importImportResult.mock.calls[0][0]).toBe(parsed);
+      });
+
+      it("opens the confirmation with the staged file name, for the delete-the-file tip", async () => {
+        stagingService.stage({
+          kind: "file",
+          importType: "dashlane",
+          format: "dashlanecsv",
+          contents: "a,b",
+          filePassword: null,
+          itemTypeCounts: undefined,
+          importedFile: { name: "export.csv" },
+        });
+        await setup();
+
+        await submit();
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          ImportConfirmationDialogComponent,
+          expect.objectContaining({
+            data: expect.objectContaining({ importedFile: { name: "export.csv" } }),
+          }),
+        );
+      });
+
+      it("opens the confirmation without a file name for a staged Keeper vault", async () => {
+        stageParsed();
+        await setup();
+
+        await submit();
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          ImportConfirmationDialogComponent,
+          expect.objectContaining({ data: expect.objectContaining({ importedFile: undefined }) }),
+        );
       });
 
       it("parses it with the chosen organization, so the importer shapes its result for it", async () => {

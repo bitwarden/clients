@@ -26,6 +26,7 @@ import { Router } from "@angular/router";
 import { catchError, map, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -73,8 +74,10 @@ import {
 } from "../../services";
 import { ImportErrorDialogComponent } from "../dialog";
 import { errorName } from "../error-name";
+import { ImportOutcomePresenter } from "../import-confirmation/import-outcome-presenter";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
 import { presentImportOutcome } from "../import-controls/present-import-outcome";
+import { ImportProgressComponent } from "../import-progress";
 import { resolveImportReturnDestination } from "../import-return-destination";
 
 /** What an import runs on: parsed items to write, or an SDK import that parses as it writes. */
@@ -113,6 +116,7 @@ const POLICY_HELP_URL = "https://bitwarden.com/help/policies/#manage-item-types"
     FormFieldModule,
     I18nPipe,
     IconTileComponent,
+    ImportProgressComponent,
     LinkModule,
     RadioButtonModule,
     ReactiveFormsModule,
@@ -128,6 +132,7 @@ export class ImportDestinationComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly syncService = inject(SyncService);
+  private readonly presenter = inject(ImportOutcomePresenter);
   private readonly document = inject(DOCUMENT);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly destinationService = inject(ImportDestinationServiceAbstraction);
@@ -142,6 +147,11 @@ export class ImportDestinationComponent {
    *  the collection if it is one the user can pick there. */
   readonly defaultOrganizationId = input<OrganizationId | undefined>(undefined);
   readonly defaultCollectionId = input<CollectionId | undefined>(undefined);
+
+  // Read when the user presses Import: whoever is active when the import ends may be someone else.
+  private readonly activeUserId = toSignal(
+    inject(AccountService).activeAccount$.pipe(map((account) => account?.id)),
+  );
 
   /** Fires once the import succeeds, not on button click. */
   readonly continue = output<void>();
@@ -289,6 +299,8 @@ export class ImportDestinationComponent {
       ? this.i18nService.t("importItemsSingular")
       : this.i18nService.t("importItemsCount", count.toString());
   });
+
+  protected readonly importing = signal(false);
 
   // False once the import has run, when nothing is left to import.
   private readonly hasStagedItems = toSignal(
@@ -489,35 +501,44 @@ export class ImportDestinationComponent {
       this.i18nService,
     );
 
-    let outcome: FinishedImportOutcome;
-    try {
-      outcome = await this.runImport(
-        prepared,
-        option.organizationId,
-        target,
-        option.allowsUnassignedItems ?? false,
-      );
-    } catch (error) {
-      this.reportFailure(error);
+    const userId = this.activeUserId();
+    if (userId == null) {
       return;
     }
 
-    // The items are in the vault, so a failure showing the result still moves on.
+    this.importing.set(true);
     try {
+      let outcome: FinishedImportOutcome;
+      try {
+        outcome = await this.runImport(
+          prepared,
+          option.organizationId,
+          target,
+          option.allowsUnassignedItems ?? false,
+        );
+      } catch (error) {
+        this.reportFailure(error);
+        return;
+      }
+
+      // Includes the post-import sync, so the progress stays up until the vault is current.
       await presentImportOutcome(
         outcome,
         {
           syncService: this.syncService,
           logService: this.logService,
-          dialogService: this.dialogService,
+          presenter: this.presenter,
         },
-        returnDestination,
+        {
+          userId,
+          file: staged.kind === "parsed" ? undefined : staged.importedFile,
+          returnDestination,
+        },
       );
-    } catch (error) {
-      this.logService.error("Error showing import result:", errorName(error));
     } finally {
-      this.stagingService.clear();
+      this.importing.set(false);
     }
+    this.stagingService.clear();
     this.continue.emit();
   };
 

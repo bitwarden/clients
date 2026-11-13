@@ -7,6 +7,11 @@
         </div>
       } @else if (failed()) {
         <bit-callout type="danger">{{ "errorOccurred" | i18n }}</bit-callout>
+      } @else if (importing()) {
+        <importer-progress
+          [heading]="'importingTitle' | i18n"
+          [description]="'importingDescription' | i18n"
+        />
       } @else {
         <h2 bitTypography="h2" noMargin class="tw-mb-0">{{ titleKey() | i18n }}</h2>
         <p bitTypography="body1" class="tw-text-fg-body tw-mt-1 tw-mb-4">

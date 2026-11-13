@@ -6,6 +6,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { DialogService } from "@bitwarden/components";
 
 import {
   DefaultImportDestinationService,
@@ -16,6 +17,8 @@ import {
   OrganizationImportDestinationService,
 } from "../services";
 
+import { DialogImportOutcomePresenter } from "./import-confirmation/dialog-import-outcome-presenter";
+import { ImportOutcomePresenter } from "./import-confirmation/import-outcome-presenter";
 import { importOwnerFromParams } from "./import-owner";
 import { ImportShellStagingService } from "./import-shell-staging.service";
 
@@ -96,5 +99,11 @@ export const importShellProviders = (
     provide: ImportStagingServiceAbstraction,
     useClass: ImportShellStagingService,
     deps: [],
+  }),
+  // Shows the result in a dialog. The browser shell provides its own after these.
+  safeProvider({
+    provide: ImportOutcomePresenter,
+    useClass: DialogImportOutcomePresenter,
+    deps: [DialogService],
   }),
 ];
