@@ -7,7 +7,6 @@ import { of, Subject } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -15,7 +14,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   AdditionalOptionsCardComponent,
-  BitwardenSubscription,
   StorageCardComponent,
   SubscriptionCardComponent,
   SubscriptionPreview,
@@ -70,14 +68,7 @@ describe("CloudHostedAccountSubscriptionComponent", () => {
   let configService: jest.Mocked<ConfigService>;
   let router: jest.Mocked<Router>;
 
-  const legacySubscription = { status: "active" } as BitwardenSubscription;
   const previewSubscription = { status: "active" } as SubscriptionPreview;
-
-  const setPreviewFlag = (enabled: boolean) => {
-    configService.getFeatureFlag$.mockImplementation(
-      (flag) => of(flag === FeatureFlag.PM36631_PreviewDrivenCart ? enabled : false) as any,
-    );
-  };
 
   const createComponent = async () => {
     fixture = TestBed.createComponent(CloudHostedAccountSubscriptionComponent);
@@ -89,13 +80,12 @@ describe("CloudHostedAccountSubscriptionComponent", () => {
 
   beforeEach(async () => {
     accountBillingClient = mock<AccountBillingClient>();
-    accountBillingClient.getSubscription.mockResolvedValue(legacySubscription);
 
     subscriptionPreviewService = mock<SubscriptionPreviewService>();
     subscriptionPreviewService.getAccountSubscriptionPreview.mockResolvedValue(previewSubscription);
 
     configService = mock<ConfigService>();
-    setPreviewFlag(false);
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
@@ -154,28 +144,14 @@ describe("CloudHostedAccountSubscriptionComponent", () => {
     await TestBed.compileComponents();
   });
 
-  it("loads the legacy subscription when the preview-driven cart flag is off", async () => {
-    setPreviewFlag(false);
-
-    await createComponent();
-
-    expect(accountBillingClient.getSubscription).toHaveBeenCalled();
-    expect(subscriptionPreviewService.getAccountSubscriptionPreview).not.toHaveBeenCalled();
-    expect(component.subscription.value()).toBe(legacySubscription);
-  });
-
-  it("loads the subscription preview when the preview-driven cart flag is on", async () => {
-    setPreviewFlag(true);
-
+  it("loads the subscription preview", async () => {
     await createComponent();
 
     expect(subscriptionPreviewService.getAccountSubscriptionPreview).toHaveBeenCalled();
-    expect(accountBillingClient.getSubscription).not.toHaveBeenCalled();
     expect(component.subscription.value()).toBe(previewSubscription);
   });
 
   it("redirects when the preview reports no subscription (404)", async () => {
-    setPreviewFlag(true);
     subscriptionPreviewService.getAccountSubscriptionPreview.mockRejectedValue(
       new ErrorResponse(null, 404),
     );
@@ -187,7 +163,6 @@ describe("CloudHostedAccountSubscriptionComponent", () => {
   });
 
   it("propagates a non-404 preview failure instead of redirecting", async () => {
-    setPreviewFlag(true);
     subscriptionPreviewService.getAccountSubscriptionPreview.mockRejectedValue(
       new ErrorResponse(null, 500),
     );

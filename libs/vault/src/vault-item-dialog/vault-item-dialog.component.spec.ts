@@ -676,6 +676,19 @@ describe("VaultItemDialogComponent", () => {
         component["params"].isAdminConsoleAction,
       );
     });
+
+    it("notifies the opener of the saved cipher so it can act on it while the dialog stays open", async () => {
+      (component as any)._originalFormMode = "add";
+      const cipherSaved = jest.fn();
+      component["params"].cipherSaved = cipherSaved;
+
+      const savedCipherView = { id: "new-cipher-id", collectionIds: [] } as any;
+
+      await component["onCipherSaved"](savedCipherView);
+
+      expect(cipherSaved).toHaveBeenCalledTimes(1);
+      expect(cipherSaved).toHaveBeenCalledWith(savedCipherView);
+    });
   });
 
   describe("openAttachmentsDialog", () => {

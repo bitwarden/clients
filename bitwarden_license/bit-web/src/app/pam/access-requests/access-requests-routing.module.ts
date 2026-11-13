@@ -20,7 +20,8 @@ const routes: Routes = [
     // route's providers, not a component's.
     providers: [AccessNameResolverService, MyAccessService, ApproverInboxService],
     children: [
-      { path: "", pathMatch: "full", redirectTo: "my-requests" },
+      // Approvals is the default; its guard sends a non-approver on to My requests.
+      { path: "", pathMatch: "full", redirectTo: "approvals" },
       {
         path: "approvals",
         component: ApprovalsTabComponent,

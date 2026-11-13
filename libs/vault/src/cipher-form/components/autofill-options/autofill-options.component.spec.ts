@@ -3,7 +3,7 @@ import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -17,7 +17,10 @@ import {
 } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -29,7 +32,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AutofillOptionsComponent } from "./autofill-options.component";
-import { UriOptionComponent } from "./uri-option.component";
+import { DesktopAppRow, UriOptionComponent } from "./uri-option.component";
 
 jest.mock("@angular/cdk/drag-drop", () => {
   const actual = jest.requireActual("@angular/cdk/drag-drop");
@@ -415,7 +418,7 @@ describe("AutofillOptionsComponent", () => {
   });
 
   // Autotype App Tests
-  describe("showDesktopApps", () => {
+  describe("recognizeDesktopApps", () => {
     function createComponent(deviceType: DeviceType) {
       platformUtilsService.getDevice.mockReturnValue(deviceType);
       const localFixture = TestBed.createComponent(AutofillOptionsComponent);
@@ -426,7 +429,7 @@ describe("AutofillOptionsComponent", () => {
     it("is false when the windows-desktop-autotype-ga feature flag is off", () => {
       const localFixture = createComponent(DeviceType.WindowsDesktop);
 
-      expect(localFixture.componentInstance["showDesktopApps"]()).toBe(false);
+      expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
     });
 
     it.each([
@@ -443,7 +446,7 @@ describe("AutofillOptionsComponent", () => {
 
         const localFixture = createComponent(deviceType);
 
-        expect(localFixture.componentInstance["showDesktopApps"]()).toBe(true);
+        expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(true);
       },
     );
 
@@ -453,16 +456,16 @@ describe("AutofillOptionsComponent", () => {
 
       const localFixture = createComponent(DeviceType.WindowsDesktop);
 
-      expect(localFixture.componentInstance["showDesktopApps"]()).toBe(false);
+      expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
     });
 
-    it("is passed to the URI options so they show desktop apps on any client", () => {
+    it("is passed to the URI options so they recognize desktop apps on any client", () => {
       gaFeatureFlagSubject.next(true);
 
       const localFixture = createComponent(DeviceType.MacOsDesktop);
 
       const uriOption = localFixture.debugElement.query(By.directive(UriOptionComponent));
-      expect(uriOption.componentInstance.showDesktopApps()).toBe(true);
+      expect(uriOption.componentInstance.recognizeDesktopApps()).toBe(true);
     });
   });
 
@@ -639,6 +642,8 @@ describe("AutofillOptionsComponent", () => {
       expect(localComponent.addUri).toHaveBeenCalledWith(
         { uri: DESKTOP_APP_URI_PREFIX, matchDetection: UriMatchStrategy.Never },
         true,
+        true,
+        DesktopAppRow.New,
       );
     });
   });
@@ -646,10 +651,20 @@ describe("AutofillOptionsComponent", () => {
   describe("desktop app pairings", () => {
     const pairingUri = createPairingUri("Notepad");
 
-    const getUriOptions = () =>
+    beforeEach(() => {
+      // The feature flag is read once, when the form opens
+      gaFeatureFlagSubject.next(true);
+      fixture = TestBed.createComponent(AutofillOptionsComponent);
+      component = fixture.componentInstance;
+    });
+
+    const getUriLocks = () =>
       fixture.debugElement
         .queryAll(By.directive(UriOptionComponent))
-        .map((debugElement) => debugElement.componentInstance as UriOptionComponent);
+        .map(
+          (debugElement) =>
+            (debugElement.componentInstance as UriOptionComponent)["uriForm"].controls.uri.disabled,
+        );
 
     const getSavedUris = () => {
       const patchFn = cipherFormContainer.patchCipher.mock.lastCall[0];
@@ -677,7 +692,7 @@ describe("AutofillOptionsComponent", () => {
     it("locks desktop apps already on the cipher", () => {
       initWithSavedPairing();
 
-      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true]);
+      expect(getUriLocks()).toEqual([false, true]);
     });
 
     it("locks desktop apps on a cloned cipher", () => {
@@ -685,7 +700,7 @@ describe("AutofillOptionsComponent", () => {
 
       initWithSavedPairing();
 
-      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true]);
+      expect(getUriLocks()).toEqual([false, true]);
     });
 
     it("does not lock desktop apps added by the user", async () => {
@@ -694,7 +709,7 @@ describe("AutofillOptionsComponent", () => {
       await component.addDesktopAppUriFromUser();
       fixture.detectChanges();
 
-      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([false, true, false]);
+      expect(getUriLocks()).toEqual([false, true, false]);
     });
 
     it("keeps a desktop app locked after it is reordered", () => {
@@ -703,7 +718,7 @@ describe("AutofillOptionsComponent", () => {
       component.onUriItemDrop(dropEvent(1, 0));
       fixture.detectChanges();
 
-      expect(getUriOptions().map((option) => option.appUriLocked())).toEqual([true, false]);
+      expect(getUriLocks()).toEqual([true, false]);
     });
 
     it("saves a locked desktop app unchanged when the URIs are reordered", () => {
@@ -762,6 +777,250 @@ describe("AutofillOptionsComponent", () => {
       expect(getSavedUris()).toEqual([
         Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
       ]);
+    });
+  });
+
+  describe("desktop app rows", () => {
+    const pairingUri = `${DESKTOP_APP_URI_PREFIX}autotype?version=1.0.0&data=e30`;
+
+    function createCipher(...uris: [string, UriMatchStrategySetting][]) {
+      const cipher = new CipherView();
+      cipher.login = Object.assign(new LoginView(), {
+        uris: uris.map(([uri, match]) => Object.assign(new LoginUriView(), { uri, match })),
+      });
+      return cipher;
+    }
+
+    function createComponent(gaEnabled: boolean, cipher: CipherView | null = null) {
+      gaFeatureFlagSubject.next(gaEnabled);
+      getInitialCipherView.mockReturnValueOnce(cipher);
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+      return localFixture;
+    }
+
+    function getDesktopAppRows(localFixture: ComponentFixture<AutofillOptionsComponent>) {
+      return localFixture.debugElement
+        .queryAll(By.directive(UriOptionComponent))
+        .map((uriOption) => uriOption.componentInstance.desktopAppRow());
+    }
+
+    function getSavedUris() {
+      const patchFn = cipherFormContainer.patchCipher.mock.lastCall[0];
+      return patchFn(new CipherView()).login.uris.map((uri: LoginUriView) => ({
+        uri: uri.uri,
+        match: uri.match,
+      }));
+    }
+
+    it("loads lowercase desktop app URIs on the cipher as saved desktop app rows", () => {
+      const localFixture = createComponent(
+        true,
+        createCipher(
+          ["https://example.com", null],
+          [pairingUri, UriMatchStrategy.Never],
+          ["DESKTOPAPP://autotype", null],
+        ),
+      );
+
+      expect(getDesktopAppRows(localFixture)).toEqual([null, DesktopAppRow.Saved, null]);
+    });
+
+    it("loads desktop app URIs on the cipher as saved desktop app rows when the feature flag is off", () => {
+      const localFixture = createComponent(false, createCipher([pairingUri, null]));
+
+      expect(getDesktopAppRows(localFixture)).toEqual([DesktopAppRow.Saved]);
+      expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
+    });
+
+    it("adds a desktop app requested by the user as a new desktop app row", async () => {
+      const localFixture = createComponent(true);
+
+      await localFixture.componentInstance.addDesktopAppUriFromUser();
+      localFixture.detectChanges();
+
+      expect(getDesktopAppRows(localFixture)).toEqual([null, DesktopAppRow.New]);
+    });
+
+    it("adds a website requested by the user as a website row", async () => {
+      const localFixture = createComponent(true);
+
+      await localFixture.componentInstance.addUriFromUser({ uri: null, matchDetection: null });
+      localFixture.detectChanges();
+
+      expect(getDesktopAppRows(localFixture)).toEqual([null, null]);
+    });
+
+    it("adds a prefilled desktop app URI to a new cipher as a website row", () => {
+      cipherFormContainer.config.initialValues = { loginUri: pairingUri };
+
+      const localFixture = createComponent(true);
+
+      expect(getDesktopAppRows(localFixture)).toEqual([null]);
+    });
+
+    it("adds a prefilled desktop app URI to an existing cipher as a website row", () => {
+      cipherFormContainer.config.initialValues = { loginUri: pairingUri };
+
+      const localFixture = createComponent(
+        true,
+        createCipher(["https://example.com", UriMatchStrategy.Exact]),
+      );
+
+      expect(getDesktopAppRows(localFixture)).toEqual([null, null]);
+    });
+
+    it("keeps a website row when a desktop app URI is typed into it", () => {
+      const localFixture = createComponent(true);
+
+      localFixture.componentInstance.autofillOptionsForm.controls.uris
+        .at(0)
+        .setValue({ uri: pairingUri, matchDetection: null });
+      localFixture.detectChanges();
+
+      expect(getDesktopAppRows(localFixture)).toEqual([null]);
+    });
+
+    it("keeps each row's type when the rows are reordered", () => {
+      const localFixture = createComponent(
+        true,
+        createCipher(["https://example.com", null], [pairingUri, UriMatchStrategy.Never]),
+      );
+
+      localFixture.componentInstance.onUriItemDrop({
+        previousIndex: 1,
+        currentIndex: 0,
+      } as CdkDragDrop<HTMLDivElement>);
+      localFixture.detectChanges();
+
+      expect(getDesktopAppRows(localFixture)).toEqual([DesktopAppRow.Saved, null]);
+    });
+
+    describe("feature flag", () => {
+      it("keeps recognizing desktop apps when the feature flag turns off while the form is open", () => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+        const localFixture = createComponent(true);
+
+        gaFeatureFlagSubject.next(false);
+        localFixture.detectChanges();
+
+        expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(true);
+        expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(true);
+      });
+
+      it("keeps not recognizing desktop apps when the feature flag turns on while the form is open", () => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+        const localFixture = createComponent(false);
+
+        gaFeatureFlagSubject.next(true);
+        localFixture.detectChanges();
+
+        expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
+        expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(false);
+      });
+    });
+
+    describe("saved match strategy", () => {
+      it("saves a desktop app URI typed into a website row with the Never match strategy", () => {
+        const localFixture = createComponent(true);
+
+        localFixture.componentInstance.autofillOptionsForm.controls.uris
+          .at(0)
+          .setValue({ uri: pairingUri, matchDetection: null });
+
+        expect(getSavedUris()).toEqual([{ uri: pairingUri, match: UriMatchStrategy.Never }]);
+      });
+
+      it("saves a desktop app URI typed into a website row with its match strategy when the feature flag is off", () => {
+        const localFixture = createComponent(false);
+
+        localFixture.componentInstance.autofillOptionsForm.controls.uris
+          .at(0)
+          .setValue({ uri: pairingUri, matchDetection: null });
+
+        expect(getSavedUris()).toEqual([{ uri: pairingUri, match: null }]);
+      });
+
+      it("keeps the form's match strategy of a desktop app URI typed into a website row", () => {
+        const localFixture = createComponent(true);
+        const control = localFixture.componentInstance.autofillOptionsForm.controls.uris.at(0);
+
+        control.setValue({ uri: pairingUri, matchDetection: UriMatchStrategy.Host });
+
+        expect(control.value.matchDetection).toBe(UriMatchStrategy.Host);
+        expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
+          UriMatchStrategy.Host,
+        ]);
+      });
+
+      it("saves the desktop app URIs on the cipher with the Never match strategy when the form opens", () => {
+        createComponent(
+          true,
+          createCipher(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]),
+        );
+
+        expect(getSavedUris()).toEqual([
+          { uri: "https://example.com", match: UriMatchStrategy.Exact },
+          { uri: pairingUri, match: UriMatchStrategy.Never },
+        ]);
+      });
+
+      it("saves the desktop app URIs on the cipher with their match strategy when the feature flag is off", () => {
+        createComponent(
+          false,
+          createCipher(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]),
+        );
+
+        expect(getSavedUris()).toEqual([
+          { uri: "https://example.com", match: UriMatchStrategy.Exact },
+          { uri: pairingUri, match: null },
+        ]);
+      });
+
+      describe("when the feature flag is read after the form opens", () => {
+        let gaFeatureFlag$: Subject<boolean>;
+
+        beforeEach(() => {
+          gaFeatureFlag$ = new Subject<boolean>();
+          configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+            flag === FeatureFlag.WindowsDesktopAutotypeGA ? gaFeatureFlag$ : mvpFeatureFlagSubject,
+          );
+        });
+
+        function openForm(...uris: [string, UriMatchStrategySetting][]) {
+          getInitialCipherView.mockReturnValueOnce(createCipher(...uris));
+          TestBed.createComponent(AutofillOptionsComponent).detectChanges();
+          cipherFormContainer.patchCipher.mockClear();
+        }
+
+        it("saves the desktop app URIs on the cipher with the Never match strategy", () => {
+          openForm(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]);
+
+          gaFeatureFlag$.next(true);
+
+          expect(cipherFormContainer.patchCipher).toHaveBeenCalledTimes(1);
+          expect(getSavedUris()).toEqual([
+            { uri: "https://example.com", match: UriMatchStrategy.Exact },
+            { uri: pairingUri, match: UriMatchStrategy.Never },
+          ]);
+        });
+
+        it("does not update the cipher when its desktop app URIs already use the Never match strategy", () => {
+          openForm(["https://example.com", null], [pairingUri, UriMatchStrategy.Never]);
+
+          gaFeatureFlag$.next(true);
+
+          expect(cipherFormContainer.patchCipher).not.toHaveBeenCalled();
+        });
+
+        it("does not update the cipher when the feature flag is off", () => {
+          openForm([pairingUri, null]);
+
+          gaFeatureFlag$.next(false);
+
+          expect(cipherFormContainer.patchCipher).not.toHaveBeenCalled();
+        });
+      });
     });
   });
 

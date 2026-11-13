@@ -86,6 +86,16 @@ describe("RotationScheduleInputComponent", () => {
     await fixture.whenStable();
   });
 
+  it("labels the field 'Rotation schedule' unless the host names another label", () => {
+    const label = () => fixture.nativeElement.querySelector("bit-label").textContent.trim();
+    expect(label()).toBe("pamRotationScheduleLabel");
+
+    fixture.componentRef.setInput("labelKey", "pamRotationConfigScheduleLabel");
+    fixture.detectChanges();
+
+    expect(label()).toBe("pamRotationConfigScheduleLabel");
+  });
+
   function presetCtrl(): {
     value: ScheduleMode;
     setValue: (v: ScheduleMode, opts?: { emitEvent?: boolean }) => void;
@@ -235,7 +245,16 @@ describe("RotationScheduleInputComponent", () => {
   });
 
   it("renders the timezone hint under the preset select", () => {
-    expect(hintTexts()).toContain("pamRotationScheduleTimezoneHint");
+    expect(hintTexts()[0]).toContain("pamRotationScheduleTimezoneHint");
+  });
+
+  it("leads the preset select's hint with the schedule echo", async () => {
+    presetCtrl().setValue(QuartzSchedulePreset.Daily);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(hintTexts()[0]).toMatch(
+      /^pamRotationScheduleEchoDaily\s+pamRotationScheduleTimezoneHint$/,
+    );
   });
 
   it("keeps the timezone hint when the Custom preset is selected", async () => {
@@ -243,7 +262,7 @@ describe("RotationScheduleInputComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const hints = hintTexts();
-    expect(hints).toContain("pamRotationScheduleTimezoneHint");
+    expect(hints[0]).toContain("pamRotationScheduleTimezoneHint");
     expect(hints).toContain("pamRotationScheduleCustomHint");
   });
 

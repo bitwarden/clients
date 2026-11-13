@@ -18,8 +18,8 @@
           [canRemove]="uriControls.length > 1 && autofillOptionsForm.enabled"
           [defaultMatchDetection]="defaultMatchDetection$ | async"
           [index]="i"
-          [showDesktopApps]="showDesktopApps()"
-          [appUriLocked]="existingAppUriControls.has(uri)"
+          [recognizeDesktopApps]="recognizeDesktopApps()"
+          [desktopAppRow]="desktopAppRows.get(uri) ?? null"
         ></vault-autofill-uri-option>
       }
     </ng-container>

@@ -1,9 +1,8 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   ElementRef,
-  HostBinding,
-  HostListener,
   inject,
   input,
 } from "@angular/core";
@@ -19,10 +18,13 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
  * the logic for displaying letters as `text-main`, numbers as `primary`, and special symbols as
  * `danger`.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-color-password",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-min-w-0 tw-whitespace-pre-wrap tw-break-words",
+    "(copy)": "onCopy($event)",
+  },
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {
       <span
         [class]="getCharacterClass(character)"
@@ -63,21 +65,16 @@ export class ColorPasswordComponent {
     ),
   );
 
-  private platformUtilsService = inject(PlatformUtilsService);
-  private elementRef = inject(ElementRef);
-  private i18nService = inject(I18nService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly elementRef = inject(ElementRef);
+  private readonly i18nService = inject(I18nService);
 
-  characterStyles: Record<CharacterType, string[]> = {
+  private readonly characterStyles: Record<CharacterType, string[]> = {
     emoji: [],
     letter: ["tw-text-main"],
     special: ["tw-text-danger"],
     number: ["tw-text-primary-600"],
   };
-
-  @HostBinding("class")
-  get classList() {
-    return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-words"];
-  }
 
   getCharacterClass(character: string) {
     const charType = this.getCharacterType(character);
@@ -115,7 +112,6 @@ export class ColorPasswordComponent {
     return "letter";
   }
 
-  @HostListener("copy", ["$event"])
   onCopy(event: ClipboardEvent) {
     event.preventDefault();
     const selection = window.getSelection();

@@ -293,6 +293,23 @@ describe("DefaultSdkService", () => {
       expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
     });
   });
+
+  describe("cryptoReady$", () => {
+    const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
+
+    it("emits true without creating a client", async () => {
+      await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(true);
+      expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
+    });
+
+    it("stays true across lock and logout", async () => {
+      await service.lock(userId);
+      await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(true);
+
+      service.logout(userId);
+      await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(true);
+    });
+  });
 });
 
 function createMockClient(): MockProxy<PasswordManagerClient> {

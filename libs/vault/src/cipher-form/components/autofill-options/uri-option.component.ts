@@ -3,6 +3,7 @@
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import {
   Component,
+  computed,
   effect,
   ElementRef,
   EventEmitter,
@@ -11,6 +12,7 @@ import {
   Input,
   input,
   Output,
+  signal,
   untracked,
   ViewChild,
   viewChild,
@@ -45,6 +47,15 @@ import {
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
+
+/** How a desktop app row was created */
+export const DesktopAppRow = Object.freeze({
+  /** Loaded from the cipher with a desktop app URI */
+  Saved: "saved",
+  /** Added by the user as a desktop app */
+  New: "new",
+} as const);
+export type DesktopAppRow = (typeof DesktopAppRow)[keyof typeof DesktopAppRow];
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -89,12 +100,34 @@ export class UriOptionComponent implements ControlValueAccessor {
     matchDetection: [null as UriMatchStrategySetting],
   });
 
+  /** The URI last written to this row by the parent form */
+  private readonly writtenUri = signal<string | null>(null);
+
+  /**
+   * The desktop app saved on the cipher, so the dropdown shows the paired app's name. A saved URI
+   * that isn't a valid pairing URI is labeled as an invalid pairing.
+   */
+  private readonly savedAppOption = computed(() => {
+    const uri = this.writtenUri();
+    if (this.desktopAppRow() !== DesktopAppRow.Saved || uri == null) {
+      return null;
+    }
+
+    // The saved string is the option's value, so the selection matches it exactly and it is saved
+    // unchanged
+    const appName = DesktopAutotypePairingUri.fromString(uri)?.data.appData.name;
+    return { label: appName ?? this.i18nService.t("invalidAppPairing"), value: uri };
+  });
+
   /**
    * The desktop apps that can be selected for a desktop app URI. Each option is labeled with the
    * app's name, and its value is the Desktop Autotype Pairing URI string saved as the login URI.
    */
   // TODO: Add the apps that can be paired to the options for new desktop app URIs
-  protected appOptions: { label: string; value: string }[] = [];
+  protected readonly appOptions = computed(() => {
+    const savedAppOption = this.savedAppOption();
+    return savedAppOption == null ? [] : [savedAppOption];
+  });
 
   protected uriMatchOptions: {
     label: string;
@@ -158,17 +191,19 @@ export class UriOptionComponent implements ControlValueAccessor {
   @Input({ required: true }) index: number;
 
   /**
-   * When true, URIs prefixed with the desktop app scheme are shown as desktop apps: a dropdown of
-   * desktop app names labeled "Desktop app (URI)", instead of a "Website (URI)" text input. Should
-   * only be true when the WindowsDesktopAutotypeGA feature flag is enabled.
+   * When true, URIs prefixed with the desktop app scheme are recognized as desktop apps: a dropdown
+   * of desktop app names labeled "Desktop app". When false, they're shown like any other URI, as a
+   * "Website (URI)" text input. Should only be true when the WindowsDesktopAutotypeGA feature flag
+   * is enabled.
    */
-  readonly showDesktopApps = input(false);
+  readonly recognizeDesktopApps = input(false);
 
   /**
-   * When true and the URI is shown as a desktop app, the desktop app can't be changed. The URI can
-   * still be removed and reordered. Desktop apps already saved on the cipher are locked.
+   * How this row was created, when it's a desktop app row. The parent sets it when it creates the
+   * row, so typing a desktop app URI into a website row doesn't make it a desktop app row. Desktop
+   * apps saved on the cipher are locked: they can be removed and reordered, but not changed.
    */
-  readonly appUriLocked = input(false);
+  readonly desktopAppRow = input<DesktopAppRow | null>(null);
 
   /** Whether the whole row is disabled, e.g. because the cipher form is disabled. */
   private rowDisabled = false;
@@ -200,10 +235,11 @@ export class UriOptionComponent implements ControlValueAccessor {
     }
   }
 
-  /** Whether this URI pairs the login with a desktop app and should be shown as one. */
+  /** Returns true if this URI is a desktop app pairing */
   protected get isAppUri(): boolean {
     return (
-      this.showDesktopApps() &&
+      this.recognizeDesktopApps() &&
+      this.desktopAppRow() != null &&
       (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false)
     );
   }
@@ -211,8 +247,8 @@ export class UriOptionComponent implements ControlValueAccessor {
   protected get uriLabel() {
     if (this.isAppUri) {
       return this.index === 0
-        ? this.i18nService.t("desktopAppUri")
-        : this.i18nService.t("desktopAppUriCount", this.index + 1);
+        ? this.i18nService.t("desktopApp")
+        : this.i18nService.t("desktopAppCount", this.index + 1);
     }
 
     return this.index === 0
@@ -251,8 +287,8 @@ export class UriOptionComponent implements ControlValueAccessor {
     });
 
     effect(() => {
-      this.appUriLocked();
-      this.showDesktopApps();
+      this.recognizeDesktopApps();
+      this.desktopAppRow();
       untracked(() => this.applyAppUriLock());
     });
 
@@ -352,24 +388,9 @@ export class UriOptionComponent implements ControlValueAccessor {
         { emitEvent: false },
       );
       this.lastMatchDetection = value.matchDetection ?? null;
-      this.addSavedAppOption(value.uri);
+      this.writtenUri.set(value.uri ?? null);
       this.applyAppUriLock();
     }
-  }
-
-  /**
-   * Adds the desktop app of a saved Desktop Autotype Pairing URI to the dropdown options, so the
-   * dropdown shows the paired app's name.
-   */
-  private addSavedAppOption(uri: string | null) {
-    const pairingUri = uri == null ? null : DesktopAutotypePairingUri.fromString(uri);
-    if (pairingUri == null || this.appOptions.some((option) => option.value === uri)) {
-      return;
-    }
-
-    // The saved string is the option's value, so the selection matches it exactly and it is saved
-    // unchanged
-    this.appOptions = [...this.appOptions, { label: pairingUri.data.appData.name, value: uri }];
   }
 
   registerOnChange(fn: () => void): void {
@@ -388,12 +409,13 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   /**
-   * Disables only the URI of a locked desktop app, so the desktop app can't be changed but the row
-   * can still be removed and reordered.
+   * Disables only the URI of a desktop app saved on the cipher, so the desktop app can't be changed
+   * but the row can still be removed and reordered.
    */
   private applyAppUriLock() {
     const uriControl = this.uriForm.controls.uri;
-    const disabled = this.rowDisabled || (this.appUriLocked() && this.isAppUri);
+    const disabled =
+      this.rowDisabled || (this.desktopAppRow() === DesktopAppRow.Saved && this.isAppUri);
     if (disabled === uriControl.disabled) {
       return;
     }

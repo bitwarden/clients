@@ -3,10 +3,18 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { AsyncPipe } from "@angular/common";
-import { Component, inject, OnInit, QueryList, ViewChildren } from "@angular/core";
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { filter, map, of, Subject, switchMap, take } from "rxjs";
+import { filter, map, shareReplay, Subject, switchMap, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -38,7 +46,7 @@ import {
 import { CipherFormContainer } from "../../cipher-form-container";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
-import { UriOptionComponent } from "./uri-option.component";
+import { DesktopAppRow, UriOptionComponent } from "./uri-option.component";
 
 interface UriField {
   uri: string;
@@ -112,29 +120,38 @@ export class AutofillOptionsComponent implements OnInit {
    */
   private focusOnNewInput$ = new Subject<void>();
 
-  /**
-   * The URI inputs of desktop apps that were already on the cipher when the form was initialized.
-   * Those desktop apps are locked: they can be removed and reordered, but not changed.
-   */
-  protected readonly existingAppUriControls = new WeakSet<AbstractControl>();
-
   private readonly isWindowsDesktop =
     this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
+  // The feature flag is read once, when the form opens, so the URIs don't change while the user
+  // edits them
   private readonly autotypeGaEnabled$ = autotypeFeatureFlagState$(this.configService).pipe(
     map((state) => state === AutotypeFeatureFlagState.Ga),
+    take(1),
+    shareReplay({ bufferSize: 1, refCount: false }),
   );
 
-  /** Whether desktop app URIs are shown as desktop apps. Desktop apps can be viewed on any client. */
-  protected readonly showDesktopApps = toSignal(this.autotypeGaEnabled$, { initialValue: false });
+  /**
+   * Whether desktop app URIs are recognized as desktop apps, rather than shown as website URIs.
+   * Desktop apps can be viewed on any client.
+   */
+  protected readonly recognizeDesktopApps = toSignal(this.autotypeGaEnabled$, {
+    initialValue: false,
+  });
 
   /** Whether desktop apps can be added. Desktop apps can only be added on Windows desktop. */
-  protected readonly showAddAppDropdown = toSignal(
-    this.isWindowsDesktop ? this.autotypeGaEnabled$ : of(false),
-    { initialValue: false },
+  protected readonly showAddAppDropdown = computed(
+    () => this.isWindowsDesktop && this.recognizeDesktopApps(),
   );
 
+  /**
+   * The URI inputs of desktop app rows, and how each row was created. A row's type is set when the
+   * row is created, so typing a desktop app URI into a website row doesn't make it a desktop app row.
+   */
+  protected readonly desktopAppRows = new WeakMap<AbstractControl, DesktopAppRow>();
+
   private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -154,7 +171,7 @@ export class AutofillOptionsComponent implements OnInit {
         cipher.login.uris = value.uris?.filter(isSavedUri).map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
             uri: uri.uri,
-            match: uri.matchDetection,
+            match: this.savedMatchDetection(uri),
           } as LoginUriView),
         );
         cipher.login.autofillOnPageLoad = value.autofillOnPageLoad;
@@ -197,6 +214,10 @@ export class AutofillOptionsComponent implements OnInit {
     // URIs from an existing cipher are added without emitting value changes
     this.publishUriMatchStrategies();
 
+    this.autotypeGaEnabled$
+      .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.saveDesktopAppUrisWithNeverMatch());
+
     if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
     }
@@ -213,8 +234,9 @@ export class AutofillOptionsComponent implements OnInit {
    * Adds a new URI input requested by the user. When the new URI uses the default match strategy,
    * the user is asked to confirm when that would turn HTTP authentication off.
    * @param uriFieldValue The initial value for the new URI input.
+   * @param desktopAppRow How the new URI input was created, when it's a desktop app row.
    */
-  async addUriFromUser(uriFieldValue: UriField) {
+  async addUriFromUser(uriFieldValue: UriField, desktopAppRow: DesktopAppRow | null = null) {
     if (
       uriFieldValue.matchDetection == null &&
       !(await this.httpAuthenticationService.confirmDefaultMatchStrategy())
@@ -222,7 +244,7 @@ export class AutofillOptionsComponent implements OnInit {
       return;
     }
 
-    this.addUri(uriFieldValue, true);
+    this.addUri(uriFieldValue, true, true, desktopAppRow);
   }
 
   /**
@@ -231,10 +253,13 @@ export class AutofillOptionsComponent implements OnInit {
    * HTTP authentication matching, and counts as an explicit strategy for HTTP authentication.
    */
   async addDesktopAppUriFromUser() {
-    await this.addUriFromUser({
-      uri: DESKTOP_APP_URI_PREFIX,
-      matchDetection: UriMatchStrategy.Never,
-    });
+    await this.addUriFromUser(
+      {
+        uri: DESKTOP_APP_URI_PREFIX,
+        matchDetection: UriMatchStrategy.Never,
+      },
+      DesktopAppRow.New,
+    );
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
@@ -250,11 +275,11 @@ export class AutofillOptionsComponent implements OnInit {
         },
         false,
         false,
+        // Desktop app URIs on the cipher load as desktop apps, including ones that were typed into a
+        // website row
+        uri.uri?.startsWith(DESKTOP_APP_URI_PREFIX) ? DesktopAppRow.Saved : null,
       );
     });
-    this.uriControls
-      .filter((control) => control.value?.uri?.startsWith(DESKTOP_APP_URI_PREFIX))
-      .forEach((control) => this.existingAppUriControls.add(control));
     this.autofillOptionsForm.patchValue({
       autofillOnPageLoad: existingLogin.autofillOnPageLoad,
     });
@@ -312,15 +337,20 @@ export class AutofillOptionsComponent implements OnInit {
    * @param uriFieldValue The initial value for the new URI input.
    * @param focusNewInput If true, the new URI input will be focused after being added.
    * @param emitEvent When false, prevents the `valueChanges` & `statusChanges` observables from firing.
+   * @param desktopAppRow How the new URI input was created, when it's a desktop app row.
    */
   addUri(
     uriFieldValue: UriField = { uri: null, matchDetection: null },
     focusNewInput = false,
     emitEvent = true,
+    desktopAppRow: DesktopAppRow | null = null,
   ) {
-    this.autofillOptionsForm.controls.uris.push(this.formBuilder.control(uriFieldValue), {
-      emitEvent,
-    });
+    const control = this.formBuilder.control(uriFieldValue);
+    if (desktopAppRow != null) {
+      this.desktopAppRows.set(control, desktopAppRow);
+    }
+
+    this.autofillOptionsForm.controls.uris.push(control, { emitEvent });
 
     if (focusNewInput) {
       this.focusOnNewInput$.next();
@@ -340,11 +370,38 @@ export class AutofillOptionsComponent implements OnInit {
           (control) =>
             Object.assign(new LoginUriView(), {
               uri: control.value.uri,
-              match: control.value.matchDetection ?? null,
+              match: this.savedMatchDetection(control.value) ?? null,
             }) as LoginUriView,
         );
       return cipher;
     });
+  }
+
+  /**
+   * Returns the match strategy a URI is saved with. While desktop apps are recognized, desktop app
+   * URIs are saved with the Never match strategy, including ones typed into a website row, because
+   * they load as desktop apps.
+   */
+  private savedMatchDetection(uri: UriField): UriMatchStrategySetting {
+    return this.recognizeDesktopApps() && uri?.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
+      ? UriMatchStrategy.Never
+      : uri?.matchDetection;
+  }
+
+  /**
+   * Saves the desktop app URIs already on the cipher with the Never match strategy, even when the
+   * user doesn't change the URIs.
+   */
+  private saveDesktopAppUrisWithNeverMatch() {
+    const matchChanged = this.uriControls.some(
+      (control) =>
+        (this.savedMatchDetection(control.value) ?? null) !==
+        (control.value?.matchDetection ?? null),
+    );
+
+    if (matchChanged) {
+      this.updateUriFields();
+    }
   }
 
   /** Reorder the controls to match the new order after a "drop" event */
