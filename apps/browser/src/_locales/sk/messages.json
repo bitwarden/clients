@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Vytvoriť účet"
   },
+  "welcomeToBitwarden": {
+    "message": "Vitajte v Bitwardene"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Vytvorte si účet alebo sa prihláste"
+  },
   "newToBitwarden": {
     "message": "Ste noví na Bitwardene?"
   },
@@ -3046,7 +3052,7 @@
     "message": "Vybrané"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "vybrané",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -3837,14 +3843,14 @@
     "message": "Kopírovať odkaz na Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Odstrániť heslo"
+  "removeAuth": {
+    "message": "Odstrániť overenie heslom alebo e-mailom"
   },
   "delete": {
     "message": "Odstrániť"
   },
-  "removedPassword": {
-    "message": "Heslo bolo odstránené"
+  "removedAuth": {
+    "message": "Overenie heslom alebo e-mailom bolo odstránené"
   },
   "deletedSend": {
     "message": "Send bol odstránený",
@@ -3857,8 +3863,28 @@
   "disabled": {
     "message": "Zakázané"
   },
-  "removePasswordConfirmation": {
-    "message": "Ste si istý, že chcete odstrániť heslo?"
+  "removeAuthConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na zadanie hesla alebo overenie e-mailom?"
+  },
+  "removePassword": {
+    "message": "Odstrániť heslo"
+  },
+  "removeEmailVerification": {
+    "message": "Odstrániť overenie e-mailom"
+  },
+  "removedPassword": {
+    "message": "Heslo bolo odstránené"
+  },
+  "removedEmailVerification": {
+    "message": "Overenie e-mailom bolo odstránené"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na zadanie hesla?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na overenie e-mailom?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Odstrániť Send",
@@ -6709,7 +6735,7 @@
     "message": "Moje položky"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Moje položky"
   },
   "adminConsole": {
     "message": "Správcovská konzola"
@@ -7052,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Aplikácia (URI)"
+  "desktopApp": {
+    "message": "Desktopová aplikácia",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Aplikácia (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktopová aplikácia $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8865,5 +8892,429 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Táto položka má zapnutú výzvu na opätovné zadanie hlavného hesla, takže automatické vypĺňanie prihlasovacích výziev prehliadača bolo vypnuté. Ak chcete túto zmenu zachovať, uložte položku."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Schválené časové obdobie na prístup ešte nezačalo."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Schválené časové obdobie prístupu už uplynulo."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Táto žiadosť ešte nebola schválená."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Táto žiadosť už nemôže byť aktivovaná."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Prístup tejto žiadosti bol použitý a už nie je aktívny."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "K tejto položke môže mať aktívny prístup vždy len 1 používateľ. Skúste to znova, až sa súčasný prístup skončí."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Prístup k tejto položke nie je povolený z vašej aktuálnej siete."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Prístup k tejto položke nie je momentálne povolený."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Prístup k tejto položke nie je momentálne povolený."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Na túto položku už máte schválenú žiadosť."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Na túto položku už máte čakajúcu žiadosť."
+  },
+  "pamLeaseExpires": {
+    "message": "Exspiruje $DATE$ o $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Exspiruje dnes o $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Spustiť prístup"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Prístup bol spustený."
+  },
+  "pamStartLeaseError": {
+    "message": "Nepodarilo sa spustiť prístup."
+  },
+  "pamEndLeaseButton": {
+    "message": "Ukončiť prístup"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Ukončiť prístup?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Týmto sa váš prístup okamžite zruší. Túto akciu nie je možné vrátiť späť."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Prístup bol ukončený."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Predĺžiť prístup"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Predĺžiť prístup"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Dĺžka predĺženia"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Dôvod"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Prístup bol predĺžený."
+  },
+  "pamExtendLeaseError": {
+    "message": "Prístup sa nepodarilo predĺžiť."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Váš prístup skončil skôr, ako ho bolo možné predĺžiť. Žiadosť sa nachádza vo vašej histórii."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privilegované"
+  },
+  "pamAccessBadgePending": {
+    "message": "Čaká na schválenie"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Nedostupné"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Pripravené na použitie"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Zostáva $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Čoskoro končí • zostáva $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Relácia bola ukončená"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Prístup je aktívny • zostáva $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Čoskoro končí • zostáva $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Žiadosť o prístup čaká na schválenie"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Odoslané práve teraz"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Odoslané $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privilegované poverenia"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Vyžaduje sa licencia Privileged Controls",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Žiadosť o použitie"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Žiadosť nie je k dispozícii",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Predĺžiť prístup",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "Zostáva <1 min.",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Riadený prístup"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Používa sa"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Čoskoro končí"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Váš prístup vypršal"
+  },
+  "pamEndedBannerBody": {
+    "message": "Platnosť tohto oprávnenia vypršala. Keďže váš prístup už skončil, toto oprávnenie bude nahradené novým."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Momentálne nemôžete požiadať o prístup"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Pravidlo prístupu tohto poverenia nepovoľuje žiadosti z vašej aktuálnej siete alebo v tento čas."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Pripravené na použitie"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "K tomuto povereniu máte prístup dnes do $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "K týmto povereniam máte prístup do $TIME$ dňa $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Poverenia sú maskované, kým sa neudelí prístup."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Môžete požiadať o prístup"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Na používanie tejto položky potrebujete licenciu Privileged Controls",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Žiadosť o prístup nie je k dispozícii, pokiaľ nemáte licenciu.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Požiadajte svojho správcu, aby vám aktivoval licenciu.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Vyžaduje sa licencia Privileged Controls. Požiadajte svojho správcu o aktiváciu licencie.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Prístup až $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Prístup až $DURATION$, okamžité schválenie, ak spĺňate podmienky",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Požiadať o prístup"
+  },
+  "pamRequestSlotTaken": {
+    "message": "K tejto položke má momentálne prístup niekto iný. Môžete požiadať o prístup, ale nebudete ho môcť spustiť, kým momentálny prístup neskončí."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "K tejto položke má momentálne prístup niekto iný. Môžete požiadať o prístup, ale nebudete ho môcť spustiť do $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Zrušiť žiadosť"
+  },
+  "pamKeepRequest": {
+    "message": "Ponechať žiadosť"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Zrušiť žiadosť o prístup"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Týmto sa vaša žiadosť stiahne skôr, ako o nej rozhodne schvaľovateľ. Novú žiadosť môžete odoslať kedykoľvek."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Týmto sa zruší prístup, ktorý už bol schválený. Môžete podať novú žiadosť, tá však bude musieť byť opäť schválená."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Žiadosť bola zrušená"
+  },
+  "pendingStateCancelError": {
+    "message": "Žiadosť sa nepodarilo zrušiť."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Odoslať žiadosť"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Na ako dlho to potrebujete?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Po schválení dostanete upozornenie. Váš čas sa odpočítava až vtedy, keď začnete používať toto poverenie."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Podrobnosti o žiadosti"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Dátum začiatku"
+  },
+  "requestAccessModalStart": {
+    "message": "Čas začiatku"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Dátum ukončenia"
+  },
+  "requestAccessModalEnd": {
+    "message": "Čas ukončenia"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Koniec musí byť po začiatku."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (teraz)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Vlastný čas…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Vlastný dátum a čas ukončenia…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Zobraziť navrhované časy začiatku"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Späť na odporúčané trvania"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, do $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Žiadosť o prístup na dobu $DURATION$: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Požadované časové okno už uplynulo. Vyberte neskorší dátum alebo čas."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Časové okno nesmie prekročiť hodnotu $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Načo to potrebujete?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Načo to potrebujete?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "napr. štvrťročný audit, potreba spustiť niekoľko dotazov len na čítanie"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Viditeľné pre vášho schvaľovateľa a uložené do protokolu auditu."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Viditeľné pre vášho schvaľovateľa a uložené do protokolu auditu."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Nepodarilo sa požiadať o prístup. Skúste to znova."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "K tejto položke už máte aktívny prístup."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Prístup bol schválený. Začnite výberom možnosti Spustiť prístup."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Vyžiadaný prístup"
   }
 }

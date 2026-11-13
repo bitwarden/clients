@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Створити обліковий запис"
   },
+  "welcomeToBitwarden": {
+    "message": "Вітаємо в Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Створіть ваш обліковий запис або увійдіть"
+  },
   "newToBitwarden": {
     "message": "Вперше у Bitwarden?"
   },
@@ -3837,14 +3843,14 @@
     "message": "Копіювати посилання відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Вилучити пароль"
+  "removeAuth": {
+    "message": "Вилучити перевірку за паролем або електронною поштою"
   },
   "delete": {
     "message": "Видалити"
   },
-  "removedPassword": {
-    "message": "Пароль вилучено"
+  "removedAuth": {
+    "message": "Скасовано перевірку за паролем або електронною поштою"
   },
   "deletedSend": {
     "message": "Відправлення видалено",
@@ -3857,8 +3863,28 @@
   "disabled": {
     "message": "Вимкнено"
   },
-  "removePasswordConfirmation": {
-    "message": "Ви дійсно хочете вилучити пароль?"
+  "removeAuthConfirmation": {
+    "message": "Ви впевнені, що хочете скасувати вимогу щодо введення пароля або підтвердження електронної адреси для цього повідомлення?"
+  },
+  "removePassword": {
+    "message": "Вилучити пароль"
+  },
+  "removeEmailVerification": {
+    "message": "Вилучити перевірку електронної пошти"
+  },
+  "removedPassword": {
+    "message": "Пароль вилучено"
+  },
+  "removedEmailVerification": {
+    "message": "Перевірку електронної пошти вилучено"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Ви впевнені, що хочете скасувати вимогу введення пароля для цього повідомлення?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Ви впевнені, що хочете скасувати вимогу щодо підтвердження електронної пошти для цього повідомлення?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Видалити відправлення",
@@ -7052,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Програма (URI)"
+  "desktopApp": {
+    "message": "Настільний застосунок",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Програма (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Настільний застосунок $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8865,5 +8892,429 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Для цього запису ввімкнено повторний запит головного пароля, тому автозаповнення запитів на вхід у браузері вимкнено. Збережіть запис, щоб застосувати цю зміну."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Затверджений період доступу ще не розпочався."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Термін дії затвердженого періоду доступу вже закінчився."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Цей запит ще не було затверджено."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Цей запит більше не можна активувати."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Доступ за цим запитом вже було використано, і він більше не діє."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Одночасно активний доступ до цього запису може мати лише 1 користувач. Спробуйте ще раз, коли поточний доступ закінчиться."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Доступ до цього запису з вашої поточної мережі заборонено."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Наразі доступ до цього запису заборонено."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Наразі доступ до цього запису заборонено."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "У вас уже є затверджений запит на цей запис."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "У вас уже є незавершений запит щодо цього запису."
+  },
+  "pamLeaseExpires": {
+    "message": "Термін дії закінчується $DATE$ о $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Термін дії закінчується сьогодні о $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Почати доступ"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Доступ запущений."
+  },
+  "pamStartLeaseError": {
+    "message": "Не вдалося запустити доступ."
+  },
+  "pamEndLeaseButton": {
+    "message": "Завершити доступ"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Закінчити доступ?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Це призведе до негайного скасування вашого доступу. Цю дію неможливо скасувати."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Доступ завершено."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Продовжити доступ"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Продовжити доступ"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Довжина розширення"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Причина"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Доступ продовжено."
+  },
+  "pamExtendLeaseError": {
+    "message": "Не вдалося розширити доступ."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Ваш доступ закінчився до того, як його вдалося продовжити. Цей запит збережено у вашій історії."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Привілейований"
+  },
+  "pamAccessBadgePending": {
+    "message": "Очікує підтвердження"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Недоступно"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Готово до використання"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Залишилося $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Скоро закінчиться • Залишилося $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Сеанс завершено"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Доступ активний • Залишилося $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Скоро закінчується • Залишилося $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Запит на доступ очікує затвердження"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Надіслано щойно"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Надіслано $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Привілейовані облікові дані"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Потрібна ліцензія Privileged Controls",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Запит на використання"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Недоступно для запиту",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Продовжити доступ",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1 хв залишилося",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Контрольований доступ"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "У використанні"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Закінчуються незабаром"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Ваш доступ закінчився"
+  },
+  "pamEndedBannerBody": {
+    "message": "Термін дії цього посвідчення закінчився. Оскільки ваш доступ припинився, це посвідчення буде замінено на нове."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Наразі ви не можете подати запит на доступ"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Правила доступу для цих облікових даних не дозволяють надсилати запити з вашої поточної мережі або в цей час."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Готово до використання"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Ви зможете користуватися цими обліковими даними до $TIME$ сьогодні.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Ви зможете користуватися цими обліковими даними до $TIME$ $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Реквізити залишаються прихованими до моменту надання доступу."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Ви можете подати запит на доступ"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Для використання цього запису необхідна ліцензія Privileged Controls",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Подача запиту на доступ неможлива, якщо у вас немає ліцензії.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Попросіть адміністратора активувати вашу ліцензію.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Необхідна ліцензія Privileged Controls. Попросіть адміністратора активувати вашу ліцензію.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Доступ на суму до $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Отримайте до $DURATION$, миттєве схвалення, якщо ви відповідаєте умовам",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Запросити доступ"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Наразі хтось інший має доступ до цього запису. Ви можете подати запит на доступ, але не зможете розпочати роботу, доки ця особа не завершить свою."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Наразі хтось інший має доступ до цього запису. Ви можете подати запит на доступ, але розпочати роботу з ним ви зможете лише о $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Скасувати запит"
+  },
+  "pamKeepRequest": {
+    "message": "Залишити запит"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Скасувати запит на доступ"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Це призведе до відкликання вашого запиту до того, як особа, що затверджує, ухвалить рішення щодо нього. Ви можете подати новий запит у будь-який час."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Це призведе до скасування доступу, який вже було затверджено. Ви можете подати новий запит, але його доведеться затверджувати заново."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Запит скасовано"
+  },
+  "pendingStateCancelError": {
+    "message": "Не вдалося скасувати запит."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Надіслати запит"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "На який термін вам це потрібно?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Ви отримаєте сповіщення після затвердження. Відлік часу почнеться лише після того, як ви почнете користуватися цими обліковими даними."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Запит деталей"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Дата початку"
+  },
+  "requestAccessModalStart": {
+    "message": "Час початку"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Дата завершення"
+  },
+  "requestAccessModalEnd": {
+    "message": "Час завершення"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Кінець повинен бути після початку."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (зараз)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Власний час…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Власна дата й час завершення…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Показати запропоновані часи початку"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Повернутися до рекомендованих термінів"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, до $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Запит на доступ тривалістю $DURATION$: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Зазначений період вже закінчився. Оберіть іншу дату або час."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Вікно не може перевищувати $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Навіщо вам це потрібно?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Навіщо вам це потрібно?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "наприклад, щоквартальний аудит, коли потрібно виконати кілька запитів у режимі «тільки для читання»"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Буде видно особі, яка затверджує, та збережено в журналі аудиту."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Буде видно особі, яка затверджує, та збережено в журналі аудиту."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Не вдалося запросити доступ. Спробуйте ще раз."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Ви вже маєте активний доступ до цього запису."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Доступ затверджено. Виберіть «Почати доступ», щоб розпочати."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Запитано доступ"
   }
 }
