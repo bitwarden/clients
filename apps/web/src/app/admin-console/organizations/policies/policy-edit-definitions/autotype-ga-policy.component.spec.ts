@@ -118,6 +118,7 @@ describe("DesktopAutotypeGaPolicyComponent", () => {
     expect(await requestData()).toEqual({
       shortcutOption: AutotypeShortcutOption.Default,
       defaultKeyboardShortcut: DEFAULT_AUTOTYPE_GA_KEYBOARD_SHORTCUT,
+      alwaysAskBeforeFilling: false,
     });
   });
 
@@ -129,6 +130,7 @@ describe("DesktopAutotypeGaPolicyComponent", () => {
     expect(loaded).toEqual({
       shortcutOption: AutotypeShortcutOption.Default,
       defaultKeyboardShortcut: null,
+      alwaysAskBeforeFilling: false,
     });
 
     component["shortcutOption"].setValue(AutotypeShortcutOption.Custom);
@@ -160,6 +162,7 @@ describe("DesktopAutotypeGaPolicyComponent", () => {
     }).not.toThrow();
     expect(component["shortcutOption"].value).toBe(AutotypeShortcutOption.Custom);
     expect(component["defaultKeyboardShortcut"].value).toBeNull();
+    expect(component["alwaysAskBeforeFilling"].value).toBe(false);
   });
 
   it("loads a saved custom shortcut and marks the form dirty only when it changes", async () => {
@@ -179,6 +182,7 @@ describe("DesktopAutotypeGaPolicyComponent", () => {
     expect(await requestData()).toEqual({
       shortcutOption: AutotypeShortcutOption.Custom,
       defaultKeyboardShortcut: ["Control", "Super", "K"],
+      alwaysAskBeforeFilling: false,
     });
 
     component["onCustomShortcut"](["Alt", "Q"]);
@@ -198,6 +202,7 @@ describe("DesktopAutotypeGaPolicyComponent", () => {
     expect(await requestData()).toEqual({
       shortcutOption: AutotypeShortcutOption.Custom,
       defaultKeyboardShortcut: ["Alt", "Q"],
+      alwaysAskBeforeFilling: false,
     });
 
     component["shortcutOption"].setValue(AutotypeShortcutOption.Default);
@@ -205,6 +210,7 @@ describe("DesktopAutotypeGaPolicyComponent", () => {
     expect(await requestData()).toEqual({
       shortcutOption: AutotypeShortcutOption.Default,
       defaultKeyboardShortcut: DEFAULT_AUTOTYPE_GA_KEYBOARD_SHORTCUT,
+      alwaysAskBeforeFilling: false,
     });
 
     component["shortcutOption"].setValue(AutotypeShortcutOption.Custom);
@@ -241,6 +247,7 @@ describe("DesktopAutotypeGaPolicyComponent", () => {
     expect(await requestData()).toEqual({
       shortcutOption: AutotypeShortcutOption.Custom,
       defaultKeyboardShortcut: null,
+      alwaysAskBeforeFilling: false,
     });
 
     fixture.componentRef.setInput(
@@ -258,5 +265,55 @@ describe("DesktopAutotypeGaPolicyComponent", () => {
     expect(component["shortcutOption"].value).toBe(AutotypeShortcutOption.Custom);
     expect(component["customShortcut"]()).toBeNull();
     expect(component.enabled.value).toBe(false);
+  });
+
+  it("keeps always ask before filling when the shortcut option changes", async () => {
+    component.ngOnInit();
+    component.enabled.setValue(true);
+    component["alwaysAskBeforeFilling"].setValue(true);
+    component["shortcutOption"].setValue(AutotypeShortcutOption.Custom);
+    component["onCustomShortcut"](["Alt", "Q"]);
+
+    expect(await requestData()).toEqual({
+      shortcutOption: AutotypeShortcutOption.Custom,
+      defaultKeyboardShortcut: ["Alt", "Q"],
+      alwaysAskBeforeFilling: true,
+    });
+
+    component["shortcutOption"].setValue(AutotypeShortcutOption.Default);
+
+    expect(component["alwaysAskBeforeFilling"].value).toBe(true);
+    expect(await requestData()).toEqual({
+      shortcutOption: AutotypeShortcutOption.Default,
+      defaultKeyboardShortcut: DEFAULT_AUTOTYPE_GA_KEYBOARD_SHORTCUT,
+      alwaysAskBeforeFilling: true,
+    });
+
+    component["alwaysAskBeforeFilling"].setValue(false);
+
+    expect(component["shortcutOption"].value).toBe(AutotypeShortcutOption.Default);
+    expect(component["customShortcut"]()).toEqual(["Alt", "Q"]);
+  });
+
+  it("loads a saved always ask before filling value without changing the shortcut", async () => {
+    fixture.componentRef.setInput(
+      "policyResponse",
+      makePolicyResponse({
+        shortcutOption: AutotypeShortcutOption.Custom,
+        defaultKeyboardShortcut: ["Control", "Super", "K"],
+        alwaysAskBeforeFilling: true,
+      }),
+    );
+
+    component.ngOnInit();
+
+    expect(component["shortcutOption"].value).toBe(AutotypeShortcutOption.Custom);
+    expect(component["customShortcut"]()).toEqual(["Control", "Super", "K"]);
+    expect(component["alwaysAskBeforeFilling"].value).toBe(true);
+    expect(await requestData()).toEqual({
+      shortcutOption: AutotypeShortcutOption.Custom,
+      defaultKeyboardShortcut: ["Control", "Super", "K"],
+      alwaysAskBeforeFilling: true,
+    });
   });
 });

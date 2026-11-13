@@ -29,6 +29,7 @@ export const DefaultShortcut: Story = {
     data: {
       shortcutOption: AutotypeShortcutOption.Default,
       defaultKeyboardShortcut: [...DEFAULT_AUTOTYPE_GA_KEYBOARD_SHORTCUT],
+      alwaysAskBeforeFilling: false,
     } satisfies AutotypeGaPolicyData,
   },
 };
@@ -39,6 +40,7 @@ export const CustomShortcut: Story = {
     data: {
       shortcutOption: AutotypeShortcutOption.Custom,
       defaultKeyboardShortcut: ["Control", "Super", "K"],
+      alwaysAskBeforeFilling: false,
     } satisfies AutotypeGaPolicyData,
   },
 };
