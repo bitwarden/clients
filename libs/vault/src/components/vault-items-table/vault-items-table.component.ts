@@ -91,7 +91,7 @@ import {
   VaultItemFilterOption,
 } from "../../tokens/vault-item-filter.token";
 import { isRowActivationClick } from "../../utils/row-activation";
-import { sharedFolderName } from "../../utils/shared-folder-name";
+import { sharedFolderDisplayName, sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
   matchesFavorite,
@@ -1271,6 +1271,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
+   * A shared folder's display name (see {@link sharedFolderDisplayName}) without its parent path
+   * (see {@link sharedFolderName}).
+   */
+  private sharedFolderLabel(collection: CollectionView): string {
+    return sharedFolderName({ name: sharedFolderDisplayName(collection, this.i18nService) });
+  }
+
+  /**
    * Builds the shared folder tree via {@link getNestedCollectionTree}, the same name-delimited
    * nesting used for the collections sidebar — so a collection whose parent path is missing
    * (or belongs to a different organization) nests and sorts identically here and there, rather
@@ -1283,17 +1291,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * input — the collection tree is data-driven and can nest arbitrarily deep, which is exactly
    * what that input is for.
    */
-  /**
-   * A collection's own name, without its parent path (see {@link sharedFolderName}). The "My items"
-   * collection reads from i18n rather than its stored name, which the server may hold in older
-   * casing, so the table matches the side nav and the My items chip.
-   */
-  private sharedFolderLabel(collection: CollectionView): string {
-    return collection.isDefaultCollection
-      ? this.i18nService.t("myItemsV2")
-      : sharedFolderName(collection);
-  }
-
   private buildNestedSharedFolders(
     sharedFolders: CollectionView[],
   ): FilterOptionNode<CollectionId>[] {

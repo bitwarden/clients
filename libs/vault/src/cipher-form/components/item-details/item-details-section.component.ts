@@ -39,6 +39,7 @@ import {
 import { orgIconTile, personalIconTile } from "../../../models/vault-icon-tile";
 import { Vfo1I18nPipe } from "../../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
+import { sharedFolderDisplayName } from "../../../utils/shared-folder-name";
 import {
   CipherFormConfig,
   OptionalInitialValues,
@@ -499,9 +500,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         return aIsDefaultCollection - bIsDefaultCollection;
       })
       .map((c) => {
-        // The "My items" shared folder reads from i18n rather than its stored name, which the
-        // server may hold in older casing.
-        const name = c.isDefaultCollection ? this.i18nService.t("myItemsV2") : c.name;
+        const name = sharedFolderDisplayName(c, this.i18nService);
         return { id: c.id, name, listName: name, labelName: name };
       });
 

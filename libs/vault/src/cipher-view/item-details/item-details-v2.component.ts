@@ -26,6 +26,7 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
 import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { ITEM_DETAILS_BADGE, ItemDetailsBadge } from "../../tokens/item-details-badge.token";
+import { sharedFolderDisplayName } from "../../utils/shared-folder-name";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -122,15 +123,11 @@ export class ItemDetailsV2Component {
     return "";
   }
 
-  /**
-   * The item's name. The "My items" shared folder reads from i18n rather than its stored name,
-   * which the server may hold in older casing.
-   */
+  /** The item's name, a shared folder's as {@link sharedFolderDisplayName} gives it. */
   getItemName(item: Organization | CollectionView | FolderView): string {
-    if (item instanceof CollectionView && item.isDefaultCollection) {
-      return this.i18nService.t("myItemsV2");
-    }
-    return item.name;
+    return item instanceof CollectionView
+      ? sharedFolderDisplayName(item, this.i18nService)
+      : item.name;
   }
 
   getIconClass(item: Organization | CollectionView | FolderView): string {
