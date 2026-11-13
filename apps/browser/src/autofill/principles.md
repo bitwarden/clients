@@ -66,8 +66,7 @@ and only at the moment they need it.
 
 ## We are guests on the page
 
-The page's performance is not ours to degrade. Content scripts share the main thread with the page, so
-any work we do delays the page's rendering, input handling, and layout.
+Autofill is a utility. Everything we do comes at a cost to the user's primary task. Respect the user's resources, including their attention.
 
 - **Measure before and after.** Use the [content script instrumentation](./content/performance.md) to
   quantify hot-path changes rather than reasoning about their cost. Its
