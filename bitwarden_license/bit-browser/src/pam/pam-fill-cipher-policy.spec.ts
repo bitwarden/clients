@@ -42,12 +42,12 @@ describe("PamFillCipherPolicy", () => {
 
   describe("changed$", () => {
     it("emits for decrypted stored cipher changes and revealed view changes", async () => {
-      const cipherViews$ = new Subject<CipherView[] | null>();
-      cipherService.cipherViews$.mockReturnValue(cipherViews$ as Observable<CipherView[]>);
+      const listViews$ = new Subject<CipherView[] | null>();
+      cipherService.cipherListViews$.mockReturnValue(listViews$ as Observable<CipherView[]>);
 
       const emitted = firstValueFrom(policy.changed$(userId).pipe(take(3), toArray()));
-      cipherViews$.next(null);
-      cipherViews$.next([view("stored")]);
+      listViews$.next(null);
+      listViews$.next([view("stored")]);
       reveal(view("revealed"));
 
       expect(await emitted).toEqual([undefined, undefined, undefined]);
@@ -78,6 +78,34 @@ describe("PamFillCipherPolicy", () => {
       reveal(view("revealed"));
 
       const ciphers = await policy.ciphers(userId, use);
+
+      expect(ciphers.map((c) => c.id)).toEqual(["stored"]);
+    });
+  });
+
+  describe("ciphersForIds", () => {
+    beforeEach(() => {
+      cipherService.getAllDecryptedForIds.mockImplementation(async (_userId, ids) =>
+        [view("stored")].filter((c) => ids.includes(c.id)),
+      );
+    });
+
+    it("appends the requested revealed views for a user fill", async () => {
+      reveal(view("revealed"), view("unrequested"));
+
+      const ciphers = await policy.ciphersForIds(
+        userId,
+        ["stored", "revealed"],
+        CipherUse.UserFill,
+      );
+
+      expect(ciphers.map((c) => c.id)).toEqual(["stored", "revealed"]);
+    });
+
+    it.each(otherUses)("returns only the stored ciphers for %s", async (use) => {
+      reveal(view("revealed"));
+
+      const ciphers = await policy.ciphersForIds(userId, ["stored", "revealed"], use);
 
       expect(ciphers.map((c) => c.id)).toEqual(["stored"]);
     });

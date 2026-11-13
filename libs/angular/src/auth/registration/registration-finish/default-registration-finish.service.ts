@@ -2,6 +2,9 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
@@ -18,8 +21,6 @@ import {
   UserId as SdkUserId,
   UserMasterPasswordRegistrationRequest,
 } from "@bitwarden/sdk-internal";
-
-import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import { RegistrationFinishService } from "./registration-finish.service";
 

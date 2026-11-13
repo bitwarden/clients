@@ -8,6 +8,8 @@ describe("accessRuleMatchesFilter", () => {
     ...overrides,
   });
 
+  const noNames = new Map<string, string>();
+
   const filter = (overrides: Partial<AccessRuleFilter> = {}): AccessRuleFilter => ({
     text: "",
     status: null,
@@ -16,21 +18,23 @@ describe("accessRuleMatchesFilter", () => {
   });
 
   it("includes everything under an empty filter", () => {
-    expect(accessRuleMatchesFilter(rule({}), ["Engineering"], filter())).toBe(true);
+    expect(accessRuleMatchesFilter(rule({}), new Map([["col-1", "Engineering"]]), filter())).toBe(
+      true,
+    );
   });
 
   it("drops disabled rules when filtering to enabled", () => {
     expect(
-      accessRuleMatchesFilter(rule({ enabled: false }), [], filter({ status: "enabled" })),
+      accessRuleMatchesFilter(rule({ enabled: false }), noNames, filter({ status: "enabled" })),
     ).toBe(false);
     expect(
-      accessRuleMatchesFilter(rule({ enabled: true }), [], filter({ status: "enabled" })),
+      accessRuleMatchesFilter(rule({ enabled: true }), noNames, filter({ status: "enabled" })),
     ).toBe(true);
   });
 
   it("drops enabled rules when filtering to disabled", () => {
     expect(
-      accessRuleMatchesFilter(rule({ enabled: true }), [], filter({ status: "disabled" })),
+      accessRuleMatchesFilter(rule({ enabled: true }), noNames, filter({ status: "disabled" })),
     ).toBe(false);
   });
 
@@ -38,14 +42,14 @@ describe("accessRuleMatchesFilter", () => {
     expect(
       accessRuleMatchesFilter(
         rule({ collections: ["col-1"] }),
-        [],
+        noNames,
         filter({ collectionIds: ["col-2"] }),
       ),
     ).toBe(false);
     expect(
       accessRuleMatchesFilter(
         rule({ collections: ["col-2"] }),
-        [],
+        noNames,
         filter({ collectionIds: ["col-2"] }),
       ),
     ).toBe(true);
@@ -55,31 +59,34 @@ describe("accessRuleMatchesFilter", () => {
     expect(
       accessRuleMatchesFilter(
         rule({ collections: ["col-3"] }),
-        [],
+        noNames,
         filter({ collectionIds: ["col-2", "col-3"] }),
       ),
     ).toBe(true);
     expect(
       accessRuleMatchesFilter(
         rule({ collections: ["col-1"] }),
-        [],
+        noNames,
         filter({ collectionIds: ["col-2", "col-3"] }),
       ),
     ).toBe(false);
   });
 
   it("matches search text against the rule name", () => {
-    expect(accessRuleMatchesFilter(rule({ name: "VPN access" }), [], filter({ text: "vpn" }))).toBe(
-      true,
-    );
-    expect(accessRuleMatchesFilter(rule({ name: "VPN access" }), [], filter({ text: "ssh" }))).toBe(
-      false,
-    );
+    expect(
+      accessRuleMatchesFilter(rule({ name: "VPN access" }), noNames, filter({ text: "vpn" })),
+    ).toBe(true);
+    expect(
+      accessRuleMatchesFilter(rule({ name: "VPN access" }), noNames, filter({ text: "ssh" })),
+    ).toBe(false);
   });
 
   it("matches search text against resolved collection names", () => {
-    expect(accessRuleMatchesFilter(rule({}), ["Engineering"], filter({ text: "engineer" }))).toBe(
-      true,
-    );
+    const names = new Map([["col-1", "Engineering"]]);
+    expect(accessRuleMatchesFilter(rule({}), names, filter({ text: "engineer" }))).toBe(true);
+  });
+
+  it("matches search text against the id of a collection it can't name", () => {
+    expect(accessRuleMatchesFilter(rule({}), noNames, filter({ text: "col-1" }))).toBe(true);
   });
 });

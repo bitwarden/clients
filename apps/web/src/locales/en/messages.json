@@ -1803,9 +1803,6 @@
   "me": {
     "message": "Me"
   },
-  "myItems": {
-    "message": "My Items"
-  },
   "myItemsV2": {
     "message": "My items"
   },
@@ -9539,6 +9536,33 @@
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
   },
+  "keyboardShortcut": {
+    "message": "Keyboard shortcut"
+  },
+  "appAutofillShortcut": {
+    "message": "App autofill shortcut"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Members can change this keyboard shortcut at any time."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Use the Bitwarden default shortcut: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Enter your own custom shortcut."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Include Ctrl, Alt, or Win and at least 1 letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
+  },
   "disableSend": {
     "message": "Remove Send"
   },
@@ -13029,6 +13053,86 @@
     "message": "Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
+  "privilegedControlsPurchaseDesc": {
+    "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Credential leasing"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Advanced access rules"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Automated password rotation"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Compliance-ready audit logs"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Governance dashboard"
+  },
+  "addPrivilegedControls": {
+    "message": "Add Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Seat limit",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "What's included"
+  },
+  "pricePerMember": {
+    "message": "$COST$ per member",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Seats can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Seat limit can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Seat limit can't be more than your Password Manager seat limit ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you won't be able to give more members access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Seat limit must be greater than the number of seats."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Subscription updated. You now have Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "privilegedControlsAccessDescription": {
     "message": "Activate user access to Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
@@ -13780,23 +13884,8 @@
   "inviteUsers": {
     "message": "Invite Users"
   },
-  "secretsManagerForPlan": {
-    "message": "Secrets Manager for $PLAN$",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "For engineering and DevOps teams to manage secrets throughout the software development lifecycle."
-  },
-  "free2PersonOrganization": {
-    "message": "Free 2-person Organizations"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Free plan with shared vault"
+  "secretsManagerPurchaseDesc": {
+    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
   },
   "unlimitedSecrets": {
     "message": "Unlimited secrets"
@@ -13831,8 +13920,9 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "Subscribe to Secrets Manager"
+  "addSecretsManager": {
+    "message": "Add Secrets Manager",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
@@ -14727,15 +14817,6 @@
   },
   "smAccessRemovalWarningMaMessage": {
     "message": "This action will remove your access to the machine account."
-  },
-  "machineAccountsIncluded": {
-    "message": "$COUNT$ machine accounts included",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "additionalMachineAccountCost": {
     "message": "$COST$ per month for additional machine accounts",
@@ -18368,8 +18449,8 @@
   "separateDomainsWithComma": {
     "message": "Separate domains with a comma"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "searchDriversLicense": {
     "message": "Search licenses"
