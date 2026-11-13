@@ -209,20 +209,13 @@
   <!-- Role -->
   <bit-column sortable width="minmax(120px, 1fr)">
     <bit-header-cell>{{ "role" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.type; let row">
-      @if (canManage && organization) {
-        <button
-          type="button"
-          bitLink
-          linkType="secondary"
-          [attr.id]="'members-v2_button_edit-role-' + row.id"
-          (click)="edit(row, organization, memberTab.Details)"
-        >
-          {{ row.type | userType }}
-        </button>
-      } @else {
-        {{ row.type | userType }}
-      }
+    <!-- Matches v1: clicking the role cell opens the member dialog on the role tab. -->
+    <bit-cell
+      *bitCellDef="table.columns.type; let row"
+      [class.tw-cursor-pointer]="canManage && organization"
+      (click)="canManage && organization && edit(row, organization, memberTab.Details)"
+    >
+      {{ row.type | userType }}
     </bit-cell>
   </bit-column>
 

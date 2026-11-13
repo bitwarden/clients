@@ -5,6 +5,17 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
 
 import {
+  AccessPolicyService,
+  ProjectListView,
+  ProjectService,
+  ProjectView,
+  SecretAccessPoliciesView,
+  SecretListView,
+  SecretProjectView,
+  SecretService,
+  SecretView,
+} from "@bitwarden/bit-sm";
+import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -22,13 +33,6 @@ import {
   CenterPositionStrategy,
 } from "@bitwarden/components";
 
-import { SecretAccessPoliciesView } from "../../models/view/access-policies/secret-access-policies.view";
-import { ProjectListView } from "../../models/view/project-list.view";
-import { ProjectView } from "../../models/view/project.view";
-import { SecretListView } from "../../models/view/secret-list.view";
-import { SecretProjectView } from "../../models/view/secret-project.view";
-import { SecretView } from "../../models/view/secret.view";
-import { ProjectService } from "../../projects/project.service";
 import { AccessPolicySelectorService } from "../../shared/access-policies/access-policy-selector/access-policy-selector.service";
 import {
   ApItemValueType,
@@ -40,8 +44,6 @@ import {
   convertSecretAccessPoliciesToApItemViews,
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
 import { ApItemEnum } from "../../shared/access-policies/access-policy-selector/models/enums/ap-item.enum";
-import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
-import { SecretService } from "../secret.service";
 
 import { SecretDeleteDialogComponent, SecretDeleteOperation } from "./secret-delete.component";
 

@@ -1,0 +1,47 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute, RouterModule } from "@angular/router";
+import { Subject, firstValueFrom } from "rxjs";
+
+import { ExpiredIcon } from "@bitwarden/assets/svg";
+import { ButtonModule, SvgModule } from "@bitwarden/components";
+
+import { JslibModule } from "../../../jslib.module";
+
+/**
+ * RegistrationLinkExpiredComponentData
+ * @loginRoute: string - The client specific route to the login page - configured at the app-routing.module level.
+ */
+export interface RegistrationLinkExpiredComponentData {
+  loginRoute: string;
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "auth-registration-link-expired",
+  templateUrl: "./registration-link-expired.component.html",
+  imports: [CommonModule, JslibModule, RouterModule, SvgModule, ButtonModule],
+})
+export class RegistrationLinkExpiredComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
+  loginRoute: string;
+
+  readonly Icons = { ExpiredIcon };
+
+  constructor(private activatedRoute: ActivatedRoute) {}
+
+  async ngOnInit() {
+    const routeData = await firstValueFrom(this.activatedRoute.data);
+
+    this.loginRoute = routeData["loginRoute"];
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}
