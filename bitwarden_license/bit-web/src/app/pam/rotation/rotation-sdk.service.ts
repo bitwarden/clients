@@ -82,7 +82,7 @@ export abstract class RotationSdkService {
   ): Promise<TargetSystemView>;
 
   /**
-   * Re-seals and replaces the blob wholesale — every sealed field must be resupplied, including
+   * Re-seals and replaces the blob wholesale, every sealed field must be resupplied, including
    * the immutable `method`/`kind` (read from a prior {@link listTargetSystems}; the server rejects
    * a mismatch). Also the only way to finish a `pending_seal` target. No content in response.
    */
@@ -117,7 +117,7 @@ export abstract class RotationSdkService {
   ): Promise<RotationConfigDetailView>;
 
   /**
-   * Replaces every field — `cipherId`/`targetSystemId` must be resupplied unchanged (read from a
+   * Replaces every field, `cipherId`/`targetSystemId` must be resupplied unchanged (read from a
    * prior {@link getConfig}; the server rejects a mismatch). Re-seals only when the account fields
    * change, which the server refuses while a job runs; check
    * {@link RotationConfigActions.mutationsLocked} first. The schedule stays editable then.

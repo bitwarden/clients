@@ -1,0 +1,62 @@
+<bit-dialog [title]="'pamAccessConnectorTokenTitle' | i18n">
+  <ng-container bitDialogContent>
+    <bit-callout
+      type="warning"
+      [title]="null"
+      [accessibleName]="'pamAccessConnectorTokenTitle' | i18n"
+      id="access-connector-token-dialog_callout_warning"
+    >
+      {{ "pamAccessConnectorTokenShownOnceWarning" | i18n }}
+    </bit-callout>
+
+    <div class="tw-mb-4">
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <span
+          class="tw-min-w-0 tw-flex-1 tw-truncate tw-font-mono tw-text-base tw-text-main"
+          id="access-connector-token-dialog_text_token"
+          aria-describedby="access-connector-token-dialog_hint_token"
+          >{{ params.token }}</span
+        >
+        <button
+          type="button"
+          bitIconButton="bwi-clone"
+          buttonType="primary"
+          [label]="'pamAccessConnectorTokenCopy' | i18n"
+          (click)="copyToken()"
+          id="access-connector-token-dialog_button_copy"
+        ></button>
+      </div>
+      <p
+        bitTypography="helper"
+        class="tw-mb-0 tw-mt-2 tw-text-muted"
+        id="access-connector-token-dialog_hint_token"
+      >
+        {{ "pamAccessConnectorTokenConfigurationHint" | i18n }}
+      </p>
+    </div>
+
+    <bit-form-control disableMargin>
+      <input
+        type="checkbox"
+        bitCheckbox
+        [checked]="stored()"
+        (change)="onStoredChange($event)"
+        id="access-connector-token-dialog_checkbox_stored"
+      />
+      <bit-label>{{ "pamAccessConnectorTokenStored" | i18n }}</bit-label>
+    </bit-form-control>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [disabled]="!stored()"
+      (click)="close()"
+      id="access-connector-token-dialog_button_close"
+    >
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

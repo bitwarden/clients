@@ -410,10 +410,17 @@ describe("RestartSubscriptionDialogComponent", () => {
       expect(dialog.restartDisabled()).toBe(false);
     });
 
-    it("shows the invalid-address message for a 400 preview failure", async () => {
-      invoicePreviewService.previewRestartCart.mockRejectedValue(
-        new ErrorResponse({ Message: "bad request" }, 400),
+    const billingAddressError = () =>
+      new ErrorResponse(
+        {
+          Message: "The model state is invalid.",
+          ValidationErrors: { BillingAddress: ["Your location wasn't recognized."] },
+        },
+        400,
       );
+
+    it("shows the invalid-address message for a 400 keyed to the billing address", async () => {
+      invoicePreviewService.previewRestartCart.mockRejectedValue(billingAddressError());
 
       const dialog = await open();
       await settle();
@@ -421,6 +428,21 @@ describe("RestartSubscriptionDialogComponent", () => {
       expect(dialog.previewErrorMessageKey()).toBe("billingPreviewInvalidAddressError");
       expect(billingNotificationService.showError).toHaveBeenCalledWith(
         "billingPreviewInvalidAddressError",
+      );
+      expect(dialog.restartDisabled()).toBe(true);
+    });
+
+    it("shows the generic preview message for a 400 not keyed to the billing address", async () => {
+      invoicePreviewService.previewRestartCart.mockRejectedValue(
+        new ErrorResponse({ Message: "bad request" }, 400),
+      );
+
+      const dialog = await open();
+      await settle();
+
+      expect(dialog.previewErrorMessageKey()).toBe("invoicePreviewErrorMessage");
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "invoicePreviewErrorMessage",
       );
       expect(dialog.restartDisabled()).toBe(true);
     });
@@ -463,13 +485,21 @@ describe("RestartSubscriptionDialogComponent", () => {
     });
 
     it("offers no try-again link for an invalid-address failure", async () => {
+      invoicePreviewService.previewRestartCart.mockRejectedValue(billingAddressError());
+      await open();
+      await settle();
+
+      expect(retryButton()).toBeNull();
+    });
+
+    it("offers the try-again link for a 400 not keyed to the billing address", async () => {
       invoicePreviewService.previewRestartCart.mockRejectedValue(
         new ErrorResponse({ Message: "bad request" }, 400),
       );
       await open();
       await settle();
 
-      expect(retryButton()).toBeNull();
+      expect(retryButton()).not.toBeNull();
     });
   });
 

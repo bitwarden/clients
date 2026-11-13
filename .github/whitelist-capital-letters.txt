@@ -32,4 +32,5 @@
 ./SECURITY.md
 ./libs/nx-plugin/src/generators/files/README.md__tmpl__
 ./libs/components/CONTRIBUTING.md
+./libs/components/CODE_STYLE.md
 ./libs/common/src/vault/CONTRIBUTING.md

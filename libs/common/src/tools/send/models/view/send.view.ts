@@ -107,6 +107,13 @@ export class SendView implements View {
    * the send key seed the hash is salted with.
    */
   toSdkSendView(): SdkSendView {
+    // The SDK no longer derives a sealed item send's id from the `CipherView`; it reads it from
+    // `data.metadata.itemId`, which the caller supplies. Fail fast here rather than rotate the
+    // send with the wrong id, matching the `MissingField("id")` the SDK used to raise.
+    if (this.type === SendType.Item && this.data?.metadata?.itemId == null) {
+      throw new Error("Item Send is missing its item id");
+    }
+
     return {
       id: this.id ? asUuid<SdkSendId>(this.id) : undefined,
       accessId: this.accessId ?? undefined,
@@ -136,6 +143,14 @@ export class SendView implements View {
         this.type === SendType.Item
           ? {
               data: this.data?.data?.toSdkCipherView() ?? undefined,
+              metadata: {
+                itemId: asUuid(this.data.metadata.itemId),
+                folderName: this.data.metadata.folderName,
+                collectionNames: this.data.metadata.collectionNames,
+                organizationName: this.data.metadata.organizationName,
+                creationDate: this.data.metadata.creationDate,
+                revisionDate: this.data.metadata.revisionDate,
+              },
             }
           : undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,

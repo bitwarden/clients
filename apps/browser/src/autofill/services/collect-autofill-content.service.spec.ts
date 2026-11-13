@@ -3675,6 +3675,70 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("handleOpacityTransitionEnd", () => {
+    let isElementViewableSpy: jest.SpyInstance;
+    let setupAutofillOverlayListenerOnFieldSpy: jest.SpyInstance;
+    let containerElement: HTMLDivElement;
+    let formFieldElement: ElementWithOpId<FormFieldElement>;
+    let autofillField: AutofillField;
+
+    beforeEach(() => {
+      isElementViewableSpy = jest.spyOn(
+        collectAutofillContentService["domElementVisibilityService"],
+        "isElementViewable",
+      );
+      setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+      containerElement = document.createElement("div");
+      formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      containerElement.appendChild(formFieldElement);
+      document.body.appendChild(containerElement);
+      autofillField = mock<AutofillField>({ viewable: false });
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
+    });
+
+    it("ignores transitions of properties other than opacity", async () => {
+      const event = { propertyName: "transform", target: containerElement };
+
+      await collectAutofillContentService["handleOpacityTransitionEnd"](
+        event as unknown as TransitionEvent,
+      );
+
+      expect(isElementViewableSpy).not.toHaveBeenCalled();
+    });
+
+    it("skips setting up the overlay listeners on a field that is still not viewable", async () => {
+      const event = { propertyName: "opacity", target: containerElement };
+      isElementViewableSpy.mockResolvedValueOnce(false);
+
+      await collectAutofillContentService["handleOpacityTransitionEnd"](
+        event as unknown as TransitionEvent,
+      );
+
+      expect(isElementViewableSpy).toHaveBeenCalledWith(formFieldElement);
+      expect(autofillField.viewable).toBe(false);
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it("sets up the overlay listeners on a non-viewable field within the transitioned element once it becomes viewable", async () => {
+      const event = { propertyName: "opacity", target: containerElement };
+      isElementViewableSpy.mockResolvedValueOnce(true);
+
+      await collectAutofillContentService["handleOpacityTransitionEnd"](
+        event as unknown as TransitionEvent,
+      );
+
+      expect(autofillField.viewable).toBe(true);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledWith(
+        formFieldElement,
+        autofillField,
+        expect.anything(),
+      );
+    });
+  });
+
   describe("setupOverlayOnField", () => {
     it("executes immediately on first call then debounces subsequent rapid calls", () => {
       const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
@@ -3954,6 +4018,89 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
 
       expect(collectAutofillContentService["pendingTopLayerTargets"].has(dialog)).toBe(true);
+    });
+
+    it("tracks a top-layer candidate nested below an added node as a pending target", () => {
+      const container = document.createElement("div");
+      const wrapper = document.createElement("div");
+      const nestedPopover = document.createElement("div");
+      nestedPopover.setAttribute("popover", "manual");
+      wrapper.appendChild(nestedPopover);
+      container.appendChild(wrapper);
+      document.body.appendChild(container);
+      const mutation: MutationRecord = {
+        type: "childList",
+        addedNodes: container.childNodes,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nothing-matches-this-selector"),
+        target: document.body,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
+
+      expect(collectAutofillContentService["pendingTopLayerTargets"].has(nestedPopover)).toBe(true);
+    });
+  });
+
+  describe("top layer candidate ownership", () => {
+    let inlineMenuElement: HTMLDivElement;
+    let pagePopoverElement: HTMLDivElement;
+
+    beforeEach(() => {
+      // Firefox renders the inline menu as plain `div` elements, matching common page popovers
+      inlineMenuElement = document.createElement("div");
+      inlineMenuElement.setAttribute("popover", "manual");
+      pagePopoverElement = document.createElement("div");
+      pagePopoverElement.setAttribute("popover", "manual");
+      jest
+        .spyOn(autofillOverlayContentService, "isElementInlineMenu")
+        .mockImplementation((element) => element === inlineMenuElement);
+    });
+
+    it("listens to a page popover that shares the inline menu tag name", () => {
+      expect(
+        collectAutofillContentService["shouldListenToTopLayerCandidate"](pagePopoverElement),
+      ).toBe(true);
+    });
+
+    it("does not listen to the inline menu elements", () => {
+      expect(
+        collectAutofillContentService["shouldListenToTopLayerCandidate"](inlineMenuElement),
+      ).toBe(false);
+    });
+
+    it("refreshes the inline menu layer position when a page popover with the same tag name opens", () => {
+      jest.useFakeTimers();
+      const refreshMenuLayerPositionSpy = jest
+        .spyOn(autofillOverlayContentService, "refreshMenuLayerPosition")
+        .mockImplementation();
+
+      collectAutofillContentService["setupTopLayerCandidateListener"](pagePopoverElement);
+      expect(refreshMenuLayerPositionSpy).toHaveBeenCalledTimes(1);
+
+      const toggleEvent = new Event("toggle");
+      Object.defineProperty(toggleEvent, "newState", { value: "open" });
+      pagePopoverElement.dispatchEvent(toggleEvent);
+      jest.advanceTimersByTime(100);
+
+      expect(refreshMenuLayerPositionSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not set up a listener for the inline menu elements", () => {
+      const refreshMenuLayerPositionSpy = jest
+        .spyOn(autofillOverlayContentService, "refreshMenuLayerPosition")
+        .mockImplementation();
+
+      collectAutofillContentService["setupTopLayerCandidateListener"](inlineMenuElement);
+
+      expect(refreshMenuLayerPositionSpy).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["topLayerListenedElements"].has(inlineMenuElement)).toBe(
+        false,
+      );
     });
   });
 

@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -25,6 +23,7 @@ import {
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { isAccessSendError } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../shared";
 
@@ -49,7 +48,7 @@ export class SendViewComponent implements OnInit {
   readonly key = input.required<string>();
   readonly accessToken = input<SendAccessToken | null>(null);
 
-  authRequired = output<void>();
+  readonly authRequired = output<void>();
 
   readonly send = signal<SendAccessView | null>(null);
   readonly expirationDate = computed<Date | null>(() => this.send()?.expirationDate ?? null);
@@ -63,15 +62,15 @@ export class SendViewComponent implements OnInit {
   readonly unavailable = signal<boolean>(false);
   readonly error = signal<boolean>(false);
 
-  sendType = SendType;
-  decKey!: SymmetricCryptoKey;
+  readonly sendType = SendType;
+  readonly decKey = signal<SymmetricCryptoKey | null>(null);
 
   constructor(
-    private sendApiService: SendApiService,
-    private toastService: ToastService,
-    private i18nService: I18nService,
-    private layoutWrapperDataService: AnonLayoutWrapperDataService,
-    private sendDecryptionService: SendDecryptionService,
+    private readonly sendApiService: SendApiService,
+    private readonly toastService: ToastService,
+    private readonly i18nService: I18nService,
+    private readonly layoutWrapperDataService: AnonLayoutWrapperDataService,
+    private readonly sendDecryptionService: SendDecryptionService,
   ) {}
 
   ngOnInit() {
@@ -98,7 +97,7 @@ export class SendViewComponent implements OnInit {
         response,
         keyArray,
       );
-      this.decKey = decKey;
+      this.decKey.set(decKey);
       this.send.set(decSend);
     } catch (e) {
       this.send.set(null);
@@ -116,6 +115,10 @@ export class SendViewComponent implements OnInit {
         } else {
           this.error.set(true);
         }
+      } else if (isAccessSendError(e) && e.variant === "NotFound") {
+        // The SDK path (`pm-30110-sdk-sends-api`) reports a Send that is gone or can no longer be
+        // opened this way, rather than as a 404 ErrorResponse
+        this.unavailable.set(true);
       } else {
         this.error.set(true);
       }

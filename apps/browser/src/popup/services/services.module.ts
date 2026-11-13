@@ -38,12 +38,7 @@ import {
   SsoComponentService,
   NewDeviceVerificationComponentService,
 } from "@bitwarden/auth/angular";
-import {
-  LoginEmailService,
-  SsoUrlService,
-  LogoutService,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { LoginEmailService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
@@ -66,8 +61,10 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -127,6 +124,7 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -146,7 +144,10 @@ import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platfor
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherFileUploadService } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -215,7 +216,9 @@ import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/e
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
+import { FillCipherPolicy } from "../../autofill/services/abstractions/fill-cipher-policy";
 import AutofillService from "../../autofill/services/autofill.service";
+import { DefaultFillCipherPolicy } from "../../autofill/services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
 import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
@@ -231,6 +234,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
+import { IpcForegroundService } from "../../platform/ipc/ipc-foreground.service";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
 import { ForegroundServerNotificationsService } from "../../platform/notifications/foreground-server-notifications.service";
@@ -246,6 +250,7 @@ import BrowserMemoryStorageService from "../../platform/services/browser-memory-
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
+import { BrowserForegroundSdkClientFactory } from "../../platform/services/sdk/browser-foreground-sdk-client-factory";
 import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
@@ -258,6 +263,7 @@ import {
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { BrowserAutofillNudgeService } from "../../vault/popup/services/browser-autofill-nudge.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
+import { ForegroundCipherService } from "../../vault/services/foreground-cipher.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
@@ -279,6 +285,27 @@ const DISK_BACKUP_LOCAL_STORAGE = new SafeInjectionToken<
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: CipherService,
+    useClass: ForegroundCipherService,
+    deps: [
+      MessageListener,
+      KeyService,
+      LegacyCompatKeyService,
+      DomainSettingsService,
+      ApiService,
+      I18nServiceAbstraction,
+      AutofillSettingsServiceAbstraction,
+      EncryptService,
+      CipherFileUploadService,
+      ConfigService,
+      StateProvider,
+      AccountServiceAbstraction,
+      LogService,
+      CipherEncryptionService,
+      CipherSdkService,
+    ],
+  }),
   safeProvider(DebounceNavigationService),
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
@@ -305,6 +332,11 @@ const safeProviders: SafeProvider[] = [
       return new ConsoleLogService(isDev, null, recorder);
     },
     deps: [FlightRecorderLogRecorderService],
+  }),
+  safeProvider({
+    provide: IpcService,
+    useClass: IpcForegroundService,
+    deps: [PlatformUtilsService, LogService],
   }),
   safeProvider({
     provide: EnvironmentService,
@@ -466,6 +498,11 @@ const safeProviders: SafeProvider[] = [
     provide: AutofillLifecycleService,
     useClass: NoopAutofillLifecycleService,
     deps: [LogService],
+  }),
+  safeProvider({
+    provide: FillCipherPolicy,
+    useClass: DefaultFillCipherPolicy,
+    deps: [CipherService],
   }),
   safeProvider({
     provide: AutofillService,
@@ -809,7 +846,9 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SdkClientFactory,
     useFactory: () =>
-      flagEnabled("sdk") ? new DefaultSdkClientFactory() : new NoopSdkClientFactory(),
+      flagEnabled("sdk")
+        ? new BrowserForegroundSdkClientFactory(new DefaultSdkClientFactory())
+        : new NoopSdkClientFactory(),
     deps: [],
   }),
   safeProvider({
@@ -825,7 +864,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: ExtensionLogoutService,
-    deps: [MessagingServiceAbstraction, LogService, AccountSwitcherService],
+    deps: [MessagingServiceAbstraction, LogService, AccountSwitcherService, SdkService],
   }),
   safeProvider({
     provide: CompactModeService,

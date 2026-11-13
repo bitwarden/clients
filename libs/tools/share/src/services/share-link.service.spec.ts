@@ -11,9 +11,11 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, CipherId } from "@bitwarden/common/types/guid";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -33,6 +35,7 @@ function cipher(overrides: Partial<CipherView> = {}): CipherView {
 
 describe("ShareLinkService", () => {
   let organizationService: MockProxy<OrganizationService>;
+  let revealedCipherService: MockProxy<RevealedCipherService>;
   let service: ShareLinkService;
 
   beforeEach(() => {
@@ -54,6 +57,9 @@ describe("ShareLinkService", () => {
     const collectionService = mock<CollectionService>();
     collectionService.decryptedCollections$.mockReturnValue(of([]));
 
+    revealedCipherService = mock<RevealedCipherService>();
+    revealedCipherService.revealed$.mockReturnValue(of(new Map()));
+
     TestBed.configureTestingModule({
       providers: [
         ShareLinkService,
@@ -65,8 +71,10 @@ describe("ShareLinkService", () => {
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: OrganizationService, useValue: organizationService },
         { provide: PolicyService, useValue: policyService },
-        { provide: SendSdkApiService, useValue: mock<SendSdkApiService>() },
+        { provide: SendApiService, useValue: mock<SendApiService>() },
+        { provide: RevealedCipherService, useValue: revealedCipherService },
         { provide: SendService, useValue: mock<SendService>() },
+        { provide: FolderService, useValue: mock<FolderService>() },
       ],
     });
 
@@ -78,13 +86,13 @@ describe("ShareLinkService", () => {
       expect(await firstValueFrom(service.cipherCanBeShared$(cipher()))).toBe(true);
     });
 
-    it("refuses a gated (partial) item, which is read-only", async () => {
+    it("refuses a restricted item, which is read-only", async () => {
       expect(await firstValueFrom(service.cipherCanBeShared$(cipher({ partial: true })))).toBe(
         false,
       );
     });
 
-    it("refuses a gated (partial) item even where the user can edit every organization item", async () => {
+    it("refuses a restricted item even where the user can edit every organization item", async () => {
       organizationService.organizations$.mockReturnValue(
         of([{ id: organizationId, canEditAllCiphers: true } as Organization]),
       );
@@ -92,6 +100,15 @@ describe("ShareLinkService", () => {
       expect(
         await firstValueFrom(service.cipherCanBeShared$(cipher({ organizationId, partial: true }))),
       ).toBe(false);
+    });
+
+    it("refuses a restricted item while its full view is revealed", async () => {
+      const revealedView = cipher();
+      revealedCipherService.revealed$.mockReturnValue(
+        of(new Map([[revealedView.id as CipherId, revealedView]])),
+      );
+
+      expect(await firstValueFrom(service.cipherCanBeShared$(revealedView))).toBe(false);
     });
   });
 });

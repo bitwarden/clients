@@ -1,6 +1,3 @@
-// NOTE: `InvoicePreviewClient` (this file) is the preview-driven cart client and is NOT the legacy
-// `PreviewInvoiceClient` in `preview-invoice.client.ts`, which returns only (Tax, Total). The two
-// coexist until the PM-40422 cleanup — check which one you mean before importing.
 import { inject, Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -40,10 +37,6 @@ export type OrganizationRestartPreviewRequest = {
 /**
  * Raw HTTP access to the cart preview endpoints. No adaptation and no flow context — callers go
  * through `InvoicePreviewService`, which owns both.
- *
- * Every route below is gated server-side by the `PM36631_PreviewDrivenCart` flag and returns 404
- * while the flag is off. 404s deliberately propagate so "route gated" stays distinguishable from
- * "no subscription".
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewClient {

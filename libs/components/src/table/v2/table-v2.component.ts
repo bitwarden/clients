@@ -48,7 +48,7 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
-import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
+import { BitTablePaginatorComponent, TableRowRange } from "./bit-table-paginator.component";
 import { ColumnName } from "./column";
 import {
   CustomizeColumnsDialogComponent,
@@ -180,10 +180,6 @@ type RenderItem<T> =
   | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
   | { kind: "groupDescription"; group: BitRowGroupComponent<T>; level: number };
 
-/**
- * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
- * without approval from the UI Foundation team.
- */
 @Component({
   selector: "bit-table-v2",
   exportAs: "bitTableV2",
@@ -378,6 +374,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /** The filtered row count — read by a projected `bit-table-paginator` for its total. */
   readonly filteredCount = computed(() => this.filtered().length);
+
+  /**
+   * The rows on screen — a projected paginator's page, else every filtered row. Read by a
+   * projected `bit-table-toolbar` for its range label.
+   */
+  readonly rowRange = computed<TableRowRange>(() => {
+    const paginator = this.paginator();
+    if (paginator) {
+      return paginator.range();
+    }
+    const total = this.filteredCount();
+    return { start: total === 0 ? 0 : 1, end: total, total };
+  });
 
   private readonly _selectionModel = signal<TableSelectionModel<T> | undefined>(undefined);
 

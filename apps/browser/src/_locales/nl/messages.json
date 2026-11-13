@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "Geen items in Mijn kluis"
   },
+  "noItemsInFolder": {
+    "message": "Geen items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Items aan deze map toevoegen. Je kunt deze snel openen met behulp van de kluisfilters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Geen items in Mijn items"
   },
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "Item is verwijderd"
   },
+  "deleteItemError": {
+    "message": "Kon het item niet verwijderen."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Dit item is beperkt. Je wijziging is niet opgeslagen."
+  },
   "overwritePassword": {
     "message": "Wachtwoord overschrijven"
   },
@@ -1588,6 +1608,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Kluis selecteren",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Locatie selecteren",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Selecteer een kluis"
+  },
+  "selectALocationTitle": {
+    "message": "Selecteer een locatie"
+  },
+  "importDestinationDescription": {
+    "message": "Kies waar deze items te importeren."
+  },
+  "importMyItemsOption": {
+    "message": "Mijn items",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Alleen zichtbaar voor jou"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Eigendom van $ORGANIZATION$, maar alleen zichtbaar voor jou",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organisatiekluis"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Gedeeld met één persoon"
+  },
+  "importFamilyVault": {
+    "message": "Familiekluis"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Alle items naar een $ORGANIZATION$ gedeelde map verplaatsen",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Alle items naar een $ORGANIZATION$ gedeelde map verplaatsen",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Alles naar een bovenliggende map verplaatsen, de geneste mappenstructuur zal worden behouden."
+  },
+  "importSharedFolderRequired": {
+    "message": "Een gedeelde map is vereist."
+  },
+  "importIntoOrganization": {
+    "message": "Items worden geïmporteerd in $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Alle items naar een gedeelde map verplaatsen"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items kunnen niet geïmporteerd worden in $ORGANIZATION$ zonder gedeelde map, en je beheert en geen. Kies een andere locatie.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "$COUNT$ items importeren",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "1 item importeren"
+  },
+  "importToOrganization": {
+    "message": "Importeren naar $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Je gegevens kunnen worden gedeeld met leden van deze organisatie."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ staat niet toe om $ITEM_TYPES$ te importeren. Als ze in je import staan, worden ze overgeslagen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "veilige notities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "kaarten",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identiteiten",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH-sleutels",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bankrekeningen",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "rijbewijzen",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "paspoorten",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Ga naar Toegangintelligentie"
   },
   "importItems": {
     "message": "Items importeren"
@@ -5396,16 +5577,16 @@
     "message": "Logins, kaarten, identiteiten, beveiligde notities en TOTPs, met behoud van mapstructuur."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Snel en veilig"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Dit proces is end-to-end versleuteld. Geen exportbestand nodig."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Alles wat je nodig hebt is je login"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "In de volgende stap vul je je inloggegevens voor $VENDOR$ in.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5595,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Wat overdragen wordt"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Je logins, andere items en mappen worden overgedragen. Toegangs- en bijlagen kunnen worden uitgesloten."
   },
   "importAcceptedFormats": {
     "message": "Geaccepteerd: $FORMATS$",
@@ -5700,6 +5881,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 beschadigde bijlage is overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item is niet opgenomen in deze export. Het is beschermd door een verhoogde toegangsregel, dus de inloggegevens zijn niet beschikbaar op dit apparaat."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items zijn niet opgenomen in deze export. Ze zijn beschermd door een verhoogde toegangsregel, dus de inloggegevens zijn niet beschikbaar op dit apparaat.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ beschadigde bijlagen zijn overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd.",
     "placeholders": {
@@ -5803,31 +5996,31 @@
     "message": "LastPass-e-mail"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-mailadres is vereist."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Vul een geldig e-mailadres in."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Wachtwoord is vereist."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Vul een geldig wachtwoord in"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Voer een geldige verificatiecode in."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Voer je hoofdwachtwoord van LastPass in."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Voer hieronder de verificatiecode in."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Wachten op SSO-authenticatie"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "Eenmaal ingelogd, zullen we je import automatisch voortzetten."
   },
   "importingYourAccount": {
     "message": "Account importeren..."
@@ -5836,58 +6029,58 @@
     "message": "Server"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-mailadres is vereist."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Vul een geldig e-mailadres in."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Niet-ondersteunde tweestapsmethode. Verander van methode of importeer handmatig."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Apparaatgoedkeuringsmethode"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Voer een geldige verificatiecode in."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Verificatiecode opnieuw verzenden"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Keeper Push-melding verzonden naar goedgekeurd apparaat."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Keur dit apparaat goed door hieronder een methode te selecteren."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Controleer je e-mail en voer hieronder de verificatiecode in."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Voer de code van uw Authenticator App in."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Voer de per sms verzonden code in."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Voer je hoofdwachtwoord van Keeper in."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Keeper DNA verzonden"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Keeper DNA-melding op je apparaat goedkeuren."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Je goedkeuringsaanvraag zal worden geannuleerd. Weet je zeker dat je wilt doorgaan?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "We hebben een goedkeuringsverzoek naar je beheerder gestuurd."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Wachtwoord is vereist."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Vul een geldig wachtwoord in."
   },
   "lastPassMFARequired": {
     "message": "LastPass multifactor-authenticatie vereist"
@@ -6513,6 +6706,9 @@
     "message": "Adres kopiëren"
   },
   "myItems": {
+    "message": "Mijn items"
+  },
+  "myItemsV2": {
     "message": "Mijn items"
   },
   "adminConsole": {
@@ -8049,17 +8245,11 @@
   "sharedUnlock": {
     "message": "Gezamenlijk ontgrendelen"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Synchroniseer ontgrendelen met de desktop-app"
+  "syncUnlockWithDesktop1": {
+    "message": "Ontgrendelen met Desktop synchroniseren"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "De Bitwarden-browserextensie en de desktop-app vergrendelen en ontgrendelen samen."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Synchroniseer ontgrendelen met de web-app"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "De Bitwarden-browserextensie en de web-app vergrendelen en ontgrendelen samen."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "De Bitwarden-browserextensie en de desktop-app vergrendelen en ontgrendelen gezamenlijk. Biometrie zal worden gebruikt indien beschikbaar."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Gedeelde ontgrendelen is niet beschikbaar omdat je ervoor hebt gekozen dit apparaat niet te onthouden. Probeer opnieuw aan te melden om deze instelling in te schakelen."
@@ -8438,6 +8628,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Dit wachtwoord heeft extra risico's:"
   },
+  "excludeFromList": {
+    "message": "Van lijst uitsluiten"
+  },
+  "excludeFromListDesc": {
+    "message": "Het uitsluiten lost het risico van je wachtwoord niet op. Wijzig eerst je wachtwoord om je account te beschermen."
+  },
+  "excludeAnyway": {
+    "message": "Toch uitsluiten"
+  },
   "reused": {
     "message": "Hergebruikt",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8757,15 @@
   "unknownCipher": {
     "message": "Onbekend item, je moet misschien inloggen met een andere account om dit item te kunnen opvragen."
   },
+  "viewSharedItem": {
+    "message": "Gedeeld item weergeven"
+  },
+  "copyShareLink": {
+    "message": "Deellink kopiëren"
+  },
+  "unableToDetermineItemId": {
+    "message": "Kan item-ID niet bepalen"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden heeft een nieuw uiterlijk",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8798,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Tussen kluizen schakelen"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "Met de nieuwe kluisschakelaar kun je snel je privékluis of een kluis die je met anderen deelt zien."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "Met de nieuwe kluisschakelaar kun je snel je persoonlijke items of een items in kluis die je met anderen deelt zien."
   },
   "coachmarkFiltersTitle": {
     "message": "Mix- en matchfilters"
@@ -8616,5 +8824,46 @@
   },
   "resetToDefault": {
     "message": "Standaardinstellingen herstellen"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Inlogverzoeken webbrowser automatisch invullen",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Reageren op basis van HTTP-authenticatieprompts van websites die overeenkomen met dit inlogitem."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open helpartikel over automatisch invullen van inlogverzoeken van de webbrowser"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites kunnen deze verzoeken doen zonder dat je het door hebt, wat je inloggegevens kan blootleggen.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Om deze instelling te gebruiken, kies een andere overeenkomstdetectie dan \"Standaard\" voor elke website van dit inlogitem."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Automatisch invullen voor inlogverzoeken webbrowser inschakelen?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Opnieuw vragen van het hoofdwachtwoord zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Hoofdwachtwoord opnieuw vragen"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Automatisch invullen voor inlogverzoeken webbrowser zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Standaard overeenkomstdetectie gebruiken?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites die de standaard oveenkomstdetectie gebruiken kunnen niet worden gebruikt met inlogverzoeken van de webbrowser. Automatisch invullen van inlogverzoeken zal voor dit item worden uitgeschakeld."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Automatisch invullen voor inlogverzoeken webbrowser uitgeschakeld"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Dit item heeft het opnieuw vragen van het hoofdwachtwoord ingeschakeld, dus automatisch invullen voor webbrowser inlogverzoeken is uitgeschakeld. Sla het item op om deze wijziging te behouden."
   }
 }

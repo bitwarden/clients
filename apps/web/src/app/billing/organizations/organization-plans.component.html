@@ -14,7 +14,7 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
 }
-@if (createOrganization() && selfHosted) {
+@if (selfHosted) {
   <ng-container>
     <organization-self-hosting-license-uploader
       (onLicenseFileUploaded)="onLicenseFileUploaded($event)"
@@ -29,7 +29,6 @@
     [class.tw-pt-2]="sponsoredPlanLayout()"
   >
     <bit-section
-      [class.tw-hidden]="!createOrganization()"
       [class.tw-block]="sponsoredPlanLayout()"
       [class.tw-mb-6]="sponsoredPlanLayout()"
       [disableMargin]="sponsoredPlanLayout()"
@@ -37,8 +36,6 @@
       <app-org-info
         (changedBusinessOwned)="changedOwnedBusiness()"
         [formGroup]="formGroup"
-        [createOrganization]="createOrganization()"
-        [isProvider]="!!providerId()"
         [acceptingSponsorship]="acceptingSponsorship()"
       >
       </app-org-info>
@@ -67,10 +64,7 @@
           @let trialPeriodDays = selectableProduct.trialPeriodDays;
           @let effectiveTrial = trialLength() ?? trialPeriodDays;
           @let showTrialOffer =
-            tier != productTypes.Free &&
-            effectiveTrial &&
-            createOrganization() &&
-            !upgradingFromPremium;
+            tier != productTypes.Free && effectiveTrial && !upgradingFromPremium;
 
           <div [class.tw-mb-3]="!sponsoredPlanLayout()">
             <bit-radio-button [value]="tier" (change)="changedProduct()">
@@ -420,11 +414,10 @@
     }
     <!-- Secrets Manager -->
     <bit-section [disableMargin]="sponsoredPlanLayout()">
-      @if (planOffersSecretsManager() && !hasProvider() && !upgradingFromPremium) {
+      @if (planOffersSecretsManager() && !upgradingFromPremium) {
         <sm-subscribe
           [formGroup]="formGroup.controls.secretsManager"
           [selectedPlan]="selectedSecretsManagerPlan()"
-          [upgradeOrganization]="!createOrganization()"
         ></sm-subscribe>
       }
     </bit-section>
@@ -437,18 +430,16 @@
         [class.tw-mb-6]="sponsoredPlanLayout()"
       >
         <h2 bitTypography="h2">
-          {{ (createOrganization() ? "paymentInformation" : "billingInformation") | i18n }}
+          {{ "paymentInformation" | i18n }}
         </h2>
         <p class="tw-text-muted tw-italic tw-mb-3 tw-block" bitTypography="body2">
           {{ paymentDesc }}
         </p>
-        @if (createOrganization() || upgradeRequiresPaymentMethod) {
-          <app-enter-payment-method
-            #enterPaymentMethodComponent
-            [group]="billingFormGroup.controls.paymentMethod"
-            [showBankAccount]="!upgradingFromPremium"
-          ></app-enter-payment-method>
-        }
+        <app-enter-payment-method
+          #enterPaymentMethodComponent
+          [group]="billingFormGroup.controls.paymentMethod"
+          [showBankAccount]="!upgradingFromPremium"
+        ></app-enter-payment-method>
         <app-enter-billing-address
           [group]="billingFormGroup.controls.billingAddress"
           [scenario]="{ type: 'checkout', supportsTaxId: showTaxIdField() }"
@@ -494,11 +485,6 @@
       >
         {{ "submit" | i18n }}
       </button>
-      @if (showCancel()) {
-        <button type="button" buttonType="secondary" bitButton bitFormButton (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      }
       <bit-error-summary [formGroup]="formGroup"></bit-error-summary>
     </bit-section>
   </form>

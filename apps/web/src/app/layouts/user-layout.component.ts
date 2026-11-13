@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -21,19 +19,23 @@ import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components"
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  BULK_DELETE_DIALOG,
+  COLLECTION_DIALOG,
   VaultManageNavComponent,
   VaultNavSectionComponent,
   CoachmarkComponent,
   CoachmarkService,
 } from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
+import { BulkDeleteDialogWebAdapter } from "@bitwarden/web-vault/app/vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { CollectionWebDialogAdapter } from "@bitwarden/web-vault/app/vault/individual-vault/shared-folders/collection-web-dialog.adapter";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.component";
 
 import { WebLayoutModule } from "./web-layout.module";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush once routed pages no longer rely on Default CD
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-user-layout",
@@ -51,14 +53,30 @@ import { WebLayoutModule } from "./web-layout.module";
     PopoverModule,
     CoachmarkComponent,
   ],
+  providers: [
+    { provide: COLLECTION_DIALOG, useClass: CollectionWebDialogAdapter },
+    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
+  ],
 })
 export class UserLayoutComponent implements OnInit {
+  private readonly syncService = inject(SyncService);
+  private readonly accountService = inject(AccountService);
+  private readonly policyService = inject(PolicyService);
+  private readonly sendPolicyService = inject(SendPolicyService);
+  private readonly premiumSubscriptionRoutingService = inject(PremiumSubscriptionRoutingService);
+
   protected readonly logo = PasswordManagerLogo;
-  protected readonly showEmergencyAccess: Signal<boolean>;
+  protected readonly showEmergencyAccess = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => canAccessEmergencyAccess(userId, this.policyService)),
+    ),
+  );
   protected readonly sendEnabled$: Observable<boolean> = this.sendPolicyService.disableSend$.pipe(
     map((disableSend) => !disableSend),
   );
-  protected subscriptionRoute$: Observable<string | null>;
+  protected readonly subscriptionRoute$: Observable<string | null> =
+    this.premiumSubscriptionRoutingService.getSubscriptionRoute$();
 
   protected readonly coachmarkService = inject(CoachmarkService);
   protected readonly sideNavService = inject(SideNavService);
@@ -94,23 +112,6 @@ export class UserLayoutComponent implements OnInit {
   protected readonly toolsNavGroupOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
   );
-
-  constructor(
-    private syncService: SyncService,
-    private accountService: AccountService,
-    private policyService: PolicyService,
-    private sendPolicyService: SendPolicyService,
-    private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
-  ) {
-    this.showEmergencyAccess = toSignal(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => canAccessEmergencyAccess(userId, this.policyService)),
-      ),
-    );
-
-    this.subscriptionRoute$ = this.premiumSubscriptionRoutingService.getSubscriptionRoute$();
-  }
 
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");

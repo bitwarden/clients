@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "$NAME$ 中的文件夹",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ 个文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ 个文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ 个嵌套的共享文件夹",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 个嵌套的共享文件夹",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ 个嵌套文件夹",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 个嵌套文件夹",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "我的文件夹"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "编辑"
   },
+  "editInfo": {
+    "message": "编辑信息"
+  },
+  "editAccess": {
+    "message": "编辑访问权限"
+  },
   "authenticatorKeyTotp": {
     "message": "验证器密钥 (TOTP)"
   },
@@ -1180,6 +1228,15 @@
   },
   "deletedItem": {
     "message": "项目已发送到回收站"
+  },
+  "deleteItemError": {
+    "message": "无法删除项目。"
+  },
+  "restrictedItemChangeRefused": {
+    "message": "此项目受到限制。您的更改未被保存。"
+  },
+  "controlledAccess": {
+    "message": "受控访问"
   },
   "overwritePasswordConfirmation": {
     "message": "确定要覆盖当前密码吗？"
@@ -2132,10 +2189,10 @@
     "message": "使用 Bitwarden 保存通行密钥并使用通行密钥在其他 App 中登录。"
   },
   "turnedOn": {
-    "message": "已启用"
+    "message": "已开启"
   },
   "turnedOff": {
-    "message": "已停用"
+    "message": "已关闭"
   },
   "manageInSystemSettings": {
     "message": "在系统设置中管理"
@@ -4714,6 +4771,167 @@
       }
     }
   },
+  "selectVault": {
+    "message": "选择密码库",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "选择位置",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "选择一个密码库"
+  },
+  "selectALocationTitle": {
+    "message": "选择一个位置"
+  },
+  "importDestinationDescription": {
+    "message": "选择这些项目的导入位置。"
+  },
+  "importMyItemsOption": {
+    "message": "我的项目",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "仅您可见"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "由 $ORGANIZATION$ 拥有，但仅您可见",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "组织密码库"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "家庭密码库"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将被保留。"
+  },
+  "importSharedFolderRequired": {
+    "message": "必须选择共享文件夹。"
+  },
+  "importIntoOrganization": {
+    "message": "项目将被导入到 $ORGANIZATION$。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "将所有项目移动到共享文件夹"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "项目无法导入到没有共享文件夹且您在其中无任何管理权限的 $ORGANIZATION$ 中。请选择其他位置。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "导入 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "导入 1 个项目"
+  },
+  "importToOrganization": {
+    "message": "导入到 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "您的数据可能会与此​​组织的成员共享。"
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ 不允许您导入 $ITEM_TYPES$。如果您的导入内容中包含这些项目，它们将被跳过。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "登录",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "安全笔记",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "支付卡",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "身份",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH 密钥",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "银行账户",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "驾驶证",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "护照",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "前往 Access Intelligence"
+  },
   "chooseFile": {
     "message": "选择文件"
   },
@@ -4897,7 +5115,7 @@
     "message": "我们将询问您的登录信息"
   },
   "importDataLoginInfoBody": {
-    "message": "在下一步中，请登录您的 $VENDOR$ 账户。",
+    "message": "下一步，请登录您的 $VENDOR$ 账户。",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4910,6 +5128,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "登录、支付卡、身份、安全笔记，以及 TOTP，且会保留原有的文件夹结构。"
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "快速且安全"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "此过程是端到端加密的。无需导出文件。"
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "您只需登录即可"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "下一步，您需要输入您的 $VENDOR$ 登录详细信息。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "将要转移的内容"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "您的登录、其他项目以及文件夹将转移。通行密钥和附件可能被排除在外。"
   },
   "importAcceptedFormats": {
     "message": "可接受的格式：$FORMATS$",
@@ -5192,6 +5434,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "导出过程中跳过了 1 个损坏的附件。其余所有密码库数据和附件均已成功导出。"
   },
+  "exportExcludedGatedItem": {
+    "message": "1 个项目未包含在此导出中。该项目受特权访问规则保护，因此其凭据在此设备上不可用。"
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ 个项目未包含在此导出中。这些项目受特权访问规则保护，因此其凭据在此设备上不可用。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "导出过程中跳过了 $COUNT$ 个损坏的附件。其余所有密码库数据和附件均已成功导出。",
     "placeholders": {
@@ -5231,8 +5485,92 @@
   "lastPassEmail": {
     "message": "LastPass Email"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "必须填写电子邮箱。"
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "请输入有效的电子邮箱地址。"
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "必须填写密码。"
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "请输入有效的密码"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "请输入有效的验证码。"
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "请输入您的 LastPass 主密码。"
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "请在下面输入验证码。"
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "正在等待 SSO 身份验证"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "登录后，我们将继续自动导入。"
+  },
   "importingYourAccount": {
     "message": "正在导入您的账户..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "服务器"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "必须填写电子邮箱。"
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "请输入有效的电子邮箱地址。"
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "不受支持的双重身份验证方式。请切换方式或手动导入。"
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "设备批准方式"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "请输入有效的验证码。"
+  },
+  "keeperLoginCodeResent": {
+    "message": "重新发送验证码"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push 通知已发送到认可的设备。"
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "选择下方的一种方式来批准此设备。"
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "请检查您的电子邮箱然后在下面输入验证码。"
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "请输入来自您的验证器 App 的代码。"
+  },
+  "keeperLoginSmsDesc": {
+    "message": "请输入通过短信发送的代码。"
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "请输入您的 Keeper 主密码。"
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA 已发送"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "批准您设备上的 Keeper DNA 通知。"
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "您的批准请求将被取消。确定要继续吗？"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "我们已经向您的管理员发送了管理员批准请求。"
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "必须填写密码。"
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "请输入有效的密码。"
   },
   "lastPassMFARequired": {
     "message": "需要 LastPass 多重身份验证"
@@ -5666,7 +6004,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricUnlockOnRestartTurnedOff": {
-    "message": "App 重启时使用生物识别解锁已停用。在设置中将其重新启用。"
+    "message": "App 重启时使用生物识别解锁已关闭。在设置中将其重新开启。"
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "生物识别解锁不可用，因为需要先使用 PIN 码或密码解锁。"
@@ -5792,7 +6130,7 @@
     "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
+    "message": "开启两步登录"
   },
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
@@ -6625,6 +6963,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "$FOLDER_NAME$ 中没有项目",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "将项目添加到此文件夹。您将可以使用密码库筛选功能快速访问它们。",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "「我的项目」中没有项目"
   },
@@ -6692,19 +7044,19 @@
     "message": "添加共享文件夹以安全地与其他成员共享密码库项目。"
   },
   "pinned": {
-    "message": "Pinned",
+    "message": "已固定",
     "description": "Heading of the side navigation section that lists the shared folders the user pinned."
   },
   "pinToSidebar": {
-    "message": "Pin to sidebar",
+    "message": "固定到侧边栏",
     "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
   },
   "unpinFromSidebar": {
-    "message": "Unpin from sidebar",
+    "message": "从侧边栏取消固定",
     "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
   },
   "folderPinnedToSidebar": {
-    "message": "$NAME$ pinned to sidebar",
+    "message": "$NAME$ 已固定到侧边栏",
     "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
     "placeholders": {
       "name": {
@@ -6714,7 +7066,7 @@
     }
   },
   "folderUnpinnedFromSidebar": {
-    "message": "$NAME$ unpinned from sidebar",
+    "message": "$NAME$ 已从侧边栏取消固定",
     "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
     "placeholders": {
       "name": {
@@ -6724,15 +7076,15 @@
     }
   },
   "pinnedEmptyStatePrefix": {
-    "message": "Find a shared folder in this vault and select",
+    "message": "在此密码库中找到一个共享文件夹，然后从选项菜单选择",
     "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
   },
   "pinnedEmptyStateSuffix": {
-    "message": "from the Options menu.",
+    "message": "。",
     "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
   },
   "noPinnedFoldersTooltip": {
-    "message": "Pin shared folders to the sidebar to filter them here."
+    "message": "将共享文件夹固定到侧边栏以在此处筛选它们。"
   },
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",
@@ -7265,6 +7617,15 @@
   "unknownCipher": {
     "message": "未知的项目，您可能需要请求权限才能访问此项目。"
   },
+  "viewSharedItem": {
+    "message": "查看共享项目"
+  },
+  "copyShareLink": {
+    "message": "复制共享链接"
+  },
+  "unableToDetermineItemId": {
+    "message": "无法确定项目 ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden 拥有一个新的外观",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7329,8 +7690,8 @@
   "coachmarkVaultListTitle": {
     "message": "所有密码库汇聚一处"
   },
-  "coachmarkVaultListDescription": {
-    "message": "个人、家庭及企业密码库现已统一列示于此。"
+  "coachmarkVaultListDescriptionV2": {
+    "message": "快速查看个人项目或密码库中您与他人共享的项目。"
   },
   "coachmarkSharedFoldersTitle": {
     "message": "集合和文件夹拥有新的名称"
@@ -7356,5 +7717,46 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "浏览器登录自动填充提示",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "响应匹配此登录项目的网站的基本 HTTP 身份验证提示。"
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "打开浏览器登录自动填充提示帮助文章"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "要使用此设置，请为此登录项目的每个网站选择「默认」以外的匹配检测选项。"
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "开启浏览器登录自动填充提示吗？"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "此项目的主密码二次验证将被关闭。这两项设置无法同时开启。"
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "开启主密码二次验证吗？"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "此项目的浏览器登录自动填充提示将被关闭。这两项设置无法同时开启。"
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "使用默认匹配检测吗？"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被关闭。"
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "浏览器登录自动填充提示已关闭"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存此条目以保留此更改。"
   }
 }

@@ -115,6 +115,7 @@ export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSetting
   web: "disk-local",
 });
 export const WEBMAPPER_DISK = new StateDefinition("webmapper", "disk");
+export const AUTOFILL_TAB_LIFECYCLE_MEMORY = new StateDefinition("autofillTabLifecycle", "memory");
 
 export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
 
@@ -222,6 +223,10 @@ export const VAULT_ONBOARDING = new StateDefinition("vaultOnboarding", "disk", {
 export const VAULT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", {
   web: "disk-local",
 });
+export const VAULT_TABLE_FILTERS_DISK = new StateDefinition("vaultTableFilters", "disk");
+export const VAULT_TABLE_FILTERS_MEMORY = new StateDefinition("vaultTableFilters", "memory", {
+  browser: "memory-large-object",
+});
 export const VAULT_BROWSER_MEMORY = new StateDefinition("vaultBrowser", "memory", {
   browser: "memory-large-object",
 });
@@ -235,6 +240,8 @@ export const CIPHERS_DISK_LOCAL = new StateDefinition("ciphersLocal", "disk", {
 export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
   browser: "memory-large-object",
 });
+// Session memory only: `RevealedCipherService` forbids `memory-large-object` and disk.
+export const PAM_LEASED_CIPHERS_MEMORY = new StateDefinition("pamLeasedCiphers", "memory");
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {

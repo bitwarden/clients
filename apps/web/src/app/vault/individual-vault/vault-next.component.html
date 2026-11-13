@@ -21,7 +21,33 @@
   @if (scopedFolderId(); as folderId) {
     <vault-my-folder-menu slot="title-suffix" [folderId]="folderId" />
   }
+  @if (currentCollection(); as collection) {
+    <vault-collection-options-menu
+      slot="title-suffix"
+      [collection]="collection"
+      [organization]="currentOrganization()"
+      [showPin]="true"
+      triggerIcon="bwi-angle-down"
+      idPrefix="vault-next"
+    />
+  }
 </app-header>
+
+<!--
+  Sits directly under the breadcrumb, above the folder grid, so the restriction is read before
+  the folder's contents. Only an opened shared folder has one to name.
+-->
+@if (gatedCollectionBanner && scopedCollectionId(); as collectionId) {
+  <ng-container
+    *ngComponentOutlet="
+      gatedCollectionBanner;
+      inputs: {
+        organizationId: scopedOrganizationId(),
+        collectionId: collectionId,
+      }
+    "
+  />
+}
 
 @if (showSubscriptionEndedMessaging()) {
   <bit-callout type="subtle" [title]="'premiumSubscriptionEnded' | i18n">

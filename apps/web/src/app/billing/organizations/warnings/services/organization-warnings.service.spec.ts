@@ -6,6 +6,13 @@ jest.mock("@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.com
   openChangePlanDialog: jest.fn(),
 }));
 
+jest.mock(
+  "@bitwarden/web-vault/app/billing/organizations/restart-subscription-dialog.component",
+  () => ({
+    openRestartSubscriptionDialog: jest.fn(),
+  }),
+);
+
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -27,6 +34,10 @@ import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
+import {
+  openRestartSubscriptionDialog,
+  RestartSubscriptionDialogResultType,
+} from "@bitwarden/web-vault/app/billing/organizations/restart-subscription-dialog.component";
 import {
   OrganizationWarningsService,
   TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
@@ -85,6 +96,7 @@ describe("OrganizationWarningsService", () => {
     stateProvider = mock<StateProvider>();
 
     (openChangePlanDialog as jest.Mock).mockReset();
+    (openRestartSubscriptionDialog as jest.Mock).mockReset();
 
     platformUtilsService.isSelfHost.mockReturnValue(false);
     accountService.activeAccount$ = of(activeAccount);
@@ -675,24 +687,23 @@ describe("OrganizationWarningsService", () => {
       });
     });
 
-    it("should open change plan dialog for resubscribe resolution", (done) => {
-      const warning = { resolution: "resubscribe" };
-      const subscription = { id: "sub-123" } as OrganizationSubscriptionResponse;
+    describe("resubscribe resolution", () => {
+      const arrange = (status: string) => {
+        const subscription = { subscription: { status } } as OrganizationSubscriptionResponse;
+        organizationBillingClient.getWarnings.mockResolvedValue({
+          inactiveSubscription: { resolution: "resubscribe" },
+        } as OrganizationWarningsResponse);
+        organizationApiService.getSubscription.mockResolvedValue(subscription);
+        (openChangePlanDialog as jest.Mock).mockReturnValue({
+          closed: of("submitted"),
+        } as DialogRef<ChangePlanDialogResultType>);
+        (openRestartSubscriptionDialog as jest.Mock).mockReturnValue({
+          closed: of("submitted"),
+        } as DialogRef<RestartSubscriptionDialogResultType>);
+        return subscription;
+      };
 
-      organizationBillingClient.getWarnings.mockResolvedValue({
-        inactiveSubscription: warning,
-      } as OrganizationWarningsResponse);
-
-      organizationApiService.getSubscription.mockResolvedValue(subscription);
-
-      const mockDialogRef = {
-        closed: of("submitted"),
-      } as DialogRef<ChangePlanDialogResultType>;
-
-      (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
-
-      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
-        expect(organizationApiService.getSubscription).toHaveBeenCalledWith(organization.id);
+      const expectChangePlanDialog = (subscription: OrganizationSubscriptionResponse) => {
         expect(openChangePlanDialog).toHaveBeenCalledWith(dialogService, {
           data: {
             organizationId: organization.id,
@@ -700,7 +711,38 @@ describe("OrganizationWarningsService", () => {
             productTierType: organization.productTierType,
           },
         });
-        done();
+        expect(openRestartSubscriptionDialog).not.toHaveBeenCalled();
+      };
+
+      const expectRestartSubscriptionDialog = (subscription: OrganizationSubscriptionResponse) => {
+        expect(openRestartSubscriptionDialog).toHaveBeenCalledWith(dialogService, {
+          data: { organizationId: organization.id, subscription },
+        });
+        expect(openChangePlanDialog).not.toHaveBeenCalled();
+      };
+
+      it("opens the restart subscription dialog when the subscription is canceled", async () => {
+        const subscription = arrange("canceled");
+
+        await firstValueFrom(service.showInactiveSubscriptionDialog$(organization));
+
+        expectRestartSubscriptionDialog(subscription);
+      });
+
+      it("opens the restart subscription dialog when the subscription is incomplete_expired", async () => {
+        const subscription = arrange("incomplete_expired");
+
+        await firstValueFrom(service.showInactiveSubscriptionDialog$(organization));
+
+        expectRestartSubscriptionDialog(subscription);
+      });
+
+      it("opens the change plan dialog when the subscription has not ended", async () => {
+        const subscription = arrange("active");
+
+        await firstValueFrom(service.showInactiveSubscriptionDialog$(organization));
+
+        expectChangePlanDialog(subscription);
       });
     });
 

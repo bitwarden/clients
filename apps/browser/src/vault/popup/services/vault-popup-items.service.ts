@@ -1,5 +1,5 @@
-import { inject, Injectable, NgZone } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { computed, inject, Injectable, NgZone } from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   debounceTime,
@@ -27,16 +27,19 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
@@ -54,13 +57,33 @@ import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filt
   providedIn: "root",
 })
 export class VaultPopupItemsService {
+  private readonly revealedCipherService = inject(RevealedCipherService);
+
+  /** The legacy (VFO1 off) search text. It lives in the popup view cache, never on disk. */
   private cachedSearchText = inject(PopupViewCacheService).signal<string>({
     key: "vault-search-text",
     initialValue: "",
     persistNavigation: true,
   });
 
-  readonly searchText$ = toObservable(this.cachedSearchText);
+  private readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+
+  /**
+   * The search text in view. With VFO1 it is the active user's per-vault search text, otherwise
+   * the legacy view-cached text.
+   */
+  readonly searchText = computed(() =>
+    this.vfo1Enabled()
+      ? this.vaultPopupListTableFiltersService.searchText()
+      : this.cachedSearchText(),
+  );
+
+  readonly searchText$ = toObservable(this.searchText);
 
   /**
    * Subject that emits whenever new ciphers are being processed/filtered.
@@ -113,16 +136,15 @@ export class VaultPopupItemsService {
       map((a) => a?.id),
       filter((userId): userId is UserId => userId != null),
       switchMap((userId) =>
-        merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+        this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(
+          filter((ciphers) => ciphers != null),
           debounceTime(0),
           runInsideAngular(this.ngZone),
           tap(() => this._ciphersLoading$.next()),
           waitUntilSync(this.syncService),
-          switchMap(() =>
+          switchMap((ciphers) =>
             combineLatest([
-              this.cipherService
-                .cipherListViews$(userId)
-                .pipe(filter((ciphers) => ciphers != null)),
+              of(ciphers),
               this.cipherService.failedToDecryptCiphers$(userId).pipe(startWith([])),
               this.restrictedItemTypesService.restricted$,
             ]),
@@ -196,12 +218,16 @@ export class VaultPopupItemsService {
         UserId,
       ] => [vfo1Enabled ? ciphers : filterFunction(ciphers), searchText, userId],
     ),
-    switchMap(
-      ([ciphers, searchText, userId]) =>
+    // Revealed views replace their rows after the search, so search sees only what the row shows.
+    switchMap(([ciphers, searchText, userId]) =>
+      combineLatest([
         this.searchService.searchCiphers(userId, null, searchText, ciphers) as Promise<
           PopupCipherViewLike[]
         >,
+        this.revealedCipherService.revealed$(userId),
+      ]),
     ),
+    map(([ciphers, revealed]) => withRevealedViews(ciphers, revealed)),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -339,19 +365,24 @@ export class VaultPopupItemsService {
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
-          return ciphers
-            .filter((c) => CipherViewLikeUtils.isDeleted(c))
-            .filter((c) => hasAccessibleOrganization(c, orgMap))
-            .map(
-              (cipher) =>
-                ({
-                  ...cipher,
-                  collections: cipher.collectionIds?.map(
-                    (colId) => collectionMap[colId as CollectionId],
-                  ),
-                  organization: orgMap[cipher.organizationId as OrganizationId],
-                }) as PopupCipherViewLike,
-            );
+          return (
+            ciphers
+              // The restricted-cipher rule blocks restore and delete, so the trash leaves them out.
+              .filter(
+                (c) => CipherViewLikeUtils.isDeleted(c) && !RestrictedCipherPolicy.isRestricted(c),
+              )
+              .filter((c) => hasAccessibleOrganization(c, orgMap))
+              .map(
+                (cipher) =>
+                  ({
+                    ...cipher,
+                    collections: cipher.collectionIds?.map(
+                      (colId) => collectionMap[colId as CollectionId],
+                    ),
+                    organization: orgMap[cipher.organizationId as OrganizationId],
+                  }) as PopupCipherViewLike,
+              )
+          );
         }),
       ),
     ),
@@ -373,21 +404,22 @@ export class VaultPopupItemsService {
     private configService: ConfigService,
     private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
   ) {
-    // VFO1 intentionally persists search text across navigating.
-    // But switching the active account must always clear the search text.
-    // This service is `providedIn: "root"` and lives through the switch, manual clearing is necessary.
+    // Switching the active account must always clear the legacy search text. This service is
+    // `providedIn: "root"` and lives through the switch, so manual clearing is necessary.
+    // The VFO1 search text is stored per user, so it needs no clearing.
     this.activeUserId$
       .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
-      .subscribe(() => this.clearSearchText());
+      .subscribe(() => this.cachedSearchText.set(""));
   }
 
-  /** Clears the persisted search text. Called when the active account changes. */
-  private clearSearchText(): void {
-    this.cachedSearchText.set("");
-  }
-
+  /** Sets the legacy search text, which is held in the popup view cache. */
   applyFilter(newSearchText: string) {
     this.cachedSearchText.set(newSearchText);
+  }
+
+  /** Sets the search text for the vault in view, stored per user and vault (VFO1). */
+  applyScopedFilter(newSearchText: string) {
+    void this.vaultPopupListTableFiltersService.setSearchText(newSearchText);
   }
 
   /**
@@ -430,6 +462,28 @@ const hasAccessibleOrganization = (
   cipher: CipherViewLike,
   orgMap: Record<string, Organization>,
 ): boolean => !cipher.organizationId || orgMap[cipher.organizationId as OrganizationId] != null;
+
+/**
+ * Replaces each restricted row that has a live revealed view with that view. The view keeps the
+ * row's collections and organization. It stays the same object, so row components can match it
+ * against {@link RevealedCipherService.revealed$}.
+ */
+const withRevealedViews = (
+  ciphers: PopupCipherViewLike[],
+  revealed: ReadonlyMap<CipherId, CipherView>,
+): PopupCipherViewLike[] =>
+  revealed.size === 0
+    ? ciphers
+    : ciphers.map((cipher) => {
+        const view =
+          RestrictedCipherPolicy.isRestricted(cipher) && revealed.get(cipher.id as CipherId);
+        return view
+          ? Object.assign(view, {
+              collections: cipher.collections,
+              organization: cipher.organization,
+            })
+          : cipher;
+      });
 
 /**
  * Operator that waits until the active account has synced at least once before allowing the source to continue emission.

@@ -1,8 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
@@ -14,8 +14,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Message, IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -31,10 +31,15 @@ import {
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
+import {
+  FillAssistEvent,
+  FillAssistEventReceiver,
+} from "../autofill/background/fill-assist-event-receiver";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
+import { CipherUse, FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
 import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -61,6 +66,7 @@ type RuntimeBackgroundOverrides = {
   autofillLifecycleService?: MockProxy<AutofillLifecycleService>;
   autofillOrchestrator?: MockProxy<AutofillOrchestrator>;
   intraprocessMessageSender?: MockProxy<IntraprocessMessageSender>;
+  fillAssistEventReceiver?: MockProxy<FillAssistEventReceiver>;
 };
 
 function createRuntimeBackground({
@@ -72,6 +78,7 @@ function createRuntimeBackground({
   autofillLifecycleService,
   autofillOrchestrator = mock<AutofillOrchestrator>(),
   intraprocessMessageSender = mock<IntraprocessMessageSender>(),
+  fillAssistEventReceiver = mock<FillAssistEventReceiver>(),
 }: RuntimeBackgroundOverrides = {}) {
   // The `undefined` slots are collaborators no covered path reaches.
   // Give one a mock as soon as a test needs it.
@@ -93,6 +100,7 @@ function createRuntimeBackground({
     undefined as any, // defaultPasswordManagerPromptStateAccessor
     autofillOrchestrator,
     intraprocessMessageSender,
+    fillAssistEventReceiver,
   );
 }
 
@@ -205,15 +213,21 @@ describe("RuntimeBackground collection dispatch", () => {
     });
   });
 
+  /** Serves `ciphers` to lookups by id, as the vault would. */
+  const serveCiphers = (policy: MockProxy<FillCipherPolicy>, ciphers: CipherView[]) =>
+    policy.ciphersForIds.mockImplementation(async (_userId, ids) =>
+      ciphers.filter((cipher) => ids.includes(cipher.id)),
+    );
+
   describe("fillCipherForPopup", () => {
     const cipher = Object.assign(new CipherView(), { id: "cipher-1" });
-    let cipherService: MockProxy<CipherService>;
+    let fillCipherPolicy: MockProxy<FillCipherPolicy>;
 
     beforeEach(() => {
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
-      cipherService = mock<CipherService>();
-      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
-      (main as any).cipherService = cipherService;
+      fillCipherPolicy = mock<FillCipherPolicy>();
+      serveCiphers(fillCipherPolicy, [cipher]);
+      (main as any).fillCipherPolicy = fillCipherPolicy;
       autofillOrchestrator.unsafeAutofillTabWithCipher.mockResolvedValue({
         outcome: AutofillOutcome.Filled,
         totp: "totp-123",
@@ -230,6 +244,19 @@ describe("RuntimeBackground collection dispatch", () => {
       expect(result).toEqual({ outcome: AutofillOutcome.Filled, totp: "totp-123" });
     });
 
+    it("looks up the cipher as a user fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "cipher-1" },
+        popupSender,
+      );
+
+      expect(fillCipherPolicy.ciphersForIds).toHaveBeenCalledWith(
+        "user-1",
+        ["cipher-1"],
+        CipherUse.UserFill,
+      );
+    });
+
     it("security: rejects a content-script sender without fetching or filling", async () => {
       // Assert the handler consults `BrowserApi.senderIsInternal`, so that the boundary cannot be silently
       // removed without this failing. The spy calls through to detect regressions inside the guard.
@@ -244,7 +271,7 @@ describe("RuntimeBackground collection dispatch", () => {
       // Logging the rejection is part of the security requirement: the warning is the
       // observable record that the boundary fired on this sender.
       expect(logService.warning).toHaveBeenCalled();
-      expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
+      expect(fillCipherPolicy.ciphersForIds).not.toHaveBeenCalled();
       expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
     });
 
@@ -416,6 +443,39 @@ describe("RuntimeBackground collection dispatch", () => {
       },
     );
   });
+
+  describe("checkIfBWExtensionInstalled", () => {
+    beforeEach(() => {
+      const environmentService = mock<BrowserEnvironmentService>();
+      environmentService.availableRegions.mockReturnValue([
+        { urls: { webVault: "https://vault.bitwarden.com" } } as any,
+      ]);
+      environmentService.environment$ = of({
+        getWebVaultUrl: () => "https://vault.bitwarden.com",
+      } as any);
+
+      runtimeBackground = createRuntimeBackground({
+        main,
+        logService,
+        accountService,
+        autofillOrchestrator,
+        environmentService,
+      });
+    });
+
+    it.each([
+      ["vault sender origin", { origin: "https://vault.bitwarden.com" }, undefined, true],
+      ["non-vault sender origin", { origin: "https://example.com" }, undefined, false],
+      ["referrer fallback", {}, "vault.bitwarden.com", true],
+    ] as const)("%s", async (_name, messageSender, referrer, expected) => {
+      await expect(
+        runtimeBackground.processMessageWithSender(
+          { command: VaultMessages.checkBwInstalled, referrer },
+          messageSender as chrome.runtime.MessageSender,
+        ),
+      ).resolves.toBe(expected);
+    });
+  });
 });
 
 describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
@@ -564,6 +624,7 @@ describe("RuntimeBackground logout dispatch", () => {
       undefined as any,
       mock<AutofillOrchestrator>(),
       mock<IntraprocessMessageSender>(),
+      mock<FillAssistEventReceiver>(),
     );
   });
 
@@ -855,5 +916,162 @@ describe("RuntimeBackground pageTransitionDetected", () => {
     await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(autofillLifecycleService.reportPageTransition).toHaveBeenCalledWith(tab, 7, subFrameUrl);
+  });
+});
+
+describe("RuntimeBackground fillAssistEmit", () => {
+  let runtimeBackground: RuntimeBackground;
+  let fillAssistEventReceiver: MockProxy<FillAssistEventReceiver>;
+
+  const event: FillAssistEvent = {
+    name: "fill_assist_rule_qualification_failed",
+    payload: {
+      domain: "example.com",
+      missReason: "structural",
+      ruleId: "0",
+    },
+  };
+  const message = { command: "fillAssistEmit", name: event.name, payload: event.payload };
+  const sender = {
+    frameId: 0,
+    tab: createChromeTabMock({ id: 1 }),
+  } as chrome.runtime.MessageSender;
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    fillAssistEventReceiver = mock<FillAssistEventReceiver>();
+    runtimeBackground = createRuntimeBackground({ fillAssistEventReceiver });
+  });
+
+  it("routes the event to the receiver on a content-script sender", async () => {
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(fillAssistEventReceiver.receive).toHaveBeenCalledWith(event);
+  });
+
+  // Trusted-sender boundary: only content-script senders carry a sender.tab. Popup
+  // and options senders are rejected here.
+  it("security: rejects a message with no sender tab", async () => {
+    const tablessSender = { frameId: 0 } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, tablessSender);
+
+    expect(fillAssistEventReceiver.receive).not.toHaveBeenCalled();
+  });
+});
+
+describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
+  const tabId = 1;
+  const iframeSrc = "https://example.com/iframe";
+  const message = { command: "runFillAssistHeuristicFallback", iframeSrc };
+
+  let runtimeBackground: RuntimeBackground;
+  let logService: MockProxy<LogService>;
+  let tabSendMessageSpy: jest.SpyInstance;
+  let sender: chrome.runtime.MessageSender;
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    logService = mock<LogService>();
+    runtimeBackground = createRuntimeBackground({ logService });
+    sender = {
+      frameId: 0,
+      tab: createChromeTabMock({ id: tabId }),
+    } as chrome.runtime.MessageSender;
+    tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("relays to the single matching child frame with its frameId", async () => {
+    jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+      mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 5, url: iframeSrc }),
+      mock<chrome.webNavigation.GetAllFrameResultDetails>({
+        frameId: 6,
+        url: "https://example.com/other",
+      }),
+    ]);
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(tabSendMessageSpy).toHaveBeenCalledWith(
+      sender.tab,
+      { command: "runFillAssistHeuristicFallback", iframeSrc },
+      { frameId: 5 },
+    );
+  });
+
+  it("does nothing when no frame matches iframeSrc", async () => {
+    jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+      mock<chrome.webNavigation.GetAllFrameResultDetails>({
+        frameId: 5,
+        url: "https://example.com/other",
+      }),
+    ]);
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining("No frame matched"));
+  });
+
+  // Two frames sharing the same URL can't be distinguished from `iframeSrc` alone, and
+  // picking one risks routing the fallback into the wrong document. Matches the
+  // `routeTargetedFieldsToFrame` guard in overlay.background.ts.
+  it("does not relay when multiple frames match the same iframeSrc", async () => {
+    jest
+      .spyOn(BrowserApi, "getAllFrameDetails")
+      .mockResolvedValue([
+        mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 5, url: iframeSrc }),
+        mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 8, url: iframeSrc }),
+      ]);
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining("Ambiguous frame match"));
+  });
+
+  it("does nothing when iframeSrc is missing from the message", async () => {
+    const getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails");
+
+    await runtimeBackground.processMessageWithSender(
+      { command: "runFillAssistHeuristicFallback" },
+      sender,
+    );
+
+    expect(getAllFrameDetailsSpy).not.toHaveBeenCalled();
+    expect(tabSendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  // Trusted-sender boundary: only content-script senders carry a sender.tab. Popup
+  // and options senders are rejected here.
+  it("security: rejects a message with no sender tab", async () => {
+    const getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails");
+    const tablessSender = { frameId: 0 } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, tablessSender);
+
+    expect(getAllFrameDetailsSpy).not.toHaveBeenCalled();
+    expect(tabSendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  // The target frame may be gone by the time we send (navigation, iframe removal). The
+  // handler .catches so the rejection does not surface on the background message pipeline.
+  it("does not throw when tabSendMessage rejects", async () => {
+    jest
+      .spyOn(BrowserApi, "getAllFrameDetails")
+      .mockResolvedValue([
+        mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 5, url: iframeSrc }),
+      ]);
+    tabSendMessageSpy.mockRejectedValueOnce(new Error("Could not establish connection"));
+
+    await expect(
+      runtimeBackground.processMessageWithSender(message, sender),
+    ).resolves.not.toThrow();
   });
 });

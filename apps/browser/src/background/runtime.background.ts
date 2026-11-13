@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, mergeMap } from "rxjs";
+import { filter, firstValueFrom, map, mergeMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
@@ -34,14 +34,20 @@ import {
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
+import {
+  FillAssistEvent,
+  FillAssistEventReceiver,
+} from "../autofill/background/fill-assist-event-receiver";
 import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { CipherUse } from "../autofill/services/abstractions/fill-cipher-policy";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { AUTOFILL_DENIED } from "../autofill/types/fill-result";
+import { getSubFrameUrlVariations } from "../autofill/utils/url-variations";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
@@ -49,6 +55,7 @@ import BrowserInitialInstallService from "../platform/services/browser-initial-i
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { isValidVaultReferrer } from "../platform/utils/valid-vault-referrer";
 import { getWebExtSender } from "../platform/utils/web-ext-sender";
+import { GET_CIPHER_LIST_VIEWS } from "../vault/services/foreground-cipher.service";
 
 import MainBackground from "./main.background";
 
@@ -74,6 +81,7 @@ export default class RuntimeBackground {
     private defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor,
     private autofillOrchestrator: AutofillOrchestrator,
     private intraprocessMessageSender: IntraprocessMessageSender,
+    private fillAssistEventReceiver: FillAssistEventReceiver,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -116,6 +124,8 @@ export default class RuntimeBackground {
         "collectPageDetailsForPopup",
         "fillCipherForPopup",
         "getBitwardenAutofillAttributeSettings",
+        VaultMessages.checkBwInstalled,
+        GET_CIPHER_LIST_VIEWS,
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -172,6 +182,17 @@ export default class RuntimeBackground {
         }
         return await this.autofillOrchestrator.collectPageDetails(targetTab);
       }
+      case GET_CIPHER_LIST_VIEWS: {
+        // The list views are decrypted vault data, so only extension pages get them.
+        if (!BrowserApi.senderIsInternal(sender, this.logService)) {
+          return [];
+        }
+        return await firstValueFrom(
+          this.main.cipherService
+            .cipherListViewsIncludingRestricted$(msg.userId)
+            .pipe(filter((views) => views != null)),
+        );
+      }
       case "fillCipherForPopup": {
         // The popup keeps the reprompt and TOTP copy in the foreground but dispatches the fill here.
         // The cipher is referenced by id and re-fetched below so decrypted vault data never crosses
@@ -190,8 +211,11 @@ export default class RuntimeBackground {
         if (activeUserId == null) {
           return AUTOFILL_DENIED;
         }
-        const ciphers = await this.main.cipherService.getAllDecrypted(activeUserId);
-        const cipher = ciphers.find((candidate) => candidate.id === msg.cipherId);
+        const [cipher] = await this.main.fillCipherPolicy.ciphersForIds(
+          activeUserId,
+          [msg.cipherId],
+          CipherUse.UserFill,
+        );
         if (cipher == null) {
           return AUTOFILL_DENIED;
         }
@@ -281,6 +305,84 @@ export default class RuntimeBackground {
         ]);
 
         return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
+      }
+      case "fillAssistEmit": {
+        // Trusted-sender gate: only the content-script emitter routes this message.
+        // Content scripts carry a sender.tab; popup and options senders do not.
+        // Chrome's extension model (no `externally_connectable` in the manifest) is
+        // the backstop that keeps page-origin dispatches off this listener entirely.
+        if (!sender.tab?.id) {
+          return;
+        }
+        this.fillAssistEventReceiver.receive({
+          name: msg.name,
+          payload: msg.payload,
+        } satisfies FillAssistEvent);
+        return;
+      }
+      case "runFillAssistHeuristicFallback": {
+        // Trusted-sender gate: only the content-script emitter routes this message.
+        // Content scripts carry a sender.tab; popup and options senders do not.
+        // Chrome's extension model (no `externally_connectable` in the manifest) is
+        // the backstop that keeps page-origin dispatches off this listener entirely.
+        // The relay target is also scoped to the sender's tab, so a parent frame
+        // can only reach iframes in its own tab.
+        if (!sender.tab?.id) {
+          return;
+        }
+        const iframeSrc: string | undefined = msg.iframeSrc;
+        if (!iframeSrc) {
+          return;
+        }
+
+        const frames = await BrowserApi.getAllFrameDetails(sender.tab.id);
+        if (!frames) {
+          return;
+        }
+
+        // Match the parent's `iframe.src` against the child's `frame.url` from
+        // webNavigation. The variations helper tolerates normalization differences
+        // (redirects, relative URLs, post-load navigation).
+        const variations = getSubFrameUrlVariations(iframeSrc);
+        const candidates = variations
+          ? frames.filter((f) => variations.has(f.url))
+          : frames.filter((f) => f.url === iframeSrc);
+
+        if (candidates.length === 0) {
+          this.logService.debug(
+            `[RuntimeBackground] No frame matched iframeSrc for fill assist heuristic fallback: ${iframeSrc}`,
+          );
+          return;
+        }
+
+        // Drop ambiguous matches. Two frames sharing the same URL can't be
+        // distinguished from `iframeSrc` alone, and picking one risks routing the
+        // fallback into the wrong document.
+        if (candidates.length > 1) {
+          this.logService.debug(
+            `[RuntimeBackground] Ambiguous frame match for fill assist heuristic fallback: ${iframeSrc}`,
+          );
+          return;
+        }
+
+        // The target frame may be gone by the time we send (navigation, iframe
+        // removal), so .catch the rejection. No response is needed. The child runs
+        // or skips the fallback based on its own state.
+        await BrowserApi.tabSendMessage(
+          sender.tab,
+          { command: "runFillAssistHeuristicFallback", iframeSrc },
+          { frameId: candidates[0].frameId },
+        ).catch((error) =>
+          this.logService.debug(
+            `[RuntimeBackground] Failed to send runFillAssistHeuristicFallback to frame: ${(error as Error)?.message ?? error}`,
+          ),
+        );
+        return;
+      }
+      case VaultMessages.checkBwInstalled: {
+        const referrer =
+          Utils.getHostname(sender.origin) || Utils.getHostname(sender.url) || msg.referrer;
+        return await isValidVaultReferrer(this.environmentService, referrer);
       }
       case "authResult": {
         if (!(await isValidVaultReferrer(this.environmentService, msg.referrer))) {
@@ -410,12 +512,7 @@ export default class RuntimeBackground {
         break;
       case "syncCompleted":
         if (msg.successfully) {
-          setTimeout(async () => {
-            await this.main.refreshMenu();
-          }, 2000);
           await this.configService.ensureConfigFetched();
-          await this.main.updateOverlayCiphers();
-
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
@@ -442,9 +539,6 @@ export default class RuntimeBackground {
         break;
       }
       case "bgUpdateContextMenu":
-      case "editedCipher":
-      case "addedCipher":
-      case "deletedCipher":
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
 import {
@@ -16,16 +16,17 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -138,6 +139,8 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private invalidPinAttempts = 0;
+  private unlockingViaPin = false;
+  private readonly pinService = inject(PinServiceAbstraction);
 
   biometricUnlockBtnText?: string;
 
@@ -472,6 +475,23 @@ export class LockComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Tries the PIN as soon as it has as many characters as the PIN length the SDK stored, as if the
+   * user pressed Unlock: a wrong PIN counts as an attempt like any other.
+   */
+  protected async tryPinWhenComplete(pin: string, form: HTMLFormElement): Promise<void> {
+    if (this.activeAccount == null) {
+      return;
+    }
+
+    const pinLength = await this.pinService.getPinLength(this.activeAccount.id);
+    if (pinLength == null || pin.length !== pinLength) {
+      return;
+    }
+
+    form.requestSubmit();
+  }
+
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
@@ -490,6 +510,20 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private async unlockViaPin() {
+    // The PIN is tried as soon as it is typed; an Enter right after must not try it again.
+    if (this.unlockingViaPin) {
+      return;
+    }
+
+    this.unlockingViaPin = true;
+    try {
+      await this.tryPin();
+    } finally {
+      this.unlockingViaPin = false;
+    }
+  }
+
+  private async tryPin() {
     if (!this.validatePin() || this.formGroup == null || this.activeAccount == null) {
       return;
     }
@@ -570,13 +604,15 @@ export class LockComponent implements OnInit, OnDestroy {
 
     await this.biometricStateService.resetUserPromptCancelled(this.activeAccount.id);
 
-    try {
-      await this.encryptedMigrator.runMigrations(
-        this.activeAccount.id,
-        afterUnlockActions.passwordEvaluation?.masterPassword ?? null,
-      );
-    } catch {
-      // Don't block login success on migration failure
+    const masterPassword = afterUnlockActions.passwordEvaluation?.masterPassword ?? null;
+    // Don't block login success on migration failure
+    const migrations = this.encryptedMigrator
+      .runMigrations(this.activeAccount.id, masterPassword)
+      .catch(() => {});
+    // Migrations that run without the master password can wait on the server. If the server is
+    // unreachable, waiting for them leaves the user on the lock screen until the requests time out.
+    if (masterPassword != null) {
+      await migrations;
     }
 
     this.messagingService.send("unlocked");

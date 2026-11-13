@@ -6,10 +6,12 @@ import {
   ElementRef,
   Injector,
   Signal,
+  afterRenderEffect,
   computed,
   contentChildren,
   effect,
   inject,
+  input,
   model,
   signal,
   untracked,
@@ -22,6 +24,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
 import { ButtonModule } from "../../button";
+import { ButtonGroupComponent, ButtonGroupOrientation } from "../../button-group";
 import { ChipGroupComponent, ChipGroupItem } from "../../chips";
 import { DialogRef, DialogService } from "../../dialog";
 import {
@@ -35,12 +38,17 @@ import {
   OverflowItemDirective,
   OverflowListDirective,
   OverflowTriggerDirective,
+  measureWidth,
   observedWidth,
 } from "../../overflow-list";
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { BREAKPOINTS } from "../../utils/responsive-utils";
 
+import { TableRowRange } from "./bit-table-paginator.component";
 import { BitTableV2Component } from "./table-v2.component";
+
+/** The narrowest the search gets before the `slot=end` buttons move to their own row. */
+const SEARCH_MIN_REM = 15;
 
 /**
  * Toolbar for `bit-table-v2`. Project a `<bit-search>` (its own slot), filter chips,
@@ -56,6 +64,7 @@ import { BitTableV2Component } from "./table-v2.component";
     BerryComponent,
     ChipGroupComponent,
     ButtonModule,
+    ButtonGroupComponent,
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
@@ -69,6 +78,13 @@ import { BitTableV2Component } from "./table-v2.component";
 export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Formats the rows on screen for the end of the filter row, e.g. "1–10 of 150 members", in place
+   * of the default "N items" count. A function rather than a message key so the consumer owns the
+   * noun and its plural forms, including the empty case (`total` 0).
+   */
+  readonly rangeLabel = input<(range: TableRowRange) => string>();
 
   /** Whether the collapsed filter dialog is open. Two-way so a consumer can persist it. */
   readonly filterDialogOpen = model(false);
@@ -172,12 +188,18 @@ export class BitTableToolbarComponent {
   });
 
   /**
-   * Whether the filter row is collapsed to the single trigger + dialog. Always on a narrow
-   * toolbar; on a wide one, once the row stops fitting on one line. Gated on `ready()` so the
+   * The small-screen layout: a narrow toolbar, or one whose `slot=end` buttons have moved to
+   * their own row. Collapses the filters to the trigger and lets the search fill its row.
+   */
+  private readonly compact = computed(() => !this.wide() || !this.endInline());
+
+  /**
+   * Whether the filter row is collapsed to the single trigger + dialog. Always in the compact
+   * layout; otherwise, once the row stops fitting on one line. Gated on `ready()` so the
    * first paint doesn't flash the collapsed view.
    */
   protected readonly collapsed = computed(() => {
-    if (!this.wide()) {
+    if (this.compact()) {
       return true;
     }
     const list = this.overflowList();
@@ -189,12 +211,17 @@ export class BitTableToolbarComponent {
 
   /** On a wide toolbar the collapse decision isn't known until the chip row has been measured. */
   private readonly collapseSettled = computed(
-    () => !this.wide() || (this.overflowList()?.ready() ?? false),
+    () => this.compact() || (this.overflowList()?.ready() ?? false),
+  );
+
+  /** Whether the filter row shows a count: always with filters, otherwise only for a range label. */
+  protected readonly showCount = computed(
+    () => this.table != null && (this.hasFilters() || this.rangeLabel() != null),
   );
 
   /** Whether a filter row renders below the search row; gates the divider between the two. */
   protected readonly hasFilterRow = computed(() =>
-    this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters(),
+    this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters() || this.showCount(),
   );
 
   /**
@@ -256,6 +283,8 @@ export class BitTableToolbarComponent {
     "tw-gap-y-4",
     ...(this.isList() ? ["tw-py-3"] : ["tw-py-5"]),
     this.insetX(),
+    // Hidden when nothing is projected into it, e.g. a toolbar holding only a range label.
+    "[&:not(:has(>:not(:empty)))]:tw-hidden",
     ...(this.hasFilterRow() && !this.isList()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),
@@ -265,18 +294,45 @@ export class BitTableToolbarComponent {
     "tw-flex",
     "tw-min-w-0",
     "tw-flex-1",
-    ...(this.wide() ? ["tw-max-w-[25rem]"] : []),
+    ...(this.compact() ? [] : ["tw-max-w-[25rem]"]),
   ]);
 
-  protected readonly endSlotClasses = computed(() => [
-    "tw-flex",
-    "tw-items-center",
-    "tw-gap-3",
-    "empty:tw-hidden",
-    ...(this.wide() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
-  ]);
+  private readonly searchRow = viewChild.required<ElementRef<HTMLElement>>("searchRow");
+  private readonly searchRowWidth = observedWidth(() => this.searchRow());
+  private readonly endGroup = viewChild(ButtonGroupComponent);
+
+  /** Whether the `slot=end` buttons fit beside the search rather than on their own row. */
+  protected readonly endInline = signal(true);
+
+  protected readonly endSlotClasses = computed(() =>
+    this.endInline() ? "tw-ms-auto" : "tw-w-full",
+  );
+
+  protected readonly endSlotOrientation = computed((): ButtonGroupOrientation =>
+    this.endInline() ? "horizontal" : "auto",
+  );
 
   constructor() {
+    // Compares against the buttons' natural width rather than where they currently wrap, so
+    // moving them to their own row can't change the outcome.
+    afterRenderEffect(() => {
+      const rowWidth = this.searchRowWidth();
+      const needed = this.endGroup()?.naturalWidth() ?? 0;
+      const trigger = this.showFilterTrigger() ? this.filterButton()?.nativeElement : undefined;
+      if (!this.wide()) {
+        this.endInline.set(false);
+        return;
+      }
+      if (rowWidth === 0 || needed === 0) {
+        this.endInline.set(true);
+        return;
+      }
+      const gap = parseFloat(getComputedStyle(this.searchRow().nativeElement).columnGap) || 0;
+      const rem = parseFloat(getComputedStyle(this.document.documentElement).fontSize) || 16;
+      const triggerWidth = trigger ? measureWidth(trigger) + gap : 0;
+      this.endInline.set(SEARCH_MIN_REM * rem + triggerWidth + gap + needed <= rowWidth);
+    });
+
     // Chips and the item count change width in place — a chip's label grows to
     // "Type: Login", the count gains a digit (and its width is what the row reserves
     // for the trigger). `bitOverflowList` only remeasures when the item set changes,
@@ -286,7 +342,7 @@ export class BitTableToolbarComponent {
         filter.active();
         filter.summary();
       }
-      this.countDigits();
+      this.countLength();
       this.overflowList()?.remeasure();
     });
 
@@ -336,8 +392,41 @@ export class BitTableToolbarComponent {
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */
   protected readonly itemCount = computed(() => this.table?.filteredCount() ?? 0);
 
-  /** The count's width tracks its digits, not its value — see the remeasure effect. */
-  private readonly countDigits = computed(() => String(this.itemCount()).length);
+  /** The {@link rangeLabel} text for the rows on screen, or `undefined` when none is set. */
+  protected readonly rangeText = computed(() => {
+    const range = this.table?.rowRange();
+    return range && this.rangeLabel()?.(range);
+  });
+
+  /**
+   * {@link rangeText} split around its "start–end" run (e.g. "1–10"), which renders emphasized.
+   * The run is found by its numbers so the consumer's wording and separator can vary by locale; a
+   * label without one (e.g. "0 members") renders whole in `before`.
+   */
+  protected readonly rangeParts = computed(() => {
+    const text = this.rangeText();
+    const range = this.table?.rowRange();
+    if (text == null || range == null) {
+      return undefined;
+    }
+    const match =
+      range.total > 0
+        ? new RegExp(`(?<!\\d)${range.start}\\D{1,3}${range.end}(?!\\d)`).exec(text)
+        : null;
+    if (match == null) {
+      return { before: text, range: "", after: "" };
+    }
+    return {
+      before: text.slice(0, match.index),
+      range: match[0],
+      after: text.slice(match.index + match[0].length),
+    };
+  });
+
+  /** The count's width tracks its length, not its value — see the remeasure effect. */
+  private readonly countLength = computed(
+    () => (this.rangeText() ?? String(this.itemCount())).length,
+  );
 
   /** The collapsed trigger's click. */
   protected openFilterDialog(): void {
