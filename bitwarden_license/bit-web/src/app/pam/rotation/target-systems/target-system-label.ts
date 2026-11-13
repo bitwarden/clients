@@ -21,6 +21,7 @@ export type TargetSystemLabel = {
 const KIND_LABEL_KEYS: Partial<Record<TargetSystemKind, string | null>> = {
   [TargetSystemKind.Entra]: "pamTargetSystemTypeEntra",
   [TargetSystemKind.CustomScript]: "pamTargetSystemTypeCustomScript",
+  [TargetSystemKind.ActiveDirectory]: "pamTargetSystemTypeActiveDirectory",
   [TargetSystemKind.Unknown]: null,
 };
 

@@ -18,6 +18,7 @@ import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encry
 import {
   emptyUnencryptedExport,
   unencryptedExportWithCipherKey,
+  unencryptedExportWithHTTPAuthentication,
 } from "../spec-data/bitwarden-json/unencrypted.json";
 
 import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
@@ -101,6 +102,17 @@ describe("BitwardenPasswordProtectedImporter", () => {
       expect(result.success).toEqual(true);
       expect(result.ciphers).toHaveLength(1);
       expect(result.ciphers[0].key).toBeNull();
+    });
+
+    it("keeps each login's HTTP authentication setting", async () => {
+      const result = await importer.parse(unencryptedExportWithHTTPAuthentication);
+
+      expect(result.success).toEqual(true);
+      expect(result.ciphers.map((cipher) => cipher.login.httpAuthenticationEnabled)).toEqual([
+        true,
+        false,
+        undefined,
+      ]);
     });
   });
 

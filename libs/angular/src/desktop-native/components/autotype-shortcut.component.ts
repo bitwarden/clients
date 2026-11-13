@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, effect, inject, input, output, untracked } from "@angular/core";
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -9,6 +9,10 @@ import {
   ValidationErrors,
 } from "@angular/forms";
 
+import {
+  autotypeGaShortcutFromText,
+  isAutotypeGaShortcut,
+} from "@bitwarden/common/desktop-native/models/autotype-ga-policy.data";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -22,9 +26,60 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+// Electron's "Super" is the Windows key on Windows and the Command key on macOS.
+const DISPLAY_KEY_NAMES: Record<string, string> = {
+  Control: "Ctrl",
+  Super: "Win",
+};
+
+/** Formats stored keys for display, e.g. ["Control", "Alt", "L"] as "Ctrl + Alt + L". */
+export function formatAutotypeShortcut(keys: readonly string[]): string {
+  return keys.map((key) => DISPLAY_KEY_NAMES[key] ?? key).join(" + ");
+}
+
+function shortcutLetter(event: KeyboardEvent): string | null {
+  return /^[a-z]$/i.test(event.key) ? event.key.toUpperCase() : null;
+}
+
+/** One or two of Ctrl, Alt, or Win, plus a letter. The command key is stored as Super. */
+export function captureAutotypeShortcut(event: KeyboardEvent): string[] | null {
+  const hasCtrl = event.ctrlKey;
+  const hasAlt = event.altKey;
+  const hasShift = event.shiftKey;
+  const hasSuper = event.metaKey;
+
+  if (!hasCtrl && !hasAlt && !hasSuper) {
+    return null;
+  }
+
+  if (hasShift) {
+    return null;
+  }
+
+  const letter = shortcutLetter(event);
+  if (letter == null) {
+    return null;
+  }
+
+  const keys: string[] = [];
+  if (hasCtrl) {
+    keys.push("Control");
+  }
+  if (hasAlt) {
+    keys.push("Alt");
+  }
+  if (hasSuper) {
+    keys.push("Super");
+  }
+  keys.push(letter);
+
+  return isAutotypeGaShortcut(keys) ? keys : null;
+}
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "app-autotype-shortcut",
   templateUrl: "autotype-shortcut.component.html",
   imports: [
     DialogModule,
@@ -38,17 +93,32 @@ import { I18nPipe } from "@bitwarden/ui-common";
   ],
 })
 export class AutotypeShortcutComponent {
-  constructor(
-    private dialogRef: DialogRef,
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
-  ) {}
+  readonly inline = input(false);
+  readonly shortcut = input<string[] | null>(null);
+  readonly shortcutChange = output<string[] | null>();
+
+  private readonly dialogRef = inject<DialogRef<string[]>>(DialogRef, { optional: true });
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly i18nService = inject(I18nService);
 
   private shortcutArray: string[] = [];
 
   setShortcutForm = this.formBuilder.group({
     shortcut: ["", [Validators.required, this.shortcutCombinationValidator()]],
   });
+
+  constructor() {
+    effect(() => {
+      const shortcut = this.shortcut();
+      const keys = isAutotypeGaShortcut(shortcut) ? shortcut : [];
+      untracked(() => {
+        this.shortcutArray = keys;
+        this.setShortcutForm.controls.shortcut.setValue(
+          keys.length > 0 ? formatAutotypeShortcut(keys) : "",
+        );
+      });
+    });
+  }
 
   submit = async () => {
     const shortcutFormControl = this.setShortcutForm.controls.shortcut;
@@ -57,7 +127,7 @@ export class AutotypeShortcutComponent {
       return;
     }
 
-    await this.dialogRef.close(this.shortcutArray);
+    await this.dialogRef?.close(this.shortcutArray);
   };
 
   static open(dialogService: DialogService) {
@@ -65,62 +135,39 @@ export class AutotypeShortcutComponent {
   }
 
   onShortcutKeydown(event: KeyboardEvent): void {
+    if (this.inline() && (event.key === "Tab" || event.key === "Escape")) {
+      return;
+    }
+
     event.preventDefault();
 
-    const shortcut = this.buildShortcutFromEvent(event);
+    if (this.inline() && event.key === "Backspace") {
+      if (this.shortcutArray.length === 0) {
+        return;
+      }
 
-    if (shortcut != null) {
-      this.setShortcutForm.controls.shortcut.setValue(shortcut);
+      this.shortcutArray = [];
+      this.setShortcutForm.controls.shortcut.setValue("");
       this.setShortcutForm.controls.shortcut.markAsDirty();
       this.setShortcutForm.controls.shortcut.updateValueAndValidity();
+      this.shortcutChange.emit(null);
+      return;
+    }
+
+    const keys = captureAutotypeShortcut(event);
+
+    if (keys != null) {
+      this.shortcutArray = keys;
+      this.setShortcutForm.controls.shortcut.setValue(formatAutotypeShortcut(keys));
+      this.setShortcutForm.controls.shortcut.markAsDirty();
+      this.setShortcutForm.controls.shortcut.updateValueAndValidity();
+      this.shortcutChange.emit(keys);
     }
   }
 
-  // <https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent>
-  private buildShortcutFromEvent(event: KeyboardEvent): string | null {
-    const hasCtrl = event.ctrlKey;
-    const hasAlt = event.altKey;
-    const hasShift = event.shiftKey;
-    const hasSuper = event.metaKey; // Windows key on Windows, Command on macOS
-
-    // Require at least one valid modifier (Control, Alt, Super)
-    if (!hasCtrl && !hasAlt && !hasSuper) {
-      return null;
-    }
-
-    const key = event.key;
-
-    // disallow pure modifier keys themselves
-    if (key === "Control" || key === "Alt" || key === "Meta") {
-      return null;
-    }
-
-    // disallow shift modifier
-    if (hasShift) {
-      return null;
-    }
-
-    // require a single alphabetical letter as the base key
-    const isAlphabetical = typeof key === "string" && /^[a-z]$/i.test(key);
-    if (!isAlphabetical) {
-      return null;
-    }
-
-    const parts: string[] = [];
-    if (hasCtrl) {
-      parts.push("Control");
-    }
-    if (hasAlt) {
-      parts.push("Alt");
-    }
-    if (hasSuper) {
-      parts.push("Super");
-    }
-    parts.push(key.toUpperCase());
-
-    this.shortcutArray = parts;
-
-    return parts.join("+").replace("Super", "Win");
+  /** Only keyboard capture may set the shortcut, so pasted or dropped text is ignored. */
+  onShortcutTextInsert(event: Event): void {
+    event.preventDefault();
   }
 
   private shortcutCombinationValidator(): ValidatorFn {
@@ -130,11 +177,7 @@ export class AutotypeShortcutComponent {
         return null; // handled by required
       }
 
-      // Must include exactly 1-2 modifiers and end with a single letter
-      // Valid examples: Ctrl+A, Alt+B, Ctrl+Alt+X, Alt+Control+Q, Win+B, Ctrl+Win+A
-      // Allow modifiers in any order, but only 1-2 modifiers total
-      const pattern = /^(?=.*\b(Control|Alt|Win)\b)(?:Control\+|Alt\+|Win\+){1,2}[A-Z]$/i;
-      return pattern.test(value)
+      return autotypeGaShortcutFromText(value) != null
         ? null
         : { invalidShortcut: { message: this.i18nService.t("invalidShortcut") } };
     };

@@ -1,0 +1,69 @@
+<bit-dialog
+  [title]="'pamRequestAccessButton' | i18n"
+  [subtitle]="params.itemName"
+  background="alt"
+  data-testid="request-sheet"
+>
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
+    <div class="tw-flex tw-flex-col tw-gap-2" data-testid="request-sheet-summary">
+      <div class="tw-flex tw-items-start tw-gap-2">
+        <bit-icon-tile [icon]="badgeLook.privileged.icon" variant="primary" size="base" />
+        <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col">
+          <span bitTypography="body2" class="tw-font-medium tw-text-fg-heading">
+            {{ "pamRequestToUse" | i18n }}
+          </span>
+          <span bitTypography="helper" class="tw-text-fg-body">
+            {{ "pamRequestAccessBannerBody" | i18n }}
+          </span>
+        </div>
+      </div>
+      @if (form.terms(); as rule) {
+        <p
+          bitTypography="helper"
+          class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-ps-10 tw-text-fg-heading"
+        >
+          <bit-icon name="bwi-clock" />
+          {{ rule.messageKey | i18n: (rule.maxSeconds | durationLong) }}
+        </p>
+      } @else if (form.loadingRequestForm()) {
+        <p
+          bitTypography="helper"
+          class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-ps-10"
+          aria-hidden="true"
+        >
+          <bit-icon name="bwi-clock" class="tw-text-fg-heading" />
+          <bit-skeleton class="tw-my-0.5 tw-h-3.5 tw-w-1/2" />
+        </p>
+      }
+    </div>
+
+    <app-pam-request-access-form
+      #form
+      [cipherId]="params.cipherId"
+      (accessChanged)="dialogRef.close(true)"
+    />
+  </div>
+
+  <ng-container bitDialogFooter>
+    @if (form.requestMode() !== null) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        [bitAction]="form.submitRequest"
+        id="pam-cipher-view-banner_button_request-submit"
+      >
+        {{ "requestAccessModalSubmitV2" | i18n }}
+      </button>
+    }
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [bitDialogClose]="false"
+      id="pam-cipher-view-banner_button_request-cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

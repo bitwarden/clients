@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import {
   DefaultRegistrationFinishService,
-  PasswordInputResult,
   RegistrationFinishService,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth/registration";
+import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { OpenOrgInviteRequest } from "@bitwarden/common/auth/models/request/registration/open-org-invite.request";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";

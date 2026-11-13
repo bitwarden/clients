@@ -3,7 +3,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { userEvent } from "storybook/test";
 
 import { ExtendLeaseDialogComponent } from "@bitwarden/bit-pam-components";
-import { DialogRef } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 /** The dialog resolves through `DialogRef`; nothing here needs to observe the result. */
@@ -17,7 +17,10 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [ExtendLeaseDialogComponent],
-      providers: [{ provide: DialogRef, useValue: dialogRef }],
+      providers: [
+        { provide: DialogRef, useValue: dialogRef },
+        { provide: DIALOG_DATA, useValue: { maxDurationSeconds: 60 * 60 } },
+      ],
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],

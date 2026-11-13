@@ -20,7 +20,6 @@ import {
   LoginStrategyServiceAbstraction,
   DefaultLoginStrategySessionTimeoutService,
   UserDecryptionOptionsService,
-  SsoUrlService,
 } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -55,6 +54,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
   DefaultTwoFactorService,
   TwoFactorService,
@@ -257,6 +257,7 @@ import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
+import { CliLicenseType } from "../platform/cli-license-type";
 import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { CliIpcService } from "../platform/services/cli-ipc.service";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
@@ -278,6 +279,9 @@ const packageJson = require("../../package.json");
  */
 export class ServiceContainer {
   private inited = false;
+
+  /** The license this build was produced under. The Bitwarden-licensed container overrides it. */
+  readonly licenseType: CliLicenseType = CliLicenseType.Oss;
 
   messagingService: MessageSender;
   storageService: LowdbStorageService;
@@ -783,7 +787,6 @@ export class ServiceContainer {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
-      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -992,7 +995,6 @@ export class ServiceContainer {
       this.accountService,
       this.logService,
       this.cipherEncryptionService,
-      this.messagingService,
       this.cipherSdkService,
     );
 

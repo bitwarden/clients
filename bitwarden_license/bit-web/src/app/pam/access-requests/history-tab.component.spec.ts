@@ -4,8 +4,9 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { of, BehaviorSubject } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -211,6 +212,7 @@ describe("HistoryTabComponent", () => {
     await TestBed.configureTestingModule({
       imports: [HistoryTabComponent, NoopAnimationsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         {
           provide: MyAccessService,
@@ -347,7 +349,7 @@ describe("HistoryTabComponent", () => {
 
       expect(icon).not.toBeNull();
       expect(icon?.previousElementSibling?.textContent?.trim()).toBe("Okta admin");
-      expect(text(item)).toContain("pamInboxInCollection Identity");
+      expect(text(item)).toContain("pamInboxInSharedFolder Identity");
       expect(item.querySelector('bit-icon[name="bwi-collection-shared"]')).toBeNull();
     });
 

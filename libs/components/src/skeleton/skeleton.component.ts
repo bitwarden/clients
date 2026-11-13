@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 /**
  * Basic skeleton loading component that can be used to represent content that is loading.
@@ -10,10 +10,9 @@ import { Component, input } from "@angular/core";
  *
  * If you're looking to represent lines of text, use the `bit-skeleton-text` helper component.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-skeleton",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./skeleton.component.html",
   imports: [CommonModule],
   host: {

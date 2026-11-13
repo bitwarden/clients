@@ -584,6 +584,46 @@ describe("ItemDetailsSectionComponent", () => {
 
       expect(component["collectionOptions"].map((c) => c.id)).toEqual(["col1", "col2", "col3"]);
     });
+
+    it("names the member's own My items collection from i18n and keeps other members' emails", async () => {
+      i18nService.t.calledWith("myItemsV2").mockReturnValue("My items");
+      component.config.admin = true;
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1" } as Organization];
+      const ownMyItems = createMockCollection("col1", "My Items", "org1");
+      const otherMyItems = Object.assign(createMockCollection("col2", "My Items", "org1"), {
+        defaultUserCollectionEmail: "member@example.com",
+      });
+      const shared = createMockCollection(
+        "col3",
+        "Engineering",
+        "org1",
+        false,
+        true,
+        CollectionTypes.SharedCollection,
+      );
+      component.config.collections = [ownMyItems, otherMyItems, shared];
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component.itemDetailsForm.controls.organizationId.setValue("org1");
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(
+        component["collectionOptions"].map(({ id, listName, labelName }) => ({
+          id,
+          listName,
+          labelName,
+        })),
+      ).toEqual([
+        { id: "col1", listName: "My items", labelName: "My items" },
+        { id: "col2", listName: "member@example.com", labelName: "member@example.com" },
+        { id: "col3", listName: "Engineering", labelName: "Engineering" },
+      ]);
+    });
   });
 
   describe("readonlyCollections", () => {

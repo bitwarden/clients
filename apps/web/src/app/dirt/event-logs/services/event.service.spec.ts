@@ -552,3 +552,38 @@ describe("EventService PAM events", () => {
     expect(info.humanReadableMessage).toContain(accessRequestId.substring(0, 8));
   });
 });
+
+describe("EventService invite reminder and resend events", () => {
+  let sut: EventService;
+
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation((id: string, p1?: string) => `${id}${p1 ?? ""}`);
+
+  beforeEach(() => {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    sut = new EventService(i18n, policyService, accountService, configService);
+  });
+
+  const organizationUserId = "7c1d2e3f-1111-2222-3333-444455556666";
+
+  it.each([
+    [EventType.OrganizationUser_InviteReminderSent, "sentInviteReminderToUserId"],
+    [EventType.OrganizationUser_Reinvited, "resentInviteToUserId"],
+  ])("renders %s with the member's short id", async (type, key) => {
+    const info = await sut.getEventInfo({
+      type,
+      organizationUserId,
+      organizationId: "org-1111-2222",
+    } as EventResponse);
+
+    expect(info.message).toContain(key);
+    expect(info.message).toContain(organizationUserId.substring(0, 8));
+    expect(info.humanReadableMessage).toBe(`${key}${organizationUserId.substring(0, 8)}`);
+  });
+});
