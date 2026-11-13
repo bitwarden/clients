@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal,
+} from "@angular/core";
 import { outputFromObservable, toSignal } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
 
@@ -14,11 +22,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { NotPremiumDirective } from "../../directives/not-premium.directive";
 
+type ComponentMode = "premiumChip" | "premiumIcon" | "premiumLabel" | "upgradeIcon" | "upgradeChip";
+
 @Component({
   selector: "app-premium-badge",
   template: `
-    @if (featureBasedUpgradePaths()) {
-      @if (isClickable()) {
+    @switch (mode()) {
+      @case ("premiumChip") {
         <button
           type="button"
           *appNotPremium
@@ -29,7 +39,17 @@ import { NotPremiumDirective } from "../../directives/not-premium.directive";
           (click)="handleClick($event)"
           [label]="'premium' | i18n"
         ></button>
-      } @else {
+      }
+      @case ("premiumIcon") {
+        <bit-icon-tile
+          *appNotPremium
+          icon="bwi-premium"
+          variant="teal"
+          size="sm"
+          [ariaLabel]="'premium' | i18n"
+        />
+      }
+      @case ("premiumLabel") {
         <span
           *appNotPremium
           class="tw-inline-flex tw-items-center tw-gap-2 tw-text-main tw-text-lg"
@@ -38,8 +58,7 @@ import { NotPremiumDirective } from "../../directives/not-premium.directive";
           {{ "premium" | i18n }}
         </span>
       }
-    } @else {
-      @if (iconOnly()) {
+      @case ("upgradeIcon") {
         <button
           type="button"
           buttonType="side-nav"
@@ -49,7 +68,8 @@ import { NotPremiumDirective } from "../../directives/not-premium.directive";
           [label]="'upgradeToPremium' | i18n"
           (click)="promptForPremium($event)"
         ></button>
-      } @else {
+      }
+      @case ("upgradeChip") {
         <button
           type="button"
           *appNotPremium
@@ -73,7 +93,7 @@ import { NotPremiumDirective } from "../../directives/not-premium.directive";
 })
 export class PremiumBadgeComponent implements OnInit {
   readonly organizationId = input<string>();
-  protected readonly iconOnly = input<boolean>(false);
+  readonly iconOnly = input<boolean>(false);
 
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private readonly configService = inject(ConfigService);
@@ -87,6 +107,17 @@ export class PremiumBadgeComponent implements OnInit {
   /** Emitted on a flag-on click. The badge is a clickable chip only when a host binds this. */
   readonly clicked = outputFromObservable(this.click$);
   protected readonly isClickable = signal(false);
+
+  /** The single visual state the template renders; flag-on states take precedence. */
+  protected readonly mode = computed<ComponentMode>(() => {
+    if (this.featureBasedUpgradePaths()) {
+      if (this.isClickable()) {
+        return "premiumChip";
+      }
+      return this.iconOnly() ? "premiumIcon" : "premiumLabel";
+    }
+    return this.iconOnly() ? "upgradeIcon" : "upgradeChip";
+  });
 
   ngOnInit() {
     // click$.observed is accurate only after Angular wires the host's (clicked) binding.

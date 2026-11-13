@@ -22,6 +22,22 @@ const config = (enabled: boolean) =>
 export default {
   title: "Billing/Premium Badge",
   component: PremiumBadgeComponent,
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "An upgrade-to-Premium nudge shown to users without premium, rendered as a chip, a plain label, or a compact icon depending on the surface.",
+      },
+    },
+  },
+  argTypes: {
+    organizationId: {
+      description: "Organization whose premium upgrade the prompt targets.",
+    },
+    iconOnly: {
+      description: "Render the compact icon-only form (a side-nav button, or a diamond tile).",
+    },
+  },
   decorators: [
     config(false),
     moduleMetadata({
@@ -66,6 +82,12 @@ export const IconOnly: Story = {
 /** Flag on, a plain, non-clickable "Premium" label, shown when no host binds the click. */
 export const PremiumLabel: Story = {
   decorators: [config(true)],
+};
+
+/** Flag on with `iconOnly`: just the diamond tile, a passive premium indicator beside another label. */
+export const PremiumIconOnly: Story = {
+  decorators: [config(true)],
+  args: { iconOnly: true },
 };
 
 /** Flag on, a clickable "Premium" chip that emits `clicked`, shown when a host binds a click handler. */

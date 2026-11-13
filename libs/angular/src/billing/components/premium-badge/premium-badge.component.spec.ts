@@ -138,10 +138,22 @@ describe("PremiumBadgeComponent", () => {
     beforeEach(() => flag$.next(true));
 
     it("renders a plain, non-clickable Premium label with the diamond tile", async () => {
+      await render({});
+
+      expect(premiumLabelTile()).not.toBeNull();
+      expect(premiumLabelTile().query(By.css("bit-icon.bwi-premium"))).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("premium");
+      expect(chip()).toBeNull();
+      expect(iconButton()).toBeNull();
+    });
+
+    it("renders the diamond tile alone, no text, when iconOnly", async () => {
       await render({ iconOnly: true });
 
       expect(premiumLabelTile()).not.toBeNull();
       expect(premiumLabelTile().query(By.css("bit-icon.bwi-premium"))).not.toBeNull();
+      expect(premiumLabelTile().componentInstance.ariaLabel()).toBe("premium");
+      expect(fixture.nativeElement.textContent.trim()).toBe("");
       expect(chip()).toBeNull();
       expect(iconButton()).toBeNull();
     });
