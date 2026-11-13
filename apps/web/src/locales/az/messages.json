@@ -531,7 +531,7 @@
     "message": "Həssas elementlərə sahib yeni tətbiqləri incələyin və diqqətlə izləmək istədiklərinizi kritik olaraq işarələyin. Sonra, riskləri xaric etmək üçün üzvlərə təhlükəsizlik tapşırıqları təyin edə biləcəksiniz."
   },
   "clickIconToMarkAppAsCritical": {
-    "message": "Bir tətbiqi kritik olaraq işarələmək üçün ulduz ikonuna klikləyin"
+    "message": "Bir tətbiqi kritik olaraq işarələmək üçün ulduz simgəsinə klikləyin"
   },
   "markAsCriticalPlaceholder": {
     "message": "Kritik olaraq işarələmə funksionallığı, gələcək güncəlləmədə tətbiq olunacaq"
@@ -637,10 +637,10 @@
     "message": "Avto-doldurma seçənəkləri"
   },
   "websiteUri": {
-    "message": "Veb sayt (URI)"
+    "message": "Veb-sayt (URI)"
   },
   "websiteUriCount": {
-    "message": "Veb sayt (URI) $COUNT$",
+    "message": "Veb-sayt (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Tətbiq (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Tətbiq (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -663,19 +664,19 @@
     }
   },
   "websiteAdded": {
-    "message": "Veb sayt əlavə edildi"
+    "message": "Veb-sayt əlavə edildi"
   },
   "addWebsite": {
-    "message": "Veb sayt əlavə et"
+    "message": "Veb-sayt əlavə et"
   },
   "addWebsiteOrApp": {
-    "message": "Veb sayt və ya tətbiq əlavə et"
+    "message": "Veb-sayt və ya tətbiq əlavə et"
   },
   "app": {
     "message": "Tətbiq"
   },
   "deleteWebsite": {
-    "message": "Veb saytı sil"
+    "message": "Veb-saytı sil"
   },
   "defaultLabel": {
     "message": "İlkin ($VALUE$)",
@@ -850,13 +851,13 @@
     "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Açarı kopyalayıb bu xanaya yapışdırın."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Bu veb sayt kimlik doğrulayıcı QR kodunun ekran şəklini çəkmək üçün kamera ikonunu seçin, ya da açarı kopyalayıb bu xanaya yapışdırın."
+    "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Bu veb-sayt kimlik doğrulayıcı QR kodunun ekran şəklini çəkmək üçün kamera simgəsini seçin, ya da açarı kopyalayıb bu xanaya yapışdırın."
   },
   "totpCapture": {
     "message": "Hazırkı veb sahifədən kimlik doğrulayıcı QR kodunu skan et"
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Kimlik doğrulayıcılar haqqında daha ətraflı"
+    "message": "Kimlik doğrulayıcılar barədə daha ətraflı"
   },
   "folder": {
     "message": "Qovluq"
@@ -1127,7 +1128,7 @@
     "message": "Sürücülük vəsiqəsi və ya kimlik"
   },
   "typeLoginSubtitle": {
-    "message": "Veb sayt və ya tətbiq"
+    "message": "Veb-sayt və ya tətbiq"
   },
   "typeCardSubtitle": {
     "message": "Kredit və ya debet kart"
@@ -1260,7 +1261,7 @@
     }
   },
   "foldersInParent": {
-    "message": "Folders in $NAME$",
+    "message": "$NAME$ qovluqları",
     "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
     "placeholders": {
       "name": {
@@ -1270,7 +1271,7 @@
     }
   },
   "folderCount": {
-    "message": "$COUNT$ folders",
+    "message": "$COUNT$ qovluq",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1279,7 +1280,7 @@
     }
   },
   "folderSingular": {
-    "message": "$COUNT$ folder",
+    "message": "$COUNT$ qovluq",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1302,7 +1303,7 @@
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
   },
   "nestedFolderCount": {
-    "message": "$COUNT$ nested folders",
+    "message": "İç-içə $COUNT$ qovluq",
     "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
     "placeholders": {
       "count": {
@@ -1312,7 +1313,7 @@
     }
   },
   "nestedFolderSingular": {
-    "message": "1 nested folder",
+    "message": "İç-içə 1 qovluq",
     "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
@@ -1727,7 +1728,7 @@
     }
   },
   "copyWebsite": {
-    "message": "Veb saytı kopyala"
+    "message": "Veb-saytı kopyala"
   },
   "copyNotes": {
     "message": "Notları kopyala"
@@ -1797,7 +1798,7 @@
     "message": "Kopyalanacaq ayrıntı yoxdur"
   },
   "launchWebsite": {
-    "message": "Veb saytı başlat"
+    "message": "Veb-saytı başlat"
   },
   "me": {
     "message": "Mən"
@@ -2134,10 +2135,10 @@
     "message": "Element tullantı qutusuna göndərildi"
   },
   "deleteItemError": {
-    "message": "Couldn't delete the item."
+    "message": "Element silinə bilmədi."
   },
   "restrictedItemChangeRefused": {
-    "message": "This item is restricted. Your change was not saved."
+    "message": "Bu element məhdudlaşdırılıb. Dəyişikliyiniz saxlanılmadı."
   },
   "deletedItems": {
     "message": "Elementlər tullantı qutusuna göndərildi"
@@ -2212,7 +2213,7 @@
     "message": "Hesabınızdan çıxış etmisiniz."
   },
   "loginExpired": {
-    "message": "Giriş sessiyanızın müddəti bitdi."
+    "message": "Giriş oturumunuzun müddəti bitdi."
   },
   "restartRegistration": {
     "message": "Qeydiyyatı yenidən başlat"
@@ -2299,7 +2300,7 @@
     "message": "Yeni parol"
   },
   "learnMoreAboutPasswordless": {
-    "message": "Parolsuz haqqında daha ətraflı"
+    "message": "Parolsuz giriş barədə daha ətraflı"
   },
   "creatingPasskeyLoading": {
     "message": "Keçid açarı yaradılır..."
@@ -2320,7 +2321,7 @@
     "message": "Müəyyənləşdirməyə kömək etmək üçün keçid açarınızı adlandırın."
   },
   "useForVaultEncryption": {
-    "message": "Kassa şifrələməsi üçün istifadə et"
+    "message": "Seyf şifrləməsi üçün istifadə et"
   },
   "useForVaultEncryptionInfo": {
     "message": "Dəstəklənən cihazlarda ana parolunuz olmadan giriş edin və kilidi açın. Quraşdırmanı tamamlamaq üçün təlimatları izləyin."
@@ -2329,13 +2330,13 @@
     "message": "Keçid açarı oxunarkən xəta baş verdi. Yenidən sınayın və ya bu seçənəyin işarəsini götürün."
   },
   "encryptionNotSupported": {
-    "message": "Şifrələmə dəstəklənmir"
+    "message": "Şifrləmə dəstəklənmir"
   },
   "enablePasskeyEncryption": {
-    "message": "Şifrələməni qur"
+    "message": "Şifrləməni qur"
   },
   "usedForEncryption": {
-    "message": "Şifrələmə üçün istifadə edilir"
+    "message": "Şifrləmə üçün istifadə edilir"
   },
   "loginWithPasskeyEnabled": {
     "message": "Keçid açarı işlək olduqda giriş edin"
@@ -2407,7 +2408,7 @@
     "message": "Kimlik doğrulama vaxtı bitdi"
   },
   "authenticationSessionTimedOut": {
-    "message": "Kimlik doğrulama sessiyasının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
+    "message": "Kimlik doğrulama oturumunun vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
   "verifyYourIdentity": {
     "message": "Kimliyinizi doğrulayın"
@@ -2623,7 +2624,7 @@
     }
   },
   "noItemsInFolder": {
-    "message": "No items in $FOLDER_NAME$",
+    "message": "$FOLDER_NAME$ daxilində element yoxdur",
     "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
     "placeholders": {
       "folder_name": {
@@ -2633,7 +2634,7 @@
     }
   },
   "emptyFolderDescription": {
-    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "message": "Bu qovluğa element əlavə edin. Seyf filtrlərini istifadə edərək bunlara cəld şəkildə erişə biləcəksiniz.",
     "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
@@ -2646,7 +2647,7 @@
     "message": "Seçilmiş filtrlərlə uyuşan heç bir element yoxdur"
   },
   "noItemsMatchTheSelectedFilters": {
-    "message": "No items match the selected filters"
+    "message": "Seçilmiş filtrlərlə uyuşan heç bir element yoxdur"
   },
   "noItemsMatchSearchTerm": {
     "message": "\"$SEARCH_TERM$\" ilə uyuşan heç bir element yoxdur",
@@ -2722,10 +2723,10 @@
     "message": "Sadalanacaq heç bir üzv yoxdur."
   },
   "noMembersInvitedToOrg": {
-    "message": "No members have been invited to your organization"
+    "message": "Təşkilatınıza heç bir üzv dəvət edilməyib"
   },
   "memberCount": {
-    "message": "$COUNT$ members",
+    "message": "$COUNT$ üzv",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2734,10 +2735,10 @@
     }
   },
   "memberCountSingular": {
-    "message": "1 member"
+    "message": "1 üzv"
   },
   "memberRangeOfTotal": {
-    "message": "$START$–$END$ of $TOTAL$ members",
+    "message": "$START$–$END$/$TOTAL$ üzv",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -3007,16 +3008,16 @@
     "message": "Sirlərin xaricə köçürülməsini təsdiqlə"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "Bu xaricə köçürmədəki seyf veriləriniz şifrələnməmiş formatdadır. Bu xaricə köçürülmüş faylı güvənli olmayan kanallar (e-poçt kimi) üzərində saxlamamalı və ya göndərməməlisiniz. İşiniz bitdikdən sonra faylı dərhal silin."
+    "message": "Bu xaricə köçürmədəki seyf veriləriniz şifrlənməmiş formatdadır. Bu xaricə köçürülmüş faylı güvənli olmayan kanallar (e-poçt kimi) üzərində saxlamamalı və ya göndərməməlisiniz. İşiniz bitdikdən sonra faylı dərhal silin."
   },
   "exportSecretsWarningDesc": {
-    "message": "Bu xaricə köçürmədəki sirr veriləriniz şifrələnməmiş formatdadır. Bu xaricə köçürülmüş faylı güvənli olmayan kanallar (e-poçt kimi) üzərində saxlamamalı və ya göndərməməlisiniz. İşiniz bitdikdən sonra faylı dərhal silin."
+    "message": "Bu xaricə köçürmədəki seyf veriləriniz şifrlənməmiş formatdadır. Bu xaricə köçürülmüş faylı güvənli olmayan kanallar (e-poçt kimi) üzərində saxlamamalı və ya göndərməməlisiniz. İşiniz bitdikdən sonra faylı dərhal silin."
   },
   "encExportKeyWarningDesc": {
-    "message": "Bu xaricə köçürmə, verilərinizi hesabınızın şifrələmə açarını istifadə edərək şifrələyir. Hesabınızın şifrələmə açarını dəyişdirsəniz, bu faylın şifrəsini aça bilməyəcəksiniz və onu yenidən xaricə köçürməli olacaqsınız."
+    "message": "Bu xaricə köçürmə, hesabınızın şifrləmə açarını istifadə edərək verilərinizi şifrləyir. Hesabınızın şifrləmə açarını yeniləsəniz, bu faylı deşifrləyə bilməyəcəyiniz üçün onu yenidən xaricə köçürməli olacaqsınız."
   },
   "encExportAccountWarningDesc": {
-    "message": "Hesab şifrələmə açarları, hər Bitwarden istifadəçi hesabı üçün unikaldır, buna görə də şifrələnmiş bir ixracı, fərqli bir hesaba idxal edə bilməzsiniz."
+    "message": "Hesab şifrləmə açarları, hər Bitwarden istifadəçi hesabı üçün unikaldır, buna görə də şifrlənmiş bir xaricə köçürməni, fərqli bir hesaba köçürə bilməzsiniz."
   },
   "exportNoun": {
     "message": "Xaricə köçürmə",
@@ -3033,7 +3034,7 @@
     "message": "Fayl formatı"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "Bu faylın xaricə köçürülməsi, parolla qorunacaq və şifrəsini açmaq üçün fayl parolu tələb olunacaq."
+    "message": "Bu faylın xaricə köçürülməsi, parolla qorunacaq və deşifrləmək üçün fayl parolu tələb olunacaq."
   },
   "exportPasswordDescription": {
     "message": "Bu parol, bu faylı daxilə və xaricə köçürmək üçün istifadə olunacaq"
@@ -3105,7 +3106,7 @@
     "message": "Bu KeePass veri bazası daxilə köçürmək üçün çox böyükdür."
   },
   "accountRestrictedOptionDescription": {
-    "message": "Xaricə köçürməni şifrələmək və daxilə köçürməni yalnız mövcud Bitwarden hesabı ilə məhdudlaşdırmaq üçün hesabınızın istifadəçi adı və Ana Parolundan əldə edilən hesab şifrələmə açarınızı istifadə edin."
+    "message": "Xaricə köçürməni şifrləmək və daxilə köçürməni yalnız mövcud Bitwarden hesabı ilə məhdudlaşdırmaq üçün hesabınızın istifadəçi adı və Ana Parolundan əldə edilən hesab şifrləmə açarınızı istifadə edin."
   },
   "passwordProtectedOptionDescription": {
     "message": "Xaricə köçürməni qorumaq üçün istifadəçi tərəfindən yaradılan bir parol yaradın. Digər hesablarda istifadə ediləcək bir xaricə köçürmə yaratmaq üçün bunu istifadə edin."
@@ -3273,10 +3274,10 @@
     }
   },
   "loggedOutWarning": {
-    "message": "Davam etsəniz, hazırkı sessiyanızdan çıxış ediləcək, təkrar giriş etməyiniz tələb olunacaq. Digər cihazlardakı aktiv sessiyalar, bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Davam etsəniz, hazırkı oturumdan çıxış ediləcək, təkrar giriş etməyiniz tələb olunacaq. Digər cihazlardakı aktiv oturumlar, bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "changePasswordWarning": {
-    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində sonlandırılacaq."
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv oturumlar bir saat ərzində sonlandırılacaq."
   },
   "emailChanged": {
     "message": "E-poçt dəyişdirildi"
@@ -3285,7 +3286,7 @@
     "message": "Lütfən yenidən giriş edin."
   },
   "currentSession": {
-    "message": "Hazırkı sessiya"
+    "message": "Hazırkı oturum"
   },
   "requestPending": {
     "message": "Tələb gözlənir"
@@ -3309,7 +3310,7 @@
     "message": "Yeni ana parolu təsdiqlə"
   },
   "encKeySettings": {
-    "message": "Şifrələmə açarı ayarları"
+    "message": "Şifrləmə açarı ayarları"
   },
   "kdfIterations": {
     "message": "KDF iterasiyaları"
@@ -3346,19 +3347,19 @@
     "message": "Yüksək KDF iterasiyaları, yaddaşı və paralelizmi, ana parolunuzu təcavüzkar tərəfindən \"brute force\" hücumuna qarşı qorumağa kömək edir."
   },
   "encKeySettingsChanged": {
-    "message": "Şifrələmə açarı ayarları dəyişdirildi"
+    "message": "Şifrləmə açarı ayarları saxlanıldı"
   },
   "dangerZone": {
     "message": "Təhlükəli zona"
   },
   "deauthorizeSessions": {
-    "message": "Sessiyaların səlahiyyətlərini götür"
+    "message": "Oturumların səlahiyyətlərini götür"
   },
   "deauthorizeSessionsDesc": {
-    "message": "Hesabınıza başqa cihazdan giriş edilməsi ilə bağlı şübhələriniz var? Daha əvvəl istifadə etdiyiniz bütün cihazların və ya kompüterlərin səlahiyyətini götürmək üçün aşağıdan davam edin. Əvvəllər hər kəsə açıq bir kompüter istifadə etmisinizsə və ya sizin olmayan bir cihazda səhvən parolunuzu saxlamısınızsa, bu təhlükəsizlik addımını məsləhət görürük. Bu addım həmçinin daha əvvəl xatırlanan iki addımlı giriş sessiyalarını da təmizləyəcək."
+    "message": "Hesabınıza başqa cihazdan giriş edilməsi ilə bağlı şübhələriniz var? Daha əvvəl istifadə etdiyiniz bütün cihazların və ya kompüterlərin səlahiyyətini götürmək üçün aşağıdan davam edin. Əvvəllər hər kəsə açıq bir kompüter istifadə etmisinizsə və ya sizin olmayan bir cihazda səhvən parolunuzu saxlamısınızsa, bu təhlükəsizlik addımını məsləhət görürük. Bu addım həmçinin daha əvvəl xatırlanan iki addımlı giriş oturumlarını da təmizləyəcək."
   },
   "deauthorizeSessionsWarning": {
-    "message": "Davam etsəniz, hazırkı sessiyanızdan çıxış ediləcək, təkrar giriş etməyiniz tələb olunacaq. Fəallaşdırılıbsa, iki addımlı giriş üçün yenidən soruşulacaq. Digər cihazlardakı aktiv sessiyalar, bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Davam etsəniz, hazırkı oturumuzdan çıxış ediləcək, təkrar giriş etməyiniz tələb olunacaq. Fəallaşdırılıbsa, iki addımlı giriş üçün yenidən soruşulacaq. Digər cihazlardakı aktiv oturumlar, bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "newDeviceLoginProtection": {
     "message": "Yeni cihaz girişi"
@@ -3382,7 +3383,7 @@
     "message": "Yeni cihaz girişi qoruması dəyişiklikləri saxlanıldı"
   },
   "sessionsDeauthorized": {
-    "message": "Bütün sessiyaların səlahiyyəti götürüldü"
+    "message": "Bütün oturumların səlahiyyəti götürüldü"
   },
   "accountIsOwnedMessage": {
     "message": "$ORGANIZATIONNAME$ bu hesabın sahibidir",
@@ -3576,7 +3577,7 @@
     "message": "Ümumi"
   },
   "importEncKeyError": {
-    "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, veriləri xaricə köçürmək üçün istifadə edilən şifrələmə açarı ilə uyuşmur."
+    "message": "Xaricə köçürülən faylın deşifrlənməsi zamanı xəta baş verdi. Şifrləmə açarınız, veriləri xaricə köçürmək üçün istifadə edilən şifrləmə açarı ilə uyuşmur."
   },
   "destination": {
     "message": "Hədəf"
@@ -3637,31 +3638,31 @@
     }
   },
   "selectVault": {
-    "message": "Select vault",
+    "message": "Seyfi seç",
     "description": "Progress label of the import step where the user picks which vault to import into."
   },
   "selectLocation": {
-    "message": "Select location",
+    "message": "Yer seç",
     "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
   },
   "selectAVaultTitle": {
-    "message": "Select a vault"
+    "message": "Bir seyf seç"
   },
   "selectALocationTitle": {
-    "message": "Select a location"
+    "message": "Bir yer seç"
   },
   "importDestinationDescription": {
-    "message": "Choose where to import these items."
+    "message": "Bu elementlərin daxilə köçürüləcəyi yeri seçin."
   },
   "importMyItemsOption": {
-    "message": "My items",
+    "message": "Elementlərim",
     "description": "Card title for the user's own collection inside an organization that centralizes ownership."
   },
   "importVisibleOnlyToYou": {
-    "message": "Visible only to you"
+    "message": "Yalnız sizə görünür"
   },
   "importMyItemsOwnedBy": {
-    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "message": "$ORGANIZATION$ təşkilatına məxsusdur, ancaq yalnız sizə görünür",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3670,16 +3671,16 @@
     }
   },
   "importOrganizationVault": {
-    "message": "Organization vault"
+    "message": "Təşkilat seyfi"
   },
   "importSharedWithOnePerson": {
-    "message": "Shared with one person"
+    "message": "Bir nəfərlə paylaşıldı"
   },
   "importFamilyVault": {
-    "message": "Family vault"
+    "message": "Ailə seyfi"
   },
   "importMoveAllItemsIntoSharedFolderA": {
-    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "message": "Bütün elementləri $ORGANIZATION$ paylaşılan qovluğuna daşı",
     "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
     "placeholders": {
       "organization": {
@@ -3689,7 +3690,7 @@
     }
   },
   "importMoveAllItemsIntoSharedFolderAn": {
-    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "message": "Bütün elementləri $ORGANIZATION$ paylaşılan qovluğuna daşı",
     "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
     "placeholders": {
       "organization": {
@@ -3699,13 +3700,13 @@
     }
   },
   "importSharedFolderHint": {
-    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+    "message": "Hər şeyi ana qovluğa daşı, iç-içə qovluq strukturu qorunacaq."
   },
   "importSharedFolderRequired": {
-    "message": "A shared folder is required."
+    "message": "Paylaşılan bir qovluq tələb olunur."
   },
   "importIntoOrganization": {
-    "message": "Items will be imported into $ORGANIZATION$.",
+    "message": "Elementlər $ORGANIZATION$ daxilinə köçürüləcək.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3714,10 +3715,10 @@
     }
   },
   "importMoveAllItemsIntoSharedFolder": {
-    "message": "Move all items into a shared folder"
+    "message": "Bütün elementləri paylaşılan bir qovluğa daşı"
   },
   "importNoSharedFoldersForOrg": {
-    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "message": "Elementlər, paylaşılan bir qovluq olmadan $ORGANIZATION$ daxilinə köçürülə bilməz və orada heç bir qovluğu idarə etmirsiniz. Başqa bir yer seçin.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3726,7 +3727,7 @@
     }
   },
   "importItemsCount": {
-    "message": "Import $COUNT$ items",
+    "message": "$COUNT$ elementi daxilə köçür",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3735,10 +3736,10 @@
     }
   },
   "importItemsSingular": {
-    "message": "Import 1 item"
+    "message": "1 elementi daxilə köçür"
   },
   "importToOrganization": {
-    "message": "Import to $ORGANIZATION$",
+    "message": "$ORGANIZATION$ daxilinə köçür",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3747,10 +3748,10 @@
     }
   },
   "importDataMayBeShared": {
-    "message": "Your data may be shared with members of this organization."
+    "message": "Veriləriniz bu təşkilatın üzvləri ilə paylaşıla bilər."
   },
   "importItemTypesRestricted": {
-    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "message": "$ORGANIZATION$, $ITEM_TYPES$ elementlərini daxilə köçürməyinizə icazə vermir. Daxilə köçürmənizdə bunlar varsa, onlar ötürüləcək.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3763,35 +3764,35 @@
     }
   },
   "importRestrictedTypeLogin": {
-    "message": "logins",
+    "message": "giriş",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSecureNote": {
-    "message": "secure notes",
+    "message": "güvənli not",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeCard": {
-    "message": "cards",
+    "message": "kart",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeIdentity": {
-    "message": "identities",
+    "message": "kimlik",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSshKey": {
-    "message": "SSH keys",
+    "message": "SSH açarı",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeBankAccount": {
-    "message": "bank accounts",
+    "message": "bank hesabı",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeDriversLicense": {
-    "message": "licenses",
+    "message": "sürücülük vəsiqəsi",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypePassport": {
-    "message": "passports",
+    "message": "pasport",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
@@ -4086,7 +4087,7 @@
     "message": "SafeInCloud masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML olaraq\"ı seçin və XML faylını saxlayın."
   },
   "importPadlockInstructions": {
-    "message": "Padlock masaüstü tətbiqini istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\" → \"Xaricə köçür\" düyməsinə basın və faylı \"CSV olaraq\" saxlayın."
+    "message": "Padlock masaüstü tətbiqini istifadə edərək, sol üst küncdəki 3 xətt simgəsinə klikləyin və \"Ayarlar\" → \"Xaricə köçür\" düyməsinə basın və faylı \"CSV olaraq\" saxlayın."
   },
   "importKeepass2Instructions": {
     "message": "KeePass 2 masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ü seçin və \"KeePass XML (2.x)\" seçənəyini seçin."
@@ -4095,7 +4096,7 @@
     "message": "Universal Password Manager masaüstü tətbiqini istifadə edərək \"Veri bazası\" → \"Xaricə köçür\"ü seçin və CSV faylını saxlayın."
   },
   "importSaferpassInstructions": {
-    "message": "SaferPass brauzer uzantısını istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\"a gedin. CSV faylını saxlamaq üçün \"Hesabları xaricə köçür\" düyməsinə klikləyin."
+    "message": "SaferPass brauzer uzantısını istifadə edərək, sol üst küncdəki 3 xətt simgəsinə klikləyin və \"Ayarlar\"a gedin. CSV faylını saxlamaq üçün \"Hesabları xaricə köçür\" düyməsinə klikləyin."
   },
   "importMeldiumInstructions": {
     "message": "Meldium veb seyfini istifadə edərək, \"Ayarlar\"a gedin. \"Veriləri xaricə köçür\" funksiyasını tapın və CSV faylını saxlamaq üçün \"Mənə verilərimi göstər\"ə klikləyin."
@@ -4122,13 +4123,13 @@
     "message": "nSecure masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"CSV faylı...\"nı seçin və CSV faylını saxlayın."
   },
   "importStickypasswordInstructions": {
-    "message": "Sticky Password masaüstü tətbiqini istifadə edərək, \"Menyu\" (üst sağda) → \"Xaricə köçür\" → \"Hamısını xaricə köçür\"ü seçin. Şifrələnməmiş XML formatını seçin və XML faylını saxlayın."
+    "message": "Sticky Password masaüstü tətbiqini istifadə edərək, \"Menyu\" (üst sağda) → \"Xaricə köçür\" → \"Hamısını xaricə köçür\"ü seçin. Şifrlənməmiş XML formatını seçin və XML faylını saxlayın."
   },
   "importTruekeyInstructions": {
-    "message": "True Key masaüstü tətbiqini istifadə edərək, sağ üstdəki dişli çarx ikonuna klikləyin və \"Tətbiq ayarları\"na gedin. \"Xaricə köçür\" düyməsinə klikləyin, parolunuzu daxil edin və CSV faylını saxlayın."
+    "message": "True Key masaüstü tətbiqini istifadə edərək, sağ üstdəki dişli çarx simgəsinə klikləyin və \"Tətbiq ayarları\"na gedin. \"Xaricə köçür\" düyməsinə klikləyin, parolunuzu daxil edin və CSV faylını saxlayın."
   },
   "importClipperzInstructions": {
-    "message": "Clipperz veb tətbiqinə (clipperz.is/app) giriş edin. Naviqasiya çubuğunu genişləndirmək üçün sağ üst küncdəki 3 xətt menyu ikonuna klikləyin. \"Verilər\" → \"Xaricə köçür\"ü seçin. HTML faylını saxlamaq üçün \"HTML+JSON endir\" düyməsinə klikləyin."
+    "message": "Clipperz veb tətbiqinə (clipperz.is/app) giriş edin. Naviqasiya çubuğunu genişləndirmək üçün sağ üst küncdəki 3 xətt menyu simgəsinə klikləyin. \"Verilər\" → \"Xaricə köçür\"ü seçin. HTML faylını saxlamaq üçün \"HTML+JSON endir\" düyməsinə klikləyin."
   },
   "importRoboformInstructions": {
     "message": "RoboForm Editor masaüstü tətbiqini istifadə etmək üçün sol üstdəki \"RoboForm\" → \"Seçənəklər\" → \"Hesab və verilər\"ə gedin və \"Xaricə köçür\" düyməsinə klikləyin. Verilərinizin hamısını seçin, \"Format\"ı \"CSV faylı\" kimi dəyişdirin və sonra CSV faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin. Qeyd: RoboForm, yalnız giriş etmə məlumatlarını xaricə köçürməyinizə icazə verir. Digər elementlər xaricə köçürülməyəcək."
@@ -4140,7 +4141,7 @@
     "message": "Ascendo DataVault masaüstü tətbiqini istifadə edərək, \"Alətlər\" → \"Xaricə köçür\"ə gedin. Açılan pəncərədə \"Bütün elementlər (DVX, CSV)\" seçənəyini seçin. CSV faylını saxlamaq üçün \"Oldu\" düyməsinə klikləyin."
   },
   "importPasswordbossInstructions": {
-    "message": "Password Boss masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Veriləri xaricə köçür\" → \"Password Boss JSON - şifrələnməmiş\"i seçin və JSON faylını saxlayın."
+    "message": "Password Boss masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Veriləri xaricə köçür\" → \"Password Boss JSON - şifrlənməmiş\"i seçin və JSON faylını saxlayın."
   },
   "importZohoInstructions": {
     "message": "Zoho veb seyfində (vault.zoho.com) giriş edin. \"Alətlər\" → \"Sirrləri xaricə köçür\"ü seçin. \"Bütün sirrlər\"i seçin və \"Zoho Seyf Formatı CSV\" düyməsinə klikləyin. Mətn sahəsindəki veriləri seçib kopyalayın. Notepad kimi mətn redaktoru açın və veriləri yapışdırın. Həmin verilər olan faylı mətn redaktorunda bu formatda saxlayın",
@@ -4183,7 +4184,7 @@
     "message": "Password Agent masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ə gedin, \"Xaricə köçürüləcək xanalar\" düyməsini seçin və bütün xanaları işarələyin, \"Çıxış formatı\"nı \"CSV\" olaraq dəyişdirin, sonra CSV faylı saxlamaq üçün \"Başlat\" düyməsinə klikləyin."
   },
   "importPasspackInstructions": {
-    "message": "Passpack veb saytında seyfə giriş edin və \"Ayarlar\" → \"Xaricə köçür\"ə gedin, sonra CSV faylını saxlamaq üçün \"Endir\" düyməsinə klikləyin."
+    "message": "Passpack veb-saytında seyfə giriş edin və \"Ayarlar\" → \"Xaricə köçür\"ə gedin, sonra CSV faylını saxlamaq üçün \"Endir\" düyməsinə klikləyin."
   },
   "importPassmanInstructions": {
     "message": "Passman seyfinizi açın və sol alt küncdəki \"Ayarlar\"a klikləyin. \"Ayarlar\" pəncərəsində \"Kimlik məlumatlarını xaricə köçür\" vərəqinə keçin və xaricə köçürmə növü kimi \"JSON\"u seçin. Seyfinizin keçid ifadəsini daxil edin və JSON faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin."
@@ -4216,16 +4217,16 @@
     "message": "LogMeOnce brauzer uzantısını açın, \"Menyunu aç\" → \"Xaricə köçür\"ə gedin və CSV faylını saxlamaq üçün \"CSV faylı\"nı seçin."
   },
   "importBlackberryInstructions": {
-    "message": "BlackBerry Password Keeper tətbiqini açın, \"Ayarlar\" → \"Daxilə/Xaricə köçür\"ə gedin. \"Parolları xaricə köçür\"ü seçin və şifrələnməmiş CSV faylını saxlamaq üçün ekrandakı təlimatları izləyin."
+    "message": "BlackBerry Password Keeper tətbiqini açın, \"Ayarlar\" → \"Daxilə/Xaricə köçür\"ə gedin. \"Parolları xaricə köçür\"ü seçin və şifrlənməmiş CSV faylını saxlamaq üçün ekrandakı təlimatları izləyin."
   },
   "importButtercupInstructions": {
-    "message": "Buttercup masaüstü tətbiqini açın və seyfinizin kilidini açın. Seyfinizin ikonuna sağ klikləyin və CSV faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
+    "message": "Buttercup masaüstü tətbiqini açın və seyfinizin kilidini açın. Seyfinizin simgəsinə sağ klikləyin və CSV faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
   },
   "importCodebookInstructions": {
     "message": "Codebook masaüstü tətbiqini açın və giriş edin. \"Fayl\" → \"Hamısını xaricə köçür\"ü seçin, sonra pəncərədə görünən \"Bəli\" düyməsinə klikləyin və CSV faylını saxlayın."
   },
   "importEncryptrInstructions": {
-    "message": "Ecryptr masaüstü tətbiqinin ən yeni versiyasını açın və bütün verilərinizin sinxronlaşdırılmasına icazə verin. Verilərinizin sinxronlaşdırılması tamamlandıqdan sonra, sağ üst küncdəki endir ikonu çəhrayı rəngə çevriləcək. Endir ikonuna klikləyin və CSV faylını saxlayın."
+    "message": "Ecryptr masaüstü tətbiqinin ən yeni versiyasını açın və bütün verilərinizin sinxronlaşdırılmasına icazə verin. Verilərinizin sinxronlaşdırılması tamamlandıqdan sonra, sağ üst küncdəki endir simgəsi çəhrayı rəngə çevriləcək. Endir simgəsinə klikləyin və CSV faylını saxlayın."
   },
   "importYotiInstructions": {
     "message": "Yoti brauzer uzantısında \"Ayarlar\"a, sonra \"Saxlanılmış girişləri xaricə köçür\"ə klikləyin və CSV faylını saxlayın."
@@ -4234,10 +4235,10 @@
     "message": "Psono veb seyfinə giriş edin, \"Hesaba daxil ol\" açılan menyusuna klikləyin, \"Digərləri\"ni seçin. \"Xaricə köçür\" vərəqinə gedin, json xaricə köçürmə növünü seçin və sonra \"Xaricə köçür\"ə klikləyin."
   },
   "importPasskyInstructions": {
-    "message": "\"https://vault.passky.org\" ünvanında giriş edin → \"Daxilə və Xaricə köçür\" → Passky bölməsində \"Xaricə köçür\"ü seçin. (\"Nüsxələmə\" şifrələndiyi üçün dəstəklənmir)."
+    "message": "\"https://vault.passky.org\" ünvanında giriş edin → \"Daxilə və Xaricə köçür\" → Passky bölməsində \"Xaricə köçür\"ü seçin. (\"Nüsxələmə\" şifrləndiyi üçün dəstəklənmir)."
   },
   "importProtonpassInstructions": {
-    "message": "ProtonPass brauzer uzantısında \"Ayarlar\" > \"Xaricə köçür\"ə gedin. PGP şifrələmə olmadan xaricə köçürün və zip faylını saxlayın."
+    "message": "ProtonPass brauzer uzantısında \"Ayarlar\" > \"Xaricə köçür\"ə gedin. PGP şifrləmə olmadan xaricə köçürün və zip faylını saxlayın."
   },
   "importPasswordxpInstructions": {
     "message": "\"Veri bazası\"nı → \"Fayla köçür\" menyusunu seçin → Xaricə köçürmə seçənəkləri daxilində Qovluq adlarının və Sütun başlıqlarının işarələndiyinə əmin olun. → \"Nəzər sal\" düyməsinə basın və hədəf faylı seçin və növünü CSV faylı olaraq təyin edin."
@@ -4297,7 +4298,7 @@
     "message": "Veb seyfdə istifadə olunan dili dəyişdirin."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
+    "message": "Veb-sayt simgələrini göstər və parol dəyişdirmə URL-lərini al"
   },
   "showQuickCopyActionsInVault": {
     "message": "Seyfdə cəld kopyalama fəaliyyətlərini göstər"
@@ -4309,7 +4310,7 @@
     "message": "Domen qaydaları"
   },
   "domainRulesDesc": {
-    "message": "Bir neçə fərqli veb sayt domenində eyni giriş məlumatınız varsa, veb saytı \"ekvivalent\" olaraq işarələyə bilərsiniz. \"Qlobal\" domenlər, Bitwarden tərəfindən sizin üçün əvvəlcədən yaradılmış domenlərdir."
+    "message": "Bir neçə fərqli veb sayt domenində eyni giriş məlumatınız varsa, veb-saytı \"ekvivalent\" olaraq işarələyə bilərsiniz. \"Qlobal\" domenlər, Bitwarden tərəfindən sizin üçün əvvəlcədən yaradılmış domenlərdir."
   },
   "globalEqDomains": {
     "message": "Qlobal ekvivalent domenlər"
@@ -4330,7 +4331,7 @@
     "message": "Özəl domen əlavə et"
   },
   "newCustomDomainDesc": {
-    "message": "Vergüllə ayrılan bir domen siyahısı daxil edin. Yalnız \"təməl\" domenlərə icazə verilir. Alt domen daxil etməyin. Məsələn, \"www.google.com\" əvəzinə \"google.com\" daxil edin. Bir android tətbiqini digər veb sayt domenləri ilə əlaqələndirmək üçün \"androidtətbiqi://paket.adı\" daxil edə bilərsiniz."
+    "message": "Vergüllə ayrılan bir domen siyahısı daxil edin. Yalnız \"təməl\" domenlərə icazə verilir. Alt domen daxil etməyin. Məsələn, \"www.google.com\" əvəzinə \"google.com\" daxil edin. Bir android tətbiqini digər veb-sayt domenləri ilə əlaqələndirmək üçün \"androidtətbiqi://paket.adı\" daxil edə bilərsiniz."
   },
   "customDomainX": {
     "message": "Özəl domen $INDEX$",
@@ -4490,13 +4491,13 @@
     }
   },
   "continueToExternalUrlDesc": {
-    "message": "Bitwarden-i tərk edirsiniz və yeni bir pəncərədə xarici bir veb sayt açırsınız."
+    "message": "Bitwarden-i tərk edirsiniz və yeni bir pəncərədə xarici bir veb-sayt açırsınız."
   },
   "twoStepContinueToBitwardenUrlTitle": {
     "message": "bitwarden.com ilə davam edilsin?"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Bitwarden Authenticator, kimlik doğrulama açarlarını saxlamağınıza və 2 addımlı doğrulama axınları üçün TOTP kodlarını yaratmağınıza imkan verir. Daha ətraflı bitwarden.com veb saytında öyrənə bilərsiniz."
+    "message": "Bitwarden Authenticator, kimlik doğrulama açarlarını saxlamağınıza və 2 addımlı doğrulama axınları üçün TOTP kodlarını yaratmağınıza imkan verir. Daha ətraflı bitwarden.com veb-saytında öyrənə bilərsiniz."
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "Kimlik doğrulayıcı tətbiqinizlə aşağıdakı QR kodu skan edin və ya açarı daxil edin."
@@ -4680,16 +4681,16 @@
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
-    "message": "Güvənli olmayan veb saytlar"
+    "message": "Güvənli olmayan veb-saytlar"
   },
   "unsecuredWebsitesReportDesc": {
-    "message": "http:// ilə başlayan ünvanlarda mövcud olan ən yaxşı şifrələmə istifadə edilmir. Saytlarda daha güvənli gəzinmək üçün bu hesabların ünvanlarını https:// ilə əvəz edin."
+    "message": "http:// ilə başlayan URL-lər, mövcud olan ən yaxşı şifrləməni istifadə etmir. Daha güvənli gəzinmək üçün bu hesabların giriş URI-lərini https:// ilə əvəz edin."
   },
   "unsecuredWebsitesFound": {
-    "message": "Güvənli olmayan veb sayt tapıldı"
+    "message": "Güvənli olmayan veb-sayt tapıldı"
   },
   "unsecuredWebsitesFoundReportDesc": {
-    "message": "$VAULT$ daxilində güvənli olmayan URI-lərə sahib $COUNT$ element tapdıq. Veb sayt icazə verirsə, onların URI sxemini https:// olaraq dəyişdirməlisiniz.",
+    "message": "$VAULT$ daxilində güvənli olmayan URI-lərə sahib $COUNT$ element tapdıq. Veb-sayt icazə verirsə, onların URI sxemini https:// olaraq dəyişdirməlisiniz.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4714,7 +4715,7 @@
     "message": "2FA olmayan hesablar tapıldı"
   },
   "inactive2faFoundReportDesc": {
-    "message": "$VAULT$ daxilində (\"2fa.directory\"ə uyğun olaraq) iki addımlı kimlik doğrulama ilə konfiqurasiya edilmədiyini düşündüyümüz $COUNT$ veb sayt tapdıq. Bu hesabları daha çox qorumaq üçün iki addımlı girişi qurmalısınız.",
+    "message": "$VAULT$ daxilində (\"2fa.directory\"ə uyğun olaraq) iki addımlı kimlik doğrulama ilə konfiqurasiya edilmədiyini düşündüyümüz $COUNT$ veb-sayt tapdıq. Bu hesabları daha çox qorumaq üçün iki addımlı girişi qurmalısınız.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4727,7 +4728,7 @@
     }
   },
   "noInactive2fa": {
-    "message": "Seyfinizdə iki addımlı giriş konfiqurasiyası əskik olan heç bir veb sayt tapılmadı."
+    "message": "Seyfinizdə iki addımlı giriş konfiqurasiyası əskik olan heç bir veb-sayt tapılmadı."
   },
   "passkeyLoginReport": {
     "message": "Keçid açarı girişi"
@@ -4924,7 +4925,7 @@
     "message": "Ələ keçirilmiş verilər"
   },
   "website": {
-    "message": "Veb sayt"
+    "message": "Veb-sayt"
   },
   "affectedUsers": {
     "message": "Təsirlənən istifadəçilər"
@@ -4994,7 +4995,7 @@
     "message": "Hesabınızı premium üzvlüyə yüksəldin və bəzi möhtəşəm əlavə özəlliklərin kilidini açın."
   },
   "premiumSignUpStorage": {
-    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş depolama sahəsi."
+    "message": "Fayl qoşmaları üçün 1 GB şifrlənmiş depolama sahəsi."
   },
   "premiumSignUpEmergency": {
     "message": "Fövqəladə hal erişimi"
@@ -5053,7 +5054,7 @@
     "message": "#/əlavə GB"
   },
   "additionalStorageIntervalDesc": {
-    "message": "Planınızda $SIZE$ şifrələnmiş fayl depolama sahəsi var. GB/$INTERVAL$ başına $PRICE$ qarşılığında əlavə depolama sahəsi əlavə edə bilərsiniz.",
+    "message": "Planınızda $SIZE$ şifrlənmiş fayl depolama sahəsi var. GB/$INTERVAL$ başına $PRICE$ qarşılığında əlavə depolama sahəsi əlavə edə bilərsiniz.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -5401,7 +5402,7 @@
     "message": "Depolama sahəsini xaric et"
   },
   "subscriptionStorage": {
-    "message": "Abunəliyinizdə cəmi $MAX_STORAGE$ GB şifrələnmiş fayl depolama sahəsi var. Hazırda $USED_STORAGE$ istifadə edirsiniz.",
+    "message": "Abunəliyinizdə cəmi $MAX_STORAGE$ GB şifrlənmiş fayl depolama sahəsi var. Hazırda $USED_STORAGE$ istifadə edirsiniz.",
     "placeholders": {
       "max_storage": {
         "content": "$1",
@@ -5679,7 +5680,7 @@
     "message": "Limitsiz paylaşılan qovluq yarat"
   },
   "gbEncryptedFileStorage": {
-    "message": "$SIZE$ şifrələnmiş fayl deposu",
+    "message": "$SIZE$ şifrlənmiş fayl deposu",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -5753,6 +5754,31 @@
   },
   "trialIncludesPrivilegedControls": {
     "message": "Your trial includes Privileged Controls."
+  },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included with this organization."
+  },
+  "contactSales": {
+    "message": "Contact sales"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team. Contact sales to add it to your organization."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "To change your Privileged Controls seats, contact sales."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$OCCUPIED$ of $TOTAL$ seats in use",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
   },
   "monthly": {
     "message": "Aylıq"
@@ -5902,19 +5928,19 @@
     "message": "Bir üzv ləğv edildikdə, artıq həmin üzv təşkilat verilərinə erişə bilmir. Üzv erişimini daha tez bərpa etmək üçün, Ləğv edilənlər vərəqinə gedin."
   },
   "removeUserConfirmationKeyConnector": {
-    "message": "Xəbərdarlıq! Bu istifadəçi, şifrələmələrini idarə etmək üçün Key Connector tələb edir. Bu istifadəçini təşkilatınızdan silsəniz, hesabı birdəfəlik sıradan çıxarılacaq. Bu əməliyyatın geri dönüşü yoxdur. Davam etmək istəyirsiniz?"
+    "message": "Xəbərdarlıq! Bu istifadəçi, öz şifrləməsini idarə etmək üçün Key Connector tələb edir. Bu istifadəçini təşkilatınızdan silsəniz, hesabı birdəfəlik deaktiv olunacaq. Bu əməliyyatın geri dönüşü yoxdur. Davam etmək istəyirsiniz?"
   },
   "externalId": {
     "message": "Xarici kimlik"
   },
   "externalIdDesc": {
-    "message": "Xarici kimlik, Bitwarden Directory Connector və API tərəfindən istifadə edilən şifrələnməmiş istinaddır."
+    "message": "Xarici kimlik, Bitwarden Directory Connector və API tərəfindən istifadə edilən şifrlənməmiş istinaddır."
   },
   "ssoExternalId": {
     "message": "SSO Xarici Kimlik"
   },
   "ssoExternalIdDesc": {
-    "message": "SSO Xarici Kimlik, Bitwarden və konfiqurasiya edilmiş SSO provayderiniz arasında şifrələnməmiş referansdır."
+    "message": "SSO Xarici Kimlik, Bitwarden və konfiqurasiya edilmiş SSO provayderiniz arasında şifrlənməmiş referansdır."
   },
   "nestCollectionUnder": {
     "message": "Kolleksiyanı bunun altında yerləşdir"
@@ -7637,7 +7663,7 @@
     "message": "Dəvət qəbul edilə bilmədi"
   },
   "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
-    "message": "Təşkilat dəvətinin şifrəsi açıla bilmədi. Qeydiyyat prosesini başlatmaq və tamamlamaq üçün eyni brauzeri istifadə edərək yenidən sınayın."
+    "message": "Təşkilat dəvəti deşifrlənə bilmədi. Qeydiyyat prosesini başlatmaq və tamamlamaq üçün eyni brauzeri istifadə edərək yenidən sınayın."
   },
   "goToLogin": {
     "message": "Girişə get"
@@ -7664,13 +7690,13 @@
     "message": "Daha ətraflı"
   },
   "migrationsFailed": {
-    "message": "Şifrələmə ayarlarını güncəlləyərkən bir xəta baş verdi."
+    "message": "Şifrləmə ayarlarını güncəlləyərkən bir xəta baş verdi."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Şifrələmə ayarlarınızı güncəlləyin"
+    "message": "Şifrləmə ayarlarınızı güncəlləyin"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin."
+    "message": "Tövsiyə edilən yeni şifrləmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin."
   },
   "confirmIdentityToContinue": {
     "message": "Davam etmək üçün kimliyinizi təsdiqləyin"
@@ -7823,6 +7849,18 @@
   },
   "limitPrivilegedControlsSubscriptionDesc": {
     "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
+  },
+  "removePrivilegedControls": {
+    "message": "Remove Privileged Controls",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Every user in your organization will lose access to Privileged Controls. Are you sure you want to continue?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls removed",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
   },
   "maximumSeatsCount": {
     "message": "Maximum $COUNT$ seats",
@@ -8033,13 +8071,13 @@
     }
   },
   "updateEncryptionKeyWarning": {
-    "message": "Şifrələmə açarını güncəllədikdən sonra, hazırda istifadə etdiyiniz (mobil tətbiq və ya brauzer uzantıları kimi) bütün Bitwarden tətbiqlərində çıxış edib yenidən giriş etməlisiniz. Çıxış edib təkrar giriş etməmək (yeni şifrələmə açarının endirilməsi prosesi) verilərin zədələnməsi ilə nəticələnə bilər. Avtomatik olaraq çıxış etməyə çalışacağıq, bu gecikə bilər."
+    "message": "Şifrləmə açarını güncəllədikdən sonra, hazırda istifadə etdiyiniz (mobil tətbiq və ya brauzer uzantıları kimi) bütün Bitwarden tətbiqlərində çıxış edib yenidən giriş etməlisiniz. Çıxış edib təkrar giriş etməmək (yeni şifrləmə açarının endirilməsi prosesi) verilərin zədələnməsi ilə nəticələnə bilər. Sizi avtomatik olaraq çıxış etməyə çalışacağıq, ancaq burada gecikmə ola bilər."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Məhdudiyyətli hesablara aid saxladığınız xaricə köçürmələr yararsız olacaq."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Köhnə şifrələmə artıq dəstəklənmir. Hesabınızı geri qaytarmaq üçün lütfən dəstəklə əlaqə saxlayın."
+    "message": "Köhnə şifrləmə artıq dəstəklənmir. Hesabınızı geri qaytarmaq üçün lütfən dəstəklə əlaqə saxlayın."
   },
   "subscription": {
     "message": "Abunəlik"
@@ -8352,35 +8390,35 @@
     "message": "Seçdiyiniz ana parol zəifdir. Bitwarden hesabınızı daha yaxşı qorumaq üçün güclü bir ana parol (və ya uzun ifadə) istifadə etməlisiniz. Bu ana parol istifadə etmək istədiyinizə əminsiniz?"
   },
   "rotateAccountEncKey": {
-    "message": "Həmçinin hesabımın şifrələmə açarını da döndər"
+    "message": "Həmçinin hesabımın şifrləmə açarını da yenilə"
   },
   "rotateEncKeyTitle": {
-    "message": "Şifrələmə açarını döndər"
+    "message": "Şifrləmə açarını yenilə"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Hesabınızın şifrələmə açarını döndərmək istədiyinizə əminsiniz?"
+    "message": "Hesabınızın şifrləmə açarını yeniləmək istədiyinizə əminsiniz?"
   },
   "attachmentsNeedFix": {
     "message": "Bu element, düzəldilməli köhnə fayl qoşmalarını ehtiva edir."
   },
   "attachmentFixDescription": {
-    "message": "Bu qoşma güncəl olmayan şifrələmə istifadə edir. Qoşmanı endirmək, təkrar şifrələmək və təkrar yükləmək üçün \"Düzəlt\"i seçin."
+    "message": "Bu qoşma güncəl olmayan şifrləmə istifadə edir. Qoşmanı endirmək, təkrar şifrləmək və təkrar yükləmək üçün \"Düzəlt\"i seçin."
   },
   "fix": {
     "message": "Düzəlt",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
   "fixEncryption": {
-    "message": "Şifrələməni düzəlt"
+    "message": "Şifrləməni düzəlt"
   },
   "fixEncryptionTooltip": {
-    "message": "Bu fayl, köhnə bir şifrələmə üsulunu istifadə edir."
+    "message": "Bu fayl, köhnə bir şifrləmə üsulunu istifadə edir."
   },
   "attachmentUpdated": {
     "message": "Qoşma güncəllənib"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "Hesabınızın şifrələmə açarını döndərməzdən əvvəl, seyfinizdəki köhnə fayl qoşmalarını düzəltməlisiniz."
+    "message": "Hesabınızın şifrləmə açarını yeniləməzdən əvvəl, seyfinizdəki köhnə fayl qoşmalarını düzəltməlisiniz."
   },
   "itemsTransferred": {
     "message": "Elementlər köçürüldü"
@@ -8390,7 +8428,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintEnsureIntegrityVerify": {
-    "message": "Şifrələmə açarlarının bütövlüyünü təmin etmək üçün, davam etməzdən əvvəl istifadəçinin barmaq izi ifadəsini doğrulayın.",
+    "message": "Şifrləmə açarlarının bütövlüyünü təmin etmək üçün, davam etməzdən əvvəl istifadəçinin barmaq izi ifadəsini doğrulayın.",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintMatchInfo": {
@@ -8417,7 +8455,7 @@
     "message": "API açarınız Bitwarden hər kəsə açıq API-sində kimlik doğrulaması üçün istifadə edilə bilər."
   },
   "apiKeyRotateDesc": {
-    "message": "API açarı döndərmək, əvvəlki açarı yararsız edəcək. Hazırkı açarın artıq təhlükəsiz olmadığına inanırsınızsa, API açarınızı döndərə bilərsiniz."
+    "message": "API açarı yeniləmək, əvvəlki açarı yararsız edəcək. Hazırkı açarın artıq güvənli olmadığına inanırsınızsa, API açarınızı yeniləyə bilərsiniz."
   },
   "apiKeyWarning": {
     "message": "API açarınızın təşkilata tam erişimi var. Gizli saxlanılmalıdır."
@@ -8435,8 +8473,11 @@
   "viewApiKey": {
     "message": "API açarına bax"
   },
+  "copyApiKey": {
+    "message": "Copy API key"
+  },
   "rotateApiKey": {
-    "message": "API açarını döndər"
+    "message": "API açarını yenilə"
   },
   "selectOneCollection": {
     "message": "Ən azı bir kolleksiya seçməlisiniz."
@@ -8966,14 +9007,34 @@
     "message": "\"Send\" keçidini kopyala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Remove password or email verification"
+  },
+  "removedAuth": {
+    "message": "Password or email verification removed"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "Parolu çıxart"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
   },
   "removedPassword": {
     "message": "Parol çıxarıldı"
   },
-  "removePasswordConfirmation": {
-    "message": "Parolu çıxartmaq istədiyinizə əminsiniz?"
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Bütün \"Send\"lər"
@@ -9424,6 +9485,24 @@
       }
     }
   },
+  "sentInviteReminderToUserId": {
+    "message": "Sent invite reminder to user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "Resent invite to user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Sistem"
   },
@@ -9686,7 +9765,7 @@
     "message": "Erişim qaydalarını idarə et"
   },
   "manageRotation": {
-    "message": "Manage rotation"
+    "message": "Yeniləməni idarə et"
   },
   "disableRequiredError": {
     "message": "Bu siyasətin sıradan çıxarıla bilməsi üçün $POLICYNAME$ siyasətini əllə sıradan çıxartmalısınız.",
@@ -9750,7 +9829,7 @@
     "message": "Sirr sızıntılarını önləyin."
   },
   "preventSecretLeaksDescription": {
-    "message": "Sirləri ucdan-uca şifrələmə ilə qoruyun. Artıq sabit kodlaşdırma sirlərinə və ya .env faylları üzərindən paylaşmağa ehtiyac yoxdur."
+    "message": "Sirləri ucdan-uca şifrləmə ilə qoruyun. Artıq sabit kodlaşdırma sirlərinə və ya .env faylları üzərindən paylaşmağa ehtiyac yoxdur."
   },
   "enhanceDeveloperProductivity": {
     "message": "Gəlişdirici məhsuldarlığını artırın."
@@ -9762,7 +9841,7 @@
     "message": "Biznes təhlükəsizliyini gücləndirin."
   },
   "strengthenBusinessSecurityDescription": {
-    "message": "SSO inteqrasiyaları, event qeydləri və access rotation ilə maşın və insanların sirlərə erişməsinə ciddi nəzarət edin."
+    "message": "SSO inteqrasiyaları, event qeydləri və erişim yeniləmə ilə maşın və insanların sirlərə erişməsinə ciddi nəzarət edin."
   },
   "tryItNow": {
     "message": "İndi sına"
@@ -9789,7 +9868,7 @@
     "message": "Sirr menecerinə erişim tələbi üçün e-poçt adminlərə göndərildi."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Salam,\n\nBu, komandamız üçün \"Bitwarden Sirr Meneceri\"nə abunə olmaq istəyidir. Dəstəyiniz, bizim üçün böyük məna kəsb edir!\n\nBitwarden Sirr Meneceri, API açarları, veri bazası parolları və autentifikasiya sertifikatları kimi maşın kimlik məlumatlarını güvənli şəkildə saxlamaq, paylaşmaq və yerləşdirmək üçün ucdan-uca şifrələnmiş sirlərin idarə edilməsi həllidir.\n\nSirr Meneceri, bizə belə kömək edəcək:\n\n- Təhlükəsizliyi artırmaq\n- Əməliyyatları asanlaşdırmaq\n- Dəyərli sirr sızıntılarını önləmək\n\nKomandamız üçün ödənişsiz sınağı tələb etmək üçün lütfən Bitwarden ilə əlaqə saxlayın.\n\nKöməyiniz üçün təşəkkürlər!"
+    "message": "Salam,\n\nBu, komandamız üçün \"Bitwarden Sirr Meneceri\"nə abunə olmaq istəyidir. Dəstəyiniz, bizim üçün böyük məna kəsb edir!\n\nBitwarden Sirr Meneceri, API açarları, veri bazası parolları və autentifikasiya sertifikatları kimi maşın kimlik məlumatlarını güvənli şəkildə saxlamaq, paylaşmaq və yerləşdirmək üçün ucdan-uca şifrlənmiş sirlərin idarə edilməsi həllidir.\n\nSirr Meneceri, bizə belə kömək edəcək:\n\n- Təhlükəsizliyi artırmaq\n- Əməliyyatları asanlaşdırmaq\n- Dəyərli sirr sızıntılarını önləmək\n\nKomandamız üçün ödənişsiz sınağı tələb etmək üçün lütfən Bitwarden ilə əlaqə saxlayın.\n\nKöməyiniz üçün təşəkkürlər!"
   },
   "giveMembersAccess": {
     "message": "Üzvlərə erişim icazəsi ver:"
@@ -9984,7 +10063,7 @@
     "message": "Parol sıfırlama"
   },
   "emergencyAccessLoggedOutWarning": {
-    "message": "Davam etsəniz, $NAME$ üçün hazırkı sessiyadan çıxış ediləcək, təkrar giriş etməsi tələb olunacaq. Digər cihazlardakı aktiv sessiyalar, bir saata qədər aktiv qalmağa davam edə bilər.",
+    "message": "Davam etsəniz, $NAME$ üçün hazırkı oturumdan çıxış ediləcək, təkrar giriş etməsi tələb olunacaq. Digər cihazlardakı aktiv oturumlar, bir saata qədər aktiv qalmağa davam edə bilər.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10217,13 +10296,13 @@
     "message": "Xəta"
   },
   "decryptionError": {
-    "message": "Şifrə açma xətası"
+    "message": "Deşifrləmə xətası"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden, aşağıda sadalanmış seyf elementinin şifrəsini aça bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-sini təqdim edin."
+    "message": "Bitwarden, aşağıda sadalanmış seyf elementini deşifrləyə bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-sini təqdim edin."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden, aşağıda sadalanmış seyf elementlərinin şifrəsini aça bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementlərin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-lərini təqdim edin."
+    "message": "Bitwarden, aşağıda sadalanmış seyf elementlərini deşifrləyə bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementlərin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-lərini təqdim edin."
   },
   "itemId": {
     "message": "Element ID-si",
@@ -10386,13 +10465,13 @@
     "message": "Ana parolunuz bu təşkilatın tələblərinə cavab vermir. Davam etmək üçün ana parolunuzu dəyişdirin."
   },
   "updateMasterPasswordWarning": {
-    "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı oturumdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv oturumlar, bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "masterPasswordInvalidWarning": {
-    "message": "Ana parolunuz bu təşkilatın siyasət tələblərinə cavab vermir. Təşkilata qoşulmaq üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Ana parolunuz bu təşkilatın siyasət tələblərinə cavab vermir. Təşkilata qoşulmaq üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı oturumdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv oturumlar, bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı oturumdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv oturumlar, bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "automaticAppLoginWithSSO": {
     "message": "SSO ilə avtomatik giriş"
@@ -10411,16 +10490,16 @@
     "message": "Provayder host kimliyinin URL-sini daxil edin. Çoxlu URL-ləri vergüllə ayırın."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Təşkilatınız, şifrə açma seçənəklərinizi güncəllədi. Seyfinizə erişmək üçün lütfən bir ana parol təyin edin."
+    "message": "Təşkilatınız, deşifrləmə seçənəklərinizi güncəllədi. Seyfinizə erişmək üçün lütfən bir ana parol təyin edin."
   },
   "sessionTimeoutPolicyTitle": {
-    "message": "Sessiyanın bitmə vaxtı"
+    "message": "Oturumun bitmə vaxtı"
   },
   "sessionTimeoutPolicyDescription": {
-    "message": "Sahiblər istisna olmaqla bütün üzvlər üçün maksimum sessiya bitmə vaxtını təyin edin."
+    "message": "Sahiblər istisna olmaqla bütün üzvlər üçün maksimum oturum bitmə vaxtını təyin edin."
   },
   "sessionTimeoutPolicyDescriptionListVfo1": {
-    "message": "Üzvlər üçün maksimum sessiya bitmə vaxtını ayarlayın."
+    "message": "Üzvlər üçün maksimum oturum bitmə vaxtını ayarlayın."
   },
   "maximumAllowedTimeout": {
     "message": "Maksimum icazə verilən bitmə vaxtı"
@@ -10432,7 +10511,7 @@
     "message": "Vaxt etibarsızdır. Ən azı bir dəyəri dəyişdirin."
   },
   "sessionTimeoutAction": {
-    "message": "Sessiya vaxtının bitmə əməliyyatı"
+    "message": "Oturum vaxtının bitmə əməliyyatı"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
     "message": "Bitwarden brauzer uzantısı tətbiqi tərəfindən idarə olunur. Düzəliş etmək üçün brauzer tətbiqini açın."
@@ -10456,7 +10535,7 @@
     "message": "Bütün üzvlər üçün maksimum bitmə vaxtını \"Heç vaxt\" olaraq icazə vermək istədiyinizə əminsiniz?"
   },
   "sessionTimeoutConfirmationNeverDescription": {
-    "message": "Bu seçənək, üzvlərinizin şifrələmə açarlarını onların cihazlarında saxlayacaq. Bu seçənəyi seçirsinizsə, onların cihazlarının lazımi səviyyədə qorunduğuna əmin olun."
+    "message": "Bu seçənək, üzvlərinizin şifrləmə açarlarını onların cihazlarında saxlayacaq. Bu seçənəyi seçirsinizsə, onların cihazlarının lazımi səviyyədə qorunduğuna əmin olun."
   },
   "learnMoreAboutDeviceProtection": {
     "message": "Cihaz mühafizəsi barədə daha ətraflı"
@@ -10558,16 +10637,16 @@
     "message": "Bütün üzvlər üçün brauzer uzantısında \"Səhifə yüklənəndə avto-doldur\" ayarını fəallaşdırın."
   },
   "activateAutofillPolicyDescV2": {
-    "message": "Bütün mövcud və yeni üzvlər üçün \"Səhifə yüklənəndə avto-doldurma\" ayarını brauzer uzantısında fəallaşdırın. Təhlükəyə məruz qalmış və ya etibarsız veb saytlar"
+    "message": "Bütün mövcud və yeni üzvlər üçün \"Səhifə yüklənəndə avto-doldurma\" ayarını brauzer uzantısında fəallaşdırın. Təhlükəyə məruz qalmış və ya etibarsız veb-saytlar"
   },
   "activateAutofillPolicyDescV3": {
-    "message": "Bütün mövcud və yeni üzvlər üçün \"Səhifə yüklənəndə avto-doldurma\" ayarını brauzer uzantısında fəallaşdırın. Bu siyasət açıq olduqdan sonra, üzvlər avto-doldurmanı işə salmaq üçün öz fərdi ayarlarını tənzimləməlidirlər. Təhlükəyə məruz qalmış və ya etibarsız veb saytlar"
+    "message": "Bütün mövcud və yeni üzvlər üçün \"Səhifə yüklənəndə avto-doldurma\" ayarını brauzer uzantısında fəallaşdırın. Bu siyasət açıq olduqdan sonra, üzvlər avto-doldurmanı işə salmaq üçün öz fərdi ayarlarını tənzimləməlidirlər. Təhlükəyə məruz qalmış və ya etibarsız veb-saytlar"
   },
   "exploitAutofillOnPageLoad": {
     "message": "səhifə yüklənəndə avto-doldurmanı istismar edə bilər"
   },
   "autofillOnPageLoadExploitWarning": {
-    "message": "Təhlükəli və ya güvənilməyən veb saytlar, səhifə yüklənərkən avto-doldurmanı sui-istifadə edə bilər."
+    "message": "Təhlükəli və ya güvənilməyən veb-saytlar, səhifə yüklənərkən avto-doldurmanı sui-istifadə edə bilər."
   },
   "learnMoreAboutAutofillPolicy": {
     "message": "Avto-doldurma barədə daha ətraflı"
@@ -10947,16 +11026,16 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "memberDecryptionOption": {
-    "message": "Üzv şifrə açma seçənəkləri"
+    "message": "Üzv deşifrləmə seçənəkləri"
   },
   "memberDecryptionPassDesc": {
-    "message": "Kimlik doğrulandıqdan sonra üzvlər, ana parollarını istifadə edərək seyf verilərinin şifrəsini aça biləcək."
+    "message": "Kimlik doğrulandıqdan sonra üzvlər, ana parollarını istifadə edərək seyf verilərini deşifrləyə biləcək."
   },
   "keyConnector": {
     "message": "Key Connector"
   },
   "memberDecryptionKeyConnectorDescStart": {
-    "message": "SSO ilə Girişi, self-hosted şifrə açma açar serverinizə bağlayın. Bu seçənəyi istifadə etməklə, üzvlərin seyf verilərinin şifrəsini açmaq üçün ana parollarını istifadə etməsinə ehtiyac qalmayacaq.",
+    "message": "SSO ilə giriş prosesini, self-hosted deşifrləmə açarı serverinizə bağlayın. Bu seçənəyi istifadə etməklə, üzvlərin seyf verilərini deşifrləmək üçün ana parollarını istifadə etməsinə ehtiyac qalmayacaq.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescLink": {
@@ -10964,11 +11043,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
-    "message": "Key Connector şifrə açmanı quraşdırmaq üçün tələb olunur. Quraşdırma üzrə kömək üçün Bitwarden Dəstək ilə əlaqə saxlayın.",
+    "message": "Key Connector deşifrləmə quraşdırmaq üçün tələb olunur. Quraşdırma üzrə kömək üçün Bitwarden Dəstək ilə əlaqə saxlayın.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
-    "message": "\"SSO və Key Connector Şifrə Açma ilə Giriş\" fəaldır. Bu siyasət yalnız sahiblər və adminlər üçün etibarlıdır."
+    "message": "\"SSO və Key Connector Deşifrləmə ilə Giriş\" fəaldır. Bu siyasət yalnız sahiblər və adminlər üçün etibarlıdır."
   },
   "enabledSso": {
     "message": "SSO fəaldır"
@@ -10992,7 +11071,7 @@
     "message": "Key Connector deaktivdir"
   },
   "keyConnectorWarning": {
-    "message": "Üzvlər \"Key Connector\"u istifadə etməyə başladıqdan sonra, təşkilatınız ana parol ilə şifrə açma proseduruna geri qaytarıla bilməz. Yalnız bir açar serverini deploy və idarə etmə üçün uyğun olduqda davam edin."
+    "message": "Üzvlər \"Key Connector\"u istifadə etməyə başladıqdan sonra, təşkilatınız ana parol ilə deşifrləmə proseduruna geri qaytarıla bilməz. Yalnız bir açar serverini qurma və idarə etməni rahat icra edə bilirsinizsə davam edin."
   },
   "migratedKeyConnector": {
     "message": "\"Key Connector\"a daşındı"
@@ -11059,13 +11138,13 @@
     "message": "Token yarat"
   },
   "rotateToken": {
-    "message": "Tokeni döndər"
+    "message": "Tokeni yenilə"
   },
   "rotateBillingSyncTokenWarning": {
     "message": "Davam etsəniz, self-hosted serverinizdəki faktura sinxronlaşdırmanı təkrar qurmalı olacaqsınız."
   },
   "rotateBillingSyncTokenTitle": {
-    "message": "Faktura sinxr tokenini döndərmək, əvvəlki tokeni yararsız edəcək."
+    "message": "Faktura sinxr tokenini yeniləmək, əvvəlki tokeni yararsız edəcək."
   },
   "selfHostedServer": {
     "message": "self-hosted"
@@ -11098,7 +11177,7 @@
     "message": "Bildiriş server URL-si"
   },
   "iconsUrl": {
-    "message": "İkon server URL-si"
+    "message": "Simgə server URL-si"
   },
   "sendUrl": {
     "message": "Send server URL-si"
@@ -11113,7 +11192,7 @@
     "message": "Təşkilatınızı öz serverinizdə quraşdırmaq üçün lisenziya faylınızı yükləməlisiniz. Self-hosted təşkilatınız üçün Ödənişsiz Ailələr planlarını və qabaqcıl faktura özəlliklərini dəstəkləmək üçün, faktura sinxronlaşdırmanı qurmalısınız."
   },
   "billingSyncApiKeyRotated": {
-    "message": "Token döndərildi."
+    "message": "Token yeniləndi"
   },
   "billingSyncKeyDesc": {
     "message": "Bu forumu tamamlamaq üçün bulud təşkilatınızın abunəlik ayarlarından Faktura sinxr tokeni tələb olunur."
@@ -11204,7 +11283,7 @@
     "message": "Vergüllə ayırın."
   },
   "sessionTimeout": {
-    "message": "Sessiyanızın vaxtı bitdi. Lütfən geri qayıdıb yenidən giriş etməyə cəhd edin."
+    "message": "Oturumunuzun vaxtı bitdi. Lütfən geri qayıdıb yenidən giriş etməyə cəhd edin."
   },
   "exportingPersonalVaultTitle": {
     "message": "Fərdi seyfin xaricə köçürülməsi"
@@ -11381,7 +11460,7 @@
     "message": "Bu istifadəçi adını istifadə et"
   },
   "securePasswordGenerated": {
-    "message": "Güvənli parol yaradıldı! Həmçinin veb saytdakı parolunuzu güncəlləməyi unutmayın."
+    "message": "Güvənli parol yaradıldı! Həmçinin veb-saytdakı parolunuzu güncəlləməyi unutmayın."
   },
   "useGeneratorHelpTextPartOne": {
     "message": "Yaradıcı istifadə et",
@@ -11419,7 +11498,7 @@
     }
   },
   "awaitingSyncSingular": {
-    "message": "Token $DAYS$ gün əvvəl döndərildi. Self-hosted təşkilat ayarlarınızda faktura sinxronlaşdırma tokenini güncəlləyin.",
+    "message": "Token $DAYS$ gün əvvəl yeniləndi. Self-hosted təşkilat ayarlarınızda faktura sinxronlaşdırma tokenini güncəlləyin.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -11428,7 +11507,7 @@
     }
   },
   "awaitingSyncPlural": {
-    "message": "Token $DAYS$ gün əvvəl döndərildi. Self-hosted təşkilat ayarlarınızda faktura sinxronlaşdırma tokenini güncəlləyin.",
+    "message": "Token $DAYS$ gün əvvəl yeniləndi. Self-hosted təşkilat ayarlarınızda faktura sinxronlaşdırma tokenini güncəlləyin.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -11489,7 +11568,7 @@
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Veb sayt: $WEBSITE$. Bitwarden tərəfindən yaradılıb.",
+    "message": "Veb-sayt: $WEBSITE$. Bitwarden tərəfindən yaradılıb.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -11621,11 +11700,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Veb sayt prefiksi əlavə et",
+    "message": "Veb-sayt prefiksi əlavə et",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "Fəal olduğu zaman, hazırkı veb sayt domeni, yaradılmış e-poçt ünvanının əvvəlində prefiks olaraq istifadə olunacaq",
+    "message": "Fəal olduğu zaman, hazırkı veb-sayt domeni, yaradılmış e-poçt ünvanının əvvəlində prefiks olaraq istifadə olunacaq",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -11700,15 +11779,15 @@
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
-    "message": "SCIM API açarını döndər",
+    "message": "SCIM API açarını yenilə",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKeyWarning": {
-    "message": "SCIM API açarını döndərmək istədiyinizə əminsiniz? Hazırkı açar, mövcud heç bir inteqrasiya üçün işləməyəcək.",
+    "message": "SCIM API açarını yeniləmək istədiyinizə əminsiniz? Hazırkı açar, mövcud heç bir inteqrasiya üçün işləməyəcək.",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateKey": {
-    "message": "Açarı döndər"
+    "message": "Açarı yenilə"
   },
   "scimApiKey": {
     "message": "SCIM API açarı",
@@ -11723,7 +11802,7 @@
     "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimApiKeyRotated": {
-    "message": "SCIM API açarı uğurla döndərildi",
+    "message": "SCIM API açarı uğurla yeniləndi",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "scimSettingsSaved": {
@@ -12226,7 +12305,7 @@
     "description": "Tooltip text for corrupted project names that can be clicked to rename."
   },
   "cannotDecryptProjectName": {
-    "message": "Layihə adının şifrəsi açıla bilmir - yenidən adlandırmaq üçün layihəyə kliklə",
+    "message": "Layihə adı deşifrlənə bilmir - yenidən adlandırmaq üçün layihəyə kliklə",
     "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
@@ -12943,8 +13022,91 @@
   "userAccessSecretsManagerGA": {
     "message": "Bu istifadəçi \"Sirr Meneceri\"nə erişə bilər"
   },
+  "products": {
+    "message": "Products"
+  },
   "privilegedControls": {
     "message": "İmtiyazlı nəzarət",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Credential leasing"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Advanced access rules"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Automated password rotation"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Compliance-ready audit logs"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Governance dashboard"
+  },
+  "addPrivilegedControls": {
+    "message": "Add Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Seat limit",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "What's included"
+  },
+  "pricePerMember": {
+    "message": "$COST$ per member",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Seats can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Seat limit can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Seat limit can't be more than your Password Manager seat limit ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you won't be able to give more members access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Seat limit must be greater than the number of seats."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Subscription updated. You now have Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13404,13 +13566,13 @@
     "message": "Güvəndiyiniz bir cihazda giriş etməli və ya inzibatçınızdan sizə bir parol təyin etməsini xahiş etməlisiniz."
   },
   "trustedDeviceEncryption": {
-    "message": "Güvənli cihaz şifrələməsi"
+    "message": "Güvənilən cihaz şifrləməsi"
   },
   "trustedDevices": {
     "message": "Güvənli cihazlar"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "SSO ilə giriş edərkən üzvlərin ana parola ehtiyacı olmayacaq. Ana parol, cihazda saxlanılan bir şifrələmə açarı ilə əvəz olunur və bu da cihazı güvənli hala gətirir. Üzvün hesabını yaradıb giriş etdiyi ilk cihaz, güvənli hesab olunacaq. Yeni cihazların mövcud güvənli cihaz və ya bir inzibatçı tərəfindən təsdiqlənməsi lazım gələcək.",
+    "message": "SSO ilə giriş edərkən üzvlərin ana parola ehtiyacı olmayacaq. Ana parol, cihazda saxlanılan bir şifrləmə açarı ilə əvəz olunur və bu da cihazı güvənilən edir. Üzvün hesabını yaradıb giriş etdiyi ilk cihaz, güvənilən hesab olunacaq. Yeni cihazların mövcud güvənilən cihaz və ya bir inzibatçı tərəfindən təsdiqlənməsi lazım gələcək.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
@@ -13698,23 +13860,8 @@
   "inviteUsers": {
     "message": "İstifadəçiləri dəvət et"
   },
-  "secretsManagerForPlan": {
-    "message": "$PLAN$ üçün Sirr Meneceri",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "Mühəndislik və DevOps komandalarının yazılım gəlişdirmə dövrü boyunca sirləri idarə etmək üçün."
-  },
-  "free2PersonOrganization": {
-    "message": "Ödənişsiz 2 nəfərlik Təşkilatlar"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Paylaşılan seyf ilə ödənişsiz plan"
+  "secretsManagerPurchaseDesc": {
+    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
   },
   "unlimitedSecrets": {
     "message": "Limitsiz sirr"
@@ -13749,8 +13896,9 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "\"Sirr Meneceri\"nə abunə ol"
+  "addSecretsManager": {
+    "message": "Add Secrets Manager",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Əvvəlki planınızla yaradılan bütün sirlərə erişimi davam etdirmək üçün \"Sirr Meneceri\"ni yüksəldilmiş planınıza əlavə edin."
@@ -14646,15 +14794,6 @@
   "smAccessRemovalWarningMaMessage": {
     "message": "Bu əməliyyat, maşın hesabına olan erişiminizi ləğv edəcək."
   },
-  "machineAccountsIncluded": {
-    "message": "$COUNT$ maşın hesabı daxildir",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "additionalMachineAccountCost": {
     "message": "Əlavə maşın hesabları üçün aylıq $COST$",
     "placeholders": {
@@ -15241,7 +15380,7 @@
     "message": "Üzvlərin düzgün kimlik məlumatlarına erişdiklərinə və onların hesabınlarının güvəndə olduğuna əmin olun. Üzv erişimi və hesab konfiqurasiyalarının CSV-sini əldə etmək üçün bu hesabatı istifadə edin."
   },
   "memberAccessReportPageDesc": {
-    "message": "Qruplar, kolleksiyalar və kolleksiya elementləri arasında təşkilat üzvlərinin erişimini yoxlanışdan keçirin. CSV xaricə köçürməsi, kolleksiya izinləri və hesab konfiqurasiyaları haqqında məlumatlar da daxil olmaqla hər bir üzv üçün ayrıntılı məlumat təqdim edir."
+    "message": "Qruplar, kolleksiyalar və kolleksiya elementləri arasında təşkilat üzvlərinin erişimini yoxlanışdan keçirin. CSV xaricə köçürməsi, kolleksiya izinləri və hesab konfiqurasiyaları barədə məlumatlar da daxil olmaqla hər bir üzv üçün ayrıntılı məlumat təqdim edir."
   },
   "memberAccessReportPageDescV3": {
     "message": "Qruplar, paylaşılan qovluqlar və elementlər arasında üzvlərin erişimini yoxlanışdan keçirin. CSV xaricə köçürməsi, izinlər və hesab konfiqurasiyaları barədə məlumatlar da daxil olmaqla hər bir üzv üçün ayrıntılı məlumat təqdim edir."
@@ -15432,31 +15571,31 @@
     "message": "Fövqəladə hal erişimi barədə daha ətraflı"
   },
   "learnMoreAboutMatchDetection": {
-    "message": "Uyuşma aşkarlaması haqqında daha ətraflı"
+    "message": "Uyuşma aşkarlaması barədə daha ətraflı"
   },
   "learnMoreAboutMasterPasswordReprompt": {
-    "message": "Ana parolu təkrar soruşmaq haqqında daha ətraflı"
+    "message": "Ana parolu təkrar soruşmaq barədə daha ətraflı"
   },
   "learnMoreAboutSearchingYourVault": {
     "message": "Seyfinizdə axtarış ilə bağlı daha ətraflı"
   },
   "learnMoreAboutYourAccountFingerprintPhrase": {
-    "message": "Hesabınızın barmaq izi ifadəsi haqqında daha ətraflı"
+    "message": "Hesabınızın barmaq izi ifadəsi barədə daha ətraflı"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Şifrələmə açarınızı döndərməyin təsiri"
+    "message": "Şifrləmə açarınızı yeniləməyin təsiri"
   },
   "learnMoreAboutEncryptionAlgorithms": {
-    "message": "Şifrələmə alqoritmləri haqqında daha ətraflı"
+    "message": "Şifrləmə alqoritmləri barədə daha ətraflı"
   },
   "learnMoreAboutKDFIterations": {
-    "message": "KDF iterasiyaları haqqında daha ətraflı"
+    "message": "KDF iterasiyaları barədə daha ətraflı"
   },
   "learnMoreAboutLocalization": {
-    "message": "Lokallaşdırma haqqında daha ətraflı"
+    "message": "Lokallaşdırma barədə daha ətraflı"
   },
   "learnMoreAboutWebsiteIcons": {
-    "message": "Veb sayt ikonlarını istifadə etmə haqqında daha ətraflı"
+    "message": "Veb-sayt simgələrini istifadə etmək barədə daha ətraflı"
   },
   "learnMoreAboutUserAccess": {
     "message": "İstifadəçi erişimi barədə daha ətraflı"
@@ -15468,7 +15607,7 @@
     "message": "CVV nömrəsi nədir?"
   },
   "learnMoreAboutApi": {
-    "message": "Bitwarden-nin API-si haqqında daha ətraflı"
+    "message": "Bitwarden-nin API-ı barədə daha ətraflı"
   },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
@@ -15673,7 +15812,7 @@
     "message": "\"E-poçtu xatırla\" kimi formun təsdiq qutusunu avto-doldurmaq istəyirsinizsə təsdiq qutularını istifadə edin"
   },
   "linkedHelpText": {
-    "message": "Müəyyən bir veb sayt üçün avto-doldurma problemləri ilə üzləşdikdə əlaqələndirilmiş xana istifadə edin."
+    "message": "Müəyyən bir veb-sayt üçün avto-doldurma problemləri ilə üzləşdikdə əlaqələndirilmiş xana istifadə edin."
   },
   "linkedFieldLabelHelpText": {
     "message": "Xana üçün bunları daxil edin: HTML kimlik, ad, aria-label və ya placeholder."
@@ -16030,10 +16169,10 @@
     "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
   },
   "rotationCompletedTitle": {
-    "message": "Açar döndərmə uğurludur"
+    "message": "Açar yeniləmə uğurludur"
   },
   "rotationCompletedDesc": {
-    "message": "Ana parol və şifrələmə açarınız güncəllənib. Digər cihazlarınızda hesabdan çıxış edildi."
+    "message": "Ana parol və şifrləmə açarınız güncəllənib. Digər cihazlarınızda hesabdan çıxış edilib."
   },
   "trustUserEmergencyAccess": {
     "message": "İstifadəçiyə güvən və təsdiqlə"
@@ -16294,10 +16433,10 @@
     }
   },
   "userkeyRotationDisclaimerDescription": {
-    "message": "Şifrələmə açarlarını döndərmək, sizdən hesabınızı geri qaytara biləcək istənilən təşkilatın açarlarına və fövqəladə hal erişimini fəallaşdırdığınız istənilən kontakta güvənməyinizi tələb edəcək. Davam etmək üçün əmin olun ki, aşağıdakıları doğrulaya bilirsiniz:"
+    "message": "Şifrləmə açarlarını yeniləmək, sizdən hesabınızı geri qaytara biləcək istənilən təşkilatın açarlarına və fövqəladə hal erişimini fəallaşdırdığınız istənilən kontakta güvənməyinizi tələb edəcək. Davam etmək üçün əmin olun ki, aşağıdakıları doğrulaya bilirsiniz:"
   },
   "userkeyRotationDisclaimerTitle": {
-    "message": "Güvənilməyən şifrələmə açarları"
+    "message": "Güvənilməyən şifrləmə açarları"
   },
   "atRiskPassword": {
     "message": "Riskli parollar"
@@ -16432,7 +16571,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "İstənilən platformada faylları və veriləri hər kəslə güvənli şəkildə paylaşın. Məlumatlarınız, ifşa olunmamaq üçün ucdan-uca şifrələnmiş qalacaq.",
+    "message": "İstənilən platformada faylları və veriləri hər kəslə güvənli şəkildə paylaşın. Məlumatlarınız, ifşa olunmamaq üçün ucdan-uca şifrlənmiş qalacaq.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
@@ -16492,7 +16631,7 @@
     "message": "Gəlişdirici dostu SSH erişimi"
   },
   "newSshNudgeBodyOne": {
-    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın.",
+    "message": "Açarlarınızı saxlayın və sürətli, şifrlənmiş kimlik doğrulama üçün SSH agentinə bağlayın.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
@@ -16543,7 +16682,7 @@
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "openExtensionFromToolbarPart1": {
-    "message": "Uzantı açılmasa, alət çubuğundakı ikondan Bitwarden-i açmağınız ",
+    "message": "Uzantı açılmasa, alət çubuğundakı simgədən Bitwarden-i açmağınız ",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "openExtensionFromToolbarPart2": {
@@ -16587,7 +16726,7 @@
     "message": "Bu ayar barədə"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
+    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı simgənin və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
   },
   "showQuickCopyActionsDetailsDescription": {
     "message": "İstifadəçi adınızı, parolunuzu və ya doğrulama kodunuzu lövhəyə kopyalamaq üçün elementlərin yanına 3 cəld kopyalama düyməsi əlavə edin."
@@ -16995,25 +17134,25 @@
     "message": "Biznes planlarına bax"
   },
   "updateEncryptionSettings": {
-    "message": "Şifrələmə ayarlarını güncəlləyin"
+    "message": "Şifrləmə ayarlarını güncəllə"
   },
   "updateYourEncryptionSettings": {
-    "message": "Şifrələmə ayarlarınızı güncəlləyin"
+    "message": "Şifrləmə ayarlarınızı güncəlləyin"
   },
   "algorithm": {
     "message": "Alqoritm"
   },
   "encryptionKeySettingsHowShouldWeEncryptYourData": {
-    "message": "Bitwarden-in seyf verilərinizi necə şifrələyəcəyini seçin. Bütün seçənəklər güvənlidir, ancaq daha güclü üsullar, xüsusən də brute-force hücumlarına qarşı daha yaxşı qoruma təklif edir. Bitwarden, əksər istifadəçilər üçün ilkin ayarı tövsiyə edir."
+    "message": "Bitwarden-in seyf verilərinizi necə şifrləyəcəyini seçin. Bütün seçənəklər güvənlidir, ancaq daha güclü üsullar, xüsusən də brute-force hücumlarına qarşı daha yaxşı qoruma təklif edir. Bitwarden, əksər istifadəçilər üçün ilkin ayarı tövsiyə edir."
   },
   "encryptionKeySettingsIncreaseImproveSecurity": {
     "message": "İlkin dəyərdən yuxarı dəyərin təyin edilməsi, təhlükəsizliyi artırır, ancaq bu, seyfinizin kilidini açma prosesini uzada bilər."
   },
   "encryptionKeySettingsAlgorithmPopoverTitle": {
-    "message": "Şifrələmə alqoritmləri barədə"
+    "message": "Şifrləmə alqoritmləri barədə"
   },
   "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
-    "message": "PBKDF2-SHA256 təhlükəsizlik və performansı tarazlaşdıran yaxşı test edilmiş şifrələmə üsuludur. Bütün istifadəçilər üçün idealdır."
+    "message": "PBKDF2-SHA256 təhlükəsizlik və performansı tarazlaşdıran yaxşıca test edilmiş şifrləmə üsuludur. Bütün istifadəçilər üçün yaxşıdır."
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id, müasir hücumlara qarşı daha güclü qoruma təklif edir. Güclü cihazlara sahib qabaqcıl istifadəçilər üçün idealdır."
@@ -17051,13 +17190,13 @@
     "message": "Seyfin bitmə vaxtı, təşkilatınız tərəfindən ayarlanan məhdudiyyətləri aşır."
   },
   "neverLockWarning": {
-    "message": "\"Heç vaxt\" seçənəyini istifadə etmək istədiyinizə əminsiniz? Kilid seçənəyinizi \"Heç vaxt\" olaraq ayarlasanız, seyfinizin şifrələmə açarı cihazınızda saxlanılacaq. Bu seçənəyi istifadə etsəniz, cihazınızı daha yaxşı mühafizə etdiyinizə əmin olmalısınız."
+    "message": "\"Heç vaxt\" seçənəyini istifadə etmək istədiyinizə əminsiniz? Kilid seçənəyinizi \"Heç vaxt\" olaraq ayarlasanız, seyfinizin şifrləmə açarı cihazınızda saxlanılacaq. Bu seçənəyi istifadə etsəniz, cihazınızı daha yaxşı mühafizə etdiyinizə əmin olmalısınız."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Vaxt bitmə əməliyyatı"
   },
   "sessionTimeoutHeader": {
-    "message": "Sessiya vaxt bitməsi"
+    "message": "Oturum vaxt bitməsi"
   },
   "appearance": {
     "message": "Görünüş"
@@ -17088,7 +17227,7 @@
     "message": "Domen"
   },
   "keyConnectorDomainTooltip": {
-    "message": "Bu domen, hesabınızın şifrələmə açarlarını saxlayacaq, ona görə də, bu domenə güvəndiyinizə əmin olun. Əmin deyilsinizsə, adminizlə əlaqə saxlayın."
+    "message": "Bu domen, hesabınızın şifrləmə açarlarını saxlayacaq, ona görə də, bu domenə güvəndiyinizə əmin olun. Əmin deyilsinizsə, adminizlə əlaqə saxlayın."
   },
   "verifyYourOrganization": {
     "message": "Giriş etmək üçün təşkilatınızı doğrulayın"
@@ -17121,7 +17260,7 @@
     "message": "Davam etmək istədiyinizə əminsiniz?"
   },
   "errorCannotDecrypt": {
-    "message": "Xəta: Şifrəsi açıla bilmir"
+    "message": "Xəta: Deşifrlənə bilmir"
   },
   "userVerificationFailed": {
     "message": "İstifadəçi doğrulaması uğursuz oldu."
@@ -17142,16 +17281,16 @@
     "message": "Qovluqlarınızdan bəziləri geri qaytarıla bilmədi. Bu geri qaytarıla bilməyən qovluqları seyfinizdən silmək istəyirsiniz?"
   },
   "recoveryReplacePrivateKeyTitle": {
-    "message": "Şifrələmə açarını əvəz et"
+    "message": "Şifrləmə açarını əvəz et"
   },
   "recoveryReplacePrivateKeyDesc": {
-    "message": "Public-key şifrələmə açar cütü geri qaytarıla bilmədi. Şifrələmə açarınızı yeni bir açar cütü ilə əvəz etmək istəyirsiniz? Bu proses, mövcud fövqəladə hal və təşkilat üzvlüyünüzü yenidən qurmağınızı tələb edir."
+    "message": "Public-key şifrləmə açar cütü geri qaytarıla bilmədi. Şifrləmə açarınızı yeni bir açar cütü ilə əvəz etmək istəyirsiniz? Bu proses, mövcud fövqəladə hal və təşkilat üzvlüyünüzü yenidən qurmağınızı tələb edir."
   },
   "recoveryStepSyncTitle": {
     "message": "Verilər sinxronlaşdırılır"
   },
   "recoveryStepPrivateKeyTitle": {
-    "message": "Şifrələmə açarı tamlığı doğrulanır"
+    "message": "Şifrləmə açarının bütövlüyü doğrulanır"
   },
   "recoveryStepUserInfoTitle": {
     "message": "İstifadəçi məlumatı doğrulanır"
@@ -17166,7 +17305,7 @@
     "message": "Qoşma tamlığı doğrulanır"
   },
   "recoveryStepAttachmentIssue": {
-    "message": "$COUNT$ elementin köhnə şifrələməyə sahib fayl qoşması var. Bunu düzəltmək üçün aşağıdakı elementlərdən birini açın və \"Qoşmalar\"a gedin.",
+    "message": "$COUNT$ elementin köhnə şifrləməyə sahib fayl qoşması var. Bunu düzəltmək üçün aşağıdakı elementlərdən birini açın və \"Qoşmalar\"a gedin.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17193,7 +17332,7 @@
     "message": "Bu ayar, təşkilatınız tərəfindən idarə olunur."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Təşkilatınız, maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
+    "message": "Təşkilatınız, oturumun maksimum bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -17206,7 +17345,7 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Təşkilatınız, sessiyanın ilkin bitmə vaxtını \"Brauzer yenilənəndə\" olaraq təyin etdi."
+    "message": "Təşkilatınız, oturumun ilkin bitmə vaxtını \"Brauzer yenilənəndə\" olaraq təyin etdi."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
     "message": "Maksimum bitmə vaxtı $HOURS$ saat $MINUTES$ dəqiqə dəyərini aşa bilməz",
@@ -17391,7 +17530,7 @@
     "message": "Depo dolub"
   },
   "storageUsedDescription": {
-    "message": "$AVAILABLE$ GB şifrələnmiş fayl deponuzun $USED$ qədəri istifadə olunub.",
+    "message": "$AVAILABLE$ GB şifrlənmiş fayl deponuzun $USED$ qədəri istifadə olunub.",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -17404,7 +17543,7 @@
     }
   },
   "storageFullDescription": {
-    "message": "$GB$ GB-lıq şifrələnmiş deponuzun tamamını istifadə etmisiniz. Faylları depolaya bilmək üçün daha çox depo sahəsi əlavə edin."
+    "message": "$GB$ GB-lıq şifrlənmiş deponuzun tamamını istifadə etmisiniz. Faylları depolaya bilmək üçün daha çox depo sahəsi əlavə edin."
   },
   "extensionPromptHeading": {
     "message": "Seyfə asan erişmək üçün uzantını əldə et"
@@ -17662,7 +17801,7 @@
     "message": "Bir element əlavə et"
   },
   "coachmarkAddItemDescription": {
-    "message": "Yeni parolları, notları və digər məlumatları seyfinizə əlavə edin. Hər şey, ucdan-uca şifrələmə ilə qorunur."
+    "message": "Yeni parolları, notları və digər məlumatları seyfinizə əlavə edin. Hər şey, ucdan-uca şifrləmə ilə qorunur."
   },
   "coachmarkShareWithCollectionsTitle": {
     "message": "Elementləri başqaları ilə güvənlə paylaşın"
@@ -18258,19 +18397,19 @@
     "message": "Keçidi ötür"
   },
   "rotateAccountEncryptionKey": {
-    "message": "Hesabın şifrələmə açarını yenilə"
+    "message": "Hesabın şifrləmə açarını yenilə"
   },
   "rotateAccountEncryptionKeyDescription": {
-    "message": "Hesabınızın şifrələmə açarını dəyişmək, bütün seyf verilərini təkrar şifrələmək üçün istifadə olunan yeni bir şifrələmə açarı yaradır. Hesabınızın təhlükəsizliyi pozulubsa şifrələmə açarını dəyişdirməyi düşünməlisiniz."
+    "message": "Hesabınızın şifrləmə açarını yeniləmək, bütün seyf verilərini təkrar şifrləmək üçün istifadə olunan yeni bir şifrləmə açarı yaradır. Hesabınızın təhlükəsizliyi pozulubsa, şifrləmə açarını dəyişdirməyi düşünməlisiniz."
   },
   "rotateAccountEncryptionDialogDescription": {
-    "message": "Yeni bir açar yaradın və bütün seyf verilərini təkrar şifrələyin. Hesabınızın təhlükəsizliyinin pozulduğuna inanırsınızsa, bu tövsiyə olunan əməliyyatdır."
+    "message": "Yeni bir açar yaradın və bütün seyf verilərini təkrar şifrləyin. Hesabınızın təhlükəsizliyinin pozulduğuna inanırsınızsa, bu tövsiyə olunan əməliyyatdır."
   },
   "rotateAccountEncryptionCallout": {
     "message": "Hesabınızdan çıxış ediləcəksiniz və kimliyinizi təkrar doğrulamağınız istəniləcək. Verilərin zədələnməsini önləmək üçün proses tamamlanana qədər brauzerinizi bağlamayın."
   },
   "accountEncryptionKeyRotated": {
-    "message": "Hesab şifrələmə açarı yeniləndi"
+    "message": "Hesab şifrləmə açarı yeniləndi"
   },
   "callout": {
     "message": "Elan",
@@ -18344,82 +18483,127 @@
     "message": "Approve, monitor, and audit time-limited access to your credentials."
   },
   "pamTabApprovals": {
-    "message": "Approvals"
+    "message": "Təsdiqlər"
   },
   "pamTabMyRequests": {
-    "message": "My requests"
+    "message": "Tələblərim"
   },
   "pamTabHistory": {
-    "message": "History"
+    "message": "Tarixçə"
   },
-  "pamAccessRequestsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
-  },
-  "pamCollectionFilter": {
-    "message": "Collection"
-  },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Extension requests"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "No active access"
+  "pamMyRequestsLoaded": {
+    "message": "Tələblər yükləndi"
   },
   "pamMyRequestsLoadError": {
-    "message": "Could not load your requests"
+    "message": "Tələbləriniz yüklənə bilmədi"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "Pending"
+  "pamStatusInUse": {
+    "message": "İstifadədə",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsPendingEmpty": {
-    "message": "No pending requests"
+  "pamStatusEndingSoon": {
+    "message": "Tezliklə sonlanacaq",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "Filtrlənəcək paylaşılan qovluq yoxdur",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
   },
   "pamMyRequestsEmptyTitle": {
-    "message": "You have no requests"
+    "message": "Tələbiniz yoxdur"
   },
   "pamMyRequestsEmptyDescription": {
-    "message": "You have no requests for access to sensitive credentials at the moment."
+    "message": "Hazırda həssas kimlik məlumatlarına heç bir erişim tələbiniz yoxdur."
   },
   "pamColumnItem": {
-    "message": "Item"
+    "message": "Element"
   },
   "pamColumnWindow": {
-    "message": "Window"
+    "message": "Aralıq"
   },
   "pamColumnRequestedWindow": {
-    "message": "Requested window"
+    "message": "Tələb olunan aralıq"
   },
   "pamColumnSubmitted": {
-    "message": "Submitted"
+    "message": "Təqdim olundu"
   },
   "pamColumnStatus": {
     "message": "Status"
   },
   "pamColumnResolvedBy": {
-    "message": "Resolved by"
+    "message": "Həll edən"
   },
   "pamColumnResolved": {
-    "message": "Resolved"
+    "message": "Həll edildi"
   },
   "pamColumnRemaining": {
-    "message": "Remaining"
+    "message": "Qalan"
   },
   "pamColumnActions": {
-    "message": "Actions"
+    "message": "Əməliyyatlar"
   },
-  "pamWindowUntil": {
-    "message": "Until $DATE$",
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ - $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "$END$ vaxtına qədər",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "$DATE$ $TIME$ bitir",
     "placeholders": {
       "date": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Bu gün $TIME$ bitir",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
       }
     }
   },
   "pamExtendedBadge": {
-    "message": "Extended +$DURATION$ · until $DATE$",
+    "message": "+$DURATION$ uzadılıb · $DATE$ vaxtına qədər",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -18432,7 +18616,7 @@
     }
   },
   "pamActivateWithin": {
-    "message": "Activate within $REMAINING$",
+    "message": "$REMAINING$ müddətinə aktivləşdir",
     "placeholders": {
       "remaining": {
         "content": "$1",
@@ -18441,16 +18625,16 @@
     }
   },
   "pamResolverAccessRule": {
-    "message": "Access rule"
+    "message": "Erişim qaydası"
   },
   "pamResolverRequester": {
-    "message": "Requester"
+    "message": "Tələb edən"
   },
   "pamResolverUnknown": {
-    "message": "Unknown user"
+    "message": "Bilinməyən istifadəçi"
   },
-  "pamInboxInCollection": {
-    "message": "in $COLLECTION$",
+  "pamInboxInSharedFolder": {
+    "message": "$COLLECTION$ daxilində",
     "placeholders": {
       "collection": {
         "content": "$1",
@@ -18458,44 +18642,20 @@
       }
     }
   },
-  "pamInboxReason": {
-    "message": "Reason"
-  },
   "pamInboxReasonMissing": {
-    "message": "No reason provided"
+    "message": "Heç bir səbəb təqdim olunmayıb"
   },
   "pamAccessRequestedLabel": {
-    "message": "Access requested"
+    "message": "Erişim tələb edildi"
   },
   "pamInboxRequester": {
-    "message": "Requester"
-  },
-  "pamInboxDurationMinutes": {
-    "message": "$MINUTES$ dəq",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
+    "message": "Tələb edən"
   },
   "pamStartLeaseButton": {
-    "message": "Start access"
+    "message": "Erişimi başlat"
   },
   "pamStartLeaseSuccess": {
-    "message": "Access started."
-  },
-  "pamInboxDuration1Hour": {
-    "message": "1 saat"
-  },
-  "pamInboxDurationHours": {
-    "message": "$HOURS$ saat",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "4"
-      }
-    }
+    "message": "Erişim başladıldı."
   },
   "pamInboxStartAsap": {
     "message": "indi başlayır"
@@ -18519,67 +18679,67 @@
     "message": "Erişim başladıla bilmədi."
   },
   "pamMyRequestsCanceledToast": {
-    "message": "Request canceled"
+    "message": "Tələb ləğv edildi"
   },
   "pamMyRequestsCancelError": {
-    "message": "Could not cancel request"
+    "message": "Tələb ləğv edilə bilmədi"
   },
   "pamEndLeaseButton": {
-    "message": "End access"
+    "message": "Erişimi sonlandır"
   },
   "pamEndLeaseTitle": {
-    "message": "End access?"
+    "message": "Erişim sonlandırılsın?"
   },
   "pamEndLeaseConfirm": {
-    "message": "This immediately revokes your access. This action cannot be undone."
+    "message": "Bu, dərhal erişiminizi ləğv edəcək. Bu əməliyyatın geri dönüşü yoxdur."
   },
   "pamEndLeaseSuccess": {
-    "message": "Access ended."
+    "message": "Erişim sonlandırıldı."
   },
-  "pamExtendLeaseButton": {
-    "message": "Extend"
+  "pamExtendLeaseButtonV2": {
+    "message": "Erişimi uzat"
   },
   "pamExtendLeaseDialogTitle": {
-    "message": "Extend access"
+    "message": "Erişimi uzat"
   },
   "pamExtendLeaseDurationLabel": {
-    "message": "Extension length"
+    "message": "Uzatma müddəti"
   },
   "pamExtendLeaseReasonLabel": {
-    "message": "Reason"
+    "message": "Səbəb"
   },
   "pamExtendLeaseSuccess": {
-    "message": "Access extended."
+    "message": "Erişim uzadıldı."
   },
   "pamExtendLeaseError": {
-    "message": "Couldn't extend access."
+    "message": "Erişim uzadıla bilmədi."
   },
   "pamExtendLeaseEnded": {
-    "message": "Your access ended before it could be extended. The request is in your history."
+    "message": "Erişiminiz uzadılmazdan əvvəl sonlandı. Tələb tarixçənizdədir."
   },
   "pamStatusApproved": {
-    "message": "Approved"
+    "message": "Təsdiqləndi"
   },
   "pamStatusActivated": {
-    "message": "Active"
+    "message": "Aktiv"
   },
   "pamStatusDenied": {
-    "message": "Denied"
+    "message": "Rədd edildi"
   },
   "pamStatusCanceled": {
-    "message": "Canceled"
+    "message": "Ləğv edildi"
   },
   "pamStatusExpired": {
-    "message": "Expired"
+    "message": "Müddəti bitib"
   },
   "pamStatusRevoked": {
-    "message": "Revoked"
+    "message": "Ləğv edildi"
   },
   "pamStatusSessionEnded": {
-    "message": "Session ended"
+    "message": "Oturum sonlandı"
   },
   "pamStatusUnknown": {
-    "message": "Unknown"
+    "message": "Bilinmir"
   },
   "pamSharedFolderPrivilegedControls": {
     "message": "Privileged controls: access requires a request"
@@ -18615,11 +18775,15 @@
     }
   },
   "pamAccessBadgeEnded": {
-    "message": "Session ended"
+    "message": "Oturum sonlandı"
   },
   "pamControlledAccessFilterActive": {
     "message": "Active",
     "description": "Controlled access filter option in the vault table: items with an active access session."
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Ending soon",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
   },
   "pamAuditKindAccessEndedByRequester": {
     "message": "Access ended by requester"
@@ -18651,6 +18815,40 @@
       }
     }
   },
+  "pamAuditCustomRange": {
+    "message": "$START$ – $END$",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "From $START$",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "Until $END$",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
   "pamAuditColumnEvent": {
     "message": "Event"
   },
@@ -18667,10 +18865,10 @@
     "message": "Duration"
   },
   "pamAuditColumnDetail": {
-    "message": "Detail"
+    "message": "Ayrıntı"
   },
   "pamAuditDurationExtendedTo": {
-    "message": "Extended to $DATETIME$",
+    "message": "$DATETIME$ zamanına qədər uzadıldı",
     "placeholders": {
       "datetime": {
         "content": "$1",
@@ -18679,125 +18877,232 @@
     }
   },
   "pamAuditSystem": {
-    "message": "System"
+    "message": "Sistem"
   },
   "pamAuditIncomplete": {
-    "message": "Incomplete"
+    "message": "Tamamlanmayıb"
   },
-  "pamAuditIncompleteTooltip": {
-    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed. It may have failed or been interrupted."
   },
   "pamAuditKindRequestSubmitted": {
-    "message": "Access requested"
+    "message": "Erişim tələb edildi"
   },
   "pamAuditKindRequestApproved": {
-    "message": "Request approved"
+    "message": "Tələb təsdiqləndi"
   },
   "pamAuditKindRequestDenied": {
-    "message": "Request denied"
+    "message": "Tələb rədd edildi"
   },
   "pamAuditKindRequestCanceled": {
-    "message": "Request canceled"
+    "message": "Tələb ləğv edildi"
   },
   "pamAuditKindRequestExpiredUnanswered": {
-    "message": "Request expired without a decision"
+    "message": "Tələb müddəti qərar olmadan bitdi"
   },
   "pamAuditKindRequestExpiredUnactivated": {
-    "message": "Approval expired unused"
+    "message": "Təsdiq müddəti istifadə olunmadan bitib"
   },
   "pamAuditKindAccessActivated": {
-    "message": "Access activated"
+    "message": "Erişim aktivdir"
   },
   "pamAuditKindLeaseActivationRejected": {
-    "message": "Activation rejected"
+    "message": "Aktivləşdirmə rədd edildi"
   },
   "pamAuditKindAccessExtended": {
-    "message": "Access extended"
+    "message": "Erişim uzadıldı"
   },
   "pamAuditKindAccessExpired": {
-    "message": "Access expired"
+    "message": "Erişimin müddəti bitdi"
   },
   "pamAuditKindCredentialAccessed": {
-    "message": "Credential accessed"
+    "message": "Kimlik məlumatına erişildi"
   },
   "pamAuditKindCredentialAccessDenied": {
-    "message": "Credential access denied"
+    "message": "Kimlik məlumatına erişim rədd edildi"
   },
   "pamAuditKindRuleCreated": {
-    "message": "Access rule created"
+    "message": "Erişim qaydası yaradıldı"
   },
   "pamAuditKindRuleUpdated": {
-    "message": "Access rule updated"
+    "message": "Erişim qaydası güncəlləndi"
   },
   "pamAuditKindRuleDeleted": {
-    "message": "Access rule deleted"
+    "message": "Erişim qaydası silindi"
   },
   "pamAuditKindLeasingKillSwitchTriggered": {
     "message": "Kill switch triggered"
   },
   "pamAuditKindAccessFreezeEnabled": {
-    "message": "Access freeze enabled"
+    "message": "Erişim dondurma fəaldır"
   },
   "pamAuditKindAccessFreezeLifted": {
-    "message": "Access freeze lifted"
+    "message": "Erişim dondurma qaldırıldı"
   },
   "pamAuditKindUnknown": {
-    "message": "Unknown event"
+    "message": "Bilinməyən hadisə"
   },
   "pamAuditLog": {
-    "message": "Audit log"
+    "message": "Audit log-u"
   },
   "pamAccessRequestTitle": {
-    "message": "Access request"
+    "message": "Erişim tələbi"
   },
   "pamAccessRequestDetailsTitle": {
-    "message": "Request details"
+    "message": "Tələb ayrıntıları"
+  },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Ayrıntılar",
+    "description": "Heading over the request's own fields in the access request dialog."
   },
   "pamAccessRequestLeaseTitle": {
-    "message": "Access"
+    "message": "Erişim"
   },
   "pamAccessRequestDecisionLogTitle": {
-    "message": "Decision log"
+    "message": "Qərar log-u"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Qərar",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Təsdiqləyən",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Rədd edən",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Ləğv edən",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Sonlandıran",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "E-poçt",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Qərar şərhi",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Oturumu başlat",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "Oturumu sonlandır",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "Sistem (avtomatik)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Yeni tələb göndər",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Səbəb",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Qərar jurnalında tələbi göndərənə göstərilir.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Qısa saxlayın. Tələbi göndərən bunu birbaşa oxuyacaq.",
+    "description": "Hint under the withdrawal reason field."
   },
   "pamAccessRequestNotFound": {
-    "message": "Access request not available"
+    "message": "Erişim tələbi əlçatan deyil"
   },
   "pamAccessRequestNotFoundDescription": {
-    "message": "This access request isn't available to you, or it no longer exists."
+    "message": "Bu erişim tələbi sizin üçün əlçatan deyil və ya artıq mövcud deyil."
   },
   "pamAccessRequestLoadError": {
-    "message": "Couldn't load this access request."
+    "message": "Bu erişim tələbi yüklənə bilmədi."
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "You have active access to this item — $DURATION$ remaining",
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Erişim aktivdir • $DURATION$ qalıb",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "23m"
+        "example": "20 days"
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Access to this item is ending soon — $DURATION$ remaining",
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Tezliklə sonlanacaq • $DURATION$ qalıb",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "4m"
+        "example": "4 minutes"
       }
     }
   },
   "pamPendingRequestBannerHeading": {
-    "message": "Access request pending approval"
+    "message": "Erişim tələbi təsdiq gözləyir"
   },
-  "pamApprovedRequestBannerHeading": {
-    "message": "Access approved"
+  "pamPendingSubmittedJustNow": {
+    "message": "Submitted just now"
   },
-  "pamApprovedRequestBannerDuration": {
-    "message": "$DURATION$ of access",
+  "pamPendingSubmittedAgo": {
+    "message": "Submitted $WHEN$",
     "placeholders": {
-      "duration": {
+      "when": {
         "content": "$1",
-        "example": "1 hour"
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privileged credentials"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls license needed",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Request to use"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Your access has ended"
+  },
+  "pamEndedBannerBody": {
+    "message": "Bu kimlik məlumatının icarə müddəti bitdi. Erişiminiz bitdiyi üçün bu kimlik məlumatının şifrləmə açarı yenilənəcək."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Ready to use"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "You can access this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
       }
     }
   },
@@ -18807,17 +19112,17 @@
   "pamRequestAccessBannerHeading": {
     "message": "You can request access"
   },
-  "pamUnlicensedBannerHeading": {
-    "message": "Privileged Controls license required",
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "You need a Privileged Controls license to use this item",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
-  },
-  "pamUnlicensedBannerBody": {
-    "message": "You need a Privileged Controls license to view this item. Ask your admin to activate your license.",
-    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
     "message": "Requesting access is not available while unlicensed.",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Təsdiqlənmiş erişim pəncərəsi hələ başladılmayıb."
@@ -18904,8 +19209,8 @@
   "pendingStateCancelError": {
     "message": "Couldn't cancel the request."
   },
-  "requestAccessModalSubmit": {
-    "message": "Request access"
+  "requestAccessModalSubmitV2": {
+    "message": "Send request"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Pick a duration. You'll get immediate access for that long."
@@ -18913,8 +19218,14 @@
   "requestAccessModalHumanDescription": {
     "message": "Pick a window and tell the approver why you need access. They'll review and decide."
   },
-  "requestAccessModalDuration": {
-    "message": "Duration"
+  "requestAccessModalDurationV2": {
+    "message": "How long do you need it?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Request details"
   },
   "requestAccessModalStartDate": {
     "message": "Start date"
@@ -18994,20 +19305,20 @@
       }
     }
   },
-  "requestAccessModalReasonRequired": {
-    "message": "Reason"
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Why do you need it?"
   },
-  "requestAccessModalReasonOptional": {
-    "message": "Reason (optional)"
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Why do you need it?"
   },
-  "requestAccessModalReasonPlaceholder": {
-    "message": "Why do you need this?"
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "e.g., Quarterly audit, need to run a few read-only queries"
   },
-  "requestAccessModalAutomaticReasonHint": {
-    "message": "This reason is saved with your access request."
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
   },
-  "requestAccessModalHumanReasonHint": {
-    "message": "Approvers will see this reason when reviewing your request."
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
   },
   "requestAccessModalGenericError": {
     "message": "Could not request access. Try again."
@@ -19015,32 +19326,23 @@
   "requestAccessModalAlreadyActive": {
     "message": "Bu elementə artıq aktiv erişiminiz var."
   },
-  "requestAccessModalApprovedSuccess": {
-    "message": "Access approved — select Start access to begin."
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "Request submitted — awaiting approval."
-  },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "No active access"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Collection"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "No requests waiting for your decision"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Pending approval"
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Access requested"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
+  "pamApprovalsApproveRequest": {
+    "message": "Approve request"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Deny request"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Revoke access"
   },
   "pamDecideAdditionalInformation": {
     "message": "Additional information"
@@ -19080,12 +19382,6 @@
   },
   "pamInboxCommentPlaceholder": {
     "message": "Add an optional comment"
-  },
-  "pamInboxConfirmApproveButton": {
-    "message": "Approve request"
-  },
-  "pamInboxConfirmDenyButton": {
-    "message": "Deny request"
   },
   "pamInboxDecisionFailed": {
     "message": "Could not record decision"
@@ -19153,10 +19449,7 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Could not withdraw approval"
   },
-  "pamInboxWindow": {
-    "message": "Requested window"
-  },
-  "pamApprovalsNoResults": {
+  "pamAccessRequestsNoResults": {
     "message": "No access requests match your filters."
   },
   "pamApprovalsLoaded": {
@@ -19173,6 +19466,20 @@
   },
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
+  },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "This withdraws your approval for $ITEM$. Access won't start, and $REQUESTER$ will need a new approval to get it.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
   },
   "pamWithdrawApprovalWarningOne": {
     "message": "This withdraws your approval for",
@@ -19225,9 +19532,9 @@
   "pamAccessRules": {
     "message": "Erişim qaydaları"
   },
-  "pamCollectionRequiresRequest": {
-    "message": "Items in this collection require a request.",
-    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+  "pamSharedFolderRequiresRequest": {
+    "message": "Items in this Shared folder require a request.",
+    "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
   },
   "pamGatedCollectionBannerName": {
     "message": "Privileged access",
@@ -19291,11 +19598,11 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "İxtiyari şərtlər"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Kolleksiyaları seç"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Select shared folders"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "Bu erişim qaydası bütün seçilmiş kolleksiyalara tətbiq olunacaq."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "This access rule will apply to all selected shared folders."
   },
   "pamAccessRuleEventLogNotice": {
     "message": "Bütün sorğular və qərarlar qeydə alınır."
@@ -19303,8 +19610,8 @@
   "pamAccessRuleViewAuditLog": {
     "message": "Audit log-una bax"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Kolleksiyalar yüklənə bilmədi. Yenidən sınamaq üçün səhifəni təzələyin."
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Couldn't load shared folders. Refresh the page to try again."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "Bu müddət, erişim sorğularında əvvəlcədən doldurulacaq."
@@ -19323,36 +19630,6 @@
   },
   "pamAccessRuleMaxDurationLimitHint": {
     "message": "Tələb olunan müddətdən asılı olmayaraq erişim, bu müddətlə məhduddur."
-  },
-  "pamAccessRuleDuration15m": {
-    "message": "15 dəqiqə"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 dəqiqə"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 saat"
-  },
-  "pamAccessRuleDuration2h": {
-    "message": "2 saat"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 saat"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 saat"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 gün"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 gün"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 gün"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 gün"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "Eyni anda yalnız 1 istifadəçi aktiv erişimə sahib ola bilər"
@@ -19381,8 +19658,8 @@
   "pamAccessRuleApprovers": {
     "message": "Təsdiqləyənlər"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Kolleksiya menecerləri"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Shared folder managers"
   },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (kopyala)",
@@ -19407,8 +19684,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Kopya yaradıldı. Tətbiq ediləcəyi kolleksiyanı seçin."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Copy created. Choose the shared folders it applies to."
   },
   "pamAccessRuleCreated": {
     "message": "Erişim qaydası yaradıldı."
@@ -19422,8 +19699,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Erişim qaydası silinsin?"
   },
-  "pamAccessRuleDeleteConfirmDescription": {
-    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "This will permanently remove this rule. Users in the shared folders it governs will regain normal access."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Erişim qaydasını deaktiv et"
@@ -19440,11 +19717,11 @@
   "pamAccessRuleErrorNameTaken": {
     "message": "Başqa bir qayda artıq bu adı istifadə edir. Fərqli bir ad daxil edin."
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Başqa bir erişim qaydası artıq bu kolleksiyalardan birini əhatə edir. Fərqli bir kolleksiya seçin."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Another access rule already covers one of these shared folders. Select different shared folders."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "Başqa bir erişim qaydası artıq $COLLECTIONS$ kolleksiyasını əhatə edir. Fərqli bir kolleksiya seçin.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different shared folders.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -19452,11 +19729,11 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "Seçdiyiniz kolleksiyalardan biri artıq mövcud deyil. Fərqli bir kolleksiya seçin."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "One of the shared folders you selected no longer exists. Select a different shared folder."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "Seçdiyiniz kolleksiyalardan biri artıq bu təşkilatın bir parçası deyil. Fərqli bir kolleksiya seçin."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "One of the shared folders you selected is not part of this organization. Select a different shared folder."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "Maksimum uzantı uzunluğunu seçin və ya uzantıları söndürün."
@@ -19467,8 +19744,8 @@
   "pamNoAccessRulesYetTitle": {
     "message": "Hələ heç bir erişim qaydası yoxdur"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Həssas kolleksiyalara ekstra qoruma qatı əlavə etmək üçün bir qayda yaradın."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Create a rule to add extra protection to sensitive shared folders."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Özəl qayda yarat"
@@ -19506,17 +19783,17 @@
   "pamTemplateIpRestrictedName": {
     "message": "IP məhdudiyyətli erişim"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Kolleksiyalar"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Shared folders"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Təyin olunmayan"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 kolleksiya"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 shared folder"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ kolleksiya",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -19862,13 +20139,13 @@
     "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
   },
   "httpAuthenticationSettingDescription": {
-    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+    "message": "Bu giriş elementi ilə uyuşan veb-saytlardan gələn təməl HTTP kimlik doğrulama istəklərinə cavab ver."
   },
   "openHttpAuthenticationHelpArticleSignpost": {
     "message": "Open help article on autofilling browser login prompts"
   },
   "httpAuthenticationSettingWarning": {
-    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "message": "Veb-saytlar sizin məlumatınız olmadan bu istəkləri tətikləyə bilər, bu da kimlik məlumatlarınızı üzə çıxara bilər.",
     "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
@@ -19890,7 +20167,7 @@
     "message": "Use default match detection?"
   },
   "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+    "message": "İlkin uyuşma aşkarlamasını istifadə edən veb-saytlar, brauzer giriş istəkləri ilə istifadə edilə bilməz. Bu element üçün brauzer giriş istəklərini avto-doldurma söndürüləcək."
   },
   "httpAuthenticationTurnedOffTitle": {
     "message": "Autofill for browser login prompts turned off"
@@ -19899,10 +20176,7 @@
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   },
   "pamRotation": {
-    "message": "Rotation"
-  },
-  "pamRotationSubtitle": {
-    "message": "Add managed credentials and the target systems where those credentials live. Then, register access connectors to run inside your network and perform rotation. Once configured, credentials can be rotated on target systems automatically."
+    "message": "Yeniləmə"
   },
   "pamRotationTabManagedCredentials": {
     "message": "Managed credentials"
@@ -19938,7 +20212,7 @@
     "message": "Edit target system"
   },
   "pamRotationScheduleLabel": {
-    "message": "Rotation schedule"
+    "message": "Yeniləmə cədvəli"
   },
   "pamRotationScheduleNone": {
     "message": "None"
@@ -19971,10 +20245,10 @@
     "message": "Please enter a valid Quartz cron expression (6 or 7 space-separated fields)."
   },
   "pamRotationScheduleEchoNone": {
-    "message": "No scheduled rotation. This credential rotates only when you start one, or when access ends if that option is on."
+    "message": "Planlaşdırılmış yeniləmə yoxdur. Bu kimlik məlumatının yenilənməsi, yalnız siz başladığınız zaman və ya bu seçənək açıqdırsa erişim sonlandığı zaman həyata keçirilir."
   },
   "pamRotationScheduleEchoHourly": {
-    "message": "Rotates once an hour, on the hour."
+    "message": "Saatda bir dəfə yeniləyir."
   },
   "pamRotationScheduleEchoEvery6Hours": {
     "message": "Rotates every 6 hours, on the hour."
@@ -20041,6 +20315,50 @@
       }
     }
   },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Every day at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "Every $COUNT$ days at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Every month at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "Every $COUNT$ months at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
   "pamRotationScheduleTimezoneHint": {
     "message": "Schedules run in UTC, not your local time zone."
   },
@@ -20074,20 +20392,14 @@
   "pamTargetSystemNew": {
     "message": "New target system"
   },
-  "pamTargetSystemSearch": {
-    "message": "Search target systems"
-  },
-  "pamTargetSystemMethodColumn": {
-    "message": "Method"
-  },
   "pamTargetSystemTypeColumn": {
     "message": "Type"
   },
-  "pamTargetSystemSessionTerminationColumn": {
-    "message": "Session termination"
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Managed credentials"
   },
-  "pamTargetSystemSessionTerminationYes": {
-    "message": "Supported"
+  "pamTargetSystemNone": {
+    "message": "None"
   },
   "pamTargetSystemSessionTerminationNo": {
     "message": "Not supported"
@@ -20110,11 +20422,11 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
   },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden automatically rotates a domain account password on an Active Directory server you run."
+  },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
     "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
-  },
-  "pamTargetSystemNoFilterResults": {
-    "message": "No target systems match your filters."
   },
   "pamTargetSystemEditTarget": {
     "message": "Edit target system"
@@ -20143,6 +20455,12 @@
   "pamTargetSystemAssignConnectorNoOptions": {
     "message": "All active access connectors are already assigned to this target system."
   },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Only for automatic rotation."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Remove its managed credentials first."
+  },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Access connectors can only be assigned to target systems set to automatic rotation."
   },
@@ -20152,14 +20470,11 @@
   "pamTargetSystemAssignConnectorNone": {
     "message": "There are no active access connectors to assign. Register one on the Access connectors tab, or activate an existing one."
   },
-  "pamTargetSystemAssignGoToConnectors": {
-    "message": "Go to Access connectors"
+  "pamTargetSystemDeactivateDialogTitle": {
+    "message": "Deactivate target system"
   },
-  "pamTargetSystemDeactivateTitle": {
-    "message": "Deactivate target system?"
-  },
-  "pamTargetSystemDeactivateContent": {
-    "message": "Deactivating this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+  "pamTargetSystemDeactivateDialogContent": {
+    "message": "No new rotations will start on this target system until you activate it. Rotations already in progress will finish, and pending ones are held."
   },
   "pamTargetSystemDeactivateConfirm": {
     "message": "Deactivate"
@@ -20167,32 +20482,29 @@
   "pamTargetSystemDeactivateSuccess": {
     "message": "Target system deactivated."
   },
+  "pamTargetSystemDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
   "pamTargetSystemActivateSuccess": {
     "message": "Target system activated."
   },
-  "pamTargetSystemDeleteTitle": {
-    "message": "Delete target system?"
+  "pamTargetSystemActivateFailed": {
+    "message": "Couldn't activate. Try again."
   },
-  "pamTargetSystemDeleteContent": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogTitle": {
+    "message": "Delete target system"
   },
-  "pamTargetSystemDeleteContentDeactivateInstead": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, deactivate it instead. Deactivating holds pending jobs and can be undone.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogContent": {
+    "message": "This target system will be deleted."
+  },
+  "pamTargetSystemDeleteDialogContentDeactivateInstead": {
+    "message": "This target system will be deleted. To stop rotations but keep it, deactivate it instead."
   },
   "pamTargetSystemDeleteSuccess": {
     "message": "Target system deleted."
+  },
+  "pamTargetSystemDeleteFailed": {
+    "message": "Couldn't delete. Try again."
   },
   "pamTargetSystemMethodAutomatic": {
     "message": "Automatic"
@@ -20200,17 +20512,15 @@
   "pamTargetSystemMethodManual": {
     "message": "Manual"
   },
-  "pamTargetSystemMethodAutomaticHint": {
-    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
-  },
-  "pamTargetSystemMethodManualHint": {
-    "message": "No rotation job is created. You rotate the credential by hand, then mark it as rotated."
-  },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
   },
   "pamTargetSystemTypeCustomScript": {
     "message": "Custom script"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
   },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
@@ -20226,11 +20536,24 @@
       }
     }
   },
+  "pamTargetSystemRemoveConnector": {
+    "message": "Remove $NAME$",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
   "pamTargetSystemStatusActive": {
     "message": "Active"
   },
   "pamTargetSystemStatusInactive": {
     "message": "Inactive"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Not connected"
   },
   "pamTargetSystemStatusPendingSeal": {
     "message": "Setup incomplete"
@@ -20250,17 +20573,8 @@
   "pamTargetSystemMethodLabel": {
     "message": "Rotation method"
   },
-  "pamTargetSystemTypeHeading": {
-    "message": "Type"
-  },
-  "pamTargetSystemTypeLabel": {
-    "message": "Type"
-  },
   "pamTargetSystemTypeUnverifiedHint": {
     "message": "This target's integration could not be confirmed. Choose it again to finish setup."
-  },
-  "pamTargetSystemPolicyManualHint": {
-    "message": "These are the rules to follow when you rotate this credential by hand."
   },
   "pamTargetSystemPolicyHeading": {
     "message": "Password policy"
@@ -20280,41 +20594,20 @@
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "This policy is too weak. Increase the length or include more character types."
   },
-  "pamTargetSystemPolicyUppercase": {
-    "message": "Include uppercase letters"
-  },
-  "pamTargetSystemPolicyLowercase": {
-    "message": "Include lowercase letters"
-  },
-  "pamTargetSystemPolicyDigits": {
-    "message": "Include digits"
-  },
-  "pamTargetSystemPolicySymbols": {
-    "message": "Include symbols"
-  },
-  "pamTargetSystemSupportsSessionTermination": {
-    "message": "Supports session termination"
-  },
-  "pamTargetSystemSupportsSessionTerminationHintConnector": {
-    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
-  },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Supported"
   },
-  "pamTargetSystemSessionTerminationNativeHint": {
-    "message": "Native integrations always terminate active sessions after a credential is rotated."
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "This integration cannot end sessions that are already open. Rotating the credential blocks new sign-ins, but existing sessions continue until they expire."
   },
-  "pamTargetSystemSessionTerminationUnknown": {
-    "message": "Unknown"
-  },
-  "pamTargetSystemSessionTerminationUnknownTooltip": {
-    "message": "This target system's settings could not be verified, so its session-termination support is unknown."
-  },
-  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
-    "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "This target system is recorded as supporting session termination, and its managed credentials can still use it. Saving here leaves that record as it is."
   },
   "pamTargetSystemCreated": {
     "message": "Target system created."
+  },
+  "pamTargetSystemCreatedSuccess": {
+    "message": "Target system added."
   },
   "pamTargetSystemSaved": {
     "message": "Target system saved."
@@ -20327,9 +20620,6 @@
   },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Finish setting up rotation"
-  },
-  "pamTargetSystemSetupGuidanceAutomaticConnector": {
-    "message": "Assign an access connector in the Assigned access connectors section below."
   },
   "pamTargetSystemSetupGuidanceCredential": {
     "message": "Add a managed credential on the Managed credentials tab."
@@ -20355,20 +20645,17 @@
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
   },
-  "pamAccessConnectorSearch": {
-    "message": "Search access connectors"
-  },
-  "pamAccessConnectorNew": {
-    "message": "New access connector"
-  },
   "pamAccessConnectorRegister": {
     "message": "Register access connector"
   },
-  "pamAccessConnectorEmptyStateTitle": {
-    "message": "No access connectors registered"
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "No access connectors yet"
   },
-  "pamAccessConnectorEmptyStateDescription": {
-    "message": "Register an access connector to start rotating credentials."
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Access connectors run inside your network and change passwords on your target systems. Register one to get started."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Target systems"
   },
   "pamAccessConnectorConnection": {
     "message": "Connection"
@@ -20385,14 +20672,14 @@
   "pamAccessConnectorDisconnected": {
     "message": "Disconnected"
   },
-  "pamAccessConnectorAssignTargetDisabled": {
-    "message": "Target systems can only be assigned while the access connector is active."
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Activate this access connector to assign target systems."
   },
-  "pamAccessConnectorViewDetails": {
-    "message": "View details"
+  "pamAccessConnectorEdit": {
+    "message": "Edit access connector"
   },
-  "pamAccessConnectorAssignTargets": {
-    "message": "Assign targets"
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Assign target systems"
   },
   "pamAccessConnectorDeleteAccessConnector": {
     "message": "Delete access connector"
@@ -20406,8 +20693,8 @@
   "pamAccessConnectorAssignSelectLabel": {
     "message": "Assign target systems"
   },
-  "pamAccessConnectorAssignSelectHint": {
-    "message": "Only target systems set to automatic rotation can be assigned."
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Choose the target systems this access connector can rotate passwords on. Only target systems that use automatic rotation can be assigned."
   },
   "pamAccessConnectorAssignNoOptions": {
     "message": "All automatic target systems are already assigned to this access connector."
@@ -20439,77 +20726,62 @@
       }
     }
   },
-  "pamAccessConnectorUnassignConfirmTitle": {
-    "message": "Remove assignment?"
-  },
-  "pamAccessConnectorUnassignConfirmContent": {
-    "message": "Remove $NAME$ from this access connector? Active rotation jobs claimed by this access connector will continue to completion.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
-  },
-  "pamAccessConnectorUnassigned": {
-    "message": "Target system removed."
-  },
   "pamAccessConnectorDeactivate": {
     "message": "Deactivate"
   },
   "pamAccessConnectorActivate": {
     "message": "Activate"
   },
-  "pamAccessConnectorDeactivateConfirmTitle": {
-    "message": "Deactivate access connector?"
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Deactivate access connector"
   },
-  "pamAccessConnectorDeactivateConfirmContent": {
-    "message": "Deactivate $NAME$? It stops claiming new rotation jobs and any jobs it is currently running are released. You can activate it again later.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "This access connector won't take new rotations. Rotations in progress are released."
   },
   "pamAccessConnectorDeactivated": {
     "message": "Access connector deactivated."
   },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
   "pamAccessConnectorActivated": {
     "message": "Access connector activated."
   },
-  "pamAccessConnectorDeleteConfirmTitle": {
-    "message": "Delete access connector?"
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Delete access connector"
   },
-  "pamAccessConnectorDeleteConfirmContent": {
-    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This access connector held the organization key in memory. If you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new access connector to resume rotation.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Its token stops working, and rotations in progress are released. This can't be undone."
   },
   "pamAccessConnectorDeleted": {
     "message": "Access connector deleted."
   },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Couldn't delete. Try again."
+  },
   "pamAccessConnectorSaved": {
     "message": "Access connector saved."
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Access connector wasn't saved. Try again."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Access connector wasn't saved. Check your connection, then select Save again."
   },
   "pamAccessConnectorRegisterTitle": {
     "message": "Register access connector"
   },
-  "pamAccessConnectorNamePlaceholder": {
-    "message": "e.g. On-prem production server"
+  "pamAccessConnectorRegisterDescription": {
+    "message": "You'll get a token to add to the access connector's configuration. It's shown only once."
   },
-  "pamAccessConnectorNameHint": {
-    "message": "A descriptive name to identify this access connector. Max 200 characters."
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Use a name your team will recognize, for example East datacenter."
   },
   "pamAccessConnectorRegistered": {
     "message": "Access connector registered."
   },
-  "pamAccessConnectorNoResults": {
-    "message": "No access connectors match your filters."
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Access connector wasn't registered. Try again."
   },
   "pamAccessConnectorDetailTitle": {
     "message": "Access connector"
@@ -20520,38 +20792,38 @@
   "pamAccessConnectorTabConfiguration": {
     "message": "Configuration"
   },
-  "pamAccessConnectorTabHistory": {
-    "message": "History"
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "Rotation history"
   },
-  "pamAccessConnectorActivityEmpty": {
-    "message": "No rotation activity yet."
+  "pamAccessConnectorRotationHeading": {
+    "message": "Rotation"
   },
-  "pamAccessConnectorActiveHint": {
-    "message": "When inactive, the access connector does not claim new rotation jobs and any jobs it is running are released."
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Choose target systems"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "This access connector isn't connected, so it can't rotate passwords. Check that it's running on its machine and can reach Bitwarden."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Finish setting up. Add the token and each target system's connection details to this access connector's configuration, then start it."
   },
   "pamAccessConnectorTokenTitle": {
     "message": "Access connector token"
   },
-  "pamAccessConnectorTokenWarningTitle": {
-    "message": "Save this token now"
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Copy this token now, since you can't see it again after you close this."
   },
-  "pamAccessConnectorTokenWarningBody": {
-    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator who will run this access connector, then paste it into the connector's configuration file. If the token is lost, delete this access connector and register a new one."
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Add it to the access connector's configuration to connect it."
   },
-  "pamAccessConnectorTokenLabel": {
-    "message": "Access connector token"
-  },
-  "pamAccessConnectorTokenHint": {
-    "message": "This token will not be shown again."
+  "pamAccessConnectorTokenStored": {
+    "message": "I stored this token securely"
   },
   "pamAccessConnectorTokenCopy": {
     "message": "Copy token"
   },
-  "pamAccessConnectorTokenCopied": {
-    "message": "Access connector token copied."
-  },
-  "pamRotationConfigNew": {
-    "message": "New managed credential"
+  "pamTokenCopied": {
+    "message": "Token copied."
   },
   "pamRotationConfigSearch": {
     "message": "Search managed credentials"
@@ -20559,8 +20831,23 @@
   "pamRotationConfigEmptyState": {
     "message": "No managed credentials configured"
   },
+  "pamRotationConfigEmptyTitle": {
+    "message": "No managed credentials yet"
+  },
   "pamRotationConfigEmptyStateDescription": {
     "message": "Add a managed credential to start rotating it automatically."
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends."
+  },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Managed credentials on this target system show here."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends. To get started, add an access connector and a target system."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Add access connector"
   },
   "pamRotationListLoadErrorTitle": {
     "message": "Unable to load"
@@ -20568,14 +20855,8 @@
   "pamRotationListLoadErrorDescription": {
     "message": "Check your connection and try again. If the problem continues, refresh the page."
   },
-  "pamRotationConfigNoTargetSystems": {
-    "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
-  },
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Set up a target system"
-  },
-  "pamRotationConfigNoResultsFiltered": {
-    "message": "No managed credentials match your filters."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Credential"
@@ -20592,9 +20873,6 @@
   "pamRotationConfigColumnRotateOnAccessEnd": {
     "message": "Rotate on access end"
   },
-  "pamRotationConfigColumnLastRotation": {
-    "message": "Last rotation"
-  },
   "pamRotationConfigColumnLastRotated": {
     "message": "Last rotated"
   },
@@ -20603,6 +20881,270 @@
   },
   "pamRotationConfigStatusPaused": {
     "message": "Paused"
+  },
+  "pamRotationConfigStatusFailed": {
+    "message": "Failed"
+  },
+  "pamRotationConfigStatusNotConnected": {
+    "message": "Not connected"
+  },
+  "pamRotationConfigStatusManualRotation": {
+    "message": "Manual rotation"
+  },
+  "pamRotationConfigColumnAccount": {
+    "message": "Account"
+  },
+  "pamRotationFilterTrigger": {
+    "message": "Rotation trigger"
+  },
+  "pamRotationTriggerSchedule": {
+    "message": "On a schedule"
+  },
+  "pamRotationTriggerAccessEnd": {
+    "message": "When access ends"
+  },
+  "pamRotationTriggerOnDemand": {
+    "message": "Only on demand"
+  },
+  "pamRotationNextInProgress": {
+    "message": "In progress"
+  },
+  "pamRotationNextNone": {
+    "message": "None"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "$COUNT$m ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "$COUNT$hr ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "$COUNT$d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "$COUNT$w ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "$COUNT$mo ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "Yesterday"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "In $COUNT$hr",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "In $COUNT$w",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "Due $COUNT$d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationDetailNone": {
+    "message": "None"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Rotation is paused, so this credential won't rotate on its schedule or when someone's access ends."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "The first attempt failed, so Bitwarden is retrying. No action is needed unless all attempts fail."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "This target system has no access connector, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "The access connectors are disconnected, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "The last rotation didn't finish in time. Select $ACTION$ to try again.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "This credential was due $AGE$. Change its password, update the vault item, then mark it as rotated.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "View access connectors"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Access connectors for this target system"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Every credential on this target system uses these."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "The account's sign-in name, for example name@company.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "The value your script uses to identify the account, for example its username."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "The account's username on the target system, for your records. Bitwarden doesn't use it to rotate."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "The account's username on the target system, entered exactly as that system expects it."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Due $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Due schedule"
+  },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Rotation trigger"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "The first attempt failed; the retry succeeded."
+  },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Rotation started"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Final result"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "Attempt $NUMBER$ failed.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "No access connector picked up this rotation."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Oturumlar sonlandı"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Oturumlar sonlandırıla bilmədi"
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Rotation details"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Failed"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Succeeded"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "The target system didn't respond."
+  },
+  "pamRotationConfigRotateNowInProgress": {
+    "message": "A rotation is in progress."
+  },
+  "pamRotationConfigRotateNowPaused": {
+    "message": "Resume rotation to rotate now."
+  },
+  "pamRotationConfigRotateNowNotConnected": {
+    "message": "No access connector is connected"
+  },
+  "pamRotationConfigRemoveLockedReason": {
+    "message": "Available when the rotation finishes."
+  },
+  "pamRotationConfigEditSettings": {
+    "message": "Edit rotation settings"
+  },
+  "pamRotationConfigViewHistory": {
+    "message": "View rotation history"
+  },
+  "pamRotationConfigRotateNowStarted": {
+    "message": "Rotation started."
+  },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Rotation didn't start. Try again."
+  },
+  "pamRotationConfigMarkedRotated": {
+    "message": "Marked as rotated."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Couldn't mark as rotated. Try again."
+  },
+  "pamRotationConfigPauseWhileRotatingSuccess": {
+    "message": "Rotation paused. The rotation in progress will finish."
+  },
+  "pamRotationConfigPauseContent": {
+    "message": "This credential won't rotate on its schedule or when someone's access ends. A rotation already in progress will finish."
+  },
+  "pamRotationConfigMarkRotatedContent": {
+    "message": "Only do this after you've changed the password on the target system and updated the vault item."
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Manage credential rotation across target systems, using access connectors running inside your network."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Managed credential"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Access connector"
   },
   "pamRotationConfigRotatingBadge": {
     "message": "Rotating"
@@ -20613,12 +21155,6 @@
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
   },
-  "pamRotationConfigRotateNowUnavailableTitle": {
-    "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
-  },
-  "pamRotationConfigRotateNowSuccess": {
-    "message": "Rotation dispatched."
-  },
   "pamRotationConfigMarkRotated": {
     "message": "Mark as rotated"
   },
@@ -20627,15 +21163,6 @@
   },
   "pamRotationConfigMarkRotatedTitle": {
     "message": "Mark as rotated"
-  },
-  "pamRotationConfigRecordManualContent": {
-    "message": "This records that the credential was rotated outside Bitwarden and resets the schedule. The audit log will reflect the manual rotation."
-  },
-  "pamRotationConfigRecordManualConfirm": {
-    "message": "Record rotation"
-  },
-  "pamRotationConfigRecordManualSuccess": {
-    "message": "Manual rotation recorded."
   },
   "pamRotationConfigEditCredential": {
     "message": "Edit credential"
@@ -20649,6 +21176,9 @@
   "pamRotationConfigPauseSuccess": {
     "message": "Rotation paused."
   },
+  "pamRotationConfigPauseFailed": {
+    "message": "Rotation wasn't paused. Try again."
+  },
   "pamRotationConfigResumeRotation": {
     "message": "Resume rotation"
   },
@@ -20658,8 +21188,14 @@
   "pamRotationConfigDeleteConfirmTitle": {
     "message": "Remove managed credential"
   },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Remove from rotation"
+  },
   "pamRotationConfigDeleteConfirmContent": {
     "message": "This removes rotation management for this credential. The item stays in your vault and the rotation history remains in the audit log."
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "This credential and its settings will be removed from Managed credentials. The vault item won't change, and its history stays in the audit log."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Can't remove while a rotation is in progress. It clears when the current job finishes or times out."
@@ -20667,26 +21203,32 @@
   "pamRotationConfigDeleteSuccess": {
     "message": "Managed credential removed."
   },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Removed from rotation."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Couldn't remove from rotation. Try again."
+  },
   "pamRotationConfigNeverRotated": {
     "message": "Never"
+  },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "No rotations yet"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Add managed credential"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Rotating this credential will also sign out anyone still using the current password."
   },
   "pamRotationConfigHistoryEmpty": {
     "message": "No rotations have run yet."
   },
-  "pamRotationConfigRemoveLockedContentConnector": {
-    "message": "A rotation job is currently in progress. You can remove this credential from rotation once the access connector finishes it, or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Rotations for this credential will show up here."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Credential details"
-  },
-  "pamRotationConfigDetailsHeading": {
-    "message": "Details"
-  },
-  "pamRotationConfigSettingsHeading": {
-    "message": "Rotation settings"
-  },
-  "pamRotationConfigAccountHeading": {
-    "message": "Account"
   },
   "pamRotationConfigTabConfiguration": {
     "message": "Configuration"
@@ -20694,32 +21236,11 @@
   "pamRotationConfigTabHistory": {
     "message": "History"
   },
-  "pamRotationConfigCipher": {
-    "message": "Credential"
-  },
-  "pamRotationConfigCipherPlaceholder": {
-    "message": "Select a credential"
-  },
-  "pamRotationConfigCipherHint": {
-    "message": "Select the vault item whose password will be rotated."
-  },
   "pamRotationConfigTargetSystem": {
     "message": "Target system"
   },
   "pamRotationConfigTargetSystemPlaceholder": {
     "message": "Select a target system"
-  },
-  "pamRotationConfigAccountIdentity": {
-    "message": "Account identity"
-  },
-  "pamRotationConfigAccountIdentityHintConnector": {
-    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the access connector as-is."
-  },
-  "pamRotationConfigTerminateSessions": {
-    "message": "Terminate active sessions after rotation"
-  },
-  "pamRotationConfigTerminateSessionsHint": {
-    "message": "Requires the target system to support session termination."
   },
   "pamRotationConfigTerminationUnknownHint": {
     "message": "This target system's support for session termination could not be verified."
@@ -20727,20 +21248,8 @@
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Rotate when access ends"
   },
-  "pamRotationConfigRotateWhenAccessEndsHint": {
-    "message": "Automatically rotate this credential when PAM access to it ends."
-  },
-  "pamRotationConfigCreated": {
-    "message": "Managed credential created."
-  },
   "pamRotationConfigSaved": {
     "message": "Managed credential saved."
-  },
-  "pamRotationConfigAccountLockedTitle": {
-    "message": "Settings unavailable"
-  },
-  "pamRotationConfigAccountLockedContent": {
-    "message": "Changes can't be saved while a rotation job is in progress. You can save again once the job finishes or times out."
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
     "message": "Integrity check failed"
@@ -20781,9 +21290,6 @@
   "pamRotationJobStatusPending": {
     "message": "Pending"
   },
-  "pamRotationJobStatusClaimed": {
-    "message": "Claimed"
-  },
   "pamRotationJobStatusSucceeded": {
     "message": "Succeeded"
   },
@@ -20793,14 +21299,11 @@
   "pamRotationJobStatusTimedOut": {
     "message": "Timed out"
   },
+  "pamRotationJobStatusRetrying": {
+    "message": "Retrying"
+  },
   "pamRotationJobStatusUnknown": {
     "message": "Unknown"
-  },
-  "pamRotationAssignmentPendingAssign": {
-    "message": "Pending assignment"
-  },
-  "pamRotationAssignmentPendingUnassign": {
-    "message": "Pending removal"
   },
   "pamRotationAttemptStatusExecuting": {
     "message": "Executing"
@@ -20836,13 +21339,13 @@
     "message": "Unknown"
   },
   "pamRotationSessionTerminationNotRequested": {
-    "message": "Session termination not requested"
+    "message": "Oturum sonlandırma tələb olunmadı"
   },
   "pamRotationSessionTerminationTerminated": {
-    "message": "Sessions terminated"
+    "message": "Oturumlar sonlandırıldı"
   },
   "pamRotationSessionTerminationTermFailed": {
-    "message": "Session termination failed"
+    "message": "Oturum sonlandırma uğursuz oldu"
   },
   "pamRotationSessionTerminationUnknown": {
     "message": "Unknown"
@@ -20865,15 +21368,6 @@
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
   },
-  "pamRotationFailureReportedDetail": {
-    "message": "Reported by the access connector: $REASON$",
-    "placeholders": {
-      "reason": {
-        "content": "$1",
-        "example": "target_rejected: LDAP result code 50"
-      }
-    }
-  },
   "pamRotationHistoryCaption": {
     "message": "Rotation jobs, newest first"
   },
@@ -20888,15 +21382,6 @@
   },
   "pamRotationHistoryAttemptsCaption": {
     "message": "Attempts, oldest first"
-  },
-  "pamRotationHistoryAttemptsAllAlike": {
-    "message": "Every attempt ended the same way."
-  },
-  "pamRotationJobDrawerTitle": {
-    "message": "Rotation job"
-  },
-  "pamRotationHistoryFailureHeading": {
-    "message": "Why it failed"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$s",
@@ -21035,9 +21520,9 @@
   "pamAuditAccessConnector": {
     "message": "Access connector"
   },
-  "pamAccessConnectorAssignmentCountSingular": {
-    "message": "$COUNT$ target",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ target system",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21045,9 +21530,9 @@
       }
     }
   },
-  "pamAccessConnectorAssignmentCount": {
-    "message": "$COUNT$ targets",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ target systems",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21057,7 +21542,7 @@
   },
   "pamAccessConnectorAssignmentsNone": {
     "message": "None",
-    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
   },
   "pamRotationConfigNoActiveTargetSystems": {
     "message": "No active target systems to choose from."
@@ -21071,14 +21556,179 @@
   "pamTargetSystemConnectorAssignmentsLoadError": {
     "message": "The access connectors for this target system could not be loaded."
   },
-  "pamTargetSystemDeleteAssignedConnectorsContent": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first, and its access connector assignments are removed with it.",
+  "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
+    "message": "This target system and its access connector assignments will be deleted."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
+    "message": "This target system and its access connector assignments will be deleted. To stop rotations but keep it, deactivate it instead."
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Vault item"
+  },
+  "pamRotationConfigCredentialName": {
+    "message": "Credential name"
+  },
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Select credential"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Credentials that are already in rotation aren't listed."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "The credential lives on the target system."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Manual"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "No connected access connector"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "Bu hədəf sistem, manual yeniləmə istifadə edir. Bu kimlik məlumatının parolunu özünüz dəyişəcəksiniz, sonra onu yenilənmiş olaraq işarələyəcəksiniz."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "Bu hədəf sistemin bağlantılı bir erişim konnektoru yoxdur, ona görə də bu kimlik məlumatı hələ yenilənməyəcək. Onu hələ də saxlaya bilərsiniz."
+  },
+  "pamRotationConfigAccountId": {
+    "message": "Hesab kimliyi"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "ID-ni daxil et"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "Hədəf sistemdəki istifadəçi adı, məsələn name@company.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Yeniləmə tətikləyiciləri"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "Yeniləmədən sonra"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Cədvəl"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Kiminsə erişimi sonlandığı zaman parolu dəyişdirir, beləcə köhnə parol artıq işləmir."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Yalnız avtomatik yeniləmə üçün əlçatandır"
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "Aktiv oturumları sonlandır"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Signs out anyone still using the old password after each rotation. If this fails, the rotation still counts."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Available once you select a target system that supports it."
+  },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Managed credential added."
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Target system added."
+  },
+  "pamTargetSystemNameHelp": {
+    "message": "Use a name your team will recognize, e.g. Entra ID production. It shows wherever you choose a target system."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "An access connector changes passwords on this target system for you."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "You change passwords on this target system yourself, then mark them as rotated."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "System type"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Tells the access connector how to change passwords on this system."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Oturumların sonlandırılması"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra can sign out active sessions after rotation."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "Bu sistem növü, yeniləmədən sonra aktiv oturumlardan çıxış edə bilməz."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Shows once you choose a system type."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Select a system type"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Choose access connectors"
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Access connectors"
+  },
+  "pamTargetSystemAccessConnectorFilter": {
+    "message": "Access connector"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Choose the access connectors that can rotate passwords on this target system. Choose more than one for a backup."
+  },
+  "pamTargetSystemCalloutNoConnectorConnected": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save."
+  },
+  "pamTargetSystemCalloutNoConnectorConnectedEditing": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Automatic rotation"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "This target system is inactive, so no new rotations start on it. Select Activate to start them again."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "No access connectors are assigned, so choose at least one before this target system can rotate."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "This system type can sign out active sessions after rotation."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Remove last access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Remove access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "This target system won't be able to rotate until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "1 managed credential on this target system will stop rotating until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "$COUNT$ managed credentials on this target system will stop rotating until another access connector is assigned.",
     "placeholders": {
-      "name": {
+      "count": {
         "content": "$1",
-        "example": "Production database"
+        "example": "8"
       }
     }
+  },
+  "pamTargetSystemCalloutNoConnectorsExist": {
+    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Characters to include"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Lowercase letters"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Digits"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Symbols"
   },
   "pamEventRequestedAccess": {
     "message": "Requested privileged access to item $ITEM$ (request $ID$).",
