@@ -411,7 +411,7 @@ describe("CipherAuthorizationService", () => {
           () => ({ ...createRestrictedCipher(), id: cipherId }) as unknown as CipherView,
         ],
         ["the revealed view", (view) => view],
-      ])("allows edit but not clone, delete or restore for %s", async (_, pick) => {
+      ])("allows edit, delete and restore but not clone for %s", async (_, pick) => {
         const view = revealedView();
         revealed$.next(new Map([[cipherId, view]]));
         const cipher = pick(view);
@@ -424,10 +424,10 @@ describe("CipherAuthorizationService", () => {
         ).resolves.toBe(false);
         await expect(
           firstValueFrom(cipherAuthorizationService.canDeleteCipher$(cipher)),
-        ).resolves.toBe(false);
+        ).resolves.toBe(true);
         await expect(
           firstValueFrom(cipherAuthorizationService.canRestoreCipher$(cipher)),
-        ).resolves.toBe(false);
+        ).resolves.toBe(true);
         expect(mockRevealedCipherService.revealed$).toHaveBeenCalledWith(mockUserId);
       });
 
