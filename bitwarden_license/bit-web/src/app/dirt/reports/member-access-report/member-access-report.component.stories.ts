@@ -61,13 +61,13 @@ import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests"
 import { MemberAccessReportComponent } from "./member-access-report.component";
 import { MemberAccessReportApiService } from "./services/member-access-report-api.service";
 import { MemberAccessReportService } from "./services/member-access-report.service";
-import { MemberAccessReportView } from "./view/member-access-report.view";
+import { MemberAccessReportViewV2 } from "./view/member-access-report.view";
 
 // ============================================================================
 // Mock Data Factory Functions
 // ============================================================================
 
-function createMockMember(index: number): MemberAccessReportView {
+function createMockMember(index: number): MemberAccessReportViewV2 {
   const names = ["Alice Johnson", "Bob Smith", "Carol Williams", "David Brown", "Eve Martinez"];
   const colors = ["#175ddc", "#7c5cdb", "#c93d63", "#d1860a", "#178d5c"];
 
@@ -102,7 +102,7 @@ function createMockMember(index: number): MemberAccessReportView {
   };
 }
 
-const mockMemberData: MemberAccessReportView[] = [...Array(5).keys()].map(createMockMember);
+const mockMemberData: MemberAccessReportViewV2[] = [...Array(5).keys()].map(createMockMember);
 const mockOrganizationId = "org-123" as OrganizationId;
 
 // ============================================================================

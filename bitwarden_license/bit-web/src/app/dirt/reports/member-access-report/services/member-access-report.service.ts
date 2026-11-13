@@ -36,7 +36,7 @@ import { MemberAccessResponse } from "../response/member-access-report.response"
 import { MemberAccessExportItem } from "../view/member-access-export.view";
 import {
   MemberAccessReportView,
-  MemberAccessReportViewV1,
+  MemberAccessReportViewV2,
 } from "../view/member-access-report.view";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
@@ -103,7 +103,7 @@ export class MemberAccessReportService {
    */
   async generateMemberAccessReportView(
     organizationId: OrganizationId,
-  ): Promise<MemberAccessReportViewV1[]> {
+  ): Promise<MemberAccessReportView[]> {
     const memberAccessData = await this.reportApiService.getMemberAccessData(organizationId);
 
     // group member access data by userGuid
@@ -117,7 +117,7 @@ export class MemberAccessReportService {
     });
 
     // aggregate user data
-    const memberAccessReportViewCollection: MemberAccessReportViewV1[] = [];
+    const memberAccessReportViewCollection: MemberAccessReportView[] = [];
     userMap.forEach((userDataArray, userGuid) => {
       const collectionCount = this.getDistinctCount<string>(
         userDataArray.map((data) => data.collectionId).filter((id) => !!id),
@@ -540,11 +540,11 @@ export class MemberAccessReportService {
    * Generate member access report using V2 frontend mapping
    *
    * @param organizationId - The organization ID
-   * @returns Promise of MemberAccessReportView array
+   * @returns Promise of MemberAccessReportViewV2 array
    */
   async generateMemberAccessReportViewV2(
     organizationId: OrganizationId,
-  ): Promise<MemberAccessReportView[]> {
+  ): Promise<MemberAccessReportViewV2[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.logService.debug("[MemberAccessReportService V2] Starting report generation");
@@ -610,7 +610,7 @@ export class MemberAccessReportService {
     }
 
     // Build report views
-    const reportViews: MemberAccessReportView[] = [];
+    const reportViews: MemberAccessReportViewV2[] = [];
     for (const [userId, data] of userAccessMap.entries()) {
       const metadata = orgData.organizationUserDataMap.get(userId);
       if (!metadata) {

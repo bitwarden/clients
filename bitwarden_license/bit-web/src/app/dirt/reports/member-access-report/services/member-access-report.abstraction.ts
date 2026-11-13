@@ -3,12 +3,12 @@
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { MemberAccessExportItem } from "../view/member-access-export.view";
-import { MemberAccessReportViewV1 } from "../view/member-access-report.view";
+import { MemberAccessReportView } from "../view/member-access-report.view";
 
 export abstract class MemberAccessReportServiceAbstraction {
   generateMemberAccessReportView: (
     organizationId: OrganizationId,
-  ) => Promise<MemberAccessReportViewV1[]>;
+  ) => Promise<MemberAccessReportView[]>;
   generateUserReportExportItems: (
     organizationId: OrganizationId,
   ) => Promise<MemberAccessExportItem[]>;

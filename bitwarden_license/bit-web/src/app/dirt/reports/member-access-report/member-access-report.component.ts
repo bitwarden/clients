@@ -53,7 +53,7 @@ import { MemberAccessReportApiService } from "./services/member-access-report-ap
 import { MemberAccessReportServiceAbstraction } from "./services/member-access-report.abstraction";
 import { MemberAccessReportService } from "./services/member-access-report.service";
 import { userReportItemHeaders } from "./view/member-access-export.view";
-import { MemberAccessReportView } from "./view/member-access-report.view";
+import { MemberAccessReportViewV2 } from "./view/member-access-report.view";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -95,7 +95,7 @@ export class MemberAccessReportComponent implements OnInit {
   );
   protected readonly reportTitleKey = "memberAccessReport";
 
-  protected dataSource = new TableDataSource<MemberAccessReportView>();
+  protected dataSource = new TableDataSource<MemberAccessReportViewV2>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected organizationId: OrganizationId;
   protected orgIsOnSecretsManagerStandalone: boolean;
@@ -182,7 +182,7 @@ export class MemberAccessReportComponent implements OnInit {
     });
   };
 
-  edit = async (user: MemberAccessReportView): Promise<void> => {
+  edit = async (user: MemberAccessReportViewV2): Promise<void> => {
     const organization = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,

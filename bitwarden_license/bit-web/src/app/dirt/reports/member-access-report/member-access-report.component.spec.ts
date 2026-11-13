@@ -66,13 +66,13 @@ import { DeleteManagedMemberWarningService } from "@bitwarden/web-vault/app/admi
 
 import { MemberAccessReportComponent } from "./member-access-report.component";
 import { MemberAccessReportService } from "./services/member-access-report.service";
-import { MemberAccessReportView } from "./view/member-access-report.view";
+import { MemberAccessReportViewV2 } from "./view/member-access-report.view";
 
 const ORGANIZATION_ID = "org-id" as OrganizationId;
 const ORGANIZATION_USER_ID = "org-user-id" as Guid;
 const USER_ID = "user-id" as UserId;
 
-function buildRow(): MemberAccessReportView {
+function buildRow(): MemberAccessReportViewV2 {
   return {
     name: "Test User",
     email: "test@example.com",
@@ -239,7 +239,10 @@ describe("MemberAccessReportComponent", () => {
      * Starts `edit()`, which does not settle until the dialog closes, and waits for it to open the
      * dialog. Fails if `edit()` rejects first, e.g. because a dialog dependency can't be resolved.
      */
-    async function startEdit(component: MemberAccessReportComponent, row: MemberAccessReportView) {
+    async function startEdit(
+      component: MemberAccessReportComponent,
+      row: MemberAccessReportViewV2,
+    ) {
       let error: unknown;
       component.edit(row).catch((e: unknown) => (error = e));
       await new Promise((resolve) => setTimeout(resolve, 0));
