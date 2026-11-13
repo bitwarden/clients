@@ -38,8 +38,6 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   private readonly baseButton = inject(BaseButtonDirective);
   private readonly el = inject(ElementRef<HTMLButtonElement>);
 
-  readonly test = "test";
-
   // Expose loading and disabled from base directive for ButtonLikeAbstraction
   readonly loading = this.baseButton.loading;
   readonly disabled = this.baseButton.disabled;

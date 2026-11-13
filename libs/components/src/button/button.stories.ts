@@ -112,7 +112,7 @@ export const AllVariants: Story = {
         <div class="tw-flex tw-gap-4">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
             <button buttonType="primary" bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
-            <p class="tw-m-0" bitTypography="helper">primary TEST 2</p>
+            <p class="tw-m-0" bitTypography="helper">primary</p>
           </div>
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
             <button buttonType="primaryOutline" bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
