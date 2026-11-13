@@ -15,6 +15,7 @@ import {
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PasswordRequest } from "../../models/request/password.request";
 import { SetPasswordRequest } from "../../models/request/set-password.request";
+import { SsoJitProvisionFinishPasswordRequest } from "../../models/request/sso-jit-provision-finish-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "../../models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "../../models/request/update-temp-password.request";
 
@@ -63,6 +64,88 @@ describe("MasterPasswordApiService", () => {
         true,
         false,
       );
+    });
+  });
+
+  describe("postSsoJitProvisionFinishPassword", () => {
+    let request: SsoJitProvisionFinishPasswordRequest;
+
+    beforeEach(() => {
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+      request = new SsoJitProvisionFinishPasswordRequest(
+        {
+          salt,
+          kdf,
+          masterPasswordAuthenticationHash:
+            "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+        },
+        new MasterPasswordUnlockData(
+          salt,
+          kdf,
+          "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+        ),
+        "masterPasswordHint",
+        "orgIdentifier",
+        {
+          publicKey: "publicKey",
+          encryptedPrivateKey: "encryptedPrivateKey",
+        },
+        false,
+      );
+    });
+
+    it("should call apiService.send with the correct parameters", async () => {
+      // Act
+      await sut.postSsoJitProvisionFinishPassword(request);
+
+      // Assert
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/sso-jit-provision-finish/password",
+        request,
+        true,
+        false,
+      );
+    });
+
+    it("should serialize to the server request shape", () => {
+      // Act
+      const body = JSON.parse(JSON.stringify(request));
+
+      // Assert
+      expect(body).toEqual({
+        masterPasswordAuthentication: {
+          salt: "salt",
+          kdf: { kdfType: 0, iterations: 600_000 },
+          masterPasswordAuthenticationHash: "masterPasswordAuthenticationHash",
+        },
+        masterPasswordUnlock: {
+          salt: "salt",
+          kdf: { kdfType: 0, iterations: 600_000 },
+          masterKeyWrappedUserKey: "masterKeyWrappedUserKey",
+        },
+        masterPasswordHint: "masterPasswordHint",
+        orgIdentifier: "orgIdentifier",
+        keys: {
+          publicKey: "publicKey",
+          encryptedPrivateKey: "encryptedPrivateKey",
+        },
+        acceptOrganizationInvite: false,
+      });
+    });
+
+    it("should log and rethrow when the request fails", async () => {
+      // Arrange
+      const error = new Error("request failed");
+      apiService.send.mockRejectedValue(error);
+
+      // Act
+      const promise = sut.postSsoJitProvisionFinishPassword(request);
+
+      // Assert
+      await expect(promise).rejects.toThrow(error);
+      expect(logService.error).toHaveBeenCalledWith(error);
     });
   });
 
