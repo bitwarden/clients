@@ -124,7 +124,7 @@ export class PremiumBadgeComponent implements OnInit {
     this.isClickable.set(this.click$.observed);
   }
 
-  /** Flag-off path: open the upgrade prompt. Kept public — badge-instance sites call it until PM-44281. */
+  /** Flag-off path: open the upgrade prompt. */
   async promptForPremium(event: Event) {
     event.stopPropagation();
     event.preventDefault();
