@@ -14,3 +14,4 @@ export { TableDef, defineTable } from "./table-def";
 export { TableSelectionModel, type TableSelectionConfig } from "./table-selection-model";
 export { type TableStateKey } from "./table-state-keys";
 export { BitTableV2Component, type SelectionConfig } from "./table-v2.component";
+export { type TablePresentation } from "./table-presentation";
