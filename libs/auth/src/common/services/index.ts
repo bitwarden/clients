@@ -4,6 +4,4 @@ export * from "./login-strategies/default-login-strategy-cache.service";
 export * from "./login-strategies/default-login-strategy-session-timeout.service";
 export * from "./user-decryption-options/user-decryption-options.service";
 export * from "./auth-request/auth-request.service";
-export * from "./auth-request/auth-request-api.service";
 export * from "./login-success-handler/default-login-success-handler.service";
-export * from "./sso-redirect/sso-url.service";

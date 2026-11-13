@@ -21,6 +21,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 export interface ScimApiKeyDialogData {
   organizationId: string;
   titleKey: string;
+  submitButtonKey: string;
   isRotation: boolean;
 }
 

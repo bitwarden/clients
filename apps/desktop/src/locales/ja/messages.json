@@ -178,7 +178,7 @@
     }
   },
   "folderCount": {
-    "message": "$COUNT$ folders",
+    "message": "$COUNT$ フォルダー",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -187,7 +187,7 @@
     }
   },
   "folderSingular": {
-    "message": "$COUNT$ folder",
+    "message": "$COUNT$ フォルダー",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1230,10 +1230,10 @@
     "message": "ごみ箱に移動しました"
   },
   "deleteItemError": {
-    "message": "Couldn't delete the item."
+    "message": "アイテムを削除できませんでした。"
   },
   "restrictedItemChangeRefused": {
-    "message": "This item is restricted. Your change was not saved."
+    "message": "このアイテムは制限されています。変更を保存できませんでした。"
   },
   "controlledAccess": {
     "message": "Controlled access"
@@ -2186,7 +2186,7 @@
     "message": "パスキー プロバイダー"
   },
   "passkeyProviderDesc": {
-    "message": "Use Bitwarden to save and sign in with passkeys in other apps."
+    "message": "Bitwarden を使って、他のアプリでパスキーの保存やログインができます。"
   },
   "turnedOn": {
     "message": "オン"
@@ -2195,7 +2195,7 @@
     "message": "オフ"
   },
   "manageInSystemSettings": {
-    "message": "Manage in system settings"
+    "message": "システム設定で管理"
   },
   "mayOpenSystemSettings": {
     "message": "May open the system settings app.",
@@ -3994,7 +3994,7 @@
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
-    "message": "Unsafe URL detected",
+    "message": "安全でない URL を検出しました",
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
@@ -4771,6 +4771,167 @@
       }
     }
   },
+  "selectVault": {
+    "message": "保管庫を選択",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "場所を選択",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "保管庫を選択"
+  },
+  "selectALocationTitle": {
+    "message": "場所を選択"
+  },
+  "importDestinationDescription": {
+    "message": "アイテムをインポートする場所を選択してください。"
+  },
+  "importMyItemsOption": {
+    "message": "マイアイテム",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible only to you"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "組織の保管庫"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "ファミリーの保管庫"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "すべてのアイテムを $ORGANIZATION$ 共有フォルダーに移動",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "すべてのアイテムを $ORGANIZATION$ 共有フォルダーに移動",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "すべてを親フォルダーに移動すると、ネストされたフォルダー構造が維持されます。"
+  },
+  "importSharedFolderRequired": {
+    "message": "共有フォルダーが必要です。"
+  },
+  "importIntoOrganization": {
+    "message": "Items will be imported into $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Move all items into a shared folder"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Import $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Import 1 item"
+  },
+  "importToOrganization": {
+    "message": "Import to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "ログイン",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "セキュアメモ",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "カード",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH キー",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "銀行口座",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "免許証",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "パスポート",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
+  },
   "chooseFile": {
     "message": "ファイルを選択"
   },
@@ -4898,7 +5059,7 @@
     "message": "Directly import instead"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "超高速"
   },
   "importDataTitle": {
     "message": "データをインポート"
@@ -4963,10 +5124,10 @@
     }
   },
   "importDataEverythingTransfersTitle": {
-    "message": "Everything transfers"
+    "message": "すべてを転送"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+    "message": "フォルダー構造を維持したままログイン、カード、ID、セキュアメモ、TOTP を保存します。"
   },
   "importDataSecureByDesignTitleV2": {
     "message": "高速で安全"
@@ -5391,13 +5552,13 @@
     "message": "Please enter the code sent as a text message."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Keeper マスターパスワードを入力してください。"
   },
   "keeperLoginDnaSent": {
     "message": "Keeper DNA を送信しました"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "デバイスで Keeper DNA 通知を承認してください。"
   },
   "keeperLoginCancelRequestDesc": {
     "message": "Your approval request will be canceled. Are you sure you want to proceed?"
@@ -5490,7 +5651,7 @@
     "message": "Sign-in address is required."
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "正しいサインインアドレスを入力してください。"
   },
   "secretKeyIsRequired": {
     "message": "秘密鍵が必要です。"
@@ -5988,10 +6149,10 @@
     "message": "パスキーを保存"
   },
   "chooseCipherForPasskeySave": {
-    "message": "Choose a login to save this passkey to"
+    "message": "このパスキーを保存するログイン情報を選択してください"
   },
   "chooseCipherForPasskeyAuth": {
-    "message": "Choose a passkey to log in with"
+    "message": "ログインに使うパスキーを選択してください"
   },
   "saveNewPasskey": {
     "message": "新規のログイン情報として保存"
@@ -6022,7 +6183,7 @@
     "message": "このアプリケーションは重複をサポートしていません。"
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "No passkeys found for this application."
+    "message": "このアプリにはパスキーがありません。"
   },
   "passkeyNotAllowedForBitwardenVault": {
     "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
@@ -6891,7 +7052,7 @@
     "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
   },
   "unpinFromSidebar": {
-    "message": "Unpin from sidebar",
+    "message": "サイドバーから固定解除",
     "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
   },
   "folderPinnedToSidebar": {
@@ -7482,7 +7643,7 @@
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
   "customize": {
-    "message": "Customize"
+    "message": "カスタマイズ"
   },
   "customizeYourView": {
     "message": "Customize your view"

@@ -41,6 +41,7 @@ import {
 } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -50,6 +51,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   SecurityTask,
@@ -377,7 +379,7 @@ const buildNotificationPolicies = (args: StoryArgs) => {
 /**
  * Tasks backing `vault-at-risk-password-callout`. `pendingTasks$` joins each task to a cipher by
  * `cipherId` and keeps only the editable, password-visible ones, so tasks have to point at ciphers
- * the story provides and `CipherService.cipherViews$` has to return them.
+ * the story provides and `CipherService.cipherListViews$` has to return them.
  */
 const buildAtRiskTask = (
   cipherId: PopupCipherViewLike["id"],
@@ -556,6 +558,8 @@ const buildProviders = (args: StoryArgs) => {
         // No decryption failures, so the failure dialog never opens during a snapshot.
         failedToDecryptCiphers$: () => of([]),
         cipherViews$: () => of(atRiskCiphers),
+        // The at-risk password callout matches tasks to list views.
+        cipherListViews$: () => of(atRiskCiphers),
         ciphers$: () => of({}),
       },
     },
@@ -635,6 +639,7 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
+    { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
     {
       provide: EnvironmentService,
       useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
@@ -724,8 +729,9 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         snapshot: { queryParams: {}, paramMap: new Map() },
         queryParams: of({}),
-        // `vaultScope` combines this in a field initializer, so it must be a stream.
+        // `vaultScope` combines these in a field initializer, so they must be streams.
         paramMap: of(convertToParamMap({})),
+        data: of({}),
       },
     },
     {

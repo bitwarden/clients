@@ -1,0 +1,11 @@
+<div class="tw-flex tw-items-start tw-gap-2">
+  <bit-icon-tile [icon]="icon()" [variant]="variant()" size="base" />
+  <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col">
+    <h3 bitTypography="body2" class="tw-m-0 tw-font-medium">
+      <ng-content select="[slot=title]" />
+    </h3>
+    <p bitTypography="helper" class="tw-m-0 tw-text-fg-body empty:tw-hidden">
+      <ng-content select="[slot=description]" />
+    </p>
+  </div>
+</div>

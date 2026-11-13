@@ -57,6 +57,10 @@ export class TableDataSource<T> extends DataSource<T> {
     return this._sort.value;
   }
 
+  get sort$(): Observable<Sort> {
+    return this._sort.asObservable();
+  }
+
   /**
    * Filter to apply to the `data`.
    *
