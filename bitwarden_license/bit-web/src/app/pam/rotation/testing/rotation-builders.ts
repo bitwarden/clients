@@ -154,6 +154,7 @@ export function rotationConfig(overrides: Partial<RotationConfigView> = {}): Rot
     lastRotationAt: undefined,
     nextRotationAt: undefined,
     hasActiveJob: false,
+    lastJobFailed: false,
     awaitingManualRotation: false,
     creationDate: TIMESTAMP,
     revisionDate: TIMESTAMP,
