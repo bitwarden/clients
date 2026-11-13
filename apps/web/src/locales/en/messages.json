@@ -11576,6 +11576,14 @@
     "message": "Choose a domain that is supported by the selected service",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
+  "forwarderForwardTo": {
+    "message": "Forward to email address",
+    "description": "Labels the optional email address that messages sent to generated aliases are forwarded to."
+  },
+  "forwarderForwardToHint": {
+    "message": "Optional. When set, emails sent to generated aliases are forwarded to this address. Otherwise the service uses your account's default recipient.",
+    "description": "Guidance for the optional forward-to email address in email forwarder settings."
+  },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
     "description": "Reports an error returned by a forwarding service to the user.",

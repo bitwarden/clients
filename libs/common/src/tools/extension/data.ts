@@ -9,6 +9,7 @@ export const Field = Object.freeze({
   baseUrl: "baseUrl",
   domain: "domain",
   prefix: "prefix",
+  forwardTo: "forwardTo",
 } as const);
 
 /** Permission levels for metadata. */

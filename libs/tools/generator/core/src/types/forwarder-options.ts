@@ -5,7 +5,7 @@ import {
   SelfHostedApiSettings,
 } from "@bitwarden/common/tools/integration/rpc";
 
-import { EmailDomainSettings, EmailPrefixSettings } from "../engine";
+import { EmailDomainSettings, EmailForwardToSettings, EmailPrefixSettings } from "../engine";
 
 // FIXME: this type alias is in place for legacy support purposes;
 //   when replacing the forwarder implementation, eliminate `ForwarderId` and
@@ -36,6 +36,11 @@ export type EmailDomainOptions = EmailDomainSettings;
  */
 export type EmailPrefixOptions = EmailDomainSettings & EmailPrefixSettings;
 
+/** Api configuration for forwarders that can forward messages to a recipient.
+ *  @deprecated use {@link ForwarderOptions} instead.
+ */
+export type EmailForwardToOptions = EmailForwardToSettings;
+
 /** These options are used by all forwarders; each forwarder uses a different set,
  *   as defined by `GeneratorMetadata<T>.capabilities.fields`.
  */
@@ -65,7 +70,15 @@ export type ForwarderOptions = Partial<
      *  `foobar@domain.io`.
      */
     prefix: string;
+
+    /** An optional email address that receives messages sent to generated aliases.
+     *  @remarks When this is undefined or empty, the forwarder's default recipient is used.
+     *  @example If the address is `recipient@example.com`, messages sent to a
+     *  generated alias are forwarded to `recipient@example.com`.
+     */
+    forwardTo: string;
   } & EmailDomainSettings &
+    EmailForwardToSettings &
     EmailPrefixSettings &
     SelfHostedApiSettings
 >;

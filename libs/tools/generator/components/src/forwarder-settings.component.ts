@@ -49,6 +49,7 @@ const Controls = Object.freeze({
   token: "token",
   baseUrl: "baseUrl",
   prefix: "prefix",
+  forwardTo: "forwardTo",
 });
 
 /** Options group for forwarder integrations */
@@ -117,6 +118,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     [Controls.token]: [""],
     [Controls.baseUrl]: ["", [this.baseUrlValidator]],
     [Controls.prefix]: [false],
+    [Controls.forwardTo]: [""],
   });
 
   protected readonly baseUrlInput = viewChild<ElementRef<HTMLInputElement>>("baseUrlInput");
@@ -144,6 +146,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
         this.displayToken = forwarder.capabilities.fields.includes("token");
         this.displayBaseUrl = forwarder.capabilities.fields.includes("baseUrl");
         this.displayPrefix = forwarder.capabilities.fields.includes("prefix");
+        this.displayForwardTo = forwarder.capabilities.fields.includes("forwardTo");
 
         forwarder$.next(forwarder);
       });
@@ -290,6 +293,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   protected displayToken: boolean = false;
   protected displayBaseUrl: boolean = false;
   protected displayPrefix: boolean = false;
+  protected displayForwardTo: boolean = false;
 
   private readonly refresh$ = new Subject<void>();
 

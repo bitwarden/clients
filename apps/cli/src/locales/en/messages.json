@@ -234,6 +234,14 @@
       }
     }
   },
+  "forwarderForwardTo": {
+    "message": "Forward to email address",
+    "description": "Labels the optional email address that messages sent to generated aliases are forwarded to."
+  },
+  "forwarderForwardToHint": {
+    "message": "Optional. When set, emails sent to generated aliases are forwarded to this address. Otherwise the service uses your account's default recipient.",
+    "description": "Guidance for the optional forward-to email address in email forwarder settings."
+  },
   "forwarderWebsitePrefix": {
     "message": "Add website prefix",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
