@@ -135,6 +135,7 @@ export default class BrowserPopupUtils {
 
   /**
    * Opens a popout window of any extension page. If the popout window is already open, it will be focused.
+   * Firefox uses native window placement unless coordinates are supplied in `windowOptions`.
    *
    * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
    * @param options - Options for the popout window that overrides the default options.
@@ -167,7 +168,11 @@ export default class BrowserPopupUtils {
     // It is acceptable that this heuristic may fire for X11 sessions.
     const operatingSystemIsLinux = (await BrowserApi.getPlatformInfo()).os === "linux";
     const coordsMaybeNotPrecise = senderWindow.left === 0 && senderWindow.top === 0;
-    const canPositionWindow = !(operatingSystemIsLinux && coordsMaybeNotPrecise);
+    // Firefox can place popouts off-screen on displays with different scaling when given
+    // explicit coordinates. Omit both coordinates to use native window placement.
+    // See https://github.com/bitwarden/clients/issues/10049.
+    const canPositionWindow =
+      !BrowserApi.isFirefox && !(operatingSystemIsLinux && coordsMaybeNotPrecise);
     const positionOptions = canPositionWindow
       ? {
           left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
