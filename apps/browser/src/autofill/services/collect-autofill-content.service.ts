@@ -1239,7 +1239,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Gets the text content from a passed element, regardless of whether it is a
-   * text node, an element node or an HTMLElement.
+   * text node, an element node or an HTMLElement. Other node types, such as
+   * comments, are not visible on the page and return null.
    * @param {Node | HTMLElement} element
    * @returns {string}
    * @private
@@ -1251,6 +1252,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         return null;
       }
       return this.trimAndRemoveNonPrintableText(nodeValue);
+    }
+
+    if (!nodeIsElement(element)) {
+      return null;
     }
 
     const textContentOrInnerText = element.textContent || (element as HTMLElement).innerText;

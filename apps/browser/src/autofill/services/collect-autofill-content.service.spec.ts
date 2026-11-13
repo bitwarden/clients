@@ -2131,6 +2131,31 @@ describe("CollectAutofillContentService", () => {
 
       expect(labelTag).toEqual("Helper text");
     });
+
+    it("ignores the text of a sibling comment node", () => {
+      document.body.innerHTML = `
+        <input type="password" name="password" autocomplete="current-password">
+        <!--MFAcode-->
+      `;
+      const element = document.querySelector("input") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("continues past a sibling comment node to collect later text", () => {
+      document.body.innerHTML = `
+        <input type="text" name="username" id="username-id">
+        <!--MFAcode-->
+        <label for="username-id">Username</label>
+      `;
+      const element = document.querySelector("input") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("Username");
+    });
   });
 
   describe("createAutofillFieldLeftLabel", () => {
@@ -2194,6 +2219,21 @@ describe("CollectAutofillContentService", () => {
       const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
 
       expect(labelTag).toEqual("Helpful label");
+    });
+
+    it("ignores the text of a sibling comment node", () => {
+      document.body.innerHTML = `
+        <div>
+          <label for="username-id">Username</label>
+          <!--MFAcode-->
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("Username");
     });
   });
 
@@ -2449,6 +2489,14 @@ describe("CollectAutofillContentService", () => {
         element.textContent,
       );
       expect(textContent).toEqual(element.textContent);
+    });
+
+    it("returns null for a comment node", () => {
+      const commentNode = document.createComment("MFAcode");
+
+      const textContent = collectAutofillContentService["getTextContentFromElement"](commentNode);
+
+      expect(textContent).toBeNull();
     });
   });
 
