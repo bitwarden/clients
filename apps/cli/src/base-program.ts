@@ -21,6 +21,8 @@ const writeLn = CliUtils.writeLn;
 export abstract class BaseProgram {
   constructor(protected serviceContainer: ServiceContainer) {}
 
+  readonly test = "test";
+
   protected processResponse(response: Response, exitImmediately = false) {
     if (!response.success) {
       if (process.env.BW_QUIET !== "true") {
