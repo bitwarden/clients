@@ -2,20 +2,12 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import {
-  combineLatestWith,
-  firstValueFrom,
-  Observable,
-  startWith,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { combineLatestWith, Observable, startWith, Subject, switchMap, takeUntil } from "rxjs";
 
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { openUserVerificationPrompt } from "@bitwarden/web-vault/app/auth/shared/components/user-verification";
 
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { AccessTokenView } from "../models/view/access-token.view";
@@ -111,19 +103,20 @@ export class AccessTokenComponent implements OnInit, OnDestroy {
     );
   }
 
-  private verifyUser() {
-    const ref = openUserVerificationPrompt(this.dialogService, {
-      data: {
-        confirmDescription: "revokeAccessTokenDesc",
-        confirmButtonText: "revokeAccessToken",
-        modalTitle: "revokeAccessToken",
+  private async verifyUser(): Promise<boolean> {
+    const result = await UserVerificationDialogComponent.open(this.dialogService, {
+      title: "revokeAccessToken",
+      bodyText: "revokeAccessTokenDesc",
+      confirmButtonOptions: {
+        text: "revokeAccessToken",
+        type: "danger",
       },
     });
 
-    if (ref == null) {
-      return;
+    if (result.userAction === "cancel") {
+      return false;
     }
 
-    return firstValueFrom(ref.closed);
+    return result.verificationSuccess;
   }
 }
