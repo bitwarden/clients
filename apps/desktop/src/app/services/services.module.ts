@@ -147,7 +147,6 @@ import {
 import {
   CryptoFunctionService as CryptoFunctionServiceAbstraction,
   EncryptService,
-  LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
@@ -585,7 +584,6 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyService,
-      LegacyCompatKeyService,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,

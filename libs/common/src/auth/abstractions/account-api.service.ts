@@ -1,4 +1,3 @@
-import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { RegisterVerificationEmailClickedRequest } from "../models/request/registration/register-verification-email-clicked.request";
 import { SetVerifyDevicesRequest } from "../models/request/set-verify-devices.request";
@@ -40,16 +39,6 @@ export abstract class AccountApiService {
   abstract registerVerificationEmailClicked(
     request: RegisterVerificationEmailClickedRequest,
   ): Promise<void>;
-
-  /**
-   * Completes the registration process.
-   *
-   * @param request - The user's email verification token, the email, newly created user key, and new
-   * asymmetric user key pair along with the KDF information, hashed MP and salt (in the form of the
-   * MasterPasswordAuthenticationData and MasterPasswordUnlockData) used during the process.
-   * @returns A promise that resolves when the registration process is successfully completed.
-   */
-  abstract registerFinish(request: RegisterFinishRequest): Promise<void>;
 
   /**
    * Sets the [dbo].[User].[VerifyDevices] flag to true or false.

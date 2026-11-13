@@ -45,7 +45,6 @@ import {
   EncryptService,
   EncString,
   fromSdkKdfConfig,
-  LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import {
@@ -71,7 +70,6 @@ describe("DefaultSetInitialPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
-  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -90,7 +88,6 @@ describe("DefaultSetInitialPasswordService", () => {
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
-    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
@@ -108,7 +105,6 @@ describe("DefaultSetInitialPasswordService", () => {
       i18nService,
       kdfConfigService,
       keyService,
-      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
