@@ -1,0 +1,33 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./in-forms.stories";
+
+<Meta of={stories} />
+
+# Async Actions In Forms
+
+`submitAction(handler)` on a `<form>` (or `<bit-form .action=${handler}>` around one) replaces
+Angular's `[bitSubmit]` + `bitFormButton`:
+
+- The form gets `novalidate`; every submit marks controls touched and calls the handler with
+  `{ form, formData, valid, submitter }`. Return early when `!valid`.
+- While the handler's promise is pending, `type="submit"` `bit-button`s show loading, other form
+  buttons are disabled and further submits are ignored.
+- A form button with its own `action` disables the other form buttons and blocks submit while it
+  runs.
+- When every control is disabled, submit is blocked unless `allowDisabledFormSubmit` is set.
+- Errors go to the handler registered with `setAsyncActionErrorHandler`.
+- `hasDirtyForm()` reports whether any such form has unsaved changes.
+
+```ts
+html`<form
+  ${submitAction(async ({ valid, formData }) => {
+    if (!valid) return;
+    await save(formData);
+  })}
+>
+  ...
+</form>`;
+```
+
+<Canvas of={stories.UsingPromise} />

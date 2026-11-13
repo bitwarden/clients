@@ -1,0 +1,84 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Virtual Scrolling" />
+
+# Virtual Scrolling
+
+Virtual scrolling is a technique that improves the rendering performance of very large lists by only
+rendering whatever is currently visible within the viewport. The Angular library builds on the CDK's
+`ScrollingModule`; this library has its own virtualizer, built into the components that need it.
+
+## Tables
+
+Set `virtual-row-height` on `bit-table-v2` to virtualize its body. Every row must render at exactly
+that height, and columns need explicit `width`s, since each row is laid out on its own.
+
+```ts
+// Scrolls within a body capped at 8 rows
+html`<bit-table-v2
+  .data=${rows}
+  .columns=${columns}
+  virtual-row-height="48"
+  height="8"
+></bit-table-v2>`;
+
+// Grows to its container's height and scrolls inside it
+html`<bit-table-v2
+  .data=${rows}
+  .columns=${columns}
+  virtual-row-height="64"
+  height="fill"
+></bit-table-v2>`;
+```
+
+The deprecated `bit-table-scroll` (`row-size`) virtualizes a `bit-table` the same way.
+
+Virtualization isn't tied to a viewport element. The virtualizer finds the nearest scrolling
+ancestor in the flat tree (crossing shadow roots and slots), or uses the window, and re-measures
+when the scroller or the table resizes. A table without a bounded height therefore scrolls with the
+page by itself.
+
+## Scrolling the entire layout
+
+Often, a design calls for the scroll container to envelop the entire page. Inside a `bit-layout`, an
+unbounded virtualized table already scrolls with the layout's `<main>` region, so there's no
+`bitScrollLayout` directive to add.
+
+When the table itself should be the page's scroll region (a full-height table under a fixed header),
+use `height="fill"` with `scroll-layout-host`:
+
+```ts
+html`<bit-layout>
+  <bit-side-nav>…</bit-side-nav>
+  <bit-page>
+    <bit-header title="Items"></bit-header>
+    <div class="tw-flex tw-min-h-0 tw-flex-1 tw-flex-col">
+      <bit-table-v2
+        .data=${rows}
+        .columns=${columns}
+        virtual-row-height="64"
+        height="fill"
+        scroll-layout-host
+      ></bit-table-v2>
+    </div>
+  </bit-page>
+</bit-layout>`;
+```
+
+`scrollLayout.scrollable` always holds the current page scroll region (`<main>` by default, or the
+element registered with `attachScrollLayoutHost` / `scrollLayoutHost()`), for custom virtual
+scrollers and scroll-driven behavior such as `collapseOnScroll()`.
+
+### No initialization-order footgun
+
+Angular's `bitScrollLayout` errors when used in the same template as `bit-layout`, because the child
+content is constructed before the layout has a scroll container. Custom elements upgrade and connect
+independently, and the virtualizer looks up its scroller when it connects and re-checks on resize,
+so the table can be placed directly inside the layout without a wrapper component or a `defer`
+block.
+
+## Example
+
+See
+[Kitchen Sink › Virtual Scroll Blocking Dialog](?path=/story/documentation-kitchen-sink--virtual-scroll-blocking-dialog)
+for a 100-row virtualized table filling a `bit-page`, where row actions open a dialog.

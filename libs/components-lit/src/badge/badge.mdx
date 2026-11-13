@@ -1,0 +1,49 @@
+import { Meta, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./badge.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/badge";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Styles
+
+### Default / Primary
+
+The primary badge is used to indicate an active status (example: device management page) or provide
+additional information (example: type of emergency access granted).
+
+### Subtle
+
+The subtle badge is typically the default badge style. It is often used to indicate neutral
+information.
+
+### Success
+
+The success badge is used to indicate a positive status, OR to indicate a feature requires a Premium
+subscription.
+
+### Danger
+
+The danger badge is used to indicate a negative status.
+
+### Warning
+
+The warning badge is used to indicate a status waiting on an additional action from the active user.
+
+## Truncation
+
+Text longer than `--bit-badge-max-width` (default ~25ch) is truncated with an ellipsis and the full
+text is shown in a tooltip. Set `no-truncate` to disable, or `tooltip` to show different text.
+
+## Accessibility
+
+Follows color WCAG color contrast guidelines for small text.

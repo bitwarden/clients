@@ -1,0 +1,33 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as formStories from "./form.stories";
+
+<Meta of={formStories} />
+
+# Forms
+
+Forms use a native `<form>` with form-associated `bit-*` controls. Add `submitAction(handler)` (Lit)
+or wrap it in `<bit-form>` (plain HTML) for async submit handling: errors show on submit, the submit
+button shows loading and other form buttons are disabled while the handler runs.
+
+<Canvas of={formStories.FullExample} />
+
+## Spacing
+
+- 1.5rem of vertical and horizontal spacing between form elements.
+- 3rem below a form section; section titles use `text-lg`.
+- No more than 3 columns, and the same column layout within a section.
+
+## Validation
+
+Errors show when a touched control is invalid, or after a submit attempt. Typing hides the error
+until the next blur. Each error is linked to its control with `aria-describedby` and announced via
+an assertive live region. Place a `bit-error-summary` near the submit button.
+
+<Canvas of={formStories.Validations} />
+
+## Accessibility
+
+- Label icon buttons in fields as `{Action} {field label}`, e.g. "Copy username".
+- Required fields show an asterisk and an "(required)" screen reader suffix.
+- Radio groups should always have a default selection; use a select for more than 4–5 options.

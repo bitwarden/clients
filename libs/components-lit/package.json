@@ -1,0 +1,12 @@
+{
+  "name": "@bitwarden/components-lit",
+  "version": "0.0.0",
+  "description": "Bitwarden design system components built with Lit",
+  "private": true,
+  "sideEffects": true,
+  "license": "GPL-3.0",
+  "scripts": {
+    "storybook": "storybook dev -p 6008 -c ./.storybook",
+    "build-storybook": "storybook build -c ./.storybook -o ../../storybook-static-lit"
+  }
+}

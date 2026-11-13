@@ -1,0 +1,25 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./checkbox.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/checkbox";
+```
+
+# Checkbox
+
+`bit-checkbox` renders the box, label, hint and error (Angular `bit-form-control` + `bitCheckbox`).
+It submits `value` (default `"on"`) under `name` while checked. `required` means it must be checked.
+Set `card` (with optional `icon` or a `start` slot) for the card layout.
+
+<Primary />
+<Controls />
+
+## Groups
+
+Wrap checkboxes in `bit-form-control-group` for a legend and shared hint/error. Give the group a
+`name` to submit the checked items' values and to validate it with `required`.
+
+<Canvas of={stories.FormControlCardGroup} />

@@ -1,0 +1,25 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./typography.stories";
+
+<Meta of={stories} />
+
+# Typography
+
+`<bit-typography>` renders text in a type style. Heading variants render the matching heading
+element and body variants a paragraph; use `as` when the semantic element and the style differ:
+
+```html
+<bit-typography variant="h1">H1</bit-typography>
+<bit-typography variant="h5" as="h2">Semantically an h2, but uses h5 styles.</bit-typography>
+```
+
+Inside Lit templates (or pages with the Bitwarden Tailwind build), the `typography()` helper returns
+the class string for a native element:
+
+```ts
+html`<h2 class=${typography("h5")}>...</h2>`;
+```
+
+<Canvas of={stories.Default} />
+<Canvas of={stories.SemanticVsVisual} />

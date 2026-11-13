@@ -1,0 +1,24 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./file-upload.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/file-upload";
+```
+
+# File Upload
+
+Single-file picker. `value` is a `File` or `null`; with a `name` the file is part of the form's
+`FormData`. `accept` is only a browser hint, not validation. For multiple files use
+`bit-file-dropzone`.
+
+<Primary />
+<Controls />
+
+<Canvas of={stories.InForm} />
+
+## Accessibility
+
+The "Choose File" button is the labelled control; the chosen file name is announced politely.

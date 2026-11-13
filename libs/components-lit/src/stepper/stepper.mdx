@@ -1,0 +1,40 @@
+import { Meta, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./stepper.stories";
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Step
+
+`<bit-stepper>` children must be `<bit-step>` elements.
+
+| Property      | Attribute      | Description                                                    |
+| ------------- | -------------- | -------------------------------------------------------------- |
+| `label`       | `label`        | Main label                                                     |
+| `subLabel`    | `sub-label`    | An optional supplemental label to display below the main label |
+| `completed`   | `completed`    | Overrides the default completion state                         |
+| `optional`    | `optional`     | Linear steppers can move past this step without completing it  |
+| `nonEditable` | `non-editable` | The user can't return to this step after moving past it        |
+| `stepControl` | —              | Validity source (`{ valid, pending?, reset?() }`)              |
+
+```html
+<bit-stepper linear>
+  <bit-step label="This is the label" sub-label="This is the sub label">
+    Your content here
+    <bit-button bit-stepper-next>Next</bit-button>
+  </bit-step>
+  <bit-step label="Another label">
+    Your content here
+    <bit-button bit-stepper-previous>Back</bit-button>
+  </bit-step>
+</bit-stepper>
+```
+
+The stepper exposes `selectedIndex`, `selected`, `next()`, `previous()` and `reset()`, and fires
+`selectionChange` and `selectedIndexChange`.

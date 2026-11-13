@@ -1,0 +1,127 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./icons.stories";
+
+<Meta title="Documentation/Icons" />
+
+# Iconography
+
+Bitwarden has a suite of presentational icons available for use, as well as a few helper classes for
+sizing and rotation.
+
+Render an icon with the `bit-icon` element, passing the icon class to its `name` property:
+
+```html
+<bit-icon name="bwi-check"></bit-icon>
+```
+
+Icons inherit `color` and `font-size` from the host, so size and color them with classes on the
+`bit-icon` itself (`tw-text-2xl`, `tw-text-fg-danger`, `bwi-2x`, `bwi-spin`, ...). Set `fixed-width`
+to align icons in a column.
+
+Under the hood, icons use the `bwi` class plus an additional `bwi-*` class to indicate which icon is
+rendered. The icon font face is declared in `src/styles/document.css` (browsers ignore `@font-face`
+inside shadow roots), and every component's shadow root carries the `bwi` classes, so inside Lit
+templates you can also apply them directly:
+
+```html
+<i class="bwi bwi-check" aria-hidden="true"></i>
+```
+
+Component properties that take an icon (`startIcon`, `icon`, ...) are typed as `BitwardenIcon`.
+
+## Accessibility
+
+Icons are decorative by default (hidden from assistive technology). Avoid using icons to convey
+information unless paired with meaningful, clear text. If an icon must be used and text cannot be
+displayed visually along with the icon, set `label` to expose it as an image with that name, and
+attach a tooltip to show the text visually. Note: this pattern should only be followed for very
+common iconography such as a settings cog icon or an options menu icon. For icon-only buttons use
+`bit-icon-button`, whose `label` is required.
+
+## Status Indicators
+
+<Canvas of={stories.StatusIcons} />
+
+## Bitwarden Objects
+
+<Canvas of={stories.BitwardenObjects} />
+
+## Actions
+
+<Canvas of={stories.Actions} />
+
+## Directional and Menu Indicators
+
+<Canvas of={stories.DirectionalMenuIndicators} />
+
+## Misc Objects
+
+<Canvas of={stories.MiscObjects} />
+
+## Platforms and Logos
+
+<Canvas of={stories.PlatformsAndLogos} />
+
+## Size Variants
+
+<Canvas of={stories.SizeVariants} />
+
+## Rotation Variants
+
+<Canvas of={stories.RotationVariants} />
+
+---
+
+# Developer Guide
+
+The icon font is shared with `libs/components`: both libraries load the same generated stylesheet
+(`libs/angular/src/scss/bwicons/styles/style.css`), so a new icon becomes available here as soon as
+it is built.
+
+## Adding a New Icon
+
+The font is generated directly from the SVG filenames — the filename becomes the CSS class
+(`help.svg` → `bwi-help`).
+
+1. Export the icon from the Figma icon file as SVG (**Outline stroke** and **Simplify stroke**
+   enabled, **Include "id" attribute** disabled). Name the file in kebab-case; **the filename
+   becomes the `bwi-` class name**.
+2. Save it to `libs/assets/src/material-icons/`.
+3. Run `npm run icons:build`. This regenerates the font files, `style.scss` / `style.css`, and the
+   Angular icon list (`libs/components/src/shared/icon.ts`). Don't edit generated files by hand.
+4. Document the icon in the matching category of `src/stories/icons/icon-data.ts` in this library
+   (and in `libs/components/src/stories/icons/icon-data.ts`), with a usage description that starts
+   with what the icon indicates or does, gives context-specific guidance, and mentions related icons
+   and accessibility considerations.
+5. Check it under "Documentation / Icons" in this Storybook and try it in a component:
+
+```html
+<bit-icon name="bwi-your-new-icon"></bit-icon>
+```
+
+## Icon Naming Conventions
+
+- **Use kebab-case**: `star-filled.svg`, not `starFilled.svg` or `star_filled.svg`
+- **Be descriptive**: choose names that clearly indicate the icon's purpose
+- **Follow Figma**: use names from the Figma design system when possible
+
+| SVG Filename            | Generated CSS Class     | Usage                     |
+| ----------------------- | ----------------------- | ------------------------- |
+| `help.svg`              | `bwi-help`              | Help/question icons       |
+| `star-filled.svg`       | `bwi-star-filled`       | Filled star for favorites |
+| `add-circle.svg`        | `bwi-add-circle`        | Add button with circle    |
+| `arrow-filled-down.svg` | `bwi-arrow-filled-down` | Dropdown indicators       |
+
+Some older icons have legacy aliases (e.g. `bwi-question-circle` → `bwi-help`, `bwi-plus` →
+`bwi-add`) preserved in `scripts/material-icons/migration-map.ts`, which also lists extra variant
+classes that reuse one SVG (`FIGMA_VARIANTS`). See `scripts/material-icons/README.md` for details.
+
+## Troubleshooting
+
+- **Icon not appearing:** verify the SVG is in `libs/assets/src/material-icons/` with a kebab-case
+  name, rerun `npm run icons:build`, and make sure the page loads `src/styles/document.css`.
+- **Wrong icon displaying:** the filename is the class; check for similarly named SVGs.
+- **Font not updating:** delete `libs/angular/src/scss/bwicons/fonts/bwi-font.*` and rebuild.
+- **Icon shows as a box inside a component:** the font face is missing from the document; shadow
+  roots can't declare it themselves.

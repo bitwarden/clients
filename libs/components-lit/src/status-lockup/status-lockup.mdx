@@ -1,0 +1,48 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./status-lockup.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitStatusLockup } from "@bitwarden/components-lit";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Usage
+
+Use the status lockup to fill a content area with important context about the current view: empty
+states, errors, permission restrictions, onboarding prompts and completion confirmations. It should
+be the sole message in its container.
+
+Use `base` for full pages or tables and `small` for side panels, drawers and other narrow areas. The
+component switches to `small` automatically when its container is narrower than 768px.
+
+## Content Slots
+
+- `slot="graphic"` — optional illustration or icon tile (`bit-svg` is sized to 80px).
+- `slot="title"` — required heading, rendered in an `h3`.
+- `slot="description"` — required supporting copy.
+- `slot="button"` — optional actions; multiple buttons are spaced automatically.
+
+Text must be wrapped in an element to be slotted, e.g. `<span slot="title">`.
+
+<Canvas of={stories.WithIconTile} />
+<Canvas of={stories.NoGraphic} />
+<Canvas of={stories.NoButton} />
+
+## Sizes
+
+<Canvas of={stories.Small} />
+<Canvas of={stories.Responsive} />
+
+## Accessibility
+
+- The title is an `<h3>`; make sure it fits the surrounding heading hierarchy.
+- Mark decorative graphics `aria-hidden`; label meaningful ones.
+- Title, description and button labels are consumer-provided and must be localized.

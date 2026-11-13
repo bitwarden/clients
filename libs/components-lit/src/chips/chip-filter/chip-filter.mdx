@@ -1,0 +1,36 @@
+import { Meta, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip-filter.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/chips";
+```
+
+<Title />
+
+<Description />
+
+<Canvas of={stories.Default} />
+
+## Options
+
+Pass `ChipFilterOption<T>[]` to the `options` property. Nest options with `children`; the menu
+navigates into them and offers "Back to …" and "View items in …".
+
+```ts
+html`<bit-chip-filter
+  placeholder-text="Folder"
+  placeholder-icon="bwi-folder"
+  .options=${options}
+  @change=${(e) => filter(e.target.value)}
+></bit-chip-filter>`;
+```
+
+<Canvas of={stories.NestedOptions} />
+
+## Reading the current value
+
+The chip is form-associated: read or set `value`, listen for `change`, or give it a `name` inside a
+`<form>`.

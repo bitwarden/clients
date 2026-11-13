@@ -1,0 +1,25 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./file-dropzone.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/file-upload";
+```
+
+# File Dropzone
+
+Drag-and-drop or click to pick files. `value` is a `File[]`; set it to pre-populate the list. With a
+`name`, every file is a `FormData` entry. `accept` and `max-file-size` are hints, not validation.
+
+<Primary />
+<Controls />
+
+<Canvas of={stories.WithFiles} />
+
+## Accessibility
+
+- Adding and removing files is announced assertively.
+- The file input describes the current upload count, so users returning to it hear its state.
+- After a removal, focus moves to the next delete button, or the dropzone when the list is empty.

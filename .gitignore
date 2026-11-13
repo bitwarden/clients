@@ -52,6 +52,7 @@ base/
 documentation.json
 .eslintcache
 storybook-static
+storybook-static-lit
 
 # Local app configuration
 apps/**/config/local.json
