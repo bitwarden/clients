@@ -13,6 +13,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
@@ -20,7 +21,7 @@ import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/gui
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import {
   CipherRiskService,
-  isPasswordAtRisk,
+  getPasswordRiskCategory,
 } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -299,13 +300,13 @@ export class CipherViewComponent {
   });
 
   /**
-   * Whether the login password for the cipher is considered at risk.
+   * The highest risk category of the login password, or null when it is not at risk.
    * The password is only evaluated when the user is premium (and not anonymous;
    * the userId is required to make the check) and has edit access to the cipher.
    */
-  readonly passwordIsAtRisk = toSignal(
+  readonly passwordRiskCategory = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
-      switchMap(([userId, cipher]) => {
+      switchMap(([userId, cipher]): Observable<RiskCategory | null> => {
         if (
           !cipher.hasLoginPassword ||
           !cipher.edit ||
@@ -313,20 +314,23 @@ export class CipherViewComponent {
           cipher.isDeleted ||
           !userId
         ) {
-          return of(false);
+          return of(null);
         }
-        return this.switchPremium$(
+        return this.switchPremium$<RiskCategory | null>(
           userId,
           () =>
-            from(this.checkIfPasswordIsAtRisk(cipher.id as CipherId, userId as UserId)).pipe(
-              startWith(false),
+            from(this.getPasswordRiskCategory(cipher.id as CipherId, userId as UserId)).pipe(
+              startWith<RiskCategory | null>(null),
             ),
-          () => of(false),
+          () => of(null),
         );
       }),
     ),
-    { initialValue: false },
+    { initialValue: null },
   );
+
+  /** Whether the login password for the cipher is considered at risk. */
+  readonly passwordIsAtRisk = computed(() => this.passwordRiskCategory() != null);
 
   readonly showChangePasswordLink = computed(() => {
     return (
@@ -394,13 +398,16 @@ export class CipherViewComponent {
       .pipe(switchMap((isPremium) => (isPremium ? ifPremium$() : ifNonPremium$())));
   }
 
-  private async checkIfPasswordIsAtRisk(cipherId: CipherId, userId: UserId): Promise<boolean> {
+  private async getPasswordRiskCategory(
+    cipherId: CipherId,
+    userId: UserId,
+  ): Promise<RiskCategory | null> {
     try {
       const risk = await this.cipherRiskService.computeCipherRiskForUser(cipherId, userId, true);
-      return isPasswordAtRisk(risk);
+      return getPasswordRiskCategory(risk);
     } catch (error: unknown) {
       this.logService.error("Failed to check if password is at risk", error);
-      return false;
+      return null;
     }
   }
 }

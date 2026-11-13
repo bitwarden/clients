@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -133,6 +134,44 @@ describe("LoginCredentialsViewComponent", () => {
       const passwordInput = passwordField.query(By.css("input")).nativeElement;
 
       expect(passwordInput.value).toBe(cipher.login.password);
+    });
+
+    describe("at-risk badge", () => {
+      const query = (testId: string) =>
+        fixture.debugElement.query(By.css(`[data-testid="${testId}"]`));
+
+      const render = (category: RiskCategory | null, link?: string) => {
+        component.showChangePasswordLink = true;
+        fixture.componentRef.setInput("passwordRiskCategory", category);
+        fixture.componentRef.setInput("changePasswordLink", link);
+        fixture.detectChanges();
+      };
+
+      it.each([
+        [RiskCategory.Exposed, "exposed"],
+        [RiskCategory.Weak, "weak"],
+        [RiskCategory.Reused, "reused"],
+      ])("shows the %s badge", (category, label) => {
+        render(category);
+
+        expect(query("password-risk-badge").nativeElement.textContent.trim()).toBe(label);
+      });
+
+      it("shows only the change password link when there is no risk category", () => {
+        render(null, "https://example.com/change");
+
+        expect(query("password-risk-badge")).toBeNull();
+        expect(query("change-password-link").nativeElement.getAttribute("href")).toBe(
+          "https://example.com/change",
+        );
+      });
+
+      it("hides the badge when the change password link is not shown", () => {
+        fixture.componentRef.setInput("passwordRiskCategory", RiskCategory.Weak);
+        fixture.detectChanges();
+
+        expect(query("password-risk-badge")).toBeNull();
+      });
     });
 
     describe("copy", () => {
