@@ -1,21 +1,34 @@
+import { NgZone } from "@angular/core";
 import { LoadChildrenCallback } from "@angular/router";
 
 import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+} from "@bitwarden/bit-pam";
+import {
+  AccessBadgeTickerService,
   GatedCollectionBannerComponent,
   GatedRequestActionsService,
   LeaseExtensionService,
   controlledAccessColumn,
 } from "@bitwarden/bit-pam-components";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { PAM_DESKTOP_ROUTES } from "@bitwarden/desktop/app/pam/pam-routes.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/desktop/vault/app/vault-v3/vault-gated-collection-banner.token";
 import { VAULT_ITEM_COLUMN, VAULT_ROW_ACTIONS } from "@bitwarden/vault";
 
 import { provideDesktopPam } from "./provide-pam";
+import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
 
 function providerFor(token: unknown): Record<string, unknown> | undefined {
-  return provideDesktopPam().find((p) => (p as { provide: unknown }).provide === token) as
-    Record<string, unknown> | undefined;
+  return provideDesktopPam().find(
+    (p) => (p as { provide: unknown }).provide === token,
+  ) as unknown as Record<string, unknown> | undefined;
 }
 
 describe("provideDesktopPam", () => {
@@ -64,6 +77,22 @@ describe("provideDesktopPam", () => {
 
       expect(provider.deps).toEqual([DesktopVaultRowActionsService]);
       expect(result).toBe(actions);
+    });
+
+    it("fills the revealed-cipher seam with the desktop service and its dependencies", () => {
+      const provider = providerFor(RevealedCipherService);
+
+      expect(provider?.useClass).toBe(DesktopRevealedCipherService);
+      expect(provider?.deps).toEqual([
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccessBadgeTickerService,
+        AccessLeaseSdkService,
+        AccountService,
+        AuthService,
+        NgZone,
+        LogService,
+      ]);
     });
 
     it("provides the services the request and lease flows inject", () => {

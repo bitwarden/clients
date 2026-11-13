@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, DestroyRef } from "@angular/core";
+import { APP_INITIALIZER, DestroyRef, NgZone } from "@angular/core";
 
 import {
   AccessEventService,
@@ -41,6 +41,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { DESKTOP_SETTINGS_EXTRAS } from "@bitwarden/desktop/app/accounts/settings-extras.token";
 import { PamNavBadgeService } from "@bitwarden/desktop/app/pam/pam-nav-badge.service";
@@ -61,13 +62,14 @@ import { DesktopPamNotificationSink } from "./notifications/desktop-pam-notifica
 import { DesktopPamNotifier } from "./notifications/desktop-pam-notifier";
 import { PamNotificationStateService } from "./notifications/pam-notification-state.service";
 import { PamNotificationsSettingComponent } from "./notifications/pam-notifications-setting.component";
+import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
 
 /**
  * PAM's root-level providers for the commercial desktop build, including every OSS seam it fills:
  * the routes, nav badge, settings row, and the vault's cipher banner, item badge, filter chip,
- * Controlled access column, shared-folder banner and row-menu actions. Also starts the
- * system-notification watcher at app initialization.
+ * Controlled access column, shared-folder banner, row-menu actions and the revealed view of a
+ * leased item. Also starts the system-notification watcher at app initialization.
  */
 export function provideDesktopPam(): SafeProvider[] {
   return [
@@ -203,6 +205,21 @@ export function provideDesktopPam(): SafeProvider[] {
       provide: VAULT_ITEM_COLUMN,
       useFactory: controlledAccessColumn,
       deps: [I18nService, ConfigService, ControlledAccessVaultFilterService],
+    }),
+    // Replaces the reveal-nothing default, so a live lease shows the item's secrets.
+    safeProvider({
+      provide: RevealedCipherService,
+      useClass: DesktopRevealedCipherService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccessBadgeTickerService,
+        AccessLeaseSdkService,
+        AccountService,
+        AuthService,
+        NgZone,
+        LogService,
+      ],
     }),
     safeProvider({
       provide: GatedRequestActionsService,

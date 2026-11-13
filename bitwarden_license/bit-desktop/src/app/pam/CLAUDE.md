@@ -6,8 +6,8 @@
   popup's and the web vault's `providePam()`. It also fills the vault seams: the gated shared-folder
   banner (`VAULT_GATED_COLLECTION_BANNER`, the shared `GatedCollectionBannerComponent`), the
   Controlled access column (`VAULT_ITEM_COLUMN`, `controlledAccessColumn`) and the row menu
-  (`VAULT_ROW_ACTIONS`, see `vault/`). Not filled: PAM revealed-cipher handling and the shared-folder
-  lock decoration.
+  (`VAULT_ROW_ACTIONS`, see `vault/`), and `RevealedCipherService` with
+  `DesktopRevealedCipherService` (see `vault/`). Not filled: the shared-folder lock decoration.
 - `pam-shell.routes.ts` and `pam-shell.component.*`: the `/pam` shell with Approvals, My requests and
   History tabs (`bit-tab-nav-bar` in the desktop header's `tabs` slot). `MyAccessService`,
   `ApproverInboxService` and `AccessNameResolverService` are provided on the shell route so the tabs
@@ -26,6 +26,14 @@
   `DialogService` over the tab the caller came from (read off the previous navigation) and, on
   close, replaces the URL with that tab. A `/pam/requests/<id>` notification click lands here.
   `AccessRequestDetailService` is provided on the host because it reads `:id` off the route.
+- `vault/desktop-revealed-cipher.service.ts`: the `RevealedCipherService` behind the shared item
+  drawer (`VaultItemDialogComponent`) and row menu (`CipherRowMenuService`), a desktop copy of
+  bit-web's `PamRevealedCipherService` (keep the two behaving alike). While the active user holds a
+  live lease it reads the full view through the SDK's `leasedCipher` and holds it in renderer memory
+  only (never state, never IPC); it drops the view when the lease ends, lapses or reads as gone, on
+  an account switch, and on lock or logout. A failed state read keeps the last answer (it can hold a
+  reveal, never grant one); a failed or still-partial `leasedCipher` read reveals nothing. Without
+  it, the reveal-nothing default from `jslib-services` leaves a leased item with no credentials.
 - `vault/desktop-vault-row-actions.service.ts`: `VAULT_ROW_ACTIONS` entries for the desktop vault
   table. Today one, "Cancel request", on a gated row with a pending or approved, unstarted request,
   through the shared `GatedRequestActionsService`. `show` is synchronous, so it reads a snapshot
