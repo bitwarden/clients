@@ -6,6 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
+import { ServiceAccountSecretsDetailsView, ServiceAccountView } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,
@@ -16,11 +17,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogRef, DialogService, TableDataSource, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
-
-import {
-  ServiceAccountSecretsDetailsView,
-  ServiceAccountView,
-} from "../models/view/service-account.view";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

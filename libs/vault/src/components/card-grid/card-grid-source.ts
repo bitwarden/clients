@@ -1,11 +1,16 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
+import {
+  getFlatCollectionTree,
+  getNestedCollectionTree,
+} from "@bitwarden/common/admin-console/utils/collection-utils";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import { BitwardenIcon } from "@bitwarden/components";
 
+import { myFolderItemCounts, subtreeIds } from "../../models/folder-table-row";
 import {
   folderCommands,
   scopedFolderId,
@@ -15,6 +20,7 @@ import {
   VaultScopeType,
 } from "../../models/vault-scope";
 import { sharedFolderName } from "../../utils/shared-folder-name";
+import { sharedFolderItemCounts } from "../shared-folders/shared-folder-rows";
 
 /** A single child folder, resolved to the route its card links to. */
 export type CardGridCard = {
@@ -25,6 +31,9 @@ export type CardGridCard = {
 
   /** How many folders sit directly inside this one. */
   nestedCount: number;
+
+  /** Items in this folder and every folder nested beneath it, each counted once. */
+  itemCount: number;
 };
 
 /** The i18n keys of a message that counts folders: one for exactly one, one for any other number. */
@@ -60,6 +69,9 @@ export type CardGridSource = {
 export type CardGridData = {
   collections: CollectionView[];
   folders: FolderView[];
+
+  /** Every item the user holds, for each card's item count. */
+  ciphers: CipherViewLike[];
 };
 
 /**
@@ -72,17 +84,18 @@ export function resolveCardGridSource(
 ): CardGridSource | undefined {
   switch (scope.type) {
     case VaultScopeType.Organization:
-      return sharedFolderSource(scope, data.collections);
+      return sharedFolderSource(scope, data.collections, data.ciphers);
     case VaultScopeType.Folder:
-      return myFolderSource(scope, data.folders);
+      return myFolderSource(scope, data.folders, data.ciphers);
     default:
       return undefined;
   }
 }
 
 function sharedFolderSource(
-  scope: VaultScope,
+  scope: Extract<VaultScope, { type: typeof VaultScopeType.Organization }>,
   collections: CollectionView[],
+  ciphers: CipherViewLike[],
 ): CardGridSource | undefined {
   const collectionId = scopedSharedFolderId(scope);
   if (collectionId == null) {
@@ -94,6 +107,17 @@ function sharedFolderSource(
     return undefined;
   }
 
+  // Each descendant pooled under the child card it sits beneath.
+  const cardOf = new Map<string, string>();
+  for (const child of node.children) {
+    for (const descendant of getFlatCollectionTree([child])) {
+      cardOf.set(descendant.id, child.node.id);
+    }
+  }
+  const itemCounts = sharedFolderItemCounts(ciphers, scope.organizationId, (collectionId) =>
+    cardOf.get(collectionId),
+  );
+
   return {
     // Read through `sharedFolderName`: the tree names a node whose parent is missing by the joined
     // path segments, not its own name.
@@ -104,6 +128,7 @@ function sharedFolderSource(
       commands: sharedFolderRoute(scope, child),
       icon: "bwi-shared-folder",
       nestedCount: children.length,
+      itemCount: itemCounts.get(child.id) ?? 0,
     })),
     titleKey: "sharedFoldersInParent",
     countKeys: { singular: "sharedFolderSingular", plural: "sharedFolderCount" },
@@ -123,7 +148,11 @@ function sharedFolderRoute(scope: VaultScope, folder: CollectionView): string[] 
   );
 }
 
-function myFolderSource(scope: VaultScope, folders: FolderView[]): CardGridSource | undefined {
+function myFolderSource(
+  scope: VaultScope,
+  folders: FolderView[],
+  ciphers: CipherViewLike[],
+): CardGridSource | undefined {
   const folderId = scopedFolderId(scope);
   if (folderId == null) {
     return undefined;
@@ -136,6 +165,15 @@ function myFolderSource(scope: VaultScope, folders: FolderView[]): CardGridSourc
     return undefined;
   }
 
+  // Each descendant pooled under the child card it sits beneath.
+  const cardOf = new Map<string, string>();
+  for (const child of node.children) {
+    for (const id of subtreeIds(child)) {
+      cardOf.set(id, child.node.id);
+    }
+  }
+  const itemCounts = myFolderItemCounts(ciphers, (folderId) => cardOf.get(folderId));
+
   return {
     parentName: sharedFolderName(node.node),
     cards: node.children.map(({ node: child, children }) => ({
@@ -144,6 +182,7 @@ function myFolderSource(scope: VaultScope, folders: FolderView[]): CardGridSourc
       commands: folderCommands(child.id),
       icon: "bwi-folder",
       nestedCount: children.length,
+      itemCount: itemCounts.get(child.id) ?? 0,
     })),
     titleKey: "foldersInParent",
     countKeys: { singular: "folderSingular", plural: "folderCount" },

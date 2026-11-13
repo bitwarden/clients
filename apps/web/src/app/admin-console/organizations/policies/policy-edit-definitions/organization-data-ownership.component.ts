@@ -129,7 +129,7 @@ export class OrganizationDataOwnershipPolicyComponent
   }
 
   private async getEncryptedDefaultUserCollectionName(orgKey: OrgKey): Promise<EncString> {
-    const defaultCollectionName = this.i18nService.t("myItems");
+    const defaultCollectionName = this.i18nService.t("myItemsV2");
     const encrypted = await this.encryptService.encryptString(defaultCollectionName, orgKey);
 
     if (!encrypted.encryptedString) {
