@@ -26,6 +26,7 @@ export class PaymentsRecord {
   account_number: string;
   country: string;
   issuing_bank: string;
+  name?: string;
 }
 
 export class IdRecord {
