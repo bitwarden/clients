@@ -555,7 +555,7 @@ describe("AutofillOptionsComponent", () => {
       expect(menu).toBeFalsy();
     });
 
-    it("renders an 'Add website or app' dropdown button with 'Website' and 'App' options when showAddAppDropdown is true", () => {
+    it("renders an 'Add website or app' dropdown button with 'Website' and 'Desktop app' options when showAddAppDropdown is true", () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
         flag === FeatureFlag.WindowsDesktopAutotypeGA
@@ -583,13 +583,13 @@ describe("AutofillOptionsComponent", () => {
         document.querySelectorAll(".cdk-overlay-container button"),
       ) as HTMLButtonElement[];
       const websiteBtn = menuButtons.find((btn) => btn.textContent?.trim() === "website");
-      const appBtn = menuButtons.find((btn) => btn.textContent?.trim() === "app");
+      const appBtn = menuButtons.find((btn) => btn.textContent?.trim() === "desktopApp");
 
       expect(websiteBtn).toBeTruthy();
       expect(appBtn).toBeTruthy();
     });
 
-    it("clicking 'App' menu item calls addUri with the desktopapp:// prefix", async () => {
+    it("clicking 'Desktop app' menu item calls addUri with the desktopapp:// prefix", async () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
         flag === FeatureFlag.WindowsDesktopAutotypeGA
@@ -616,7 +616,7 @@ describe("AutofillOptionsComponent", () => {
       const menuButtons = Array.from(
         document.querySelectorAll(".cdk-overlay-container button"),
       ) as HTMLButtonElement[];
-      const appBtn = menuButtons.find((btn) => btn.textContent?.trim() === "app");
+      const appBtn = menuButtons.find((btn) => btn.textContent?.trim() === "desktopApp");
       expect(appBtn).toBeTruthy();
       appBtn.click();
       await localFixture.whenStable();
