@@ -18,7 +18,8 @@
           [canRemove]="uriControls.length > 1 && autofillOptionsForm.enabled"
           [defaultMatchDetection]="defaultMatchDetection$ | async"
           [index]="i"
-          [showAppLabel]="showAddAppDropdown()"
+          [recognizeDesktopApps]="recognizeDesktopApps()"
+          [desktopAppRow]="desktopAppRows.get(uri) ?? null"
         ></vault-autofill-uri-option>
       }
     </ng-container>
@@ -43,12 +44,8 @@
           >
             {{ "website" | i18n }}
           </button>
-          <button
-            type="button"
-            bitMenuItem
-            (click)="addUriFromUser({ uri: desktopAppUriPrefix, matchDetection: null })"
-          >
-            {{ "app" | i18n }}
+          <button type="button" bitMenuItem (click)="addDesktopAppUriFromUser()">
+            {{ "desktopApp" | i18n }}
           </button>
         </bit-menu>
       } @else {

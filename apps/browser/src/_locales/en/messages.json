@@ -7077,7 +7077,7 @@
   },
   "desktopApp": {
     "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop app $COUNT$",
@@ -7089,6 +7089,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Website added"
   },
@@ -7097,9 +7101,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Add website or app"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Delete website"
