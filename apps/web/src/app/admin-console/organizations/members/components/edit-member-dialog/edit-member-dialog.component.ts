@@ -35,6 +35,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   A11yTitleDirective,
   AsyncActionsModule,
@@ -68,6 +69,7 @@ import {
   OrganizationUserAdminView,
   UserAdminService,
 } from "../../../core";
+import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import {
   AccessItemType,
   AccessItemValue,
@@ -122,6 +124,9 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
 })
 export class EditMemberDialogComponent {
   protected readonly params = inject<EditMemberDialogParams>(DIALOG_DATA);
+  protected readonly member = this.params.member;
+  /** The display name: the member's name, or their email when they have no name. */
+  protected readonly memberName = this.member.name?.trim() ? this.member.name : this.member.email;
   private readonly dialogRef = inject<DialogRef<MemberDialogResult>>(DialogRef);
   private readonly i18nService = inject(I18nService);
   private readonly formBuilder = inject(FormBuilder);
@@ -159,11 +164,15 @@ export class EditMemberDialogComponent {
     from(this.configService.getFeatureFlag(FeatureFlag.PamAccessConnector)),
   );
 
+  protected readonly readonly = this.params.readonly === true;
+
   protected readonly emailEditable = computed(
-    () => (this.params.claimedByOrganization ?? false) && !(this.params.hasMasterPassword ?? true),
+    () => !this.readonly && this.member.claimedByOrganization && !this.member.hasMasterPassword,
   );
 
-  protected readonly nameEditable = computed(() => this.params.claimedByOrganization ?? false);
+  protected readonly nameEditable = computed(
+    () => !this.readonly && this.member.claimedByOrganization,
+  );
 
   protected readonly collectionAccessItems = signal<AccessItemView[]>([]);
   protected readonly groupAccessItems = signal<AccessItemView[]>([]);
@@ -249,9 +258,17 @@ export class EditMemberDialogComponent {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-  private readonly userDetails$: Observable<OrganizationUserAdminView | undefined> = from(
-    this.userService.get(this.params.organizationId, this.params.organizationUserId),
-  );
+  private readonly collections$: Observable<CollectionAdminView[]> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
+      ),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+  private readonly userDetails$: Observable<OrganizationUserAdminView | undefined> =
+    this.loadUserDetails$();
 
   private readonly allowAdminAccessToAllCollectionItems$: Observable<boolean> =
     this.organization$.pipe(
@@ -282,12 +299,16 @@ export class EditMemberDialogComponent {
   );
 
   constructor() {
-    const groups$ = this.organization$.pipe(
-      switchMap((organization) =>
-        organization.useGroups
-          ? this.groupService.getAllDetails(this.params.organizationId)
-          : of([] as GroupDetailsView[]),
-      ),
+    const groups$: Observable<GroupDetailsView[]> = this.organization$.pipe(
+      switchMap((organization) => {
+        if (!organization.useGroups) {
+          return of([] as GroupDetailsView[]);
+        }
+        if (this.readonly) {
+          return this.readonlyGroupDetails$();
+        }
+        return this.groupService.getAllDetails(this.params.organizationId);
+      }),
     );
 
     this.formGroup.controls.email.valueChanges
@@ -299,31 +320,33 @@ export class EditMemberDialogComponent {
       .subscribe(() => this.formGroup.controls.name.setErrors(null));
 
     this.restrictEditingSelf$.pipe(takeUntilDestroyed()).subscribe((restrictEditingSelf) => {
-      if (restrictEditingSelf) {
+      if (restrictEditingSelf || this.readonly) {
         this.formGroup.controls.groups.disable();
       } else {
         this.formGroup.controls.groups.enable();
       }
     });
 
-    const collections$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
-      ),
-    );
-
     let formInitialized = false;
 
     combineLatest({
       organization: this.organization$,
-      collections: collections$,
+      collections: this.collections$,
       userDetails: this.userDetails$,
       groups: groups$,
     })
       .pipe(takeUntilDestroyed())
       .subscribe(({ organization, collections, userDetails, groups }) => {
-        this.groupAccessItems.set(groups.map<AccessItemView>((g) => mapGroupToAccessItemView(g)));
+        const groupItems = groups.map<AccessItemView>((g) => mapGroupToAccessItemView(g));
+        // Read only, every row is muted, and since read only rows always show, only the
+        // member's groups are kept.
+        this.groupAccessItems.set(
+          this.readonly
+            ? groupItems
+                .filter((item) => userDetails?.groups.includes(item.id))
+                .map((item) => ({ ...item, readonly: true }))
+            : groupItems,
+        );
 
         const collectionItems = collections
           .map((c) =>
@@ -335,6 +358,9 @@ export class EditMemberDialogComponent {
                 : c.users.find((access) => access.id === userDetails.id),
             ),
           )
+          // Read only, every row is muted like one the admin can't edit, and only the member's
+          // collections are kept.
+          .map((item) => (this.readonly ? { ...item, readonly: true } : item))
           .filter(
             (item) =>
               !item.readonly || userDetails?.collections.some((access) => access.id == item.id),
@@ -424,8 +450,8 @@ export class EditMemberDialogComponent {
 
     this.formGroup.patchValue({
       type: userDetails.type,
-      name: this.params.profileName ?? "",
-      email: this.params.email ?? "",
+      name: this.member.name ?? "",
+      email: this.member.email,
       externalId: userDetails.externalId,
       ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
@@ -445,6 +471,52 @@ export class EditMemberDialogComponent {
     } else {
       this.formGroup.controls.name.disable();
     }
+
+    if (this.readonly) {
+      this.formGroup.disable();
+      this.permissionsGroup.disable();
+    }
+  }
+
+  /**
+   * Reading a single member requires Manage users, so a readonly dialog fills the member from
+   * the `member` it was opened with and their direct collection access from the collections instead.
+   */
+  private loadUserDetails$(): Observable<OrganizationUserAdminView | undefined> {
+    if (this.readonly) {
+      return this.collections$.pipe(
+        map((collections) =>
+          mapMemberToAdminView(this.member, this.params.organizationId, collections),
+        ),
+      );
+    }
+
+    return from(this.userService.get(this.params.organizationId, this.member.id));
+  }
+
+  /**
+   * Group details, with each group's collection access, require Manage users or Manage groups.
+   * A readonly dialog reads the group names, which admins who can recover accounts can read, and
+   * takes each group's collection access from the collections instead.
+   */
+  private readonlyGroupDetails$(): Observable<GroupDetailsView[]> {
+    return combineLatest([
+      from(this.groupService.getAll(this.params.organizationId)),
+      this.collections$,
+    ]).pipe(
+      map(([groups, collections]) =>
+        groups.map(
+          (group) =>
+            new GroupDetailsView({
+              id: group.id,
+              organizationId: group.organizationId,
+              name: group.name,
+              externalId: group.externalId,
+              collections: collectionAccessFor(group.id, collections, "groups"),
+            }),
+        ),
+      ),
+    );
   }
 
   private setRequestPermissions(p: PermissionsApi, clearPermissions: boolean): PermissionsApi {
@@ -474,7 +546,7 @@ export class EditMemberDialogComponent {
   }
 
   private async handleEditUser(organization: Organization) {
-    const userId = this.params.organizationUserId;
+    const userId = this.member.id;
     const type = this.formGroup.getRawValue().type;
     const permissions = this.setRequestPermissions(
       new PermissionsApi(),
@@ -522,7 +594,7 @@ export class EditMemberDialogComponent {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("editedUserId", this.params.name),
+      message: this.i18nService.t("editedUserId", this.memberName),
     });
 
     this.close(MemberDialogResult.Saved);
@@ -538,6 +610,10 @@ export class EditMemberDialogComponent {
   }
 
   readonly submit = async () => {
+    if (this.readonly) {
+      return;
+    }
+
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
@@ -565,7 +641,7 @@ export class EditMemberDialogComponent {
 
   readonly revoke = async () => {
     let confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "revokeUserId", placeholders: [this.params.name] },
+      title: { key: "revokeUserId", placeholders: [this.memberName] },
       content: { key: "revokeUserConfirmation" },
       acceptButtonText: { key: "revokeAccess" },
       type: "warning",
@@ -576,7 +652,7 @@ export class EditMemberDialogComponent {
     }
 
     if (this.showNoMasterPasswordWarning()) {
-      confirmed = await this.noMasterPasswordConfirmationDialog(this.params.name);
+      confirmed = await this.noMasterPasswordConfirmationDialog(this.memberName);
 
       if (!confirmed) {
         return false;
@@ -584,17 +660,14 @@ export class EditMemberDialogComponent {
     }
 
     const organization = await firstValueFrom(this.organization$);
-    const result = await this.memberActionsService.revokeUser(
-      organization,
-      this.params.organizationUserId,
-    );
+    const result = await this.memberActionsService.revokeUser(organization, this.member.id);
     if (result.success === false) {
       throw new Error(result.error);
     }
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("revokedUserId", this.params.name),
+      message: this.i18nService.t("revokedUserId", this.memberName),
     });
     this.isRevoked.set(true);
     this.close(MemberDialogResult.Revoked);
@@ -611,29 +684,26 @@ export class EditMemberDialogComponent {
       return;
     }
 
-    const result = await this.memberActionsService.restoreUser(
-      organization,
-      this.params.organizationUserId,
-    );
+    const result = await this.memberActionsService.restoreUser(organization, this.member.id);
     if (result.success === false) {
       throw new Error(result.error);
     }
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("restoredUserId", this.params.name),
+      message: this.i18nService.t("restoredUserId", this.memberName),
     });
     this.isRevoked.set(false);
     this.close(MemberDialogResult.Restored);
   };
 
   readonly remove = async () => {
-    const message = this.params.usesKeyConnector
+    const message = this.member.usesKeyConnector
       ? "removeUserConfirmationKeyConnector"
       : "removeOrgUserConfirmation";
 
     let confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removeUserIdAccess", placeholders: [this.params.name] },
+      title: { key: "removeUserIdAccess", placeholders: [this.memberName] },
       content: { key: message },
       type: "warning",
     });
@@ -643,7 +713,7 @@ export class EditMemberDialogComponent {
     }
 
     if (this.showNoMasterPasswordWarning()) {
-      confirmed = await this.noMasterPasswordConfirmationDialog(this.params.name);
+      confirmed = await this.noMasterPasswordConfirmationDialog(this.memberName);
 
       if (!confirmed) {
         return false;
@@ -651,17 +721,14 @@ export class EditMemberDialogComponent {
     }
 
     const organization = await firstValueFrom(this.organization$);
-    const result = await this.memberActionsService.removeUser(
-      organization,
-      this.params.organizationUserId,
-    );
+    const result = await this.memberActionsService.removeUser(organization, this.member.id);
     if (result.success === false) {
       throw new Error(result.error);
     }
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("removedUserId", this.params.name),
+      message: this.i18nService.t("removedUserId", this.memberName),
     });
     this.close(MemberDialogResult.Deleted);
   };
@@ -689,13 +756,13 @@ export class EditMemberDialogComponent {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: {
         key: "deleteOrganizationUser",
-        placeholders: [this.params.name],
+        placeholders: [this.memberName],
       },
       content: {
         key: this.vfo1TerminologyService.enabled()
           ? "deleteOrganizationUserWarningDescSharedFolders"
           : "deleteOrganizationUserWarningDesc",
-        placeholders: [this.params.name],
+        placeholders: [this.memberName],
       },
       type: "warning",
       acceptButtonText: { key: "delete" },
@@ -707,17 +774,14 @@ export class EditMemberDialogComponent {
     }
 
     const organization = await firstValueFrom(this.organization$);
-    const result = await this.memberActionsService.deleteUser(
-      organization,
-      this.params.organizationUserId,
-    );
+    const result = await this.memberActionsService.deleteUser(organization, this.member.id);
     if (result.success === false) {
       throw new Error(result.error);
     }
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("organizationUserDeleted", this.params.name),
+      message: this.i18nService.t("organizationUserDeleted", this.memberName),
     });
 
     await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
@@ -771,6 +835,62 @@ function mapCollectionToAccessItemView(
     readonlyPermission: accessSelection ? convertToPermission(accessSelection) : undefined,
     viaGroupName: group?.name,
   };
+}
+
+/**
+ * The direct access a member or group has to each collection, keyed by collection ID.
+ *
+ * @param id The organization user ID or group ID to look up.
+ * @param collections The collections to read access from.
+ * @param accessType Whether `id` is a member (`"users"`) or a group (`"groups"`).
+ */
+function collectionAccessFor(
+  id: string,
+  collections: CollectionAdminView[],
+  accessType: "users" | "groups",
+): CollectionAccessSelectionView[] {
+  const result: CollectionAccessSelectionView[] = [];
+
+  for (const collection of collections) {
+    const access = collection[accessType].find((selection) => selection.id === id);
+    if (access == undefined) {
+      continue;
+    }
+
+    result.push(
+      new CollectionAccessSelectionView({
+        id: collection.id,
+        readOnly: access.readOnly,
+        hidePasswords: access.hidePasswords,
+        manage: access.manage,
+      }),
+    );
+  }
+
+  return result;
+}
+
+function mapMemberToAdminView(
+  member: OrganizationUserView,
+  organizationId: OrganizationId,
+  collections: CollectionAdminView[],
+): OrganizationUserAdminView {
+  return new OrganizationUserAdminView({
+    id: member.id,
+    userId: member.userId,
+    organizationId,
+    collections: collectionAccessFor(member.id, collections, "users"),
+    groups: member.groups,
+    type: member.type,
+    status: member.status,
+    // The members list doesn't carry the SSO external ID, so neither external ID is set.
+    permissions: member.permissions,
+    accessSecretsManager: member.accessSecretsManager,
+    accessPam: member.accessPam,
+    resetPasswordEnrolled: member.resetPasswordEnrolled,
+    hasMasterPassword: member.hasMasterPassword,
+    claimedByOrganization: member.claimedByOrganization,
+  });
 }
 
 function mapGroupToAccessItemView(group: GroupDetailsView): AccessItemView {

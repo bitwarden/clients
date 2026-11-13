@@ -22,7 +22,10 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
-import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import {
+  GroupApiService,
+  OrganizationUserView,
+} from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
   getPermissionList,
   convertToPermission,
@@ -31,7 +34,10 @@ import {
 
 import { MemberAccessResponse } from "../response/member-access-report.response";
 import { MemberAccessExportItem } from "../view/member-access-export.view";
-import { MemberAccessReportView } from "../view/member-access-report.view";
+import {
+  MemberAccessReportView,
+  MemberAccessReportViewV2,
+} from "../view/member-access-report.view";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 
@@ -53,6 +59,7 @@ interface OrganizationUserData {
   usesKeyConnector: boolean;
   resetPasswordEnrolled: boolean;
   userIdFromOrgUser: string | null; // userId from organization user endpoint (may be null for some users, e.g. pending invites)
+  member: OrganizationUserView;
 }
 
 interface MemberCipherAccess {
@@ -305,6 +312,7 @@ export class MemberAccessReportService {
           usesKeyConnector: orgUser.usesKeyConnector || false,
           resetPasswordEnrolled: orgUser.resetPasswordEnrolled || false,
           userIdFromOrgUser: orgUser.userId || null,
+          member: OrganizationUserView.fromResponse(orgUser),
         });
       }
 
@@ -532,11 +540,11 @@ export class MemberAccessReportService {
    * Generate member access report using V2 frontend mapping
    *
    * @param organizationId - The organization ID
-   * @returns Promise of MemberAccessReportView array
+   * @returns Promise of MemberAccessReportViewV2 array
    */
   async generateMemberAccessReportViewV2(
     organizationId: OrganizationId,
-  ): Promise<MemberAccessReportView[]> {
+  ): Promise<MemberAccessReportViewV2[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.logService.debug("[MemberAccessReportService V2] Starting report generation");
@@ -602,7 +610,7 @@ export class MemberAccessReportService {
     }
 
     // Build report views
-    const reportViews: MemberAccessReportView[] = [];
+    const reportViews: MemberAccessReportViewV2[] = [];
     for (const [userId, data] of userAccessMap.entries()) {
       const metadata = orgData.organizationUserDataMap.get(userId);
       if (!metadata) {
@@ -619,6 +627,7 @@ export class MemberAccessReportService {
         itemsCount: data.items.size,
         usesKeyConnector: metadata.usesKeyConnector,
         userIdFromOrgUser: metadata.userIdFromOrgUser,
+        member: metadata.member,
       });
     }
 

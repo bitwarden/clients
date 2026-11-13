@@ -167,17 +167,11 @@ describe("MemberDialogManagerService", () => {
         EditMemberDialogComponent,
         expect.objectContaining({
           data: {
-            kind: "Edit",
-            name: "Test User",
-            profileName: "Test User",
-            email: "test@example.com",
+            readonly: false,
+            member: mockUser,
             organizationId: mockOrganization.id,
-            organizationUserId: mockUser.id,
-            usesKeyConnector: false,
             isOnSecretsManagerStandalone: false,
             initialTab: MemberDialogTab.Details,
-            claimedByOrganization: false,
-            hasMasterPassword: true,
           },
         }),
       );
@@ -201,6 +195,20 @@ describe("MemberDialogManagerService", () => {
           data: expect.objectContaining({
             initialTab: MemberDialogTab.Collections,
           }),
+        }),
+      );
+    });
+
+    it("opens the dialog read-only for an admin who can't manage users", async () => {
+      dialogService.open.mockReturnValue({ closed: of(MemberDialogResult.Canceled) } as any);
+      const readOnlyOrganization = { ...mockOrganization, canManageUsers: false } as Organization;
+
+      await service.openEditDialog(mockUser, readOnlyOrganization, mockBillingMetadata);
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        EditMemberDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ readonly: true, member: mockUser }),
         }),
       );
     });
