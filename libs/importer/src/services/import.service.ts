@@ -143,7 +143,7 @@ export class ImportService implements ImportServiceAbstraction {
     protected restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
     private sdkService: SdkService,
-    private logService: LogService,
+    protected logService: LogService,
   ) {}
 
   getImportOptions(): ImportOption[] {

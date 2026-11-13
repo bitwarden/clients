@@ -249,6 +249,7 @@ describe("ImportUpgradeService", () => {
         restrictedItemTypesService,
         configService,
         mock<SdkService>(),
+        mock<LogService>(),
       );
       importService["handleIndividualImport"] = jest.fn();
       importService["handleOrganizationalImport"] = jest.fn();
