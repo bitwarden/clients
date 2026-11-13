@@ -44,20 +44,7 @@ export function buildFolderRows(
     }
   }
 
-  const itemCounts = new Map<string, number>();
-  for (const cipher of ciphers) {
-    if (
-      CipherViewLikeUtils.isDeleted(cipher) ||
-      cipher.folderId == null ||
-      cipher.folderId === ""
-    ) {
-      continue;
-    }
-    const rootId = rootOf.get(String(cipher.folderId));
-    if (rootId !== undefined) {
-      itemCounts.set(rootId, (itemCounts.get(rootId) ?? 0) + 1);
-    }
-  }
+  const itemCounts = myFolderItemCounts(ciphers, (folderId) => rootOf.get(folderId));
 
   return [
     ...roots.map((root) => ({
@@ -77,6 +64,36 @@ export function buildFolderRows(
   ];
 }
 
-function subtreeIds(node: TreeNode<FolderView>): string[] {
+/**
+ * How many active (not trashed or archived) items each folder holds, keyed by folder id. Folders with no items are
+ * absent rather than zero.
+ *
+ * `groupOf` pools folders under a shared key — e.g. each folder under its top-level ancestor. A
+ * folder it maps to `undefined` is left uncounted. Defaults to each folder being its own group.
+ */
+export function myFolderItemCounts(
+  ciphers: CipherViewLike[],
+  groupOf: (folderId: string) => string | undefined = (folderId) => folderId,
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const cipher of ciphers) {
+    if (
+      CipherViewLikeUtils.isDeleted(cipher) ||
+      CipherViewLikeUtils.isArchived(cipher) ||
+      cipher.folderId == null ||
+      cipher.folderId === ""
+    ) {
+      continue;
+    }
+    const group = groupOf(String(cipher.folderId));
+    if (group !== undefined) {
+      counts.set(group, (counts.get(group) ?? 0) + 1);
+    }
+  }
+  return counts;
+}
+
+/** The ids of {@link node} and every folder nested beneath it. */
+export function subtreeIds(node: TreeNode<FolderView>): string[] {
   return [node.node.id, ...node.children.flatMap(subtreeIds)];
 }
