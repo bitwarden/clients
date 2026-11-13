@@ -207,7 +207,7 @@
   </bit-column>
 
   <!-- Role -->
-  <bit-column sortable width="minmax(120px, 1fr)">
+  <bit-column sortable [sortFn]="sortByRole" width="minmax(120px, 1fr)">
     <bit-header-cell>{{ "role" | i18n }}</bit-header-cell>
     <!-- Matches v1: clicking the role cell opens the member dialog on the role tab. -->
     <bit-cell

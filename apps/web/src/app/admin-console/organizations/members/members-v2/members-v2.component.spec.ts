@@ -271,6 +271,22 @@ describe("MembersV2Component", () => {
       ]);
     });
 
+    it("sorts by role in filter order", () => {
+      const rows = [
+        OrganizationUserType.Custom,
+        OrganizationUserType.Owner,
+        OrganizationUserType.Admin,
+        OrganizationUserType.User,
+      ].map((type) => member({ type }));
+
+      expect(rows.sort(component.sortByRole).map((r) => r.type)).toEqual([
+        OrganizationUserType.User,
+        OrganizationUserType.Admin,
+        OrganizationUserType.Owner,
+        OrganizationUserType.Custom,
+      ]);
+    });
+
     it("sorts groups by the first group, then by how many there are", () => {
       const rows = [
         member({ id: "b" as Guid, groupNames: ["Sales"] }),
