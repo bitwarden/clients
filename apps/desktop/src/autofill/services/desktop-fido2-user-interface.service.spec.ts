@@ -86,6 +86,12 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
   let session: DesktopFido2UserInterfaceSession;
 
+  /** Unlocks the vault the way the lock screen does: the status changes, then it reports the unlock. */
+  const unlockVault = () => {
+    activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+    messages$.next({ command: "unlocked" });
+  };
+
   // The desktop test environment runs on jest-environment-jsdom's bundled
   // jsdom@20, which predates the `AbortSignal.timeout`/`AbortSignal.any` statics
   // and `AbortSignal.prototype.throwIfAborted` the service relies on (all present
@@ -484,15 +490,32 @@ describe("DesktopFido2UserInterfaceSession", () => {
       );
     });
 
-    it("shows the lock UI, then navigates home once the vault unlocks", async () => {
+    it("shows the lock UI and stays on it once the vault unlocks", async () => {
       activeAccountStatus$.next(AuthenticationStatus.Locked);
 
       const result = session.ensureUnlockedVault();
       await tick();
-      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      unlockVault();
 
       await expect(result).resolves.toBeUndefined();
-      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledWith(["/lock", expect.anything()]);
+    });
+
+    it("waits for the lock screen to report the unlock before continuing", async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+      let settled = false;
+
+      const result = session.ensureUnlockedVault().finally(() => (settled = true));
+      await tick();
+      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      await tick();
+
+      // Leaving the lock screen now would destroy it before it finishes the unlock.
+      expect(settled).toBe(false);
+
+      messages$.next({ command: "unlocked" });
+      await expect(result).resolves.toBeUndefined();
     });
 
     it("hides the UI and throws, logging cancellation, when aborted before unlock", async () => {
@@ -566,7 +589,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
       activeAccountStatus$.next(AuthenticationStatus.Locked);
       const result = session.ensureUnlockedVault();
       await tick();
-      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      unlockVault();
       await result;
       await session.hideUi();
 
@@ -889,7 +912,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
         const unlocked = session.ensureUnlockedVault();
         await tick();
-        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        unlockVault();
         await unlocked;
 
         await expect(pickSingleCredential()).resolves.toEqual({
@@ -949,7 +972,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
         const unlocked = session.ensureUnlockedVault();
         await tick();
-        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        unlockVault();
         await unlocked;
 
         const result = session.confirmNewCredential(confirmNewCredentialParams);
