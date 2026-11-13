@@ -151,6 +151,7 @@ import {
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
+import { DefaultReleaseChannelService, ReleaseChannelService } from "@bitwarden/release-channel";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   CipherShareAccessService,
@@ -239,6 +240,11 @@ import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: ReleaseChannelService,
+    useClass: DefaultReleaseChannelService,
+    deps: [ConfigService],
+  }),
   safeProvider({
     provide: VFO1_WALKTHROUGH_STEPS,
     useValue: [VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP, VFO1_FILTERS_STEP],
