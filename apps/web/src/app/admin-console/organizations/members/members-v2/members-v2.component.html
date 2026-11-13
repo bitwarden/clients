@@ -201,7 +201,13 @@
     <bit-cell *bitCellDef="table.columns.status; let row">
       @let badge = statusBadge(row.status);
       @if (badge) {
-        <span bitBadge [variant]="badge.variant">{{ badge.labelKey | i18n }}</span>
+        <span
+          bitBadge
+          class="focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+          tabindex="0"
+          [variant]="badge.variant"
+          >{{ badge.labelKey | i18n }}</span
+        >
       }
     </bit-cell>
   </bit-column>
