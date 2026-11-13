@@ -6731,9 +6731,6 @@
   "copyAddress": {
     "message": "Copy address"
   },
-  "myItems": {
-    "message": "My Items"
-  },
   "myItemsV2": {
     "message": "My items"
   },
