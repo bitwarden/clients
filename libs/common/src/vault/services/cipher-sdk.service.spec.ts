@@ -203,6 +203,20 @@ describe("DefaultCipherSdkService", () => {
       expect(result?.name).toBe(cipherView.name);
     });
 
+    it("should create cipher using the user API when orgAdmin is true but the cipher has no organization", async () => {
+      const cipherView = new CipherView();
+      cipherView.type = CipherType.Login;
+      cipherView.name = "Personal Clone";
+
+      mockCiphersSdk.create.mockResolvedValue(cipherView.toSdkCipherView());
+
+      await cipherSdkService.createWithServer(cipherView, userId, true);
+
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+      expect(mockAdminSdk.create).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.create).toHaveBeenCalled();
+    });
+
     it("should pass sdkCipherView with FIDO2 credentials to fromSdkCipherView", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
