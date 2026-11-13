@@ -1,5 +1,4 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,7 +20,6 @@ import {
   accessRuleMatchesFilter,
   classifyAccessRuleError,
   copyRuleName,
-  resolveCollectionNames,
   filterRulesToToggle,
 } from "@bitwarden/bit-pam";
 import {
@@ -29,6 +27,7 @@ import {
   accessRuleDeleteConfirmOptions,
   DurationLongPipe,
   RelativeTimePipe,
+  TimestampPipe,
 } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -75,7 +74,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
-    DatePipe,
+    TimestampPipe,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
     BadgeModule,
@@ -130,18 +129,21 @@ export class AccessRulesComponent {
       BitTableV2Component,
     );
 
+  /** Collection name by id, which the search matches a rule's collections against. */
+  private readonly collectionNamesById = computed(
+    () => new Map<string, string>(this.collections().map((c) => [c.id, c.name])),
+  );
+
   /** The table's row test, given the search term and the chips' selections keyed by chip. */
   protected readonly rowMatchesFilter = (
     rule: AccessRuleView,
     values: AccessRuleFilterValues,
-  ): boolean => {
-    const ruleCollectionIds = rule.collections.map(uuidAsString);
-    return accessRuleMatchesFilter(
-      { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
-      resolveCollectionNames(ruleCollectionIds, this.collections()),
+  ): boolean =>
+    accessRuleMatchesFilter(
+      { name: rule.name, enabled: rule.enabled, collections: rule.collections.map(uuidAsString) },
+      this.collectionNamesById(),
       toAccessRuleFilter(values),
     );
-  };
 
   /** The rows the filters leave visible, which select-all spans. */
   private readonly selectableRows = computed(() => this.rulesTable()?.filtered() ?? []);
@@ -216,7 +218,7 @@ export class AccessRulesComponent {
     // Outside the try, so a failed navigation can't follow the success toast with an error.
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("pamAccessRuleCopyCreated"),
+      message: this.i18nService.t("pamAccessRuleCopyCreatedSharedFolder"),
     });
     // `renaming` opens the edit page with the name field focused.
     await this.router.navigate([created.id], {

@@ -65,6 +65,8 @@ interface CachedTableFilterState {
   collectionIds?: string[];
   folderIds?: string[];
   cipherType?: CipherType | null;
+  /** Selected option IDs of each contributed chip (`VAULT_ITEM_FILTER`), keyed by its `key`. */
+  contributedFilterIds?: Record<string, string[]>;
 }
 
 /**
@@ -85,6 +87,16 @@ const VAULT_TABLE_FILTERS = UserKeyDefinition.record<CachedTableFilterState>(
 const VAULT_SELECTED_SCOPE = new UserKeyDefinition<string | null>(
   VAULT_TABLE_FILTERS_DISK,
   "selectedScopeId",
+  {
+    deserializer: (v) => v,
+    clearOn: ["lock", "logout"],
+  },
+);
+
+/** The collection segment beside {@link VAULT_SELECTED_SCOPE}, e.g. "My items"; `null` for none. */
+const VAULT_SELECTED_COLLECTION = new UserKeyDefinition<string | null>(
+  VAULT_TABLE_FILTERS_DISK,
+  "selectedScopeCollection",
   {
     deserializer: (v) => v,
     clearOn: ["lock", "logout"],
@@ -214,20 +226,42 @@ export class VaultPopupListTableFiltersService {
     initialValue: null,
   });
 
+  /** The collection segment beside {@link cachedVaultScopeId}, so "My items" restores as itself. */
+  readonly cachedVaultScopeCollection = toSignal(this.userState$(VAULT_SELECTED_COLLECTION), {
+    initialValue: null,
+  });
+
   /** Stores the active user's selected vault. Await it before a navigation that reads it back. */
-  async setCachedVaultScopeId(id: string | null): Promise<void> {
+  async setCachedVaultScopeId(
+    id: string | null,
+    collectionSegment: string | null = null,
+  ): Promise<void> {
     const userId = this.activeUserId();
     if (userId != null) {
-      await this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).update(() => id);
+      await Promise.all([
+        this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).update(() => id),
+        this.stateProvider
+          .getUser(userId, VAULT_SELECTED_COLLECTION)
+          .update(() => collectionSegment),
+      ]);
     }
   }
 
   /** The active user's selected vault, once their stored state has loaded. */
   storedVaultScopeId(): Promise<string | null> {
+    return this.storedState(VAULT_SELECTED_SCOPE);
+  }
+
+  /** The collection segment beside {@link storedVaultScopeId}, so "My items" restores as itself. */
+  storedVaultScopeCollection(): Promise<string | null> {
+    return this.storedState(VAULT_SELECTED_COLLECTION);
+  }
+
+  private storedState(key: UserKeyDefinition<string | null>): Promise<string | null> {
     return firstValueFrom(
       this.activeUserId$.pipe(
-        switchMap((userId) => this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).state$),
-        map((id) => id ?? null),
+        switchMap((userId) => this.stateProvider.getUser(userId, key).state$),
+        map((value) => value ?? null),
       ),
     );
   }
@@ -239,6 +273,7 @@ export class VaultPopupListTableFiltersService {
       filters.organizationIds?.length ||
       filters.collectionIds?.length ||
       filters.folderIds?.length ||
+      Object.values(filters.contributedFilterIds ?? {}).some((ids) => ids.length) ||
       filters.cipherType != null
     );
   });
@@ -313,6 +348,7 @@ export class VaultPopupListTableFiltersService {
     organization?: string[];
     collection?: string[];
     folder?: string[];
+    contributed?: Record<string, string[]>;
   }): void {
     const userId = this.activeUserId();
     if (userId == null) {
@@ -328,6 +364,7 @@ export class VaultPopupListTableFiltersService {
         collectionIds: values.collection ?? [],
         folderIds: values.folder ?? [],
         cipherType: values.cipherType ?? null,
+        contributedFilterIds: values.contributed ?? {},
       },
     }));
   }
@@ -345,6 +382,7 @@ export class VaultPopupListTableFiltersService {
     organization?: string[];
     collection?: string[];
     folder?: string[];
+    contributed?: Record<string, string[]>;
   }> {
     return combineLatest([
       this.organizations$,
@@ -363,6 +401,7 @@ export class VaultPopupListTableFiltersService {
           organization?: string[];
           collection?: string[];
           folder?: string[];
+          contributed?: Record<string, string[]>;
         } = {};
 
         if (state.organizationIds?.length) {
@@ -392,6 +431,15 @@ export class VaultPopupListTableFiltersService {
 
         if (state.cipherType != null) {
           result.cipherType = state.cipherType;
+        }
+
+        // Not validated here: the service does not know the options, and the table passes every
+        // row for an ID the provider does not offer.
+        const contributed = Object.entries(state.contributedFilterIds ?? {}).filter(
+          ([, ids]) => ids.length,
+        );
+        if (contributed.length) {
+          result.contributed = Object.fromEntries(contributed);
         }
 
         return result;

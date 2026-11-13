@@ -1,20 +1,21 @@
 import { SimpleDialogOptions } from "@bitwarden/components";
 
-export function accessConnectorDeactivateConfirmOptions(name: string): SimpleDialogOptions {
+/** Shared by the access connectors table and the detail page, so both ask the same question. */
+export function accessConnectorDeactivateConfirmOptions(): SimpleDialogOptions {
   return {
-    title: { key: "pamAccessConnectorDeactivateConfirmTitle" },
-    content: { key: "pamAccessConnectorDeactivateConfirmContent", placeholders: [name] },
+    title: { key: "pamAccessConnectorDeactivateDialogTitle" },
+    content: { key: "pamAccessConnectorDeactivateDialogContent" },
     acceptButtonText: { key: "pamAccessConnectorDeactivate" },
     cancelButtonText: { key: "cancel" },
     type: "warning",
   };
 }
 
-export function accessConnectorDeleteConfirmOptions(name: string): SimpleDialogOptions {
+export function accessConnectorDeleteConfirmOptions(): SimpleDialogOptions {
   return {
-    title: { key: "pamAccessConnectorDeleteConfirmTitle" },
-    content: { key: "pamAccessConnectorDeleteConfirmContent", placeholders: [name] },
-    acceptButtonText: { key: "delete" },
+    title: { key: "pamAccessConnectorDeleteDialogTitle" },
+    content: { key: "pamAccessConnectorDeleteDialogContent" },
+    acceptButtonText: { key: "pamAccessConnectorDeleteAccessConnector" },
     cancelButtonText: { key: "cancel" },
     type: "danger",
   };

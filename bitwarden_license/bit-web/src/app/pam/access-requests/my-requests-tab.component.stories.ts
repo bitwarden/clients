@@ -159,21 +159,22 @@ export default {
 
 type Story = StoryObj<MyRequestsTabComponent>;
 
-/** All three sections populated; the startable grant sits with the leases, not under Pending. */
+/** Every row kind at once: held access, a startable grant, and an undecided request. */
 export const Default: Story = {
   decorators: [myAccess()],
 };
 
 /**
- * A Collection filter applied, which shows the toolbar's applied state and narrows the other two
+ * A Shared folders filter applied, which shows the toolbar's applied state and narrows the other two
  * sections from outside its table.
  */
 export const Filtered: Story = {
   decorators: [myAccess()],
   play: async ({ canvasElement }) => {
-    const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
+    const trigger = await within(canvasElement).findByRole("button", { name: /^Shared folders/ });
     await userEvent.click(trigger);
-    await userEvent.click(await within(document.body).findByRole("radio", { name: /^Production/ }));
+    const menu = await within(document.body).findByRole("dialog", { name: "Shared folders" });
+    await userEvent.click(await within(menu).findByRole("treeitem", { name: /^Production/ }));
     await userEvent.keyboard("{Escape}");
   },
 };

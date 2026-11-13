@@ -137,6 +137,13 @@ describe("MainSdkService", () => {
       await expect(firstValueFrom(service.userClient$(userId))).rejects.toThrow(unsupportedMessage);
     });
 
+    it("cryptoReady$ errors through the observable instead of throwing", async () => {
+      expect(() => service.cryptoReady$(userId)).not.toThrow();
+      await expect(firstValueFrom(service.cryptoReady$(userId))).rejects.toThrow(
+        unsupportedMessage,
+      );
+    });
+
     it("unlock rejects", async () => {
       await expect(service.unlock()).rejects.toThrow(unsupportedMessage);
     });

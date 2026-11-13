@@ -1,9 +1,8 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-item-action",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   template: `<ng-content></ng-content>`,
   host: {

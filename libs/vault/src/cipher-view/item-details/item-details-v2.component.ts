@@ -26,6 +26,7 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
 import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { ITEM_DETAILS_BADGE, ItemDetailsBadge } from "../../tokens/item-details-badge.token";
+import { sharedFolderDisplayName } from "../../utils/shared-folder-name";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -114,12 +115,19 @@ export class ItemDetailsV2Component {
       return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
       const key = this.vfo1Enabled() ? "sharedFolderAriaLabel" : "collectionAriaLabel";
-      return this.i18nService.t(key, item.name);
+      return this.i18nService.t(key, this.getItemName(item));
     } else if (item instanceof FolderView) {
       const key = this.vfo1Enabled() ? "myFolderAriaLabel" : "folderAriaLabel";
       return this.i18nService.t(key, item.name);
     }
     return "";
+  }
+
+  /** The item's name, a shared folder's as {@link sharedFolderDisplayName} gives it. */
+  getItemName(item: Organization | CollectionView | FolderView): string {
+    return item instanceof CollectionView
+      ? sharedFolderDisplayName(item, this.i18nService)
+      : item.name;
   }
 
   getIconClass(item: Organization | CollectionView | FolderView): string {

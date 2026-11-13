@@ -17,7 +17,14 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import {
+  RegistrationFinishComponent,
+  RegistrationStartComponent,
+  RegistrationStartSecondaryComponent,
+  RegistrationStartSecondaryComponentData,
+} from "@bitwarden/angular/auth/registration";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   DevicesIcon,
   ExpiredIcon,
@@ -34,16 +41,13 @@ import {
   LoginViaAuthRequestComponent,
   NewDeviceVerificationComponent,
   PasswordHintComponent,
-  RegistrationFinishComponent,
-  RegistrationStartComponent,
-  RegistrationStartSecondaryComponent,
-  RegistrationStartSecondaryComponentData,
   SsoComponent,
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { RestrictedCipherAction } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
@@ -51,7 +55,7 @@ import {
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultScopeGuard } from "@bitwarden/vault";
+import { MY_ITEMS_ROUTE, MY_ITEMS_ROUTE_DATA, vaultScopeGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
@@ -104,6 +108,7 @@ import { NewItemPageComponent } from "../vault/popup/components/vault/new-item-p
 import { PasswordHistoryComponent } from "../vault/popup/components/vault/vault-password-history/vault-password-history.component";
 import { VaultComponent } from "../vault/popup/components/vault/vault.component";
 import { ViewComponent } from "../vault/popup/components/vault/view/view.component";
+import { WelcomePageComponent } from "../vault/popup/components/vault/welcome-page/welcome-page.component";
 import {
   atRiskPasswordAuthGuard,
   canAccessAtRiskPasswords,
@@ -112,6 +117,7 @@ import {
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { restoreVaultScopeGuard } from "../vault/popup/guards/restore-vault-scope.guard";
+import { restrictedCipherGuard } from "../vault/popup/guards/restricted-cipher.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
@@ -269,7 +275,11 @@ const routes: Routes = [
   {
     path: "edit-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard, debounceNavigationGuard()],
+    canActivate: [
+      authGuard,
+      debounceNavigationGuard(),
+      restrictedCipherGuard(RestrictedCipherAction.Edit),
+    ],
     data: {
       // Above "trash"
       elevation: 3,
@@ -423,7 +433,7 @@ const routes: Routes = [
   {
     path: "clone-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, restrictedCipherGuard(RestrictedCipherAction.Clone)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -733,7 +743,7 @@ const routes: Routes = [
   {
     path: "assign-collections",
     component: AssignCollections,
-    canActivate: [authGuard],
+    canActivate: [authGuard, restrictedCipherGuard(RestrictedCipherAction.AssignCollections)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -760,22 +770,31 @@ const routes: Routes = [
     canActivate: [],
     data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
   },
-  {
-    path: "intro-carousel",
-    component: ExtensionAnonLayoutWrapperComponent,
-    canActivate: [],
-    data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
-    children: [
-      {
-        path: "",
-        component: IntroCarouselComponent,
-        data: {
-          pageIcon: null,
-          hideFooter: true,
-        } satisfies ExtensionAnonLayoutWrapperData,
-      },
-    ],
-  },
+  ...featureFlaggedRoute({
+    defaultComponent: ExtensionAnonLayoutWrapperComponent,
+    flaggedComponent: WelcomePageComponent,
+    featureFlag: FeatureFlag.PM45335_ExtensionWelcomePage,
+    routeOptions: {
+      path: "intro-carousel",
+      canActivate: [],
+      data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+      children: [
+        {
+          path: "",
+          component: IntroCarouselComponent,
+          data: {
+            pageIcon: null,
+            hideFooter: true,
+          } satisfies ExtensionAnonLayoutWrapperData,
+        },
+      ],
+    },
+    flaggedRouteOptions: {
+      path: "intro-carousel",
+      canActivate: [],
+      data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+    },
+  }),
   {
     path: "confirm-key-connector-domain",
     component: ExtensionAnonLayoutWrapperComponent,
@@ -826,6 +845,14 @@ const routes: Routes = [
         canActivate: [authGuard, vaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        // An organization's "My items" collection, named by a static segment — see `MY_ITEMS_ROUTE`.
+        path: `vault/:vaultId/${MY_ITEMS_ROUTE}`,
+        component: VaultComponent,
+        canActivate: [authGuard, vaultScopeGuard],
+        canDeactivate: [clearVaultStateGuard],
+        data: { ...MY_ITEMS_ROUTE_DATA, elevation: 0 } satisfies RouteDataProperties,
       },
       {
         path: "generator",

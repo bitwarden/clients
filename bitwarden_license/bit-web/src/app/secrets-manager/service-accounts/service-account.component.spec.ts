@@ -3,6 +3,13 @@ import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of, Subject } from "rxjs";
 
+import {
+  AccessPolicyService,
+  AccessService,
+  CountService,
+  ServiceAccountService,
+  ServiceAccountView,
+} from "@bitwarden/bit-sm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -10,13 +17,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
-import { ServiceAccountView } from "../models/view/service-account.view";
-import { AccessPolicyService } from "../shared/access-policies/access-policy.service";
-import { CountService } from "../shared/counts/count.service";
-
-import { AccessService } from "./access/access.service";
 import { ServiceAccountComponent } from "./service-account.component";
-import { ServiceAccountService } from "./service-account.service";
 
 describe("ServiceAccountComponent", () => {
   const organizationId = "org-1" as OrganizationId;

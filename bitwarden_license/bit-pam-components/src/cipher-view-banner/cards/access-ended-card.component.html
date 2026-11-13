@@ -1,0 +1,9 @@
+<bit-card data-testid="cipher-view-banner-ended">
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <app-pam-banner-card-header [icon]="badgeLook.expired.icon" variant="gray">
+      <span slot="title">{{ "pamEndedBannerHeading" | i18n }}</span>
+      <span slot="description">{{ "pamEndedBannerBody" | i18n }}</span>
+    </app-pam-banner-card-header>
+    <ng-content />
+  </div>
+</bit-card>

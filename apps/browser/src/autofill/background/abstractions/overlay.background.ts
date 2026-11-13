@@ -269,13 +269,6 @@ export type OverlayBackgroundExtensionMessageHandlers = {
     sender,
   }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  doFullSync: () => void;
-  addedCipher: () => void;
-  addEditCipherSubmitted: () => void;
-  editedCipher: () => void;
-  deletedCipher: () => void;
-  bgSaveCipher: () => void;
-  updateOverlayCiphers: () => void;
   fido2AbortRequest: ({ sender }: BackgroundSenderParam) => void;
   routeTargetedFieldsToFrame: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
 };

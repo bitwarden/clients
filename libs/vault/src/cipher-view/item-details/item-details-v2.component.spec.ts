@@ -8,9 +8,13 @@ import {
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -19,6 +23,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { LogService } from "@bitwarden/logging";
 
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { ITEM_DETAILS_BADGE } from "../../tokens/item-details-badge.token";
@@ -74,6 +79,7 @@ describe("ItemDetailsV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
           useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
@@ -113,6 +119,20 @@ describe("ItemDetailsV2Component", () => {
     expect(itemDetailsList[1].nativeElement.textContent.trim()).toContain(collection.name);
     expect(itemDetailsList[2].nativeElement.textContent.trim()).toContain(collection2.name);
     expect(itemDetailsList[3].nativeElement.textContent.trim()).toContain(folder.name);
+  });
+
+  it("names the member's own My items collection from i18n rather than its stored name", () => {
+    const myItems = Object.assign(
+      new CollectionView({
+        id: "col1" as CollectionId,
+        organizationId: "org1" as OrganizationId,
+        name: "My Items",
+      }),
+      { type: CollectionTypes.DefaultUserCollection },
+    );
+
+    expect(component.getItemName(myItems)).toBe("myItemsV2");
+    expect(component.getAriaLabel(myItems)).toBe("collectionAriaLabel myItemsV2");
   });
 
   describe("getAriaLabel", () => {
@@ -211,6 +231,7 @@ describe("ItemDetailsV2Component badge seam (ITEM_DETAILS_BADGE)", () => {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
           useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },

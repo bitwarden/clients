@@ -1,15 +1,13 @@
 import {
-  UserAccessPolicyView,
-  GroupAccessPolicyView,
-  ServiceAccountAccessPolicyView,
   GrantedProjectAccessPolicyView,
-} from "../../../../models/view/access-policies/access-policy.view";
-import { ProjectServiceAccountsAccessPoliciesView } from "../../../../models/view/access-policies/project-service-accounts-access-policies.view";
-import { SecretAccessPoliciesView } from "../../../../models/view/access-policies/secret-access-policies.view";
-import {
-  ServiceAccountGrantedPoliciesView,
   GrantedProjectPolicyPermissionDetailsView,
-} from "../../../../models/view/access-policies/service-account-granted-policies.view";
+  GroupAccessPolicyView,
+  ProjectServiceAccountsAccessPoliciesView,
+  SecretAccessPoliciesView,
+  ServiceAccountAccessPolicyView,
+  ServiceAccountGrantedPoliciesView,
+  UserAccessPolicyView,
+} from "@bitwarden/bit-sm";
 
 import { ApItemEnum } from "./enums/ap-item.enum";
 import { ApPermissionEnum, ApPermissionEnumUtil } from "./enums/ap-permission.enum";
