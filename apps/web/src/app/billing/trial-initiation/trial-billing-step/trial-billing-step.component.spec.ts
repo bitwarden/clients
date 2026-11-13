@@ -510,13 +510,43 @@ describe("TrialBillingStepComponent", () => {
 
       component["formGroup"].controls.cadence.setValue("monthly");
 
-      let emitted: OrganizationCreatedEvent | undefined;
-      component["organizationCreated"].subscribe((e) => (emitted = e));
+      const emitted: OrganizationCreatedEvent[] = [];
+      component["organizationCreated"].subscribe((e) => emitted.push(e));
 
       await component["submit"]();
 
-      expect(emitted?.planDescription).toContain("monthly");
-      expect(emitted?.planDescription).not.toContain("annual");
+      expect(emitted[0]?.planDescription).toContain("monthly");
+      expect(emitted[0]?.planDescription).not.toContain("annual");
+    });
+
+    it("does not start a second trial on a resubmit once the container feeds the new org id back", async () => {
+      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+      setupSubmit();
+
+      const emitted: OrganizationCreatedEvent[] = [];
+      component["organizationCreated"].subscribe((e) => emitted.push(e));
+
+      await component["submit"]();
+      fixture.componentRef.setInput("existingOrganization", emitted[0]);
+      await component["submit"]();
+
+      expect(mockTrialBillingStepService.startTrial).toHaveBeenCalledTimes(1);
+      expect(emitted).toHaveLength(2);
+    });
+
+    it("skips startTrial and re-emits the existing org (remounted step)", async () => {
+      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+      setupSubmit();
+      const existing = { organizationId: "org-123", planDescription: "Annual ($40/yr)" };
+      fixture.componentRef.setInput("existingOrganization", existing);
+
+      const emitted: OrganizationCreatedEvent[] = [];
+      component["organizationCreated"].subscribe((e) => emitted.push(e));
+
+      await component["submit"]();
+
+      expect(mockTrialBillingStepService.startTrial).not.toHaveBeenCalled();
+      expect(emitted[0]).toEqual(existing);
     });
   });
 });

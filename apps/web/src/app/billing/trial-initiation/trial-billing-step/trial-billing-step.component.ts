@@ -3,6 +3,7 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
 import { debounceTime, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
+import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -50,7 +51,12 @@ export class TrialBillingStepComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   protected trial = input.required<Trial>();
   protected steppedBack = output<void>();
-  protected organizationCreated = output<OrganizationCreatedEvent>();
+
+  /** Emitted once the org exists; the container navigates. Duplicate submits are stopped by the created guards. */
+  protected readonly organizationCreated = output<OrganizationCreatedEvent>();
+
+  /** The org the container already created, so a remounted step navigates instead of creating again. */
+  protected readonly existingOrganization = input<OrganizationCreatedEvent | undefined>(undefined);
 
   protected prices$!: Observable<Prices>;
 
@@ -133,6 +139,12 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   submit = async (): Promise<void> => {
+    const existingOrganization = this.existingOrganization();
+    if (existingOrganization != null) {
+      this.organizationCreated.emit(existingOrganization);
+      return;
+    }
+
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
@@ -147,26 +159,17 @@ export class TrialBillingStepComponent implements OnInit {
 
     const cadence = this.formGroup.value.cadence!;
 
+    const prices = await firstValueFrom(this.prices$);
+
+    let organization: OrganizationResponse;
     try {
-      const organization = await this.trialBillingStepService.startTrial(
+      organization = await this.trialBillingStepService.startTrial(
         this.trial(),
         cadence,
         billingAddress,
         paymentMethod,
         this.eligibleCouponIds(),
       );
-
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("organizationCreated"),
-        message: this.i18nService.t("organizationReadyToGo"),
-      });
-
-      const prices = await firstValueFrom(this.prices$);
-      this.organizationCreated.emit({
-        organizationId: organization.id,
-        planDescription: this.describeCadence(cadence, prices[cadence]!),
-      });
     } catch (e: unknown) {
       if (this.subscriptionDiscountService.isDiscountExpiredError(e)) {
         this.subscriptionDiscountService.refresh();
@@ -175,10 +178,15 @@ export class TrialBillingStepComponent implements OnInit {
           title: "",
           message: this.i18nService.t("discountExpiredOnPurchase"),
         });
-      } else {
-        throw e;
+        return;
       }
+      throw e;
     }
+
+    this.organizationCreated.emit({
+      organizationId: organization.id,
+      planDescription: this.describeCadence(cadence, prices[cadence]!),
+    });
   };
 
   protected stepBack = () => this.steppedBack.emit();

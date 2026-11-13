@@ -84,9 +84,17 @@ export class CompleteTrialInitiationComponent {
   showPrivilegedControlsSalesCallout = false;
 
   orgInfoSubLabel = "";
-  orgId = "";
-  orgLabel = "";
-  billingSubLabel = "";
+
+  /** The org created during this flow; the single source for orgId, the billing sub-label, and the billing-step input. */
+  protected organization: OrganizationCreatedEvent | undefined;
+
+  get orgId(): string {
+    return this.organization?.organizationId ?? "";
+  }
+
+  get billingSubLabel(): string {
+    return this.organization?.planDescription ?? "";
+  }
 
   /** User's email address associated with the trial */
   email = "";
@@ -106,8 +114,6 @@ export class CompleteTrialInitiationComponent {
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
     billingEmail: [""],
   });
-
-  protected readonly ProductType = ProductType;
 
   constructor(
     protected router: Router,
@@ -168,7 +174,6 @@ export class CompleteTrialInitiationComponent {
     this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
     if (this.useTrialStepper && params.productTier !== undefined) {
       this.productTier = params.productTier;
-      this.orgLabel = this.planTypeDisplay;
     }
 
     // Coming from an email for sponsoring a families organization: after logging in,
@@ -199,6 +204,12 @@ export class CompleteTrialInitiationComponent {
   }
 
   async orgNameEntrySubmit(): Promise<void> {
+    // The org may already exist (a retry after a navigation failure); just navigate to it.
+    if (this.orgId !== "") {
+      await this.navigateToExistingOrganization();
+      return;
+    }
+
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (this.startsWithoutPayment(this.paymentOptional, this.trialLength)) {
@@ -208,30 +219,43 @@ export class CompleteTrialInitiationComponent {
     }
   }
 
-  /** Update local details from organization created event */
-  createdOrganization(event: OrganizationCreatedEvent) {
-    this.orgId = event.organizationId;
-    this.billingSubLabel = event.planDescription;
-    this.verticalStepper.next();
-  }
+  /** Handles the billing step's output: shows the success toast and navigates once the org is created. */
+  createdOrganization = async (event: OrganizationCreatedEvent): Promise<void> => {
+    if (this.orgId === "") {
+      this.organization = event;
+      this.trialLength > 0
+        ? this.showCompletionToast("trialStarted", "trialActive")
+        : this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    }
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+    }
+  };
 
   /**
-   * Create an organization on trial without a payment method. A rejected request shows the error and
-   * leaves the user on the organization step.
+   * Create an organization on trial without a payment method.
    */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
     try {
       const response = await this.purchaseTrialWithoutPayment(activeUserId);
 
-      this.orgId = response.id;
-      this.billingSubLabel = response.name.toString();
-      this.verticalStepper.next();
+      this.organization = {
+        organizationId: response.id,
+        planDescription: response.name.toString(),
+      };
     } catch (e: unknown) {
       this.validationService.showError(e);
-    } finally {
       this.loading = false;
+      return;
     }
+
+    this.isSecretsManagerFree
+      ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
+      : this.showCompletionToast("trialStarted", "trialActive");
+    await this.navigateToExistingOrganization();
   }
 
   private async purchaseTrialWithoutPayment(activeUserId: UserId): Promise<OrganizationResponse> {
@@ -286,6 +310,33 @@ export class CompleteTrialInitiationComponent {
     this.verticalStepper.previous();
   }
 
+  private async navigateToExistingOrganization(): Promise<void> {
+    this.loading = true;
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+      this.loading = false;
+    }
+  }
+
+  /** Navigate to the organization's vault (Secrets Manager for an SM trial). */
+  private navigateToOrganization(): Promise<boolean> {
+    const commands =
+      this.product === ProductType.SecretsManager
+        ? ["/sm", this.orgId]
+        : ["/organizations", this.orgId, "vault"];
+    return this.router.navigate(commands);
+  }
+
+  private showCompletionToast(titleKey: string, messageKey: string): void {
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t(titleKey),
+      message: this.i18nService.t(messageKey),
+    });
+  }
+
   getPlanType() {
     switch (this.productTier) {
       case ProductTierType.Teams:
@@ -305,19 +356,6 @@ export class CompleteTrialInitiationComponent {
     return this.product === ProductType.SecretsManager && this.productTier === ProductTierType.Free;
   }
 
-  get planTypeDisplay() {
-    switch (this.productTier) {
-      case ProductTierType.Teams:
-        return "Teams";
-      case ProductTierType.Enterprise:
-        return "Enterprise";
-      case ProductTierType.Families:
-        return "Families";
-      default:
-        return "";
-    }
-  }
-
   get planInfoLabel() {
     switch (this.productTier) {
       case ProductTierType.Teams:
@@ -335,6 +373,20 @@ export class CompleteTrialInitiationComponent {
     return !this.paymentOptional && !this.isSecretsManagerFree;
   }
 
+  /**
+   * Label for the button on the organization-info step: "Next" when a billing step follows,
+   * otherwise the terminal action ("Start trial" for a no-card trial, "Submit" for the free SM org).
+   */
+  get orgInfoButtonLabel(): string {
+    if (this.isSecretsManagerFree) {
+      return "submit";
+    }
+    if (this.paymentOptional && this.trialLength > 0) {
+      return "startTrial";
+    }
+    return "next";
+  }
+
   /** Create an organization unless the trial is for secrets manager */
   async conditionallyCreateOrganization(activeUserId: UserId): Promise<void> {
     if (!this.isSecretsManagerFree) {
@@ -342,27 +394,36 @@ export class CompleteTrialInitiationComponent {
       return;
     }
 
-    const response = await this.organizationBillingService.startFree(
-      {
-        organization: {
-          name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
-          billingEmail:
-            this.orgInfoFormGroup.value.billingEmail == null
-              ? ""
-              : this.orgInfoFormGroup.value.billingEmail,
-          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+    this.loading = true;
+    try {
+      const response = await this.organizationBillingService.startFree(
+        {
+          organization: {
+            name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
+            billingEmail:
+              this.orgInfoFormGroup.value.billingEmail == null
+                ? ""
+                : this.orgInfoFormGroup.value.billingEmail,
+            initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+          },
+          plan: {
+            type: 0,
+            subscribeToSecretsManager: true,
+            isFromSecretsManagerTrial: true,
+          },
         },
-        plan: {
-          type: 0,
-          subscribeToSecretsManager: true,
-          isFromSecretsManagerTrial: true,
-        },
-      },
-      activeUserId,
-    );
+        activeUserId,
+      );
 
-    this.orgId = response.id;
-    this.verticalStepper.next();
+      this.organization = { organizationId: response.id, planDescription: "" };
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+      this.loading = false;
+      return;
+    }
+
+    this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    await this.navigateToExistingOrganization();
   }
 
   /**
