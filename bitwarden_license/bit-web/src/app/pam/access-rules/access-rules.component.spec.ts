@@ -1044,22 +1044,6 @@ describe("AccessRulesComponent: toolbar", () => {
     expect(rowNames(fixture)).toEqual(expected);
   });
 
-  it("counts each collection's rules under the other filters, ignoring its own chip", async () => {
-    const fixture = await render();
-    const counts = () => Object.fromEntries(fixture.componentInstance["collectionCounts"]());
-
-    expect(counts()).toEqual({ "col-1": 1, "col-2": 2 });
-
-    setFilters(fixture, { collection: ["col-1"] });
-    expect(counts()).toEqual({ "col-1": 1, "col-2": 2 });
-
-    setFilters(fixture, { status: "enabled" });
-    expect(counts()).toEqual({ "col-1": 1, "col-2": 1 });
-
-    setFilters(fixture, { search: "databases" });
-    expect(counts()).toEqual({ "col-1": 1 });
-  });
-
   it("restores every rule when a chip is cleared from the toolbar", async () => {
     const fixture = await render();
 

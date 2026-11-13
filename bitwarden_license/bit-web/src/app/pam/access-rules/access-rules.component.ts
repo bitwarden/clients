@@ -145,27 +145,6 @@ export class AccessRulesComponent {
       toAccessRuleFilter(values),
     );
 
-  /**
-   * Each Shared folders option's count: the rules under the other filters that carry it. One pass
-   * over the rules, where the table's own count would re-filter them for every option.
-   */
-  protected readonly collectionCounts = computed(() => {
-    const values: AccessRuleFilterValues = {
-      ...this.rulesTable()?.filterValues(),
-      collection: null,
-    };
-    const counts = new Map<string, number>();
-    for (const rule of this.rules()) {
-      if (!this.rowMatchesFilter(rule, values)) {
-        continue;
-      }
-      for (const id of new Set(rule.collections.map(uuidAsString))) {
-        counts.set(id, (counts.get(id) ?? 0) + 1);
-      }
-    }
-    return counts;
-  });
-
   /** The rows the filters leave visible, which select-all spans. */
   private readonly selectableRows = computed(() => this.rulesTable()?.filtered() ?? []);
 
