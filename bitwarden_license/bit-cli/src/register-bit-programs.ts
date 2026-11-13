@@ -1,4 +1,5 @@
 import { DeviceApprovalProgram } from "./admin-console/device-approval";
+import { PamProgram } from "./pam";
 import { ServiceContainer } from "./service-container";
 
 /**
@@ -10,4 +11,5 @@ import { ServiceContainer } from "./service-container";
  */
 export async function registerBitPrograms(serviceContainer: ServiceContainer) {
   new DeviceApprovalProgram(serviceContainer).register();
+  new PamProgram(serviceContainer).register();
 }
