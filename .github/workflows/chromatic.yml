@@ -40,10 +40,26 @@ jobs:
         && (github.event.action != 'labeled' || github.event.label.name == 'ci:chromatic'))
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
     outputs:
       mode: ${{ steps.mode.outputs.mode }}
     steps:
+      # Only adding the label fires `labeled`, so it is removed first to let it be added again
+      - name: Remove Chromatic label
+        if: github.event_name == 'pull_request' && github.event.action == 'labeled'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          _PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if ! OUTPUT=$(gh api --method DELETE "repos/$GITHUB_REPOSITORY/issues/$_PR_NUMBER/labels/ci%3Achromatic" 2>&1); then
+            if [[ "$OUTPUT" == *"HTTP 404"* ]]; then
+              echo "Label already removed."
+            else
+              echo "$OUTPUT"
+              exit 1
+            fi
+          fi
+
       # PR events read the changed files from the API, so only pushes need the repo
       - name: Check out repo
         if: github.event_name == 'push'
@@ -87,11 +103,37 @@ jobs:
           fi
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
 
-          if [[ "$MODE" == "wait" ]]; then
-            MESSAGE="This PR changes UI-related files. Add the \"ci:chromatic\" label when you are ready to run Chromatic."
-            echo "::notice::$MESSAGE"
-            echo "$MESSAGE" >> "$GITHUB_STEP_SUMMARY"
-          fi
+      # One PR comment, updated in place, so that new commits do not send new notifications
+      - name: Comment Chromatic status on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          _MODE: ${{ steps.mode.outputs.mode }}
+        with:
+          script: |
+            const COMMENT_TAG = '<!-- comment_tag: chromatic-status -->';
+            const LABEL = 'ci:chromatic';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const commit = context.payload.pull_request.head.sha.slice(0, 7);
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+
+            const messages = {
+              wait: `This PR changes UI-related files. When you are ready to run Chromatic snapshot tests, add the \`${LABEL}\` label to this PR. (You do not need to run this on every commit, but you do need to run it prior to merging.)`,
+              build: `Chromatic snapshot tests are [running](${runUrl}) for commit \`${commit}\`. If you push more commits, add the \`${LABEL}\` label again prior to merging.`,
+              skip: 'This PR does not change UI-related files, so Chromatic snapshot tests do not need to be run.',
+            };
+            const body = [COMMENT_TAG, messages[process.env._MODE]].join('\n');
+
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existing = comments.find((comment) => comment.body?.startsWith(COMMENT_TAG));
+
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else if (process.env._MODE !== 'skip') {
+              // PRs that never needed Chromatic do not get a comment
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
 
   chromatic:
     name: Chromatic
@@ -105,21 +147,6 @@ jobs:
       id-token: write
 
     steps:
-      - name: Remove Chromatic label
-        if: github.event_name == 'pull_request' && github.event.action == 'labeled'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          _PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          if ! OUTPUT=$(gh api --method DELETE "repos/$GITHUB_REPOSITORY/issues/$_PR_NUMBER/labels/ci%3Achromatic" 2>&1); then
-            if [[ "$OUTPUT" == *"HTTP 404"* ]]; then
-              echo "Label already removed."
-            else
-              echo "$OUTPUT"
-              exit 1
-            fi
-          fi
-
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
