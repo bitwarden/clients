@@ -1,0 +1,38 @@
+# Owner review list for @bitwarden/team-key-management-dev
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  ## Key management team files ##
+  - e2e
+  - .github/workflows/test-e2e-usdev.yml
+  - .github/workflows/test-e2e-usdev-changes.yml
+  - apps/desktop/src/key-management
+  - apps/web/src/app/key-management
+  - apps/browser/src/key-management
+  - apps/cli/src/key-management
+  - bitwarden_license/bit-web/src/app/key-management
+  - libs/key-management
+  - libs/key-management-ui
+  - libs/legacy-crypto
+  - libs/user-crypto-management
+  - libs/common/src/key-management
+  - libs/unlock
+
+  # Node-cryptofunction service
+  - libs/node
+
+  - apps/desktop/desktop_native/biometric/
+  - apps/desktop/desktop_native/napi/src/biometrics.rs
+  - apps/desktop/desktop_native/secure_memory/
+  - apps/desktop/src/services/native-messaging.service.ts
+  - apps/browser/src/background/nativeMessaging.background.ts
+  - apps/desktop/src/services/biometric-message-handler.service.ts
+
+  ## Automation driver ##
+  ### Temporary Code-owner.
+  - libs/automation-driver

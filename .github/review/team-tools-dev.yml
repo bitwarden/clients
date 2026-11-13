@@ -1,0 +1,22 @@
+# Owner review list for @bitwarden/team-tools-dev
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  ## Tools team files ##
+  - apps/browser/src/tools
+  - apps/cli/src/tools
+  - apps/desktop/desktop_native/bitwarden_chromium_import_helper
+  - apps/desktop/desktop_native/chromium_importer
+  - apps/desktop/desktop_native/objc/src/native/chromium_importer
+  - apps/desktop/src/app/tools
+  - apps/web/src/app/tools
+  - libs/angular/src/tools
+  - libs/common/src/models/export
+  - libs/common/src/tools
+  - libs/importer
+  - libs/tools

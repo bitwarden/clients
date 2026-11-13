@@ -1,0 +1,99 @@
+# Owner review list for @bitwarden/team-platform-dev
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  ## Desktop native module ##
+  - apps/desktop/desktop_native
+
+  # Web connectors
+  - apps/web/src/connectors/platform
+
+  ## Localization/Crowdin (Platform team)
+  - apps/browser/src/_locales
+  - apps/browser/store/locales
+  - apps/cli/src/locales
+  - apps/desktop/src/locales
+  - apps/web/src/locales
+
+  ## Platform team files ##
+  - apps/browser/src/platform
+  - apps/cli/src/platform
+  - apps/desktop/scripts
+  - apps/desktop/src/platform
+  - apps/desktop/resources
+  - apps/web/src/app/platform
+  - libs/angular/src/platform
+  - libs/common/src/platform
+  - libs/common/spec
+  - libs/common/src/state-migrations
+  - libs/platform
+  - libs/storage-core
+  - libs/logging
+  - libs/logging-angular
+  - libs/managed-settings
+  - libs/storage-test-utils
+  - libs/messaging
+  - libs/serialization
+  - libs/guid
+  - libs/client-type
+  - libs/core-test-utils
+  - libs/state
+  - libs/state-internal
+  - libs/state-test-utils
+  - libs/scheduling
+
+  # Web utils used across app and connectors
+  - apps/web/src/utils/
+
+  # Web core and shared files
+  - apps/web/src/app/core
+  - apps/web/src/app/shared
+  - apps/web/src/translation-constants.ts
+
+  # Workflows
+  - .github/workflows/automatic-issue-responses.yml
+  - .github/workflows/automatic-pull-request-responses.yml
+  - .github/workflows/build-browser-target.yml
+  - .github/workflows/build-browser.yml
+  - .github/workflows/build-cli-target.yml
+  - .github/workflows/build-cli.yml
+  - .github/workflows/build-desktop-target.yml
+  - .github/workflows/build-desktop.yml
+  - .github/workflows/build-web-target.yml
+  - .github/workflows/build-web.yml
+  - .github/workflows/crowdin-pull.yml
+  - .github/workflows/enforce-pr-labels-sdlc.yml
+  - .github/workflows/lint.yml
+  - .github/workflows/locales-lint.yml
+  - .github/workflows/repository-management.yml
+  - .github/workflows/sdk-update.yml
+  - .github/workflows/stale-bot.yml
+  - .github/workflows/test.yml
+  - .github/workflows/cherry-pick.yml
+
+  # ESLint custom rules
+  - libs/eslint
+
+  # Typescript tooling
+  - tsconfig.base.json
+  - nx.json
+
+  ## Overrides
+  # For the time being platform owns tsconfig and jest config
+  # These overrides will be removed after Nx is implemented
+  # To track that effort please see https://bitwarden.atlassian.net/browse/PM-21636
+  - "**/tsconfig.json"
+  - "**/jest.config.js"
+  - "**/project.json"
+
+  # Platform override specifically for the package-lock.json in
+  # native-messaging-test-runner so that Platform can manage all lock file updates
+  - apps/desktop/native-messaging-test-runner/package-lock.json
+
+  # Claude related files
+  - .github/workflows/sdlc-sdk-update-evaluate.yml

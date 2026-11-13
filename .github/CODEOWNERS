@@ -7,13 +7,34 @@
 # CODEOWNERS owners
 .github/CODEOWNERS  @bitwarden/tech-leads
 
+## Always-review lists are owned by their teams
+.github/review/dept-bre.yml                                 @bitwarden/dept-bre
+.github/review/team-admin-console-dev.yml                   @bitwarden/team-admin-console-dev
+.github/review/team-ai-sme.yml                              @bitwarden/team-ai-sme
+.github/review/team-appsec.yml                              @bitwarden/team-appsec
+.github/review/team-auth-dev.yml                            @bitwarden/team-auth-dev
+.github/review/team-autofill-dev.yml                        @bitwarden/team-autofill-dev
+.github/review/team-billing-dev.yml                         @bitwarden/team-billing-dev
+.github/review/team-data-insights-and-reporting-dev.yml     @bitwarden/team-data-insights-and-reporting-dev
+.github/review/team-desktop-native-dev.yml                  @bitwarden/team-desktop-native-dev
+.github/review/team-key-management-dev.yml                  @bitwarden/team-key-management-dev
+.github/review/team-pam-dev.yml                             @bitwarden/team-pam-dev
+.github/review/team-platform-dev.yml                        @bitwarden/team-platform-dev
+.github/review/team-provider-business-unit-portals-dev.yml  @bitwarden/team-provider-business-unit-portals-dev
+.github/review/team-secrets-manager-dev.yml                 @bitwarden/team-secrets-manager-dev
+.github/review/team-skunkworks.yml                          @bitwarden/team-skunkworks
+.github/review/team-tools-dev.yml                           @bitwarden/team-tools-dev
+.github/review/team-ui-foundation.yml                       @bitwarden/team-ui-foundation
+.github/review/team-vault-dev.yml                           @bitwarden/team-vault-dev
+.github/review/tech-leads.yml                               @bitwarden/tech-leads
+.github/review/wg-ssh-keys.yml                              @bitwarden/wg-ssh-keys
+
 ## Global styles are owned by UIF
 *.scss  @bitwarden/team-ui-foundation
 *.css   @bitwarden/team-ui-foundation
 
 ## Desktop native module ##
 apps/desktop/desktop_native                @bitwarden/team-platform-dev
-apps/desktop/desktop_native/secure_memory  @bitwarden/team-key-management-dev
 
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
@@ -107,7 +128,6 @@ bitwarden_license/bit-web/src/app/secrets-manager  @bitwarden/team-secrets-manag
 ## Platform team files ##
 apps/browser/src/platform         @bitwarden/team-platform-dev
 apps/cli/src/platform             @bitwarden/team-platform-dev
-apps/desktop/macos                @bitwarden/team-platform-dev
 apps/desktop/scripts              @bitwarden/team-platform-dev
 apps/desktop/src/platform         @bitwarden/team-platform-dev
 apps/desktop/resources            @bitwarden/team-platform-dev
@@ -178,7 +198,6 @@ libs/common/src/desktop-native                        @bitwarden/team-desktop-na
 libs/angular/src/desktop-native                       @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
-apps/desktop/desktop_native/ssh_agent                          @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/ssh_agent                          @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/napi/src/sshagent.rs               @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/src/autofill/services/ssh-agent.service.ts        @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys

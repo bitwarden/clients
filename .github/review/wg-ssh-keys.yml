@@ -1,0 +1,19 @@
+# Owner review list for @bitwarden/wg-ssh-keys
+#
+# Review is required from the owning team for any change to a file that matches include
+# and doesn't match exclude. Patterns use CODEOWNERS syntax. The list applies only to files
+# CODEOWNERS assigns to this team.
+#
+# Seeded from CODEOWNERS. The team removes paths through PRs as it comes to trust change-kind routing.
+
+include:
+  ## Desktop Native team files + SSH working group co-owned files ##
+  - apps/desktop/desktop_native/ssh_agent
+  - apps/desktop/desktop_native/napi/src/sshagent.rs
+  - apps/desktop/src/autofill/services/ssh-agent.service.ts
+  - apps/desktop/src/autofill/services/ssh-agent.service.spec.ts
+  - apps/desktop/src/autofill/main/main-ssh-agent.service.ts
+  - apps/desktop/src/autofill/main/main-ssh-agent.service.spec.ts
+  - apps/desktop/src/autofill/models/ssh-agent-setting.ts
+  - apps/desktop/src/autofill/components/approve-ssh-request.html
+  - apps/desktop/src/autofill/components/approve-ssh-request.ts
