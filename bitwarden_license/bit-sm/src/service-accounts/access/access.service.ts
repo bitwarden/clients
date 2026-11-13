@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
 import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -26,9 +25,6 @@ import { AccessTokenCreationResponse } from "../models/responses/access-token-cr
 import { AccessTokenResponse } from "../models/responses/access-tokens.response";
 import { AccessTokenView } from "../models/view/access-token.view";
 
-@Injectable({
-  providedIn: "root",
-})
 export class AccessService {
   private readonly _accessTokenVersion = "0";
   protected _accessToken: Subject<AccessTokenView> = new Subject();

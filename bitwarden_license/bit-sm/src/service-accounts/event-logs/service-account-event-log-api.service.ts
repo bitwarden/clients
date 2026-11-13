@@ -1,12 +1,7 @@
-import { Injectable } from "@angular/core";
-
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
-@Injectable({
-  providedIn: "root",
-})
 export class ServiceAccountEventLogApiService {
   constructor(private apiService: ApiService) {}
 
