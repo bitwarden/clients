@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
+import { Observable, of, Subject, throwError } from "rxjs";
 
 import { ClientType } from "@bitwarden/client-type";
 import { PremiumUpgradeNudgeOptions } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
@@ -15,11 +15,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
-import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ButtonComponent, DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
-
-import { SYSTEM_THEME_OBSERVABLE } from "../../../services/injection-tokens";
 
 import {
   PremiumUpgradeNudgeComponent,
@@ -39,21 +35,6 @@ const premiumTier = (annualPrice?: number): PersonalSubscriptionPricingTier => (
     features: [],
   },
 });
-
-const familiesTier: PersonalSubscriptionPricingTier = {
-  id: PersonalSubscriptionPricingTierIds.Families,
-  name: "Families",
-  description: "Families",
-  availableCadences: [SubscriptionCadenceIds.Annually],
-  passwordManager: {
-    type: "packaged",
-    users: 6,
-    annualPrice: 40,
-    annualPricePerAdditionalStorageGB: 4,
-    providedStorageGB: 1,
-    features: [],
-  },
-};
 
 type Deferred = {
   promise: Promise<void>;
@@ -79,8 +60,6 @@ describe("PremiumUpgradeNudgeComponent", () => {
   let subscriptionPricingService: MockProxy<SubscriptionPricingServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let validationService: MockProxy<ValidationService>;
-  let selectedTheme$: BehaviorSubject<Theme>;
-  let systemTheme$: BehaviorSubject<Theme>;
   let pending: Deferred;
   let upgrade: jest.Mock<Promise<void>, []>;
 
@@ -92,24 +71,22 @@ describe("PremiumUpgradeNudgeComponent", () => {
   const setup = async ({
     options = baseOptions,
     clientType = ClientType.Web,
-    tiers$ = of([familiesTier, premiumTier(120)]),
+    tier$ = of(premiumTier(120)),
     disableClose = false,
   }: {
     options?: PremiumUpgradeNudgeOptions;
     clientType?: ClientType;
-    tiers$?: Observable<PersonalSubscriptionPricingTier[]>;
+    tier$?: Observable<PersonalSubscriptionPricingTier>;
     disableClose?: boolean;
   } = {}) => {
     dialogRef = mock<DialogRef>({ isDrawer: false, disableClose });
     subscriptionPricingService = mock<SubscriptionPricingServiceAbstraction>();
-    subscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(tiers$);
+    subscriptionPricingService.getPremiumSubscriptionPricingTier$.mockReturnValue(tier$);
     platformUtilsService = mock<PlatformUtilsService>();
     platformUtilsService.getClientType.mockReturnValue(clientType);
     validationService = mock<ValidationService>();
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
-    const themeStateService = mock<ThemeStateService>();
-    Object.defineProperty(themeStateService, "selectedTheme$", { value: selectedTheme$ });
 
     pending = deferred();
     upgrade = jest.fn(() => pending.promise);
@@ -124,8 +101,6 @@ describe("PremiumUpgradeNudgeComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ValidationService, useValue: validationService },
         { provide: I18nService, useValue: i18nService },
-        { provide: ThemeStateService, useValue: themeStateService },
-        { provide: SYSTEM_THEME_OBSERVABLE, useValue: systemTheme$ },
       ],
     }).compileComponents();
 
@@ -144,11 +119,6 @@ describe("PremiumUpgradeNudgeComponent", () => {
       .queryAll(By.directive(ButtonComponent))
       .find((el) => el.nativeElement.id === "premium-upgrade-nudge_button_upgrade")!
       .injector.get(ButtonComponent);
-
-  beforeEach(() => {
-    selectedTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
-    systemTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
-  });
 
   afterEach(() => {
     TestBed.resetTestingModule();
@@ -188,39 +158,18 @@ describe("PremiumUpgradeNudgeComponent", () => {
   });
 
   describe("image", () => {
-    const imageOptions = { ...baseOptions, imagePath: "/images/premium/totp.light.png" };
-    const image = () => query("img") as HTMLImageElement | null;
+    const image = () => query(".premium-nudge-image");
 
-    it("renders no image when imagePath is unset", async () => {
+    it("renders no image when the image option is unset", async () => {
       await setup();
 
       expect(image()).toBeNull();
     });
 
-    it("renders the light image in the light theme", async () => {
-      await setup({ options: imageOptions });
+    it("renders the image named by the option", async () => {
+      await setup({ options: { ...baseOptions, image: "totp" } });
 
-      expect(image()?.getAttribute("src")).toBe("/images/premium/totp.light.png");
-    });
-
-    it("swaps to the dark sibling when the theme changes to dark and back", async () => {
-      await setup({ options: imageOptions });
-
-      selectedTheme$.next(ThemeTypes.Dark);
-      fixture.detectChanges();
-      expect(image()?.getAttribute("src")).toBe("/images/premium/totp.dark.png");
-
-      selectedTheme$.next(ThemeTypes.Light);
-      fixture.detectChanges();
-      expect(image()?.getAttribute("src")).toBe("/images/premium/totp.light.png");
-    });
-
-    it("renders the dark image when the system theme is dark", async () => {
-      selectedTheme$.next(ThemeTypes.System);
-      systemTheme$.next(ThemeTypes.Dark);
-      await setup({ options: imageOptions });
-
-      expect(image()?.getAttribute("src")).toBe("/images/premium/totp.dark.png");
+      expect(image()?.classList).toContain("premium-nudge-totp");
     });
   });
 
@@ -234,33 +183,27 @@ describe("PremiumUpgradeNudgeComponent", () => {
     });
 
     it("appears when pricing arrives after the first render", async () => {
-      const tiers$ = new Subject<PersonalSubscriptionPricingTier[]>();
-      await setup({ tiers$ });
+      const tier$ = new Subject<PersonalSubscriptionPricingTier>();
+      await setup({ tier$ });
 
       expect(priceLine()).toBeNull();
 
-      tiers$.next([familiesTier, premiumTier(120)]);
+      tier$.next(premiumTier(120));
       fixture.detectChanges();
 
       expect(priceLine()?.textContent).toContain("$10.00");
     });
 
     it("is hidden when the Premium tier has no annual price", async () => {
-      await setup({ clientType: ClientType.Browser, tiers$: of([premiumTier(undefined)]) });
+      await setup({ clientType: ClientType.Browser, tier$: of(premiumTier(undefined)) });
 
       expect(priceLine()).toBeNull();
       expect(text()).not.toContain("cancelAnytime");
       expect(text()).not.toContain("secureCheckoutViaStripe");
     });
 
-    it("is hidden when the Premium tier is missing", async () => {
-      await setup({ tiers$: of([familiesTier]) });
-
-      expect(priceLine()).toBeNull();
-    });
-
     it("is hidden when pricing fails, without closing the dialog or blocking upgrade", async () => {
-      await setup({ tiers$: throwError(() => new Error("pricing failed")) });
+      await setup({ tier$: throwError(() => new Error("pricing failed")) });
 
       expect(priceLine()).toBeNull();
       expect(dialogRef.close).not.toHaveBeenCalled();

@@ -1,11 +1,6 @@
 <ng-template #body>
-  @if (image; as image) {
-    <img
-      class="tw-mx-auto tw-mb-4 tw-block tw-max-w-full"
-      alt=""
-      [src]="image.light"
-      [appDarkImgSrc]="image.dark"
-    />
+  @if (options.image; as image) {
+    <div class="premium-nudge-image premium-nudge-{{ image }} tw-mx-auto tw-mb-4"></div>
   }
   <p bitTypography="body1" class="tw-text-muted">{{ options.descriptionKey | i18n }}</p>
   @if (options.unlockedFeatureKeys?.length) {

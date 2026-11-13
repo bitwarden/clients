@@ -83,3 +83,21 @@
 .theme_dark .card-ru-pay {
   background-image: url("~@bitwarden/angular/src/billing/images/cards/ru_pay-dark.png");
 }
+
+.premium-nudge-image {
+  display: block;
+  width: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.premium-nudge-totp {
+  max-width: 339px;
+  aspect-ratio: 339/138;
+  background-image: url("~@bitwarden/angular/src/billing/images/premium/premium-nudge-totp-light.png");
+}
+
+.theme_dark .premium-nudge-totp {
+  background-image: url("~@bitwarden/angular/src/billing/images/premium/premium-nudge-totp-dark.png");
+}

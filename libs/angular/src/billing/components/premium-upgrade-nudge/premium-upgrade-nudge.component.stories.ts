@@ -1,5 +1,5 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { distinctUntilChanged, Observable, of } from "rxjs";
+import { of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { ClientType } from "@bitwarden/client-type";
@@ -12,11 +12,7 @@ import {
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
-import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DIALOG_DATA, DialogRef, I18nMockService } from "@bitwarden/components";
-
-import { SYSTEM_THEME_OBSERVABLE } from "../../../services/injection-tokens";
 
 import {
   PremiumUpgradeNudgeComponent,
@@ -53,16 +49,6 @@ const sharedMessages: Record<string, string> = {
   secureCheckoutViaStripe: "Secure checkout via Stripe",
   notNow: "Not now",
 };
-
-const storybookTheme$: Observable<Theme> = new Observable<Theme>((subscriber) => {
-  const root = document.documentElement;
-  const emit = () =>
-    subscriber.next(root.classList.contains("theme_dark") ? ThemeTypes.Dark : ThemeTypes.Light);
-  emit();
-  const observer = new MutationObserver(emit);
-  observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-  return () => observer.disconnect();
-}).pipe(distinctUntilChanged());
 
 const nudgeStory = ({
   content,
@@ -105,8 +91,8 @@ const nudgeStory = ({
           {
             provide: SubscriptionPricingServiceAbstraction,
             useValue: {
-              getPersonalSubscriptionPricingTiers$: () =>
-                of([premiumTier(selfHosted ? undefined : 19.8)]),
+              getPremiumSubscriptionPricingTier$: () =>
+                of(premiumTier(selfHosted ? undefined : 19.8)),
             },
           },
         ],
@@ -121,7 +107,7 @@ const totp: ContentSet = {
   options: {
     titleKey: "totpNudgeTitle",
     descriptionKey: "totpNudgeDescription",
-    imagePath: "/images/premium/totp.light.png",
+    image: "totp",
   },
   messages: {
     totpNudgeTitle: "Log in faster with built-in codes",
@@ -240,14 +226,6 @@ const premiumReports: ContentSet = {
 export default {
   title: "Billing/Premium Upgrade Nudge",
   component: PremiumUpgradeNudgeComponent,
-  decorators: [
-    moduleMetadata({
-      providers: [
-        { provide: ThemeStateService, useValue: { selectedTheme$: storybookTheme$ } },
-        { provide: SYSTEM_THEME_OBSERVABLE, useValue: of(ThemeTypes.Light) },
-      ],
-    }),
-  ],
   parameters: {
     design: {
       type: "figma",
@@ -275,6 +253,14 @@ export const TotpDesktopDark = dark(TotpDesktop);
 export const TotpDesktopSelfHosted = nudgeStory({
   content: totp,
   client: ClientType.Desktop,
+  selfHosted: true,
+});
+
+export const TotpWeb = nudgeStory({ content: totp, client: ClientType.Web });
+export const TotpWebDark = dark(TotpWeb);
+export const TotpWebSelfHosted = nudgeStory({
+  content: totp,
+  client: ClientType.Web,
   selfHosted: true,
 });
 

@@ -7,6 +7,7 @@
 
 $dark-icon-themes: "theme_dark" !default;
 $card-icons-base: "~@bitwarden/angular/src/billing/images/cards/" !default;
+$premium-nudge-images-base: "~@bitwarden/angular/src/billing/images/premium/" !default;
 
 $card-icons: (
   "visa": $card-icons-base + "visa-light.png",
@@ -51,5 +52,25 @@ $card-icons-dark: (
     .#{$theme} .card-#{$name} {
       background-image: url("#{$url}");
     }
+  }
+}
+
+.premium-nudge-image {
+  display: block;
+  width: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.premium-nudge-totp {
+  max-width: 339px;
+  aspect-ratio: 339 / 138;
+  background-image: url("#{$premium-nudge-images-base}premium-nudge-totp-light.png");
+}
+
+@each $theme in $dark-icon-themes {
+  .#{$theme} .premium-nudge-totp {
+    background-image: url("#{$premium-nudge-images-base}premium-nudge-totp-dark.png");
   }
 }

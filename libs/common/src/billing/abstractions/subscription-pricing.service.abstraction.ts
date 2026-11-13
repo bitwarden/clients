@@ -14,6 +14,8 @@ export abstract class SubscriptionPricingServiceAbstraction {
    */
   abstract getPersonalSubscriptionPricingTiers$(): Observable<PersonalSubscriptionPricingTier[]>;
 
+  abstract getPremiumSubscriptionPricingTier$(): Observable<PersonalSubscriptionPricingTier>;
+
   /**
    * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
    * Throws any errors that occur during api request so callers must handle errors.
