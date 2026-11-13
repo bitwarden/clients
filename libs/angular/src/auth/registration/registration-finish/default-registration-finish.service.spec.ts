@@ -1,6 +1,9 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -22,8 +25,6 @@ import {
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-
-import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import { DefaultRegistrationFinishService } from "./default-registration-finish.service";
 
