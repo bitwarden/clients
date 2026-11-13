@@ -597,12 +597,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
-  /** Each collection's own name, without its parent path — see {@link sharedFolderName}. */
+  /** Each shared folder's display name — see {@link sharedFolderLabel}. */
   private readonly collectionNames = computed(() =>
     this.nameMap(
       this.collections().map((collection) => ({
         id: collection.id,
-        name: sharedFolderName(collection),
+        name: this.sharedFolderLabel(collection),
       })),
     ),
   );
@@ -1283,12 +1283,23 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * input — the collection tree is data-driven and can nest arbitrarily deep, which is exactly
    * what that input is for.
    */
+  /**
+   * A collection's own name, without its parent path (see {@link sharedFolderName}). The "My items"
+   * collection reads from i18n rather than its stored name, which the server may hold in older
+   * casing, so the table matches the side nav and the My items chip.
+   */
+  private sharedFolderLabel(collection: CollectionView): string {
+    return collection.isDefaultCollection
+      ? this.i18nService.t("myItemsV2")
+      : sharedFolderName(collection);
+  }
+
   private buildNestedSharedFolders(
     sharedFolders: CollectionView[],
   ): FilterOptionNode<CollectionId>[] {
     const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
       value: node.node.id,
-      label: sharedFolderName(node.node),
+      label: this.sharedFolderLabel(node.node),
       options: node.children.map(toNode),
     });
     return getNestedCollectionTree([...sharedFolders])
