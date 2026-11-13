@@ -55,6 +55,14 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       }),
     );
 
+  getPremiumSubscriptionPricingTier$ = (): Observable<PersonalSubscriptionPricingTier> =>
+    this.premium$.pipe(
+      catchError((error: unknown) => {
+        this.logService.error("Failed to load premium subscription pricing tier", error);
+        return throwError(() => error);
+      }),
+    );
+
   /**
    * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
    * Throws any errors that occur during api request so callers must handle errors.

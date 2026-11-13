@@ -1,8 +1,10 @@
+export type PremiumUpgradeNudgeImage = "totp";
+
 export interface PremiumUpgradeNudgeOptions {
   titleKey: string;
   descriptionKey: string;
   unlockedFeatureKeys?: string[];
-  imagePath?: string; // bundled UI screenshot;
+  image?: PremiumUpgradeNudgeImage;
   checkoutFeatureNameKey?: string; // read only by the external-checkout service; web ignores it
 }
 
