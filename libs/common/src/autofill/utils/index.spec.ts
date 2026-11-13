@@ -330,6 +330,20 @@ describe("isUrlInList", () => {
     expect(urlIsInList).toEqual(false);
   });
 
+  it("returns true if the URL hostname is an IPv4 address within a CIDR range on the passed URL list", () => {
+    const urlList: NeverDomains = { ["192.0.2.0/24"]: null, ["example.com"]: null };
+
+    expect(isUrlInList("https://192.0.2.8/login", urlList)).toEqual(true);
+    expect(isUrlInList("http://192.0.2.255:8443/#/login", urlList)).toEqual(true);
+  });
+
+  it("returns false if the URL hostname is outside every CIDR range on the passed URL list", () => {
+    const urlList: NeverDomains = { ["192.0.2.0/24"]: null };
+
+    expect(isUrlInList("https://192.0.3.8/login", urlList)).toEqual(false);
+    expect(isUrlInList("https://example.com/", urlList)).toEqual(false);
+  });
+
   it("returns false if the URL hostname is not on the passed URL list", () => {
     const testPages = ["https://archive.org/", "bitwarden.com.some.otherdomain.com"];
 

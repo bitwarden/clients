@@ -19,6 +19,7 @@ import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isIpv4Cidr } from "@bitwarden/common/autofill/utils/cidr";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -170,7 +171,7 @@ export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
 
     for (const uri of uniqueBlockedDomains) {
       if (uri && uri !== "") {
-        const validatedHost = Utils.getHostname(uri);
+        const validatedHost = isIpv4Cidr(uri) ? uri.trim() : Utils.getHostname(uri);
 
         if (!validatedHost) {
           this.toastService.showToast({
