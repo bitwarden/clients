@@ -149,6 +149,17 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   constant, not restate five minutes.
 - `collection-access-rule-callout/`, the callout naming the rules that govern a collection,
   inside the collection edit dialog.
+- `row-activation/`, `pamActivateRow` on a `<bit-table-v2>`, plus `data-pam-row-activator` on the
+  control a row's whitespace should reach. `bit-row` fills on hover, which reads as "clickable",
+  but only the name cell's link ever was (PAM-405). The directive delegates from the table,
+  because rows are rendered by the table and recycled by the virtual scroller, so there is no
+  `<bit-row>` in a consumer's template to bind, and it FORWARDS to the row's own link or button
+  rather than taking a callback, so the row, the keyboard path and the menu's Edit all run one
+  activation. It stands down on a click that landed on any control, on a modified or
+  non-primary click, and on the click that ends a drag-select inside the row. A row carrying no
+  activator (a skeleton row, a group header) stays inert and shows no pointer. The access-audit
+  table predates it and still binds `(click)` per cell; moving it over is cleanup, not a
+  behavior change.
 - `services/`, this folder's own services, among them `AccessRulesService`,
   `GovernedCollectionsService`, `PamRevealedCipherService` and the nav badge. The SDK-backed
   implementations of the `abstractions/` contracts are in `bit-pam/src/services/`.

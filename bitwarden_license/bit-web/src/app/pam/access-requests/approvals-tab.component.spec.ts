@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA, computed } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
+import { Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -402,6 +402,29 @@ describe("ApprovalsTabComponent", () => {
       expect(text(item)).toContain("pamInboxInSharedFolder Production");
       expect(item?.querySelector('bit-icon[name="bwi-collection-shared"]')).not.toBeNull();
       expect(item?.querySelector("a")?.getAttribute("href")).toBe("/pam/requests/req-1");
+    });
+
+    it("opens the request from anywhere in the row, not only from the item link", () => {
+      inbox.approverRows$.next([pending()]);
+      create();
+      const navigate = jest.spyOn(TestBed.inject(Router), "navigateByUrl").mockResolvedValue(true);
+
+      query('[data-testid="approvals-cell-status-req-1"] [role="cell"]')!.dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true }),
+      );
+
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate.mock.calls[0][0].toString()).toBe("/pam/requests/req-1");
+    });
+
+    it("leaves a click on a row action to that action", () => {
+      inbox.approverRows$.next([pending()]);
+      create();
+      const navigate = jest.spyOn(TestBed.inject(Router), "navigateByUrl").mockResolvedValue(true);
+
+      query('[data-testid="approvals-approve-req-1"]')!.click();
+
+      expect(navigate).not.toHaveBeenCalled();
     });
 
     it("shows the duration over the window, with the exact window on title", () => {

@@ -26,6 +26,13 @@ import { accessConnectorDisplayStatus, accessConnectorStatusBadge } from "./acce
 import { AccessConnectorsTabComponent } from "./access-connectors-tab.component";
 import { AccessConnectorsService, AccessConnectorRow } from "./access-connectors.service";
 
+/** A cell owning no control of its own — what a click on a row's whitespace lands on. */
+function inertCell(row: Element): HTMLElement {
+  return Array.from(row.querySelectorAll<HTMLElement>('[role="cell"]')).find(
+    (cell) => cell.querySelector("a, button, input, label") == null,
+  )!;
+}
+
 describe("AccessConnectorsTabComponent", () => {
   let fixture: ComponentFixture<AccessConnectorsTabComponent>;
   let accessConnectorsService: jest.Mocked<AccessConnectorsService>;
@@ -805,6 +812,18 @@ describe("AccessConnectorsTabComponent", () => {
         'bit-row button[id^="access-connectors-tab_button_detail-"]',
       )!;
     }
+
+    it("opens the connector from anywhere in its row, not only from the name", () => {
+      const navigateSpy = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const row = (fixture.nativeElement as HTMLElement).querySelector("bit-table-v2 bit-row")!;
+
+      inertCell(row).dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ["..", "access-connectors", expect.anything()],
+        expect.objectContaining({ relativeTo: expect.anything() }),
+      );
+    });
 
     it("renders the name as a heading-coloured link to the detail page", () => {
       const button = nameCellButton();

@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
+import { Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
@@ -358,6 +358,16 @@ describe("HistoryTabComponent", () => {
 
       expect(link.getAttribute("href")).toBe("/pam/requests/okta");
       expect(link.id).toBe("pam-history-tab_link_item-okta");
+    });
+
+    it("opens the request from anywhere in the row, not only from the item link", () => {
+      const navigate = jest.spyOn(TestBed.inject(Router), "navigateByUrl").mockResolvedValue(true);
+      const whitespace = cell("status", "okta")!.querySelector<HTMLElement>("[role='cell']")!;
+
+      whitespace.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate.mock.calls[0][0].toString()).toBe("/pam/requests/okta");
     });
 
     it("is read-only: no row carries an action", () => {

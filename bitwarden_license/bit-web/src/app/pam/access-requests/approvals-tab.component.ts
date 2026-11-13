@@ -58,6 +58,7 @@ import {
   approverRowStatus,
   compareApproverStatus,
 } from "../approvals/approver-row";
+import { PamActivateRowDirective } from "../row-activation/activate-row.directive";
 
 import { APPROVER_READY_LABEL_KEY, REQUEST_STATUS_LOOK } from "./request-status-look";
 
@@ -101,6 +102,7 @@ const STATUS_OPTIONS: ReadonlyArray<{
   templateUrl: "./approvals-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PamActivateRowDirective,
     RouterModule,
     AccessStateBadgeComponent,
     RequestedWindowPipe,
