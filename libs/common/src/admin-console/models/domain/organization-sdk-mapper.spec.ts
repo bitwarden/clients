@@ -1,4 +1,5 @@
 import {
+  KeyId,
   MemberDecryptionType,
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -68,6 +69,7 @@ describe("OrganizationRecordMapper", () => {
       userId: "6e6c3bb7-2c38-4e4b-8d3e-5a6f3b0b9a11",
       organizationUserId: "9a2c4e6f-1b3d-4f5a-8c7e-0d2f4a6b8c13",
       hasPublicAndPrivateKeys: true,
+      organizationKeyId: "0123456789abcdef0123456789abcdef" as KeyId,
       providerId: "3c5e7a9b-2d4f-4a6c-9e8b-1f3a5c7e9d14",
       providerName: "Test Provider",
       providerType: ProviderType.Msp,
@@ -108,6 +110,7 @@ describe("OrganizationRecordMapper", () => {
       name: data.name,
       enabled: true,
       hasPublicAndPrivateKeys: true,
+      keyId: data.organizationKeyId,
     });
     expect(result.membership.organizationUserId).toEqual(data.organizationUserId);
     expect(result.provider).toEqual({
@@ -145,9 +148,11 @@ describe("OrganizationRecordMapper", () => {
     data.seats = null;
     data.maxCollections = null;
     data.maxStorageGb = undefined;
+    data.organizationKeyId = undefined;
 
     const sdk = mapper.toSdk(data);
 
+    expect(sdk.details.keyId).toBeUndefined();
     expect(sdk.provider).toBeUndefined();
     expect(sdk.membership.organizationUserId).toBeUndefined();
     expect(sdk.sso.memberDecryptionType).toBeUndefined();
