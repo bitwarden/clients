@@ -938,7 +938,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AUTOFILL_NUDGE_SERVICE as SafeInjectionToken<BrowserAutofillNudgeService>,
     useClass: BrowserAutofillNudgeService,
-    deps: [StateProvider, AccountService, LogService],
+    deps: [StateProvider, AccountService],
   }),
   safeProvider({
     provide: AUTO_CONFIRM_NUDGE_SERVICE as SafeInjectionToken<AutoConfirmNudgeService>,
