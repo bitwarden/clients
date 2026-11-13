@@ -4,6 +4,7 @@
  */
 export const SsoLoginFailedErrorKind = Object.freeze({
   StagedOrgUserDirectInviteSent: "staged-org-user-direct-invite-sent",
+  InviteAcceptanceRequired: "invite-acceptance-required",
   NoSeatsAvailable: "no-seats-available",
 } as const);
 

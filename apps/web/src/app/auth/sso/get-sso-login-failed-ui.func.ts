@@ -17,13 +17,14 @@ export function getSsoLoginFailedUi(
 ): SsoLoginFailedUi {
   switch (kind) {
     case SsoLoginFailedErrorKind.StagedOrgUserDirectInviteSent:
+    case SsoLoginFailedErrorKind.InviteAcceptanceRequired:
       return {
         anonLayoutData: {
           pageTitle: { key: "inviteSentToEmail" },
           pageIcon: EmailCodeSentIcon,
         },
         bodyMessage: {
-          key: "ssoStagedOrgUserDirectInviteEmailSent",
+          key: "checkYourEmailToFinishJoiningOrg",
           placeholders: [qParams.organizationName ?? ""],
         },
       };

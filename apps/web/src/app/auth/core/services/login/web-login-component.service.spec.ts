@@ -15,11 +15,9 @@ import {
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PolicyId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
@@ -55,8 +53,6 @@ describe("WebLoginComponentService", () => {
   let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let ssoLoginService: MockProxy<SsoLoginServiceAbstraction>;
-  let toastService: MockProxy<ToastService>;
-  let i18nService: MockProxy<I18nService>;
   let router: MockProxy<Router>;
 
   beforeEach(() => {
@@ -69,8 +65,6 @@ describe("WebLoginComponentService", () => {
     passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
     platformUtilsService = mock<PlatformUtilsService>();
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
-    toastService = mock<ToastService>();
-    i18nService = mock<I18nService>();
     router = mock<Router>();
 
     TestBed.configureTestingModule({
@@ -86,8 +80,6 @@ describe("WebLoginComponentService", () => {
         { provide: PasswordGenerationServiceAbstraction, useValue: passwordGenerationService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: SsoLoginServiceAbstraction, useValue: ssoLoginService },
-        { provide: ToastService, useValue: toastService },
-        { provide: I18nService, useValue: i18nService },
         { provide: Router, useValue: router },
       ],
     });
@@ -254,15 +246,19 @@ describe("WebLoginComponentService", () => {
       });
 
     // All three SSO redirect error codes share the same client-side match handler
-    // (server intent differs but "match invite → auto-progress" is identical). The
-    // no-match branch splits: two codes surface a toast, the third routes to a
-    // full-page error view. `describe.each` enforces parity for the shared shape
-    // and per-row fallback config keeps the split explicit.
+    // (server intent differs but "match invite → auto-progress" is identical) and the
+    // same no-match behavior: redirect to the terminal /sso-login-failed page. Only the
+    // `kind` query param differs, and the two "invite required" codes deliberately share
+    // one kind so the page doesn't reveal whether the user has a pending invite or no
+    // membership at all. `describe.each` enforces parity for the shared shape.
     describe.each([
-      { errorCode: "ssoOrgInviteAcceptanceRequired", fallback: "toast" },
-      { errorCode: "ssoOrgMembershipRequired", fallback: "toast" },
-      { errorCode: "ssoStagedOrgUserInviteAcceptanceRequired", fallback: "navigate" },
-    ] as const)("when error code is $errorCode", ({ errorCode, fallback }) => {
+      { errorCode: "ssoOrgInviteAcceptanceRequired", expectedKind: "invite-acceptance-required" },
+      { errorCode: "ssoOrgMembershipRequired", expectedKind: "invite-acceptance-required" },
+      {
+        errorCode: "ssoStagedOrgUserInviteAcceptanceRequired",
+        expectedKind: "staged-org-user-direct-invite-sent",
+      },
+    ] as const)("when error code is $errorCode", ({ errorCode, expectedKind }) => {
       const paramsFor = (overrides: Partial<Record<string, string>> = {}) => ({
         error: errorCode,
         organizationId: mockOrganizationId,
@@ -271,22 +267,13 @@ describe("WebLoginComponentService", () => {
         ...overrides,
       });
 
-      const expectedNoMatchResult =
-        fallback === "toast" ? { kind: "none" } : { kind: "redirected" };
-
-      const expectNoMatchFallback = () => {
-        if (fallback === "toast") {
-          expect(toastService.showToast).toHaveBeenCalled();
-          expect(router.navigate).not.toHaveBeenCalled();
-        } else {
-          expect(router.navigate).toHaveBeenCalledWith(["/sso-login-failed"], {
-            queryParams: {
-              kind: "staged-org-user-direct-invite-sent",
-              organizationName: mockOrganizationName,
-            },
-          });
-          expect(toastService.showToast).not.toHaveBeenCalled();
-        }
+      const expectNoMatchRedirect = () => {
+        expect(router.navigate).toHaveBeenCalledWith(["/sso-login-failed"], {
+          queryParams: {
+            kind: expectedKind,
+            organizationName: mockOrganizationName,
+          },
+        });
       };
 
       describe("with a matching stashed invite", () => {
@@ -303,7 +290,6 @@ describe("WebLoginComponentService", () => {
               pageIcon: expect.anything(),
             },
           });
-          expect(toastService.showToast).not.toHaveBeenCalled();
           expect(router.navigate).not.toHaveBeenCalled();
         });
 
@@ -317,7 +303,6 @@ describe("WebLoginComponentService", () => {
           );
 
           expect(result.kind).toBe("auto-submit");
-          expect(toastService.showToast).not.toHaveBeenCalled();
           expect(router.navigate).not.toHaveBeenCalled();
         });
 
@@ -327,48 +312,32 @@ describe("WebLoginComponentService", () => {
           const result = await service.handleQueryParamErrors(paramsFor());
 
           expect(result.kind).toBe("auto-submit");
-          expect(toastService.showToast).not.toHaveBeenCalled();
           expect(router.navigate).not.toHaveBeenCalled();
         });
       });
 
       describe("with no matching stashed invite", () => {
-        it("fires the expected fallback when no invite is stashed", async () => {
+        it("redirects to the SSO login failed page when no invite is stashed", async () => {
           organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-          i18nService.t.mockReturnValue("translated message");
 
           const result = await service.handleQueryParamErrors(paramsFor());
 
-          expect(result).toEqual(expectedNoMatchResult);
-          if (fallback === "toast") {
-            expect(i18nService.t).toHaveBeenCalledWith(
-              "ssoLoginRequiresInviteAcceptance",
-              mockOrganizationName,
-            );
-            expect(toastService.showToast).toHaveBeenCalledWith({
-              variant: "warning",
-              title: null,
-              message: "translated message",
-              timeout: 10000,
-            });
-            expect(router.navigate).not.toHaveBeenCalled();
-          } else {
-            expectNoMatchFallback();
-          }
+          expect(result).toEqual({ kind: "redirected" });
+          expectNoMatchRedirect();
         });
 
-        it("fires the expected fallback when a stashed direct invite's email doesn't match", async () => {
+        it("redirects to the SSO login failed page when a stashed direct invite's email doesn't match", async () => {
           organizationInviteService.getOrganizationInvite.mockResolvedValue(
             directOrgInviteFor({ email: "other@example.com" }),
           );
 
           const result = await service.handleQueryParamErrors(paramsFor());
 
-          expect(result).toEqual(expectedNoMatchResult);
-          expectNoMatchFallback();
+          expect(result).toEqual({ kind: "redirected" });
+          expectNoMatchRedirect();
         });
 
-        it("fires the expected fallback when a stashed direct invite's org id doesn't match", async () => {
+        it("redirects to the SSO login failed page when a stashed direct invite's org id doesn't match", async () => {
           // User has Org A's invite stashed but is being redirected for Org B (same email).
           // We must not auto-progress, because the deep-link guard would replay Org A's
           // /accept-organization while the UI claims they're joining Org B.
@@ -378,19 +347,19 @@ describe("WebLoginComponentService", () => {
 
           const result = await service.handleQueryParamErrors(paramsFor());
 
-          expect(result).toEqual(expectedNoMatchResult);
-          expectNoMatchFallback();
+          expect(result).toEqual({ kind: "redirected" });
+          expectNoMatchRedirect();
         });
 
-        it("fires the expected fallback when a stashed open invite's org id doesn't match", async () => {
+        it("redirects to the SSO login failed page when a stashed open invite's org id doesn't match", async () => {
           organizationInviteService.getOrganizationInvite.mockResolvedValue(
             openOrgInviteFor({ organizationId: otherOrganizationId }),
           );
 
           const result = await service.handleQueryParamErrors(paramsFor());
 
-          expect(result).toEqual(expectedNoMatchResult);
-          expectNoMatchFallback();
+          expect(result).toEqual({ kind: "redirected" });
+          expectNoMatchRedirect();
         });
       });
 
@@ -405,7 +374,6 @@ describe("WebLoginComponentService", () => {
 
             expect(result).toEqual({ kind: "none" });
             expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
-            expect(toastService.showToast).not.toHaveBeenCalled();
             expect(router.navigate).not.toHaveBeenCalled();
           });
         },
@@ -422,7 +390,6 @@ describe("WebLoginComponentService", () => {
         });
 
         expect(result).toEqual({ kind: "none" });
-        expect(toastService.showToast).not.toHaveBeenCalled();
         expect(router.navigate).not.toHaveBeenCalled();
       });
 
@@ -434,7 +401,6 @@ describe("WebLoginComponentService", () => {
         });
 
         expect(result).toEqual({ kind: "none" });
-        expect(toastService.showToast).not.toHaveBeenCalled();
         expect(router.navigate).not.toHaveBeenCalled();
       });
     });

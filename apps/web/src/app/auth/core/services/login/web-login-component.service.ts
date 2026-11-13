@@ -17,10 +17,8 @@ import {
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
@@ -59,8 +57,6 @@ export class WebLoginComponentService
     platformUtilsService: PlatformUtilsService,
     ssoLoginService: SsoLoginServiceAbstraction,
     private router: Router,
-    private toastService: ToastService,
-    private i18nService: I18nService,
   ) {
     super(
       cryptoFunctionService,
@@ -107,14 +103,20 @@ export class WebLoginComponentService
          *    would require both a stashed open org invite and a pending direct-invite
          *    row on the server for the same org.
          *
-         * No match → warning toast. Covers: no invite stashed, a stashed invite
-         * for a different org, or a stashed direct invite with an email mismatch.
+         * No match → navigate to the terminal error page. Covers: no invite stashed,
+         * a stashed invite for a different org, or a stashed direct invite with an
+         * email mismatch.
          */
         if (await this.hasMatchingStashedOrgInvite(params)) {
           return this.autoProgressToMpEntry(params);
         }
-        this.showInviteAcceptanceRequiredToast(params);
-        return { kind: "none" };
+        await this.router.navigate([SsoLoginFailedRoute], {
+          queryParams: {
+            kind: SsoLoginFailedErrorKind.InviteAcceptanceRequired,
+            organizationName: params.organizationName,
+          },
+        });
+        return { kind: "redirected" };
       }
 
       case SsoRedirectErrorCode.OrgMembershipRequired: {
@@ -131,14 +133,19 @@ export class WebLoginComponentService
          *    normally trigger `InviteAcceptanceRequired` instead; direct+match
          *    lands here only if the row was revoked between click and SSO attempt.
          *
-         * No match → warning toast. Covers: no invite stashed, or a stashed
-         * invite for a different org.
+         * No match → navigate to the terminal error page. Covers: no invite stashed,
+         * or a stashed invite for a different org.
          */
         if (await this.hasMatchingStashedOrgInvite(params)) {
           return this.autoProgressToMpEntry(params);
         }
-        this.showInviteAcceptanceRequiredToast(params);
-        return { kind: "none" };
+        await this.router.navigate([SsoLoginFailedRoute], {
+          queryParams: {
+            kind: SsoLoginFailedErrorKind.InviteAcceptanceRequired,
+            organizationName: params.organizationName,
+          },
+        });
+        return { kind: "redirected" };
       }
 
       case SsoRedirectErrorCode.StagedOrgUserInviteAcceptanceRequired: {
@@ -205,19 +212,6 @@ export class WebLoginComponentService
         pageIcon: LockIcon,
       },
     };
-  }
-
-  /**
-   * Fires the shared "SSO for OrgX requires an invite" warning toast used by both
-   * error-code branches when no stashed invite matches the redirect org.
-   */
-  private showInviteAcceptanceRequiredToast(params: Params): void {
-    this.toastService.showToast({
-      variant: "warning",
-      title: null,
-      message: this.i18nService.t("ssoLoginRequiresInviteAcceptance", params.organizationName),
-      timeout: 10000,
-    });
   }
 
   async getOrgPoliciesFromOrgInvite(email: string): Promise<PasswordPolicies | undefined> {

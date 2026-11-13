@@ -514,6 +514,27 @@ doesn't happen on the direct side.
 
 ### Edge / historical cases
 
+#### SSO rejected for an existing user with no matching stashed invite
+
+Applies to both invite kinds. When the server rejects an SSO login because
+the existing user has no accepted invite for the org, it redirects to `/login`
+with an `error` code plus `organizationId`, `organizationName`, and `email`.
+`WebLoginComponentService.handleQueryParamErrors` handles these codes:
+
+| Server `error` code                        | Meaning                                              |
+| ------------------------------------------ | ---------------------------------------------------- |
+| `ssoOrgInviteAcceptanceRequired`           | Pending direct invite the user hasn't accepted       |
+| `ssoOrgMembershipRequired`                 | No membership or invite for the org                  |
+| `ssoStagedOrgUserInviteAcceptanceRequired` | Staged row; server promoted it and emailed an invite |
+
+1. **Match:** if the stashed invite matches the redirect (direct: org id +
+   email, case-insensitive; open: org id only), the client auto-progresses to
+   MP entry and the normal accept flow runs after login (see the previous
+   section).
+2. **No match:** the client navigates to `/sso-login-failed` and
+   `LoginComponent` stops its init (`{ kind: "redirected" }`). The page
+   (`SsoLoginFailedComponent`) shows error help text with a return-to-login button.
+
 #### Authed user pastes the /join URL directly (MP-policy detour)
 
 Parallel to the direct-invite paste scenario. An authed user who pastes
