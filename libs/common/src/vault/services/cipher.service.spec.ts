@@ -1998,6 +1998,116 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("decryptByIds", () => {
+    const otherId = "other-cipher-id" as CipherId;
+    const id = cipherData.id as CipherId;
+    const viewOf = (viewId: string, partial = false) =>
+      Object.assign(new CipherView(), { id: viewId, partial });
+    const decryptedIds = () =>
+      cipherEncryptionService.decryptManyFullWithFailures.mock.calls[0][0].map(
+        (cipher) => cipher.id,
+      );
+
+    beforeEach(() => {
+      stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).nextState({
+        [id]: cipherData,
+        [otherId]: { ...cipherData, id: otherId },
+      } as Record<CipherId, CipherData>);
+      stateProvider.singleUser.getFake(mockUserId, LOCAL_DATA_KEY).nextState({});
+      keyService.cipherDecryptionKeys$.mockReturnValue(of({} as CipherDecryptionKeys));
+    });
+
+    it("returns the decrypted ciphers in the requested order", async () => {
+      cipherEncryptionService.decryptManyFullWithFailures.mockResolvedValue([
+        [viewOf(id), viewOf(otherId)],
+        [],
+      ]);
+
+      const result = await cipherService.decryptByIds(mockUserId, [otherId, id]);
+
+      expect(result.map((cipher) => cipher.id)).toEqual([otherId, id]);
+    });
+
+    it("decrypts only the requested ciphers and skips missing ids", async () => {
+      cipherEncryptionService.decryptManyFullWithFailures.mockResolvedValue([[viewOf(id)], []]);
+
+      const result = await cipherService.decryptByIds(mockUserId, [id, "missing-id"]);
+
+      expect(decryptedIds()).toEqual([id]);
+      expect(result.map((cipher) => cipher.id)).toEqual([id]);
+    });
+
+    it("omits ciphers that fail to decrypt and logs only the failure count", async () => {
+      const failed = new Cipher({ ...cipherData, id: otherId });
+      cipherEncryptionService.decryptManyFullWithFailures.mockResolvedValue([
+        [viewOf(id)],
+        [failed],
+      ]);
+
+      const result = await cipherService.decryptByIds(mockUserId, [id, otherId]);
+
+      expect(result.map((cipher) => cipher.id)).toEqual([id]);
+      expect(logService.warning).toHaveBeenCalledWith("Failed to decrypt 1 requested ciphers.");
+    });
+
+    it("keeps the ciphers' localData", async () => {
+      const lastUsedDate = Date.now();
+      stateProvider.singleUser
+        .getFake(mockUserId, LOCAL_DATA_KEY)
+        .nextState({ [id]: { lastUsedDate } } as Record<CipherId, LocalData>);
+      cipherEncryptionService.decryptManyFullWithFailures.mockResolvedValue([[viewOf(id)], []]);
+
+      const [result] = await cipherService.decryptByIds(mockUserId, [id]);
+
+      expect(result.localData).toEqual({ lastUsedDate });
+    });
+
+    it("makes no SDK call when no ids are requested", async () => {
+      const result = await cipherService.decryptByIds(mockUserId, []);
+
+      expect(result).toEqual([]);
+      expect(cipherEncryptionService.decryptManyFullWithFailures).not.toHaveBeenCalled();
+    });
+
+    it("does not filter restricted ciphers", async () => {
+      cipherEncryptionService.decryptManyFullWithFailures.mockResolvedValue([
+        [viewOf(id, true)],
+        [],
+      ]);
+
+      const result = await cipherService.decryptByIds(mockUserId, [id]);
+
+      expect(result.map((cipher) => cipher.id)).toEqual([id]);
+    });
+
+    it("excludes ciphers with no key for their org before calling into the SDK", async () => {
+      const missingOrgId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b29" as OrganizationId;
+      stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).nextState({
+        [id]: cipherData,
+        [otherId]: { ...cipherData, id: otherId, organizationId: missingOrgId },
+      } as Record<CipherId, CipherData>);
+      keyService.cipherDecryptionKeys$.mockReturnValue(
+        of({ orgKeys: { [orgId]: makeSymmetricCryptoKey(32) as OrgKey } } as CipherDecryptionKeys),
+      );
+      cipherEncryptionService.decryptManyFullWithFailures.mockResolvedValue([[viewOf(id)], []]);
+
+      await cipherService.decryptByIds(mockUserId, [id, otherId]);
+
+      expect(decryptedIds()).toEqual([id]);
+    });
+
+    it("makes no SDK call when every requested cipher is missing its org key", async () => {
+      keyService.cipherDecryptionKeys$.mockReturnValue(
+        of({ orgKeys: {} } as unknown as CipherDecryptionKeys),
+      );
+
+      const result = await cipherService.decryptByIds(mockUserId, [id]);
+
+      expect(result).toEqual([]);
+      expect(cipherEncryptionService.decryptManyFullWithFailures).not.toHaveBeenCalled();
+    });
+  });
+
   describe("getCipherForUrl localData freshness", () => {
     beforeEach(() => {
       Object.defineProperty(autofillSettingsService, "autofillOnPageLoadDefault$", {

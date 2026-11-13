@@ -225,6 +225,34 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
+  async decryptManyFullWithFailures(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherView[], Cipher[]]> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+
+          // A single call: the SDK converts the input in batches internally.
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .decrypt_list_full_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()));
+
+          const decryptedCiphers: CipherView[] = result.successes
+            .map((cipherView) => CipherView.fromSdkCipherView(cipherView))
+            .filter((cipherView): cipherView is CipherView => cipherView !== undefined);
+          const failedCiphers: Cipher[] = result.failures
+            .map((cipher) => Cipher.fromSdkCipher(cipher))
+            .filter((cipher): cipher is Cipher => cipher !== undefined);
+
+          return [decryptedCiphers, failedCiphers] as [CipherView[], Cipher[]];
+        }),
+      ),
+    );
+  }
+
   /**
    * Decrypts an attachment's content from a response object.
    *
