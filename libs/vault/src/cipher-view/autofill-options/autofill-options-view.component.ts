@@ -3,15 +3,19 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject, Input, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
-import { DesktopAutotypePairingUri } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
+import {
+  DESKTOP_APP_URI_PREFIX,
+  DesktopAutotypePairingUri,
+} from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -47,23 +51,29 @@ export class AutofillOptionsViewComponent {
   readonly activeUserId$ = getOptionalUserId(this.accountService.activeAccount$);
 
   private readonly configService = inject(ConfigService);
+  private readonly i18nService = inject(I18nService);
 
-  /** Whether desktop app URIs are shown as desktop apps. Desktop apps can be viewed on any client. */
-  private readonly showDesktopApps = toSignal(
+  /**
+   * Whether desktop app URIs are recognized as desktop apps, rather than shown as website URIs.
+   * Desktop apps can be viewed on any client. The feature flag is read once, when the view opens,
+   * so the URIs don't change while the user views them.
+   */
+  private readonly recognizeDesktopApps = toSignal(
     autotypeFeatureFlagState$(this.configService).pipe(
       map((state) => state === AutotypeFeatureFlagState.Ga),
+      take(1),
     ),
     { initialValue: false },
   );
 
   /**
-   * The login URIs to show. A desktop app URI is shown by the name of its paired desktop app, and
-   * its pairing URI is never shown.
+   * The login URIs to show. A desktop app URI is shown by the name of its paired desktop app, or
+   * as an invalid app pairing, and its pairing URI is never shown.
    */
   protected readonly uris = computed(() =>
     (this.loginUris() ?? []).map((login) => ({
       login,
-      desktopAppName: this.showDesktopApps() ? this.getDesktopAppName(login) : null,
+      desktopAppName: this.recognizeDesktopApps() ? this.getDesktopAppName(login) : null,
     })),
   );
 
@@ -82,12 +92,18 @@ export class AutofillOptionsViewComponent {
     this.platformUtilsService.launchUri(selectedUri);
   }
 
-  /** Returns the name of the paired desktop app, or `null` when the URI isn't a pairing URI. */
+  /**
+   * Returns the name of the paired desktop app, a label for an invalid app pairing when the desktop
+   * app URI isn't a valid pairing URI, or `null` when the URI isn't a desktop app URI.
+   */
   private getDesktopAppName(login: LoginUriView): string | null {
-    if (login.uri == null) {
+    if (!login.uri?.startsWith(DESKTOP_APP_URI_PREFIX)) {
       return null;
     }
 
-    return DesktopAutotypePairingUri.fromString(login.uri)?.data.appData.name ?? null;
+    return (
+      DesktopAutotypePairingUri.fromString(login.uri)?.data.appData.name ??
+      this.i18nService.t("invalidAppPairing")
+    );
   }
 }

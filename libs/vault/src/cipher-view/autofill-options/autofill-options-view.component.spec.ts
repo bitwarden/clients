@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -114,8 +114,23 @@ describe("AutofillOptionsViewComponent", () => {
       expect(getByTestId("copy-website")).toBeTruthy();
     });
 
-    it("shows a desktop app URI that is not a valid pairing URI as a website", () => {
-      render([DESKTOP_APP_URI_PREFIX]);
+    it.each([
+      `${DESKTOP_APP_URI_PREFIX}autotype?version=1.0.0&data=invalid`,
+      DESKTOP_APP_URI_PREFIX,
+    ])(
+      "shows a desktop app URI that is not a valid pairing URI as an invalid app pairing (%s)",
+      (uri) => {
+        render([uri]);
+
+        expect(getRows()[0].textContent).toContain("desktopApp");
+        expect(getByTestId("login-desktop-app").value).toBe("invalidAppPairing");
+        expect(getByTestId("launch-website")).toBeNull();
+        expect(getByTestId("copy-website")).toBeNull();
+      },
+    );
+
+    it("shows a desktop app URI with an uppercase prefix as a website", () => {
+      render([pairingUri.replace(DESKTOP_APP_URI_PREFIX, "DESKTOPAPP://")]);
 
       expect(getByTestId("login-website")).toBeTruthy();
       expect(getByTestId("login-desktop-app")).toBeNull();
@@ -128,6 +143,15 @@ describe("AutofillOptionsViewComponent", () => {
       expect(getByTestId("login-website", first)).toBeTruthy();
       expect(getByTestId("login-desktop-app", second)).toBeTruthy();
     });
+
+    it("keeps showing desktop apps when the feature flag turns off while the view is open", () => {
+      render([pairingUri]);
+
+      gaFeatureFlag$.next(false);
+      fixture.detectChanges();
+
+      expect(getByTestId("login-desktop-app").value).toBe("Notepad");
+    });
   });
 
   describe("when the windows-desktop-autotype-ga feature flag is off", () => {
@@ -138,10 +162,41 @@ describe("AutofillOptionsViewComponent", () => {
       expect(getByTestId("login-desktop-app")).toBeNull();
     });
 
-    it("shows desktop apps once the feature flag turns on", () => {
+    it("keeps showing desktop app URIs as websites when the feature flag turns on while the view is open", () => {
       render([pairingUri]);
 
       gaFeatureFlag$.next(true);
+      fixture.detectChanges();
+
+      expect(getByTestId("login-website")).toBeTruthy();
+      expect(getByTestId("login-desktop-app")).toBeNull();
+    });
+  });
+
+  describe("when the feature flag is read after the view opens", () => {
+    let lateGaFeatureFlag$: Subject<boolean>;
+
+    beforeEach(() => {
+      lateGaFeatureFlag$ = new Subject<boolean>();
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA ? lateGaFeatureFlag$ : of(false),
+      );
+    });
+
+    it("shows desktop apps once the feature flag is read as on", () => {
+      render([pairingUri]);
+
+      lateGaFeatureFlag$.next(true);
+      fixture.detectChanges();
+
+      expect(getByTestId("login-desktop-app").value).toBe("Notepad");
+    });
+
+    it("keeps showing desktop apps when the feature flag changes after it's read", () => {
+      render([pairingUri]);
+
+      lateGaFeatureFlag$.next(true);
+      lateGaFeatureFlag$.next(false);
       fixture.detectChanges();
 
       expect(getByTestId("login-desktop-app").value).toBe("Notepad");
