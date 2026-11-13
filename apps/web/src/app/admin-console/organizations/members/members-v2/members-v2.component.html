@@ -175,7 +175,8 @@
         @if (row.twoFactorEnabled) {
           <bit-icon
             name="bwi-lock"
-            class="tw-shrink-0 tw-text-muted"
+            class="tw-shrink-0 tw-rounded tw-text-muted focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+            tabindex="0"
             [ariaLabel]="'userUsingTwoStep' | i18n"
             [bitTooltip]="'userUsingTwoStep' | i18n"
           />
@@ -183,7 +184,8 @@
         @if (showEnrolledStatus(row)) {
           <bit-icon
             name="bwi-key"
-            class="tw-shrink-0 tw-text-muted"
+            class="tw-shrink-0 tw-rounded tw-text-muted focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+            tabindex="0"
             [ariaLabel]="'enrolledAccountRecovery' | i18n"
             [bitTooltip]="'enrolledAccountRecovery' | i18n"
           />
