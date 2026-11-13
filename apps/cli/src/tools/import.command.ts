@@ -9,6 +9,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -32,10 +34,25 @@ export class ImportCommand {
     private accountService: AccountService,
     private logService: LogService,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {}
 
-  async run(format: ImportType, filepath: string, options: OptionValues): Promise<Response> {
-    const organizationId = options.organizationid;
+  async run(
+    format: ImportType | undefined,
+    filepath: string | undefined,
+    options: OptionValues,
+  ): Promise<Response> {
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+
+    if (vfo1Enabled && options.organizationid) {
+      CliUtils.writeLn(
+        "--organizationid is deprecated and will be removed in a future CLI release. Use --vaultid instead",
+      );
+    }
+
+    const organizationId = vfo1Enabled
+      ? (options.vaultid ?? options.organizationid)
+      : options.organizationid;
     if (organizationId != null) {
       const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       if (!userId) {
@@ -46,14 +63,16 @@ export class ImportCommand {
       );
 
       if (organization == null) {
-        return Response.badRequest(
-          `You do not belong to an organization with the ID of ${organizationId}. Check the organization ID and sync your vault.`,
-        );
+        const errMessage = vfo1Enabled
+          ? `You do not belong to a vault with the ID of ${organizationId}. Check the vault ID and sync your vault.`
+          : `You do not belong to an organization with the ID of ${organizationId}. Check the organization ID and sync your vault.`;
+        return Response.badRequest(errMessage);
       }
 
       if (!organization.canAccessImport) {
+        const targetTerm = vfo1Enabled ? "vault" : "organization";
         return Response.badRequest(
-          "You are not authorized to import into the provided organization.",
+          `You are not authorized to import into the provided ${targetTerm}.`,
         );
       }
     }

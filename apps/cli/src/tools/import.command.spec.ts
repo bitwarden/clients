@@ -1,9 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -16,6 +20,7 @@ import {
   ImportServiceAbstraction,
   SdkImportSummary,
 } from "@bitwarden/importer-core";
+import { OrganizationUserType } from "@bitwarden/sdk-internal";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
@@ -30,6 +35,7 @@ describe("ImportCommand", () => {
   let accountService: MockProxy<AccountService>;
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
+  let configService: MockProxy<ConfigService>;
   let command: ImportCommand;
 
   const importerStub = (): Importer => ({
@@ -68,6 +74,7 @@ describe("ImportCommand", () => {
     accountService = mock<AccountService>();
     logService = mock<LogService>();
     i18nService = mock<I18nService>();
+    configService = mock<ConfigService>();
     command = new ImportCommand(
       importService,
       organizationService,
@@ -75,6 +82,7 @@ describe("ImportCommand", () => {
       accountService,
       logService,
       i18nService,
+      configService,
     );
 
     // KDBX is an SDK importer requiring a password + optional key file.
@@ -83,6 +91,9 @@ describe("ImportCommand", () => {
     );
     importService.sdkErrorMessageKey.mockReturnValue(undefined);
     importService.importWithSdk.mockResolvedValue(summary());
+
+    // Turn off all feature flags by default
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     jest.spyOn(CliUtils, "readBinaryFile").mockResolvedValue(new Uint8Array([1, 2, 3]));
     jest.spyOn(CliUtils, "getPassword").mockResolvedValue("file-password");
@@ -239,5 +250,80 @@ describe("ImportCommand", () => {
     expect(message).toContain("1 item(s) could not be imported and were skipped");
     expect(message).toContain("ssh-key-uuid");
     expect(message).toContain("SSH key could not be imported");
+  });
+
+  describe("organization and vault access", () => {
+    const orgId = "cf14adc3-aca5-4573-890a-f6fa231436d9" as OrganizationId;
+
+    // A member without the accessImportExport permission cannot import into the org.
+    const orgWithoutImportAccess = (): Organization =>
+      Object.assign(new Organization(), {
+        id: orgId,
+        type: OrganizationUserType.User,
+        permissions: { accessImportExport: false },
+      });
+
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: "user-id" } as Account);
+      importService.getImporter.mockReturnValue(importerStub());
+    });
+
+    describe("VFO1 feature flag disabled", () => {
+      it("returns the organization error when the organization is not found", async () => {
+        organizationService.organizations$.mockReturnValue(of([]));
+
+        const response = await command.run("bitwardencsv", "data.csv", {
+          organizationid: orgId,
+        });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          `You do not belong to an organization with the ID of ${orgId}. Check the organization ID and sync your vault.`,
+        );
+        expect(importService.import).not.toHaveBeenCalled();
+      });
+
+      it("returns the organization error when the user cannot import into the organization", async () => {
+        organizationService.organizations$.mockReturnValue(of([orgWithoutImportAccess()]));
+
+        const response = await command.run("bitwardencsv", "data.csv", {
+          organizationid: orgId,
+        });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          "You are not authorized to import into the provided organization.",
+        );
+        expect(importService.import).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("VFO1 feature flag enabled", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+      });
+
+      it("returns the vault error when the vault is not found", async () => {
+        organizationService.organizations$.mockReturnValue(of([]));
+
+        const response = await command.run("bitwardencsv", "data.csv", { vaultid: orgId });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          `You do not belong to a vault with the ID of ${orgId}. Check the vault ID and sync your vault.`,
+        );
+        expect(importService.import).not.toHaveBeenCalled();
+      });
+
+      it("returns the vault error when the user cannot import into the vault", async () => {
+        organizationService.organizations$.mockReturnValue(of([orgWithoutImportAccess()]));
+
+        const response = await command.run("bitwardencsv", "data.csv", { vaultid: orgId });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("You are not authorized to import into the provided vault.");
+        expect(importService.import).not.toHaveBeenCalled();
+      });
+    });
   });
 });
