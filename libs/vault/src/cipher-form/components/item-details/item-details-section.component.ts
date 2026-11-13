@@ -498,12 +498,12 @@ export class ItemDetailsSectionComponent implements OnInit {
         const bIsDefaultCollection = b.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
         return aIsDefaultCollection - bIsDefaultCollection;
       })
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        listName: c.name,
-        labelName: c.name,
-      }));
+      .map((c) => {
+        // The "My items" shared folder reads from i18n rather than its stored name, which the
+        // server may hold in older casing.
+        const name = c.isDefaultCollection ? this.i18nService.t("myItemsV2") : c.name;
+        return { id: c.id, name, listName: name, labelName: name };
+      });
 
     collectionsControl.reset();
     collectionsControl.enable();

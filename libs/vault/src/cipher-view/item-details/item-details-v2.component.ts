@@ -114,12 +114,23 @@ export class ItemDetailsV2Component {
       return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
       const key = this.vfo1Enabled() ? "sharedFolderAriaLabel" : "collectionAriaLabel";
-      return this.i18nService.t(key, item.name);
+      return this.i18nService.t(key, this.getItemName(item));
     } else if (item instanceof FolderView) {
       const key = this.vfo1Enabled() ? "myFolderAriaLabel" : "folderAriaLabel";
       return this.i18nService.t(key, item.name);
     }
     return "";
+  }
+
+  /**
+   * The item's name. The "My items" shared folder reads from i18n rather than its stored name,
+   * which the server may hold in older casing.
+   */
+  getItemName(item: Organization | CollectionView | FolderView): string {
+    if (item instanceof CollectionView && item.isDefaultCollection) {
+      return this.i18nService.t("myItemsV2");
+    }
+    return item.name;
   }
 
   getIconClass(item: Organization | CollectionView | FolderView): string {
