@@ -2,7 +2,7 @@ import { DestroyRef, NgZone } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { EMPTY, of } from "rxjs";
+import { BehaviorSubject, EMPTY, of } from "rxjs";
 
 import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-deletion";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
@@ -27,7 +27,10 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -72,6 +75,8 @@ describe("AppComponent (desktop)", () => {
   let keyService: MockProxy<KeyService>;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let accountSwitcherService: MockProxy<AccountSwitcherService>;
+  let authStatus$: BehaviorSubject<AuthenticationStatus>;
+  let authStatuses$: BehaviorSubject<Record<UserId, AuthenticationStatus>>;
 
   let broadcasterCallback: (message: any) => Promise<void>;
   let lastZoneRunResult: unknown;
@@ -100,6 +105,21 @@ describe("AppComponent (desktop)", () => {
     accountSwitcherService.resolveActiveAccount.mockResolvedValue({ action: "keep" });
 
     accountService.activeAccount$ = of({ id: userId } as any);
+    accountService.accounts$ = of({ [userId]: { email: "user@example.com" } } as any);
+
+    // State the app menu is built from.
+    authStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Locked);
+    authStatuses$ = new BehaviorSubject({ [userId]: AuthenticationStatus.Locked });
+    authService.authStatusFor$.mockReturnValue(authStatus$);
+    authService.authStatuses$ = authStatuses$;
+    const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+    vaultTimeoutSettingsService.availableVaultTimeoutActions$.mockReturnValue(
+      of([VaultTimeoutAction.Lock]),
+    );
+    const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+    const restrictedItemTypesService = mock<RestrictedItemTypesService>();
+    (restrictedItemTypesService as any).restricted$ = of([]);
     (accountService as any).showHeader$ = EMPTY;
     ngZone.run.mockImplementation((fn: () => unknown) => (lastZoneRunResult = fn()) as any);
     ngZone.runOutsideAngular.mockImplementation((fn: () => unknown) => fn() as any);
@@ -126,7 +146,7 @@ describe("AppComponent (desktop)", () => {
           mock<ToastService>(),
           mock<I18nService>(),
           ngZone,
-          mock<VaultTimeoutSettingsService>(),
+          vaultTimeoutSettingsService,
           keyService,
           mock<LegacyCompatKeyService>(),
           logService,
@@ -148,7 +168,7 @@ describe("AppComponent (desktop)", () => {
           userDecryptionOptionsService,
           mock<DestroyRef>(),
           documentLangSetter,
-          mock<RestrictedItemTypesService>(),
+          restrictedItemTypesService,
           mock<PinServiceAbstraction>(),
           mock<TokenService>(),
           mock<LockService>(),
@@ -159,7 +179,7 @@ describe("AppComponent (desktop)", () => {
           mock<SsoLoginServiceAbstraction>(),
           mock<AccountDeletionDialogService>(),
           premiumCheckoutPendingService,
-          mock<BillingAccountProfileStateService>(),
+          billingAccountProfileStateService,
           accountSwitcherService,
         ),
     );
@@ -231,6 +251,33 @@ describe("AppComponent (desktop)", () => {
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
 
     expect(syncService.fullSync).toHaveBeenCalledTimes(1);
+  });
+
+  describe("app menu", () => {
+    /** Whether the most recent menu sent to the main process shows the user as locked. */
+    const lastMenuShowsLocked = () => {
+      const menuUpdates = messagingService.send.mock.calls.filter(
+        ([command]) => command === "updateAppMenu",
+      );
+      const [, { updateRequest }] = menuUpdates[menuUpdates.length - 1] as [string, any];
+      return updateRequest.accounts[userId].isLocked;
+    };
+    const flush = () => new Promise(process.nextTick);
+
+    const unlock = () => {
+      authStatus$.next(AuthenticationStatus.Unlocked);
+      authStatuses$.next({ [userId]: AuthenticationStatus.Unlocked });
+    };
+
+    it("shows the user as unlocked once they unlock, without an unlocked message", async () => {
+      await flush();
+      expect(lastMenuShowsLocked()).toBe(true);
+
+      unlock();
+      await flush();
+
+      expect(lastMenuShowsLocked()).toBe(false);
+    });
   });
 
   describe("importVault message", () => {

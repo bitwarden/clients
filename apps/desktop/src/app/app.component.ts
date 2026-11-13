@@ -171,6 +171,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
+    // The menu enables items based on each account's lock state. The lock screen
+    // reports an unlock with an "unlocked" message, but not when it is torn down
+    // mid-unlock (e.g. by a passkey ceremony navigating away), so also follow the
+    // lock state directly.
+    this.authService.authStatuses$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      void this.updateAppMenu();
+    });
+
     this.ngZone.runOutsideAngular(() => {
       setTimeout(async () => {
         await this.updateAppMenu();
