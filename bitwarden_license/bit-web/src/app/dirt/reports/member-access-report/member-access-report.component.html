@@ -65,9 +65,13 @@
             class="tw-mr-3"
           ></bit-avatar>
           <div class="tw-flex tw-flex-col">
-            <button type="button" bitLink (click)="edit(row)">
-              {{ row.name }}
-            </button>
+            @if (canManageUsers()) {
+              <button type="button" bitLink (click)="edit(row)">
+                {{ row.name }}
+              </button>
+            } @else {
+              <span>{{ row.name }}</span>
+            }
             <div class="tw-text-sm tw-mt-1 tw-text-muted">
               {{ row.email }}
             </div>
