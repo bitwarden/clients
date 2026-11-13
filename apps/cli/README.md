@@ -82,3 +82,13 @@ If the desktop app is installed in a non-standard location, set
 ### Help Center
 
 We provide detailed documentation and examples for using the CLI in our help center at https://help.bitwarden.com/article/cli/.
+
+### Proxy settings
+
+Set `https_proxy` for HTTPS requests or `http_proxy` for HTTP requests. Set `all_proxy` as a
+fallback for either protocol. The CLI also accepts uppercase names. Lowercase values take
+precedence when both forms are set.
+
+Set `no_proxy` or `NO_PROXY` to bypass the proxy for selected hosts. Use a comma-separated or
+space-separated list. Entries can specify an exact host, a domain suffix with a leading dot,
+or a host and port. Set `no_proxy=*` to bypass all proxies. These rules also apply to redirects.
