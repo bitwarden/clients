@@ -86,22 +86,6 @@ switch (platform) {
           "@bitwarden/desktop-napi-linux-arm64-gnu",
         );
         break;
-      case "arm":
-        nativeBinding = loadFirstAvailable(
-          ["desktop_napi.linux-arm-gnu.node"],
-          "@bitwarden/desktop-napi-linux-arm-gnu",
-        );
-        localFileExisted = existsSync(join(__dirname, "desktop_napi.linux-arm-gnueabihf.node"));
-        try {
-          if (localFileExisted) {
-            nativeBinding = require("./desktop_napi.linux-arm-gnueabihf.node");
-          } else {
-            nativeBinding = require("@bitwarden/desktop-napi-linux-arm-gnueabihf");
-          }
-        } catch (e) {
-          loadError = e;
-        }
-        break;
       default:
         throw new Error(`Unsupported architecture on Linux: ${arch}`);
     }
