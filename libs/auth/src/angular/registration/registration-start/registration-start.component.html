@@ -1,9 +1,7 @@
 <ng-container *ngIf="state === RegistrationStartState.USER_DATA_ENTRY">
   <form [formGroup]="formGroup" [bitSubmit]="submit">
-    <auth-registration-env-selector
-      (selectedRegionChange)="handleSelectedRegionChange($event)"
-    ></auth-registration-env-selector>
-
+    @let server = serverSelection.selectedServer$ | async;
+    @let selectedRegion = server === Region.SelfHosted ? null : server;
     <bit-form-field>
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
       <input
@@ -13,7 +11,61 @@
         formControlName="email"
         [attr.readonly]="emailReadonly ? true : null"
       />
+      @if (!serverSelection.hidden) {
+        <bit-hint>
+          {{ "creatingAccountOn" | i18n }}:
+          <button
+            id="register-start_button_server"
+            type="button"
+            bitLink
+            #serverTrigger="menuTrigger"
+            [bitMenuTriggerFor]="serverMenu"
+            [endIcon]="serverTrigger.isOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"
+          >
+            {{ selectedRegion?.domain ?? ("selfHostedServer" | i18n) }}
+          </button>
+        </bit-hint>
+      }
     </bit-form-field>
+
+    <bit-menu #serverMenu>
+      @for (region of serverSelection.availableRegions$ | async; track region.key) {
+        <button
+          [id]="'register-start_button_server-' + region.key"
+          type="button"
+          bitMenuItem
+          [attr.aria-pressed]="selectedRegion?.key === region.key"
+          (click)="serverSelection.selectRegion(region)"
+        >
+          <bit-icon
+            slot="start"
+            name="bwi-check"
+            fixedWidth
+            class="tw-text-xs"
+            [class.tw-invisible]="selectedRegion?.key !== region.key"
+          ></bit-icon>
+          {{ region.domain }}
+        </button>
+      }
+      @if (serverSelection.selfHostedAvailable) {
+        <button
+          id="register-start_button_server-self-hosted"
+          type="button"
+          bitMenuItem
+          [attr.aria-pressed]="server === Region.SelfHosted"
+          (click)="serverSelection.selectSelfHosted()"
+        >
+          <bit-icon
+            slot="start"
+            name="bwi-check"
+            fixedWidth
+            class="tw-text-xs"
+            [class.tw-invisible]="server !== Region.SelfHosted"
+          ></bit-icon>
+          {{ "selfHostedServer" | i18n }}
+        </button>
+      }
+    </bit-menu>
 
     <bit-form-field>
       <bit-label>{{ "name" | i18n }}</bit-label>

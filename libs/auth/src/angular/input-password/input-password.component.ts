@@ -4,6 +4,7 @@ import {
   Component,
   DestroyRef,
   EventEmitter,
+  inject,
   Input,
   OnInit,
   Output,
@@ -13,6 +14,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
+import { ServerSelectionService } from "@bitwarden/angular/auth/server-selection";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   PasswordStrengthScore,
@@ -22,6 +24,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { Region } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -42,11 +45,13 @@ import {
   LinkModule,
   ToastService,
   Translation,
+  TypographyModule,
 } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { DEFAULT_KDF_CONFIG, KdfConfig } from "@bitwarden/legacy-crypto";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
@@ -109,6 +114,7 @@ interface InputPasswordForm {
 @Component({
   selector: "auth-input-password",
   templateUrl: "./input-password.component.html",
+  providers: [safeProvider(ServerSelectionService)],
   imports: [
     CommonModule,
     AsyncActionsModule,
@@ -123,6 +129,7 @@ interface InputPasswordForm {
     PasswordStrengthV2Component,
     ReactiveFormsModule,
     LinkModule,
+    TypographyModule,
   ],
 })
 export class InputPasswordComponent implements OnInit {
@@ -171,6 +178,8 @@ export class InputPasswordComponent implements OnInit {
   protected secondaryButtonTextStr: string = "";
 
   protected InputPasswordFlow = InputPasswordFlow;
+  protected readonly Region = Region;
+  protected readonly serverSelection = inject(ServerSelectionService);
   private kdfConfig: KdfConfig | null = null;
   private minHintLength = 0;
   protected maxHintLength = 50;
