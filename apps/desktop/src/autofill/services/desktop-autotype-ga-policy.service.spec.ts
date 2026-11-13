@@ -346,4 +346,43 @@ describe("DesktopAutotypeGaPolicyService", () => {
       subscription.unsubscribe();
     });
   });
+
+  describe("autotypeGaAlwaysAskBeforeFilling$", () => {
+    const policyWith = (data: unknown, enabled = true, organizationId = "org-1"): Policy =>
+      ({ enabled, data, organizationId }) as Policy;
+
+    const latest = () => firstValueFrom(service.autotypeGaAlwaysAskBeforeFilling$.pipe(take(1)));
+
+    it("is true when any enabled policy has an explicit true", async () => {
+      mockPoliciesSubject.next([
+        policyWith({ alwaysAskBeforeFilling: false }, true, "org-a"),
+        policyWith({ alwaysAskBeforeFilling: true }, false, "org-0"),
+        policyWith({ alwaysAskBeforeFilling: true }, true, "org-z"),
+      ]);
+
+      expect(await latest()).toBe(true);
+    });
+
+    it("is false when no enabled policy requires it", async () => {
+      mockPoliciesSubject.next([
+        policyWith(null),
+        policyWith({ alwaysAskBeforeFilling: false }),
+        policyWith({ alwaysAskBeforeFilling: true }, false),
+      ]);
+
+      expect(await latest()).toBe(false);
+    });
+
+    it("emits false while locked or when the GA flag is off", async () => {
+      mockPoliciesSubject.next([policyWith({ alwaysAskBeforeFilling: true })]);
+      featureFlagSubject.next(AutotypeFeatureFlagState.Mvp);
+
+      expect(await latest()).toBe(false);
+
+      featureFlagSubject.next(AutotypeFeatureFlagState.Ga);
+      mockAuthStatusSubject.next(AuthenticationStatus.Locked);
+
+      expect(await latest()).toBe(false);
+    });
+  });
 });
