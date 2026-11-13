@@ -100,19 +100,18 @@ export class WebSetInitialPasswordService
      *
      * When an invite is stashed, clear it (both direct + open state keys) and its
      * /accept-organization or /join redirect so `deepLinkGuard` doesn't replay it after JIT.
-     * The exception is an open invite while `InviteLinkAutoConfirm` is on: keep it and its /join
-     * redirect so `deepLinkGuard` sends the user to AcceptOrgOpenInviteComponent, which runs the
-     * Admin Console accept flow.
      * Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard`
      * to replay.
+     *
+     * Exception: while `InviteLinkAutoConfirm` is on, keep a stashed open invite and its saved
+     * /join redirect so `deepLinkGuard` sends the user to AcceptOrgOpenInviteComponent, which
+     * runs the Admin Console accept flow.
      */
     const invite = await this.organizationInviteService.getOrganizationInvite();
     const inviteLinkAutoConfirmEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.InviteLinkAutoConfirm,
     );
 
-    // Keep an open org invite and its saved /join URL, so deepLinkGuard sends the user
-    // to the accept open org invite component.
     if (invite != null && !(inviteLinkAutoConfirmEnabled && invite.kind === OrgInviteKind.Open)) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();
@@ -126,14 +125,19 @@ export class WebSetInitialPasswordService
     await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
     // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
-    // Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard` to replay.
+    //
+    // When an invite is stashed, clear it and its /accept-organization or /join redirect so
+    // deepLinkGuard doesn't replay it after JIT. Without a stashed invite, the redirect is an
+    // unrelated deep link for `deepLinkGuard` to replay.
+    //
+    // Exception: while InviteLinkAutoConfirm is on, keep a stashed open invite and its saved /join
+    // redirect so deepLinkGuard sends the user to AcceptOrgOpenInviteComponent, which runs the
+    // Admin Console accept flow.
     const invite = await this.organizationInviteService.getOrganizationInvite();
     const inviteLinkAutoConfirmEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.InviteLinkAutoConfirm,
     );
 
-    // Keep an open org invite and its saved /join URL, so deepLinkGuard sends the user
-    // to the accept open org invite component.
     if (invite != null && !(inviteLinkAutoConfirmEnabled && invite.kind === OrgInviteKind.Open)) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();

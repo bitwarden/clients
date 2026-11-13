@@ -26,17 +26,17 @@ export class ConfirmKeyConnectorDomainComponent {
 
   onBeforeNavigation = async () => {
     // Key Connector conversion accepts a stashed org invite on the server, so clear the stashed
-    // invite and its accept URL redirect. The exception is an open invite while
-    // InviteLinkAutoConfirm is on: keep it and its /join redirect so the user lands on the accept
-    // open org invite component. Without a stashed invite, the redirect is an
+    // invite and its accept URL redirect. Without a stashed invite, the redirect is an
     // unrelated deep link which we don't want to clear.
+    //
+    // Exception: while InviteLinkAutoConfirm is on, keep a stashed open invite and its saved /join
+    // redirect so deepLinkGuard sends the user to AcceptOrgOpenInviteComponent, which runs the
+    // Admin Console accept flow.
     const invite = await this.organizationInviteService.getOrganizationInvite();
     const inviteLinkAutoConfirmEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.InviteLinkAutoConfirm,
     );
 
-    // Keep an open org invite and its saved /join URL, so deepLinkGuard sends the user
-    // to the accept open org invite component.
     if (invite != null && !(inviteLinkAutoConfirmEnabled && invite.kind === OrgInviteKind.Open)) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();
