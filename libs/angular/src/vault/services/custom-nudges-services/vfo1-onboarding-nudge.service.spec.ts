@@ -1,9 +1,7 @@
 import { TestBed } from "@angular/core/testing";
-import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, throwError } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/user-core";
 
@@ -30,9 +28,7 @@ function gaDatePlusMonths(months: number): Date {
 
 describe("Vfo1OnboardingNudgeService", () => {
   let service: Vfo1OnboardingNudgeService;
-  let activeAccount$: BehaviorSubject<Account | null>;
-  let accountService: { activeAccount$: unknown };
-  let logService: MockProxy<LogService>;
+  let accounts$: BehaviorSubject<Record<UserId, AccountInfo>>;
   let fakeStateProvider: FakeStateProvider;
   const userId = "user-id" as UserId;
   const nudgeType = NudgeType.Vfo1NewExperience;
@@ -41,7 +37,7 @@ describe("Vfo1OnboardingNudgeService", () => {
   const insideWindow = gaDatePlusMonths(1);
 
   function setCreationDate(creationDate: Date) {
-    activeAccount$.next({ id: userId, creationDate } as Account);
+    accounts$.next({ [userId]: { creationDate } as AccountInfo });
   }
 
   beforeEach(() => {
@@ -49,9 +45,7 @@ describe("Vfo1OnboardingNudgeService", () => {
     jest.setSystemTime(insideWindow);
 
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
-    activeAccount$ = new BehaviorSubject<Account | null>(null);
-    accountService = { activeAccount$ };
-    logService = mock<LogService>();
+    accounts$ = new BehaviorSubject<Record<UserId, AccountInfo>>({});
 
     setCreationDate(preGaAccount);
 
@@ -59,8 +53,7 @@ describe("Vfo1OnboardingNudgeService", () => {
       providers: [
         Vfo1OnboardingNudgeService,
         { provide: StateProvider, useValue: fakeStateProvider },
-        { provide: AccountService, useValue: accountService },
-        { provide: LogService, useValue: logService },
+        { provide: AccountService, useValue: { accounts$ } },
       ],
     });
 
@@ -148,8 +141,8 @@ describe("Vfo1OnboardingNudgeService", () => {
       });
     });
 
-    it("reports the nudge as dismissed when the profile creation date cannot be read", async () => {
-      accountService.activeAccount$ = throwError(() => new Error("network error"));
+    it("reports the nudge as dismissed when the account is not found", async () => {
+      accounts$.next({});
 
       const result = await firstValueFrom(service.nudgeStatus$(nudgeType, userId));
 
@@ -157,7 +150,6 @@ describe("Vfo1OnboardingNudgeService", () => {
         hasBadgeDismissed: true,
         hasSpotlightDismissed: true,
       });
-      expect(logService.error).toHaveBeenCalledWith("Error getting profile creation date");
     });
   });
 

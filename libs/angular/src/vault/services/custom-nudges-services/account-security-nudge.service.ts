@@ -1,13 +1,12 @@
 import { Injectable, inject } from "@angular/core";
 import { Observable, combineLatest, from, of } from "rxjs";
-import { catchError, map, switchMap } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService } from "@bitwarden/key-management";
 
@@ -19,20 +18,14 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 @Injectable({ providedIn: "root" })
 export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
   private accountService = inject(AccountService);
-  private logService = inject(LogService);
   private pinService = inject(PinServiceAbstraction);
   private biometricStateService = inject(BiometricStateService);
   private policyService = inject(PolicyService);
   private organizationService = inject(OrganizationService);
 
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
-    const profileDate$ = this.accountService.activeAccount$.pipe(
-      map((account) => account?.creationDate ?? new Date()),
-      catchError(() => {
-        this.logService.error("Failed to load profile date:");
-        // Default to today to ensure the nudge is shown in case of an error
-        return of(new Date());
-      }),
+    const profileDate$ = this.accountService.accounts$.pipe(
+      map((accounts) => accounts[userId]?.creationDate ?? new Date()),
     );
 
     return combineLatest([

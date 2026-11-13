@@ -1,9 +1,7 @@
 import { Injectable } from "@angular/core";
-import { Observable, combineLatest, map, of } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { Observable, combineLatest, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 
@@ -32,20 +30,13 @@ export class Vfo1OnboardingNudgeService extends DefaultSingleNudgeService {
   constructor(
     stateProvider: StateProvider,
     private accountService: AccountService,
-    private logService: LogService,
   ) {
     super(stateProvider);
   }
 
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
-    const profileDate$ = this.accountService.activeAccount$.pipe(
-      map((account) => account?.creationDate ?? new Date()),
-      catchError(() => {
-        this.logService.error("Error getting profile creation date");
-        // Default to today, which reads as an account created after GA and hides the message —
-        // safer than telling a brand new user that a vault they have never seen has changed.
-        return of(new Date());
-      }),
+    const profileDate$ = this.accountService.accounts$.pipe(
+      map((accounts) => accounts[userId]?.creationDate ?? new Date()),
     );
 
     return combineLatest([profileDate$, this.getNudgeStatus$(nudgeType, userId)]).pipe(
