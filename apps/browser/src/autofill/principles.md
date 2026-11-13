@@ -3,7 +3,7 @@
 > notifications, and passkey / FIDO2 handling). Other clients' autofill is out of scope.
 >
 > **Audience:** Engineers should weigh their decisions, and code generators should align their
-> implementation, against the principles described within this document. The design documents
+> implementation, with the principles in this document. The design documents
 > listed in the [module README](./README.md) apply these principles to specific surfaces.
 
 # Autofill Principles
@@ -16,8 +16,8 @@ principle should prompt its proposers and stakeholders to question whether its i
 ## Every dependency is attack surface
 
 Code bundled into a content script is shipped into every page the user visits, and it executes where
-decrypted credentials are placed. A dependency there is a supply-chain risk with unusually direct
-access to user secrets, so injected code avoids dependencies it does not need.
+decrypted credentials are placed. A dependency there is a supply-chain risk with direct
+access to user data, so our content scripts should minimize their third-party dependencies.
 
 - **Prefer platform APIs.** Reach for the DOM and Web Extension APIs before a library. A helper that
   is a few lines of local code is preferable to a package that does the same.
@@ -29,9 +29,6 @@ access to user secrets, so injected code avoids dependencies it does not need.
   what it adds to the bundle.
   [Lit](https://lit.dev/) is the established choice for injected UI; prefer it over introducing
   another rendering library.
-- **Import narrowly from shared libraries.** Content scripts are separate webpack entry points.
-  Importing from a shared barrel can pull unrelated code (and its transitive dependencies) into every
-  page. Import the specific module, or keep the code local to the content script.
 
 ## Keep the injected data footprint small
 
@@ -91,8 +88,7 @@ chosen autofill experience.
 - **Act only on the user's delegation.** Autofill acts with the user's data only when the user has
   delegated that action, either by directly interacting with an experience or through a preference
   they (or their organization's policy) have established. Default settings are part of that
-  delegation: installing the extension is a decision the user makes with access to its documentation
-  and onboarding. A default setting that carries risk must therefore make that risk clear or be
+  delegation. A default setting that carries risk must therefore make that risk clear or be
   clarified as the user sets up.
 - **Page signals are hints, not controls.** Attributes such as `autocomplete="off"` inform field
   classification; they are not an opt-out from autofill.
@@ -163,8 +159,8 @@ generally beyond what autofill can defend against: a script running in the page 
 user types or Bitwarden fills into it, and a compromised legitimate site is usually indistinguishable
 from the uncompromised one. Autofill does not guarantee protection from such a page.
 
-Autofill still makes a basic, best-effort attempt to resist hostile pages, provided the defense is
-cheap and does not degrade legitimate pages. Where the autofill experience must degrade as a
+Autofill still makes a basic, best-effort attempt to resist hostile pages, provided the cost of defense is
+proportionate to the risk to the user and does not degrade legitimate pages. Where the autofill experience must degrade as a
 consequence of safety or performance, it should do so gracefully.
 
 - **Fill only where the credential belongs.** Gate fills on the saved login's URIs matching where the
