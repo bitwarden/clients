@@ -121,7 +121,8 @@ export class UriOptionComponent implements ControlValueAccessor {
    * The desktop apps that can be selected for a desktop app URI. Each option is labeled with the
    * app's name, and its value is the Desktop Autotype Pairing URI string saved as the login URI.
    */
-  // TODO: Add the apps that can be paired to the options for new desktop app URIs
+  // TODO: Add the apps that can be paired to the options for new desktop app URIs. This will be
+  // implemented in https://bitwarden.atlassian.net/browse/PM-38788
   protected readonly appOptions = computed(() => {
     const savedAppOption = this.savedAppOption();
     return savedAppOption == null ? [] : [savedAppOption];
