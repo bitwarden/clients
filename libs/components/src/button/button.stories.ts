@@ -145,6 +145,20 @@ export const AllVariants: Story = {
         </div>
         <div class="tw-flex tw-gap-4">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="accentPrimary" bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
+            <p class="tw-m-0" bitTypography="helper">accentPrimary</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="accentPrimaryOutline" bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
+            <p class="tw-m-0" bitTypography="helper">accentPrimaryOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="accentPrimaryGhost" bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
+            <p class="tw-m-0" bitTypography="helper">accentPrimaryGhost</p>
+          </div>
+        </div>
+        <div class="tw-flex tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
             <button buttonType="danger" bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
             <p class="tw-m-0" bitTypography="helper">danger</p>
           </div>

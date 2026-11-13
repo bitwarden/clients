@@ -127,6 +127,7 @@ module.exports = {
         "accent-primary-soft": "var(--color-bg-accent-primary-soft)",
         "accent-primary-medium": "var(--color-bg-accent-primary-medium)",
         "accent-primary-strong": "var(--color-bg-accent-primary-strong)",
+        "accent-primary-stronger": "var(--color-bg-accent-primary-stronger)",
         "accent-primary": "var(--color-bg-accent-primary)",
         "accent-secondary-soft": "var(--color-bg-accent-secondary-soft)",
         "accent-secondary-medium": "var(--color-bg-accent-secondary-medium)",

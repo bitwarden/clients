@@ -10,7 +10,7 @@ import { IconButtonModule } from "../icon-button";
 import { BitwardenIcon } from "../shared/icon";
 import { TypographyModule } from "../typography";
 
-export type CalloutTypes = "success" | "info" | "warning" | "danger" | "subtle";
+export type CalloutTypes = "success" | "info" | "warning" | "danger" | "subtle" | "accent-primary";
 
 const defaultIcon: Record<CalloutTypes, BitwardenIcon> = {
   success: "bwi-check-circle",
@@ -18,6 +18,7 @@ const defaultIcon: Record<CalloutTypes, BitwardenIcon> = {
   warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
   subtle: "bwi-info-circle",
+  "accent-primary": "bwi-info-circle",
 };
 
 const defaultI18n: Partial<Record<CalloutTypes, string>> = {
@@ -104,6 +105,8 @@ export class CalloutComponent implements OnInit {
         return "tw-bg-bg-warning-soft tw-border-border-warning-soft";
       case "subtle":
         return "tw-bg-bg-secondary tw-border-border-base";
+      case "accent-primary":
+        return "tw-bg-bg-accent-primary-soft tw-border-border-accent-primary-soft";
     }
   });
 
@@ -119,6 +122,8 @@ export class CalloutComponent implements OnInit {
         return "!tw-text-fg-warning-strong";
       case "subtle":
         return "!tw-text-fg-heading";
+      case "accent-primary":
+        return "!tw-text-fg-accent-primary-strong";
     }
   });
 

@@ -64,6 +64,7 @@ export const AllVariants: Story = {
         <bit-callout type="warning" title="Warning">${calloutContent}</bit-callout>
         <bit-callout type="danger" title="Danger">${calloutContent}</bit-callout>
         <bit-callout type="subtle" title="Subtle">${calloutContent}</bit-callout>
+        <bit-callout type="accent-primary" title="Accent Primary">${calloutContent}</bit-callout>
       </div>
     `,
   }),
