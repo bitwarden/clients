@@ -10,9 +10,14 @@ import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
+import {
+  OrgInviteKind,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -40,6 +45,7 @@ export class WebSetInitialPasswordService
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private organizationInviteService: OrganizationInviteService,
     private routerService: RouterService,
+    private configService: ConfigService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
     protected registerSdkService: RegisterSdkService,
     protected unlockService: UnlockService,
@@ -96,8 +102,17 @@ export class WebSetInitialPasswordService
      * /accept-organization or /join redirect so `deepLinkGuard` doesn't replay it after JIT.
      * Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard`
      * to replay.
+     *
+     * Exception: while `InviteLinkAutoConfirm` is on, keep a stashed open invite and its saved
+     * /join redirect so `deepLinkGuard` sends the user to AcceptOrgOpenInviteComponent, which
+     * runs the Admin Console accept flow.
      */
-    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    const inviteLinkAutoConfirmEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.InviteLinkAutoConfirm,
+    );
+
+    if (invite != null && !(inviteLinkAutoConfirmEnabled && invite.kind === OrgInviteKind.Open)) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();
     }
@@ -110,8 +125,20 @@ export class WebSetInitialPasswordService
     await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
     // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
-    // Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard` to replay.
-    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+    //
+    // When an invite is stashed, clear it and its /accept-organization or /join redirect so
+    // deepLinkGuard doesn't replay it after JIT. Without a stashed invite, the redirect is an
+    // unrelated deep link for `deepLinkGuard` to replay.
+    //
+    // Exception: while InviteLinkAutoConfirm is on, keep a stashed open invite and its saved /join
+    // redirect so deepLinkGuard sends the user to AcceptOrgOpenInviteComponent, which runs the
+    // Admin Console accept flow.
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    const inviteLinkAutoConfirmEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.InviteLinkAutoConfirm,
+    );
+
+    if (invite != null && !(inviteLinkAutoConfirmEnabled && invite.kind === OrgInviteKind.Open)) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();
     }
