@@ -91,7 +91,7 @@ import {
   VaultItemFilterOption,
 } from "../../tokens/vault-item-filter.token";
 import { isRowActivationClick } from "../../utils/row-activation";
-import { sharedFolderName } from "../../utils/shared-folder-name";
+import { sharedFolderDisplayName, sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
   matchesFavorite,
@@ -597,12 +597,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
-  /** Each collection's own name, without its parent path — see {@link sharedFolderName}. */
+  /** Each shared folder's display name — see {@link sharedFolderLabel}. */
   private readonly collectionNames = computed(() =>
     this.nameMap(
       this.collections().map((collection) => ({
         id: collection.id,
-        name: sharedFolderName(collection),
+        name: this.sharedFolderLabel(collection),
       })),
     ),
   );
@@ -1271,6 +1271,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
+   * A shared folder's display name (see {@link sharedFolderDisplayName}) without its parent path
+   * (see {@link sharedFolderName}).
+   */
+  private sharedFolderLabel(collection: CollectionView): string {
+    return sharedFolderName({ name: sharedFolderDisplayName(collection, this.i18nService) });
+  }
+
+  /**
    * Builds the shared folder tree via {@link getNestedCollectionTree}, the same name-delimited
    * nesting used for the collections sidebar — so a collection whose parent path is missing
    * (or belongs to a different organization) nests and sorts identically here and there, rather
@@ -1288,7 +1296,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   ): FilterOptionNode<CollectionId>[] {
     const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
       value: node.node.id,
-      label: sharedFolderName(node.node),
+      label: this.sharedFolderLabel(node.node),
       options: node.children.map(toNode),
     });
     return getNestedCollectionTree([...sharedFolders])
