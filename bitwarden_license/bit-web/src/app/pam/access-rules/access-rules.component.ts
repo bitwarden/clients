@@ -20,7 +20,6 @@ import {
   accessRuleMatchesFilter,
   classifyAccessRuleError,
   copyRuleName,
-  resolveCollectionNames,
   filterRulesToToggle,
 } from "@bitwarden/bit-pam";
 import {
@@ -130,18 +129,42 @@ export class AccessRulesComponent {
       BitTableV2Component,
     );
 
+  /** Collection name by id, which the search matches a rule's collections against. */
+  private readonly collectionNamesById = computed(
+    () => new Map<string, string>(this.collections().map((c) => [c.id, c.name])),
+  );
+
   /** The table's row test, given the search term and the chips' selections keyed by chip. */
   protected readonly rowMatchesFilter = (
     rule: AccessRuleView,
     values: AccessRuleFilterValues,
-  ): boolean => {
-    const ruleCollectionIds = rule.collections.map(uuidAsString);
-    return accessRuleMatchesFilter(
-      { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
-      resolveCollectionNames(ruleCollectionIds, this.collections()),
+  ): boolean =>
+    accessRuleMatchesFilter(
+      { name: rule.name, enabled: rule.enabled, collections: rule.collections.map(uuidAsString) },
+      this.collectionNamesById(),
       toAccessRuleFilter(values),
     );
-  };
+
+  /**
+   * Each Shared folders option's count: the rules under the other filters that carry it. One pass
+   * over the rules, where the table's own count would re-filter them for every option.
+   */
+  protected readonly collectionCounts = computed(() => {
+    const values: AccessRuleFilterValues = {
+      ...this.rulesTable()?.filterValues(),
+      collection: null,
+    };
+    const counts = new Map<string, number>();
+    for (const rule of this.rules()) {
+      if (!this.rowMatchesFilter(rule, values)) {
+        continue;
+      }
+      for (const id of new Set(rule.collections.map(uuidAsString))) {
+        counts.set(id, (counts.get(id) ?? 0) + 1);
+      }
+    }
+    return counts;
+  });
 
   /** The rows the filters leave visible, which select-all spans. */
   private readonly selectableRows = computed(() => this.rulesTable()?.filtered() ?? []);
