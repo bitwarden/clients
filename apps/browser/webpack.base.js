@@ -372,7 +372,8 @@ module.exports.buildConfig = function buildConfig(params) {
             },
             name: "popup/vendor",
             chunks: (chunk) => {
-              return chunk.name === "popup/main";
+              // The app is loaded after `load` as `popup/app` (see src/popup/main.ts).
+              return chunk.name === "popup/main" || chunk.name === "popup/app";
             },
           },
           angular: {
@@ -384,7 +385,8 @@ module.exports.buildConfig = function buildConfig(params) {
             },
             name: "popup/vendor-angular",
             chunks: (chunk) => {
-              return chunk.name === "popup/main";
+              // The app is loaded after `load` as `popup/app` (see src/popup/main.ts).
+              return chunk.name === "popup/main" || chunk.name === "popup/app";
             },
           },
         },

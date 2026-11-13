@@ -4,22 +4,16 @@ import { filter, firstValueFrom, interval, of, switchMap, takeWhile, timeout } f
 
 import { ScrollOptions } from "./abstractions/browser-popup-utils.abstractions";
 import { BrowserApi } from "./browser-api";
+import {
+  POPUP_WIDTH_STORAGE_KEY,
+  PopupWidthOption,
+  PopupWidthOptions,
+  isPopupLocation,
+  parsePopupWidthOption,
+} from "./popup-view";
 
-/**
- *
- * Value represents width in pixels
- */
-export const PopupWidthOptions = Object.freeze({
-  default: 480,
-  wide: 600,
-  narrow: 380,
-});
-
-type PopupWidthOptions = typeof PopupWidthOptions;
-export type PopupWidthOption = keyof PopupWidthOptions;
-
-/** localStorage key used to cache the user's configured popup width. */
-export const POPUP_WIDTH_STORAGE_KEY = "bw-popup-width";
+export { POPUP_WIDTH_STORAGE_KEY, PopupWidthOptions };
+export type { PopupWidthOption };
 
 export default class BrowserPopupUtils {
   /**
@@ -81,10 +75,7 @@ export default class BrowserPopupUtils {
    * @param win - The passed window object.
    */
   static inPopup(win: Window): boolean {
-    return (
-      win.location.href.indexOf("uilocation=") === -1 ||
-      win.location.href.indexOf("uilocation=popup") > -1
-    );
+    return isPopupLocation(win.location.href);
   }
 
   /**
@@ -287,9 +278,9 @@ export default class BrowserPopupUtils {
   private static async getPopupWidth(): Promise<number> {
     // Popup context: localStorage is synchronously available
     if (typeof localStorage !== "undefined") {
-      const storedWidth = localStorage.getItem(POPUP_WIDTH_STORAGE_KEY);
-      if (storedWidth != null && storedWidth in PopupWidthOptions) {
-        return PopupWidthOptions[storedWidth as PopupWidthOption];
+      const option = parsePopupWidthOption(localStorage.getItem(POPUP_WIDTH_STORAGE_KEY));
+      if (option != null) {
+        return PopupWidthOptions[option];
       }
     }
 
@@ -308,8 +299,9 @@ export default class BrowserPopupUtils {
       ) {
         storedWidth = JSON.parse(storedWidth.value);
       }
-      if (storedWidth != null && storedWidth in PopupWidthOptions) {
-        return PopupWidthOptions[storedWidth as PopupWidthOption];
+      const option = parsePopupWidthOption(storedWidth);
+      if (option != null) {
+        return PopupWidthOptions[option];
       }
     } catch {
       // Ignore storage errors and fall through to the default
