@@ -5,11 +5,21 @@ import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
-import { AuthRoute } from "@bitwarden/angular/auth/constants";
-import { getOpenOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
-import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ExpiredIcon } from "@bitwarden/assets/svg";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import {
+  InputPasswordComponent,
+  InputPasswordFlow,
+  PasswordInputResult,
+} from "@bitwarden/auth/angular";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import {
+  LoginStrategyServiceAbstraction,
+  LoginSuccessHandlerService,
+  PasswordLoginCredentials,
+} from "@bitwarden/auth/common";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
@@ -25,8 +35,6 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   AnonLayoutWrapperDataService,
   ButtonModule,
@@ -34,16 +42,10 @@ import {
   IconModule,
 } from "@bitwarden/components";
 
-import {
-  LoginStrategyServiceAbstraction,
-  LoginSuccessHandlerService,
-  PasswordLoginCredentials,
-} from "../../../common";
-import {
-  InputPasswordComponent,
-  InputPasswordFlow,
-} from "../../input-password/input-password.component";
-import { PasswordInputResult } from "../../input-password/password-input-result";
+import { PremiumInterestStateService } from "../../../billing/services/premium-interest/premium-interest-state.service.abstraction";
+import { JslibModule } from "../../../jslib.module";
+import { AuthRoute } from "../../constants";
+import { getOpenOrgInviteStatusErrorUi } from "../../organization-invite";
 
 import { RegistrationFinishService } from "./registration-finish.service";
 

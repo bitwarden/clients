@@ -6,6 +6,9 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of, BehaviorSubject } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LoginEmailService } from "@bitwarden/auth/common";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { ClientType } from "@bitwarden/common/enums";
@@ -19,8 +22,6 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
@@ -39,7 +40,6 @@ import {
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../../apps/web/src/app/core/tests";
-import { LoginEmailService } from "../../../common";
 
 import { RegistrationStartComponent } from "./registration-start.component";
 
