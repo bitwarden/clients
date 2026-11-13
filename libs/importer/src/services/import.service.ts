@@ -720,7 +720,7 @@ export class ImportService implements ImportServiceAbstraction {
                 importResult.collectionRelationships.filter((cr) => cr[0] === c_idx).length > 1,
             )
           ) {
-            throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollection"));
+            throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollectionV2"));
           }
           importResult.folders = importResult.collections.map((c) => {
             const f = new FolderView();
