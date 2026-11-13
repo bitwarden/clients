@@ -1,4 +1,10 @@
 # This workflow will run in the context of the source of the PR.
+# On a PR, each commit only checks whether UI-related files changed:
+#   - No UI changes: Chromatic is told to skip, which marks its required checks as passing.
+#   - UI changes: nothing is published in Chromatic automatically, so Chromatic's required checks 
+#     stay pending until someone adds the "ci:chromatic" label. The label runs the full build and is
+#     removed once the run starts, so every new commit needs to be labeled again.
+# Pushes to main, rc and hotfix-rc run the full build without a label to keep baselines current.
 # On a PR from a fork, the pull_request workflow is skipped because the fork will not have access to
 # secrets. To run Chromatic for a fork PR, review it and add the "ci:signed-build" label to run
 # "chromatic-target.yml".
@@ -12,7 +18,7 @@ on:
       - "rc"
       - "hotfix-rc"
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, labeled]
   workflow_call:
     inputs: {}
 
@@ -20,35 +26,30 @@ permissions:
   contents: read
 
 jobs:
-  check-event-source:
-    name: Check event and source
+  check-run-mode:
+    name: Check run mode
     runs-on: ubuntu-24.04
     # Only run on events other than pull_request, and if it is a pull_request event, only run if
     # the PR comes from an internal contributor
     # This check avoids running the workflow twice for external/forked PRs that are already running
     # the pull_request_target workflow
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    steps:
-      - name: Check PR event and source
-        run: echo "This PR is from the same repository (Not a fork) or called via workflow_call."
-
-  chromatic:
-    name: Chromatic
-    runs-on: ubuntu-22.04
-    needs: check-event-source
+    # Labels other than "ci:chromatic" do not run anything
+    if: >-
+      github.event_name != 'pull_request'
+      || (github.event.pull_request.head.repo.full_name == github.repository
+        && (github.event.action != 'labeled' || github.event.label.name == 'ci:chromatic'))
     permissions:
       contents: read
-      pull-requests: write
-      id-token: write
-
+      pull-requests: read
+    outputs:
+      mode: ${{ steps.mode.outputs.mode }}
     steps:
+      # PR events read the changed files from the API, so only pushes need the repo
       - name: Check out repo
+        if: github.event_name == 'push'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
-          fetch-depth: 0
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Get changed files
         id: get-changed-files
@@ -65,9 +66,71 @@ jobs:
               - "apps/browser/src/autofill/content/components/**"
               - ".github/workflows/chromatic.yml"
 
+      # build: full Storybook build and Chromatic publish
+      # skip: Chromatic is told to skip, which marks its checks as passing
+      # wait: nothing is published, so Chromatic's checks stay pending until the label is added
+      - name: Determine run mode
+        id: mode
+        env:
+          _EVENT_NAME: ${{ github.event_name }}
+          _IS_LABEL_RUN: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' }}
+          _STORY_FILES: ${{ steps.get-changed-files.outputs.storyFiles }}
+        run: |
+          if [[ "$_IS_LABEL_RUN" == "true" ]]; then
+            MODE="build"
+          elif [[ "$_STORY_FILES" != "true" ]]; then
+            MODE="skip"
+          elif [[ "$_EVENT_NAME" == "pull_request" ]]; then
+            MODE="wait"
+          else
+            MODE="build"
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+
+          if [[ "$MODE" == "wait" ]]; then
+            MESSAGE="This PR changes UI-related files. Add the \"ci:chromatic\" label when you are ready to run Chromatic."
+            echo "::notice::$MESSAGE"
+            echo "$MESSAGE" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  chromatic:
+    name: Chromatic
+    runs-on: ubuntu-22.04
+    needs: check-run-mode
+    # A job-level `if` posts nothing to Chromatic, which is what keeps its checks pending
+    if: needs.check-run-mode.outputs.mode != 'wait'
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - name: Remove Chromatic label
+        if: github.event_name == 'pull_request' && github.event.action == 'labeled'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          _PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if ! OUTPUT=$(gh api --method DELETE "repos/$GITHUB_REPOSITORY/issues/$_PR_NUMBER/labels/ci%3Achromatic" 2>&1); then
+            if [[ "$OUTPUT" == *"HTTP 404"* ]]; then
+              echo "Label already removed."
+            else
+              echo "$OUTPUT"
+              exit 1
+            fi
+          fi
+
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          allow-unsafe-pr-checkout: true
+
       - name: Get Node version
         id: retrieve-node-version
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        if: needs.check-run-mode.outputs.mode == 'build'
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
@@ -77,7 +140,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        if: needs.check-run-mode.outputs.mode == 'build'
 
       - name: Cache NPM
         id: npm-cache
@@ -85,10 +148,10 @@ jobs:
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        if: needs.check-run-mode.outputs.mode == 'build'
 
       - name: Install Node dependencies
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        if: needs.check-run-mode.outputs.mode == 'build'
         run: npm ci
 
       - name: Log in to Azure
@@ -110,7 +173,7 @@ jobs:
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build Autofill Storybook
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        if: needs.check-run-mode.outputs.mode == 'build'
         run: npm run build-storybook:autofill:ci
 
       - name: Publish to Chromatic for Autofill
@@ -124,11 +187,11 @@ jobs:
           exitOnceUploaded: true
           onlyChanged: true
           # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
-          skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}
+          skip: ${{ needs.check-run-mode.outputs.mode == 'skip' }}
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build CL Storybook
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        if: needs.check-run-mode.outputs.mode == 'build'
         env:
           AUTOFILL_CHROMATIC_URL: ${{ steps.publish-chromatic-autofill.outputs.storybookUrl }}
         run: npm run build-storybook:ci
@@ -146,4 +209,4 @@ jobs:
             libs/components/**/*.css
             libs/components/tailwind.config*.js
           # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
-          skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}
+          skip: ${{ needs.check-run-mode.outputs.mode == 'skip' }}
