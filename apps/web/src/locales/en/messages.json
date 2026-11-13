@@ -6732,6 +6732,15 @@
       }
     }
   },
+  "addedSharedFolderId": {
+    "message": "Shared folder added $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
   "createdSharedFolderId": {
     "message": "Created shared folder $ID$.",
     "placeholders": {
