@@ -35,7 +35,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
   private currentAuthStatus$: Subscription = Subscription.EMPTY;
   private abortManager = new AbortManager();
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
-  private activeCredentialRequests = new Set<number>();
+  private activeCredentialRequests = new Map<number, Set<string>>();
   private registeredContentScripts: browser.contentScripts.RegisteredContentScript | undefined =
     undefined;
   private readonly sharedInjectionDetails: SharedFido2ScriptInjectionDetails = {
@@ -99,6 +99,12 @@ export class Fido2Background implements Fido2BackgroundInterface {
     this.permissionsPolicy.init();
     BrowserApi.messageListener("fido2.background", this.handleExtensionMessage);
     BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
+    BrowserApi.addListener(chrome.webNavigation.onCommitted, (details) => {
+      if (details.frameId === 0) {
+        this.retireCredentialRequests(details.tabId);
+      }
+    });
+    BrowserApi.addListener(chrome.tabs.onRemoved, (tabId) => this.retireCredentialRequests(tabId));
     this.vaultSettingsService.enablePasskeys$
       .pipe(startWith(undefined), pairwise())
       .subscribe(([previous, current]) => this.handleEnablePasskeysUpdate(previous, current));
@@ -109,6 +115,19 @@ export class Fido2Background implements Fido2BackgroundInterface {
           void this.handleAuthStatusUpdate(current);
         }
       });
+  }
+
+  private retireCredentialRequests(tabId: number) {
+    const requests = this.activeCredentialRequests.get(tabId);
+    // Retire the document before aborting so its requests cannot restore focus.
+    this.activeCredentialRequests.delete(tabId);
+    try {
+      for (const requestId of requests ?? []) {
+        this.abortManager.abort(requestId);
+      }
+    } finally {
+      this.fido2ActiveRequestManager.removeActiveRequest(tabId);
+    }
   }
 
   /**
@@ -398,24 +417,36 @@ export class Fido2Background implements Fido2BackgroundInterface {
   ): Promise<CredentialResult> => {
     const { requestId, data } = message;
     const tabId = tab.id;
+    const requests = this.activeCredentialRequests.get(tabId!) ?? new Set<string>();
     if (tabId != null) {
-      this.activeCredentialRequests.add(tabId);
+      requests.add(requestId!);
+      this.activeCredentialRequests.set(tabId, requests);
     }
     try {
       return await this.abortManager.runWithAbortController(requestId!, async (abortController) => {
         try {
           return await callback(data!, tab, abortController);
         } finally {
-          if (tab.id != null) {
-            await BrowserApi.focusTab(tab.id);
-          }
-          if (tab.windowId != null) {
-            await BrowserApi.focusWindow(tab.windowId);
+          if (tabId == null || this.activeCredentialRequests.get(tabId) === requests) {
+            if (tabId != null) {
+              await BrowserApi.focusTab(tabId);
+            }
+            if (
+              tab.windowId != null &&
+              (tabId == null || this.activeCredentialRequests.get(tabId) === requests)
+            ) {
+              await BrowserApi.focusWindow(tab.windowId);
+            }
           }
         }
       });
     } finally {
-      if (tabId != null) {
+      requests.delete(requestId!);
+      if (
+        tabId != null &&
+        requests.size === 0 &&
+        this.activeCredentialRequests.get(tabId) === requests
+      ) {
         this.activeCredentialRequests.delete(tabId);
       }
     }
