@@ -499,7 +499,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected async onCipherSaved(cipherView: CipherView) {
     const activeUserId = await firstValueFrom(this.userId$);
     let cipher = await this.cipherService.get(cipherView.id, activeUserId);
-    const adminReload = this.formConfig.isAdminConsole && (cipher == null || this.formConfig.admin);
+    // A personal cipher (e.g. cloned to My vault) isn't reachable through the admin endpoints.
+    if (cipherView.organizationId == null) {
+      this.formConfig.admin = false;
+    }
+    const adminReload =
+      this.formConfig.isAdminConsole &&
+      cipherView.organizationId != null &&
+      (cipher == null || this.formConfig.admin);
 
     // We successfully saved the cipher, update the dialog state and switch to view mode.
     // A restricted cipher's save result is restricted too; its view arrives through displayView$.
