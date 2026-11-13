@@ -271,7 +271,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @returns {Promise<AutofillPageDetails>}
    * @public
    */
-  async getPageDetails(): Promise<AutofillPageDetails> {
+  async getPageDetails(forceRescan = false): Promise<AutofillPageDetails> {
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
@@ -294,17 +294,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return this.getTargetedPageDetails(targetingRules);
     }
 
-    if (!this.domRecentlyMutated && this.noFieldsFound) {
+    if (!forceRescan && !this.domRecentlyMutated && this.noFieldsFound) {
       return this.getFormattedPageDetails({}, []);
     }
 
-    if (!this.domRecentlyMutated && this.autofillFieldElements.size) {
+    if (!forceRescan && !this.domRecentlyMutated && this.autofillFieldElements.size) {
       await this.updateCachedAutofillFieldVisibility();
 
       return this.getFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
         this.getFormattedAutofillFieldsData(),
       );
+    }
+
+    if (forceRescan) {
+      this.clearFieldCache();
     }
 
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
@@ -315,9 +319,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     );
     this.sortAutofillFieldElementsMap();
 
-    if (!autofillFieldsData.length) {
-      this.noFieldsFound = true;
-    }
+    this.noFieldsFound = !autofillFieldsData.length;
 
     this.domRecentlyMutated = false;
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
@@ -1830,7 +1832,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
-      this.getPageDetails.bind(this),
+      () => this.getPageDetails(),
       { timeout: adaptiveTimeout },
     );
   }

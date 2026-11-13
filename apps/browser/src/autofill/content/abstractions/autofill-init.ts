@@ -7,6 +7,7 @@ import AutofillScript from "../../models/autofill-script";
 import { AutofillMonitor } from "./autofill-monitor";
 
 export type AutofillExtensionMessage = {
+  forceRescan?: boolean;
   command: string;
   tab?: chrome.tabs.Tab;
   sender?: string;
