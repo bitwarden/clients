@@ -1,8 +1,9 @@
-import { BehaviorSubject, EMPTY, Subject, of } from "rxjs";
+import { BehaviorSubject, EMPTY, Observable, Subject, defer, filter, map, of, tap } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
@@ -18,6 +19,31 @@ function makeSshCipher(id: string, name: string, privateKey: string): CipherView
     isDeleted: false,
     sshKey: { privateKey },
   } as unknown as CipherView;
+}
+
+/**
+ * Fakes the encrypted store behind `views$`: `ciphers$` emits a stub per view and `decrypt`
+ * resolves the matching view, so tests stay in decrypted terms. A null emission is skipped.
+ */
+function fakeCipherService(views$: Observable<CipherView[] | null>) {
+  const byId = new Map<string, CipherView>();
+  const ciphers$ = views$.pipe(
+    filter((views) => views != null),
+    tap((views) => views.forEach((v) => byId.set(v.id, v))),
+    map((views) =>
+      Object.fromEntries(
+        views.map((v) => [
+          v.id,
+          { id: v.id, type: v.type, partialData: v.partial ? "{}" : undefined },
+        ]),
+      ),
+    ),
+  );
+
+  return {
+    ciphers$: jest.fn().mockReturnValue(ciphers$),
+    decrypt: jest.fn((cipher: Cipher) => Promise.resolve(byId.get(cipher.id))),
+  };
 }
 
 /** Flush pending microtasks and one macrotask cycle to let async RxJS pipelines settle. */
@@ -39,6 +65,7 @@ describe("SshAgentService", () => {
   let enabledSubject: BehaviorSubject<boolean>;
   let cipherViewsSubject: BehaviorSubject<CipherView[] | null>;
   let authStatusPerUser: Map<string, BehaviorSubject<AuthenticationStatus>>;
+  let mockCipherService: ReturnType<typeof fakeCipherService>;
 
   let mockIsLoaded: jest.Mock;
   let mockInit: jest.Mock;
@@ -79,10 +106,7 @@ describe("SshAgentService", () => {
       platform: { focusWindow: jest.fn() },
     };
 
-    const mockCipherService = {
-      cipherViews$: jest.fn().mockReturnValue(cipherViewsSubject.asObservable()),
-      getAllDecrypted: jest.fn().mockResolvedValue([]),
-    };
+    mockCipherService = fakeCipherService(cipherViewsSubject.asObservable());
     const mockLogService = {
       info: jest.fn(),
       error: jest.fn(),
@@ -230,8 +254,7 @@ describe("SshAgentService", () => {
     const stopBefore = mockStop.mock.calls.length;
     const replaceBefore = mockReplace.mock.calls.length;
 
-    // Simulate locked vault: the real cipherViews$ emits null when locked.
-    cipherViewsSubject.next(null);
+    cipherViewsSubject.next([makeSshCipher("c2", "User2 Key", "pem2")]);
     // user-2 is locked by default in authStatusPerUser
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
@@ -513,6 +536,47 @@ describe("SshAgentService", () => {
 
     expect(mockReplace).toHaveBeenCalledWith([{ name: "Key", privateKey: "pem", cipherId: "c1" }]);
   });
+
+  it("when unlocked, decrypts only SSH key ciphers", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([
+      makeSshCipher("c1", "Key", "pem"),
+      { ...makeSshCipher("c2", "Login", "pem2"), type: CipherType.Login } as CipherView,
+      { ...makeSshCipher("c3", "Gated", "pem3"), partial: true } as CipherView,
+    ]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockCipherService.decrypt).toHaveBeenCalledTimes(1);
+    expect(mockCipherService.decrypt.mock.calls[0][0].id).toBe("c1");
+    expect(mockReplace).toHaveBeenCalledWith([{ name: "Key", privateKey: "pem", cipherId: "c1" }]);
+  });
+
+  it("when locked, does not decrypt", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    await flush();
+
+    expect(mockCipherService.decrypt).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it("when an SSH key cipher fails to decrypt, pushes the remaining keys", async () => {
+    mockCipherService.decrypt.mockRejectedValueOnce(new Error("missing org key"));
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([
+      makeSshCipher("c1", "Org", "pem1"),
+      makeSshCipher("c2", "Key", "pem2"),
+    ]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledWith([{ name: "Key", privateKey: "pem2", cipherId: "c2" }]);
+  });
 });
 
 describe("SshAgentService – sign request authorization", () => {
@@ -528,7 +592,7 @@ describe("SshAgentService – sign request authorization", () => {
   let mockDialogOpen: jest.Mock;
   let mockFocusWindow: jest.Mock;
   let mockShowToast: jest.Mock;
-  let mockGetAllDecrypted: jest.Mock;
+  let mockSshKeys: jest.Mock;
 
   beforeEach(async () => {
     signRequestSubject = new Subject();
@@ -539,9 +603,7 @@ describe("SshAgentService – sign request authorization", () => {
     mockDialogOpen = jest.fn().mockReturnValue({ closed: of(true) });
     mockFocusWindow = jest.fn();
     mockShowToast = jest.fn();
-    mockGetAllDecrypted = jest
-      .fn()
-      .mockResolvedValue([makeSshCipher(CIPHER_ID, "Test Key", "pem")]);
+    mockSshKeys = jest.fn().mockResolvedValue([makeSshCipher(CIPHER_ID, "Test Key", "pem")]);
 
     (global as any).ipc = {
       autofill: {
@@ -558,15 +620,12 @@ describe("SshAgentService – sign request authorization", () => {
     };
 
     service = new SshAgentService(
-      {
-        cipherViews$: jest.fn().mockReturnValue(of([])),
-        getAllDecrypted: mockGetAllDecrypted,
-      } as any,
+      fakeCipherService(defer(() => mockSshKeys())) as any,
       { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: mockDialogOpen } as any,
       {
         // Only feed the sign channel. Returning one subject for every channel also drove the
-        // list-keys pipeline, which calls getAllDecrypted and made per-call mocks unreliable.
+        // list-keys pipeline, which decrypts SSH keys and made per-call mocks unreliable.
         messages$: jest
           .fn()
           .mockImplementation((def: { command: string }) =>
@@ -612,7 +671,7 @@ describe("SshAgentService – sign request authorization", () => {
   // refuse rather than sign with a key the active account cannot see.
   describe("key not in the active vault", () => {
     beforeEach(() => {
-      mockGetAllDecrypted.mockResolvedValue([makeSshCipher("other-cipher", "Other Key", "pem")]);
+      mockSshKeys.mockResolvedValue([makeSshCipher("other-cipher", "Other Key", "pem")]);
     });
 
     it("Never: refuses instead of approving without a prompt", async () => {
@@ -655,7 +714,7 @@ describe("SshAgentService – sign request authorization", () => {
   // blocks the SSH client until the native approval timeout.
   describe("failures still answer the agent", () => {
     it("when decrypting the vault fails, refuses instead of hanging", async () => {
-      mockGetAllDecrypted.mockRejectedValue(new Error("decryption failed"));
+      mockSshKeys.mockRejectedValue(new Error("decryption failed"));
 
       sendSignRequest();
       await flush();
@@ -995,10 +1054,7 @@ describe("SshAgentService – list keys request", () => {
     };
 
     service = new SshAgentService(
-      {
-        cipherViews$: jest.fn().mockReturnValue(of([])),
-        getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher("c1", "My Key", "pem")]),
-      } as any,
+      fakeCipherService(of([makeSshCipher("c1", "My Key", "pem")])) as any,
       { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
@@ -1078,7 +1134,7 @@ describe("SshAgentService – list keys request", () => {
       authStatusSubject.next(AuthenticationStatus.Locked);
 
       // Drain the microtask queue so the reactive keys pipeline fully settles after the
-      // status change (it re-subscribes to cipherViews$ and may call replace).
+      // status change (it re-subscribes to the SSH key ciphers and may call replace).
       for (let i = 0; i < 10; i++) {
         await Promise.resolve();
       }
@@ -1124,12 +1180,12 @@ describe("SshAgentService – concurrent sign requests", () => {
   let service: SshAgentService;
   let signRequestSubject: Subject<Record<string, unknown>>;
   let mockSignRequestResponse: jest.Mock;
-  let mockGetAllDecrypted: jest.Mock;
+  let mockSshKeys: jest.Mock;
 
   beforeEach(async () => {
     signRequestSubject = new Subject();
     mockSignRequestResponse = jest.fn().mockResolvedValue(undefined);
-    mockGetAllDecrypted = jest.fn();
+    mockSshKeys = jest.fn();
 
     (global as any).ipc = {
       autofill: {
@@ -1146,10 +1202,7 @@ describe("SshAgentService – concurrent sign requests", () => {
     };
 
     service = new SshAgentService(
-      {
-        cipherViews$: jest.fn().mockReturnValue(of([])),
-        getAllDecrypted: mockGetAllDecrypted,
-      } as any,
+      fakeCipherService(defer(() => mockSshKeys())) as any,
       { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
@@ -1183,14 +1236,14 @@ describe("SshAgentService – concurrent sign requests", () => {
     jest.clearAllMocks();
   });
 
-  it("when two sign requests arrive before getAllDecrypted resolves, both receive signRequestResponse", async () => {
+  it("when two sign requests arrive before decryption resolves, both receive signRequestResponse", async () => {
     // Gate the first decryption behind a manually controlled promise so that the
     // second request can arrive while the first is still in-flight through the pipeline.
     // Both requests name c1, so the vault must contain it: a sign request for a cipher outside
     // the active vault is refused outright and would not exercise the queueing under test.
     const ciphers = [makeSshCipher("c1", "Key", "pem")];
     let resolveFirstDecrypt!: (ciphers: CipherView[]) => void;
-    mockGetAllDecrypted
+    mockSshKeys
       .mockReturnValueOnce(
         new Promise<CipherView[]>((resolve) => {
           resolveFirstDecrypt = resolve;
@@ -1198,7 +1251,7 @@ describe("SshAgentService – concurrent sign requests", () => {
       )
       .mockResolvedValue(ciphers);
 
-    // Emit both requests before the pending getAllDecrypted resolves.
+    // Emit both requests before the pending decryption resolves.
     signRequestSubject.next({
       cipherId: "c1",
       requestId: 1,
@@ -1231,12 +1284,12 @@ describe("SshAgentService – concurrent list keys requests", () => {
   let service: SshAgentService;
   let listKeysRequestSubject: Subject<Record<string, unknown>>;
   let mockListRequestResponse: jest.Mock;
-  let mockGetAllDecrypted: jest.Mock;
+  let mockSshKeys: jest.Mock;
 
   beforeEach(async () => {
     listKeysRequestSubject = new Subject();
     mockListRequestResponse = jest.fn().mockResolvedValue(undefined);
-    mockGetAllDecrypted = jest.fn();
+    mockSshKeys = jest.fn();
 
     (global as any).ipc = {
       autofill: {
@@ -1253,10 +1306,7 @@ describe("SshAgentService – concurrent list keys requests", () => {
     };
 
     service = new SshAgentService(
-      {
-        cipherViews$: jest.fn().mockReturnValue(of([])),
-        getAllDecrypted: mockGetAllDecrypted,
-      } as any,
+      fakeCipherService(defer(() => mockSshKeys())) as any,
       { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
@@ -1289,9 +1339,9 @@ describe("SshAgentService – concurrent list keys requests", () => {
     jest.clearAllMocks();
   });
 
-  it("when two list requests arrive before getAllDecrypted resolves, both receive listRequestResponse", async () => {
+  it("when two list requests arrive before decryption resolves, both receive listRequestResponse", async () => {
     let resolveFirstDecrypt!: (ciphers: CipherView[]) => void;
-    mockGetAllDecrypted
+    mockSshKeys
       .mockReturnValueOnce(
         new Promise<CipherView[]>((resolve) => {
           resolveFirstDecrypt = resolve;
