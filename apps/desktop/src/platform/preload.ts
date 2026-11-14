@@ -4,8 +4,6 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
 import { Message as PlatformMessage } from "@bitwarden/common/platform/messaging";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 
 import {
   allowBrowserintegrationOverride,
@@ -20,7 +18,6 @@ import {
 } from "../main/platform-utils.main";
 import {
   EncryptedMessageResponse,
-  LegacyMessageWrapper,
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
@@ -66,16 +63,7 @@ const nativeMessaging = {
   sendReply: (message: EncryptedMessageResponse | UnencryptedMessageResponse) => {
     ipcRenderer.send("nativeMessagingReply", message);
   },
-  sendMessage: (message: {
-    appId: string;
-    messageId?: number;
-    command?: string;
-    sharedSecret?: string;
-    message?: EncString;
-  }) => {
-    ipcRenderer.send("nativeMessagingReply", message);
-  },
-  onMessage: (callback: (message: LegacyMessageWrapper | Message) => void) => {
+  onMessage: (callback: (message: Message) => void) => {
     ipcRenderer.on("nativeMessaging", (_event, message) => callback(message));
   },
 

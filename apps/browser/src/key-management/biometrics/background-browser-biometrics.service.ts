@@ -1,8 +1,6 @@
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 import { fromTsUserId } from "@bitwarden/common/key-management/utils";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -27,7 +25,7 @@ import {
 } from "@bitwarden/sdk-internal";
 import { UnlockMethod } from "@bitwarden/unlock";
 
-import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
+import { SafariApp } from "../../browser/safariApp";
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
@@ -35,8 +33,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   BIOMETRICS_INTERACTION_TIMEOUT = 60_000;
 
   constructor(
-    private nativeMessagingBackground: () => NativeMessagingBackground,
-    private configService: () => ConfigService,
     private logService: LogService,
     private keyService: () => KeyService,
     private biometricStateService: BiometricStateService,
@@ -49,40 +45,27 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   /**
-   * Returns true to use SDK IPC, false to use native messaging.
-   * Safari always uses native messaging. It has no desktop IPC transport, and its Swift
-   * handler only supports native messaging commands.
+   * Safari has no SDK IPC transport to the desktop app; its Swift handler answers biometrics
+   * itself. Every other browser asks the desktop app over SDK IPC.
    */
-  private async useSdkIpc(): Promise<boolean> {
-    return (
-      !this.platformUtilsService.isSafari() &&
-      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC))
-    );
+  private get safari(): boolean {
+    return this.platformUtilsService.isSafari();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
-    if (await this.useSdkIpc()) {
-      try {
-        return await ipcRequestAuthenticateBiometrics(
-          this.ipcService().client,
-          AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
-        );
-      } catch {
-        return false;
-      }
-    }
-
-    if (!this.nativeMessagingBackground().connected) {
-      return false;
+    if (this.safari) {
+      const reply = await SafariApp.sendBiometricsCommand(
+        BiometricsCommands.AuthenticateWithBiometrics,
+      );
+      return reply?.response === true;
     }
 
     try {
-      const response = await this.nativeMessagingBackground().callCommand({
-        command: BiometricsCommands.AuthenticateWithBiometrics,
-      });
-      return response.response;
-    } catch (e) {
-      this.logService.info("Biometric authentication failed", e);
+      return await ipcRequestAuthenticateBiometrics(
+        this.ipcService().client,
+        AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
+      );
+    } catch {
       return false;
     }
   }
@@ -92,131 +75,101 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       return BiometricsStatus.NativeMessagingPermissionMissing;
     }
 
-    if (await this.useSdkIpc()) {
+    if (!this.safari) {
       return BiometricsStatus.Available;
     }
 
-    try {
-      const response = await this.nativeMessagingBackground().callCommand({
-        command: BiometricsCommands.GetBiometricsStatus,
-      });
-
-      if (response.response) {
-        return response.response;
-      }
-      return BiometricsStatus.Available;
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+    const reply = await SafariApp.sendBiometricsCommand(BiometricsCommands.GetBiometricsStatus);
+    if (reply == null) {
       return BiometricsStatus.DesktopDisconnected;
     }
+    return (reply.response as BiometricsStatus) || BiometricsStatus.Available;
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
-    if (await this.useSdkIpc()) {
-      // Handle SDK-based biometric unlock
-      try {
-        const response = await ipcRequestUnlockBiometrics(
-          this.ipcService().client,
-          fromTsUserId(userId),
-          AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
-        );
-        if (response.user_key) {
-          const userKey = SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
-          if (!(await this.keyService().validateUserKey(userKey, userId))) {
-            this.logService.info("Biometric unlock for user failed: invalid user key");
-            return null;
-          }
-
-          await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
-          await this.unlockService!.unlockWithDecryptedUserKey(
-            userId,
-            userKey,
-            UnlockMethod.Biometrics,
-          );
-          // to update badge and other things
-          this.messagingService.send("switchAccount", { userId });
-          return userKey;
-        } else {
-          return null;
-        }
-      } catch (e) {
-        this.logService.info("Biometric unlock for user failed", e);
-        return null;
-      }
-    }
-
-    if (!this.nativeMessagingBackground().connected) {
+    const userKey = this.safari
+      ? await this.unlockWithSafari(userId)
+      : await this.unlockWithDesktop(userId);
+    if (userKey == null) {
       return null;
     }
 
     try {
-      const response = await this.nativeMessagingBackground().callCommand({
-        command: BiometricsCommands.UnlockWithBiometricsForUser,
-        userId: userId,
-      });
-      if (response.response) {
-        // In case the requesting foreground context dies (popup), the userkey should still be set, so the user is unlocked / the setting should be enabled
-        const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
-        const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
-        try {
-          await this.unlockService!.unlockWithDecryptedUserKey(
-            userId,
-            userKey,
-            UnlockMethod.Biometrics,
-          );
-          await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
-          // to update badge and other things
-          this.messagingService.send("switchAccount", { userId });
-          return userKey;
-        } catch (e) {
-          this.logService.info("Biometric unlock for user failed during unlock or validation", e);
-        }
-      } else {
+      await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
+      await this.unlockService!.unlockWithDecryptedUserKey(
+        userId,
+        userKey,
+        UnlockMethod.Biometrics,
+      );
+      // to update badge and other things
+      this.messagingService.send("switchAccount", { userId });
+      return userKey;
+    } catch (e) {
+      this.logService.info("Biometric unlock for user failed during unlock", e);
+      return null;
+    }
+  }
+
+  /** Asks the desktop app for the user key over SDK IPC, and checks it is this user's key. */
+  private async unlockWithDesktop(userId: UserId): Promise<UserKey | null> {
+    try {
+      const response = await ipcRequestUnlockBiometrics(
+        this.ipcService().client,
+        fromTsUserId(userId),
+        AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
+      );
+      if (!response.user_key) {
         return null;
       }
+
+      const userKey = SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
+      if (!(await this.keyService().validateUserKey(userKey, userId))) {
+        this.logService.info("Biometric unlock for user failed: invalid user key");
+        return null;
+      }
+      return userKey;
     } catch (e) {
       this.logService.info("Biometric unlock for user failed", e);
-      throw new Error("Biometric unlock failed");
+      return null;
     }
+  }
 
-    return null;
+  /** Reads the user key the Safari app extension keeps in the keychain behind biometrics. */
+  private async unlockWithSafari(userId: UserId): Promise<UserKey | null> {
+    const reply = await SafariApp.sendBiometricsCommand(
+      BiometricsCommands.UnlockWithBiometricsForUser,
+      userId,
+    );
+    if (reply?.response !== true || reply.userKeyB64 == null) {
+      return null;
+    }
+    return new SymmetricCryptoKey(Utils.fromB64ToArray(reply.userKeyB64)) as UserKey;
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
-    if (await this.useSdkIpc()) {
-      try {
-        const status = await ipcRequestGetBiometricsStatus(
-          this.ipcService().client,
-          fromTsUserId(id),
-          AbortSignal.timeout(this.BIOMETRICS_NO_INTERACTION_TIMEOUT),
-        );
-        // The status comes from the desktop app, so "not enabled" means not enabled there.
-        // Mirrors the legacy translation in the desktop's BiometricMessageHandlerService.
-        if (status === SdkBiometricsStatus.NotEnabled) {
-          return BiometricsStatus.NotEnabledInConnectedDesktopApp;
-        }
-
-        return toTsBiometricsStatus(status);
-      } catch {
-        return BiometricsStatus.DesktopDisconnected;
-      }
+    if (this.safari) {
+      const reply = await SafariApp.sendBiometricsCommand(
+        BiometricsCommands.GetBiometricsStatusForUser,
+        id,
+      );
+      return reply == null
+        ? BiometricsStatus.DesktopDisconnected
+        : (reply.response as BiometricsStatus);
     }
 
     try {
-      if (!this.nativeMessagingBackground().connected) {
-        return BiometricsStatus.DesktopDisconnected;
+      const status = await ipcRequestGetBiometricsStatus(
+        this.ipcService().client,
+        fromTsUserId(id),
+        AbortSignal.timeout(this.BIOMETRICS_NO_INTERACTION_TIMEOUT),
+      );
+      // The status comes from the desktop app, so "not enabled" means not enabled there.
+      if (status === SdkBiometricsStatus.NotEnabled) {
+        return BiometricsStatus.NotEnabledInConnectedDesktopApp;
       }
 
-      return (
-        await this.nativeMessagingBackground().callCommand({
-          command: BiometricsCommands.GetBiometricsStatusForUser,
-          userId: id,
-        })
-      ).response;
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+      return toTsBiometricsStatus(status);
+    } catch {
       return BiometricsStatus.DesktopDisconnected;
     }
   }

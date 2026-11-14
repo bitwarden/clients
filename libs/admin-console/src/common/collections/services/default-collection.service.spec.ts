@@ -69,7 +69,7 @@ describe("DefaultCollectionService", () => {
     encryptService.decryptString
       .calledWith(expect.any(EncString), expect.any(SymmetricCryptoKey))
       .mockImplementation((encString, key) =>
-        Promise.resolve(encString.data.replace("ENC_", "DEC_")),
+        Promise.resolve(encString.encryptedString!.split("|")[1].replace("ENC_", "DEC_")),
       );
 
     (window as any).bitwardenContainerService = new ContainerService(

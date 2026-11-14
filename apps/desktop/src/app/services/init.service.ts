@@ -32,7 +32,6 @@ import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { VersionService } from "../../platform/services/version.service";
-import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
 import { UpdateRestartService } from "./update-restart.service";
@@ -62,7 +61,6 @@ export class InitService {
     private sdkLoadService: SdkLoadService,
     private ipcService: IpcService,
     private sharedUnlockPeerService: SharedUnlockPeerService,
-    private biometricMessageHandlerService: BiometricMessageHandlerService,
     private biometricsService: BiometricsService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     @Inject(DOCUMENT) private document: Document,
@@ -125,7 +123,6 @@ export class InitService {
       containerService.attachToGlobal(this.win);
       this.automationDriver.attachToGlobal(this.win);
 
-      await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeMvpService.init();
       await this.autotypeService.init();

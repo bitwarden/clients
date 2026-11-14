@@ -50,7 +50,7 @@ export class EncryptServiceImplementation implements EncryptService {
   // This will be enabled once all vault item decryption is moved to the SDK.
   // @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
-    if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
+    if (isAesCbc256B64(encString)) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
     await SdkLoadService.Ready;
@@ -59,7 +59,7 @@ export class EncryptServiceImplementation implements EncryptService {
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
-    if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
+    if (isAesCbc256B64(encString)) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
     await SdkLoadService.Ready;
@@ -144,7 +144,7 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No wrappingKey provided for unwrapping.");
     }
 
-    if (wrappedDecapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
+    if (isAesCbc256B64(wrappedDecapsulationKey)) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
@@ -165,7 +165,7 @@ export class EncryptServiceImplementation implements EncryptService {
     if (wrappingKey == null) {
       throw new Error("No wrappingKey provided for unwrapping.");
     }
-    if (wrappedEncapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
+    if (isAesCbc256B64(wrappedEncapsulationKey)) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
@@ -186,7 +186,7 @@ export class EncryptServiceImplementation implements EncryptService {
     if (wrappingKey == null) {
       throw new Error("No wrappingKey provided for unwrapping.");
     }
-    if (keyToBeUnwrapped.encryptionType === EncryptionType.AesCbc256_B64) {
+    if (isAesCbc256B64(keyToBeUnwrapped)) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
@@ -238,4 +238,21 @@ export class EncryptServiceImplementation implements EncryptService {
     );
     return new SymmetricCryptoKey(keyBytes);
   }
+}
+
+/**
+ * Whether `encString` is unauthenticated AES-CBC (type 0), whose decryption is disabled.
+ * Header-less strings are type 0 too, as in EncString's parser: "aXY=|Y3Q=".
+ */
+function isAesCbc256B64(encString: EncString): boolean {
+  // An empty string has no type, so it is not blocked here.
+  if (!encString.encryptedString) {
+    return false;
+  }
+
+  const headerPieces = encString.encryptedString.split(".");
+  if (headerPieces.length !== 2) {
+    return true;
+  }
+  return parseInt(headerPieces[0], 10) === EncryptionType.AesCbc256_B64;
 }

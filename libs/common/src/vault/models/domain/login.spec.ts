@@ -57,14 +57,14 @@ describe("Login DTO", () => {
       passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
       autofillOnPageLoad: false,
       httpAuthenticationEnabled: true,
-      username: { encryptedString: "username", encryptionType: 0 },
-      password: { encryptedString: "password", encryptionType: 0 },
-      totp: { encryptedString: "123", encryptionType: 0 },
+      username: { encryptedString: "username" },
+      password: { encryptedString: "password" },
+      totp: { encryptedString: "123" },
       uris: [
         {
           match: 0,
-          uri: { encryptedString: "uri", encryptionType: 0 },
-          uriChecksum: { encryptedString: "checksum", encryptionType: 0 },
+          uri: { encryptedString: "uri" },
+          uriChecksum: { encryptedString: "checksum" },
         },
       ],
       fido2Credentials: [encryptFido2Credential(fido2CredentialData)],
@@ -249,21 +249,18 @@ function initializeFido2Credential<T extends Fido2CredentialLike>(key: T): T {
 
 function encryptFido2Credential(key: Fido2CredentialLike): Fido2Credential {
   const encrypted = new Fido2Credential();
-  encrypted.credentialId = { encryptedString: key.credentialId, encryptionType: 0 } as EncString;
-  encrypted.keyType = { encryptedString: key.keyType, encryptionType: 0 } as EncString;
-  encrypted.keyAlgorithm = { encryptedString: key.keyAlgorithm, encryptionType: 0 } as EncString;
-  encrypted.keyCurve = { encryptedString: key.keyCurve, encryptionType: 0 } as EncString;
-  encrypted.keyValue = { encryptedString: key.keyValue, encryptionType: 0 } as EncString;
-  encrypted.rpId = { encryptedString: key.rpId, encryptionType: 0 } as EncString;
-  encrypted.userHandle = { encryptedString: key.userHandle, encryptionType: 0 } as EncString;
-  encrypted.userName = { encryptedString: key.userName, encryptionType: 0 } as EncString;
-  encrypted.counter = { encryptedString: key.counter, encryptionType: 0 } as EncString;
-  encrypted.rpName = { encryptedString: key.rpName, encryptionType: 0 } as EncString;
-  encrypted.userDisplayName = {
-    encryptedString: key.userDisplayName,
-    encryptionType: 0,
-  } as EncString;
-  encrypted.discoverable = { encryptedString: key.discoverable, encryptionType: 0 } as EncString;
+  encrypted.credentialId = { encryptedString: key.credentialId } as EncString;
+  encrypted.keyType = { encryptedString: key.keyType } as EncString;
+  encrypted.keyAlgorithm = { encryptedString: key.keyAlgorithm } as EncString;
+  encrypted.keyCurve = { encryptedString: key.keyCurve } as EncString;
+  encrypted.keyValue = { encryptedString: key.keyValue } as EncString;
+  encrypted.rpId = { encryptedString: key.rpId } as EncString;
+  encrypted.userHandle = { encryptedString: key.userHandle } as EncString;
+  encrypted.userName = { encryptedString: key.userName } as EncString;
+  encrypted.counter = { encryptedString: key.counter } as EncString;
+  encrypted.rpName = { encryptedString: key.rpName } as EncString;
+  encrypted.userDisplayName = { encryptedString: key.userDisplayName } as EncString;
+  encrypted.discoverable = { encryptedString: key.discoverable } as EncString;
 
   // not encrypted
   encrypted.creationDate = new Date(key.creationDate);

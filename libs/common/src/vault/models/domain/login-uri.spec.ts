@@ -41,8 +41,8 @@ describe("LoginUri", () => {
 
     expect(loginUri).toEqual({
       match: 0,
-      uri: { encryptedString: "encUri", encryptionType: 0 },
-      uriChecksum: { encryptedString: "encUriChecksum", encryptionType: 0 },
+      uri: { encryptedString: "encUri" },
+      uriChecksum: { encryptedString: "encUriChecksum" },
     });
   });
 

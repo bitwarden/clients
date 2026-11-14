@@ -30,7 +30,7 @@ describe("Folder", () => {
 
     expect(field).toEqual({
       id: "id",
-      name: { encryptedString: "encName", encryptionType: 0 },
+      name: { encryptedString: "encName" },
       revisionDate: new Date("2022-01-31T12:00:00.000Z"),
     });
   });

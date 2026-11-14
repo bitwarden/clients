@@ -429,7 +429,6 @@ import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-ciphe
 
 import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
-import { NativeMessagingBackground } from "./nativeMessaging.background";
 import RuntimeBackground from "./runtime.background";
 
 export default class MainBackground {
@@ -613,7 +612,6 @@ export default class MainBackground {
   private webRequestBackground: WebRequestBackground;
 
   private syncTimeout: any;
-  private nativeMessagingBackground: NativeMessagingBackground;
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
@@ -647,8 +645,6 @@ export default class MainBackground {
       this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
       await this.logout(logoutReason, userId);
     };
-
-    const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
     const refreshAccessTokenErrorCallback = () => {
       // Send toast to popup
@@ -881,8 +877,6 @@ export default class MainBackground {
     // Constructed before the key service, which depends on it to delete platform-specific copies of
     // the user key. Its own key service and vault timeout dependencies are lazy to break the cycle.
     const browserBiometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      () => this.configService,
       this.logService,
       () => this.keyService,
       this.biometricStateService,
@@ -1647,14 +1641,6 @@ export default class MainBackground {
       this.autofillOrchestrator,
       this.#intraprocessMessageSender,
       this.fillAssistEventReceiver,
-    );
-    this.nativeMessagingBackground = new NativeMessagingBackground(
-      this.encryptService,
-      this.cryptoFunctionService,
-      this.appIdService,
-      this.platformUtilsService,
-      this.logService,
-      this.accountService,
     );
     this.commandsBackground = new CommandsBackground(
       this,
