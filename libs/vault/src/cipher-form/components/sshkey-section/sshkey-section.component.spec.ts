@@ -4,9 +4,7 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
-import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { generate_ssh_key } from "@bitwarden/sdk-internal";
@@ -42,8 +40,6 @@ describe("SshKeySectionComponent", () => {
 
   let sshImportPromptService: { importSshKeyFromClipboard: jest.Mock };
 
-  let platformUtilsService: { getClientType: jest.Mock };
-
   beforeEach(async () => {
     formStatusChange$ = new Subject<string>();
 
@@ -61,10 +57,6 @@ describe("SshKeySectionComponent", () => {
       importSshKeyFromClipboard: jest.fn(),
     };
 
-    platformUtilsService = {
-      getClientType: jest.fn(),
-    };
-
     await TestBed.configureTestingModule({
       imports: [SshKeySectionComponent],
       providers: [
@@ -72,7 +64,6 @@ describe("SshKeySectionComponent", () => {
         { provide: CipherFormContainer, useValue: cipherFormContainer },
         { provide: SdkService, useValue: sdkService },
         { provide: SshImportPromptService, useValue: sshImportPromptService },
-        { provide: PlatformUtilsService, useValue: platformUtilsService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -118,8 +109,6 @@ describe("SshKeySectionComponent", () => {
       sshKey: { privateKey: "p1", publicKey: "p2", keyFingerprint: "p3" },
     });
 
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-
     await component.ngOnInit();
 
     expect(generate_ssh_key).not.toHaveBeenCalled();
@@ -134,8 +123,6 @@ describe("SshKeySectionComponent", () => {
       edit: true,
       sshKey: { privateKey: "o1", publicKey: "o2", keyFingerprint: "o3" },
     });
-
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
 
     await component.ngOnInit();
 
@@ -155,8 +142,6 @@ describe("SshKeySectionComponent", () => {
       fingerprint: "genFp",
     });
 
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-
     await component.ngOnInit();
 
     expect(generate_ssh_key).toHaveBeenCalledTimes(1);
@@ -166,12 +151,11 @@ describe("SshKeySectionComponent", () => {
     expect(component.sshKeyForm.get("keyFingerprint")?.value).toBe("genFp");
   });
 
-  it("sets showImport true when not Web and originalCipherView.edit is true", async () => {
+  it("sets showImport true when originalCipherView.edit is true", async () => {
     cipherFormContainer.getInitialCipherView.mockReturnValue({
       sshKey: { privateKey: "p1", publicKey: "p2", keyFingerprint: "p3" },
     });
 
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
     fixture.componentRef.setInput("originalCipherView", { edit: true, sshKey: null } as any);
 
     await component.ngOnInit();
@@ -179,13 +163,12 @@ describe("SshKeySectionComponent", () => {
     expect(component.showImport()).toBe(true);
   });
 
-  it("keeps showImport false when client type is Web", async () => {
+  it("sets showImport false when originalCipherView.edit is false", async () => {
     cipherFormContainer.getInitialCipherView.mockReturnValue({
       sshKey: { privateKey: "p1", publicKey: "p2", keyFingerprint: "p3" },
     });
 
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Web);
-    fixture.componentRef.setInput("originalCipherView", { edit: true, sshKey: null } as any);
+    fixture.componentRef.setInput("originalCipherView", { edit: false, sshKey: null } as any);
 
     await component.ngOnInit();
 
@@ -197,7 +180,6 @@ describe("SshKeySectionComponent", () => {
       sshKey: { privateKey: "p1", publicKey: "p2", keyFingerprint: "p3" },
     });
 
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
     fixture.componentRef.setInput("originalCipherView", { edit: true, sshKey: null } as any);
 
     await component.ngOnInit();
