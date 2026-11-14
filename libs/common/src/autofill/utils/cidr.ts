@@ -1,4 +1,5 @@
 import { NeverDomains } from "../../models/domain/domain-service";
+import { Utils } from "../../platform/misc/utils";
 
 const IPV4_PATTERN = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
 
@@ -76,4 +77,25 @@ export function isHostnameExcluded(hostname: string, excludedDomains: NeverDomai
     return true;
   }
   return Object.keys(excludedDomains).some((entry) => isHostnameInCidr(hostname, entry));
+}
+
+/**
+ * Normalizes an entry of the excluded or blocked domains lists: a valid IPv4 CIDR range is kept as typed,
+ * anything else is reduced to its hostname.
+ *
+ * An IP address followed by a numeric prefix that is not a valid CIDR range, such as `192.0.2.0/33`,
+ * is rejected instead of being silently reduced to the bare address.
+ *
+ * @returns The value to store, or null if the entry is not valid
+ */
+export function normalizeDomainListEntry(entry: string): string | null {
+  if (isIpv4Cidr(entry)) {
+    return entry.trim();
+  }
+
+  if (/^[\d.]+\/-?\d+(\/.*)?$/.test(entry.trim())) {
+    return null;
+  }
+
+  return Utils.getHostname(entry);
 }
