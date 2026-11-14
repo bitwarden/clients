@@ -41,6 +41,11 @@ const ARCHITECTURE_PLATFORMS: Record<Architecture, readonly Platform[]> = {
 export const CHANNELS = ["stable", "beta"] as const;
 export type Channel = (typeof CHANNELS)[number];
 
+/// Cargo profile the native targets are built with. Defaults to debug, matching
+/// desktop_native/build.js, so a release build has to be asked for.
+export const PROFILES = ["debug", "release"] as const;
+export type Profile = (typeof PROFILES)[number];
+
 /// Distribution channels, mapped to the platform they can be produced on. `directory` is the
 /// unpacked output and belongs to no single platform.
 export const DISTRIBUTION_CHANNELS = {
@@ -172,6 +177,8 @@ export interface RawOptions {
   help: boolean;
   buildDir?: string;
   channel?: string;
+  profile?: string;
+  skipToolchainCheck: boolean;
   architectures: string[];
   distributionChannels: string[];
   buildNumber?: string;
@@ -202,6 +209,7 @@ export interface BuildConfig {
   configVersion: number;
   buildDir: string;
   channel: Channel;
+  profile: Profile;
   architectures: Architecture[];
   distributionChannels: DistributionChannel[];
   buildNumber?: string;
@@ -223,9 +231,11 @@ export interface BuildConfig {
   intermediates: Record<string, string>;
 }
 
-/// Thrown for input the parser itself rejects: unknown flags, missing values. Semantic
-/// problems come back from `validate` as a list instead, so the caller sees all of them.
-export class ConfigureError extends Error {}
+/// Thrown for anything a caller can fix by changing their command line or their build
+/// directory: unknown flags, missing values, a configuration that isn't there. Semantic
+/// problems found during validation come back from `validate` as a list instead, so the caller
+/// sees all of them at once rather than one per run.
+export class BuildError extends Error {}
 
 export function usage(): string {
   const targetFlags = TARGETS.filter((target) => target.flag != null)
@@ -249,6 +259,10 @@ export function usage(): string {
     "Options:",
     option("--build-dir <dir>", "Build directory, relative to apps/desktop (required)"),
     option(`--channel <${CHANNELS.join("|")}>`, "Release channel (default: stable)"),
+    option(
+      `--profile <${PROFILES.join("|")}>`,
+      "Cargo profile for native targets (default: debug)",
+    ),
     option("--architecture <arch>", `Repeatable. One of: ${ARCHITECTURES.join(", ")}`),
     option("--distribution-channel <channel>", "Repeatable. One of:"),
     `      ${Object.keys(DISTRIBUTION_CHANNELS).join(", ")}`,
@@ -259,6 +273,7 @@ export function usage(): string {
       "A file under apps/desktop, or an installed profile",
     ),
     option("--safari-extension <path>", "Prebuilt safari.appex to package"),
+    option("--skip-toolchain-check", "Do not probe for cross-compilation prerequisites"),
     option("--help", "Show this message"),
     "",
     "Targets:",
@@ -271,6 +286,8 @@ export function parseConfigureArgs(argv: string[]): RawOptions {
     help: { type: "boolean" },
     "build-dir": { type: "string" },
     channel: { type: "string" },
+    profile: { type: "string" },
+    "skip-toolchain-check": { type: "boolean" },
     architecture: { type: "string", multiple: true },
     "distribution-channel": { type: "string", multiple: true },
     "build-number": { type: "string" },
@@ -293,7 +310,7 @@ export function parseConfigureArgs(argv: string[]): RawOptions {
       values: Record<string, unknown>;
     });
   } catch (error) {
-    throw new ConfigureError(error instanceof Error ? error.message : String(error));
+    throw new BuildError(error instanceof Error ? error.message : String(error));
   }
 
   const enabledTargets: string[] = [];
@@ -314,6 +331,8 @@ export function parseConfigureArgs(argv: string[]): RawOptions {
     help: values.help === true,
     buildDir: asString(values["build-dir"]),
     channel: asString(values.channel),
+    profile: asString(values.profile),
+    skipToolchainCheck: values["skip-toolchain-check"] === true,
     architectures: asStringArray(values.architecture),
     distributionChannels: asStringArray(values["distribution-channel"]),
     buildNumber: asString(values["build-number"]),
@@ -340,6 +359,10 @@ export function validate(raw: RawOptions): string[] {
 
   if (raw.channel != null && !isChannel(raw.channel)) {
     errors.push(`Unknown --channel '${raw.channel}'. Expected one of: ${CHANNELS.join(", ")}.`);
+  }
+
+  if (raw.profile != null && !isProfile(raw.profile)) {
+    errors.push(`Unknown --profile '${raw.profile}'. Expected one of: ${PROFILES.join(", ")}.`);
   }
 
   if (raw.buildNumber != null && !/^\d+$/.test(raw.buildNumber)) {
@@ -451,7 +474,7 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
     .sort();
   const platform = platformsOf(distributionChannels)[0];
   if (platform == null) {
-    throw new ConfigureError("Cannot build a configuration without a resolved platform.");
+    throw new BuildError("Cannot build a configuration without a resolved platform.");
   }
 
   const targets = resolveTargets(raw, platform);
@@ -462,6 +485,7 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
     configVersion: CONFIG_VERSION,
     buildDir,
     channel: isChannel(raw.channel) ? raw.channel : "stable",
+    profile: isProfile(raw.profile) ? raw.profile : "debug",
     architectures: raw.architectures.filter(isArchitecture).slice().sort(),
     distributionChannels,
     ...(raw.buildNumber != null ? { buildNumber: raw.buildNumber } : {}),
@@ -516,6 +540,12 @@ function macosConfig(
 
 export function targetByKey(key: string): TargetDefinition | undefined {
   return TARGETS.find((target) => target.key === key);
+}
+
+/// Definitions of the targets a written configuration turned on, for callers that need more
+/// than the key -- which toolchain they need, where their output goes.
+export function enabledTargetDefinitions(config: BuildConfig): TargetDefinition[] {
+  return TARGETS.filter((target) => config.targets[target.key] === true);
 }
 
 export function provisioningProfilePath(buildDir: string): string {
@@ -600,6 +630,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isChannel(value: string | undefined): value is Channel {
   return value != null && (CHANNELS as readonly string[]).includes(value);
+}
+
+function isProfile(value: string | undefined): value is Profile {
+  return value != null && (PROFILES as readonly string[]).includes(value);
 }
 
 function isArchitecture(value: string): value is Architecture {
