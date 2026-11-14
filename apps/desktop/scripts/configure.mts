@@ -51,7 +51,7 @@ import {
   validate,
 } from "./build-config.mts";
 import { asHostPlatform, crossCompilationPlan, rustTargetsFor } from "./rust-targets.mts";
-import { verifyToolchain } from "./toolchain.mts";
+import { type ToolchainReport, verifyToolchain, verifyXcode } from "./toolchain.mts";
 
 const projectDir = path.resolve(import.meta.dirname, "..");
 const repoRoot = path.resolve(projectDir, "../..");
@@ -113,6 +113,11 @@ function main(): void {
   summarize(config, configPath);
 }
 
+function merge(into: ToolchainReport, from: ToolchainReport): void {
+  into.errors.push(...from.errors);
+  into.warnings.push(...from.warnings);
+}
+
 function toolchainIsReady(config: BuildConfig): boolean {
   const host = asHostPlatform(process.platform);
   if (host == null) {
@@ -122,13 +127,16 @@ function toolchainIsReady(config: BuildConfig): boolean {
     return true;
   }
 
-  const needsRust = enabledTargetDefinitions(config).some((target) => target.toolchain === "rust");
-  if (!needsRust) {
-    return true;
-  }
+  const enabled = enabledTargetDefinitions(config);
+  const report: ToolchainReport = { errors: [], warnings: [] };
 
-  const targets = rustTargetsFor(config.derived.platform, config.architectures);
-  const report = verifyToolchain(crossCompilationPlan(host, targets));
+  if (enabled.some((target) => target.toolchain === "rust")) {
+    const targets = rustTargetsFor(config.derived.platform, config.architectures);
+    merge(report, verifyToolchain(crossCompilationPlan(host, targets)));
+  }
+  if (enabled.some((target) => target.toolchain === "xcode")) {
+    merge(report, verifyXcode());
+  }
 
   for (const warning of report.warnings) {
     console.warn(`warning: ${warning}`);
