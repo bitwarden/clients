@@ -9,6 +9,8 @@ const MAC_ARGS = [
   "--distribution-channel",
   "dmg",
   "--with-macos-autofill-extension",
+  "--macos-signing-certificate",
+  "Developer ID Application: Bitwarden Inc",
 ];
 
 const LINUX_ARGS = [
