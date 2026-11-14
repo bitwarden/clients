@@ -9,11 +9,13 @@
 //   node scripts/lint-rust.mjs --only <name>  Run a single check. Composes with --fix.
 //
 // Available checks: fmt clippy sort udeps deny advisories
+// Only with --only: new-advisories
 
 import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { checkNewAdvisories } from "./check-new-advisories.mjs";
 import { checkNoBinstall } from "./check-no-binstall.mjs";
 import { nightlyToolchain } from "./rust-toolchain.mjs";
 
@@ -21,6 +23,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const CWD = resolve(__dirname, "../apps/desktop/desktop_native");
 
 const CHECKS = ["fmt", "clippy", "sort", "udeps", "deny", "advisories"];
+
+// Checks that only run when named with --only. `new-advisories` can't change
+// the outcome of a full run: it only reports findings that `advisories` would
+// already have failed on.
+const ONLY_CHECKS = ["new-advisories"];
+const ALL_CHECKS = [...CHECKS, ...ONLY_CHECKS];
 
 // Toolchain used by the checks that require nightly (fmt, udeps). rustfmt.toml
 // enables unstable options (wrap_comments, group_imports, imports_granularity),
@@ -43,14 +51,14 @@ for (let i = 0; i < argv.length; i++) {
     only = argv[++i] ?? "";
     if (!only) {
       console.error("--only requires a check name");
-      console.error(`Available: ${CHECKS.join(" ")}`);
+      console.error(`Available: ${ALL_CHECKS.join(" ")}`);
       process.exit(2);
     }
   } else if (arg.startsWith("--only=")) {
     only = arg.slice("--only=".length);
     if (!only) {
       console.error("--only requires a check name");
-      console.error(`Available: ${CHECKS.join(" ")}`);
+      console.error(`Available: ${ALL_CHECKS.join(" ")}`);
       process.exit(2);
     }
   } else if (arg === "-h" || arg === "--help") {
@@ -62,9 +70,9 @@ for (let i = 0; i < argv.length; i++) {
   }
 }
 
-if (only && !CHECKS.includes(only)) {
+if (only && !ALL_CHECKS.includes(only)) {
   console.error(`Unknown check: ${only}`);
-  console.error(`Available: ${CHECKS.join(" ")}`);
+  console.error(`Available: ${ALL_CHECKS.join(" ")}`);
   process.exit(2);
 }
 
@@ -77,7 +85,8 @@ Usage:
   node scripts/lint-rust.mjs --fix          Auto-fix where supported; still run check-only tools.
   node scripts/lint-rust.mjs --only <name>  Run a single check. Composes with --fix.
 
-Available checks: ${CHECKS.join(" ")}`);
+Available checks: ${CHECKS.join(" ")}
+Only with --only: ${ONLY_CHECKS.join(" ")}`);
 }
 
 function section(name) {
@@ -100,9 +109,9 @@ function run(cmd, args, extraEnv = {}) {
   }
 }
 
-// Tools run via cargo-run-bin (sort, udeps, deny, advisories) need the `cargo bin`
-// runner and must not fall through to cargo-binstall. Source installs only; see
-// VULN-613.
+// Tools run via cargo-run-bin (sort, udeps, deny, advisories, new-advisories)
+// need the `cargo bin` runner and must not fall through to cargo-binstall.
+// Source installs only; see VULN-613.
 function requireCargoBin() {
   const probe = spawnSync("cargo", ["bin", "--version"], { stdio: "ignore" });
   if (probe.error || probe.status !== 0) {
@@ -148,19 +157,31 @@ const runners = {
   // results only change with the manifests, lockfile or deny.toml. `advisories`
   // checks the lockfile against the RustSec database, so it can start failing on
   // an unchanged tree when a new advisory is published; CI runs it outside the
-  // blocking lint gate for that reason.
+  // blocking lint gate for that reason. `new-advisories` is the gated
+  // counterpart: it only fails on findings this tree adds compared to a base
+  // commit (see check-new-advisories.mjs).
   deny() {
     cargoDeny("bans", "licenses", "sources");
   },
   advisories() {
     cargoDeny("advisories");
   },
+  "new-advisories"() {
+    requireCargoBin();
+    let passed;
+    try {
+      passed = checkNewAdvisories();
+    } catch (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+    if (!passed) {
+      process.exit(1);
+    }
+  },
 };
 
-for (const check of CHECKS) {
-  if (only && only !== check) {
-    continue;
-  }
+for (const check of only ? [only] : CHECKS) {
   section(check);
   runners[check]();
 }
