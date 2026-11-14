@@ -18,7 +18,7 @@ import { firstValueFrom, map, switchMap } from "rxjs";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
-import { formatCalendarDate, selectedFilterStrings } from "@bitwarden/bit-pam";
+import { selectedFilterStrings } from "@bitwarden/bit-pam";
 import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -43,11 +43,13 @@ import {
   DrawerRef,
   FILTER_CONTROL,
   FilterControl,
+  FilterDividerComponent,
   FilterMenuModule,
   LinkModule,
   StatusLockupComponent,
   SvgComponent,
   TooltipDirective,
+  TypographyModule,
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -108,6 +110,34 @@ const CHOOSE_CUSTOM_RANGE = "chooseCustomRange";
 
 type TimePeriodChoice = AuditTimePeriod | typeof CHOOSE_CUSTOM_RANGE;
 
+/**
+ * A chip date per the content style guide: Gregorian with Latin digits like the table timestamps,
+ * an abbreviated month, no ordinal day, and the year when asked for. English drops the month's
+ * period and says "Sept" for September.
+ */
+export function formatChipDate(locale: string, date: Date, withYear: boolean): string {
+  const formatter = new Intl.DateTimeFormat(locale, {
+    calendar: "gregory",
+    numberingSystem: "latn",
+    month: "short",
+    day: "numeric",
+    ...(withYear ? { year: "numeric" } : {}),
+  });
+  if (!formatter.resolvedOptions().locale.startsWith("en")) {
+    return formatter.format(date);
+  }
+  return formatter
+    .formatToParts(date)
+    .map((part) => {
+      if (part.type !== "month") {
+        return part.value;
+      }
+      const month = part.value.replace(/\.$/, "");
+      return date.getMonth() === 8 && /^Sep/.test(month) ? "Sept" : month;
+    })
+    .join("");
+}
+
 const byLabel = (a: AuditChipOption, b: AuditChipOption) => a.label.localeCompare(b.label);
 
 /** Tells an empty answer from an empty trail. */
@@ -155,6 +185,7 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
     BadgeModule,
     ButtonModule,
     CalloutModule,
+    FilterDividerComponent,
     FilterMenuModule,
     HeaderModule,
     LinkModule,
@@ -167,6 +198,7 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
     BitCellComponent,
     BitCellDefDirective,
     TooltipDirective,
+    TypographyModule,
     I18nPipe,
     TimestampPipe,
   ],
@@ -320,14 +352,23 @@ export class AccessAuditComponent implements OnInit {
       return null;
     }
     const { from, to } = this.range();
-    const start = from == null ? null : formatCalendarDate(this.locale, from.getTime());
-    const end = to == null ? null : formatCalendarDate(this.locale, to.getTime());
-    if (start != null && end != null) {
-      return start === end ? start : this.i18nService.t("pamAuditCustomRange", start, end);
+    if (from != null && to != null) {
+      const sameDay = from.toDateString() === to.toDateString();
+      if (sameDay) {
+        return formatChipDate(this.locale, from, true);
+      }
+      // The year rides on the end date alone, unless the range spans two years.
+      const spansYears = from.getFullYear() !== to.getFullYear();
+      return this.i18nService.t(
+        "pamAuditCustomRange",
+        formatChipDate(this.locale, from, spansYears),
+        formatChipDate(this.locale, to, true),
+      );
     }
-    if (start != null) {
-      return this.i18nService.t("pamAuditCustomRangeFrom", start);
+    if (from != null) {
+      return this.i18nService.t("pamAuditCustomRangeFrom", formatChipDate(this.locale, from, true));
     }
+    const end = to == null ? null : formatChipDate(this.locale, to, true);
     return end == null ? null : this.i18nService.t("pamAuditCustomRangeUntil", end);
   });
 

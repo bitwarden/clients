@@ -18874,9 +18874,13 @@
       }
     }
   },
+  "pamAuditSubheading": {
+    "message": "Review access requests, approvals, and access rule changes across your organization.",
+    "description": "Description shown below the Audit log page title."
+  },
   "pamAuditCustomRange": {
-    "message": "$START$ – $END$",
-    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "message": "$START$ to $END$",
+    "description": "The custom range in force on the audit log's Date filter, shown on the filter chip and as the selected option in its menu.",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -18890,7 +18894,7 @@
   },
   "pamAuditCustomRangeFrom": {
     "message": "From $START$",
-    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "description": "A custom range on the audit log's Date filter that has a start date but no end date.",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -18900,7 +18904,7 @@
   },
   "pamAuditCustomRangeUntil": {
     "message": "Until $END$",
-    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "description": "A custom range on the audit log's Date filter that has an end date but no start date.",
     "placeholders": {
       "end": {
         "content": "$1",
