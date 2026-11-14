@@ -1204,6 +1204,47 @@ describe("AutofillService", () => {
       });
     });
 
+    it("retains targeted fields when options.focusedFieldForm is set and their form opid does not match", async () => {
+      // Targeted fields (fill assist) carry no form opid. The focused-form filter must pass them
+      // through alongside heuristic fields whose form matches; otherwise every targeted field on
+      // the frame is stripped and the fill silently produces an empty script.
+      const targetedField = createAutofillFieldMock({
+        opid: "targeted-otp",
+        form: undefined,
+        targeted: true,
+      });
+      const heuristicInFocusedForm = createAutofillFieldMock({
+        opid: "heuristic-in-focused-form",
+        form: "focusedFormId",
+        targeted: false,
+      });
+      const heuristicInOtherForm = createAutofillFieldMock({
+        opid: "heuristic-in-other-form",
+        form: "otherFormId",
+        targeted: false,
+      });
+      autofillOptions.pageDetails[0].details.fields = [
+        targetedField,
+        heuristicInFocusedForm,
+        heuristicInOtherForm,
+      ];
+      autofillOptions.focusedFieldForm = "focusedFormId";
+
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      const generateFillScriptSpy = jest
+        .spyOn(autofillService as any, "generateFillScript")
+        .mockResolvedValue(null);
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      const passedDetails = generateFillScriptSpy.mock.calls[0][0] as AutofillPageDetails;
+      expect(passedDetails.fields).toContain(targetedField);
+      expect(passedDetails.fields).toContain(heuristicInFocusedForm);
+      expect(passedDetails.fields).not.toContain(heuristicInOtherForm);
+    });
+
     // A verification code does not depend on the page, so an attempt that placed nothing still
     // releases one. A second-factor step whose only field goes unrecognised reaches this.
     it("reports a code with an absent fill when nothing on the page could be filled", async () => {
