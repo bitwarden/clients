@@ -92,6 +92,13 @@ async function buildMacOs() {
   }
   console.log(`### Channel '${channelArgument}', hosted by ${channel.appId}`);
 
+  // CI names the profile it installed so it doesn't depend on the defaults above, which are free
+  // to change for local development.
+  const provisioningProfile =
+    process.env.AUTOFILL_EXTENSION_PROVISIONING_PROFILE ||
+    channel.provisioningProfiles[configurationArgument];
+  console.log(`### Provisioning profile '${provisioningProfile}'`);
+
   const proc = child.spawn("xcodebuild", [
     "-project",
     paths.macOsProject,
@@ -104,7 +111,7 @@ async function buildMacOs() {
     // While these arguments are defined in the `configuration` file above, xcodebuild has a bug in it currently that requires these arguments
     // be explicitly defined in this call.
     `CODE_SIGN_IDENTITY=${codeSignIdentity}`,
-    `PROVISIONING_PROFILE_SPECIFIER=${channel.provisioningProfiles[configurationArgument]}`,
+    `PROVISIONING_PROFILE_SPECIFIER=${provisioningProfile}`,
 
     // A setting given on the command line outranks the target's own build settings, which is
     // what retargets the whole extension at the channel's app.
