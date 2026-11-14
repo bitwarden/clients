@@ -15,6 +15,7 @@ import {
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -133,7 +134,10 @@ export class PremiumUpgradeDialogComponent {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("error"),
-        message: this.i18nService.t("unexpectedError"),
+        message:
+          error instanceof ErrorResponse && error.statusCode === 400
+            ? error.getSingleMessage()
+            : this.i18nService.t("unexpectedError"),
       });
       this.logService.error("Failed to start premium upgrade", error);
     } finally {

@@ -257,7 +257,7 @@ describe("UpgradePaymentComponent", () => {
       );
     }));
 
-    it("shows generic error toast when translateError returns a non-DiscountExpiredError", fakeAsync(async () => {
+    it("does not refresh discounts when the error is not a DiscountExpiredError", fakeAsync(async () => {
       fixture.detectChanges();
 
       const error = new ErrorResponse({ Message: "Bad request" }, 400);
@@ -267,9 +267,66 @@ describe("UpgradePaymentComponent", () => {
       await component["submit"]();
 
       expect(mockSubscriptionDiscountService.refresh).not.toHaveBeenCalled();
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error" }),
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "Bad request",
+      });
+    }));
+    it("shows the server's message when the purchase is refused", fakeAsync(async () => {
+      fixture.detectChanges();
+
+      const error = new ErrorResponse(
+        {
+          Message:
+            "You have an unpaid Premium subscription. Update your payment method to restore Premium.",
+        },
+        400,
       );
+      jest.spyOn(component as any, "processUpgrade").mockRejectedValue(error);
+
+      await component["submit"]();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message:
+          "You have an unpaid Premium subscription. Update your payment method to restore Premium.",
+      });
+    }));
+
+    it("shows the first validation message when the purchase fails validation", fakeAsync(async () => {
+      fixture.detectChanges();
+
+      jest.spyOn(component as any, "processUpgrade").mockRejectedValue(
+        new ErrorResponse(
+          {
+            Message: "The model state is invalid.",
+            ValidationErrors: { BillingAddress: ["Postal code is required."] },
+          },
+          400,
+        ),
+      );
+
+      await component["submit"]();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "Postal code is required.",
+      });
+    }));
+
+    it("shows the generic message when the purchase fails unexpectedly", fakeAsync(async () => {
+      fixture.detectChanges();
+
+      jest
+        .spyOn(component as any, "processUpgrade")
+        .mockRejectedValue(new ErrorResponse({ Message: "Internal error" }, 500));
+
+      await component["submit"]();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "upgradeErrorMessage",
+      });
     }));
   });
 

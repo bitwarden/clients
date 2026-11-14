@@ -36,6 +36,7 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
@@ -332,7 +333,10 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       }
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("upgradeErrorMessage"),
+        message:
+          error instanceof ErrorResponse && error.statusCode === 400
+            ? error.getSingleMessage()
+            : this.i18nService.t("upgradeErrorMessage"),
       });
     }
   };

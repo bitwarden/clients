@@ -15,6 +15,7 @@ import {
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
@@ -334,6 +335,28 @@ describe("PremiumUpgradeDialogComponent", () => {
         expect(mockLogService.error).toHaveBeenCalledWith("Failed to start premium upgrade", error);
         expect(mockPlatformUtilsService.launchUri).not.toHaveBeenCalled();
         expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should show the server's message when the checkout is refused", async () => {
+        mockBillingApiService.createPremiumCheckoutSession.mockRejectedValue(
+          new ErrorResponse(
+            {
+              Message:
+                "You have an unpaid Premium subscription. Update your payment method to restore Premium.",
+            },
+            400,
+          ),
+        );
+
+        await component["upgrade"]();
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: "error",
+          message:
+            "You have an unpaid Premium subscription. Update your payment method to restore Premium.",
+        });
+        expect(mockPlatformUtilsService.launchUri).not.toHaveBeenCalled();
       });
 
       it("should show error toast and close dialog when feature flag lookup rejects", async () => {
