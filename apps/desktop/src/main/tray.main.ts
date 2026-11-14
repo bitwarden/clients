@@ -11,7 +11,11 @@ import { BiometricsService } from "@bitwarden/key-management";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import { isDev } from "../utils";
 
+import { RendererTeardownMain } from "./renderer-teardown.main";
 import { WindowMain } from "./window.main";
+
+// Tray menu item that is only enabled while the active account is unlocked.
+const LockVaultMenuItemId = "lockVault";
 
 export class TrayMain {
   contextMenu: Menu;
@@ -29,6 +33,7 @@ export class TrayMain {
     private desktopSettingsService: DesktopSettingsService,
     private messagingService: MessagingService,
     private biometricService: BiometricsService,
+    private rendererTeardown: RendererTeardownMain,
   ) {
     if (process.platform === "win32") {
       this.icon = path.join(__dirname, "/images/icon.ico");
@@ -93,7 +98,7 @@ export class TrayMain {
     });
 
     win.on("close", (e: Event) => {
-      if (this.windowMain.isQuitting) {
+      if (this.windowMain.isQuitting || this.windowMain.rendererDestroyed) {
         return;
       }
 
@@ -125,7 +130,7 @@ export class TrayMain {
   hideToTray(win: BrowserWindow | null = this.windowMain.win) {
     this.showTray();
     if (win != null) {
-      win.hide();
+      this.hideWindow(win);
     }
     if (this.isDarwin()) {
       this.hideDock();
@@ -164,6 +169,21 @@ export class TrayMain {
     }
   }
 
+  private hideWindow(win: BrowserWindow) {
+    // Only the main window carries the renderer worth destroying.
+    if (win !== this.windowMain.win || !this.rendererTeardown.tryTearDown()) {
+      win.hide();
+      return;
+    }
+
+    // Destroying the renderer locks the vault, and the renderer is what keeps this item in sync.
+    const lockVault = this.contextMenu?.getMenuItemById(LockVaultMenuItemId);
+    if (lockVault != null) {
+      lockVault.enabled = false;
+      this.updateContextMenu();
+    }
+  }
+
   updateContextMenu() {
     if (this.tray != null && this.contextMenu != null && this.isLinux()) {
       this.tray.setContextMenu(this.contextMenu);
@@ -190,7 +210,11 @@ export class TrayMain {
     this.windowMain.isQuitting = true;
     if (this.windowMain.win != null) {
       this.windowMain.win.close();
+      return;
     }
+
+    // No window whose close would trigger quit, e.g. after the renderer was destroyed.
+    app.quit();
   }
 
   /**
