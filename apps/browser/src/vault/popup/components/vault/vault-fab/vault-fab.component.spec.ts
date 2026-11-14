@@ -3,17 +3,19 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { DialogService, IconModule, MenuModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import {
   AddEditFolderDialogComponent,
   MY_VAULT,
@@ -78,6 +80,10 @@ describe("AppVaultFabComponent", () => {
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesServiceMock },
+        {
+          provide: SendPolicyService,
+          useValue: mock<SendPolicyService>({ creatableSendTypes$: of([SendType.Text]) }),
+        },
       ],
     }).compileComponents();
 

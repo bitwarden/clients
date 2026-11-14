@@ -31,11 +31,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { StateProvider } from "@bitwarden/state";
 import {
   ALL_ITEMS_SCOPE,
@@ -437,6 +439,10 @@ describe("VaultComponent", () => {
         {
           provide: CollectionService,
           useValue: { decryptedCollections$: jest.fn().mockReturnValue(of([])) },
+        },
+        {
+          provide: SendPolicyService,
+          useValue: mock<SendPolicyService>({ creatableSendTypes$: of([SendType.Text]) }),
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

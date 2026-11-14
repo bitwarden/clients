@@ -6,6 +6,7 @@ import { combineLatest, map, shareReplay } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
@@ -50,6 +51,8 @@ export class NewCipherMenuComponent {
   readonly canCreateFolder = input(false);
   readonly canCreateCollection = input(false);
   readonly canCreateSshKey = input(false);
+  /** The Send types the dropdown offers. The host opens the Send form on `sendAdded`. */
+  readonly sendTypes = input<SendType[]>([]);
   readonly icon = input<BitwardenIcon>("bwi-plus");
   readonly buttonType = input<ButtonType>("primary");
   readonly id = input<string>();
@@ -66,7 +69,10 @@ export class NewCipherMenuComponent {
   folderAdded = output();
   collectionAdded = output();
   cipherAdded = output<CipherType>();
+  sendAdded = output<SendType>();
   onAddItemDialog = output();
+
+  protected readonly SendType = SendType;
 
   private readonly terminology = inject(Vfo1TerminologyService);
   protected readonly coachmark = inject(CoachmarkService);

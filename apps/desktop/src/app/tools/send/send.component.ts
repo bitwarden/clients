@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, DestroyRef, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, lastValueFrom, map } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router } from "@angular/router";
+import { combineLatest, filter, firstValueFrom, lastValueFrom, map } from "rxjs";
 
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -10,6 +11,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -65,6 +67,8 @@ export class SendComponent {
   private logService = inject(LogService);
   private sendFormService = inject(SendFormService);
   private destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
@@ -104,6 +108,28 @@ export class SendComponent {
     this.destroyRef.onDestroy(() => {
       void this.activeDrawerRef?.close();
     });
+
+    // `?new=text` or `?new=file` opens the add form, e.g. from the vault's Add menu.
+    this.route.queryParamMap
+      .pipe(
+        map((params) => params.get("new")),
+        filter((value) => value === SendFilterType.Text || value === SendFilterType.File),
+        takeUntilDestroyed(),
+      )
+      .subscribe((value) => void this.addSendFromRoute(value));
+  }
+
+  private async addSendFromRoute(value: string): Promise<void> {
+    await this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { new: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+    const type = value === SendFilterType.File ? SendType.File : SendType.Text;
+    if ((await firstValueFrom(this.sendPolicyService.creatableSendTypes$)).includes(type)) {
+      await this.addSend(type);
+    }
   }
 
   protected async addSend(type: SendType): Promise<void> {
