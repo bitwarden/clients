@@ -37,6 +37,7 @@ describe("MemberExportService", () => {
         twoStepLogin: "Two-step Login",
         accountRecovery: "Account Recovery",
         secretsManager: "Secrets Manager",
+        privilegedControls: "Privileged Controls",
         groups: "Groups",
         // Status values
         invited: "Invited",
@@ -168,6 +169,56 @@ describe("MemberExportService", () => {
       const csvData = fileDownloadService.download.mock.calls[0][0].blobData as string;
       expect(csvData).toContain("user@example.com");
       expect(csvData).toBeDefined();
+    });
+
+    describe("Privileged Controls column", () => {
+      const members: OrganizationUserView[] = [
+        {
+          email: "pam@example.com",
+          name: "Pam User",
+          status: OrganizationUserStatusType.Confirmed,
+          type: OrganizationUserType.User,
+          twoFactorEnabled: false,
+          resetPasswordEnrolled: false,
+          accessSecretsManager: false,
+          accessPam: true,
+          groupNames: [],
+        } as OrganizationUserView,
+        {
+          email: "nopam@example.com",
+          name: "No Pam User",
+          status: OrganizationUserStatusType.Confirmed,
+          type: OrganizationUserType.User,
+          twoFactorEnabled: false,
+          resetPasswordEnrolled: false,
+          accessSecretsManager: true,
+          accessPam: false,
+          groupNames: [],
+        } as OrganizationUserView,
+      ];
+
+      it("is omitted by default", () => {
+        service.getMemberExport(members);
+
+        const csvData = fileDownloadService.download.mock.calls[0][0].blobData as string;
+        expect(csvData).not.toContain("Privileged Controls");
+      });
+
+      it("is included after Secrets Manager when requested", () => {
+        service.getMemberExport(members, true);
+
+        const csvData = fileDownloadService.download.mock.calls[0][0].blobData as string;
+        const lines = csvData.split(/\r?\n/);
+        expect(lines[0]).toBe(
+          "Email,Name,Status,Role,Two-step Login,Account Recovery,Secrets Manager,Privileged Controls,Groups",
+        );
+        expect(lines[1]).toBe(
+          "pam@example.com,Pam User,Confirmed,User,Disabled,Not Enrolled,Disabled,Enabled,",
+        );
+        expect(lines[2]).toBe(
+          "nopam@example.com,No Pam User,Confirmed,User,Disabled,Not Enrolled,Enabled,Disabled,",
+        );
+      });
     });
 
     it("should handle empty members array", () => {
