@@ -238,6 +238,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   readonly defaultCollectionId = input<string | undefined>(undefined);
 
+  /**
+   * Pre-selects a folder in the target selector when the personal vault is the starting
+   * destination. The user may change the selection freely afterward.
+   */
+  readonly defaultFolderId = input<string | undefined>(undefined);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
@@ -528,7 +534,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const defaultCollectionId = this.defaultCollectionId();
     const defaultOrgId = this.defaultOrganizationId();
+    const defaultFolderId = this.defaultFolderId();
     let defaultCollectionApplied = false;
+    let defaultFolderApplied = false;
 
     // React to vault destination changes (personal vault vs organization selection)
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
@@ -578,6 +586,22 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
                 // Collection not found or not manageable; leave targetSelector at its default.
               });
           }
+        }
+
+        // Pre-fill the default folder once when the personal vault is first selected.
+        if (!defaultFolderApplied && defaultFolderId && value === "myVault") {
+          defaultFolderApplied = true;
+          firstValueFrom(
+            this.folders$.pipe(map((folders) => folders.find((f) => f.id === defaultFolderId))),
+          )
+            .then((folder) => {
+              if (folder) {
+                this.formGroup.controls.targetSelector.setValue(folder);
+              }
+            })
+            .catch(() => {
+              // Folder not found; leave targetSelector at its default.
+            });
         }
       });
 
