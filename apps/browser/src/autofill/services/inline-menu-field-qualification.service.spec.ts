@@ -1122,6 +1122,102 @@ describe("InlineMenuFieldQualificationService", () => {
             inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
           ).toBe(false);
         });
+
+        it("is an identity first name field on a page that also has a card number and cvv field", () => {
+          const field = mock<AutofillField>({
+            htmlName: "firstName",
+          });
+          const cardNumberField = mock<AutofillField>({
+            autoCompleteType: "cc-number",
+          });
+          const cardCvvField = mock<AutofillField>({
+            autoCompleteType: "cc-csc",
+          });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+
+        it("is an identity last name field on a page that also has a card number and cvv field", () => {
+          const field = mock<AutofillField>({
+            htmlName: "lastName",
+          });
+          const cardNumberField = mock<AutofillField>({
+            autoCompleteType: "cc-number",
+          });
+          const cardCvvField = mock<AutofillField>({
+            autoCompleteType: "cc-csc",
+          });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+
+        it("is a first name field whose group label is 'Name *', on a page with a card number and cvv field", () => {
+          // Reproduces nhhco.com: WPForms points the group label "Name *" at the first-name
+          // input via for="…field_1". Multiple fields on the page carry "name" as a token
+          // (first name via label "Name *", company via label "Company Name"), so the count
+          // gate blocks the ambiguous match.
+          const field = mock<AutofillField>({
+            htmlName: "wpforms[fields][1][first]",
+            htmlClass: "wpforms-field-name-first",
+            "label-tag": "Name *",
+          });
+          const companyField = mock<AutofillField>({
+            htmlName: "wpforms[fields][6]",
+            htmlClass: "wpforms-field-large",
+            "label-tag": "Company Name",
+          });
+          const cardNumberField = mock<AutofillField>({
+            htmlClass: "wpforms-field-authorize_net-cardnumber",
+            autoCompleteType: "cc-number",
+          });
+          const cardCvvField = mock<AutofillField>({
+            htmlClass: "wpforms-field-authorize_net-cardcvc",
+            autoCompleteType: "cc-csc",
+          });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, companyField, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+
+        it("is a company name field whose label is 'Company Name', on a page that also has a first name field, card number, and cvv field", () => {
+          // Reproduces nhhco.com: "Company Name" label produces "name" as a token after
+          // space-splitting. Multiple fields carry "name" so the count gate blocks the match.
+          const firstNameField = mock<AutofillField>({
+            htmlName: "wpforms[fields][1][first]",
+            htmlClass: "wpforms-field-name-first",
+            "label-tag": "Name *",
+          });
+          const field = mock<AutofillField>({
+            htmlName: "wpforms[fields][6]",
+            htmlClass: "wpforms-field-large",
+            "label-tag": "Company Name",
+          });
+          const cardNumberField = mock<AutofillField>({
+            htmlClass: "wpforms-field-authorize_net-cardnumber",
+            autoCompleteType: "cc-number",
+          });
+          const cardCvvField = mock<AutofillField>({
+            htmlClass: "wpforms-field-authorize_net-cardcvc",
+            autoCompleteType: "cc-csc",
+          });
+          pageDetails.forms = {};
+          pageDetails.fields = [firstNameField, field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
       });
 
       describe("has a parent form", () => {
@@ -1168,6 +1264,112 @@ describe("InlineMenuFieldQualificationService", () => {
             inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
           ).toBe(false);
         });
+
+        it("is an identity first name field within a form that also has a card number and cvv field", () => {
+          const field = mock<AutofillField>({
+            htmlName: "firstName",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+
+        it("is an identity last name field within a form that also has a card number and cvv field", () => {
+          const field = mock<AutofillField>({
+            htmlName: "lastName",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+
+        it("is a first name field whose group label is 'Name *', within a form that also has a last name, company name, and card fields", () => {
+          // Reproduces nhhco.com: WPForms points the group label "Name *" at the first-name
+          // input via for="…field_1". Multiple fields in the same form carry "name" as a token
+          // (first name via label "Name *", company via label "Company Name"), so the count gate
+          // blocks the ambiguous match.
+          const field = mock<AutofillField>({
+            htmlName: "wpforms[fields][1][first]",
+            htmlClass: "wpforms-field-name-first",
+            "label-tag": "Name *",
+            form: "validFormId",
+          });
+          const companyField = mock<AutofillField>({
+            htmlName: "wpforms[fields][6]",
+            htmlClass: "wpforms-field-large",
+            "label-tag": "Company Name",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            htmlClass: "wpforms-field-authorize_net-cardnumber",
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            htmlClass: "wpforms-field-authorize_net-cardcvc",
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, companyField, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
+
+        it("is a company name field whose label is 'Company Name', within a form that also has a first name and card fields", () => {
+          // Reproduces nhhco.com: "Company Name" label produces "name" as a token after
+          // space-splitting. Multiple fields carry "name" so the count gate blocks the match.
+          const firstNameField = mock<AutofillField>({
+            htmlName: "wpforms[fields][1][first]",
+            htmlClass: "wpforms-field-name-first",
+            "label-tag": "Name *",
+            form: "validFormId",
+          });
+          const field = mock<AutofillField>({
+            htmlName: "wpforms[fields][6]",
+            htmlClass: "wpforms-field-large",
+            "label-tag": "Company Name",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            htmlClass: "wpforms-field-authorize_net-cardnumber",
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            htmlClass: "wpforms-field-authorize_net-cardcvc",
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [firstNameField, field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(false);
+        });
       });
     });
 
@@ -1175,7 +1377,7 @@ describe("InlineMenuFieldQualificationService", () => {
       describe("does not have a parent form", () => {
         it("is structured on a page with a single credit card number field and a single cvv field", () => {
           const field = mock<AutofillField>({
-            placeholder: "name",
+            placeholder: "cardholder",
           });
           const cardNumberField = mock<AutofillField>({
             placeholder: "card number",
@@ -1185,6 +1387,49 @@ describe("InlineMenuFieldQualificationService", () => {
             placeholder: "card cvv",
             autoCompleteType: "cc-csc",
           });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+
+        it("has htmlName='name' (exact keyword) on a page with a card number and cvv field", () => {
+          const field = mock<AutofillField>({ htmlName: "name" });
+          const cardNumberField = mock<AutofillField>({ autoCompleteType: "cc-number" });
+          const cardCvvField = mock<AutofillField>({ autoCompleteType: "cc-csc" });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+
+        it("has htmlName='nameOnCard' with a 'Name on card' label on a page with a card number and cvv field", () => {
+          // isCardholderNameByStructuralAttributes detects "nameoncard" contains both
+          // "name" and "card" as substrings and qualifies the field.
+          const field = mock<AutofillField>({
+            htmlName: "nameOnCard",
+            "label-tag": "Name on card",
+          });
+          const cardNumberField = mock<AutofillField>({ autoCompleteType: "cc-number" });
+          const cardCvvField = mock<AutofillField>({ autoCompleteType: "cc-csc" });
+          pageDetails.forms = {};
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+
+        it("has htmlName='nameOnCard' with no label on a page with a card number and cvv field", () => {
+          // isCardholderNameByStructuralAttributes detects "nameoncard" contains both
+          // "name" and "card" as substrings and qualifies the field.
+          const field = mock<AutofillField>({ htmlName: "nameOnCard" });
+          const cardNumberField = mock<AutofillField>({ autoCompleteType: "cc-number" });
+          const cardCvvField = mock<AutofillField>({ autoCompleteType: "cc-csc" });
           pageDetails.forms = {};
           pageDetails.fields = [field, cardNumberField, cardCvvField];
 
@@ -1206,7 +1451,7 @@ describe("InlineMenuFieldQualificationService", () => {
 
         it("has a credit card number field and cvv field structured within the same form", () => {
           const field = mock<AutofillField>({
-            placeholder: "name",
+            placeholder: "cardholder",
             form: "validFormId",
           });
           const cardNumberField = mock<AutofillField>({
@@ -1216,6 +1461,118 @@ describe("InlineMenuFieldQualificationService", () => {
           });
           const cardCvvField = mock<AutofillField>({
             placeholder: "card cvv",
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+
+        it("has htmlName='name' (exact keyword) within a form with a card number and cvv field", () => {
+          const field = mock<AutofillField>({ htmlName: "name", form: "validFormId" });
+          const cardNumberField = mock<AutofillField>({
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+
+        it("has htmlName='nameOnCard' with a 'Name on card' label within a form with a card number and cvv field", () => {
+          const field = mock<AutofillField>({
+            htmlName: "nameOnCard",
+            "label-tag": "Name on card",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+
+        it("has htmlName='nameOnCard' with no label within a form with a card number and cvv field", () => {
+          const field = mock<AutofillField>({ htmlName: "nameOnCard", form: "validFormId" });
+          const cardNumberField = mock<AutofillField>({
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+
+        it("has htmlName='nameOnCard' whose label-left contains 'Card Number' text that would otherwise match the card number keyword", () => {
+          // Regression: DOM proximity scrapers can assign text from the card number label to
+          // adjacent fields. Without the cardholder-name exclusion in the number-count gate,
+          // nameOnCard would match the "number" keyword and inflate the count to 2, causing
+          // the gate to return false before isCardholderNameByStructuralAttributes is reached.
+          const field = mock<AutofillField>({
+            htmlName: "nameOnCard",
+            htmlID: "nameOnCard",
+            "label-left": "Card Number",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            autoCompleteType: "cc-number",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
+            autoCompleteType: "cc-csc",
+            form: "validFormId",
+          });
+          pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+          expect(
+            inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+          ).toBe(true);
+        });
+
+        it("has htmlName='nameOnCard' when the card-number field's label text includes a CVV keyword that would otherwise inflate the CVV count", () => {
+          // Regression: DOM proximity scrapers can assign adjacent label text to a card-number
+          // field, causing it to also match CVV keywords (e.g. "cvv" token from a neighbouring
+          // label). Without the card-number exclusion in the CVV-count gate, the card-number
+          // field would be counted twice — once as a card-number and once as a CVV — inflating
+          // the CVV count to 2, which causes the gate to return false before
+          // isCardholderNameByStructuralAttributes is reached.
+          const field = mock<AutofillField>({
+            htmlName: "nameOnCard",
+            htmlID: "nameOnCard",
+            form: "validFormId",
+          });
+          const cardNumberField = mock<AutofillField>({
+            htmlName: "cardNumber",
+            htmlID: "cardNumber",
+            autoCompleteType: "cc-number",
+            // Proximity label scraper picked up the CVV field's label text
+            "label-right": "CVV",
+            form: "validFormId",
+          });
+          const cardCvvField = mock<AutofillField>({
             autoCompleteType: "cc-csc",
             form: "validFormId",
           });

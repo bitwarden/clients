@@ -1417,6 +1417,47 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     });
 
+    // If no cardholder name field was matched by keyword and both a card number and CVV were
+    // found, fall back to the same count-based heuristic used by the inline menu qualifier:
+    // the sole field in the form scope that carries "name" or "nom" as a substring of any
+    // card attribute is almost certainly the cardholder name field. This handles exotic field
+    // names like "nameOnCard" or "name-on-cc" without requiring constant additions.
+    if (!fillFields.cardholderName && fillFields.number && fillFields.code) {
+      const formId = fillFields.number.form;
+      const fieldsInScope = formId
+        ? pageDetails.fields.filter((f) => f.form === formId)
+        : pageDetails.fields;
+
+      const alreadyMapped = new Set(
+        [
+          fillFields.number,
+          fillFields.code,
+          fillFields.exp,
+          fillFields.expMonth,
+          fillFields.expYear,
+          fillFields.brand,
+        ].filter(Boolean),
+      );
+
+      const nameFields = fieldsInScope.filter((f) => {
+        if (AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillTypes)) {
+          return false;
+        }
+        if (!f.viewable || alreadyMapped.has(f)) {
+          return false;
+        }
+        return CreditCardAutoFillConstants.CardAttributes.some((attr) => {
+           
+          const val = f[attr as keyof AutofillField] as string;
+          return val && AutofillService.isFieldMatch(val, ["name", "nom"], ["name", "nom"]);
+        });
+      });
+
+      if (nameFields.length === 1) {
+        fillFields.cardholderName = nameFields[0];
+      }
+    }
+
     const card = options.cipher.card;
     this.makeScriptAction(fillScript, card, fillFields, filledFields, "cardholderName");
     this.makeScriptAction(fillScript, card, fillFields, filledFields, "number");
