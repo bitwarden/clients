@@ -7723,6 +7723,12 @@
   "extensionWidth": {
     "message": "Extension width"
   },
+  "openInSidePanel": {
+    "message": "Open in side panel"
+  },
+  "openInSidePanelDesc": {
+    "message": "Clicking the Bitwarden icon opens the extension in the browser side panel instead of a popup."
+  },
   "wide": {
     "message": "Wide"
   },
