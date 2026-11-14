@@ -237,7 +237,8 @@ async function buildCipherIndex(ciphers: CipherViewLike[]): Promise<lunr.Index> 
     extractor: (doc: object) => uriExtractor(doc as CipherViewLike),
   });
   builder.field("fields", {
-    extractor: (doc: object) => fieldExtractor(doc as CipherViewLike, false),
+    // Joined, so lunr tokenizes each word. An array would be indexed as one token per element.
+    extractor: (doc: object) => fieldExtractor(doc as CipherViewLike, true),
   });
   builder.field("fields_joined", {
     extractor: (doc: object) => fieldExtractor(doc as CipherViewLike, true),
