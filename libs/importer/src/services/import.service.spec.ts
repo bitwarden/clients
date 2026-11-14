@@ -19,7 +19,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import {
+  CipherService,
+  InvalidCipherViewError,
+} from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
@@ -644,6 +647,26 @@ describe("ImportService", () => {
       await importService.importImportResult(result, "org-1" as OrganizationId, null, true);
 
       expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+  });
+
+  describe("importImportResult when an item is not a valid cipher", () => {
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: "user-1" } as any);
+      i18nService.t.mockImplementation((key) => key);
+      (restrictedItemTypesService as any).restricted$ = of([]);
+    });
+
+    it("rejects with the localized format error, never the SDK's message", async () => {
+      const result = new ImportResult();
+      result.success = true;
+      result.ciphers = [Object.assign(new CipherView(), { type: CipherType.SshKey, name: "key" })];
+      cipherService.encryptMany.mockRejectedValue(new InvalidCipherViewError(0));
+
+      await expect(importService.importImportResult(result)).rejects.toThrow(
+        new Error("importFormatError"),
+      );
+      expect(importApiService.postImportCiphers).not.toHaveBeenCalled();
     });
   });
 

@@ -19,6 +19,7 @@ import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../platform/misc/utils";
 import { UserId, CipherId, OrganizationId } from "../../types/guid";
 import { UserKey } from "../../types/key";
+import { InvalidCipherViewError } from "../abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "../enums";
 import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherData } from "../models/data/cipher.data";
@@ -321,6 +322,64 @@ describe("DefaultCipherEncryptionService", () => {
         sdkError,
       );
       expect(logService.error).toHaveBeenCalled();
+    });
+
+    describe("when the SDK rejects an invalid cipher view", () => {
+      const sensitiveValue = "hunter2";
+
+      // Shaped like the SDK's `EncryptError`. Built structurally: the installed SDK's type predates
+      // the `InvalidInput` variant (PM-44712).
+      const invalidInputError = (message: string) =>
+        Object.assign(new Error(message), { name: "EncryptError", variant: "InvalidInput" });
+
+      it("rejects with an InvalidCipherViewError carrying the item index", async () => {
+        mockSdkClient
+          .vault()
+          .ciphers()
+          .encrypt_list.mockRejectedValue(
+            invalidInputError(
+              `Item 1 of the list is invalid: invalid type: string "${sensitiveValue}", expected a map`,
+            ),
+          );
+
+        const result = cipherEncryptionService.encryptMany([cipherViewObj, cipherViewObj], userId);
+
+        await expect(result).rejects.toBeInstanceOf(InvalidCipherViewError);
+        await expect(result).rejects.toMatchObject({ itemIndex: 1 });
+        await expect(result).rejects.not.toHaveProperty(
+          "message",
+          expect.stringContaining(sensitiveValue),
+        );
+      });
+
+      it("does not log the SDK's message", async () => {
+        mockSdkClient
+          .vault()
+          .ciphers()
+          .encrypt_list.mockRejectedValue(
+            invalidInputError(`Item 0 of the list is invalid: unknown variant "${sensitiveValue}"`),
+          );
+
+        await expect(
+          cipherEncryptionService.encryptMany([cipherViewObj], userId),
+        ).rejects.toBeInstanceOf(InvalidCipherViewError);
+
+        expect(logService.error).toHaveBeenCalledTimes(1);
+        const logged = logService.error.mock.calls[0].map(String).join(" ");
+        expect(logged).toContain("index 0");
+        expect(logged).not.toContain(sensitiveValue);
+      });
+
+      it("rejects without an index when the SDK's message has none", async () => {
+        mockSdkClient
+          .vault()
+          .ciphers()
+          .encrypt_list.mockRejectedValue(invalidInputError(sensitiveValue));
+
+        await expect(
+          cipherEncryptionService.encryptMany([cipherViewObj], userId),
+        ).rejects.toMatchObject({ name: "InvalidCipherViewError", itemIndex: undefined });
+      });
     });
   });
 
