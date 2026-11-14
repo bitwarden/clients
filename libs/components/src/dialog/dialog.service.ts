@@ -88,6 +88,17 @@ class ResponsivePositionStrategy extends GlobalPositionStrategy {
 }
 
 /**
+ * Position strategy that pins the dialog to the bottom of the screen regardless of screen size.
+ * Used by dialogs opened with `bottomSheet: true`.
+ */
+export class BottomSheetPositionStrategy extends GlobalPositionStrategy {
+  constructor() {
+    super();
+    this.bottom().centerHorizontally();
+  }
+}
+
+/**
  * Position strategy that centers dialogs regardless of screen size.
  * Use this for simple dialogs and custom dialogs that should not use
  * the responsive bottom-sheet behavior on mobile.
@@ -138,8 +149,9 @@ export class DialogService {
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
     config?: DialogConfig<D, R>,
   ): DialogRef<R, C> {
-    // We need to split out our async closePredicate here because the CDK's closePredicate is sync
-    const { closePredicate, ...otherConfig } = config ?? {};
+    // We need to split out our async closePredicate here because the CDK's closePredicate is sync.
+    // `bottomSheet` is ours as well and is not part of the CDK config.
+    const { closePredicate, bottomSheet, ...otherConfig } = config ?? {};
 
     /**
      * This is a bit circular in nature:
@@ -149,7 +161,7 @@ export class DialogService {
      * To break the circle, we define CDKDialogRef as a wrapper for the CDKDialogRefBase.
      * This allows us to create the class instance and provide the base instance later, almost like "deferred inheritance".
      **/
-    const ref = new CdkDialogRef<R, C>(this.logService, closePredicate);
+    const ref = new CdkDialogRef<R, C>(this.logService, closePredicate, bottomSheet);
     const injector = this.createInjector({
       data: config?.data,
       dialogRef: ref,
@@ -159,7 +171,9 @@ export class DialogService {
     const _config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
-      positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
+      positionStrategy:
+        config?.positionStrategy ??
+        (bottomSheet ? new BottomSheetPositionStrategy() : new ResponsivePositionStrategy()),
       closeOnNavigation: config?.closeOnNavigation,
       injector,
       ...otherConfig,
