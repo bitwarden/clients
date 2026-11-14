@@ -4,6 +4,14 @@ import { filter, firstValueFrom, interval, of, switchMap, takeWhile, timeout } f
 
 import { ScrollOptions } from "./abstractions/browser-popup-utils.abstractions";
 import { BrowserApi } from "./browser-api";
+import {
+  adjustRequestedPosition,
+  loadPlacementMemory,
+  Point,
+  POPOUT_OFFSET_RIGHT,
+  POPOUT_REQUESTED_LEFT_PARAM,
+  POPOUT_REQUESTED_TOP_PARAM,
+} from "./popout-placement";
 
 /**
  *
@@ -155,7 +163,7 @@ export default class BrowserPopupUtils {
       width: await BrowserPopupUtils.getPopupWidth(),
       height: 630,
     };
-    const offsetRight = 15;
+    const offsetRight = POPOUT_OFFSET_RIGHT;
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
@@ -165,27 +173,49 @@ export default class BrowserPopupUtils {
     // far enough outside the visible area that the browser refuses to create the window and emits
     // an error: Invalid value for bounds. Bounds must be at least 50% within visible screen space.
     // It is acceptable that this heuristic may fire for X11 sessions.
-    const operatingSystemIsLinux = (await BrowserApi.getPlatformInfo()).os === "linux";
+    const platformOs = (await BrowserApi.getPlatformInfo()).os;
+    const operatingSystemIsLinux = platformOs === "linux";
     const coordsMaybeNotPrecise = senderWindow.left === 0 && senderWindow.top === 0;
     const canPositionWindow = !(operatingSystemIsLinux && coordsMaybeNotPrecise);
-    const positionOptions = canPositionWindow
+    const intendedPosition: Point | undefined = canPositionWindow
       ? {
           left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
           top: senderWindow.top + offsetTop,
         }
-      : {};
+      : undefined;
+
+    // Firefox on Windows creates windows at the main display's scale, which misplaces popouts
+    // on displays with a different scale.
+    const correctedPosition =
+      intendedPosition != null &&
+      BrowserApi.isFirefox &&
+      platformOs === "win" &&
+      windowOptions?.left == null &&
+      windowOptions?.top == null
+        ? adjustRequestedPosition(
+            intendedPosition,
+            {
+              left: senderWindow.left,
+              top: senderWindow.top,
+              width: senderWindow.width,
+              height: senderWindow.height,
+            },
+            await loadPlacementMemory(),
+          )
+        : undefined;
 
     const popoutWindowOptions = {
       ...defaultPopoutWindowOptions,
-      ...positionOptions,
+      ...(correctedPosition ?? intendedPosition),
       ...windowOptions,
-      url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
+      url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey, correctedPosition),
     };
 
     if (
       (await BrowserPopupUtils.isSingleActionPopoutOpen(
         singleActionKey,
-        popoutWindowOptions,
+        // Moving an existing window doesn't apply the creation scale, so it needs no correction.
+        { ...popoutWindowOptions, ...intendedPosition, ...windowOptions },
         forceCloseExistingWindows,
       )) &&
       !forceCloseExistingWindows
@@ -382,13 +412,23 @@ export default class BrowserPopupUtils {
    *
    * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
    * @param singleActionKey - The single action popout key used to identify the popout.
+   * @param requestedPosition - Lets the popout learn how Firefox placed it. See `ensurePopoutPlacement`.
    */
-  private static buildPopoutUrl(extensionUrlPath: string, singleActionKey: string) {
+  private static buildPopoutUrl(
+    extensionUrlPath: string,
+    singleActionKey: string,
+    requestedPosition?: Point,
+  ) {
     const parsedUrl = new URL(chrome.runtime.getURL(extensionUrlPath));
     parsedUrl.searchParams.set("uilocation", "popout");
 
     if (singleActionKey) {
       parsedUrl.searchParams.set("singleActionPopout", singleActionKey);
+    }
+
+    if (requestedPosition) {
+      parsedUrl.searchParams.set(POPOUT_REQUESTED_LEFT_PARAM, String(requestedPosition.left));
+      parsedUrl.searchParams.set(POPOUT_REQUESTED_TOP_PARAM, String(requestedPosition.top));
     }
 
     return parsedUrl.toString();
