@@ -13,6 +13,7 @@
             bitInput
             formControlName="requestAccessEmailContents"
           ></textarea>
+          <bit-hint>{{ "characterMaximum" | i18n: maxEmailContentLength }}</bit-hint>
         </bit-form-field>
         <bit-form-field>
           <bit-label>{{ "organization" | i18n }}</bit-label>
