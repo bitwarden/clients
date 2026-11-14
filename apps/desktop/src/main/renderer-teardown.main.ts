@@ -15,10 +15,9 @@ export type RendererBlocker = {
 /**
  * Destroys the renderer on hide-to-tray, when allowed, instead of hiding it.
  *
- * Destroying the renderer frees most of the app's background memory, but the renderer still
- * owns the decrypted user key and answers several background features. Destroying it locks
- * every account that does not auto-unlock on boot. Each feature that would break is a
- * {@link RendererBlocker}; while any is active the renderer stays.
+ * Destroying the renderer frees most of the app's background memory. Main owns the session, so
+ * the vault stays unlocked, but the renderer still answers several background features. Each
+ * feature that would break is a {@link RendererBlocker}; while any is active the renderer stays.
  *
  * ```
  *  hideToTray ─▶ tryTearDown() ─ blocked/flag off ─▶ false: caller hides the window
