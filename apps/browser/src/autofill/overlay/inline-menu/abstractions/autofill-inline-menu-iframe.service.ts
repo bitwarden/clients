@@ -6,6 +6,8 @@ export type AutofillInlineMenuIframeExtensionMessage = {
   generatedPassword?: string;
   refreshPassword?: boolean;
   showAnimations?: boolean;
+  /** The iframe hosts the Angular list page, which draws its own panel. */
+  useAngularUi?: boolean;
 };
 
 export type AutofillInlineMenuIframeExtensionMessageParam = {

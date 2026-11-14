@@ -162,6 +162,28 @@ module.exports.buildConfig = function buildConfig(params) {
       : []),
   ];
 
+  // Angular versions of the autofill iframe pages, selected at runtime by a feature flag. Their
+  // scripts live under autofill-ui/ so they are minified, which also strips Angular's ngDevMode
+  // checks; the notification/ and overlay/ script exclusions below would otherwise leave them in.
+  const autofillAngularPages = [
+    {
+      name: "autofill-ui/notification-bar",
+      filename: "notification/bar-angular.html",
+      entry: "src/autofill/ui/notification/bootstrap-notification-bar.ts",
+    },
+    {
+      name: "autofill-ui/inline-menu-button",
+      filename: "overlay/menu-button-angular.html",
+      entry: "src/autofill/ui/inline-menu/bootstrap-inline-menu-button.ts",
+    },
+    {
+      name: "autofill-ui/inline-menu-list",
+      filename: "overlay/menu-list-angular.html",
+      entry: "src/autofill/ui/inline-menu/bootstrap-inline-menu-list.ts",
+    },
+  ];
+  const autofillAngularPageNames = autofillAngularPages.map(({ name }) => name);
+
   const plugins = [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/popup/index.ejs"),
@@ -195,6 +217,14 @@ module.exports.buildConfig = function buildConfig(params) {
       filename: "overlay/menu.html",
       chunks: ["overlay/menu"],
     }),
+    ...autofillAngularPages.map(
+      ({ name, filename }) =>
+        new HtmlWebpackPlugin({
+          template: path.resolve(__dirname, "src/autofill/ui/shared/autofill-page.html"),
+          filename,
+          chunks: ["autofill-ui/vendor", name],
+        }),
+    ),
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -305,6 +335,9 @@ module.exports.buildConfig = function buildConfig(params) {
         "src/platform/ipc/content/ipc-content-script.ts",
       ),
       "notification/bar": path.resolve(__dirname, "src/autofill/notification/bootstrap-bar.ts"),
+      ...Object.fromEntries(
+        autofillAngularPages.map(({ name, entry }) => [name, path.resolve(__dirname, entry)]),
+      ),
       "overlay/menu-button": path.resolve(
         __dirname,
         "src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
@@ -362,6 +395,16 @@ module.exports.buildConfig = function buildConfig(params) {
       ],
       splitChunks: {
         cacheGroups: {
+          autofillUi: {
+            test(module) {
+              return (
+                module.resource != null &&
+                module.resource.includes(`${path.sep}node_modules${path.sep}`)
+              );
+            },
+            name: "autofill-ui/vendor",
+            chunks: (chunk) => autofillAngularPageNames.includes(chunk.name),
+          },
           commons: {
             test(module, chunks) {
               return (

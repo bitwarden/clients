@@ -11,6 +11,8 @@ export type NotificationTypeData = {
   importType?: string;
   launchTimestamp?: number;
   showAnimations?: boolean;
+  /** Render the Angular notification bar page instead of the Lit one. */
+  useAngularUi?: boolean;
 };
 
 export type LoginSecurityTaskInfo = {

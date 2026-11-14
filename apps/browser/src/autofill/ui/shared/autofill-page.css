@@ -1,0 +1,12 @@
+@import "../../../../../../libs/components/src/tw-theme-preflight.css";
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    font-family: var(--font-sans);
+  }
+}

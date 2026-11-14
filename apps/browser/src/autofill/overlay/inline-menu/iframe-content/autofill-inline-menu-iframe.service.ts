@@ -43,6 +43,16 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     colorScheme: "normal",
     opacity: "0",
   };
+  /**
+   * The Angular list page draws its own bordered rows, so the iframe only supplies the
+   * matching corner radius and the shadow, which cannot render inside the frame.
+   */
+  private readonly angularListIframeStyles: Partial<CSSStyleDeclaration> = {
+    border: "none",
+    borderRadius: "8px",
+    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+    maxHeight: "none",
+  };
   private defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
@@ -261,6 +271,10 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
     if (borderColor) {
       this.updateElementStyles(this.iframe, { borderColor });
+    }
+
+    if (message.useAngularUi === true) {
+      this.updateElementStyles(this.iframe, this.angularListIframeStyles);
     }
 
     message.theme = verifiedTheme;

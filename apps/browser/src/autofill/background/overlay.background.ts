@@ -295,6 +295,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     FeatureFlag.LitInlineMenuComponents,
   );
 
+  useAngularAutofillUi$ = this.configService.getFeatureFlag$(FeatureFlag.AngularAutofillUi);
+
   /**
    * Sets up the extension message listeners and gets the settings for the
    * overlay's visibility and the user's authentication status.
@@ -2698,6 +2700,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "fillVerificationCode",
         "fillVerificationCodeAria",
         "generatedPassword",
+        "loading",
         "lowercaseAriaLabel",
         "logInWithPasskeyAriaLabel",
         "newCard",
@@ -2707,6 +2710,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "noItemsToShow",
         "opensInANewWindow",
         "passkeys",
+        "passwordAnnounceSpace",
         "passwordRegenerated",
         "passwords",
         "regeneratePassword",
@@ -3557,8 +3561,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (await this.checkFocusedFieldHasValue(port.sender.tab)) &&
       (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab));
 
+    const useAngularUi = await firstValueFrom(this.useAngularAutofillUi$);
+    const angularPageSuffix = useAngularUi ? "-angular" : "";
     const iframeUrl = BrowserApi.getRuntimeURL(
-      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}${angularPageSuffix}.html`,
     );
     const styleSheetUrl = BrowserApi.getRuntimeURL(
       `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
@@ -3590,6 +3596,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       useLitComponents: isInlineMenuListPort
         ? await firstValueFrom(this.useLitInlineMenuComponents$)
         : undefined,
+      useAngularUi,
     });
     if (port.sender) {
       this.updateInlineMenuPosition(
