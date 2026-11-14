@@ -112,6 +112,8 @@ const ROTATION_CONFIG_EDIT_TABS = ["configuration", "history"] as const;
 
 export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
 
+const ADD_TARGET_SYSTEM_OPTION = "__add-target-system__";
+
 /**
  * Create and edit page for a rotation config. It provides its own `OrgCiphersService` and
  * `TargetSystemsService`, since the shell route's providers don't reach a sibling page.
@@ -323,6 +325,11 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     scheduleCron: [null as string | null],
     rotateOnAccessEnd: [false],
   });
+
+  /** Sentinel value of the picker's last option; it launches target creation and is never kept. */
+  protected readonly addTargetSystemOption = ADD_TARGET_SYSTEM_OPTION;
+
+  private readonly lastTargetId = signal("");
 
   private readonly selectedTargetId = toSignal(
     this.createForm.controls.targetSystemId.valueChanges,
@@ -773,7 +780,16 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private coupleTargetControls(): void {
     this.createForm.controls.targetSystemId.valueChanges
       .pipe(takeUntilDestroyed())
-      .subscribe(() => this.applyTargetCoupling());
+      .subscribe((value) => {
+        if (value === ADD_TARGET_SYSTEM_OPTION) {
+          // Put the previous choice back first, so the draft never holds the sentinel.
+          this.createForm.controls.targetSystemId.setValue(this.lastTargetId());
+          void this.createTargetSystem();
+          return;
+        }
+        this.lastTargetId.set(value ?? "");
+        this.applyTargetCoupling();
+      });
   }
 
   private applyTargetCoupling(): void {
