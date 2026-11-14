@@ -578,6 +578,54 @@ describe("ConfigService", () => {
     });
   });
 
+  describe("feature flag override writes", () => {
+    let sut: DefaultConfigService;
+    let overrideState: FakeGlobalState<Record<string, boolean | number | string>>;
+
+    beforeEach(() => {
+      overrideState = stateProvider.global.getFake(GLOBAL_FEATURE_FLAG_OVERRIDES);
+      overrideState.stateSubject.next({});
+
+      sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+        sdkService,
+      );
+    });
+
+    it("sets an override", async () => {
+      await sut.setFeatureFlagOverride(FeatureFlag.FedRampGovRegion, true);
+
+      expect(await firstValueFrom(sut.featureFlagOverrides$)).toEqual({
+        [FeatureFlag.FedRampGovRegion]: true,
+      });
+    });
+
+    it("clears one override and leaves the others", async () => {
+      overrideState.stateSubject.next({
+        [FeatureFlag.FedRampGovRegion]: true,
+        [FeatureFlag.PM32180PremiumUpsellAccountAge]: 99,
+      });
+
+      await sut.clearFeatureFlagOverride(FeatureFlag.FedRampGovRegion);
+
+      expect(await firstValueFrom(sut.featureFlagOverrides$)).toEqual({
+        [FeatureFlag.PM32180PremiumUpsellAccountAge]: 99,
+      });
+    });
+
+    it("clears every override", async () => {
+      overrideState.stateSubject.next({ [FeatureFlag.FedRampGovRegion]: true });
+
+      await sut.clearAllFeatureFlagOverrides();
+
+      expect(await firstValueFrom(sut.featureFlagOverrides$)).toEqual({});
+    });
+  });
+
   describe("flight recorder gate", () => {
     let sut: DefaultConfigService;
     let overrideState: FakeGlobalState<Record<string, boolean | number | string>>;
