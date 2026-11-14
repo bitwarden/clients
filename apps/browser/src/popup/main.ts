@@ -15,7 +15,7 @@ if (BrowserPlatformUtilsService.shouldApplySafariHeightFix(window)) {
   document.documentElement.classList.add("safari_height_fix");
 }
 
-if (process.env.ENV === "production") {
+if (process.env.NODE_ENV === "production") {
   enableProdMode();
 }
 

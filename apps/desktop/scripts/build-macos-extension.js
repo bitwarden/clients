@@ -19,8 +19,8 @@ const paths = {
 /// App ID, so each channel signs with its own profiles. The Xcode project derives the bundle
 /// identifier, App Group and display name from `appId` and `productName`.
 ///
-/// Stable signs with the entitlements the Xcode project names for each configuration; beta passes
-/// its own copy, which differs only in naming beta's App Group.
+/// Stable signs with the entitlements the Xcode project names for each configuration; beta and QA
+/// pass their own copies, which differ only in naming their channel's App Group.
 const channels = {
   stable: {
     appId: "com.bitwarden.desktop",
@@ -41,6 +41,16 @@ const channels = {
     },
     // Relative to the Xcode project, as the project's own CODE_SIGN_ENTITLEMENTS are.
     entitlements: "autofill-extension/autofill_extension.beta.entitlements",
+  },
+  // QA builds point at the QA cloud servers and only ship as a Developer ID dmg, so there is no
+  // App Store or testing profile.
+  qa: {
+    appId: "com.bitwarden.qa.desktop",
+    productName: "Bitwarden QA",
+    provisioningProfiles: {
+      mac: "PM QA Desktop-ExtAutofill Distrib",
+    },
+    entitlements: "autofill-extension/autofill_extension.qa.entitlements",
   },
 };
 
