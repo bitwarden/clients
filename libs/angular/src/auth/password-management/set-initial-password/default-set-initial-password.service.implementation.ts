@@ -20,21 +20,18 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
-  MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   fromSdkKdfConfig,
   KdfConfig,
   LegacyCompatKeyService,
@@ -45,9 +42,7 @@ import { UnlockService } from "@bitwarden/unlock";
 
 import {
   InitializeJitPasswordCredentials,
-  SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUserType,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordTdeUserWithPermissionCredentials,
 } from "./set-initial-password.service.abstraction";
@@ -69,174 +64,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected registerSdkService: RegisterSdkService,
     protected unlockService: UnlockService,
   ) {}
-
-  /**
-   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
-   */
-  async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
-    userId: UserId,
-  ): Promise<void> {
-    const {
-      newMasterKey,
-      newServerMasterKeyHash,
-      newPasswordHint,
-      kdfConfig,
-      orgSsoIdentifier,
-      orgId,
-      resetPasswordAutoEnroll,
-      newPassword,
-      salt,
-    } = credentials;
-
-    for (const [key, value] of Object.entries(credentials)) {
-      if (value == null) {
-        throw new Error(`${key} not found. Could not set password.`);
-      }
-    }
-    if (userId == null) {
-      throw new Error("userId not found. Could not set password.");
-    }
-    if (userType == null) {
-      throw new Error("userType not found. Could not set password.");
-    }
-
-    const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(
-      newMasterKey,
-      userId,
-    );
-    if (masterKeyEncryptedUserKey == null || !masterKeyEncryptedUserKey[1].encryptedString) {
-      throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
-    }
-
-    let keyPair: [string, EncString] | null = null;
-    let keysRequest: KeysRequest | null = null;
-
-    if (userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
-      /**
-       * A user being JIT provisioned into a MP encryption org does not yet have a user
-       * asymmetric key pair, so we create it for them here.
-       *
-       * Sidenote:
-       *   In the case of a TDE user whose permissions require that they have a MP - that user
-       *   will already have a user asymmetric key pair by this point, so we skip this if-block
-       *   so that we don't create a new key pair for them.
-       */
-
-      // Extra safety check (see description on https://github.com/bitwarden/clients/pull/10180):
-      //   In case we have have a local private key and are not sure whether it has been posted to the server,
-      //   we post the local private key instead of generating a new one
-      const existingUserPrivateKey = (await firstValueFrom(
-        this.keyService.userPrivateKey$(userId),
-      )) as Uint8Array;
-
-      const existingUserPublicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
-
-      if (existingUserPrivateKey != null && existingUserPublicKey != null) {
-        const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
-
-        // Existing key pair
-        keyPair = [
-          existingUserPublicKeyB64,
-          await this.encryptService.wrapDecapsulationKey(
-            existingUserPrivateKey,
-            masterKeyEncryptedUserKey[0],
-          ),
-        ];
-      } else {
-        // New key pair
-        keyPair = await this.legacyCompatKeyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
-      }
-
-      if (keyPair == null) {
-        throw new Error("keyPair not found. Could not set password.");
-      }
-      if (!keyPair[1].encryptedString) {
-        throw new Error("encrypted private key not found. Could not set password.");
-      }
-
-      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
-    }
-
-    // ============================================================
-    // PM-42990 — ROLLBACK NOTE
-    // ============================================================
-    // This code builds the request from a master password hash. The caller
-    // computes that hash in SetInitialPasswordComponent.
-    //
-    // This method does not build authentication data or unlock data.
-    //
-    // This exists because the set-password endpoint needs the old shape for
-    // 3 releases, to stay compatible with self hosted servers.
-    //
-    // BUILD: Move the hash and key computation back into this method. Build
-    // the request from authentication data and unlock data, not a hash.
-    //
-    // DELETE: Remove the assertions on newMasterKey and newServerMasterKeyHash
-    // below. Delete newMasterKey and newServerMasterKeyHash from
-    // SetInitialPasswordCredentials and PasswordInputResult. See
-    // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
-    // refactor.
-    // ============================================================
-    const request = new SetPasswordRequest(
-      newServerMasterKeyHash,
-      masterKeyEncryptedUserKey[1].encryptedString,
-      newPasswordHint,
-      orgSsoIdentifier,
-      keysRequest,
-      kdfConfig,
-    );
-
-    await this.masterPasswordApiService.setPassword(request);
-
-    // Clear force set password reason to allow navigation back to vault.
-    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
-
-    // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(kdfConfig, userId);
-
-    // Set master password unlock data for unlock path pointed to with
-    // MasterPasswordUnlockData feature development
-    // (requires: password, salt, kdf, userKey).
-    // As migration to this strategy continues, both unlock paths need supported.
-    // Several invocations in this file become redundant and can be removed once
-    // the feature is enshrined/unwound. These are marked with [PM-23246] below.
-    await this.setMasterPasswordUnlockData(
-      newPassword,
-      salt,
-      kdfConfig,
-      masterKeyEncryptedUserKey[0],
-      userId,
-    );
-
-    /**
-     * Set the private key only for new JIT provisioned users in MP encryption orgs.
-     * (Existing TDE users will have their private key set on sync or on login.)
-     */
-    if (keyPair != null && userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
-      if (!keyPair[1].encryptedString) {
-        throw new Error("encrypted private key not found. Could not set private key in state.");
-      }
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        {
-          V1: {
-            private_key: keyPair[1].encryptedString,
-          },
-        },
-        userId,
-      );
-    }
-
-    // Unlocking initializes the SDK from state, so it has to run after the account cryptographic
-    // state above has been persisted. handleResetPasswordAutoEnrollOld below reads the user key back
-    // out of state, so it has to run after this.
-    await this.unlockService.unlockWithDecryptedUserKey(userId, masterKeyEncryptedUserKey[0]);
-
-    if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
-    }
-  }
 
   async setInitialPasswordTdeOffboarding(
     credentials: SetInitialPasswordTdeOffboardingCredentials,
@@ -457,44 +284,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
   }
 
-  /**
-   * @deprecated along with `setInitialPassword()` deprecation
-   */
-  private async makeMasterKeyEncryptedUserKey(
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<[UserKey, EncString]> {
-    let masterKeyEncryptedUserKey: [UserKey, EncString] | null = null;
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-
-    if (userKey == null) {
-      masterKeyEncryptedUserKey = await this.legacyCompatKeyService.makeUserKey(masterKey);
-    } else {
-      masterKeyEncryptedUserKey = await this.legacyCompatKeyService.encryptUserKeyWithMasterKey(
-        masterKey,
-        userKey,
-      );
-    }
-
-    return masterKeyEncryptedUserKey;
-  }
-
-  /**
-   * @deprecated along with `setInitialPassword()` deprecation
-   */
-  private async updateAccountDecryptionProperties(kdfConfig: KdfConfig, userId: UserId) {
-    const userDecryptionOpts = await firstValueFrom(
-      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-    );
-    userDecryptionOpts.hasMasterPassword = true;
-    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
-      userId,
-      userDecryptionOpts,
-    );
-    await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
-  }
-
   // Deprecated legacy support - to be removed in future
   private async updateLegacyState(kdfConfig: KdfConfig, userId: UserId) {
     // TODO Remove HasMasterPassword from UserDecryptionOptions https://bitwarden.atlassian.net/browse/PM-23475
@@ -509,87 +298,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     // TODO Remove KDF state https://bitwarden.atlassian.net/browse/PM-30661
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
-  }
-
-  /**
-   * @deprecated along with `setInitialPassword()` deprecation
-   *
-   * As part of [PM-28494], adding this setting path to accommodate the changes that are
-   * emerging with pm-23246-unlock-with-master-password-unlock-data.
-   * Without this, immediately locking/unlocking the vault with the new password _may_ still fail
-   * if sync has not completed. Sync will eventually set this data, but we want to ensure it's
-   * set right away here to prevent a race condition UX issue that prevents immediate unlock.
-   */
-  private async setMasterPasswordUnlockData(
-    password: string,
-    salt: MasterPasswordSalt,
-    kdfConfig: KdfConfig,
-    userKey: UserKey,
-    userId: UserId,
-  ): Promise<void> {
-    const masterPasswordUnlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
-      password,
-      kdfConfig,
-      salt,
-      userKey,
-    );
-
-    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
-  }
-
-  /**
-   * @deprecated
-   *
-   * This method is now deprecated because it is used with the deprecated `setInitialPassword()` method,
-   * which handles both JIT MP and TDE + Permission user flows.
-   *
-   * Since these methods can handle the JIT MP flow - which creates a new user key and sets it to state - we
-   * must retrieve that user key here in this method.
-   *
-   * But the new handleResetPasswordAutoEnroll() method is only used in the TDE + Permission user case, in which
-   * case we already have the user key and can simply pass it through via method parameter ( @see handleResetPasswordAutoEnroll )
-   */
-  private async handleResetPasswordAutoEnrollOld(
-    masterKeyHash: string,
-    orgId: string,
-    userId: UserId,
-  ) {
-    const organizationKeys = await this.organizationApiService.getKeys(orgId);
-
-    if (organizationKeys == null) {
-      throw new Error(
-        "Organization keys response is null. Could not handle reset password auto enroll.",
-      );
-    }
-
-    const orgPublicKey = Utils.fromB64ToArray(organizationKeys.publicKey);
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-
-    if (userKey == null) {
-      throw new Error("userKey not found. Could not handle reset password auto enroll.");
-    }
-
-    // RSA encrypt user key with organization public key
-    const orgPublicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
-      userKey,
-      orgPublicKey,
-    );
-
-    if (orgPublicKeyEncryptedUserKey == null || !orgPublicKeyEncryptedUserKey.encryptedString) {
-      throw new Error(
-        "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
-      );
-    }
-
-    const enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
-    enrollmentRequest.masterPasswordHash = masterKeyHash;
-    enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
-
-    await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
-      orgId,
-      userId,
-      enrollmentRequest,
-    );
   }
 
   private async handleResetPasswordAutoEnroll(

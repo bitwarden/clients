@@ -194,7 +194,7 @@ decryption. After SSO they land in a "set initial password" flow.
 2. IdP auth + callback
 3. Server JIT-provisions the user
 4. Client navigates the user through "set initial password"
-5. User submits their new MP → `WebSetInitialPasswordService.setInitialPassword` (or `.initializePasswordJitPasswordUserV2Encryption` for the V2 path — V2 is the current SDK-based encryption path; V1 is the deprecated direct path)
+5. User submits their new MP → `WebSetInitialPasswordService.initializePasswordJitPasswordUserV2Encryption`
 6. Server's `FinishSsoJitProvisionMasterPasswordCommand`:
    - Sets the user's master password hash + key
    - Accepts the user into the org (the side effect)
