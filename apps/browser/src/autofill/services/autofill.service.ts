@@ -497,73 +497,76 @@ export default class AutofillService implements AutofillServiceInterface {
     // check for premium subscription entitlement or organizational policy
     const canUseTotp = canAccessPremium || options.cipher.organizationUseTotp;
 
-    const outcomes = await Promise.all(
-      options.pageDetails.map(async (pd): Promise<AutofillOutcome> => {
-        // security: deny fills across tabs or when a navigation occurred
-        if (pd.tab.id !== tab.id || pd.tab.url !== tab.url) {
-          return AutofillOutcome.Denied;
-        }
+    // fill frames one at a time, since concurrent fills can leave frames fighting over focus
+    const outcomes: AutofillOutcome[] = [];
+    for (const pd of options.pageDetails) {
+      // security: deny fills across tabs or when a navigation occurred
+      if (pd.tab.id !== tab.id || pd.tab.url !== tab.url) {
+        outcomes.push(AutofillOutcome.Denied);
+        continue;
+      }
 
-        // If we have a focused form, filter the page details to only include fields from that form
-        const details = options.focusedFieldForm
-          ? {
-              ...pd.details,
-              fields: pd.details.fields.filter((f) => f.form === options.focusedFieldForm),
-            }
-          : pd.details;
+      // If we have a focused form, filter the page details to only include fields from that form
+      const details = options.focusedFieldForm
+        ? {
+            ...pd.details,
+            fields: pd.details.fields.filter((f) => f.form === options.focusedFieldForm),
+          }
+        : pd.details;
 
-        const fillScript = await this.generateFillScript(details, {
-          skipUsernameOnlyFill: options.skipUsernameOnlyFill || false,
-          onlyEmptyFields: options.onlyEmptyFields || false,
-          fillNewPassword: options.fillNewPassword || false,
-          allowTotpAutofill: options.allowTotpAutofill || false,
-          autoSubmitLogin: options.autoSubmitLogin || false,
-          cipher: options.cipher,
-          canAccessTotp: canUseTotp,
-          tabUrl,
-          defaultUriMatch: defaultUriMatch,
-          focusedFieldOpid: options.focusedFieldOpid,
-          inlineMenuFillType: options.inlineMenuFillType,
-        });
+      const fillScript = await this.generateFillScript(details, {
+        skipUsernameOnlyFill: options.skipUsernameOnlyFill || false,
+        onlyEmptyFields: options.onlyEmptyFields || false,
+        fillNewPassword: options.fillNewPassword || false,
+        allowTotpAutofill: options.allowTotpAutofill || false,
+        autoSubmitLogin: options.autoSubmitLogin || false,
+        cipher: options.cipher,
+        canAccessTotp: canUseTotp,
+        tabUrl,
+        defaultUriMatch: defaultUriMatch,
+        focusedFieldOpid: options.focusedFieldOpid,
+        inlineMenuFillType: options.inlineMenuFillType,
+      });
 
-        if (!fillScript || !fillScript.script || !fillScript.script.length) {
-          return AutofillOutcome.Absent;
-        }
+      if (!fillScript || !fillScript.script || !fillScript.script.length) {
+        outcomes.push(AutofillOutcome.Absent);
+        continue;
+      }
 
-        if (
-          fillScript.untrustedIframe &&
-          options.allowUntrustedIframe != undefined &&
-          !options.allowUntrustedIframe
-        ) {
-          this.logService.info("Autofill on page load was blocked due to an untrusted iframe.");
-          return AutofillOutcome.Denied;
-        }
+      if (
+        fillScript.untrustedIframe &&
+        options.allowUntrustedIframe != undefined &&
+        !options.allowUntrustedIframe
+      ) {
+        this.logService.info("Autofill on page load was blocked due to an untrusted iframe.");
+        outcomes.push(AutofillOutcome.Denied);
+        continue;
+      }
 
-        // Add a small delay between operations
-        fillScript.properties.delay_between_operations = 20;
+      // Add a small delay between operations
+      fillScript.properties.delay_between_operations = 20;
 
-        if (!options.skipLastUsed && activeAccount?.id) {
-          await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
-        }
+      if (!options.skipLastUsed && activeAccount?.id) {
+        await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
+      }
 
-        const showAnimations =
-          (await firstValueFrom(this.animationControlService.enableAutofillAnimation$)) ?? true;
+      const showAnimations =
+        (await firstValueFrom(this.animationControlService.enableAutofillAnimation$)) ?? true;
 
-        void BrowserApi.tabSendMessage(
-          tab,
-          {
-            command: options.autoSubmitLogin ? "triggerAutoSubmitLogin" : "fillForm",
-            fillScript: fillScript,
-            url: tab.url,
-            pageDetailsUrl: pd.details.url,
-            showAnimations,
-          },
-          { frameId: pd.frameId },
-        );
+      await BrowserApi.tabSendMessage(
+        tab,
+        {
+          command: options.autoSubmitLogin ? "triggerAutoSubmitLogin" : "fillForm",
+          fillScript: fillScript,
+          url: tab.url,
+          pageDetailsUrl: pd.details.url,
+          showAnimations,
+        },
+        { frameId: pd.frameId },
+      );
 
-        return AutofillOutcome.Filled;
-      }),
-    );
+      outcomes.push(AutofillOutcome.Filled);
+    }
 
     // A placed credential outranks a refusal in another frame, and a refusal outranks a frame that
     // simply had nothing to take.
