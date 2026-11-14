@@ -1,3 +1,5 @@
+import { FieldType } from "@bitwarden/common/vault/enums";
+
 import { ClipperzHtmlImporter } from "./clipperz-html-importer";
 
 /**
@@ -71,6 +73,83 @@ describe("ClipperzHtmlImporter", () => {
 
     expect(result.success).toBe(true);
     expect(result.ciphers[0].name).toBe("&xxe;");
+  });
+
+  it("imports hidden fields as hidden custom fields", async () => {
+    const data = clipperzExport([
+      {
+        label: "Bank",
+        currentVersion: {
+          fields: {
+            "0": { label: "username", actionType: "username", value: "jdoe" },
+            "1": { label: "password", actionType: "password", value: "pw", hidden: true },
+            "2": { label: "PIN", actionType: "text", value: "1234", hidden: true },
+            "3": { label: "account", actionType: "text", value: "987" },
+          },
+        },
+      },
+    ]);
+
+    const result = await importer.parse(data);
+
+    expect(result.success).toBe(true);
+    const cipher = result.ciphers[0];
+    expect(cipher.login.password).toBe("pw");
+    const pin = cipher.fields.find((f) => f.name === "PIN");
+    expect(pin?.value).toBe("1234");
+    expect(pin?.type).toBe(FieldType.Hidden);
+    const account = cipher.fields.find((f) => f.name === "account");
+    expect(account?.type).toBe(FieldType.Text);
+  });
+
+  it("does not let extra password-typed fields overwrite the password", async () => {
+    const data = clipperzExport([
+      {
+        label: "Bank",
+        currentVersion: {
+          fields: {
+            "0": { label: "password", actionType: "password", value: "realpw", hidden: true },
+            "1": { label: "CVV", actionType: "password", value: "123", hidden: true },
+            "2": { label: "PIN", actionType: "password", value: "9876", hidden: true },
+          },
+        },
+      },
+    ]);
+
+    const result = await importer.parse(data);
+
+    expect(result.success).toBe(true);
+    const cipher = result.ciphers[0];
+    expect(cipher.login.password).toBe("realpw");
+    const cvv = cipher.fields.find((f) => f.name === "CVV");
+    const pin = cipher.fields.find((f) => f.name === "PIN");
+    expect(cvv?.value).toBe("123");
+    expect(pin?.value).toBe("9876");
+    expect(cvv?.type).toBe(FieldType.Hidden);
+    expect(pin?.type).toBe(FieldType.Hidden);
+  });
+
+  it("prefers a field labeled password over an unlabeled password field", async () => {
+    const data = clipperzExport([
+      {
+        label: "Bank",
+        currentVersion: {
+          fields: {
+            "0": { label: "token", actionType: "password", value: "tok", hidden: true },
+            "1": { label: "password", actionType: "password", value: "realpw", hidden: true },
+          },
+        },
+      },
+    ]);
+
+    const result = await importer.parse(data);
+
+    expect(result.success).toBe(true);
+    const cipher = result.ciphers[0];
+    expect(cipher.login.password).toBe("realpw");
+    const token = cipher.fields.find((f) => f.name === "token");
+    expect(token?.value).toBe("tok");
+    expect(token?.type).toBe(FieldType.Hidden);
   });
 
   it("fails when the textarea is missing", async () => {

@@ -7,6 +7,7 @@ import {
   TestData1,
   TestData2,
   TestDataWithProtectedFields,
+  TestDataDuplicateKeys,
 } from "./spec-data/keepass2-xml/keepass2-xml-importer-testdata";
 
 describe("KeePass2 Xml Importer", () => {
@@ -112,6 +113,49 @@ describe("KeePass2 Xml Importer", () => {
       const cipher = result.ciphers[0];
       expect(cipher.notes).not.toContain("SAFE UN-LOCKING instructions");
       expect(cipher.notes).not.toContain("Secret instructions here");
+    });
+  });
+
+  describe("duplicate String keys", () => {
+    it("preserves displaced Password values as hidden fields", async () => {
+      const importer = new KeePass2XmlImporter();
+      const result = await importer.parse(TestDataDuplicateKeys);
+
+      const cipher = result.ciphers[0];
+      expect(cipher.login.password).toEqual("newsecret");
+
+      const displaced = cipher.fields.find((f) => f.name === "Password");
+      expect(displaced).toBeDefined();
+      expect(displaced?.type).toBe(FieldType.Hidden);
+      expect(displaced?.value).toEqual("oldsecret");
+    });
+
+    it("preserves displaced UserName, Title and otp values as custom fields", async () => {
+      const importer = new KeePass2XmlImporter();
+      const result = await importer.parse(TestDataDuplicateKeys);
+
+      const cipher = result.ciphers[0];
+      expect(cipher.login.username).toEqual("second user");
+      expect(cipher.name).toEqual("second title");
+      expect(cipher.login.totp).toEqual("NEWTOTP");
+
+      const userField = cipher.fields.find((f) => f.name === "UserName");
+      expect(userField?.value).toEqual("first user");
+      const titleField = cipher.fields.find((f) => f.name === "Title");
+      expect(titleField?.value).toEqual("first title");
+      const otpField = cipher.fields.find((f) => f.name === "otp");
+      expect(otpField?.type).toBe(FieldType.Hidden);
+      expect(otpField?.value).toEqual("OLDTOTP");
+    });
+
+    it("appends duplicate URL keys to the uri list", async () => {
+      const importer = new KeePass2XmlImporter();
+      const result = await importer.parse(TestDataDuplicateKeys);
+
+      const uris = result.ciphers[0].login.uris;
+      expect(uris.length).toEqual(2);
+      expect(uris[0].uri).toEqual("https://one.example.com");
+      expect(uris[1].uri).toEqual("https://two.example.com");
     });
   });
 });

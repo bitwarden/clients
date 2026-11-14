@@ -81,14 +81,26 @@ export class KeePass2XmlImporter extends BaseImporter implements Importer {
         const key = keyEl != null ? keyEl.textContent : null;
 
         if (key === "URL") {
-          cipher.login.uris = this.makeUriArray(value);
+          cipher.login.uris.push(...this.makeUriArray(value));
         } else if (key === "UserName") {
+          if (!this.isNullOrWhitespace(cipher.login.username)) {
+            this.processKvp(cipher, key, cipher.login.username);
+          }
           cipher.login.username = value;
         } else if (key === "Password") {
+          if (!this.isNullOrWhitespace(cipher.login.password)) {
+            this.processKvp(cipher, key, cipher.login.password, FieldType.Hidden);
+          }
           cipher.login.password = value;
         } else if (key === "otp") {
+          if (!this.isNullOrWhitespace(cipher.login.totp)) {
+            this.processKvp(cipher, key, cipher.login.totp, FieldType.Hidden);
+          }
           cipher.login.totp = value.replace("key=", "");
         } else if (key === "Title") {
+          if (!this.isNullOrWhitespace(cipher.name)) {
+            this.processKvp(cipher, key, cipher.name);
+          }
           cipher.name = value;
         } else if (key === "Notes") {
           cipher.notes += value + "\n";
