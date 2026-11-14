@@ -146,13 +146,6 @@
                         attempt.causeLabelKey | i18n
                       }}</span>
                     }
-                    @if (attempt.failureReason; as reason) {
-                      <span
-                        class="tw-block tw-break-words tw-font-mono tw-text-xs tw-text-muted"
-                        data-testid="drawer-attempt-reason"
-                        >{{ reason }}</span
-                      >
-                    }
                   </td>
                   <td class="tw-px-3 tw-py-2 tw-text-main" data-testid="drawer-attempt-connector">
                     {{ attempt.connectorName }}
