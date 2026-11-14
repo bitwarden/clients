@@ -193,7 +193,24 @@ export default class BrowserPopupUtils {
       return;
     }
 
-    return await BrowserApi.createWindow(popoutWindowOptions);
+    const popoutWindow = await BrowserApi.createWindow(popoutWindowOptions);
+    if (popoutWindow != null) {
+      return popoutWindow;
+    }
+
+    // When the browser reports window bounds that do not match the real display (for example
+    // Chrome on Windows launched with --force-device-scale-factor), the computed position can
+    // land far enough off-screen that the browser refuses to create the window: "Invalid value
+    // for bounds. Bounds must be at least 50% within visible screen space." Retry once without a
+    // position so the browser places the popout itself, the same as the Linux/Wayland path.
+    if (popoutWindowOptions.left == null && popoutWindowOptions.top == null) {
+      return popoutWindow;
+    }
+
+    const unpositionedWindowOptions = { ...popoutWindowOptions };
+    delete unpositionedWindowOptions.left;
+    delete unpositionedWindowOptions.top;
+    return await BrowserApi.createWindow(unpositionedWindowOptions);
   }
 
   /**
