@@ -165,8 +165,14 @@
   "copyNumber": {
     "message": "Copy number"
   },
+  "copyCardholderName": {
+    "message": "Copy cardholder name"
+  },
   "copySecurityCode": {
     "message": "Copy security code"
+  },
+  "copyExpiration": {
+    "message": "Copy expiration date"
   },
   "copyName": {
     "message": "Copy name"
@@ -1916,6 +1922,12 @@
   },
   "noSecurityCode": {
     "message": "No security code"
+  },
+  "noCardholderName": {
+    "message": "No cardholder name"
+  },
+  "noExpiration": {
+    "message": "No expiration date"
   },
   "attachments": {
     "message": "Attachments"

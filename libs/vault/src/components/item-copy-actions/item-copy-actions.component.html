@@ -93,6 +93,21 @@
     <bit-item-action>
       <button
         type="button"
+        bitIconButton="bwi-user"
+        size="small"
+        appCopyField="cardholderName"
+        [cipher]="_cipher"
+        [disabled]="disabled()"
+        [label]="
+          CipherViewLikeUtils.hasCopyableValue(_cipher, 'cardholderName')
+            ? ('copyCardholderName' | i18n)
+            : ('noCardholderName' | i18n)
+        "
+      ></button>
+    </bit-item-action>
+    <bit-item-action>
+      <button
+        type="button"
         bitIconButton="bwi-hashtag"
         size="small"
         appCopyField="cardNumber"
@@ -102,6 +117,21 @@
           CipherViewLikeUtils.hasCopyableValue(_cipher, 'cardNumber')
             ? ('copyNumber' | i18n)
             : ('noNumber' | i18n)
+        "
+      ></button>
+    </bit-item-action>
+    <bit-item-action>
+      <button
+        type="button"
+        bitIconButton="bwi-calendar"
+        size="small"
+        appCopyField="cardExpiration"
+        [cipher]="_cipher"
+        [disabled]="disabled()"
+        [label]="
+          CipherViewLikeUtils.hasCopyableValue(_cipher, 'cardExpiration')
+            ? ('copyExpiration' | i18n)
+            : ('noExpiration' | i18n)
         "
       ></button>
     </bit-item-action>
@@ -144,8 +174,14 @@
           [bitMenuTriggerFor]="cardOptions"
         ></button>
         <bit-menu #cardOptions>
+          <button type="button" bitMenuItem appCopyField="cardholderName" [cipher]="_cipher">
+            {{ "copyCardholderName" | i18n }}
+          </button>
           <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="_cipher">
             {{ "copyNumber" | i18n }}
+          </button>
+          <button type="button" bitMenuItem appCopyField="cardExpiration" [cipher]="_cipher">
+            {{ "copyExpiration" | i18n }}
           </button>
           <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="_cipher">
             {{ "copySecurityCode" | i18n }}

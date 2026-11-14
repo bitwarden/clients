@@ -6,6 +6,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BitIconButtonComponent, MenuItemComponent } from "@bitwarden/components";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "..";
 
@@ -212,11 +213,16 @@ describe("CopyCipherFieldDirective", () => {
       cipher.type = CipherType.Card;
       cipher.card.number = "test-card-number";
       cipher.card.code = "test-card-code";
+      cipher.card.cardholderName = "Jane Doe";
+      cipher.card.expMonth = "5";
+      cipher.card.expYear = "2030";
     });
 
     it.each([
       ["cardNumber", "test-card-number"],
       ["securityCode", "test-card-code"],
+      ["cardholderName", "Jane Doe"],
+      ["cardExpiration", "05 / 2030"],
     ])("copies %s field from card to clipboard", async (action, value) => {
       copyCipherFieldDirective.action = action as CopyCipherFieldDirective["action"];
 
@@ -227,6 +233,61 @@ describe("CopyCipherFieldDirective", () => {
         action,
         copyCipherFieldDirective.cipher,
       );
+    });
+
+    it.each(["30", "2030"])("normalizes expiration year %s when copying", async (year) => {
+      (copyCipherFieldDirective.cipher as CipherView).card.expYear = year;
+      copyCipherFieldDirective.action = "cardExpiration";
+
+      await copyCipherFieldDirective.ngOnChanges();
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).toHaveBeenCalledWith(
+        "05 / 2030",
+        "cardExpiration",
+        copyCipherFieldDirective.cipher,
+      );
+    });
+
+    it.each([
+      ["5", undefined],
+      [undefined, "2030"],
+      ["", "2030"],
+      ["5", ""],
+    ])("does not copy an incomplete expiration (%s, %s)", async (month, year) => {
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.card.expMonth = month;
+      cipher.card.expYear = year;
+      copyCipherFieldDirective.action = "cardExpiration";
+
+      await copyCipherFieldDirective.ngOnChanges();
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["cardholderName", "CardCardholderName", "Jane Doe"],
+      ["cardExpiration", "CardExpiration", "05 / 2030"],
+    ])("decrypts a card list view before copying %s", async (action, field, value) => {
+      const fullCipher = copyCipherFieldDirective.cipher as CipherView;
+      const encryptedCipher = {} as Awaited<ReturnType<CipherService["get"]>>;
+      const listCipher = {
+        id: "test-cipher-id",
+        type: { card: { brand: "Visa" } },
+        copyableFields: [field],
+      } as unknown as CipherListView;
+      jest.mocked(mockCipherService.get).mockResolvedValue(encryptedCipher);
+      jest.mocked(mockCipherService.decrypt).mockResolvedValue(fullCipher);
+      copyCipherFieldDirective.cipher = listCipher;
+      copyCipherFieldDirective.action = action as CopyCipherFieldDirective["action"];
+
+      await copyCipherFieldDirective.ngOnChanges();
+      await copyCipherFieldDirective.copy();
+
+      expect(mockCipherService.get).toHaveBeenCalledWith("test-cipher-id", "test-account-id");
+      expect(mockCipherService.decrypt).toHaveBeenCalledWith(encryptedCipher, "test-account-id");
+      expect(copyFieldService.copy).toHaveBeenCalledWith(value, action, listCipher);
     });
   });
 
