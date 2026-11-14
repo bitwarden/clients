@@ -1,5 +1,9 @@
+import { provideRouter } from "@angular/router";
 import { Meta, moduleMetadata, StoryObj, applicationConfig } from "@storybook/angular";
+import { of } from "rxjs";
 
+import { ClientType } from "@bitwarden/common/enums";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -34,26 +38,41 @@ export default {
   title: "Vault/Decryption Failure Dialog",
   component: DecryptionFailureDialogComponent,
   decorators: [
+    applicationConfig({ providers: [provideRouter([])] }),
     moduleMetadata({
       imports: [DecryptionFailureDialogComponent],
       providers: [
         { provide: DialogRef, useValue: { close: () => {} } },
-        { provide: PlatformUtilsService, useValue: { copyToClipboard: () => {} } },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            copyToClipboard: () => {},
+            launchUri: () => {},
+            getClientType: () => ClientType.Browser,
+          },
+        },
+        {
+          provide: EnvironmentService,
+          useValue: {
+            environment$: of({ getWebVaultUrl: () => "https://vault.bitwarden.com" }),
+          },
+        },
         { provide: ToastService, useValue: { showToast: () => {} } },
         {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
               decryptionError: "Decryption error",
-              couldNotDecryptVaultItem:
-                "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered.",
-              couldNotDecryptVaultItems:
-                "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered.",
+              couldNotDecryptVaultItemUseDataRecovery:
+                "Bitwarden could not decrypt the vault item listed below. Go to the data recovery tool to diagnose the issue and save logs to share with Bitwarden support.",
+              couldNotDecryptVaultItemsUseDataRecovery:
+                "Bitwarden could not decrypt the vault items listed below. Go to the data recovery tool to diagnose the issue and save logs to share with Bitwarden support.",
               itemId: "Item ID",
               itemIds: "Item IDs",
               copyId: "Copy ID",
               copyAllIds: "Copy all IDs",
               close: "Close",
+              goToDataRecoveryTool: "Go to data recovery tool",
             }),
         },
       ],

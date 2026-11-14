@@ -9088,15 +9088,9 @@
   "downloadAttachments": {
     "message": "Download attachments"
   },
-  "troubleshooting": {
-    "message": "Troubleshooting"
-  },
-  "troubleshootingDiagnosticReport": {
-    "message": "Experiencing an issue? Download then share the diagnostic report with"
-  },
   "bitwardenSupport": {
     "message": "Bitwarden support",
-    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+    "description": "Link text that follows the dataRecoveryShareLogs sentence. 'Bitwarden' should not be translated."
   },
   "download": {
     "message": "Download"
@@ -10335,11 +10329,15 @@
   "decryptionError": {
     "message": "Decryption error"
   },
-  "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+  "couldNotDecryptVaultItemUseDataRecovery": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Go to the data recovery tool to diagnose the issue and save logs to share with Bitwarden support."
   },
-  "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+  "couldNotDecryptVaultItemsUseDataRecovery": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Go to the data recovery tool to diagnose the issue and save logs to share with Bitwarden support."
+  },
+  "goToDataRecoveryTool": {
+    "message": "Go to data recovery tool",
+    "description": "Button in the decryption error dialog. Opens the Data Recovery and Diagnostics page in the web app."
   },
   "itemId": {
     "message": "Item ID",
@@ -17330,8 +17328,36 @@
   "recoveryDeleteCiphersTitle": {
     "message": "Delete unrecoverable vault items"
   },
-  "recoveryDeleteCiphersDesc": {
-    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+  "recoveryDeleteCiphersCountDesc": {
+    "message": "This will permanently delete $COUNT$ vault item(s).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "recoveryDeleteCiphersWithUndeletableDesc": {
+    "message": "This will permanently delete $COUNT$ vault item(s). $UNDELETABLE$ other organization vault item(s) can't be deleted. Contact Bitwarden support for help.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "undeletable": {
+        "content": "$2",
+        "example": "1"
+      }
+    }
+  },
+  "recoveryOrgItemsContactSupport": {
+    "message": "$COUNT$ organization vault item(s) can't be deleted. Contact Bitwarden support for help.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "recoveryDeleteFoldersTitle": {
     "message": "Delete unrecoverable folders"
@@ -17377,6 +17403,10 @@
   },
   "dataRecoveryDescription": {
     "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+  },
+  "dataRecoveryShareLogs": {
+    "message": "Need help? Save your diagnostic logs, then share them with",
+    "description": "Followed by a link with the text 'Bitwarden support'."
   },
   "runDiagnostics": {
     "message": "Run Diagnostics"

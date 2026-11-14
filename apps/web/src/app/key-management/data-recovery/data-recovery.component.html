@@ -5,20 +5,29 @@
         "settings" | i18n
       }}</bit-breadcrumb>
       <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
-        "troubleshooting" | i18n
+        "dataRecoveryTitle" | i18n
       }}</bit-breadcrumb>
     </bit-breadcrumbs>
   </app-header>
 } @else {
-  <h1 bitTypography="h1" class="tw-mt-6">{{ "troubleshooting" | i18n }}</h1>
+  <h1 bitTypography="h1" class="tw-mt-6">{{ "dataRecoveryTitle" | i18n }}</h1>
 }
-<app-download-event-logs></app-download-event-logs>
-
-<h2 class="tw-mt-16 tw-mb-2 tw-pb-2.5">{{ "dataRecoveryTitle" | i18n }}</h2>
 
 <div class="tw-max-w-lg">
   <p bitTypography="body1" class="tw-mb-4">
     {{ "dataRecoveryDescription" | i18n }}
+  </p>
+  <p bitTypography="body1" class="tw-mb-4">
+    {{ "dataRecoveryShareLogs" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/contact/"
+      target="_blank"
+      rel="noopener noreferrer"
+      endIcon="bwi-external-link"
+    >
+      {{ "bitwardenSupport" | i18n }}
+    </a>
   </p>
 
   @if (!diagnosticsCompleted() && !recoveryCompleted()) {

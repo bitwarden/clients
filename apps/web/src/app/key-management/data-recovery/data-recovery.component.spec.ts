@@ -15,8 +15,9 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { CryptoFunctionService, EncryptService } from "@bitwarden/legacy-crypto";
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { FlightRecorderService } from "@bitwarden/logging-angular";
 
 import { DataRecoveryComponent, StepStatus } from "./data-recovery.component";
 import { RecoveryStep, RecoveryWorkingData } from "./steps";
@@ -44,7 +45,7 @@ describe("DataRecoveryComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockCryptoFunctionService: MockProxy<CryptoFunctionService>;
   let mockFileDownloadService: MockProxy<FileDownloadService>;
-  let mockEncryptService: MockProxy<EncryptService>;
+  let mockFlightRecorder: MockProxy<FlightRecorderService>;
 
   const mockUserId = "user-id" as UserId;
 
@@ -60,7 +61,8 @@ describe("DataRecoveryComponent", () => {
     mockLogService = mock<LogService>();
     mockCryptoFunctionService = mock<CryptoFunctionService>();
     mockFileDownloadService = mock<FileDownloadService>();
-    mockEncryptService = mock<EncryptService>();
+    mockFlightRecorder = mock<FlightRecorderService>();
+    mockFlightRecorder.read.mockResolvedValue([]);
 
     mockI18nService.t.mockImplementation((key) => `${key}_used-i18n`);
 
@@ -82,7 +84,7 @@ describe("DataRecoveryComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: CryptoFunctionService, useValue: mockCryptoFunctionService },
         { provide: FileDownloadService, useValue: mockFileDownloadService },
-        { provide: EncryptService, useValue: mockEncryptService },
+        { provide: FlightRecorderService, useValue: mockFlightRecorder },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => new BehaviorSubject(false) } },
       ],
     }).compileComponents();
@@ -372,9 +374,34 @@ describe("DataRecoveryComponent", () => {
     });
   });
 
+  describe("diagnostics run markers", () => {
+    beforeEach(() => {
+      component["recoverySteps"] = Array(6)
+        .fill(null)
+        .map(() => {
+          const mockStep = mock<RecoveryStep>();
+          mockStep.title = "mockStep";
+          mockStep.runDiagnostics.mockResolvedValue(true);
+          mockStep.canRecover.mockReturnValue(true);
+          mockStep.runRecovery.mockResolvedValue();
+          return mockStep;
+        });
+    });
+
+    it("numbers each diagnostics pass, including the one after repair", async () => {
+      await component.runDiagnostics();
+      await component.runRecovery();
+
+      const markers = component["logger"]
+        .getLogs()
+        .filter((line) => line.startsWith("--- Diagnostics run"));
+      expect(markers).toEqual(["--- Diagnostics run 1 ---", "--- Diagnostics run 2 ---"]);
+    });
+  });
+
   describe("saveDiagnosticLogs", () => {
-    it("should call fileDownloadService with log content", () => {
-      component.saveDiagnosticLogs();
+    it("should call fileDownloadService with log content", async () => {
+      await component.saveDiagnosticLogs();
 
       expect(mockFileDownloadService.download).toHaveBeenCalledWith({
         fileName: expect.stringContaining("data-recovery-logs-"),
@@ -383,11 +410,49 @@ describe("DataRecoveryComponent", () => {
       });
     });
 
-    it("should include timestamp in filename", () => {
-      component.saveDiagnosticLogs();
+    it("should include timestamp in filename", async () => {
+      await component.saveDiagnosticLogs();
 
       const downloadCall = mockFileDownloadService.download.mock.calls[0][0];
       expect(downloadCall.fileName).toMatch(/data-recovery-logs-\d{4}-\d{2}-\d{2}T.*\.txt/);
+    });
+
+    it("still downloads the diagnostic log when the event log cannot be read", async () => {
+      mockFlightRecorder.read.mockRejectedValue(new Error("storage unavailable"));
+      component["logger"].record("Found 1 undecryptable ciphers");
+
+      await component.saveDiagnosticLogs();
+
+      const blobData = mockFileDownloadService.download.mock.calls[0][0].blobData as string;
+      expect(blobData).toContain("Found 1 undecryptable ciphers");
+      expect(blobData).toContain(
+        "=== Event log (CSV) ===\nEvent log unavailable: storage unavailable",
+      );
+    });
+
+    it("combines the diagnostic log and the flight recorder event log in one file", async () => {
+      mockFlightRecorder.read.mockResolvedValue([
+        {
+          timestamp: Date.UTC(2026, 10, 6),
+          level: "INFO",
+          target: "bitwarden_vault",
+          message: "sync complete",
+          fields: {},
+        },
+      ] as any);
+      component["logger"].record("Found 1 undecryptable ciphers");
+
+      await component.saveDiagnosticLogs();
+
+      const blobData = mockFileDownloadService.download.mock.calls[0][0].blobData as string;
+      const diagnosticIndex = blobData.indexOf("=== Diagnostic log ===");
+      const eventIndex = blobData.indexOf("=== Event log (CSV) ===");
+      expect(diagnosticIndex).toBe(0);
+      expect(eventIndex).toBeGreaterThan(diagnosticIndex);
+      expect(blobData.slice(diagnosticIndex, eventIndex)).toContain(
+        "Found 1 undecryptable ciphers",
+      );
+      expect(blobData.slice(eventIndex)).toContain("sync complete");
     });
   });
 });
