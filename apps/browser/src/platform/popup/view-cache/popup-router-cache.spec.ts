@@ -7,9 +7,20 @@ import { firstValueFrom, of } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
-import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
+import {
+  FakeGlobalStateProvider,
+  FakeStateProvider,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
-import { PopupRouterCacheService, popupRouterCacheGuard } from "./popup-router-cache.service";
+import { POPUP_ROUTE_HISTORY_KEY } from "../../services/popup-view-cache-background.service";
+
+import {
+  PopupRouterCacheService,
+  popupRouterCacheGuard,
+  resetPopupRouteHistory,
+} from "./popup-router-cache.service";
 
 const flushPromises = async () => await new Promise(process.nextTick);
 
@@ -151,5 +162,17 @@ describe("Popup router cache guard", () => {
         url: "/a",
       },
     ]);
+  });
+});
+
+describe("resetPopupRouteHistory", () => {
+  it("empties the history the popup would restore, as the popup does itself", async () => {
+    const stateProvider = new FakeStateProvider(mockAccountServiceWith("user-1" as UserId));
+    const history = stateProvider.getGlobal(POPUP_ROUTE_HISTORY_KEY);
+    await history.update(() => [{ url: "/vault-settings" }]);
+
+    await resetPopupRouteHistory(stateProvider);
+
+    expect(await firstValueFrom(history.state$)).toEqual([]);
   });
 });

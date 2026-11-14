@@ -13,7 +13,7 @@ import {
 } from "@angular/router";
 import { filter, first, firstValueFrom, map, Observable, of, switchMap, tap } from "rxjs";
 
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 
 import {
   POPUP_ROUTE_HISTORY_KEY,
@@ -146,6 +146,15 @@ export class PopupRouterCacheService {
   markCacheRestored() {
     this._hasRestoredCache = true;
   }
+}
+
+/**
+ * Forgets the popup's route history, so it next opens on its default page. Unlike
+ * {@link PopupRouterCacheService}, whose constructor replays the history into `Location`, this is
+ * safe to call from a page that is not the popup, such as an extension tab.
+ **/
+export async function resetPopupRouteHistory(stateProvider: StateProvider): Promise<void> {
+  await stateProvider.getGlobal(POPUP_ROUTE_HISTORY_KEY).update(() => []);
 }
 
 /**
