@@ -45,6 +45,7 @@ import {
   type BuildDirLocation,
   diffKeys,
   enabledTargetDefinitions,
+  isAppStoreBuild,
   parseConfigureArgs,
   provisioningProfilePath,
   resolveBuildDir,
@@ -53,7 +54,18 @@ import {
   usage,
   validate,
 } from "./build-config.mts";
-import { asHostPlatform, crossCompilationPlan, rustTargetsFor } from "./rust-targets.mts";
+import {
+  autofillExtensionEntitlements,
+  macAppEntitlements,
+  masAppEntitlements,
+  serializePlist,
+} from "./entitlements.mts";
+import {
+  type RustTarget,
+  asHostPlatform,
+  crossCompilationPlan,
+  rustTargetsFor,
+} from "./rust-targets.mts";
 import { type ToolchainReport, verifyToolchain, verifyXcode } from "./toolchain.mts";
 
 const projectDir = path.resolve(import.meta.dirname, "..");
@@ -118,8 +130,41 @@ function main(): void {
     copyFileSync(resolution.profileSource, destination);
   }
 
+  writeEntitlements(config);
+
   writeFileSync(configPath, serializeBuildConfig(config));
   summarize(config, configPath);
+}
+
+/// Entitlements are what the signature actually grants, so they are written from the
+/// configuration rather than picked from a set of checked-in near-copies. The AutoFill
+/// credential provider entitlement is claimed only when the extension is part of the build:
+/// nothing else in the app uses it, and an entitlement in the file is one the binary has.
+function writeEntitlements(config: BuildConfig): void {
+  const macos = config.derived.macos;
+  if (macos == null) {
+    return;
+  }
+
+  const options = {
+    bundleId: macos.bundleId,
+    autofill: config.targets.macosAutofillExtension === true,
+  };
+
+  const write = (relativePath: string, entitlements: Record<string, unknown>) => {
+    const destination = path.resolve(projectDir, relativePath);
+    mkdirSync(path.dirname(destination), { recursive: true });
+    writeFileSync(destination, serializePlist(entitlements as never));
+  };
+
+  // A sandboxed App Store app has to name every capability it needs; a directly distributed
+  // one is not sandboxed and names far fewer.
+  const app = isAppStoreBuild(config) ? masAppEntitlements(options) : macAppEntitlements(options);
+  write(macos.entitlements.app, app);
+
+  if (macos.entitlements.autofillExtension != null) {
+    write(macos.entitlements.autofillExtension, autofillExtensionEntitlements(options));
+  }
 }
 
 function merge(into: ToolchainReport, from: ToolchainReport): void {
@@ -139,9 +184,23 @@ function toolchainIsReady(config: BuildConfig): boolean {
   const enabled = enabledTargetDefinitions(config);
   const report: ToolchainReport = { errors: [], warnings: [] };
 
+  const rustTargets = new Set<RustTarget>();
   if (enabled.some((target) => target.toolchain === "rust")) {
-    const targets = rustTargetsFor(config.derived.platform, config.architectures);
-    merge(report, verifyToolchain(crossCompilationPlan(host, targets)));
+    for (const target of rustTargetsFor(config.derived.platform, config.architectures)) {
+      rustTargets.add(target);
+    }
+  }
+  if (enabled.some((target) => target.key === "macosAutofillExtension")) {
+    // Not a cargo target itself, but the Xcode project links a universal static library built
+    // from the autofill_provider crate, so it needs both darwin triples whatever architectures
+    // the app was configured for. build.sh used to `rustup target add` them mid-build.
+    for (const target of rustTargetsFor("macos", ["universal"])) {
+      rustTargets.add(target);
+    }
+  }
+
+  if (rustTargets.size > 0) {
+    merge(report, verifyToolchain(crossCompilationPlan(host, [...rustTargets])));
   }
   if (enabled.some((target) => target.toolchain === "xcode")) {
     merge(report, verifyXcode());
