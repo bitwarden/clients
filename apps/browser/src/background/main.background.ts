@@ -208,10 +208,6 @@ import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
-import {
-  PasswordStrengthService,
-  PasswordStrengthServiceAbstraction,
-} from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -467,7 +463,6 @@ export default class MainBackground {
   credentialGeneratorService: CredentialGeneratorService;
   generatorHistoryService: GeneratorHistoryService;
   syncService: SyncService;
-  passwordStrengthService: PasswordStrengthServiceAbstraction;
   totpService: TotpServiceAbstraction;
   autofillLifecycleService: AutofillLifecycleService;
   autofillService: AutofillServiceAbstraction;
@@ -1100,8 +1095,6 @@ export default class MainBackground {
       this.userDecryptionOptionsService,
       this.unlockService,
     );
-
-    this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
       this.policyService,
