@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Criar conta"
   },
+  "welcomeToBitwarden": {
+    "message": "Bem-vindo ao Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Crie a sua conta ou inicie sessão"
+  },
   "newToBitwarden": {
     "message": "Novo no Bitwarden?"
   },
@@ -3837,14 +3843,14 @@
     "message": "Copiar link do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Remover palavra-passe"
+  "removeAuth": {
+    "message": "Remover a verificação por palavra-passe ou e-mail"
   },
   "delete": {
     "message": "Eliminar"
   },
-  "removedPassword": {
-    "message": "Palavra-passe removida"
+  "removedAuth": {
+    "message": "Verificação por palavra-passe ou e-mail removida"
   },
   "deletedSend": {
     "message": "Send eliminado",
@@ -3857,8 +3863,28 @@
   "disabled": {
     "message": "Desativado"
   },
-  "removePasswordConfirmation": {
-    "message": "Tem a certeza de que pretende remover a palavra-passe?"
+  "removeAuthConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por palavra-passe ou e-mail deste Send?"
+  },
+  "removePassword": {
+    "message": "Remover palavra-passe"
+  },
+  "removeEmailVerification": {
+    "message": "Remover a verificação por e-mail"
+  },
+  "removedPassword": {
+    "message": "Palavra-passe removida"
+  },
+  "removedEmailVerification": {
+    "message": "Verificação por e-mail removida"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por palavra-passe deste Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por e-mail deste Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Eliminar Send",
@@ -4034,7 +4060,7 @@
     "message": "Esta ação está protegida. Para continuar, introduza novamente a sua palavra-passe mestra para confirmar a sua identidade."
   },
   "emailVerificationRequired": {
-    "message": "Verificação de e-mail necessária"
+    "message": "Verificação por e-mail obrigatória"
   },
   "emailVerifiedV2": {
     "message": "E-mail verificado"
@@ -4523,7 +4549,7 @@
     "message": "Token de acesso à API"
   },
   "apiKey": {
-    "message": "Chave da API"
+    "message": "Chave de API"
   },
   "ssoKeyConnectorError": {
     "message": "Erro no Key Connector: certifique-se de que o Key Connector está disponível e a funcionar corretamente."
@@ -4635,7 +4661,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+    "message": "Foi recusada uma tentativa de início de sessão noutro dispositivo. Se foi uma tentativa sua, tente novamente iniciar sessão nesse dispositivo."
   },
   "device": {
     "message": "Dispositivo"
@@ -6266,7 +6292,7 @@
     "message": "Método de dois fatores"
   },
   "emailVerification": {
-    "message": "Verificação de e-mail"
+    "message": "Verificação por e-mail"
   },
   "approvalEmailDesc": {
     "message": "Verifique o seu e-mail e introduza o código de verificação abaixo"
@@ -7052,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "App para computador",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "App para computador $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8865,5 +8892,429 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Esta credencial tem a opção de pedir novamente a palavra-passe mestra ativada. Por isso, o preenchimento automático dos pedidos de início de sessão no navegador foi desativado. Guarde a credencial para manter esta alteração."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "O período de acesso aprovado ainda não começou."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "O período de acesso aprovado já terminou."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Este pedido ainda não foi aprovado."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Este pedido já não pode ser ativado."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "O acesso deste pedido já foi utilizado e já não está ativo."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Só 1 utilizador pode ter acesso ativo a este item de cada vez. Tenta novamente quando o acesso atual terminar."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "O acesso a este item não é permitido a partir da sua rede atual."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "O acesso a este item não é permitido neste momento."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "O acesso a este item não é permitido neste momento."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Já tem um pedido aprovado para este item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Já tem um pedido pendente para este item."
+  },
+  "pamLeaseExpires": {
+    "message": "Expira a $DATE$ às $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Expira hoje às $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Iniciar acesso"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Acesso iniciado."
+  },
+  "pamStartLeaseError": {
+    "message": "Não foi possível iniciar o acesso."
+  },
+  "pamEndLeaseButton": {
+    "message": "Terminar acesso"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Terminar acesso?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Esta ação revoga imediatamente o seu acesso. Não é possível anulá-la."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Acesso terminado."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Prolongar acesso"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Prolongar acesso"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Duração do prolongamento"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Motivo"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Acesso prolongado."
+  },
+  "pamExtendLeaseError": {
+    "message": "Não foi possível prolongar o acesso."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "O seu acesso terminou antes de poder ser prolongado. Pode consultar o pedido no histórico."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Com privilégios"
+  },
+  "pamAccessBadgePending": {
+    "message": "A aguardar aprovação"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Indisponível"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Pronto a utilizar"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Restam $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "A terminar em breve • restam $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Sessão terminada"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Acesso ativo • restam $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "A terminar em breve • restam $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Pedido de acesso pendente de aprovação"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Enviado agora mesmo"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Enviado $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Credenciais privilegiadas"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "É necessária uma licença do Privileged Controls",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Pedir para utilizar"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Não é possível pedir acesso",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Prolongar acesso",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "Resta <1 min",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Acesso controlado"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Em utilização"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "A terminar em breve"
+  },
+  "pamEndedBannerHeading": {
+    "message": "O seu acesso terminou"
+  },
+  "pamEndedBannerBody": {
+    "message": "O período de acesso a esta credencial expirou. A palavra-passe será substituída agora que o seu acesso terminou."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Não pode pedir acesso neste momento"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "A regra de acesso desta credencial não permite pedidos a partir da sua rede atual ou neste horário."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Pronto a utilizar"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Pode aceder a esta credencial até às $TIME$ de hoje.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Pode aceder a esta credencial até às $TIME$ de $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "As credenciais permanecem ocultas até ser concedido o acesso."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Pode pedir acesso"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Precisa de uma licença do Privileged Controls para utilizar este item",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Não é possível pedir acesso sem uma licença.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Peça ao seu administrador para ativar a sua licença.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "É necessária uma licença de Privileged Controls. Peça ao administrador para ativar a sua licença.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Acesso até $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Acesso até $DURATION$, com aprovação imediata se cumprir as condições",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Pedir acesso"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Outra pessoa tem acesso a este item neste momento. Pode pedir acesso, mas só poderá iniciá-lo quando essa pessoa terminar."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Outra pessoa tem acesso a este item neste momento. Pode pedir acesso, mas só poderá iniciá-lo depois de $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancelar pedido"
+  },
+  "pamKeepRequest": {
+    "message": "Manter pedido"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancelar pedido de acesso"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Esta ação retira o seu pedido antes de este ser analisado por um aprovador. Pode apresentar um novo pedido a qualquer momento."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Esta ação abdica do acesso que já foi aprovado. Pode apresentar um novo pedido, mas este terá de ser aprovado novamente."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Pedido cancelado"
+  },
+  "pendingStateCancelError": {
+    "message": "Não foi possível cancelar o pedido."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Enviar pedido"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Durante quanto tempo precisa de acesso?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Receberá uma notificação quando o pedido for aprovado. O tempo só começa a contar quando começar a utilizar esta credencial."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Detalhes do pedido"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Data de início"
+  },
+  "requestAccessModalStart": {
+    "message": "Hora de início"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Data de fim"
+  },
+  "requestAccessModalEnd": {
+    "message": "Hora de fim"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "A data de fim tem de ser posterior à data de início."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (agora)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Hora personalizada…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Data e hora de fim personalizadas…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Mostrar horas de início sugeridas"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Voltar às durações sugeridas"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, até às $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "A pedir $DURATION$ de acesso: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "O período de acesso pedido já terminou. Escolha uma data ou hora posterior."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "O período de acesso não pode exceder $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Porque precisa de acesso?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Porque precisa de acesso?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "por exemplo, Auditoria trimestral, preciso de executar algumas consultas apenas de leitura"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visível para o aprovador e guardado no registo de auditoria."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visível para o aprovador e guardado no registo de auditoria."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Não foi possível pedir acesso. Tente novamente."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Já tem acesso ativo a este item."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Acesso aprovado. Selecione Iniciar acesso para começar."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Acesso pedido"
   }
 }

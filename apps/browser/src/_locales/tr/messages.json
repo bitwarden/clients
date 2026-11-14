@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Hesap oluştur"
   },
+  "welcomeToBitwarden": {
+    "message": "Bitwarden'a hoş geldiniz"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Hesabınızı oluşturun veya giriş yapın"
+  },
   "newToBitwarden": {
     "message": "Bitwarden'da yeni misiniz?"
   },
@@ -3837,14 +3843,14 @@
     "message": "Send bağlantısını kopyala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Parolayı kaldır"
+  "removeAuth": {
+    "message": "Parolayı veya e-posta doğrulamasını kaldır"
   },
   "delete": {
     "message": "Sil"
   },
-  "removedPassword": {
-    "message": "Parola kaldırıldı"
+  "removedAuth": {
+    "message": "Parola veya e-posta doğrulaması kaldırıldı"
   },
   "deletedSend": {
     "message": "Send silindi",
@@ -3857,8 +3863,28 @@
   "disabled": {
     "message": "Devre dışı"
   },
-  "removePasswordConfirmation": {
-    "message": "Parolayı kaldırmak istediğinizden emin misiniz?"
+  "removeAuthConfirmation": {
+    "message": "Bu Send'den parola veya e-posta doğrulaması gereksinimini kaldırmak istediğinizden emin misiniz?"
+  },
+  "removePassword": {
+    "message": "Parolayı kaldır"
+  },
+  "removeEmailVerification": {
+    "message": "E-posta doğrulamasını kaldır"
+  },
+  "removedPassword": {
+    "message": "Parola kaldırıldı"
+  },
+  "removedEmailVerification": {
+    "message": "E-posta doğrulaması kaldırıldı"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Bu Send'den parola gereksinimini kaldırmak istediğinizden emin misiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Bu Send'den e-posta doğrulaması gereksinimini kaldırmak istediğinizden emin misiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Send'i sil",
@@ -6709,7 +6735,7 @@
     "message": "Kayıtlarım"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Kayıtlarım"
   },
   "adminConsole": {
     "message": "Yönetici Konsolu"
@@ -7052,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Uygulama (URI)"
+  "desktopApp": {
+    "message": "Masaüstü uygulaması",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Uygulama (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Masaüstü uygulaması $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8865,5 +8892,429 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Bu kayıtta ana parolayı yeniden sorma açık olduğundan tarayıcı giriş istemleri için otomatik doldurma kapatıldı. Bu değişikliği korumak için kaydı kaydedin."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Onaylanan erişim aralığı henüz başlamadı."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Onaylanan erişim aralığı zaten sona erdi."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Bu istek henüz onaylanmadı."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Bu istek artık etkinleştirilemez."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Bu isteğin erişimi zaten kullanıldı ve artık etkin değil."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Bu kayda aynı anda yalnızca 1 kullanıcının etkin erişimi olabilir. Mevcut erişim sona erdiğinde yeniden deneyin."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Bu kayda mevcut ağınızdan erişime izin verilmiyor."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Bu kayda bu saatte erişime izin verilmiyor."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Bu kayda şu anda erişime izin verilmiyor."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Bu kayıt için zaten onaylanmış bir isteğiniz var."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Bu kayıt için zaten bekleyen bir isteğiniz var."
+  },
+  "pamLeaseExpires": {
+    "message": "$DATE$ $TIME$ tarihinde sona eriyor",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Bugün $TIME$ saatinde sona eriyor",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Erişimi başlat"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Erişim başlatıldı."
+  },
+  "pamStartLeaseError": {
+    "message": "Erişim başlatılamadı."
+  },
+  "pamEndLeaseButton": {
+    "message": "Erişimi sonlandır"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Erişim sonlandırılsın mı?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Bu işlem erişiminizi hemen iptal eder. Bu işlem geri alınamaz."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Erişim sonlandırıldı."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Erişimi uzat"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Erişimi uzat"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Uzatma süresi"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Neden"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Erişim uzatıldı."
+  },
+  "pamExtendLeaseError": {
+    "message": "Erişim uzatılamadı."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Erişiminiz uzatılamadan sona erdi. İstek geçmişinizde bulunuyor."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Ayrıcalıklı"
+  },
+  "pamAccessBadgePending": {
+    "message": "Onay bekliyor"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Kullanılamıyor"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Kullanıma hazır"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ kaldı",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Yakında sona eriyor • $DURATION$ kaldı",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Oturum sona erdi"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Erişim etkin • $DURATION$ kaldı",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Yakında sona eriyor • $DURATION$ kaldı",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Erişim isteği onay bekliyor"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Az önce gönderildi"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "$WHEN$ gönderildi",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Ayrıcalıklı kimlik bilgileri"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls lisansı gerekli",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Kullanım talep et"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Talep edilemez",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Erişimi uzat",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1 dk kaldı",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Denetimli erişim"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Kullanımda"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Yakında sona eriyor"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Erişiminiz sona erdi"
+  },
+  "pamEndedBannerBody": {
+    "message": "Bu kimlik bilgisinin kullanım süresi doldu. Erişiminiz sona erdiği için bu kimlik bilgisi şimdi değiştirilecek."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Şu anda erişim talep edemezsiniz"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Bu kimlik bilgisinin erişim kuralı, mevcut ağınızdan veya bu saatte istek yapılmasına izin vermiyor."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Kullanıma hazır"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Bu kimlik bilgisine bugün $TIME$ saatine kadar erişebilirsiniz.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Bu kimlik bilgisine $DATE$ $TIME$ saatine kadar erişebilirsiniz.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Erişim verilene kadar kimlik bilgileri gizlenir."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Erişim talep edebilirsiniz"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Bu kaydı kullanmak için Privileged Controls lisansına ihtiyacınız var",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Lisansınız yokken erişim talep edilemez.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Yöneticinizden lisansınızı etkinleştirmesini isteyin.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Privileged Controls lisansı gerekli. Yöneticinizden lisansınızı etkinleştirmesini isteyin.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "En fazla $DURATION$ erişim",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "En fazla $DURATION$ erişim, koşulları karşılarsanız anında onay",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Erişim talep et"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Şu anda bu kayda başka biri erişiyor. Erişim talep edebilirsiniz, ancak o kişi işini bitirene kadar başlatamazsınız."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Şu anda bu kayda başka biri erişiyor. Erişim talep edebilirsiniz, ancak $TIME$ saatine kadar başlatamazsınız.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "İsteği iptal et"
+  },
+  "pamKeepRequest": {
+    "message": "İsteği koru"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Erişim isteğini iptal et"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Bu işlem, bir onaylayan karar vermeden önce isteğinizi geri çeker. İstediğiniz zaman yeni bir istek gönderebilirsiniz."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Bu işlem, zaten onaylanmış erişimden vazgeçer. Yeni bir istek gönderebilirsiniz, ancak bunun yeniden onaylanması gerekir."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "İstek iptal edildi"
+  },
+  "pendingStateCancelError": {
+    "message": "İstek iptal edilemedi."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "İsteği gönder"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Ne kadar süreye ihtiyacınız var?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Onaylandığında bildirim alırsınız. Süreniz ancak bu kimlik bilgisini kullanmaya başladığınızda işlemeye başlar."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "İstek ayrıntıları"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Başlangıç tarihi"
+  },
+  "requestAccessModalStart": {
+    "message": "Başlangıç saati"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Bitiş tarihi"
+  },
+  "requestAccessModalEnd": {
+    "message": "Bitiş saati"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Bitiş, başlangıçtan sonra olmalıdır."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (şimdi)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Özel saat…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Özel bitiş tarihi ve saati…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Önerilen başlangıç saatlerini göster"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Önerilen sürelere dön"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, $END$ zamanına kadar",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "$DURATION$ erişim isteniyor: $START$ ile $END$ arası",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "İstenen aralık zaten sona erdi. Daha sonraki bir tarih veya saat seçin."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Aralık $DURATION$ süresini aşamaz.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Buna neden ihtiyacınız var?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Buna neden ihtiyacınız var?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "örn. Üç aylık denetim, birkaç salt okunur sorgu çalıştırmam gerekiyor"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Onaylayan kişi görebilir ve denetim günlüğüne kaydedilir."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Onaylayan kişi görebilir ve denetim günlüğüne kaydedilir."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Erişim talep edilemedi. Yeniden deneyin."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Bu kayda zaten etkin erişiminiz var."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Erişim onaylandı. Başlamak için Erişimi başlat'ı seçin."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Erişim istendi"
   }
 }

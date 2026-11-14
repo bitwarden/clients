@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Konto erstellen"
   },
+  "welcomeToBitwarden": {
+    "message": "Willkommen bei Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Erstelle dein Konto oder melde dich an"
+  },
   "newToBitwarden": {
     "message": "Neu bei Bitwarden?"
   },
@@ -3837,14 +3843,14 @@
     "message": "Send-Link kopieren",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Passwort entfernen"
+  "removeAuth": {
+    "message": "Passwort oder E-Mail-Verifizierung entfernen"
   },
   "delete": {
     "message": "Löschen"
   },
-  "removedPassword": {
-    "message": "Passwort entfernt"
+  "removedAuth": {
+    "message": "Passwort oder E-Mail-Verifizierung entfernt"
   },
   "deletedSend": {
     "message": "Send gelöscht",
@@ -3857,8 +3863,28 @@
   "disabled": {
     "message": "Deaktiviert"
   },
-  "removePasswordConfirmation": {
-    "message": "Bist du sicher, dass du dieses Passwort entfernen möchtest?"
+  "removeAuthConfirmation": {
+    "message": "Bist du sicher, dass du die Passwort- oder E-Mail-Verifizierung für dieses Send entfernen möchtest?"
+  },
+  "removePassword": {
+    "message": "Passwort entfernen"
+  },
+  "removeEmailVerification": {
+    "message": "E-Mail-Verifizierung entfernen"
+  },
+  "removedPassword": {
+    "message": "Passwort entfernt"
+  },
+  "removedEmailVerification": {
+    "message": "E-Mail-Verifizierung entfernt"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Bist du sicher, dass du das Passwort für dieses Send entfernen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Bist du sicher, dass du die E-Mail-Verifizierung für dieses Send entfernen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Send löschen",
@@ -6709,7 +6735,7 @@
     "message": "Meine Einträge"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Meine Einträge"
   },
   "adminConsole": {
     "message": "Administrator-Konsole"
@@ -7052,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop-App",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop-App $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8865,5 +8892,429 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Für diesen Eintrag ist die Option \"Master-Passwort erneut abfragen\" aktiviert, daher wurde \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert. Speicher den Eintrag, um diese Änderung beizubehalten."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Das genehmigte Zugriffszeitfenster hat noch nicht begonnen."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Das genehmigte Zugriffszeitfenster ist bereits abgelaufen."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Diese Anfrage wurde noch nicht genehmigt."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Diese Anfrage kann nicht mehr aktiviert werden."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Der Zugriff dieser Anfrage wurde bereits genutzt und ist nicht mehr aktiv."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Nur 1 Benutzer kann gleichzeitig aktiven Zugriff auf diesen Eintrag haben. Versuche es erneut, sobald der aktuelle Zugriff endet."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist aus deinem aktuellen Netzwerk nicht erlaubt."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist zu diesem Zeitpunkt nicht erlaubt."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist gerade nicht erlaubt."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Du hast bereits eine genehmigte Anfrage für diesen Eintrag."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Du hast bereits eine ausstehende Anfrage für diesen Eintrag."
+  },
+  "pamLeaseExpires": {
+    "message": "Läuft am $DATE$ um $TIME$ ab",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Läuft heute um $TIME$ ab",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Zugriff starten"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Zugriff gestartet."
+  },
+  "pamStartLeaseError": {
+    "message": "Zugriff konnte nicht gestartet werden."
+  },
+  "pamEndLeaseButton": {
+    "message": "Zugriff beenden"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Zugriff beenden?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Dadurch wird dein Zugriff sofort widerrufen. Diese Aktion kann nicht rückgängig gemacht werden."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Zugriff beendet."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Zugriff verlängern"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Zugriff verlängern"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Verlängerungsdauer"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Grund"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Zugriff verlängert."
+  },
+  "pamExtendLeaseError": {
+    "message": "Zugriff konnte nicht verlängert werden."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Dein Zugriff ist abgelaufen, bevor er verlängert werden konnte. Die Anfrage befindet sich in deinem Verlauf."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privilegiert"
+  },
+  "pamAccessBadgePending": {
+    "message": "Warten auf Genehmigung"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Nicht verfügbar"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Einsatzbereit"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Noch $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Endet bald • noch $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Sitzung beendet"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Zugriff aktiv • noch $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Endet bald • noch $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Zugriffsanfrage wartet auf Genehmigung"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Gerade eben gesendet"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Gesendet $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privilegierte Zugangsdaten"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls-Lizenz erforderlich",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Nutzung anfragen"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Nicht anforderbar",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Zugriff verlängern",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1 Min. übrig",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Kontrollierter Zugriff"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "In Verwendung"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Endet bald"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Dein Zugriff ist beendet"
+  },
+  "pamEndedBannerBody": {
+    "message": "Die Leihfrist für diese Zugangsdaten ist abgelaufen. Da dein Zugriff beendet ist, werden diese Zugangsdaten jetzt erneuert."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Du kannst gerade keinen Zugriff anfordern"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Die Zugriffsregel dieser Zugangsdaten erlaubt keine Anfragen aus deinem aktuellen Netzwerk oder zu diesem Zeitpunkt."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Einsatzbereit"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Du kannst bis heute $TIME$ auf diese Zugangsdaten zugreifen.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Du kannst bis $DATE$ um $TIME$ auf diese Zugangsdaten zugreifen.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Zugangsdaten bleiben verborgen, bis der Zugriff gewährt wird."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Du kannst Zugriff anfordern"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Du benötigst eine Privileged Controls-Lizenz, um diesen Eintrag zu verwenden",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Ohne Lizenz kann kein Zugriff angefordert werden.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Bitte deinen Administrator, deine Lizenz zu aktivieren.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Eine Privileged Controls-Lizenz ist erforderlich. Bitte deinen Administrator, deine Lizenz zu aktivieren.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Zugriff bis zu $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Zugriff bis zu $DURATION$, sofortige Genehmigung, wenn du die Bedingungen erfüllst",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Zugriff anfordern"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Gerade hat jemand anderes Zugriff auf diesen Eintrag. Du kannst Zugriff anfordern, ihn aber erst starten, wenn die Person fertig ist."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Gerade hat jemand anderes Zugriff auf diesen Eintrag. Du kannst Zugriff anfordern, ihn aber erst ab $TIME$ starten.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Anfrage abbrechen"
+  },
+  "pamKeepRequest": {
+    "message": "Anfrage behalten"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Zugriffsanfrage abbrechen"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Damit ziehst du deine Anfrage zurück, bevor eine genehmigende Person darüber entschieden hat. Du kannst jederzeit eine neue Anfrage senden."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Damit verzichtest du auf bereits genehmigten Zugriff. Du kannst eine neue Anfrage senden, sie muss aber erneut genehmigt werden."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Anfrage abgebrochen"
+  },
+  "pendingStateCancelError": {
+    "message": "Die Anfrage konnte nicht abgebrochen werden."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Anfrage senden"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Wie lange brauchst du ihn?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Du erhältst eine Benachrichtigung, sobald die Anfrage genehmigt ist. Deine Zeit läuft erst, wenn du diese Zugangsdaten verwendest."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Anfragedetails"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Startdatum"
+  },
+  "requestAccessModalStart": {
+    "message": "Startzeit"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Enddatum"
+  },
+  "requestAccessModalEnd": {
+    "message": "Endzeit"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Das Ende muss nach dem Start liegen."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (jetzt)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Benutzerdefinierte Zeit…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Benutzerdefiniertes Enddatum und -zeit…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Vorgeschlagene Startzeiten anzeigen"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Zurück zu vorgeschlagenen Dauern"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, bis $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "$DURATION$ Zugriff angefordert: $START$ bis $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Das angeforderte Zeitfenster ist bereits abgelaufen. Wähle ein späteres Datum oder eine spätere Uhrzeit."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Das Zeitfenster darf $DURATION$ nicht überschreiten.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Warum brauchst du ihn?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Warum brauchst du ihn?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "z. B. Quartalsprüfung, einige schreibgeschützte Abfragen ausführen"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Für die genehmigende Person sichtbar und im Kontroll-Protokoll gespeichert."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Für die genehmigende Person sichtbar und im Kontroll-Protokoll gespeichert."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Zugriff konnte nicht angefordert werden. Versuche es erneut."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Du hast bereits aktiven Zugriff auf diesen Eintrag."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Zugriff genehmigt. Wähle Zugriff starten, um zu beginnen."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Zugriff angefragt"
   }
 }
