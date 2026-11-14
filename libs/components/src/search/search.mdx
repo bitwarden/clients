@@ -1,12 +1,4 @@
-import {
-  Meta,
-  Canvas,
-  Source,
-  Primary,
-  Controls,
-  Title,
-  Description,
-} from "@storybook/addon-docs/blocks";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./search.stories";
 
@@ -27,3 +19,42 @@ import { SearchModule } from "@bitwarden/components";
 ### Default
 
 <Canvas of={stories.Default} />
+
+## Keyboard shortcuts
+
+Shortcuts are opt-in. Set `useKeyShortcuts` and the field claims ⌘/Ctrl+F, renders a hint badge, and
+advertises itself with `aria-keyshortcuts`.
+
+<Canvas of={stories.WithShortcutHints} />
+
+Esc clears the field whether or not you opt in. It clears only when there is something to clear, and
+it stops there — so inside a menu or dialog the first press clears the field and a second closes the
+overlay. Hints show only while the field is empty: ⌘/Ctrl+F, plus Esc on focus. Once there's text,
+the clear button takes over.
+
+### Which surfaces should opt in
+
+⌘/Ctrl+F replaces the browser's find-in-page, so opt in only where native find can't reach the data,
+such as a virtualized list.
+
+On desktop, the native `CmdOrCtrl+F` menu shortcut handles any press an opted-in search declines,
+such as while a dialog is open.
+
+### Arbitration
+
+If several searches opt in, the one nearest focus wins. While a dialog is open, only a search inside
+it responds.
+
+<Canvas of={stories.WithDialogOpen} />
+
+### Platform legends
+
+The hint renders ⌘ on macOS and the localized Control abbreviation elsewhere.
+
+<Canvas of={stories.WithShortcutHintsWindows} />
+<Canvas of={stories.WithShortcutHintsMac} />
+
+### Accessibility
+
+`aria-keyshortcuts="Control+f Meta+f"` is set on the input whenever the shortcut is live and dropped
+when the field is disabled. The hint badge is `aria-hidden`.

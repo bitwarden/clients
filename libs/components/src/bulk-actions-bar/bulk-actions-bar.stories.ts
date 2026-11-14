@@ -159,6 +159,9 @@ export default {
               selectionCleared: "Selection cleared",
               clear: "Clear",
               bulkActionsBar: "Bulk actions",
+              keyEscape: "Esc",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
               bulkActionsBarAnnouncement:
                 "__$1__ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press __$2__ to toggle focus to the bulk action bar.",
               close: "Close",

@@ -32,9 +32,11 @@ Pass the literal string `"modifier"` to render the platform's primary modifier k
 time a Cmd chord is observed — Cmd is Apple-exclusive, so the correction is one-way and a Ctrl chord
 never flips the glyph back.
 
-Key labels are not localized. `⌘` is a locale-independent glyph, but `Ctrl` and `Esc` render as
-English abbreviations everywhere — German keyboards, for instance, print `Strg` rather than `Ctrl`.
-Translating legends needs i18n plumbed through this component and is out of scope for now.
+## Localization
+
+`Esc`, `Escape`, `Ctrl`, `Control`, and `Command` (any case) render as the local legend, e.g. `Strg`
+on German keyboards; other tokens render verbatim, and `⌘` is never translated. Keep
+`aria-keyshortcuts` in untranslated [UI Events](https://www.w3.org/TR/uievents-key/) key names.
 
 ## Accessibility
 
