@@ -305,24 +305,21 @@ fn write_ssh_string(buf: &mut Vec<u8>, data: &[u8]) {
     buf.extend_from_slice(data);
 }
 
+/// Builds a session-bind payload signed by `host_key` (any key type `ssh-key` can sign with).
 fn make_session_bind_payload(
-    keypair: &ssh_key::private::Ed25519Keypair,
+    host_key: &ssh_key::PrivateKey,
     session_id: &[u8],
     is_forwarding: bool,
 ) -> Vec<u8> {
-    use signature::Signer as _;
-    use ssh_key::private::KeypairData;
-
-    let private_key = ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "")
-        .expect("key generation not to fail.");
-    let hostkey_bytes = private_key
+    let hostkey_bytes = host_key
         .public_key()
         .to_bytes()
         .expect("conversion to bytes not to fail.");
-    let sig: ssh_key::Signature = keypair.sign(session_id);
+    // `PrivateKey` has an inherent SSHSIG `sign`, so call the raw `Signer` impl explicitly.
+    let sig: ssh_key::Signature = signature::Signer::sign(host_key.key_data(), session_id);
 
     let mut sig_outer = Vec::new();
-    write_ssh_string(&mut sig_outer, sig.algorithm().to_string().as_bytes());
+    write_ssh_string(&mut sig_outer, sig.algorithm().as_str().as_bytes());
     write_ssh_string(&mut sig_outer, sig.as_bytes());
 
     let mut payload = Vec::new();
@@ -333,22 +330,121 @@ fn make_session_bind_payload(
     payload
 }
 
-/// Builds a framed EXTENSION message containing a valid session-bind payload.
-pub fn framed_session_bind_extension(is_forwarding: bool) -> Vec<u8> {
-    use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
-
-    let keypair = Ed25519Keypair::random(&mut OsRng);
-    let session_id = [0x42u8; 32];
-    let bind_payload = make_session_bind_payload(&keypair, &session_id, is_forwarding);
-
+/// Wraps a raw session-bind payload in a framed EXTENSION message.
+fn framed_session_bind_payload(bind_payload: &[u8]) -> Vec<u8> {
     let name = b"session-bind@openssh.com";
     let mut msg = vec![27u8]; // SSH2_AGENTC_EXTENSION
     write_ssh_string(&mut msg, name);
-    msg.extend_from_slice(&bind_payload);
+    msg.extend_from_slice(bind_payload);
 
     let mut framed = (msg.len() as u32).to_be_bytes().to_vec();
     framed.extend(msg);
     framed
+}
+
+/// Builds a framed EXTENSION message containing a valid Ed25519 session-bind payload.
+pub fn framed_session_bind_extension(is_forwarding: bool) -> Vec<u8> {
+    use ssh_key::{rand_core::OsRng, Algorithm};
+
+    let host_key = ssh_key::PrivateKey::random(&mut OsRng, Algorithm::Ed25519)
+        .expect("key generation not to fail.");
+    framed_session_bind_extension_with_key(&host_key, is_forwarding)
+}
+
+/// Builds a framed EXTENSION message containing a valid session-bind payload signed by
+/// `host_key`.
+pub fn framed_session_bind_extension_with_key(
+    host_key: &ssh_key::PrivateKey,
+    is_forwarding: bool,
+) -> Vec<u8> {
+    framed_session_bind_payload(&make_session_bind_payload(
+        host_key,
+        &[0x42u8; 32],
+        is_forwarding,
+    ))
+}
+
+/// Generates a random ECDSA host key on `curve`.
+pub fn random_ecdsa_host_key(curve: ssh_key::EcdsaCurve) -> ssh_key::PrivateKey {
+    use ssh_key::{rand_core::OsRng, Algorithm};
+
+    ssh_key::PrivateKey::random(&mut OsRng, Algorithm::Ecdsa { curve })
+        .expect("key generation not to fail.")
+}
+
+/// Builds a framed session-bind EXTENSION whose host key (`sk-ssh-ed25519@openssh.com`) is
+/// well-formed but not a supported session-bind host key type.
+pub fn framed_unsupported_host_key_session_bind_extension() -> Vec<u8> {
+    const SK_ED25519: &[u8] = b"sk-ssh-ed25519@openssh.com";
+    let mut hostkey_bytes = Vec::new();
+    write_ssh_string(&mut hostkey_bytes, SK_ED25519);
+    write_ssh_string(&mut hostkey_bytes, &[0x01u8; 32]);
+    write_ssh_string(&mut hostkey_bytes, b"ssh:");
+
+    let mut sig_outer = Vec::new();
+    write_ssh_string(&mut sig_outer, SK_ED25519);
+    write_ssh_string(&mut sig_outer, &[0u8; 64]);
+
+    let mut payload = Vec::new();
+    write_ssh_string(&mut payload, &hostkey_bytes);
+    write_ssh_string(&mut payload, &[0x42u8; 32]);
+    write_ssh_string(&mut payload, &sig_outer);
+    payload.push(1u8);
+    framed_session_bind_payload(&payload)
+}
+
+/// Reads a single length-prefixed response frame, or returns `None` if the server closed the
+/// connection.
+pub async fn read_framed_response_or_eof<R>(reader: &mut R) -> Option<Vec<u8>>
+where
+    R: tokio::io::AsyncRead + Unpin,
+{
+    use tokio::io::AsyncReadExt;
+    let mut len_buf = [0u8; 4];
+    tokio::time::timeout(
+        std::time::Duration::from_secs(5),
+        reader.read_exact(&mut len_buf),
+    )
+    .await
+    .expect("timed out waiting for the agent")
+    .ok()?;
+    let mut body = vec![0u8; u32::from_be_bytes(len_buf) as usize];
+    reader.read_exact(&mut body).await.ok()?;
+    Some(body)
+}
+
+/// Creates an agent with `keys` that approves every request and counts approval calls.
+///
+/// Approving (rather than panicking on an unexpected call) matters: a panic inside the agent's
+/// connection task would close the connection and look like the expected fail-closed behavior.
+pub fn counting_approving_agent(
+    keys: Vec<SSHKeyData>,
+) -> (
+    BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequester>,
+    std::sync::Arc<std::sync::atomic::AtomicUsize>,
+) {
+    use std::sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    };
+
+    let calls = Arc::new(AtomicUsize::new(0));
+    let mut requester = MockApprovalRequester::new();
+    let sign_calls = calls.clone();
+    requester
+        .expect_request_sign_approval()
+        .returning(move |_| {
+            sign_calls.fetch_add(1, Ordering::SeqCst);
+            Ok(true)
+        });
+    let list_calls = calls.clone();
+    requester.expect_request_list_approval().returning(move || {
+        list_calls.fetch_add(1, Ordering::SeqCst);
+        Ok(true)
+    });
+    let agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    agent.replace(keys).expect("failed to replace test keys");
+    (agent, calls)
 }
 
 /// Builds a framed EXTENSION message with the session-bind name but a garbage payload.
