@@ -5,7 +5,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfig } from "@bitwarden/legacy-crypto";
 
 export abstract class KdfConfigService {
-  abstract setKdfConfig(userId: UserId, KdfConfig: KdfConfig): Promise<void>;
-  abstract getKdfConfig(userId: UserId): Promise<KdfConfig>;
+  /**
+   * Emits the user's master-password KDF config, or `null` if the user has no master-password
+   * unlock data (e.g. TDE or passwordless SSO users).
+   */
   abstract getKdfConfig$(userId: UserId): Observable<KdfConfig | null>;
 }

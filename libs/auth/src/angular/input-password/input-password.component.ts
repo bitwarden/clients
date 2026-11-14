@@ -335,6 +335,11 @@ export class InputPasswordComponent implements OnInit {
         this.kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(this.userId));
       }
 
+      // Users setting an initial password have no KDF yet (no master-password unlock data).
+      if (this.flow === InputPasswordFlow.SetInitialPasswordAuthedUser) {
+        this.kdfConfig ??= DEFAULT_KDF_CONFIG;
+      }
+
       if (this.kdfConfig == null) {
         throw new Error("KdfConfig not found.");
       }

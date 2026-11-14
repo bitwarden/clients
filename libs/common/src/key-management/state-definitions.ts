@@ -1,14 +1,6 @@
-import { Jsonify } from "type-fest";
-
 // There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
-import {
-  Argon2KdfConfig,
-  KdfConfig,
-  KdfType,
-  PBKDF2KdfConfig,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   EncString,
   KeyId,
@@ -21,7 +13,6 @@ import {
   CRYPTO_DISK,
   CRYPTO_MEMORY,
   ENCRYPTED_MIGRATION_DISK,
-  KDF_CONFIG_DISK,
   MASTER_PASSWORD_UNLOCK_DISK,
   PIN_DISK,
   PIN_MEMORY,
@@ -56,21 +47,6 @@ export const USER_KEY_ID = new UserKeyDefinition<KeyId>(CRYPTO_DISK, "userKeyId"
   clearOn: ["logout"],
   // Prevents the state from caching and rxjs observable becoming hot observable.
   cleanupDelayMs: 0,
-});
-
-/**
- * The KDF configuration used to derive the master key from the master password.
- */
-export const KDF_CONFIG = new UserKeyDefinition<KdfConfig>(KDF_CONFIG_DISK, "kdfConfig", {
-  deserializer: (kdfConfig: Jsonify<KdfConfig>) => {
-    if (kdfConfig == null) {
-      return null;
-    }
-    return kdfConfig.kdfType === KdfType.PBKDF2_SHA256
-      ? PBKDF2KdfConfig.fromJSON(kdfConfig)
-      : Argon2KdfConfig.fromJSON(kdfConfig);
-  },
-  clearOn: ["logout"],
 });
 
 /**

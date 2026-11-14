@@ -23,7 +23,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
@@ -52,7 +52,6 @@ describe("UserApiLoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
@@ -87,7 +86,6 @@ describe("UserApiLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-    kdfConfigService = mock<KdfConfigService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
@@ -114,7 +112,6 @@ describe("UserApiLoginStrategy", () => {
       userDecryptionOptionsService,
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
-      kdfConfigService,
       environmentService,
       configService,
       accountCryptographicStateService,

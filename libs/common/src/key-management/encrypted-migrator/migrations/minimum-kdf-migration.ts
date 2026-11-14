@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -70,7 +72,9 @@ export class MinimumKdfMigration implements EncryptedMigration {
   }
 
   private async localStateNeedsMigration(userId: UserId): Promise<boolean> {
-    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
+    const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+    assertNonNullish(kdfConfig, "kdfConfig");
+
     // Only PBKDF2 users below the minimum iteration count need migration
     return (
       kdfConfig.kdfType === KdfType.PBKDF2_SHA256 &&

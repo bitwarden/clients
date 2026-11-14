@@ -140,7 +140,7 @@ describe("ChangeKdfComponent", () => {
       it("should initialize form with PBKDF2 values and validators when component loads", async () => {
         // Arrange
         const mockPBKDF2Config = new PBKDF2KdfConfig(600_000);
-        mockKdfConfigService.getKdfConfig.mockResolvedValue(mockPBKDF2Config);
+        mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockPBKDF2Config));
 
         // Act
         fixture = TestBed.createComponent(ChangeKdfComponent);
@@ -171,7 +171,7 @@ describe("ChangeKdfComponent", () => {
       it("should initialize form with Argon2id values and validators when component loads", async () => {
         // Arrange
         const mockArgon2Config = new Argon2KdfConfig(3, 64, 4);
-        mockKdfConfigService.getKdfConfig.mockResolvedValue(mockArgon2Config);
+        mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockArgon2Config));
 
         // Act
         fixture = TestBed.createComponent(ChangeKdfComponent);
@@ -204,7 +204,7 @@ describe("ChangeKdfComponent", () => {
       beforeEach(async () => {
         // Setup component with initial PBKDF2 configuration
         const mockPBKDF2Config = new PBKDF2KdfConfig(600_001);
-        mockKdfConfigService.getKdfConfig.mockResolvedValue(mockPBKDF2Config);
+        mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockPBKDF2Config));
 
         fixture = TestBed.createComponent(ChangeKdfComponent);
         component = fixture.componentInstance;
@@ -247,7 +247,7 @@ describe("ChangeKdfComponent", () => {
       beforeEach(async () => {
         // Setup component with initial Argon2id configuration
         const mockArgon2IdConfig = new Argon2KdfConfig(4, 65, 5);
-        mockKdfConfigService.getKdfConfig.mockResolvedValue(mockArgon2IdConfig);
+        mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockArgon2IdConfig));
 
         fixture = TestBed.createComponent(ChangeKdfComponent);
         component = fixture.componentInstance;
@@ -292,7 +292,7 @@ describe("ChangeKdfComponent", () => {
       it("should open confirmation modal with PBKDF2 config when form is submitted", async () => {
         // Arrange
         const mockPBKDF2Config = new PBKDF2KdfConfig(600_001);
-        mockKdfConfigService.getKdfConfig.mockResolvedValue(mockPBKDF2Config);
+        mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockPBKDF2Config));
 
         fixture = TestBed.createComponent(ChangeKdfComponent);
         component = fixture.componentInstance;
@@ -315,7 +315,7 @@ describe("ChangeKdfComponent", () => {
       it("should open confirmation modal with Argon2id config when form is submitted", async () => {
         // Arrange
         const mockArgon2Config = new Argon2KdfConfig(4, 65, 5);
-        mockKdfConfigService.getKdfConfig.mockResolvedValue(mockArgon2Config);
+        mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockArgon2Config));
 
         fixture = TestBed.createComponent(ChangeKdfComponent);
         component = fixture.componentInstance;
@@ -338,7 +338,7 @@ describe("ChangeKdfComponent", () => {
       it("should not open modal when form is invalid", async () => {
         // Arrange
         const mockPBKDF2Config = new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.min - 1);
-        mockKdfConfigService.getKdfConfig.mockResolvedValue(mockPBKDF2Config);
+        mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockPBKDF2Config));
 
         fixture = TestBed.createComponent(ChangeKdfComponent);
         component = fixture.componentInstance;
@@ -357,7 +357,7 @@ describe("ChangeKdfComponent", () => {
     it("offers PBKDF2 and Argon2id in the standard cipher suite", async () => {
       // Arrange - standard cipher suite: every KDF is compliant.
       isKdfCompliant.mockReturnValue(true);
-      mockKdfConfigService.getKdfConfig.mockResolvedValue(new PBKDF2KdfConfig(600_000));
+      mockKdfConfigService.getKdfConfig$.mockReturnValue(of(new PBKDF2KdfConfig(600_000)));
 
       // Act
       fixture = TestBed.createComponent(ChangeKdfComponent);
@@ -373,7 +373,7 @@ describe("ChangeKdfComponent", () => {
     it("offers only PBKDF2 in the FIPS cipher suite", async () => {
       // Arrange - FIPS cipher suite: only PBKDF2 is compliant.
       isKdfCompliant.mockImplementation((kdf) => "pBKDF2" in kdf);
-      mockKdfConfigService.getKdfConfig.mockResolvedValue(new PBKDF2KdfConfig(600_000));
+      mockKdfConfigService.getKdfConfig$.mockReturnValue(of(new PBKDF2KdfConfig(600_000)));
 
       // Act
       fixture = TestBed.createComponent(ChangeKdfComponent);

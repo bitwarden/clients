@@ -21,7 +21,7 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { CsprngArray, DEFAULT_KDF_CONFIG, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { EncString, PureCrypto, UnsignedSharedKey, V2UpgradeToken } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
@@ -156,6 +156,16 @@ describe("DefaultUnlockService", () => {
       expect(v2UpgradeTokenStateService.v2UpgradeToken$).toHaveBeenCalledWith(mockUserId);
       expect(mockCrypto.initialize_user_crypto).toHaveBeenCalledWith(
         expect.objectContaining({ upgradeToken: mockV2UpgradeToken }),
+      );
+    });
+
+    it("passes the default KDF when the user has no master password", async () => {
+      kdfService.getKdfConfig$.mockReturnValue(of(null));
+
+      await service.unlockWithPin(mockUserId, mockPin);
+
+      expect(mockCrypto.initialize_user_crypto).toHaveBeenCalledWith(
+        expect.objectContaining({ kdfParams: DEFAULT_KDF_CONFIG.toSdkConfig() }),
       );
     });
 

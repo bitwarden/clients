@@ -75,7 +75,7 @@ describe("MinimumKdfMigration", () => {
 
     it("should return 'noMigrationNeeded' when user uses argon2id`", async () => {
       mockMasterPasswordService.userHasMasterPassword.mockResolvedValue(true);
-      mockKdfConfigService.getKdfConfig.mockResolvedValue(new Argon2KdfConfig(3, 64, 4));
+      mockKdfConfigService.getKdfConfig$.mockReturnValue(of(new Argon2KdfConfig(3, 64, 4)));
       const result = await sut.needsMigration(mockUserId);
       expect(result).toBe("noMigrationNeeded");
     });
@@ -85,12 +85,12 @@ describe("MinimumKdfMigration", () => {
         kdfType: KdfType.PBKDF2_SHA256,
         iterations: PBKDF2KdfConfig.ITERATIONS.min + 1000,
       };
-      mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
+      mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockKdfConfig as any));
 
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("noMigrationNeeded");
-      expect(mockKdfConfigService.getKdfConfig).toHaveBeenCalledWith(mockUserId);
+      expect(mockKdfConfigService.getKdfConfig$).toHaveBeenCalledWith(mockUserId);
     });
 
     it("should return 'noMigrationNeeded' when PBKDF2 iterations equal minimum", async () => {
@@ -98,12 +98,12 @@ describe("MinimumKdfMigration", () => {
         kdfType: KdfType.PBKDF2_SHA256,
         iterations: PBKDF2KdfConfig.ITERATIONS.min,
       };
-      mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
+      mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockKdfConfig as any));
 
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("noMigrationNeeded");
-      expect(mockKdfConfigService.getKdfConfig).toHaveBeenCalledWith(mockUserId);
+      expect(mockKdfConfigService.getKdfConfig$).toHaveBeenCalledWith(mockUserId);
     });
 
     it("should return 'needsMigrationWithMasterPassword' when PBKDF2 iterations are below minimum", async () => {
@@ -111,31 +111,35 @@ describe("MinimumKdfMigration", () => {
         kdfType: KdfType.PBKDF2_SHA256,
         iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
       };
-      mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
+      mockKdfConfigService.getKdfConfig$.mockReturnValue(of(mockKdfConfig as any));
 
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("needsMigrationWithMasterPassword");
-      expect(mockKdfConfigService.getKdfConfig).toHaveBeenCalledWith(mockUserId);
+      expect(mockKdfConfigService.getKdfConfig$).toHaveBeenCalledWith(mockUserId);
     });
 
     it("should return 'noMigrationNeeded' when sync updates local KDF state to no longer need migration", async () => {
       mockMasterPasswordService.userHasMasterPassword.mockResolvedValue(true);
-      mockKdfConfigService.getKdfConfig
-        .mockResolvedValueOnce({
-          kdfType: KdfType.PBKDF2_SHA256,
-          iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
-        } as any)
-        .mockResolvedValueOnce({
-          kdfType: KdfType.PBKDF2_SHA256,
-          iterations: PBKDF2KdfConfig.ITERATIONS.min,
-        } as any);
+      mockKdfConfigService.getKdfConfig$
+        .mockReturnValueOnce(
+          of({
+            kdfType: KdfType.PBKDF2_SHA256,
+            iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
+          } as any),
+        )
+        .mockReturnValueOnce(
+          of({
+            kdfType: KdfType.PBKDF2_SHA256,
+            iterations: PBKDF2KdfConfig.ITERATIONS.min,
+          } as any),
+        );
 
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("noMigrationNeeded");
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
-      expect(mockKdfConfigService.getKdfConfig).toHaveBeenCalledTimes(2);
+      expect(mockKdfConfigService.getKdfConfig$).toHaveBeenCalledTimes(2);
       expect(mockLogService.info).toHaveBeenCalledWith(
         `[MinimumKdfMigration] After syncing, user ${mockUserId} does not need migration anymore. This means the migration was likely already performed on another client!`,
       );
@@ -152,10 +156,12 @@ describe("MinimumKdfMigration", () => {
 
   describe("runMigrations", () => {
     it("should update KDF parameters with minimum PBKDF2 iterations", async () => {
-      mockKdfConfigService.getKdfConfig.mockResolvedValue({
-        kdfType: KdfType.PBKDF2_SHA256,
-        iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
-      } as any);
+      mockKdfConfigService.getKdfConfig$.mockReturnValue(
+        of({
+          kdfType: KdfType.PBKDF2_SHA256,
+          iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
+        } as any),
+      );
       mockMasterPasswordService.userHasMasterPassword.mockResolvedValue(true);
 
       await sut.runMigrations(mockUserId, mockMasterPassword);
@@ -193,10 +199,12 @@ describe("MinimumKdfMigration", () => {
     });
 
     it("should handle errors from the SDK change_kdf call", async () => {
-      mockKdfConfigService.getKdfConfig.mockResolvedValue({
-        kdfType: KdfType.PBKDF2_SHA256,
-        iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
-      } as any);
+      mockKdfConfigService.getKdfConfig$.mockReturnValue(
+        of({
+          kdfType: KdfType.PBKDF2_SHA256,
+          iterations: PBKDF2KdfConfig.ITERATIONS.min - 1000,
+        } as any),
+      );
       mockMasterPasswordService.userHasMasterPassword.mockResolvedValue(true);
 
       const mockError = new Error("KDF update failed");

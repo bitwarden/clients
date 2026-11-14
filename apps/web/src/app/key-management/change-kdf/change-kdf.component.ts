@@ -94,7 +94,11 @@ export class ChangeKdfComponent implements OnInit {
 
   async ngOnInit() {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
+    const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+    if (kdfConfig == null) {
+      throw new Error("KDF config not found.");
+    }
+
     this.kdfConfig.set(kdfConfig);
     this.formGroup.controls.kdf.setValue(kdfConfig.kdfType);
     this.setFormControlValues(kdfConfig);

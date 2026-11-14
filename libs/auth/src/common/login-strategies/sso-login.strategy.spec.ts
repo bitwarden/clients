@@ -31,7 +31,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
@@ -71,7 +71,6 @@ describe("SsoLoginStrategy", () => {
   let authRequestService: MockProxy<AuthRequestServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
@@ -109,7 +108,6 @@ describe("SsoLoginStrategy", () => {
     authRequestService = mock<AuthRequestServiceAbstraction>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-    kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
@@ -163,7 +161,6 @@ describe("SsoLoginStrategy", () => {
       userDecryptionOptionsService,
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
-      kdfConfigService,
       environmentService,
       configService,
       accountCryptographicStateService,
