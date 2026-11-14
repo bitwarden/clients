@@ -515,7 +515,7 @@ dependencies = [
  "secure_memory",
  "serde",
  "serde_json",
- "sha2 0.10.9",
+ "sha2 0.11.1",
  "tokio",
  "tracing",
  "windows 0.62.2",
@@ -601,7 +601,7 @@ dependencies = [
  "serde_bytes",
  "serde_repr",
  "sha1 0.11.0",
- "sha2 0.11.0",
+ "sha2 0.11.1",
  "subtle",
  "thiserror 2.0.17",
  "tokio",
@@ -1545,7 +1545,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
- "sha2 0.10.9",
+ "sha2 0.11.1",
  "thiserror 2.0.17",
  "tokio",
  "tokio-util",
@@ -1780,7 +1780,7 @@ dependencies = [
  "curve25519-dalek 5.0.0",
  "ed25519 3.0.0",
  "rand_core 0.10.1",
- "sha2 0.11.0",
+ "sha2 0.11.1",
  "signature 3.0.0",
  "subtle",
  "zeroize",
@@ -4670,9 +4670,9 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.11.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "446ba717509524cb3f22f17ecc096f10f4822d76ab5c0b9822c5f9c284e825f4"
+checksum = "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19"
 dependencies = [
  "cfg-if",
  "cpufeatures 0.3.1",
@@ -4895,7 +4895,7 @@ dependencies = [
  "rsa 0.9.6",
  "secure_memory",
  "serial_test",
- "sha2 0.10.9",
+ "sha2 0.11.1",
  "signature 2.2.0",
  "ssh-key",
  "sysinfo",
