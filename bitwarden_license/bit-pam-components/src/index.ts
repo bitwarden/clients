@@ -28,6 +28,7 @@ export { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-
 export { AccessRequestCancelService } from "./services/access-request-cancel.service";
 export { MyLeasesService } from "./services/my-leases.service";
 export { controlledAccessItemFilter } from "./vault-filter-controlled-access/controlled-access-item-filter";
+export { CONTROLLED_ACCESS_FILTER_LIVE_REFRESH } from "./vault-filter-controlled-access/controlled-access-filter-live-refresh";
 export {
   ControlledAccessVaultFilterService,
   ENDING_SOON_FILTER_ID,

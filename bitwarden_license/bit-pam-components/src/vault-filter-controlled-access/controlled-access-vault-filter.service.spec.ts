@@ -1,8 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, combineLatest, firstValueFrom, of, Subject } from "rxjs";
+import { BehaviorSubject, combineLatest, filter, firstValueFrom, map, of, Subject } from "rxjs";
 
 import {
+  AccessRefreshService,
   AccessRequestSdkService,
   ACCESS_BADGE_LOOK,
   ENDING_SOON_THRESHOLD_MS,
@@ -24,6 +25,7 @@ import {
 
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
+import { CONTROLLED_ACCESS_FILTER_LIVE_REFRESH } from "./controlled-access-filter-live-refresh";
 import {
   ControlledAccessVaultFilterService,
   ENDING_SOON_FILTER_ID,
@@ -51,6 +53,28 @@ describe("ControlledAccessVaultFilterService", () => {
   let organizations$: BehaviorSubject<{ id: string; usePam: boolean }[]>;
   let accessRequestSdkService: MockProxy<AccessRequestSdkService>;
   let ticks$: Subject<number>;
+  let accessChanged$: Subject<string>;
+  let accessRefreshService: MockProxy<AccessRefreshService>;
+
+  function configure(liveRefresh?: boolean): void {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        ControlledAccessVaultFilterService,
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
+        { provide: AccessRequestSdkService, useValue: accessRequestSdkService },
+        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: AccessBadgeTickerService, useValue: { ticks$ } },
+        { provide: AccessRefreshService, useValue: accessRefreshService },
+        ...(liveRefresh == null
+          ? []
+          : [{ provide: CONTROLLED_ACCESS_FILTER_LIVE_REFRESH, useValue: liveRefresh }]),
+      ],
+    });
+    service = TestBed.inject(ControlledAccessVaultFilterService);
+  }
 
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
@@ -61,21 +85,20 @@ describe("ControlledAccessVaultFilterService", () => {
     ticks$ = new Subject<number>();
     accessRequestSdkService = mock<AccessRequestSdkService>();
     accessRequestSdkService.getCipherAccessState.mockResolvedValue(accessState("privileged"));
+    accessChanged$ = new Subject<string>();
+    accessRefreshService = mock<AccessRefreshService>();
+    accessRefreshService.accessChanged$.mockImplementation((cipherId?: string) =>
+      accessChanged$.pipe(
+        filter((changed) => cipherId == null || changed === cipherId),
+        map((): void => undefined),
+      ),
+    );
 
-    TestBed.configureTestingModule({
-      providers: [
-        ControlledAccessVaultFilterService,
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
-        { provide: AccessRequestSdkService, useValue: accessRequestSdkService },
-        { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: AccessBadgeTickerService, useValue: { ticks$ } },
-      ],
-    });
-
-    service = TestBed.inject(ControlledAccessVaultFilterService);
+    configure();
   });
+
+  /** Lets the mocked SDK reads' promises settle. */
+  const settle = () => new Promise((resolve) => setTimeout(resolve));
 
   describe("stateOptions$", () => {
     // Icons are read off ACCESS_BADGE_LOOK rather than spelled again, so an icon the badge changes
@@ -205,6 +228,84 @@ describe("ControlledAccessVaultFilterService", () => {
 
       expect([...matches.values()].flatMap((ids) => [...ids])).toEqual(["gated"]);
       expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("refreshing on access changes (PAM-567)", () => {
+    const states: Record<string, unknown> = { "cipher-1": "privileged", "cipher-2": "privileged" };
+    const rows = [cipher("cipher-1", PAM_ORG, true), cipher("cipher-2", PAM_ORG, true)];
+
+    beforeEach(() => {
+      states["cipher-1"] = "privileged";
+      states["cipher-2"] = "privileged";
+      accessRequestSdkService.getCipherAccessState.mockImplementation((cipherId: string) =>
+        Promise.resolve(accessState(states[cipherId])),
+      );
+    });
+
+    describe("with live refresh bound", () => {
+      beforeEach(() => configure(true));
+
+      it("moves a row to its new option when its access changes, without a new list", async () => {
+        const emissions: ReadonlyMap<string, ReadonlySet<CipherId>>[] = [];
+        const subscription = service.matches$(rows).subscribe((m) => emissions.push(m));
+        await settle();
+
+        states["cipher-1"] = "pending";
+        accessChanged$.next("cipher-1");
+        await settle();
+        subscription.unsubscribe();
+
+        const latest = emissions[emissions.length - 1];
+        expect(emissions[0].get(PRIVILEGED_FILTER_ID)).toEqual(new Set(["cipher-1", "cipher-2"]));
+        expect(latest.get(PRIVILEGED_FILTER_ID)).toEqual(new Set(["cipher-2"]));
+        expect(latest.get(PENDING_FILTER_ID)).toEqual(new Set(["cipher-1"]));
+      });
+
+      it("re-reads only the row whose access changed", async () => {
+        const subscription = service.matches$(rows).subscribe();
+        await settle();
+        accessRequestSdkService.getCipherAccessState.mockClear();
+
+        accessChanged$.next("cipher-2");
+        await settle();
+        subscription.unsubscribe();
+
+        expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(1);
+        expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledWith("cipher-2");
+      });
+
+      it("keeps the column sort in step with the re-read state", async () => {
+        const ranks: Map<string, number>[] = [];
+        const subscription = service.sortRanks$(rows).subscribe((r) => ranks.push(r));
+        await settle();
+
+        states["cipher-1"] = "ready";
+        accessChanged$.next("cipher-1");
+        await settle();
+        subscription.unsubscribe();
+
+        // SORT_ORDER: active, ready, pending, unavailable, privileged.
+        expect(ranks[ranks.length - 1].get("cipher-1")).toBe(1);
+        expect(ranks[ranks.length - 1].get("cipher-2")).toBe(4);
+      });
+    });
+
+    describe("with live refresh unbound", () => {
+      it("reads each row once and ignores access changes", async () => {
+        const emissions: ReadonlyMap<string, ReadonlySet<CipherId>>[] = [];
+        const subscription = service.matches$(rows).subscribe((m) => emissions.push(m));
+        await settle();
+
+        states["cipher-1"] = "pending";
+        accessChanged$.next("cipher-1");
+        await settle();
+        subscription.unsubscribe();
+
+        expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(rows.length);
+        expect(accessRefreshService.accessChanged$).not.toHaveBeenCalled();
+        expect(emissions).toHaveLength(1);
+      });
     });
   });
 
