@@ -1311,8 +1311,7 @@ export class ApiService implements ApiServiceAbstraction {
   protected refreshToken(userId: UserId): Promise<string> {
     if (this.refreshTokenPromise[userId] === undefined) {
       // TODO: Have different promise for each user
-      this.refreshTokenPromise[userId] = this.internalRefreshToken(userId);
-      void this.refreshTokenPromise[userId].finally(() => {
+      this.refreshTokenPromise[userId] = this.internalRefreshToken(userId).finally(() => {
         delete this.refreshTokenPromise[userId];
       });
     }
