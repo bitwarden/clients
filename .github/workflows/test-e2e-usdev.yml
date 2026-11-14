@@ -75,7 +75,8 @@ jobs:
         if: ${{ matrix.suite.native }}
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev
+          # openssh-server: the desktop SSH agent tests log in to a local sshd.
+          sudo apt-get -y install pkg-config libxss-dev openssh-server
 
       - name: Get Node Version
         id: retrieve-node-version
