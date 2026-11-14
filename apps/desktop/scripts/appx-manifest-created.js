@@ -52,6 +52,7 @@ const NATIVE_MESSAGING_HOST_KEYS = [
   "SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
   "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden",
   "SOFTWARE\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\com.8bit.bitwarden",
+  "SOFTWARE\\BraveSoftware\\Brave-Origin\\NativeMessagingHosts\\com.8bit.bitwarden",
 ];
 
 function readClsid(configFile) {
