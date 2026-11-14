@@ -4,6 +4,7 @@ import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { Verification } from "@bitwarden/common/auth/types/verification";
@@ -18,7 +19,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { UserVerificationModule } from "../../auth/shared/components/user-verification";
 import { SharedModule } from "../../shared";
 
 export interface PurgeVaultDialogData {
@@ -29,7 +29,7 @@ export interface PurgeVaultDialogData {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "purge-vault.component.html",
-  imports: [SharedModule, UserVerificationModule],
+  imports: [SharedModule, UserVerificationFormInputComponent],
 })
 export class PurgeVaultComponent {
   organizationId: string = null;
