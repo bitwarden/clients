@@ -138,6 +138,8 @@ export default class BrowserPopupUtils {
    *
    * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
    * @param options - Options for the popout window that overrides the default options.
+   * @returns The created popout window, or the created tab when the sender window is fullscreen on
+   * macOS (see {@link BrowserPopupUtils.isTab}).
    */
   static async openPopout(
     extensionUrlPath: string,
@@ -147,7 +149,7 @@ export default class BrowserPopupUtils {
       forceCloseExistingWindows?: boolean;
       windowOptions?: Partial<chrome.windows.CreateData>;
     } = {},
-  ) {
+  ): Promise<chrome.windows.Window | chrome.tabs.Tab | undefined> {
     const { senderWindowId, singleActionKey, forceCloseExistingWindows, windowOptions } = options;
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
       type: "popup",
@@ -165,7 +167,8 @@ export default class BrowserPopupUtils {
     // far enough outside the visible area that the browser refuses to create the window and emits
     // an error: Invalid value for bounds. Bounds must be at least 50% within visible screen space.
     // It is acceptable that this heuristic may fire for X11 sessions.
-    const operatingSystemIsLinux = (await BrowserApi.getPlatformInfo()).os === "linux";
+    const { os } = await BrowserApi.getPlatformInfo();
+    const operatingSystemIsLinux = os === "linux";
     const coordsMaybeNotPrecise = senderWindow.left === 0 && senderWindow.top === 0;
     const canPositionWindow = !(operatingSystemIsLinux && coordsMaybeNotPrecise);
     const positionOptions = canPositionWindow
@@ -193,7 +196,22 @@ export default class BrowserPopupUtils {
       return;
     }
 
+    // A popup window opened from a fullscreen macOS window is placed in its own fullscreen Space,
+    // which moves the sender window out of fullscreen. A tab in the sender window avoids that.
+    if (os === "mac" && senderWindow.state === "fullscreen" && senderWindow.id != null) {
+      return await BrowserApi.createNewTabInWindow(popoutWindowOptions.url, senderWindow.id);
+    }
+
     return await BrowserApi.createWindow(popoutWindowOptions);
+  }
+
+  /**
+   * Identifies if the result of {@link BrowserPopupUtils.openPopout} is a tab rather than a window.
+   *
+   * @param popout - The result of opening a popout.
+   */
+  static isTab(popout: chrome.windows.Window | chrome.tabs.Tab): popout is chrome.tabs.Tab {
+    return popout != null && "windowId" in popout;
   }
 
   /**
@@ -210,7 +228,7 @@ export default class BrowserPopupUtils {
         continue;
       }
 
-      setTimeout(() => BrowserApi.removeWindow(tab.windowId), delayClose);
+      setTimeout(() => void BrowserPopupUtils.closePopoutTab(tab), delayClose);
     }
   }
 
@@ -250,7 +268,13 @@ export default class BrowserPopupUtils {
 
     if (BrowserPopupUtils.inPopout(win)) {
       const currentWindow = await BrowserApi.getWindow();
-      if (currentWindow?.id != null) {
+      if (currentWindow?.type === "normal") {
+        // The popout is a tab inside of a browser window, so only the tab may be closed.
+        const currentTab = await BrowserApi.getCurrentTab();
+        if (currentTab?.id != null) {
+          await BrowserApi.removeTab(currentTab.id);
+        }
+      } else if (currentWindow?.id != null) {
         await BrowserApi.removeWindow(currentWindow.id);
       }
     }
@@ -347,18 +371,50 @@ export default class BrowserPopupUtils {
     if (!forceCloseExistingWindows) {
       // Update first, remove it from list
       const tab = popoutTabs.shift();
-      await BrowserApi.updateWindowProperties(tab.windowId, {
-        focused: true,
-        width: windowInfo.width,
-        height: windowInfo.height,
-        top: windowInfo.top,
-        left: windowInfo.left,
-      });
+      if (await BrowserPopupUtils.isPopoutTabInNormalWindow(tab)) {
+        // Resizing would resize the user's browser window, so only bring the tab forward.
+        await BrowserApi.focusTab(tab.id);
+        await BrowserApi.focusWindow(tab.windowId);
+      } else {
+        await BrowserApi.updateWindowProperties(tab.windowId, {
+          focused: true,
+          width: windowInfo.width,
+          height: windowInfo.height,
+          top: windowInfo.top,
+          left: windowInfo.left,
+        });
+      }
     }
 
-    popoutTabs.forEach((tab) => BrowserApi.removeWindow(tab.windowId));
+    popoutTabs.forEach((tab) => void BrowserPopupUtils.closePopoutTab(tab));
 
     return true;
+  }
+
+  /**
+   * Identifies if a popout tab lives inside of a regular browser window, which is the case when the
+   * popout was opened as a tab because the sender window was fullscreen.
+   *
+   * @param tab - The popout tab.
+   */
+  private static async isPopoutTabInNormalWindow(tab: chrome.tabs.Tab): Promise<boolean> {
+    const tabWindow = await BrowserApi.getWindowById(tab.windowId);
+    return tabWindow?.type === "normal";
+  }
+
+  /**
+   * Closes a popout. A popout window is closed as a whole, while a popout opened as a tab inside
+   * of a regular browser window only has that tab closed.
+   *
+   * @param tab - The tab hosting the popout.
+   */
+  private static async closePopoutTab(tab: chrome.tabs.Tab): Promise<void> {
+    if (await BrowserPopupUtils.isPopoutTabInNormalWindow(tab)) {
+      await BrowserApi.removeTab(tab.id);
+      return;
+    }
+
+    await BrowserApi.removeWindow(tab.windowId);
   }
 
   /**

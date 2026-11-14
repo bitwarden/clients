@@ -195,7 +195,7 @@ describe("VaultPopoutWindow", () => {
           windowOptions: { height: 570 },
         },
       );
-      expect(returnedWindowId).toEqual(10);
+      expect(returnedWindowId).toEqual({ id: 10, isTab: false });
     });
   });
 
