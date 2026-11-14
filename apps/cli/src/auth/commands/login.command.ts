@@ -187,9 +187,12 @@ export class LoginCommand {
 
       let response: AuthResult = null;
       if (clientId != null && clientSecret != null) {
-        if (!clientId.startsWith("user")) {
-          return Response.error("Invalid API Key; Organization API Key currently not supported");
-        }
+        if (!clientId.startsWith("user") && !clientId.startsWith("organization")) {
+          return Response.error("Invalid API Key");
+        }  else if (clientId.startsWith("organization")) {
+          // remove this else if block when organization api key support is added
+          return Response.error("Organization API Key currently not supported");
+        }        
         try {
           response = await this.loginStrategyService.logIn(
             new UserApiLoginCredentials(clientId, clientSecret),
