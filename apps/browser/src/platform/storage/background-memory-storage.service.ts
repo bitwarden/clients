@@ -19,7 +19,10 @@ export class BackgroundMemoryStorageService extends SerializedMemoryStorageServi
       if (port.name !== portName(chrome.storage.session)) {
         return;
       }
-      if (!BrowserApi.senderIsInternal(port.sender, this.logService)) {
+      if (
+        !this.isLegacySafariPopupSender(port.sender) &&
+        !BrowserApi.senderIsInternal(port.sender, this.logService)
+      ) {
         return;
       }
 
@@ -43,6 +46,24 @@ export class BackgroundMemoryStorageService extends SerializedMemoryStorageServi
         data: update,
       });
     });
+  }
+
+  private isLegacySafariPopupSender(sender: chrome.runtime.MessageSender | undefined): boolean {
+    // Safari 17 popovers report only { id, origin: "null" }. Unlike popovers,
+    // content-script senders have browser-supplied tab/frame metadata. Keep this
+    // exception local to the MV2 session-storage port, never to arbitrary messages.
+    return (
+      BrowserApi.isSafariApi &&
+      BrowserApi.isManifestVersion(2) &&
+      sender?.origin === "null" &&
+      typeof sender.id === "string" &&
+      sender.id.length > 0 &&
+      sender.id === chrome.runtime.id &&
+      !("url" in sender) &&
+      !("tab" in sender) &&
+      !("frameId" in sender) &&
+      Object.keys(sender).every((key) => key === "id" || key === "origin")
+    );
   }
 
   private async onMessageFromForeground(
