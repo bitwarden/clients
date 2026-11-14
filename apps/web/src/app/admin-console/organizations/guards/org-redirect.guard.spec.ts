@@ -40,15 +40,12 @@ export class AdminConsoleSubrouteComponent {}
 const REDIRECT_SEAM = new InjectionToken<string>("RedirectSeam");
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      id: "myOrgId",
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  Object.assign(new Organization(), {
+    id: "myOrgId",
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  });
 
 describe("Organization Redirect Guard", () => {
   let organizationService: MockProxy<OrganizationService>;

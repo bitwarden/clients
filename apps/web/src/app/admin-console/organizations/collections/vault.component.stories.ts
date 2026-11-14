@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import "../../../billing/organizations/change-plan-dialog.component";
 
 import { importProvidersFrom, signal } from "@angular/core";
@@ -14,6 +12,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -69,27 +68,20 @@ import { GroupApiService, GroupView } from "../core";
 
 import { VaultComponent } from "./vault.component";
 
-function mockOrganization(overrides: Partial<Organization> = {}): Organization {
-  return {
+function mockOrganization(overrides: Partial<OrganizationData> = {}): Organization {
+  return Object.assign(new Organization(), {
     id: "org-1" as OrganizationId,
     name: "Acme Corp",
     enabled: true,
     isMember: true,
     isProviderUser: false,
-    canEditAnyCollection: true,
-    canEditAllCiphers: true,
-    canCreateNewCollections: true,
-    canDeleteAnyCollection: true,
-    canEditUnassignedCiphers: true,
-    canEditUnmanagedCollections: true,
     allowAdminAccessToAllCollectionItems: true,
     useGroups: true,
     useEvents: false,
-    canAccessEventLogs: false,
     type: OrganizationUserType.Owner,
     permissions: new PermissionsApi(),
     ...overrides,
-  } as unknown as Organization;
+  });
 }
 
 function mockCollection(

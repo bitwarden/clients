@@ -209,9 +209,10 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => nextId());
 
-  const organization = new Organization();
-  organization.id = organizationId;
-  organization.productTierType = productTierType;
+  const organization = Object.assign(new Organization(), {
+    id: organizationId,
+    productTierType,
+  });
 
   const collections = collectionNames.map(
     (name, i) =>

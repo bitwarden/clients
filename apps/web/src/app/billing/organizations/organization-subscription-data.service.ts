@@ -92,7 +92,7 @@ export class OrganizationSubscriptionDataService {
                     OrganizationUserStatusType.Confirmed,
                   ].includes(user.status),
                 ).length;
-                return org.seats - activeUserCount;
+                return (org.seats ?? 0) - activeUserCount;
               }),
               catchError(() => of(null)),
             )

@@ -13,15 +13,12 @@ import {
 } from "./input-email-limit.validator";
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      id: "myOrgId",
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  Object.assign(new Organization(), {
+    id: "myOrgId",
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  });
 
 describe("inputEmailLimitValidator", () => {
   const getErrorMessage = (max: number) => `You can only add up to ${max} unique emails.`;

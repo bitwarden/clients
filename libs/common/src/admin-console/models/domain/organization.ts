@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { MemberDecryptionType } from "../../../auth/enums/sso";
@@ -48,18 +46,18 @@ export class Organization {
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
-  seats: number;
-  maxCollections: number;
+  seats: number | null;
+  maxCollections: number | null;
   maxStorageGb?: number;
   ssoBound: boolean;
-  identifier: string;
+  identifier: string | null;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
-  organizationUserId: string;
+  organizationUserId: string | null;
   hasPublicAndPrivateKeys: boolean;
-  providerId: string;
-  providerName: string;
+  providerId: string | null;
+  providerName: string | null;
   providerType?: ProviderType;
   /**
    * Indicates that a user is a ProviderUser for the organization
@@ -69,11 +67,11 @@ export class Organization {
    * Indicates that a user is a member for the organization (may be `false` if they have access via a Provider only)
    */
   isMember: boolean;
-  familySponsorshipFriendlyName: string;
+  familySponsorshipFriendlyName: string | null;
   familySponsorshipAvailable: boolean;
   productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
-  keyConnectorUrl: string;
+  keyConnectorUrl: string | null;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
@@ -448,10 +446,19 @@ export class Organization {
       return null;
     }
 
-    return Object.assign(new Organization(), json, {
-      familySponsorshipLastSyncDate: new Date(json.familySponsorshipLastSyncDate),
-      familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
-    });
+    const data: OrganizationData = {
+      ...json,
+      familySponsorshipLastSyncDate:
+        json.familySponsorshipLastSyncDate == null
+          ? undefined
+          : new Date(json.familySponsorshipLastSyncDate),
+      familySponsorshipValidUntil:
+        json.familySponsorshipValidUntil == null
+          ? undefined
+          : new Date(json.familySponsorshipValidUntil),
+      permissions: json.permissions as PermissionsApi,
+    };
+    return new Organization(data);
   }
 
   get canAccessIntegrations() {

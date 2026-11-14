@@ -134,13 +134,13 @@ export class SponsoringOrgRowComponent {
     const content = sponsoringOrg.familySponsorshipValidUntil
       ? this.i18nService.t(
           "revokeSponsorshipAcceptedWithPriceConfirmation",
-          sponsoringOrg.familySponsorshipFriendlyName,
+          sponsoringOrg.familySponsorshipFriendlyName ?? "",
           formattedPrice,
           formatDate(sponsoringOrg.familySponsorshipValidUntil, "MM/dd/yyyy", this.locale()),
         )
       : this.i18nService.t(
           "updatedRevokeSponsorshipConfirmationForSentSponsorship",
-          sponsoringOrg.familySponsorshipFriendlyName,
+          sponsoringOrg.familySponsorshipFriendlyName ?? "",
         );
 
     const confirmed = await this.dialogService.openSimpleDialog({

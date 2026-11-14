@@ -64,10 +64,11 @@ describe("CipherAttachmentsComponent", () => {
 
   const cipherDomain = {};
 
-  const organization = new Organization();
-  organization.id = "org-123" as OrganizationId;
-  organization.type = OrganizationUserType.Admin;
-  organization.allowAdminAccessToAllCollectionItems = true;
+  const organization = Object.assign(new Organization(), {
+    id: "org-123" as OrganizationId,
+    type: OrganizationUserType.Admin,
+    allowAdminAccessToAllCollectionItems: true,
+  });
 
   const cipherServiceGet = jest.fn().mockResolvedValue(cipherDomain);
   const cipherServiceDecrypt = jest.fn().mockResolvedValue(cipherView);

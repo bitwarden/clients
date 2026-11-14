@@ -34,7 +34,7 @@ export const organizationIsUnmanaged: CanActivateFn = async (route: ActivatedRou
     return true;
   }
 
-  const provider = await firstValueFrom(providerService.get$(organization.providerId, userId));
+  const provider = await firstValueFrom(providerService.get$(organization.providerId!, userId));
 
   if (!provider) {
     return true;

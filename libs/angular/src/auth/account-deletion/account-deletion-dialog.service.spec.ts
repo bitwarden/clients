@@ -17,14 +17,14 @@ import { DeleteAccountDialogComponent } from "./delete-account-dialog/delete-acc
 
 // isOwner is a computed getter (reads from type), so set type directly
 function makeOrg(overrides: Partial<Organization> = {}): Organization {
-  const org = new Organization();
-  org.type = OrganizationUserType.Owner;
-  org.isMember = true;
-  org.status = OrganizationUserStatusType.Confirmed;
-  org.productTierType = ProductTierType.Free;
-  org.userIsClaimedByOrganization = false;
-  Object.assign(org, overrides);
-  return org;
+  return Object.assign(new Organization(), {
+    type: OrganizationUserType.Owner,
+    isMember: true,
+    status: OrganizationUserStatusType.Confirmed,
+    productTierType: ProductTierType.Free,
+    userIsClaimedByOrganization: false,
+    ...overrides,
+  });
 }
 
 describe("AccountDeletionDialogService", () => {

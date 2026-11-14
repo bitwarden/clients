@@ -23,14 +23,11 @@ import { organizationPermissionsGuard } from "./org-permissions.guard";
 
 // Returns a test organization with the specified props.
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  Object.assign(new Organization(), {
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  });
 
 const targetOrgId = "myOrgId";
 

@@ -78,7 +78,10 @@ describe("TrialPaymentDialogComponent", () => {
       isAnnual,
     } as PlanResponse;
     const subscription = { plan: currentPlan } as OrganizationSubscriptionResponse;
-    const organization = Object.assign(new Organization(), { id: ORG_ID, productTierType: tier });
+    const organization = Object.assign(new Organization(), {
+      id: ORG_ID,
+      productTierType: tier,
+    });
 
     const apiService = mock<ApiService>();
     apiService.getPlans.mockResolvedValue({

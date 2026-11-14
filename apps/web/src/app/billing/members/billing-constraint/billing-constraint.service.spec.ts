@@ -30,10 +30,11 @@ describe("BillingConstraintService", () => {
   const mockOrganizationId = "org-123" as OrganizationId;
 
   const createMockOrganization = (overrides: Partial<Organization> = {}): Organization => {
-    const org = new Organization();
-    org.id = mockOrganizationId;
-    org.seats = 10;
-    org.productTierType = ProductTierType.Teams;
+    const org = Object.assign(new Organization(), {
+      id: mockOrganizationId,
+      seats: 10,
+      productTierType: ProductTierType.Teams,
+    });
 
     Object.defineProperty(org, "hasReseller", {
       value: false,
