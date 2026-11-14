@@ -6,10 +6,18 @@ const NOW = new Date("2026-08-17T12:00:00.000Z");
 const FUTURE = "2026-08-17T13:00:00.000Z";
 const PAST = "2026-08-17T11:00:00.000Z";
 
-type TestRequest = Pick<AccessRequestView, "status" | "leaseNotAfter" | "producedLeaseId">;
+type TestRequest = Pick<
+  AccessRequestView,
+  "status" | "leaseNotAfter" | "producedLeaseId" | "extensionOfLeaseId"
+>;
 
-function request(status: AccessRequestStatus, leaseNotAfter: string, producedLeaseId?: string) {
-  return { status, leaseNotAfter, producedLeaseId } as unknown as TestRequest;
+function request(
+  status: AccessRequestStatus,
+  leaseNotAfter: string,
+  producedLeaseId?: string,
+  extensionOfLeaseId?: string,
+) {
+  return { status, leaseNotAfter, producedLeaseId, extensionOfLeaseId } as unknown as TestRequest;
 }
 
 describe("isActionableRequest", () => {
@@ -33,6 +41,16 @@ describe("isActionableRequest", () => {
 
   it("does not count an approved request whose window closes exactly now", () => {
     expect(isActionableRequest(request("approved", NOW.toISOString()), NOW)).toBe(false);
+  });
+
+  it("does not count an approved extension, which mints no lease of its own", () => {
+    // PAM-408: it never gains a `producedLeaseId`, so it once counted until its window closed,
+    // including after the extended lease was ended.
+    expect(isActionableRequest(request("approved", FUTURE, undefined, "lease-1"), NOW)).toBe(false);
+  });
+
+  it("counts a pending extension, which still awaits a decision", () => {
+    expect(isActionableRequest(request("pending", FUTURE, undefined, "lease-1"), NOW)).toBe(true);
   });
 
   it.each<AccessRequestStatus>(["denied", "canceled", "expired", "unknown"])(
