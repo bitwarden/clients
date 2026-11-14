@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import {
   combineLatest,
   distinctUntilChanged,
@@ -55,6 +55,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   constructor(
     protected route: ActivatedRoute,
+    private router: Router,
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private countService: CountService,
@@ -95,6 +96,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
       this.secretService.secret$.pipe(startWith(null)),
       this.serviceAccountService.serviceAccount$.pipe(startWith(null)),
       this.portingApiService.imports$.pipe(startWith(null)),
+      // Counts also change from outside this tab, e.g. the bws CLI or another
+      // session. Refresh them on navigation within Secrets Manager so the sidebar
+      // agrees with the list the user is looking at.
+      this.router.events.pipe(
+        filter((event) => event instanceof NavigationEnd),
+        startWith(null),
+      ),
     ])
       .pipe(
         filter(([org]) => org?.enabled),
