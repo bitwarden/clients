@@ -72,6 +72,7 @@ import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
 import { MainSdkService } from "./platform/main/main-sdk.service";
+import { MainSecureStorageService } from "./platform/main/main-secure-storage.service";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -83,6 +84,7 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
+import { MainServiceContainer } from "./services/main-service-container";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -122,6 +124,7 @@ export class Main {
   ipcService: IpcService;
   /** Read-only: main must not write policy state, the renderer would not observe it. */
   policyService: PolicyService;
+  serviceContainer: MainServiceContainer;
 
   constructor() {
     // Set paths for portable builds
@@ -169,6 +172,7 @@ export class Main {
     this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
 
     this.storageService = new ElectronStorageService(storageBackend);
+    const secureStorageService = new MainSecureStorageService(app.getName());
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
@@ -331,6 +335,26 @@ export class Main {
       app,
       this.nativeMessagingMain,
       this.windowMain,
+    );
+
+    this.serviceContainer = new MainServiceContainer(
+      this.logService,
+      this.i18nService,
+      this.storageService,
+      secureStorageService,
+      storageServiceProvider,
+      singleUserStateProvider,
+      globalStateProvider,
+      stateProvider,
+      accountService,
+      this.environmentService,
+      this.messagingService,
+      this.biometricsService,
+      biometricStateService,
+      this.ipcService,
+      this.sharedUnlockSettingsService,
+      this.shell,
+      this.policyService,
     );
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
