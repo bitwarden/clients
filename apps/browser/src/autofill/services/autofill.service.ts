@@ -61,6 +61,7 @@ import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../types/fill-result"
 import {
   fieldContainsKeyword,
   isNonLoginUsernameField,
+  isRecoveryCodeField,
   KeywordMatchMode,
 } from "../utils/qualification";
 
@@ -1027,7 +1028,7 @@ export default class AutofillService implements AutofillServiceInterface {
         ...AutoFillConstants.AmbiguousTotpFieldNames,
       ]) ||
         focusedField.autoCompleteType === "one-time-code") &&
-      !fieldContainsKeyword(focusedField, [...AutoFillConstants.RecoveryCodeFieldNames]);
+      !isRecoveryCodeField(focusedField);
 
     // If the heuristic flagged this field as a password, do not treat it
     // as a username candidate. A show password toggle can set type="text"
@@ -1035,10 +1036,13 @@ export default class AutofillService implements AutofillServiceInterface {
     const focusedFieldIsPassword =
       focusedField != null && passwordFields.some((pf) => pf.opid === focusedField.opid);
 
+    // A field that asks for a backup or recovery code never takes the username, even when it
+    // does not qualify for TOTP autofill.
     const focusedUsernameField =
       focusedField &&
       !isFocusedTotpField &&
       !focusedFieldIsPassword &&
+      !fieldContainsKeyword(focusedField, AutoFillConstants.RecoveryCodeFieldNames) &&
       login.username &&
       (focusedField.type === "text" ||
         focusedField.type === "email" ||
@@ -1195,7 +1199,7 @@ export default class AutofillService implements AutofillServiceInterface {
         const isTotpCandidate =
           options.allowTotpAutofill &&
           ["number", "tel", "text"].some((t) => t === field.type) &&
-          !fieldContainsKeyword(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
+          !isRecoveryCodeField(field);
 
         const isTotpField =
           isTotpCandidate &&
@@ -3018,7 +3022,7 @@ export default class AutofillService implements AutofillServiceInterface {
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
         ]) &&
-        !fieldContainsKeyword(f, [...AutoFillConstants.RecoveryCodeFieldNames])
+        !isRecoveryCodeField(f)
       ) {
         totpField = f;
 
