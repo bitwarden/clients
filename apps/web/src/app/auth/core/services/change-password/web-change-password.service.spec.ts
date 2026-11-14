@@ -8,18 +8,21 @@ import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 import { RouterService } from "@bitwarden/web-vault/app/core";
-import { UserKeyRotationService } from "@bitwarden/web-vault/app/key-management/key-rotation/user-key-rotation.service";
 
 import { WebChangePasswordService } from "./web-change-password.service";
 
@@ -31,8 +34,11 @@ describe("WebChangePasswordService", () => {
   let policyService: MockProxy<PolicyService>;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let syncService: MockProxy<SyncService>;
-  let userKeyRotationService: MockProxy<UserKeyRotationService>;
+  let userKeyRotationService: MockProxy<UserKeyRotationServiceAbstraction>;
   let routerService: MockProxy<RouterService>;
+  let toastService: MockProxy<ToastService>;
+  let i18nService: MockProxy<I18nService>;
+  let logoutService: MockProxy<LogoutService>;
 
   let sut: ChangePasswordService;
 
@@ -54,8 +60,11 @@ describe("WebChangePasswordService", () => {
     policyService = mock<PolicyService>();
     organizationInviteService = mock<OrganizationInviteService>();
     syncService = mock<SyncService>();
-    userKeyRotationService = mock<UserKeyRotationService>();
+    userKeyRotationService = mock<UserKeyRotationServiceAbstraction>();
     routerService = mock<RouterService>();
+    toastService = mock<ToastService>();
+    i18nService = mock<I18nService>();
+    logoutService = mock<LogoutService>();
 
     sut = new WebChangePasswordService(
       keyService,
@@ -67,6 +76,9 @@ describe("WebChangePasswordService", () => {
       syncService,
       userKeyRotationService,
       routerService,
+      toastService,
+      i18nService,
+      logoutService,
     );
   });
 
@@ -153,19 +165,43 @@ describe("WebChangePasswordService", () => {
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
     });
 
-    it("should call userKeyRotationService.rotateUserKeyMasterPasswordAndEncryptedData() with the correct arguments", async () => {
+    it("should call userKeyRotationService.changePasswordAndRotateUserKey() with the correct arguments", async () => {
       // Act
       await sut.changePasswordAndRotateUserKey(passwordInputResult, user);
 
       // Assert
-      expect(
-        userKeyRotationService.rotateUserKeyMasterPasswordAndEncryptedData,
-      ).toHaveBeenCalledWith(
+      expect(userKeyRotationService.changePasswordAndRotateUserKey).toHaveBeenCalledWith(
         passwordInputResult.currentPassword,
         passwordInputResult.newPassword,
-        user,
         passwordInputResult.newPasswordHint,
+        user.id,
       );
+    });
+
+    it("should show a toast and log out when the rotation succeeds", async () => {
+      // Arrange
+      userKeyRotationService.changePasswordAndRotateUserKey.mockResolvedValue(true);
+
+      // Act
+      await sut.changePasswordAndRotateUserKey(passwordInputResult, user);
+
+      // Assert
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect(logoutService.logout).toHaveBeenCalledWith(user.id, "userKeyRotation");
+    });
+
+    it("should neither show a toast nor log out when the rotation does not happen", async () => {
+      // Arrange
+      userKeyRotationService.changePasswordAndRotateUserKey.mockResolvedValue(false);
+
+      // Act
+      await sut.changePasswordAndRotateUserKey(passwordInputResult, user);
+
+      // Assert
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,7 +1,6 @@
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UserId, OrganizationId } from "../../types/guid";
-import { UserKey } from "../../types/key";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
@@ -42,18 +41,6 @@ export abstract class CipherEncryptionService {
     model: CipherView,
     organizationId: OrganizationId,
     userId: UserId,
-  ): Promise<EncryptionContext | undefined>;
-
-  /**
-   * Encrypts a cipher for a given userId with a new key for key rotation.
-   * @param model The cipher view to encrypt
-   * @param userId The user ID to initialize the SDK client with
-   * @param newKey The new key to use for re-encryption
-   */
-  abstract encryptCipherForRotation(
-    model: CipherView,
-    userId: UserId,
-    newKey: UserKey,
   ): Promise<EncryptionContext | undefined>;
 
   /**

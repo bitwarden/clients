@@ -1018,7 +1018,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
-      SdkService,
       SendDecryptionService,
     ],
   }),

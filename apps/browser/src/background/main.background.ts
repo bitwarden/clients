@@ -1295,7 +1295,6 @@ export default class MainBackground {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.sdkService,
       this.sendDecryptionService,
     );
     this.sendApiService = new SendApiService(

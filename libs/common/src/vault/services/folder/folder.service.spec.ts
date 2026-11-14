@@ -16,7 +16,6 @@ import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { CipherService } from "../../abstractions/cipher.service";
 import { FolderData } from "../../models/data/folder.data";
 import { FolderView } from "../../models/view/folder.view";
@@ -221,39 +220,6 @@ describe("Folder Service", () => {
     const folderViews = await firstValueFrom(folderService.folderViews$(mockUserId));
     expect(folderViews.length).toBe(1);
     expect(folderViews[0].id).toEqual(""); // Should be the "No Folder" folder
-  });
-
-  describe("getRotatedData", () => {
-    const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-    const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-    let encryptedKey: EncString;
-
-    beforeEach(() => {
-      encryptedKey = new EncString("Re-encrypted Folder");
-      encryptService.encryptString.mockResolvedValue(encryptedKey);
-    });
-
-    it("returns re-encrypted user folders", async () => {
-      const result = await folderService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-      expect(result[0]).toMatchObject({ id: "1", name: "Re-encrypted Folder" });
-    });
-
-    it("filters out 'No Folder' entries with null/empty id", async () => {
-      const result = await folderService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-      // folderViews$ includes the "No Folder" entry (with empty id) appended by decryptFolders,
-      // but getRotatedData should filter it out
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe("1");
-      expect(result.find((f) => f.id === "" || f.id == null)).toBeUndefined();
-    });
-
-    it("throws if the new user key is null", async () => {
-      await expect(
-        folderService.getRotatedData(originalUserKey, null as unknown as UserKey, mockUserId),
-      ).rejects.toThrow("New user key is required for rotation.");
-    });
   });
 
   function folderData(id: string) {

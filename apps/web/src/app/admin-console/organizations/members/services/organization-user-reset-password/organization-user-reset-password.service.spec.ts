@@ -1,12 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { of } from "rxjs";
 
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordDetailsResponse,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
@@ -46,7 +44,6 @@ describe("OrganizationUserResetPasswordService", () => {
 
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let organizationService: MockProxy<OrganizationService>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationApiService: MockProxy<OrganizationApiService>;
   let i18nService: MockProxy<I18nService>;
@@ -57,7 +54,6 @@ describe("OrganizationUserResetPasswordService", () => {
   beforeAll(() => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    organizationService = mock<OrganizationService>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationApiService = mock<OrganizationApiService>();
     i18nService = mock<I18nService>();
@@ -67,7 +63,6 @@ describe("OrganizationUserResetPasswordService", () => {
     sut = new OrganizationUserResetPasswordService(
       keyService,
       encryptService,
-      organizationService,
       organizationUserApiService,
       organizationApiService,
       i18nService,
@@ -77,12 +72,6 @@ describe("OrganizationUserResetPasswordService", () => {
   });
 
   beforeEach(() => {
-    organizationService.organizations$.mockReturnValue(
-      new BehaviorSubject([
-        createOrganization("1", "org1", true),
-        createOrganization("2", "org2", false),
-      ]),
-    );
     organizationApiService.getKeys.mockResolvedValue(
       new OrganizationKeysResponse({
         privateKey: "privateKey",
@@ -679,61 +668,4 @@ describe("OrganizationUserResetPasswordService", () => {
       });
     });
   });
-
-  describe("getPublicKeys", () => {
-    it("should return public keys for organizations that have reset password enrolled", async () => {
-      const result = await sut.getPublicKeys("userId" as UserId);
-      expect(result).toHaveLength(1);
-    });
-
-    it("should result should contain the correct data for the org", async () => {
-      const result = await sut.getPublicKeys("userId" as UserId);
-      expect(result[0].orgId).toBe("1");
-      expect(result[0].orgName).toBe("org1");
-      expect(result[0].publicKey).toEqual(Utils.fromB64ToArray("publicKey"));
-    });
-  });
-
-  describe("getRotatedData", () => {
-    beforeEach(() => {
-      organizationService.organizations$.mockReturnValue(
-        of([createOrganization("1", "org1"), createOrganization("2", "org2")]),
-      );
-      organizationApiService.getKeys.mockResolvedValue(
-        new OrganizationKeysResponse({
-          privateKey: "test-private-key",
-          publicKey: Utils.fromUtf8ToArray("test-public-key"),
-        }),
-      );
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-        new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "mockEncryptedUserKey"),
-      );
-    });
-
-    it("should return all re-encrypted account recovery keys", async () => {
-      const result = await sut.getRotatedData(
-        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-        mockPublicKeys,
-        "mockUserId" as UserId,
-      );
-
-      expect(result).toHaveLength(2);
-    });
-
-    it("throws if the new user key is null", async () => {
-      await expect(
-        sut.getRotatedData(null, mockPublicKeys, "mockUserId" as UserId),
-      ).rejects.toThrow("New user key is required for rotation.");
-    });
-  });
 });
-
-function createOrganization(id: string, name: string, resetPasswordEnrolled = true): Organization {
-  const org = new Organization();
-  org.id = id as OrganizationId;
-  org.name = name;
-  org.identifier = name;
-  org.isMember = true;
-  org.resetPasswordEnrolled = resetPasswordEnrolled;
-  return org;
-}

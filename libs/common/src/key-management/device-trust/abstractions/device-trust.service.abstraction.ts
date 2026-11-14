@@ -4,7 +4,6 @@ import { Observable } from "rxjs";
 import { EncString } from "@bitwarden/legacy-crypto";
 
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
-import { OtherDeviceKeysUpdateRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
 
@@ -57,9 +56,4 @@ export abstract class DeviceTrustServiceAbstraction {
    * Note: For debugging purposes only.
    */
   abstract recordDeviceTrustLoss(): Promise<void>;
-  abstract getRotatedData(
-    oldUserKey: UserKey,
-    newUserKey: UserKey,
-    userId: UserId,
-  ): Promise<OtherDeviceKeysUpdateRequest[]>;
 }
