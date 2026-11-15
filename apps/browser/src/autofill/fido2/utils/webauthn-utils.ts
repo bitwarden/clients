@@ -32,7 +32,7 @@ export class WebauthnUtils {
       ),
       excludeCredentials: keyOptions.excludeCredentials?.map((credential) => ({
         id: Fido2Utils.arrayToString(Fido2Utils.bufferSourceToUint8Array(credential.id)),
-        transports: credential.transports,
+        transports: Array.from(credential.transports ?? []),
         type: credential.type,
       })),
       extensions: {
