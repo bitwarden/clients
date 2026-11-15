@@ -72,7 +72,6 @@ export const LOGIN_EMAIL_DISK = new StateDefinition("loginEmail", "disk", {
 });
 export const LOGIN_EMAIL_MEMORY = new StateDefinition("loginEmail", "memory");
 export const LOGIN_STRATEGY_MEMORY = new StateDefinition("loginStrategy", "memory");
-export const IMPORT_CONFIRMATION_MEMORY = new StateDefinition("importConfirmation", "memory");
 export const MASTER_PASSWORD_DISK = new StateDefinition("masterPassword", "disk");
 export const MASTER_PASSWORD_UNLOCK_DISK = new StateDefinition("masterPasswordUnlock", "disk");
 export const ROUTER_DISK = new StateDefinition("router", "disk");
@@ -192,6 +191,7 @@ export const SM_ONBOARDING_DISK = new StateDefinition("smOnboarding", "disk", {
 export const EXTENSION_DISK = new StateDefinition("extension", "disk");
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
 export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");
+export const IMPORT_CONFIRMATION_MEMORY = new StateDefinition("importConfirmation", "memory");
 export const BROWSER_SEND_MEMORY = new StateDefinition("sendBrowser", "memory");
 export const EVENT_COLLECTION_DISK = new StateDefinition("eventCollection", "disk");
 export const SEND_DISK = new StateDefinition("encryptedSend", "disk", {
