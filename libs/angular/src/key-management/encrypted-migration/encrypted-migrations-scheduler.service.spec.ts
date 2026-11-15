@@ -1,6 +1,6 @@
-import { Router } from "@angular/router";
+import { NavigationEnd, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -48,6 +48,9 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
   const mockUserId = "test-user-id" as UserId;
   const mockMasterPassword = "test-master-password";
 
+  let routerEvents$: Subject<NavigationEnd>;
+  let lastSync$: BehaviorSubject<Date>;
+
   const createMockUserState = <T>(value: T): jest.Mocked<SingleUserState<T>> =>
     ({
       state$: of(value),
@@ -62,8 +65,17 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
     };
 
     jest.spyOn(PromptMigrationPasswordComponent, "open").mockReturnValue(mockDialogRef as any);
+    mockStateProvider.getUser.mockReturnValue(createMockUserState(null));
     mockI18nService.t.mockReturnValue("translated_migrationsFailed");
-    (mockRouter as any)["events"] = of({ url: "/vault" }) as any;
+
+    // The constructor subscribes to these, so they must be in place before it runs.
+    routerEvents$ = new Subject<NavigationEnd>();
+    lastSync$ = new BehaviorSubject(new Date());
+    Object.assign(mockRouter, { events: routerEvents$ });
+    mockAuthService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+    mockSyncService.lastSync$.mockImplementation((userId) =>
+      userId === SomeUser ? lastSync$ : of(null),
+    );
 
     service = new DefaultEncryptedMigrationsSchedulerService(
       mockSyncService,
@@ -262,6 +274,35 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
         variant: "error",
         message: "translated_migrationsFailed",
       });
+    });
+  });
+
+  describe("when the prompt was dismissed less than 24 hours ago", () => {
+    // Bounds the loop the test exposes, so a failing run ends.
+    const MAX_SYNCS = 5;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      mockStateProvider.getUser.mockReturnValue(createMockUserState(new Date()));
+      // Like MinimumKdfMigration, checking syncs first, and a completed sync updates the last sync date.
+      mockEncryptedMigrator.needsMigrations.mockImplementation(async () => {
+        if (mockEncryptedMigrator.needsMigrations.mock.calls.length <= MAX_SYNCS) {
+          lastSync$.next(new Date());
+        }
+        return "needsMigrationWithMasterPassword";
+      });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("does not check again for the sync that its own check started", async () => {
+      routerEvents$.next(new NavigationEnd(1, "/vault", "/vault"));
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(mockEncryptedMigrator.needsMigrations.mock.calls.length).toBeLessThanOrEqual(1);
+      expect(PromptMigrationPasswordComponent.open).not.toHaveBeenCalled();
     });
   });
 });
