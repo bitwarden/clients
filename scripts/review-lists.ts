@@ -148,7 +148,9 @@ function readList(file: string): Entry[] {
       }
       const value = itemMatch[1];
       const quoted = value.match(/^"(.*)"$/) ?? value.match(/^'(.*)'$/);
-      if (!quoted && (value.startsWith("*") || /\s#|:\s/.test(value))) {
+      const startsWithWildcard = value.startsWith("*");
+      const containsYamlSyntax = /\s#|:\s/.test(value);
+      if (!quoted && (startsWithWildcard || containsYamlSyntax)) {
         errors.push(`${file}:${line} quote '${value}'. YAML reads it differently unquoted.`);
         return;
       }
