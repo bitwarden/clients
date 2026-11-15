@@ -79,6 +79,9 @@ jobs:
       - name: Lint sdk-internal versions
         run: npm run lint:sdk-internal-versions
 
+      - name: Lint always-review lists
+        run: npm run lint:review-lists
+
       - name: Run linter
         run: npm run lint
 
