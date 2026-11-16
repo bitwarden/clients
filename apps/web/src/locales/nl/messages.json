@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5754,6 +5755,31 @@
   "trialIncludesPrivilegedControls": {
     "message": "Je proefperiode bevat Privileged Controls."
   },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included with this organization."
+  },
+  "contactSales": {
+    "message": "Contact sales"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team. Contact sales to add it to your organization."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "To change your Privileged Controls seats, contact sales."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$OCCUPIED$ of $TOTAL$ seats in use",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
   "monthly": {
     "message": "Maandelijks"
   },
@@ -7824,6 +7850,18 @@
   "limitPrivilegedControlsSubscriptionDesc": {
     "message": "Stel een zetellimiet in voor je Privileged Controls-abonnement. Zodra deze limiet is bereikt, kun je de leden geen toegang verlenen tot Privileged Controls."
   },
+  "removePrivilegedControls": {
+    "message": "Remove Privileged Controls",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Every user in your organization will lose access to Privileged Controls. Are you sure you want to continue?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls removed",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
   "maximumSeatsCount": {
     "message": "Maximaal $COUNT$ plaatsen",
     "placeholders": {
@@ -8435,6 +8473,9 @@
   "viewApiKey": {
     "message": "API-sleutel bekijken"
   },
+  "copyApiKey": {
+    "message": "Copy API key"
+  },
   "rotateApiKey": {
     "message": "API-sleutel roteren"
   },
@@ -8966,14 +9007,34 @@
     "message": "Send-koppeling kopiëren",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Wachtwoord of e-mailverificatie verwijderen"
+  },
+  "removedAuth": {
+    "message": "Wachtwoord of e-mailverificatie verwijderd"
+  },
+  "removeAuthConfirmation": {
+    "message": "Weet je zeker dat je het wachtwoord of de e-mailverificatie van deze Send wilt verwijderen?"
+  },
   "removePassword": {
     "message": "Wachtwoord verwijderen"
+  },
+  "removeEmailVerification": {
+    "message": "E-mailverificatie verwijderen"
   },
   "removedPassword": {
     "message": "Wachtwoord verwijderd"
   },
-  "removePasswordConfirmation": {
-    "message": "Weet je zeker dat je dit wachtwoord wilt verwijderen?"
+  "removedEmailVerification": {
+    "message": "E-mailverificatie verwijderd"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Weet je zeker dat je de wachtwoordvereiste van deze Send wilt verwijderen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Weet je zeker dat je de e-mailverificatie-vereiste van deze Send wilt verwijderen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Alle Sends"
@@ -9417,6 +9478,24 @@
   },
   "inviteLinkEventMemberConfirmed": {
     "message": "Lid $ID$ is bevestigd via uitnodigingslink",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "sentInviteReminderToUserId": {
+    "message": "Sent invite reminder to user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "Resent invite to user $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12943,8 +13022,91 @@
   "userAccessSecretsManagerGA": {
     "message": "Deze gebruiker heeft toegang tot Secrets Manager"
   },
+  "products": {
+    "message": "Products"
+  },
   "privilegedControls": {
     "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Credential leasing"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Advanced access rules"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Automated password rotation"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Compliance-ready audit logs"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Governance dashboard"
+  },
+  "addPrivilegedControls": {
+    "message": "Add Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Seat limit",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "What's included"
+  },
+  "pricePerMember": {
+    "message": "$COST$ per member",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Seats can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Seat limit can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Seat limit can't be more than your Password Manager seat limit ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you won't be able to give more members access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Seat limit must be greater than the number of seats."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Subscription updated. You now have Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13698,23 +13860,8 @@
   "inviteUsers": {
     "message": "Gebruikers uitnodigen"
   },
-  "secretsManagerForPlan": {
-    "message": "Secrets Manager voor $PLAN$",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "Voor het beheren van geheimen tijdens de ontwikkelcyclus van software door ontwikkel- en DevOpsteams."
-  },
-  "free2PersonOrganization": {
-    "message": "Gratis 2-persoonsorganisaties"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Free plan with shared vault"
+  "secretsManagerPurchaseDesc": {
+    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
   },
   "unlimitedSecrets": {
     "message": "Onbeperkte geheimen"
@@ -13749,8 +13896,9 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "Abonneren op Secrets Manager"
+  "addSecretsManager": {
+    "message": "Add Secrets Manager",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Secrets Manager toevoegen aan je geüpgraded abonnement zodat je toegang houdt tot geheimen die met je vorige abonnement zijn aangemaakt."
@@ -14645,15 +14793,6 @@
   },
   "smAccessRemovalWarningMaMessage": {
     "message": "Deze actie verwijdert je toegang tot het machine-account."
-  },
-  "machineAccountsIncluded": {
-    "message": "$COUNT$ machine-accounts inbegrepen",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "additionalMachineAccountCost": {
     "message": "$COST$ per maand voor extra machine-accounts",
@@ -18352,29 +18491,23 @@
   "pamTabHistory": {
     "message": "Geschiedenis"
   },
-  "pamAccessRequestsSearchPlaceholder": {
-    "message": "Inloggegevens, verzameling, aanvrager zoeken"
-  },
-  "pamCollectionFilter": {
-    "message": "Collectie"
-  },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Verlengingsverzoeken"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Actieve toegang"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "Geen actieve toegang"
+  "pamMyRequestsLoaded": {
+    "message": "Requests loaded"
   },
   "pamMyRequestsLoadError": {
     "message": "Kon je verzoeken niet laden"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "In behandeling"
+  "pamStatusInUse": {
+    "message": "In use",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsPendingEmpty": {
-    "message": "Geen verzoeken in behandeling"
+  "pamStatusEndingSoon": {
+    "message": "Ending soon",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "No shared folders to filter by",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
   },
   "pamMyRequestsEmptyTitle": {
     "message": "Je hebt geen verzoeken"
@@ -18409,12 +18542,63 @@
   "pamColumnActions": {
     "message": "Acties"
   },
-  "pamWindowUntil": {
-    "message": "Tot $DATE$",
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ to $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "Until $END$",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "Expires $DATE$ at $TIME$",
     "placeholders": {
       "date": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Expires today at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
       }
     }
   },
@@ -18449,7 +18633,7 @@
   "pamResolverUnknown": {
     "message": "Onbekende gebruiker"
   },
-  "pamInboxInCollection": {
+  "pamInboxInSharedFolder": {
     "message": "in $COLLECTION$",
     "placeholders": {
       "collection": {
@@ -18457,9 +18641,6 @@
         "example": "Production"
       }
     }
-  },
-  "pamInboxReason": {
-    "message": "Reden"
   },
   "pamInboxReasonMissing": {
     "message": "Geen reden opgegeven"
@@ -18470,32 +18651,11 @@
   "pamInboxRequester": {
     "message": "Aanvrager"
   },
-  "pamInboxDurationMinutes": {
-    "message": "$MINUTES$ min",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
-  },
   "pamStartLeaseButton": {
     "message": "Toegang starten"
   },
   "pamStartLeaseSuccess": {
     "message": "Toegang gestart."
-  },
-  "pamInboxDuration1Hour": {
-    "message": "1 uur"
-  },
-  "pamInboxDurationHours": {
-    "message": "$HOURS$ uur",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "4"
-      }
-    }
   },
   "pamInboxStartAsap": {
     "message": "begint nu"
@@ -18536,8 +18696,8 @@
   "pamEndLeaseSuccess": {
     "message": "Toegang beëindigd."
   },
-  "pamExtendLeaseButton": {
-    "message": "Verlengen"
+  "pamExtendLeaseButtonV2": {
+    "message": "Extend access"
   },
   "pamExtendLeaseDialogTitle": {
     "message": "Toegang verlengen"
@@ -18621,6 +18781,10 @@
     "message": "Actief",
     "description": "Controlled access filter option in the vault table: items with an active access session."
   },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Ending soon",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
+  },
   "pamAuditKindAccessEndedByRequester": {
     "message": "Toegang beëindigd door aanvrager"
   },
@@ -18648,6 +18812,40 @@
       "days": {
         "content": "$1",
         "example": "90"
+      }
+    }
+  },
+  "pamAuditCustomRange": {
+    "message": "$START$ – $END$",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "From $START$",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "Until $END$",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
       }
     }
   },
@@ -18684,8 +18882,8 @@
   "pamAuditIncomplete": {
     "message": "Onvolledig"
   },
-  "pamAuditIncompleteTooltip": {
-    "message": "Deze actie werd genoteerd, maar de uitkomst werd nooit bevestigd, mogelijk mislukt of onderbroken."
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed. It may have failed or been interrupted."
   },
   "pamAuditKindRequestSubmitted": {
     "message": "Toegang aangevraagd"
@@ -18753,11 +18951,71 @@
   "pamAccessRequestDetailsTitle": {
     "message": "Details van de aanvraag"
   },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Details",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
   "pamAccessRequestLeaseTitle": {
     "message": "Toegang"
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "Besluitenlog"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Decision",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Approved by",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Denied by",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Revoked by",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Ended by",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "Email",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Decision comment",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Start session",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "End session",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "System (automatic)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Submit new request",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Reason",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Keep it brief. The requester reads this directly.",
+    "description": "Hint under the withdrawal reason field."
   },
   "pamAccessRequestNotFound": {
     "message": "Toegangsverzoek niet beschikbaar"
@@ -18768,36 +19026,83 @@
   "pamAccessRequestLoadError": {
     "message": "Kan dit toegangsverzoek niet laden."
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "Je hebt actieve toegang tot dit item - $DURATION$ resterend",
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Access active • $DURATION$ left",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "23m"
+        "example": "20 days"
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Toegang tot dit item eindigt binnenkort - $DURATION$ resterend",
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Ending soon • $DURATION$ left",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "4m"
+        "example": "4 minutes"
       }
     }
   },
   "pamPendingRequestBannerHeading": {
     "message": "Toegangsverzoek in afwachting van goedkeuring"
   },
-  "pamApprovedRequestBannerHeading": {
-    "message": "Toegang goedgekeurd"
+  "pamPendingSubmittedJustNow": {
+    "message": "Submitted just now"
   },
-  "pamApprovedRequestBannerDuration": {
-    "message": "$DURATION$ toegang",
+  "pamPendingSubmittedAgo": {
+    "message": "Submitted $WHEN$",
     "placeholders": {
-      "duration": {
+      "when": {
         "content": "$1",
-        "example": "1 hour"
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privileged credentials"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls license needed",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Request to use"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Your access has ended"
+  },
+  "pamEndedBannerBody": {
+    "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Ready to use"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "You can access this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
       }
     }
   },
@@ -18807,17 +19112,17 @@
   "pamRequestAccessBannerHeading": {
     "message": "Je kunt toegang vragen"
   },
-  "pamUnlicensedBannerHeading": {
-    "message": "Privileged Controls-licentie vereist",
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "You need a Privileged Controls license to use this item",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
-  },
-  "pamUnlicensedBannerBody": {
-    "message": "Je hebt een Privileged Controls-licentie nodig om dit item weer te geven. Vraag je beheerder om je licentie te activeren.",
-    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
     "message": "Toegang aanvragen is niet beschikbaar zonder licentie.",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Het goedgekeurde tijdsvenster is nog niet gestart."
@@ -18904,8 +19209,8 @@
   "pendingStateCancelError": {
     "message": "Kon aanvraag niet annuleren."
   },
-  "requestAccessModalSubmit": {
-    "message": "Toegang aanvragen"
+  "requestAccessModalSubmitV2": {
+    "message": "Send request"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Kies een duur. Je krijgt onmiddellijk toegang voor die tijd."
@@ -18913,8 +19218,14 @@
   "requestAccessModalHumanDescription": {
     "message": "Kies een venster en vertel de goedkeurder waarom je toegang nodig hebt. Zij beoordelen en beslissen."
   },
-  "requestAccessModalDuration": {
-    "message": "Duur"
+  "requestAccessModalDurationV2": {
+    "message": "How long do you need it?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Request details"
   },
   "requestAccessModalStartDate": {
     "message": "Startdatum"
@@ -18994,20 +19305,20 @@
       }
     }
   },
-  "requestAccessModalReasonRequired": {
-    "message": "Reden"
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Why do you need it?"
   },
-  "requestAccessModalReasonOptional": {
-    "message": "Reden (optioneel)"
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Why do you need it?"
   },
-  "requestAccessModalReasonPlaceholder": {
-    "message": "Waarom heb je dit nodig?"
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "e.g., Quarterly audit, need to run a few read-only queries"
   },
-  "requestAccessModalAutomaticReasonHint": {
-    "message": "Deze reden is opgeslagen met je toegangsverzoek."
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
   },
-  "requestAccessModalHumanReasonHint": {
-    "message": "Goedkeurders zien deze reden bij het beoordelen van je verzoek."
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
   },
   "requestAccessModalGenericError": {
     "message": "Kan toegang niet aanvragen. Probeer het opnieuw."
@@ -19015,32 +19326,23 @@
   "requestAccessModalAlreadyActive": {
     "message": "Je hebt al actieve toegang tot dit item."
   },
-  "requestAccessModalApprovedSuccess": {
-    "message": "Toegang goedgekeurd — selecteer Start toegang om te beginnen."
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "Verzoek ingediend - wachtend op goedkeuring."
-  },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "Geen actieve toegang"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Actieve toegang"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Collectie"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "Er wachten geen verzoeken op jouw besluit"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Wacht op goedkeuring"
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Access requested"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Aanvrager"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Inloggegevens, verzameling, aanvrager zoeken"
+  "pamApprovalsApproveRequest": {
+    "message": "Approve request"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Deny request"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Revoke access"
   },
   "pamDecideAdditionalInformation": {
     "message": "Aanvullende informatie"
@@ -19080,12 +19382,6 @@
   },
   "pamInboxCommentPlaceholder": {
     "message": "Optionele opmerking toevoegen"
-  },
-  "pamInboxConfirmApproveButton": {
-    "message": "Aanvraag goedkeuren"
-  },
-  "pamInboxConfirmDenyButton": {
-    "message": "Aanvraag afwijzen"
   },
   "pamInboxDecisionFailed": {
     "message": "Kon besluit niet vastleggen"
@@ -19153,11 +19449,8 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Kon goedkeuring niet intrekken"
   },
-  "pamInboxWindow": {
-    "message": "Gevraagd venster"
-  },
-  "pamApprovalsNoResults": {
-    "message": "Er komen geen verzoeken overeen met je filters."
+  "pamAccessRequestsNoResults": {
+    "message": "No access requests match your filters."
   },
   "pamApprovalsLoaded": {
     "message": "Toegangsverzoeken geladen"
@@ -19173,6 +19466,20 @@
   },
   "pamInboxRevokeConfirm": {
     "message": "Dit trekt de toegang van het lid onmiddellijk in. Ze hebben een nieuwe goedkeuring nodig om deze opnieuw te verkrijgen."
+  },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "This withdraws your approval for $ITEM$. Access won't start, and $REQUESTER$ will need a new approval to get it.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
   },
   "pamWithdrawApprovalWarningOne": {
     "message": "Dit trekt je goedkeuring in voor",
@@ -19225,9 +19532,9 @@
   "pamAccessRules": {
     "message": "Toegangsregels"
   },
-  "pamCollectionRequiresRequest": {
-    "message": "Items in deze collectie vereisen een aanvraag.",
-    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+  "pamSharedFolderRequiresRequest": {
+    "message": "Items in this Shared folder require a request.",
+    "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
   },
   "pamGatedCollectionBannerName": {
     "message": "Verhoogde toegang",
@@ -19291,11 +19598,11 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "Optionele voorwaarden"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Verzamelingen selecteren"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Gedeelde mappen selecteren"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "Deze toegangsregel is van toepassing op alle geselecteerde verzamelingen."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "Deze toegangsregel is van toepassing op alle geselecteerde gedeelde mappen."
   },
   "pamAccessRuleEventLogNotice": {
     "message": "Alle verzoeken en besluiten worden geregistreerd."
@@ -19303,8 +19610,8 @@
   "pamAccessRuleViewAuditLog": {
     "message": "Auditlogboek weergeven"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Kon geen verzamelingen inladen. Vernieuw de pagina om het opnieuw te proberen."
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Kon geen gedeelde mappen inladen. Vernieuw de pagina om het opnieuw te proberen."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "Deze duur zal vooraf ingevuld worden in toegangsverzoeken."
@@ -19323,36 +19630,6 @@
   },
   "pamAccessRuleMaxDurationLimitHint": {
     "message": "Toegang is beperkt tot deze lengte, ongeacht de gevraagde duur van toegang."
-  },
-  "pamAccessRuleDuration15m": {
-    "message": "15 minuten"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 minuten"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 uur"
-  },
-  "pamAccessRuleDuration2h": {
-    "message": "2 uur"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 uur"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 uur"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 dag"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 dagen"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 dagen"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 dagen"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "Slechts 1 gebruiker tegelijk kan actieve toegang hebben"
@@ -19381,8 +19658,8 @@
   "pamAccessRuleApprovers": {
     "message": "Goedkeurders"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Collectiebeheerders"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Gedeelde mapmanagers"
   },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (kopiëren)",
@@ -19407,8 +19684,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Kopie aangemaakt. Kies de collecties waarpo het van toepassing is."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Kopie aangemaakt. Kies de gedeelde mappen waarop het van toepassing is."
   },
   "pamAccessRuleCreated": {
     "message": "Toegangsregel aangemaakt."
@@ -19422,8 +19699,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Toegangsregel verwijderen?"
   },
-  "pamAccessRuleDeleteConfirmDescription": {
-    "message": "Dit zal deze regel permanent verwijderen. Gebruikers in de collecties die deze beheert zullen de normale toegang terugkrijgen."
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "Dit zal deze regel permanent verwijderen. Gebruikers in de gedeelde mappen die deze beheert zullen de normale toegang terugkrijgen."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Toegangsregel gedeactiveerd"
@@ -19440,11 +19717,11 @@
   "pamAccessRuleErrorNameTaken": {
     "message": "Een andere regel gebruikt deze naam al. Voer een andere naam in."
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Een andere toegangsregel heeft al betrekking op één van deze collecties. Selecteer verschillende collecties."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Een andere toegangsregel heeft al betrekking op één van deze gedeelde mappen. Selecteer verschillende gedeelde mappen."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "Een andere toegangsregel heeft al betrekking op $COLLECTIONS$. Selecteer verschillende collecties.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "Een andere toegangsregel heeft al betrekking op $COLLECTIONS$. Selecteer verschillende gedeelde mappen.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -19452,11 +19729,11 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "Een van de verzamelingen die je hebt geselecteerd bestaat niet meer. Selecteer een andere collectie."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "Een van de gedeelde mappen die je hebt geselecteerd bestaat niet meer. Selecteer een andere gedeelde map."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "Een van de verzamelingen die je hebt geselecteerd is geen onderdeel van deze organisatie. Selecteer een andere collectie."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "Een van de gedeelde mappen die je hebt geselecteerd is geen onderdeel van deze organisatie. Selecteer een andere gedeelde map."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "Kies een maximale lengte van de extensie of schakel extensies uit."
@@ -19467,8 +19744,8 @@
   "pamNoAccessRulesYetTitle": {
     "message": "Nog geen toegangsregels"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Regel aanmaken voor het toevoegen van extra bescherming voor gevoelige verzamelingen."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Regel aanmaken voor het toevoegen van extra bescherming voor gevoelige gedeelde mappen."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Aangepaste regel aanmaken"
@@ -19506,17 +19783,17 @@
   "pamTemplateIpRestrictedName": {
     "message": "IP-toegang beperkt"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Verzamelingen"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Gedeelde mappen"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Niet toegewezen"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 collectie"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 gedeelde map"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ collecties",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ gedeelde mappen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -19901,9 +20178,6 @@
   "pamRotation": {
     "message": "Rotatie"
   },
-  "pamRotationSubtitle": {
-    "message": "Voeg beheerde inloggegevens en de doelsystemen waar die inloggegevens gebruikt worden toe. Registreer vervolgens toegangsconnectors om te draaien binnen je netwerk en draai rotatie. Eenmaal geconfigureerd, kunnen inloggegevens automatisch op doelsystemen worden geroteerd."
-  },
   "pamRotationTabManagedCredentials": {
     "message": "Beheerde inloggegevens"
   },
@@ -20041,6 +20315,50 @@
       }
     }
   },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Every day at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "Every $COUNT$ days at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Every month at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "Every $COUNT$ months at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
   "pamRotationScheduleTimezoneHint": {
     "message": "Schema's worden uitgevoerd in UTC, niet je lokale tijdzone."
   },
@@ -20074,20 +20392,14 @@
   "pamTargetSystemNew": {
     "message": "Nieuw doelsysteem"
   },
-  "pamTargetSystemSearch": {
-    "message": "Doelsystemen zoeken"
-  },
-  "pamTargetSystemMethodColumn": {
-    "message": "Methode"
-  },
   "pamTargetSystemTypeColumn": {
     "message": "Type"
   },
-  "pamTargetSystemSessionTerminationColumn": {
-    "message": "Sessiebeëindiging"
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Managed credentials"
   },
-  "pamTargetSystemSessionTerminationYes": {
-    "message": "Ondersteund"
+  "pamTargetSystemNone": {
+    "message": "None"
   },
   "pamTargetSystemSessionTerminationNo": {
     "message": "Niet ondersteund"
@@ -20110,11 +20422,11 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden roteert automatisch een Microsoft Entra ID-applicatiewachtwoord."
   },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden automatically rotates a domain account password on an Active Directory server you run."
+  },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
     "message": "Bitwarden roteert het inloggegegeven automatisch door het uitvoeren van je script op een geregistreerde toegangsconnector."
-  },
-  "pamTargetSystemNoFilterResults": {
-    "message": "Er komen geen doelsystemen overeen met je filters."
   },
   "pamTargetSystemEditTarget": {
     "message": "Doelsysteem bewerken"
@@ -20143,6 +20455,12 @@
   "pamTargetSystemAssignConnectorNoOptions": {
     "message": "Alleen actieve toegangsconnectoren zijn al aan dit doelsysteem toegewezen."
   },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Only for automatic rotation."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Remove its managed credentials first."
+  },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Toegangsconnectors kunnen alleen worden toegewezen aan doelsystemen die op automatische rotatie zijn ingesteld."
   },
@@ -20152,14 +20470,11 @@
   "pamTargetSystemAssignConnectorNone": {
     "message": "Er zijn geen actieve toegangsconnectors om toe te wijzen. Registreer er één op het tabblad Toegangsconnectors of activeer een bestaande."
   },
-  "pamTargetSystemAssignGoToConnectors": {
-    "message": "Ga naar toegangsconnectors"
+  "pamTargetSystemDeactivateDialogTitle": {
+    "message": "Deactivate target system"
   },
-  "pamTargetSystemDeactivateTitle": {
-    "message": "Doelsysteem deactiveren?"
-  },
-  "pamTargetSystemDeactivateContent": {
-    "message": "Het deactiveren van dit doelsysteem zal ervoor zorgen dat er geen nieuwe rotaties worden aangeboden. Taken in de wachtrij worden niet opeisbaar. Rotaties die al in uitvoering zijn, zullen worden voltooid."
+  "pamTargetSystemDeactivateDialogContent": {
+    "message": "No new rotations will start on this target system until you activate it. Rotations already in progress will finish, and pending ones are held."
   },
   "pamTargetSystemDeactivateConfirm": {
     "message": "Deactiveren"
@@ -20167,32 +20482,29 @@
   "pamTargetSystemDeactivateSuccess": {
     "message": "Doelsysteem gedeactiveerd."
   },
+  "pamTargetSystemDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
   "pamTargetSystemActivateSuccess": {
     "message": "Doelsysteem geactiveerd."
   },
-  "pamTargetSystemDeleteTitle": {
-    "message": "Doelsysteem verwijderen?"
+  "pamTargetSystemActivateFailed": {
+    "message": "Couldn't activate. Try again."
   },
-  "pamTargetSystemDeleteContent": {
-    "message": "Het verwijderen van $NAME$ is permanent. Alle beheerde inloggegevens die ertegen roteren moeten eerst worden verwijderd.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogTitle": {
+    "message": "Delete target system"
   },
-  "pamTargetSystemDeleteContentDeactivateInstead": {
-    "message": "Het verwijderen van $NAME$ is permanent. Alle beheerde inloggegevens die ertegen roteren moeten eerst worden verwijderd. Om rotaties te stoppen zonder het doelsysteem te verliezen, deactiveer het. Deactiveren stopt onderhanden taken en kan ongedaan worden gemaakt.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogContent": {
+    "message": "This target system will be deleted."
+  },
+  "pamTargetSystemDeleteDialogContentDeactivateInstead": {
+    "message": "This target system will be deleted. To stop rotations but keep it, deactivate it instead."
   },
   "pamTargetSystemDeleteSuccess": {
     "message": "Doelsysteem verwijderd."
+  },
+  "pamTargetSystemDeleteFailed": {
+    "message": "Couldn't delete. Try again."
   },
   "pamTargetSystemMethodAutomatic": {
     "message": "Automatisch"
@@ -20200,17 +20512,15 @@
   "pamTargetSystemMethodManual": {
     "message": "Handmatig"
   },
-  "pamTargetSystemMethodAutomaticHint": {
-    "message": "Rotaties worden uitgevoerd op het schema dat je hebt ingesteld, zodra je de setup-stappen hebt voltooid die getoond worden na het opslaan."
-  },
-  "pamTargetSystemMethodManualHint": {
-    "message": "Er is geen rotatietaak aangemaakt. Je roteert het inloggegeven met de hand, en markeert het als geroteerd."
-  },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
   },
   "pamTargetSystemTypeCustomScript": {
     "message": "Aangepast script"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
   },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
@@ -20226,11 +20536,24 @@
       }
     }
   },
+  "pamTargetSystemRemoveConnector": {
+    "message": "Remove $NAME$",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
   "pamTargetSystemStatusActive": {
     "message": "Actief"
   },
   "pamTargetSystemStatusInactive": {
     "message": "Inactief"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Not connected"
   },
   "pamTargetSystemStatusPendingSeal": {
     "message": "Setup niet voltooid"
@@ -20250,17 +20573,8 @@
   "pamTargetSystemMethodLabel": {
     "message": "Rotatiemethode"
   },
-  "pamTargetSystemTypeHeading": {
-    "message": "Type"
-  },
-  "pamTargetSystemTypeLabel": {
-    "message": "Type"
-  },
   "pamTargetSystemTypeUnverifiedHint": {
     "message": "De integratie van dit doel kon niet worden bevestigd. Kies deze opnieuw om de installatie te voltooien."
-  },
-  "pamTargetSystemPolicyManualHint": {
-    "message": "Dit zijn de regels die je moet volgen wanneer je dit inloggegeven met de hand roteert."
   },
   "pamTargetSystemPolicyHeading": {
     "message": "Wachtwoordbeleid"
@@ -20280,41 +20594,20 @@
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "Dit beleid is te zwak. Vergroot de lengte of voeg meer karaktertypes toe."
   },
-  "pamTargetSystemPolicyUppercase": {
-    "message": "Hoofdletters toevoegen"
-  },
-  "pamTargetSystemPolicyLowercase": {
-    "message": "Kleine letters toevoegen"
-  },
-  "pamTargetSystemPolicyDigits": {
-    "message": "Cijfers toevoegen"
-  },
-  "pamTargetSystemPolicySymbols": {
-    "message": "Symbolen toevoegen"
-  },
-  "pamTargetSystemSupportsSessionTermination": {
-    "message": "Ondersteunt sessiebeëindiging"
-  },
-  "pamTargetSystemSupportsSessionTerminationHintConnector": {
-    "message": "Wanneer ingeschakeld, zal de toegangsconnector actieve sessies beëindigen nadat een inloggegeven is geroteerd."
-  },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Ondersteund"
   },
-  "pamTargetSystemSessionTerminationNativeHint": {
-    "message": "Naadloze integraties beëindigen altijd actieve sessies nadat een inloggegeven is geroteerd."
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "This integration cannot end sessions that are already open. Rotating the credential blocks new sign-ins, but existing sessions continue until they expire."
   },
-  "pamTargetSystemSessionTerminationUnknown": {
-    "message": "Onbekend"
-  },
-  "pamTargetSystemSessionTerminationUnknownTooltip": {
-    "message": "De instellingen van dit doelsysteem konden niet worden geverifieerd, dus de ondersteuning van sessie-beëindiging is onbekend."
-  },
-  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
-    "message": "Verwijderen van de ondersteuning van sessie-beëindiging wordt geweigerd terwijl elk beheerde inloggegeven op dit doelsysteem er nog steeds ervan afhankelijk zijn. Werk deze inloggegevens eerst bij."
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "This target system is recorded as supporting session termination, and its managed credentials can still use it. Saving here leaves that record as it is."
   },
   "pamTargetSystemCreated": {
     "message": "Doelsysteem aangemaakt."
+  },
+  "pamTargetSystemCreatedSuccess": {
+    "message": "Target system added."
   },
   "pamTargetSystemSaved": {
     "message": "Doelsysteem opgeslagen."
@@ -20327,9 +20620,6 @@
   },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Configruatie van rotatie voltooien"
-  },
-  "pamTargetSystemSetupGuidanceAutomaticConnector": {
-    "message": "Geef hieronder een toegangsconnector aan in de sectie Toegewezen toegangsconnectors hieronder."
   },
   "pamTargetSystemSetupGuidanceCredential": {
     "message": "Voeg een beheerd inloggegeven toe op het tabblad Beheerde inloggegevens."
@@ -20355,20 +20645,17 @@
   "pamTargetSystemNotFound": {
     "message": "Doelsysteem niet gevonden."
   },
-  "pamAccessConnectorSearch": {
-    "message": "Toegangsconnectors zoeken"
-  },
-  "pamAccessConnectorNew": {
-    "message": "Nieuwe toegangsconnector"
-  },
   "pamAccessConnectorRegister": {
     "message": "Toegangsconnector registreren"
   },
-  "pamAccessConnectorEmptyStateTitle": {
-    "message": "Geen toegangsconnectors geregistreerd"
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "No access connectors yet"
   },
-  "pamAccessConnectorEmptyStateDescription": {
-    "message": "Registreer een toegangsconnector om te beginnen met het roteren van inloggegevens."
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Access connectors run inside your network and change passwords on your target systems. Register one to get started."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Target systems"
   },
   "pamAccessConnectorConnection": {
     "message": "Verbinding"
@@ -20385,14 +20672,14 @@
   "pamAccessConnectorDisconnected": {
     "message": "Verbroken"
   },
-  "pamAccessConnectorAssignTargetDisabled": {
-    "message": "Doelsystemen kunnen alleen worden toegewezen wanneer de toegangsconnector actief is."
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Activate this access connector to assign target systems."
   },
-  "pamAccessConnectorViewDetails": {
-    "message": "Details weergeven"
+  "pamAccessConnectorEdit": {
+    "message": "Edit access connector"
   },
-  "pamAccessConnectorAssignTargets": {
-    "message": "Doelen toewijzen"
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Assign target systems"
   },
   "pamAccessConnectorDeleteAccessConnector": {
     "message": "Toegangsconnector verwijderen"
@@ -20406,8 +20693,8 @@
   "pamAccessConnectorAssignSelectLabel": {
     "message": "Doelsystemen toewijzen"
   },
-  "pamAccessConnectorAssignSelectHint": {
-    "message": "Je kunt alleen doelsystemen die zijn ingesteld op automatische rotatie toewijzen."
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Choose the target systems this access connector can rotate passwords on. Only target systems that use automatic rotation can be assigned."
   },
   "pamAccessConnectorAssignNoOptions": {
     "message": "Alle automatische doelsystemen zijn al toegewezen aan deze toegangsconnector."
@@ -20439,77 +20726,62 @@
       }
     }
   },
-  "pamAccessConnectorUnassignConfirmTitle": {
-    "message": "Toewijzing verwijderen?"
-  },
-  "pamAccessConnectorUnassignConfirmContent": {
-    "message": "$NAME$ van deze toegangsconnector verwijderen? Actieve rotatietaken geclaimd door deze toegangsconnector blijven doorgaan tot ze zijn afgerond.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
-  },
-  "pamAccessConnectorUnassigned": {
-    "message": "Doelsysteem verwijderd."
-  },
   "pamAccessConnectorDeactivate": {
     "message": "Deactiveren"
   },
   "pamAccessConnectorActivate": {
     "message": "Activeren"
   },
-  "pamAccessConnectorDeactivateConfirmTitle": {
-    "message": "Toegangsverbinding deactiveren?"
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Deactivate access connector"
   },
-  "pamAccessConnectorDeactivateConfirmContent": {
-    "message": "$NAME$ deactiveren? Het stopt met het claimen van nieuwe rotatietaken en alle taken die het momenteel uitvoert, worden vrijgegeven. Je kunt het later weer activeren.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "This access connector won't take new rotations. Rotations in progress are released."
   },
   "pamAccessConnectorDeactivated": {
     "message": "Toegangsconnector gedeactiveerd."
   },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
   "pamAccessConnectorActivated": {
     "message": "Toegangsconnector geactiveerd."
   },
-  "pamAccessConnectorDeleteConfirmTitle": {
-    "message": "Toegangsverbinding verwijderen?"
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Delete access connector"
   },
-  "pamAccessConnectorDeleteConfirmContent": {
-    "message": "Het verwijderen van $NAME$ is permanent en maakt de inloggegevens ongeldig. Deze toegangsconnector heeft de organisatiesleutel in het geheugen gehouden. Als je een inbreuk vermoedt roteer dan de organisatiesleutel als remedie. Lopende rotatietaken worden vrijgegeven. Registreer een nieuwe toegangsconnector om de rotatie te hervatten.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Its token stops working, and rotations in progress are released. This can't be undone."
   },
   "pamAccessConnectorDeleted": {
     "message": "Toegangsconnector verwijderd."
   },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Couldn't delete. Try again."
+  },
   "pamAccessConnectorSaved": {
     "message": "Toegangsconnector opgeslagen."
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Access connector wasn't saved. Try again."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Access connector wasn't saved. Check your connection, then select Save again."
   },
   "pamAccessConnectorRegisterTitle": {
     "message": "Toegangsconnector registreren"
   },
-  "pamAccessConnectorNamePlaceholder": {
-    "message": "bijv. On-prem productieserver"
+  "pamAccessConnectorRegisterDescription": {
+    "message": "You'll get a token to add to the access connector's configuration. It's shown only once."
   },
-  "pamAccessConnectorNameHint": {
-    "message": "Een beschrijvende naam om de toegangsconnector te identificeren. Maximaal 200 tekens."
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Use a name your team will recognize, for example East datacenter."
   },
   "pamAccessConnectorRegistered": {
     "message": "Toegangsconnector geregistreerd."
   },
-  "pamAccessConnectorNoResults": {
-    "message": "Er komen geen toegangsconnectors overeen met je filters."
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Access connector wasn't registered. Try again."
   },
   "pamAccessConnectorDetailTitle": {
     "message": "Toegangsconnector"
@@ -20520,38 +20792,38 @@
   "pamAccessConnectorTabConfiguration": {
     "message": "Configuratie"
   },
-  "pamAccessConnectorTabHistory": {
-    "message": "Geschiedenis"
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "Rotation history"
   },
-  "pamAccessConnectorActivityEmpty": {
-    "message": "Nog geen rotatie-activiteit."
+  "pamAccessConnectorRotationHeading": {
+    "message": "Rotation"
   },
-  "pamAccessConnectorActiveHint": {
-    "message": "Wanneer inactief, zal de toegangsconnector geen nieuwe rotatietaken claimen en alle lopende taken worden vrijgegeven."
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Choose target systems"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "This access connector isn't connected, so it can't rotate passwords. Check that it's running on its machine and can reach Bitwarden."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Finish setting up. Add the token and each target system's connection details to this access connector's configuration, then start it."
   },
   "pamAccessConnectorTokenTitle": {
     "message": "Toegangsconnector-token"
   },
-  "pamAccessConnectorTokenWarningTitle": {
-    "message": "Dit token nu opslaan"
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Copy this token now, since you can't see it again after you close this."
   },
-  "pamAccessConnectorTokenWarningBody": {
-    "message": "Deze token wordt slechts één keer weergegeven en kan later niet worden opgehaald. Kopieer het en stuur het via een ander kanaal naar de operator die deze toegangsconnector uitvoert, plak het vervolgens in het configuratiebestand van de connector. Als het token verloren gaat, verwijder dan deze toegangsconnector en registreer een nieuwe."
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Add it to the access connector's configuration to connect it."
   },
-  "pamAccessConnectorTokenLabel": {
-    "message": "Toegangsconnector-token"
-  },
-  "pamAccessConnectorTokenHint": {
-    "message": "Dit token zal niet opnieuw worden weergegeven."
+  "pamAccessConnectorTokenStored": {
+    "message": "I stored this token securely"
   },
   "pamAccessConnectorTokenCopy": {
     "message": "Token kopiëren"
   },
-  "pamAccessConnectorTokenCopied": {
-    "message": "Toegangsconnector-token gekopieerd."
-  },
-  "pamRotationConfigNew": {
-    "message": "Nieuw beheerd inloggegeven"
+  "pamTokenCopied": {
+    "message": "Token copied."
   },
   "pamRotationConfigSearch": {
     "message": "Beheerde inloggegevens zoeken"
@@ -20559,8 +20831,23 @@
   "pamRotationConfigEmptyState": {
     "message": "Geen beheerde inloggegevens geconfigureerd"
   },
+  "pamRotationConfigEmptyTitle": {
+    "message": "No managed credentials yet"
+  },
   "pamRotationConfigEmptyStateDescription": {
     "message": "Voeg een beheerd inloggegeven toe om automatisch te beginnen met roteren."
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends."
+  },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Managed credentials on this target system show here."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends. To get started, add an access connector and a target system."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Add access connector"
   },
   "pamRotationListLoadErrorTitle": {
     "message": "Laden mislukt"
@@ -20568,14 +20855,8 @@
   "pamRotationListLoadErrorDescription": {
     "message": "Controleer je verbinding en probeer het opnieuw. Als het probleem zich blijft voordoen, vernieuw de pagina."
   },
-  "pamRotationConfigNoTargetSystems": {
-    "message": "Stel een doel systeem in voordat je de referenties kunt roteren. Een doelsysteem definieert de plek van een inloggegeven en hoe Bitwarden het roteert."
-  },
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Doelsysteem instellen"
-  },
-  "pamRotationConfigNoResultsFiltered": {
-    "message": "Geen beheerde inloggegevens gevonden die overeenkomen met je filters."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Inloggegeven"
@@ -20592,9 +20873,6 @@
   "pamRotationConfigColumnRotateOnAccessEnd": {
     "message": "Roteer na einde toegang"
   },
-  "pamRotationConfigColumnLastRotation": {
-    "message": "Laatste rotatie"
-  },
   "pamRotationConfigColumnLastRotated": {
     "message": "Laatst geroteerd"
   },
@@ -20603,6 +20881,270 @@
   },
   "pamRotationConfigStatusPaused": {
     "message": "Gepauzeerd"
+  },
+  "pamRotationConfigStatusFailed": {
+    "message": "Failed"
+  },
+  "pamRotationConfigStatusNotConnected": {
+    "message": "Not connected"
+  },
+  "pamRotationConfigStatusManualRotation": {
+    "message": "Manual rotation"
+  },
+  "pamRotationConfigColumnAccount": {
+    "message": "Account"
+  },
+  "pamRotationFilterTrigger": {
+    "message": "Rotation trigger"
+  },
+  "pamRotationTriggerSchedule": {
+    "message": "On a schedule"
+  },
+  "pamRotationTriggerAccessEnd": {
+    "message": "When access ends"
+  },
+  "pamRotationTriggerOnDemand": {
+    "message": "Only on demand"
+  },
+  "pamRotationNextInProgress": {
+    "message": "In progress"
+  },
+  "pamRotationNextNone": {
+    "message": "None"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "$COUNT$m ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "$COUNT$hr ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "$COUNT$d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "$COUNT$w ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "$COUNT$mo ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "Yesterday"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "In $COUNT$hr",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "In $COUNT$w",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "Due $COUNT$d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationDetailNone": {
+    "message": "None"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Rotation is paused, so this credential won't rotate on its schedule or when someone's access ends."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "The first attempt failed, so Bitwarden is retrying. No action is needed unless all attempts fail."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "This target system has no access connector, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "The access connectors are disconnected, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "The last rotation didn't finish in time. Select $ACTION$ to try again.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "This credential was due $AGE$. Change its password, update the vault item, then mark it as rotated.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "View access connectors"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Access connectors for this target system"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Every credential on this target system uses these."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "The account's sign-in name, for example name@company.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "The value your script uses to identify the account, for example its username."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "The account's username on the target system, for your records. Bitwarden doesn't use it to rotate."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "The account's username on the target system, entered exactly as that system expects it."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Due $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Due schedule"
+  },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Rotation trigger"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "The first attempt failed; the retry succeeded."
+  },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Rotation started"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Final result"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "Attempt $NUMBER$ failed.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "No access connector picked up this rotation."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Sessions ended"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Couldn't end sessions"
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Rotation details"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Failed"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Succeeded"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "The target system didn't respond."
+  },
+  "pamRotationConfigRotateNowInProgress": {
+    "message": "A rotation is in progress."
+  },
+  "pamRotationConfigRotateNowPaused": {
+    "message": "Resume rotation to rotate now."
+  },
+  "pamRotationConfigRotateNowNotConnected": {
+    "message": "No access connector is connected"
+  },
+  "pamRotationConfigRemoveLockedReason": {
+    "message": "Available when the rotation finishes."
+  },
+  "pamRotationConfigEditSettings": {
+    "message": "Edit rotation settings"
+  },
+  "pamRotationConfigViewHistory": {
+    "message": "View rotation history"
+  },
+  "pamRotationConfigRotateNowStarted": {
+    "message": "Rotation started."
+  },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Rotation didn't start. Try again."
+  },
+  "pamRotationConfigMarkedRotated": {
+    "message": "Marked as rotated."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Couldn't mark as rotated. Try again."
+  },
+  "pamRotationConfigPauseWhileRotatingSuccess": {
+    "message": "Rotation paused. The rotation in progress will finish."
+  },
+  "pamRotationConfigPauseContent": {
+    "message": "This credential won't rotate on its schedule or when someone's access ends. A rotation already in progress will finish."
+  },
+  "pamRotationConfigMarkRotatedContent": {
+    "message": "Only do this after you've changed the password on the target system and updated the vault item."
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Manage credential rotation across target systems, using access connectors running inside your network."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Managed credential"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Access connector"
   },
   "pamRotationConfigRotatingBadge": {
     "message": "Roteren"
@@ -20613,12 +21155,6 @@
   "pamRotationConfigRotateNow": {
     "message": "Nu roteren"
   },
-  "pamRotationConfigRotateNowUnavailableTitle": {
-    "message": "Kan nu niet roteren. Het doelsysteem is inactief of de rotatie is gepauzeerd of wordt al uitgevoerd."
-  },
-  "pamRotationConfigRotateNowSuccess": {
-    "message": "Rotatie verzonden."
-  },
   "pamRotationConfigMarkRotated": {
     "message": "Als geroteerd markeren"
   },
@@ -20627,15 +21163,6 @@
   },
   "pamRotationConfigMarkRotatedTitle": {
     "message": "Als geroteerd markeren"
-  },
-  "pamRotationConfigRecordManualContent": {
-    "message": "Dit legt vast dat de referenties buiten Bitwarden zijn gedraaid en herstart het schema. Het auditlogboek weerspiegelt de handmatige rotatie."
-  },
-  "pamRotationConfigRecordManualConfirm": {
-    "message": "Rotatie vastleggen"
-  },
-  "pamRotationConfigRecordManualSuccess": {
-    "message": "Handmatige rotatie vastgelegd."
   },
   "pamRotationConfigEditCredential": {
     "message": "Inloggegeven bewerken"
@@ -20649,6 +21176,9 @@
   "pamRotationConfigPauseSuccess": {
     "message": "Rotatie gepauzeerd."
   },
+  "pamRotationConfigPauseFailed": {
+    "message": "Rotation wasn't paused. Try again."
+  },
   "pamRotationConfigResumeRotation": {
     "message": "Rotatie hervatten"
   },
@@ -20658,8 +21188,14 @@
   "pamRotationConfigDeleteConfirmTitle": {
     "message": "Beheerd inloggegeven verwijderen"
   },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Remove from rotation"
+  },
   "pamRotationConfigDeleteConfirmContent": {
     "message": "Dit verwijder rotatiebeheer voor dit inloggegeven. Het item blijft in je kluis en de rotatiegeschiedenis blijft in het auditlogboek."
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "This credential and its settings will be removed from Managed credentials. The vault item won't change, and its history stays in the audit log."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Kan niet verwijderen terwijl er een rotatie aan de gang is. Dit wordt beschikbaar wanneer de huidige taak is afgerond of verlopen."
@@ -20667,26 +21203,32 @@
   "pamRotationConfigDeleteSuccess": {
     "message": "Beheerd inloggegeven verwijderd."
   },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Removed from rotation."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Couldn't remove from rotation. Try again."
+  },
   "pamRotationConfigNeverRotated": {
     "message": "Nooit"
+  },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "No rotations yet"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Add managed credential"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Rotating this credential will also sign out anyone still using the current password."
   },
   "pamRotationConfigHistoryEmpty": {
     "message": "Er zijn nog geen rotaties geweest."
   },
-  "pamRotationConfigRemoveLockedContentConnector": {
-    "message": "Er is momenteel een rotatiejob bezig. Je kunt dit inloggegeven van rotatie verwijderen zodra de toegangsconnector het klaar heeft, of wanneer het verloopt. Pauzeren stopt alleen nieuwe taken; het annuleert geen taken die al actief zijn."
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Rotations for this credential will show up here."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Inlogdetails"
-  },
-  "pamRotationConfigDetailsHeading": {
-    "message": "Details"
-  },
-  "pamRotationConfigSettingsHeading": {
-    "message": "Rotatie-instellingen"
-  },
-  "pamRotationConfigAccountHeading": {
-    "message": "Account"
   },
   "pamRotationConfigTabConfiguration": {
     "message": "Configuratie"
@@ -20694,32 +21236,11 @@
   "pamRotationConfigTabHistory": {
     "message": "Geschiedenis"
   },
-  "pamRotationConfigCipher": {
-    "message": "Inloggegeven"
-  },
-  "pamRotationConfigCipherPlaceholder": {
-    "message": "Selecteer een inloggegeven"
-  },
-  "pamRotationConfigCipherHint": {
-    "message": "Selecteer het kluisitem waarvan het wachtwoord zal worden geroteerd."
-  },
   "pamRotationConfigTargetSystem": {
     "message": "Doelsysteem"
   },
   "pamRotationConfigTargetSystemPlaceholder": {
     "message": "Selecteer een doelsysteem"
-  },
-  "pamRotationConfigAccountIdentity": {
-    "message": "Accountidentiteit"
-  },
-  "pamRotationConfigAccountIdentityHintConnector": {
-    "message": "Het te roteren account in het doelsysteem, bijvoorbeeld een UPN, SQL-login of scriptparameter. 1-op-1 doorgegeven aan de toegangsconnector."
-  },
-  "pamRotationConfigTerminateSessions": {
-    "message": "Actieve sessies na rotatie beëindigen"
-  },
-  "pamRotationConfigTerminateSessionsHint": {
-    "message": "Vereist ondersteuning voor het beëindigen van sessie door het doelsysteem."
   },
   "pamRotationConfigTerminationUnknownHint": {
     "message": "Kon de ondersteuning voor het verbreken van sessies van dit systeem niet verifiëren."
@@ -20727,20 +21248,8 @@
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Roteer wanneer de toegang eindigt"
   },
-  "pamRotationConfigRotateWhenAccessEndsHint": {
-    "message": "Dit inloggegeven automatisch rotereren zodra PAM-toegang eindigt."
-  },
-  "pamRotationConfigCreated": {
-    "message": "Beheerd inloggegeven aangemaakt."
-  },
   "pamRotationConfigSaved": {
     "message": "Beheerd inloggegeven opgeslagen."
-  },
-  "pamRotationConfigAccountLockedTitle": {
-    "message": "Instellingen niet beschikbaar"
-  },
-  "pamRotationConfigAccountLockedContent": {
-    "message": "Wijzigingen kunnen niet worden opgeslagen tijdens het uitvoeren van een rotatietaak. Je kunt opnieuw opslaan zodra de taak is voltooid of verlopen."
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
     "message": "Integriteitscontrole mislukt"
@@ -20781,9 +21290,6 @@
   "pamRotationJobStatusPending": {
     "message": "In behandeling"
   },
-  "pamRotationJobStatusClaimed": {
-    "message": "Geclaimd"
-  },
   "pamRotationJobStatusSucceeded": {
     "message": "Geslaagd"
   },
@@ -20793,14 +21299,11 @@
   "pamRotationJobStatusTimedOut": {
     "message": "Verlopen"
   },
+  "pamRotationJobStatusRetrying": {
+    "message": "Retrying"
+  },
   "pamRotationJobStatusUnknown": {
     "message": "Onbekend"
-  },
-  "pamRotationAssignmentPendingAssign": {
-    "message": "Toewijzing in behandeling"
-  },
-  "pamRotationAssignmentPendingUnassign": {
-    "message": "Verwijderen in behandeling"
   },
   "pamRotationAttemptStatusExecuting": {
     "message": "Aan het uitvoeren"
@@ -20865,15 +21368,6 @@
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "De toegangsconnector kon het doelsysteem niet bereiken. Controleer het adres van het doelsysteem en dat de connector het kan bereiken op het netwerk, en roteer dan opnieuw."
   },
-  "pamRotationFailureReportedDetail": {
-    "message": "Gemeld door de toegangsconnector: $REASON$",
-    "placeholders": {
-      "reason": {
-        "content": "$1",
-        "example": "target_rejected: LDAP result code 50"
-      }
-    }
-  },
   "pamRotationHistoryCaption": {
     "message": "Rotatietaken, nieuwste eerst"
   },
@@ -20888,15 +21382,6 @@
   },
   "pamRotationHistoryAttemptsCaption": {
     "message": "Pogingen, oudste eerst"
-  },
-  "pamRotationHistoryAttemptsAllAlike": {
-    "message": "Elke poging is op dezelfde manier verlopen."
-  },
-  "pamRotationJobDrawerTitle": {
-    "message": "Rotatietaak"
-  },
-  "pamRotationHistoryFailureHeading": {
-    "message": "Waarom het mislukte"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$s",
@@ -21035,9 +21520,9 @@
   "pamAuditAccessConnector": {
     "message": "Toegangsconnector"
   },
-  "pamAccessConnectorAssignmentCountSingular": {
-    "message": "$COUNT$ doel",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ target system",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21045,9 +21530,9 @@
       }
     }
   },
-  "pamAccessConnectorAssignmentCount": {
-    "message": "$COUNT$ doelen",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ target systems",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21057,7 +21542,7 @@
   },
   "pamAccessConnectorAssignmentsNone": {
     "message": "Geen",
-    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
   },
   "pamRotationConfigNoActiveTargetSystems": {
     "message": "Geen actieve doelsystemen om uit te kiezen."
@@ -21071,14 +21556,179 @@
   "pamTargetSystemConnectorAssignmentsLoadError": {
     "message": "De toegangsconnectors voor dit doelsysteem konden niet worden geladen."
   },
-  "pamTargetSystemDeleteAssignedConnectorsContent": {
-    "message": "Het verwijderen van $NAME$ is permanent. Alle beheerde inloggegevens die er tegenaan roteren moeten eerst worden verwijderd en de toegangsconnectortoewijzingen worden hiermee verwijderd.",
+  "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
+    "message": "This target system and its access connector assignments will be deleted."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
+    "message": "This target system and its access connector assignments will be deleted. To stop rotations but keep it, deactivate it instead."
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Vault item"
+  },
+  "pamRotationConfigCredentialName": {
+    "message": "Credential name"
+  },
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Select credential"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Credentials that are already in rotation aren't listed."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "The credential lives on the target system."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Manual"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "No connected access connector"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "This target system uses manual rotation. You'll change this credential's password yourself, then mark it as rotated."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "This target system has no connected access connector, so this credential won't rotate yet. You can still save it."
+  },
+  "pamRotationConfigAccountId": {
+    "message": "Account ID"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "Enter an ID"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "The username on the target system, for example name@company.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Rotation triggers"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "After rotation"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Schedule"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Changes the password when someone's access ends, so the old password stops working."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Only available for automatic rotation."
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "End active sessions"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Signs out anyone still using the old password after each rotation. If this fails, the rotation still counts."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Available once you select a target system that supports it."
+  },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Managed credential added."
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Target system added."
+  },
+  "pamTargetSystemNameHelp": {
+    "message": "Use a name your team will recognize, e.g. Entra ID production. It shows wherever you choose a target system."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "An access connector changes passwords on this target system for you."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "You change passwords on this target system yourself, then mark them as rotated."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "System type"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Tells the access connector how to change passwords on this system."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Ending sessions"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra can sign out active sessions after rotation."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "This system type can't sign out active sessions after rotation."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Shows once you choose a system type."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Select a system type"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Choose access connectors"
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Access connectors"
+  },
+  "pamTargetSystemAccessConnectorFilter": {
+    "message": "Access connector"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Choose the access connectors that can rotate passwords on this target system. Choose more than one for a backup."
+  },
+  "pamTargetSystemCalloutNoConnectorConnected": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save."
+  },
+  "pamTargetSystemCalloutNoConnectorConnectedEditing": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Automatic rotation"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "This target system is inactive, so no new rotations start on it. Select Activate to start them again."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "No access connectors are assigned, so choose at least one before this target system can rotate."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "This system type can sign out active sessions after rotation."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Remove last access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Remove access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "This target system won't be able to rotate until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "1 managed credential on this target system will stop rotating until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "$COUNT$ managed credentials on this target system will stop rotating until another access connector is assigned.",
     "placeholders": {
-      "name": {
+      "count": {
         "content": "$1",
-        "example": "Production database"
+        "example": "8"
       }
     }
+  },
+  "pamTargetSystemCalloutNoConnectorsExist": {
+    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Characters to include"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Lowercase letters"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Digits"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Symbols"
   },
   "pamEventRequestedAccess": {
     "message": "Verhoogde toegang aangevraagd voor item $ITEM$ (verzoek $ID$).",
