@@ -98,18 +98,21 @@ export class CipherViewComponent {
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
    * `CipherService` and the `collectionIds` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
    */
   readonly collections = input<CollectionView[] | undefined>(undefined);
 
   /**
    * Optional organization the cipher is assigned to. If none is provided, it will be fetched using the
    * `OrganizationService` and the `organizationId` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
    */
   readonly organization = input<Organization | undefined>(undefined);
 
   /**
    * Optional folder the cipher is assigned to. If none is provided, it will be fetched using the
    * `FolderService` and the `folderId` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
    */
   readonly folder = input<FolderView | undefined>(undefined);
 
