@@ -47,8 +47,12 @@ export async function skipOnboardingDialogs(page: Page) {
     // first(): the handler's visibility check is strict, and fails on stacked copies.
     await page.addLocatorHandler(dialog.first(), async () => {
       for (let open = await close.count(); open > 0; open = await close.count()) {
-        await close.first().dispatchEvent("click");
-        await expect(close).toHaveCount(open - 1);
+        // The dialog can vanish on its own, e.g. torn down by locking. evaluateAll does not
+        // wait for a button that is gone, unlike dispatchEvent.
+        await close.evaluateAll((buttons) =>
+          buttons.at(0)?.dispatchEvent(new MouseEvent("click", { bubbles: true })),
+        );
+        await expect.poll(() => close.count()).toBeLessThan(open);
       }
     });
   }
