@@ -31,7 +31,8 @@ import { PolicyEditDialogData, PolicyEditDrawerComponent } from "./policy-edit-d
 
 const ORG_ID = "test-org-id";
 
-export type PolicyDialogStoryArgs = { enabled: boolean; isCloud?: boolean };
+/** `data` is the saved policy data the drawer loads, omit it for a policy that was never saved. */
+export type PolicyDialogStoryArgs = { enabled: boolean; isCloud?: boolean; data?: object };
 
 /** @deprecated Use {@link PolicyDialogStoryArgs}. Kept as an alias for existing story files. */
 export type PolicyDrawerStoryArgs = PolicyDialogStoryArgs;
@@ -166,7 +167,7 @@ export function policyDrawerMeta(
                   new PolicyStatusResponse({
                     OrganizationId: ORG_ID,
                     Type: policy.type,
-                    Data: null,
+                    Data: args.data ?? null,
                     Enabled: args.enabled,
                     CanToggleState: true,
                   }),

@@ -6731,9 +6731,6 @@
   "copyAddress": {
     "message": "Copy address"
   },
-  "myItems": {
-    "message": "My Items"
-  },
   "myItemsV2": {
     "message": "My items"
   },
@@ -8470,8 +8467,8 @@
     "message": "This Send will automatically expire at the set deletion date",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."

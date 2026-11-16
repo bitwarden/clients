@@ -2438,6 +2438,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "All"
   },
@@ -7379,8 +7383,8 @@
   "makeACopy": {
     "message": "Make a copy"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "License details"

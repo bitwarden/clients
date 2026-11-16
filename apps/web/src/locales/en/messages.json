@@ -1803,9 +1803,6 @@
   "me": {
     "message": "Me"
   },
-  "myItems": {
-    "message": "My Items"
-  },
   "myItemsV2": {
     "message": "My items"
   },
@@ -1879,6 +1876,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Clear all"
@@ -6731,6 +6732,15 @@
       }
     }
   },
+  "addedSharedFolderId": {
+    "message": "Shared folder added $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
   "createdSharedFolderId": {
     "message": "Created shared folder $ID$.",
     "placeholders": {
@@ -9538,6 +9548,33 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
+  },
+  "keyboardShortcut": {
+    "message": "Keyboard shortcut"
+  },
+  "appAutofillShortcut": {
+    "message": "App autofill shortcut"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Members can change this keyboard shortcut at any time."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Use the Bitwarden default shortcut: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Enter your own custom shortcut."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Include Ctrl, Alt, or Win and at least 1 letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "disableSend": {
     "message": "Remove Send"
@@ -13655,6 +13692,28 @@
   },
   "recoverAccount": {
     "message": "Recover account"
+  },
+  "recover": {
+    "message": "Recover",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Recover account for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "No actions for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
   },
   "recoverAccountWarning": {
     "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
@@ -18425,8 +18484,8 @@
   "separateDomainsWithComma": {
     "message": "Separate domains with a comma"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "searchDriversLicense": {
     "message": "Search licenses"
