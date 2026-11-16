@@ -1,8 +1,45 @@
 import { NotificationType } from "../../enums";
 
-import { AutoConfirmMemberNotification, NotificationResponse } from "./notification.response";
+import {
+  AutoConfirmMemberNotification,
+  NotificationResponse,
+  SyncCipherUserFieldsNotification,
+} from "./notification.response";
 
 describe("NotificationResponse", () => {
+  describe("SyncCipherUserFieldsNotification", () => {
+    it("parses the per-user fields payload", () => {
+      const notification = new NotificationResponse({
+        ContextId: "context-123",
+        Type: NotificationType.SyncCipherUserFields,
+        Payload: JSON.stringify({
+          Id: "cipher-id",
+          UserId: "user-id",
+          FolderId: "folder-id",
+          Favorite: true,
+          ArchivedDate: "2025-01-02T00:00:00.000Z",
+        }),
+      });
+
+      expect(notification.payload).toBeInstanceOf(SyncCipherUserFieldsNotification);
+      expect(notification.payload).toMatchObject({
+        id: "cipher-id",
+        userId: "user-id",
+        folderId: "folder-id",
+        favorite: true,
+        archivedDate: "2025-01-02T00:00:00.000Z",
+      });
+    });
+
+    it("defaults cleared fields to null and false", () => {
+      const payload = new SyncCipherUserFieldsNotification({ Id: "cipher-id", UserId: "user-id" });
+
+      expect(payload.folderId).toBeNull();
+      expect(payload.favorite).toBe(false);
+      expect(payload.archivedDate).toBeNull();
+    });
+  });
+
   describe("AutoConfirmMemberNotification", () => {
     it("should parse AutoConfirmMemberNotification payload", () => {
       const response = {

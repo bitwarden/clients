@@ -41,4 +41,6 @@ export enum NotificationType {
 
   RefreshApproverInbox = 28,
   RefreshAccessRequest = 29,
+
+  SyncCipherUserFields = 30,
 }

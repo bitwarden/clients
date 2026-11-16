@@ -35,13 +35,14 @@ import { KeyConnectorService } from "../../key-management/key-connector/abstract
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   SyncCipherNotification,
+  SyncCipherUserFieldsNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
 import { ProviderService } from "../../provider/abstractions/provider.service";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { SendType } from "../../tools/send/types/send-type";
-import { UserId } from "../../types/guid";
+import { CipherId, UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -1251,6 +1252,59 @@ describe("DefaultSyncService", () => {
       expect(result).toBe(false);
       expect(cipherService.get).not.toHaveBeenCalled();
       expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("syncCipherUserFields", () => {
+    const cipherId = Utils.newGuid();
+    const folderId = Utils.newGuid();
+    const archivedDate = "2025-01-02T00:00:00.000Z";
+
+    const notification = () =>
+      new SyncCipherUserFieldsNotification({
+        Id: cipherId,
+        UserId: user1,
+        FolderId: folderId,
+        Favorite: true,
+        ArchivedDate: archivedDate,
+      });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
+    });
+
+    it("applies the pushed fields to the stored cipher with no network call", async () => {
+      cipherService.updateUserFields.mockResolvedValue(true);
+
+      const result = await sut.syncCipherUserFields(notification(), user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.updateUserFields).toHaveBeenCalledWith(
+        cipherId as CipherId,
+        { folderId, favorite: true, archivedDate },
+        user1,
+      );
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+      expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedCipher", { cipherId });
+    });
+
+    it("ignores a cipher that is not stored locally", async () => {
+      cipherService.updateUserFields.mockResolvedValue(false);
+
+      const result = await sut.syncCipherUserFields(notification(), user1);
+
+      expect(result).toBe(false);
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+      expect(messageSender.send).not.toHaveBeenCalledWith("syncedUpsertedCipher", { cipherId });
+    });
+
+    it("does not update when the user is logged out", async () => {
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.LoggedOut));
+
+      const result = await sut.syncCipherUserFields(notification(), user1);
+
+      expect(result).toBe(false);
+      expect(cipherService.updateUserFields).not.toHaveBeenCalled();
     });
   });
 

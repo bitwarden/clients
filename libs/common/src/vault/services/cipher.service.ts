@@ -1192,6 +1192,26 @@ export class CipherService implements CipherServiceAbstraction {
     return res;
   }
 
+  async updateUserFields(
+    id: CipherId,
+    fields: Pick<CipherData, "folderId" | "favorite" | "archivedDate">,
+    userId: UserId,
+  ): Promise<boolean> {
+    // Checked before the write so a cipher that is not stored does not clear the cache.
+    const stored = await firstValueFrom(this.encryptedCiphersState(userId).state$);
+    if (stored?.[id] == null) {
+      return false;
+    }
+
+    await this.updateEncryptedCipherState((current) => {
+      if (current[id] != null) {
+        current[id] = { ...current[id], ...fields };
+      }
+      return current;
+    }, userId);
+    return true;
+  }
+
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
     const current = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
 

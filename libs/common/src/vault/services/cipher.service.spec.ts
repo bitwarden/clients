@@ -1881,6 +1881,42 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("updateUserFields", () => {
+    const id = cipherData.id as CipherId;
+    // Clears the folder, to show a cleared field overwrites the stored one.
+    const fields: Pick<CipherData, "folderId" | "favorite" | "archivedDate"> = {
+      folderId: undefined,
+      favorite: true,
+      archivedDate: "2025-01-02T00:00:00.000Z",
+    };
+    const state = () =>
+      firstValueFrom(stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).state$);
+
+    it.each([
+      ["full", undefined],
+      ["restricted", "{}"],
+    ])("sets only the user fields on a stored %s copy", async (_, partialData) => {
+      const stored = { ...cipherData, partialData } as CipherData;
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({ [id]: stored });
+
+      const result = await cipherService.updateUserFields(id, fields, userId);
+
+      expect(result).toBe(true);
+      expect((await state())[id]).toEqual({ ...stored, ...fields });
+    });
+
+    it("does not write or clear the cache when the cipher is not stored", async () => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({});
+      const clearCache = jest.spyOn(cipherService, "clearCache");
+
+      const result = await cipherService.updateUserFields(id, fields, userId);
+
+      expect(result).toBe(false);
+      expect(clearCache).not.toHaveBeenCalled();
+      expect(await state()).toEqual({});
+    });
+  });
+
   describe("replace (no upsert)", () => {
     // In order to set up initial state we need to manually update the encrypted state
     // which will result in an emission. All tests will have this baseline emission.
