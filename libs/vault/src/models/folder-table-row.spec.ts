@@ -23,7 +23,7 @@ describe("buildFolderRows", () => {
     ]);
   });
 
-  it("excludes trashed ciphers from the count but keeps archived ones", () => {
+  it("excludes trashed and archived ciphers from the count", () => {
     const rows = buildFolderRows(
       [folder("1", "Banking")],
       [
@@ -33,7 +33,7 @@ describe("buildFolderRows", () => {
       ],
     );
 
-    expect(rows[0].itemCount).toBe(2);
+    expect(rows[0].itemCount).toBe(1);
   });
 
   it("excludes the synthetic no-folder entry", () => {

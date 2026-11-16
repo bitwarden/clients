@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Aplikace (URI)"
+  "desktopApp": {
+    "message": "Aplikace pro počítač",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Aplikace (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Aplikace pro počítač $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5727,7 +5728,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "Děkujeme za registraci do Správce tajných klíčů Bitwarden s plánem $PLAN$!",
+    "message": "Děkujeme za registraci do Bitwarden Secrets Manager s plánem $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -5753,6 +5754,31 @@
   },
   "trialIncludesPrivilegedControls": {
     "message": "Vaše zkušební verze zahrnuje Privileged Controls."
+  },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls je dostupný přes prodejní tým Bitwardenu a není součástí této organizace."
+  },
+  "contactSales": {
+    "message": "Kontaktovat prodejní tým"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls je dostupný přes prodejní tým Bitwardenu. Kontaktujte prodejní tým pro jeho přidání do Vaší organizace."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "Pro změnu počtu uživatelů Provoleged Controls kontaktujte prodejní tým."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "Používá se $OCCUPIED$ z $TOTAL$ počtu uživatelů",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
   },
   "monthly": {
     "message": "Měsíčně"
@@ -6120,7 +6146,7 @@
     "message": "Webový trezor Bitwardenu"
   },
   "bitSecretsManager": {
-    "message": "Správce tajných klíčů Bitwarden"
+    "message": "Bitwarden Secrets Manager"
   },
   "loggedIn": {
     "message": "Přihlášen"
@@ -7819,10 +7845,22 @@
     "message": "Nastavte limit počtu uživatelů pro Vaše předplatné. Jakmile tohoto limitu dosáhnete, nebudete moci pozvat nové členy."
   },
   "limitSmSubscriptionDesc": {
-    "message": "Nastavte limit počtu uživatelů pro předplatné do Správce tajných klíčů. Jakmile tohoto limitu dosáhnete, nebudete moci pozvat nové členy."
+    "message": "Nastavte limit počtu uživatelů pro předplatné do Secrets Manager. Jakmile tohoto limitu dosáhnete, nebudete moci pozvat nové členy."
   },
   "limitPrivilegedControlsSubscriptionDesc": {
     "message": "Nastavte limit počtu licencí pro své předplatné služby Privileged Controls. Jakmile bude tento limit vyčerpán, nebudete moci členům udělovat přístup k službě Privileged Controls."
+  },
+  "removePrivilegedControls": {
+    "message": "Odebrat Privileged Controls",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Každý uživatel ve Vaší organizaci ztratí přístup k Privileged Controls. Opravdu chcete pokračovat?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls byly odebrány",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
   },
   "maximumSeatsCount": {
     "message": "Maximálně $COUNT$ uživatelů",
@@ -7870,7 +7908,7 @@
     "message": "Předplatné bylo aktualizováno"
   },
   "subscribedToSecretsManager": {
-    "message": "Předplatné bylo aktualizováno. Nyní máte přístup ke Správci tajných klíčů."
+    "message": "Předplatné bylo aktualizováno. Nyní máte přístup k Secrets Manager."
   },
   "additionalOptions": {
     "message": "Další volby"
@@ -8435,6 +8473,9 @@
   "viewApiKey": {
     "message": "Zobrazit klíč API"
   },
+  "copyApiKey": {
+    "message": "Kopírovat klíč API"
+  },
   "rotateApiKey": {
     "message": "Měnit klíč API"
   },
@@ -8966,14 +9007,34 @@
     "message": "Kopírovat odkaz pro Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Odebrat heslo nebo ověření e-mailu"
+  },
+  "removedAuth": {
+    "message": "Heslo nebo ověření e-mailu bylo odebráno"
+  },
+  "removeAuthConfirmation": {
+    "message": "Opravdu chcete odebrat požadavek na heslo nebo ověření e-mailu z tohoto Send?"
+  },
   "removePassword": {
     "message": "Odebrat heslo"
+  },
+  "removeEmailVerification": {
+    "message": "Odebrat ověření e-mailu"
   },
   "removedPassword": {
     "message": "Heslo bylo odebráno"
   },
-  "removePasswordConfirmation": {
-    "message": "Opravdu chcete odebrat heslo?"
+  "removedEmailVerification": {
+    "message": "Ověření e-mailu bylo odebráno"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Opravdu chcete odebrat požadavek na heslo z tohoto Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Opravdu chcete odebrat požadavek na ověření e-mailu z tohoto Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Všechny Sends"
@@ -9424,6 +9485,24 @@
       }
     }
   },
+  "sentInviteReminderToUserId": {
+    "message": "Odesláno připomenutí pozvánky uživateli $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "Znovu odesláno pozvání uživateli $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Systém"
   },
@@ -9738,7 +9817,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
   "developmentDevOpsAndITTeamsChooseBWSecret": {
-    "message": "Vývojáři i IT týmy si vybírají Správce tajných klíčů Bitwarden pro bezpečnou správu a nasazení do jejich své infrastruktury a tajných klíčů."
+    "message": "Vývojáři i IT týmy si vybírají Bitwarden Secrets Manager pro bezpečnou správu a nasazení do jejich své infrastruktury a tajných klíčů."
   },
   "centralizeSecretsManagement": {
     "message": "Centralizujte správu tajných klíčů."
@@ -9774,28 +9853,28 @@
     "message": "Přidat poznámku"
   },
   "bitwardenSecretsManager": {
-    "message": "Správce tajných klíčů Bitwarden"
+    "message": "Bitwarden Secrets Manager"
   },
   "moreProductsFromBitwarden": {
     "message": "Více produktů od Bitwardenu"
   },
   "requestAccessToSecretsManager": {
-    "message": "Požádat o přístup ke Správci tajných klíčů"
+    "message": "Požádat o přístup do Secrets Manager"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
-    "message": "Potřebujete schválení správce, abyste mohli vyzkoušet Správce tajných klíčů."
+    "message": "Potřebujete schválení správce, abyste mohli vyzkoušet Secrets Manager."
   },
   "smAccessRequestEmailSent": {
-    "message": "Žádost o přístup ke Správci tajných klíčů byla odeslána e-mailem správcům."
+    "message": "Žádost o přístup do Secrets Manager byla odeslána e-mailem správcům."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Zdravím,\n\nžádám o předplatné Správce tajných klíčů Bitwarden pro náš tým. Vaše podpora by pro nás znamenala mnoho!\n\nSprávce tajných klíčů Bitwarden je end-to-end řešení pro správu šifrovaných tajných klíčů pro bezpečné ukládání, sdílení a nasazení strojových pověření, jako jsou klíče API, databázová hesla a ověřovací certifikáty.\n\nSprávce klíčů nám pomůže:\n\n- zlepšit zabezpečení\n- zjednodušit provoz\n- zabránit nákladným únikům tajných klíčů\n\nChcete-li požádat o bezplatnou zkušební verzi pro náš tým, obraťte se na společnost Bitwarden.\n\nDěkujeme Vám za pomoc!"
+    "message": "Zdravím,\n\nžádám o předplatné Bitwarden Secrets Manager pro náš tým. Vaše podpora by pro nás znamenala mnoho!\n\nBitwarden Secrets Manager je end-to-end řešení pro správu šifrovaných tajných klíčů pro bezpečné ukládání, sdílení a nasazení strojových pověření, jako jsou klíče API, databázová hesla a ověřovací certifikáty.\n\nSecrets Manager nám pomůže:\n\n- zlepšit zabezpečení\n- zjednodušit provoz\n- zabránit nákladným únikům tajných klíčů\n\nChcete-li požádat o bezplatnou zkušební verzi pro náš tým, obraťte se na společnost Bitwarden.\n\nDěkujeme Vám za pomoc!"
   },
   "giveMembersAccess": {
     "message": "Umožnit členům přístup:"
   },
   "viewAndSelectTheMembers": {
-    "message": "zobrazit a vybrat členy, kterým chcete povolit přístup do Správce tajných klíčů."
+    "message": "zobrazit a vybrat členy, kterým chcete povolit přístup do Secrets Manager."
   },
   "openYourOrganizations": {
     "message": "Otevřít"
@@ -12824,7 +12903,7 @@
     "message": "Exportování tajných dat organizace"
   },
   "exportingOrganizationSecretDataDescription": {
-    "message": "Exportována budou jen data Správce tajných klíčů přidružená k položce $ORGANIZATION$. Položky v ostatních produktech a položky z jiných organizací nebudou zahrnuty.",
+    "message": "Exportována budou jen data Secrets Manager přidružená k položce $ORGANIZATION$. Položky v ostatních produktech a položky z jiných organizací nebudou zahrnuty.",
     "placeholders": {
       "ORGANIZATION": {
         "content": "$1",
@@ -12932,19 +13011,102 @@
     "message": "Skupina/Uživatel"
   },
   "secretsManager": {
-    "message": "Správce tajných klíčů"
+    "message": "Secrets Manager"
   },
   "secretsManagerAccessDescription": {
-    "message": "Aktivuje přístup uživatele ke Správci tajných klíčů."
+    "message": "Aktivuje přístup uživatele do Secrets Manager."
   },
   "grantSecretsManager": {
-    "message": "Udělit přístup ke Správci tajných klíčů"
+    "message": "Udělit přístup do Secrets Manager"
   },
   "userAccessSecretsManagerGA": {
-    "message": "Tento uživatel může přistupovat ke Správci tajných klíčů"
+    "message": "Tento uživatel může přistupovat k Secrets Manager"
+  },
+  "products": {
+    "message": "Produkty"
   },
   "privilegedControls": {
     "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "S tímto doplňkem pro správce hesel Bitwarden můžete rychle a snadno zabezpečit své privilegované a pro podnikání klíčové účty.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Pronájem přihlašovacích údajů"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Pokročilá přístupová pravidla"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Automatická rotace hesla"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Protokoly o auditu připravené v souladu s právními předpisy"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Řídicí panel"
+  },
+  "addPrivilegedControls": {
+    "message": "Přidat Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Limit uživatelů",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "Co je obsaženo"
+  },
+  "pricePerMember": {
+    "message": "$COST$ za uživatele",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Počet uživatelů nemůže být větší než počet uživatelů ve správci hesel ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Limit uživatelů nemůže být větší než počet uživatelů ve správci hesel ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Limit uživatelů nemůže být větší než limit uživatelů ve správci hesel ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Nastavte limit počtu licencí pro své předplatné služby Privileged Controls. Jakmile bude tento limit dosažen, nebudete moci více členům udělovat přístup k službě Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Maximální počet uživatelů musí být větší než počet uživatelů."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Předplatné aktualizováno. Nyní máte Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13206,7 +13368,7 @@
     "description": "Link to a downloadable resource. This will be used as part of a larger phrase. Example: Download the Secrets Manager CLI"
   },
   "smCLI": {
-    "message": "CLI Správce tajných klíčů"
+    "message": "CLI Secrets Manager"
   },
   "importSecrets": {
     "message": "Importovat tajné klíče"
@@ -13215,7 +13377,7 @@
     "message": "Začínáme"
   },
   "getStartedWithSecretsManager": {
-    "message": "Začínáme se Správcem tajných klíčů"
+    "message": "Začínáme se Secrets Manager"
   },
   "smOnboardingChecklistSubtitle": {
     "message": "Dokončete tyto kroky a začněte spravovat tajné klíče Vašeho týmu"
@@ -13522,7 +13684,7 @@
     "message": "Uživatel obnoví své hlavní heslo prostřednictvím obnovy účtu."
   },
   "activatedAccessToSecretsManager": {
-    "message": "Aktivován přístup uživatele ke Správci tajných klíčů",
+    "message": "Aktivován přístup uživatele do Secrets Manager",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activatedAccessToPrivilegedControls": {
@@ -13533,7 +13695,7 @@
     "message": "Aktivovat přístup"
   },
   "bulkEnableSecretsManagerDescription": {
-    "message": "Udělte následujícím členům přístup ke Správci tajných klíčů. Role udělená ve Správci hesel se bude vztahovat na Správce tajných klíčů.",
+    "message": "Udělte následujícím členům přístup do Secrets Manager. Role udělená ve Správci hesel se bude vztahovat na Secrets Manager.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "bulkEnablePrivilegedControlsDescription": {
@@ -13541,7 +13703,7 @@
     "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
   },
   "activateSecretsManager": {
-    "message": "Aktivovat Správce tajných klíčů"
+    "message": "Aktivovat Secrets Manager"
   },
   "activatePrivilegedControls": {
     "message": "Aktivovat Privileged Controls",
@@ -13651,7 +13813,7 @@
     }
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
-    "message": "Začněte 7denní bezplatnou zkušební verzi Správce tajných klíčů Bitwarden pro $ORG$",
+    "message": "Začněte 7denní bezplatnou zkušební verzi Bitwarden Secrets Manager pro $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -13698,23 +13860,8 @@
   "inviteUsers": {
     "message": "Pozvat uživatele"
   },
-  "secretsManagerForPlan": {
-    "message": "Správce tajných klíčů pro $PLAN$",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "Pro inženýrské týmy a týmy DevOps ke správě klíčů v celém životním cyklu vývoje softwaru."
-  },
-  "free2PersonOrganization": {
-    "message": "Zdarma a organizace do 2 osob"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Bezplatný plán se sdíleným trezorem"
+  "secretsManagerPurchaseDesc": {
+    "message": "Umožněte svým technickým a DevOps týmům centrálně ukládat, spravovat a nasazovat tajné údaje v průběhu celého životního cyklu vývoje softwaru."
   },
   "unlimitedSecrets": {
     "message": "Neomezené klíče"
@@ -13749,11 +13896,12 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "Používat Správce tajných klíčů"
+  "addSecretsManager": {
+    "message": "Přidat Secrets Manager",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
-    "message": "Přidáním Správce tajných klíčů k aktualizovanému plánu si zachováte přístup ke všem klíčům vytvořeným v předchozím plánu."
+    "message": "Přidáním Secrets Manager k aktualizovanému plánu si zachováte přístup ke všem klíčům vytvořeným v předchozím plánu."
   },
   "additionalServiceAccounts": {
     "message": "Další účty služby"
@@ -13830,7 +13978,7 @@
     "message": "Cena předplatného Správce hesel"
   },
   "secretsManagerPlanPrice": {
-    "message": "Cena předplatného Správce tajných klíčů"
+    "message": "Cena předplatného Secrets Manager"
   },
   "privilegedControlsPlanPrice": {
     "message": "Cena plánu Privileged Controls",
@@ -14201,7 +14349,7 @@
     "message": "Detaily potvrzení"
   },
   "smFreeTrialThankYou": {
-    "message": "Děkujeme za registraci do Správce tajných klíčů Bitwarden!"
+    "message": "Děkujeme za registraci do Bitwarden Secrets Manager!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Potvrzovací e-mail byl odeslán na "
@@ -14646,15 +14794,6 @@
   "smAccessRemovalWarningMaMessage": {
     "message": "Tato akce odebere Váš přístup ke strojovému účtu."
   },
-  "machineAccountsIncluded": {
-    "message": "Zahrnuto $COUNT$ strojových účtů",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "additionalMachineAccountCost": {
     "message": "Pro další strojové účty $COST$ měsíčně",
     "placeholders": {
@@ -14762,13 +14901,13 @@
     "message": "Integrace"
   },
   "integrationsDesc": {
-    "message": "Automaticky synchronizuje tajné klíče se Správce tajných klíčů Bitwarden do služby třetí strany."
+    "message": "Automaticky synchronizuje tajné klíče s Bitwarden Secrets Manager do služby třetí strany."
   },
   "sdks": {
     "message": "SDK"
   },
   "sdksDesc": {
-    "message": "Použije SDK Správce tajných klíčů Bitwarden v následujících programovacích jazycích k vytvoření vlastních aplikací."
+    "message": "Použije SDK Bitwarden Secrets Manager v následujících programovacích jazycích k vytvoření vlastních aplikací."
   },
   "ssoDescStart": {
     "message": "Nastavit",
@@ -15042,10 +15181,10 @@
     "message": "Pokračujte v nastavení bezplatného zkušebního období Správce hesel Bitwarden"
   },
   "continueSettingUpSecretsManager": {
-    "message": "Pokračujte v nastavení Správce tajných klíčů Bitwarden"
+    "message": "Pokračujte v nastavení Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
-    "message": "Pokračujte v nastavení bezplatného zkušebního období Správce tajných klíčů Bitwarden"
+    "message": "Pokračujte v nastavení bezplatného zkušebního období Bitwarden Secrets Manager"
   },
   "enterTeamsOrgInfo": {
     "message": "Zadejte informace o Teams Vaší organizace"
@@ -15131,7 +15270,7 @@
     }
   },
   "getSecretsManager": {
-    "message": "Získat správce tajných klíčů"
+    "message": "Získat Secrets Manager"
   },
   "secureYourInfrastructure": {
     "message": "Zabezpečte Vaši infrastrukturu"
@@ -15639,7 +15778,7 @@
     "message": "Aktuální"
   },
   "secretsManagerSubscriptionInfo": {
-    "message": "Vaše předplatné Správce tajných klíčů bude aktualizováno na základě vybraného tarifu"
+    "message": "Vaše předplatné Secrets Manager bude aktualizováno na základě vybraného tarifu"
   },
   "bitwardenPasswordManager": {
     "message": "Správce hesel Bitwarden"
@@ -16806,7 +16945,7 @@
     "message": "Další strojové účty"
   },
   "secretsManagerSeats": {
-    "message": "Uživatelé Správce tajných klíčů"
+    "message": "Uživatelé Secrets Manager"
   },
   "additionalStorage": {
     "message": "Další úložiště"
@@ -18352,29 +18491,23 @@
   "pamTabHistory": {
     "message": "Historie"
   },
-  "pamAccessRequestsSearchPlaceholder": {
-    "message": "Najít přihlašovací údaje, sbírku, žadatele"
-  },
-  "pamCollectionFilter": {
-    "message": "Sbírka"
-  },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Žádosti o prodloužení"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Aktivní přístup"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "Žádný aktivní přístup"
+  "pamMyRequestsLoaded": {
+    "message": "Žádosti byly načteny"
   },
   "pamMyRequestsLoadError": {
     "message": "Vaše žádosti se nepodařilo načíst"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "Čekající"
+  "pamStatusInUse": {
+    "message": "Používá se",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsPendingEmpty": {
-    "message": "Žádné čekající žádosti"
+  "pamStatusEndingSoon": {
+    "message": "Brzy končí",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "Žádné sdílené složky k filtrování podle",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
   },
   "pamMyRequestsEmptyTitle": {
     "message": "Nemáte žádné žádosti"
@@ -18409,12 +18542,63 @@
   "pamColumnActions": {
     "message": "Akce"
   },
-  "pamWindowUntil": {
-    "message": "Do $DATE$",
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ do $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "Do $END$",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "Vyprší $DATE$ v $TIME$",
     "placeholders": {
       "date": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Vyprší dnes v $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
       }
     }
   },
@@ -18449,17 +18633,14 @@
   "pamResolverUnknown": {
     "message": "Neznámý uživatel"
   },
-  "pamInboxInCollection": {
-    "message": "v $COLLECTION$",
+  "pamInboxInSharedFolder": {
+    "message": "v: $COLLECTION$",
     "placeholders": {
       "collection": {
         "content": "$1",
         "example": "Production"
       }
     }
-  },
-  "pamInboxReason": {
-    "message": "Důvod"
   },
   "pamInboxReasonMissing": {
     "message": "Nebyl uveden žádný důvod"
@@ -18470,32 +18651,11 @@
   "pamInboxRequester": {
     "message": "Žadatel"
   },
-  "pamInboxDurationMinutes": {
-    "message": "$MINUTES$ min.",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
-  },
   "pamStartLeaseButton": {
     "message": "Spustit přístup"
   },
   "pamStartLeaseSuccess": {
     "message": "Přístup byl zahájen."
-  },
-  "pamInboxDuration1Hour": {
-    "message": "1 hodina"
-  },
-  "pamInboxDurationHours": {
-    "message": "$HOURS$ hodin",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "4"
-      }
-    }
   },
   "pamInboxStartAsap": {
     "message": "začíná nyní"
@@ -18536,8 +18696,8 @@
   "pamEndLeaseSuccess": {
     "message": "Přístup byl ukončen."
   },
-  "pamExtendLeaseButton": {
-    "message": "Prodloužit"
+  "pamExtendLeaseButtonV2": {
+    "message": "Prodloužit přístup"
   },
   "pamExtendLeaseDialogTitle": {
     "message": "Prodloužit přístup"
@@ -18621,6 +18781,10 @@
     "message": "Aktivní",
     "description": "Controlled access filter option in the vault table: items with an active access session."
   },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Brzy končí",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
+  },
   "pamAuditKindAccessEndedByRequester": {
     "message": "Přístup skončil zadavatelem"
   },
@@ -18648,6 +18812,40 @@
       "days": {
         "content": "$1",
         "example": "90"
+      }
+    }
+  },
+  "pamAuditCustomRange": {
+    "message": "$START$ - $END$",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "Od $START$",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "Do $END$",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
       }
     }
   },
@@ -18684,8 +18882,8 @@
   "pamAuditIncomplete": {
     "message": "Nekompletní"
   },
-  "pamAuditIncompleteTooltip": {
-    "message": "Tato akce byla zaznamenána, ale její výsledek nebyl nikdy potvrzen - možná selhal nebo byl přerušen."
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "Tato akce byla zaznamenána, ale její výsledek nebyl nikdy potvrzen. Možná selhal nebo byl přerušen."
   },
   "pamAuditKindRequestSubmitted": {
     "message": "Vyžádán přístup"
@@ -18753,11 +18951,71 @@
   "pamAccessRequestDetailsTitle": {
     "message": "Podrobnosti žádosti"
   },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Podrobnosti",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
   "pamAccessRequestLeaseTitle": {
     "message": "Přístup"
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "Log rozhodnutí"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Rozhodnutí",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Schváleno",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Zamítnuto",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Odvoláno",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Ukončeno",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "E-mail",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Poznámka k rozhodnutí",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Zahájit relaci",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "Ukončit relaci",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "Systém (automaticky)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Odeslat novou žádost",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Důvod",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Zobrazeno žadateli v jeho protokolu rozhodnutí.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Zachovejte stručnost. Žadatel to přímo čte.",
+    "description": "Hint under the withdrawal reason field."
   },
   "pamAccessRequestNotFound": {
     "message": "Žádost o přístup není dostupná"
@@ -18768,36 +19026,83 @@
   "pamAccessRequestLoadError": {
     "message": "Tuto žádost o přístup nelze načíst."
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "Máte aktivní přístup k této položce - zbývá $DURATION$",
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Přístup je aktivní • zbývá $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "23m"
+        "example": "20 days"
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Přístup k této položce končí brzy - zbývá $DURATION$",
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Brzy končí • zbývá $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "4m"
+        "example": "4 minutes"
       }
     }
   },
   "pamPendingRequestBannerHeading": {
     "message": "Žádost o přístup čeká na schválení"
   },
-  "pamApprovedRequestBannerHeading": {
-    "message": "Přístup byl schválen"
+  "pamPendingSubmittedJustNow": {
+    "message": "Právě odesláno"
   },
-  "pamApprovedRequestBannerDuration": {
-    "message": "$DURATION$ přístupu",
+  "pamPendingSubmittedAgo": {
+    "message": "Odesláno $WHEN$",
     "placeholders": {
-      "duration": {
+      "when": {
         "content": "$1",
-        "example": "1 hour"
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Oprávněná pověření"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Je nutná licence pro Privileged Controls",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Žádost o použití"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Váš přístup skončil"
+  },
+  "pamEndedBannerBody": {
+    "message": "Pronájem tohoto pověření vypršel. Toto pověření bude rotováno nyní, když Váš přístup skončil."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Aktuálně nemůžete požádat o přístup"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Toto pravidlo pro přístup neumožňuje žádosti z aktuální sítě nebo v tuto dobu."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Připraveno k použití"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "K tomuto pověření můžete přistupovat až do dnešních $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "K tomuto pověření můžete přistupovat až do $TIME$ $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
       }
     }
   },
@@ -18807,17 +19112,17 @@
   "pamRequestAccessBannerHeading": {
     "message": "Můžete požádat o přístup"
   },
-  "pamUnlicensedBannerHeading": {
-    "message": "Je vyžadována licence pro Privileged Controls",
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Pro použití této položky potřebujete licenci Privileged Controls",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
-  },
-  "pamUnlicensedBannerBody": {
-    "message": "Pro zobrazení této položky musíte mít licenci Privileged Controls. Požádejte svého správce, aby aktivoval licenci.",
-    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
     "message": "Žádost o přístup není dostupná, pokud není licence.",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Požádejte správce, aby aktivoval licenci.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Schválené přístupové okno ještě nezačalo."
@@ -18896,7 +19201,7 @@
     "message": "Tímto se Vaše žádost stáhne ještě předtím, než o ní schvalovatel rozhodne. Novou žádost můžete podat kdykoli."
   },
   "pamCancelRequestApprovedConfirm": {
-    "message": "Tímto se vzdá přístupu, který již byl schválen. Můžete odeslat nový požadavek, ale bude třeba jej znovu schválit."
+    "message": "Tímto se vzdá přístupu, který již byl schválen. Můžete odeslat novou žádost, ale bude třeba ji znovu schválit."
   },
   "pamCancelRequestCanceledToast": {
     "message": "Žádost byla zrušena"
@@ -18904,8 +19209,8 @@
   "pendingStateCancelError": {
     "message": "Nelze zrušit žádost."
   },
-  "requestAccessModalSubmit": {
-    "message": "Žádost o přístup"
+  "requestAccessModalSubmitV2": {
+    "message": "Odeslat žádost"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Vyberte dobu trvání. Získáte okamžitý přístup na tuto dobu."
@@ -18913,8 +19218,14 @@
   "requestAccessModalHumanDescription": {
     "message": "Vyberte okno a zdůvodněte schvalovateli, proč potřebujete přístup. Bude provedena kontrola a vydáno rozhodnutí."
   },
-  "requestAccessModalDuration": {
-    "message": "Doba trvání"
+  "requestAccessModalDurationV2": {
+    "message": "Na jak dlouho to potřebujete?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Po schválení obdržíte oznámení. Váš čas se počítá až poté, co začnete používat tyto přihlašovací údaje."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Podrobnosti žádosti"
   },
   "requestAccessModalStartDate": {
     "message": "Datum začátku"
@@ -18994,20 +19305,20 @@
       }
     }
   },
-  "requestAccessModalReasonRequired": {
-    "message": "Důvod"
-  },
-  "requestAccessModalReasonOptional": {
-    "message": "Důvod (volitelný)"
-  },
-  "requestAccessModalReasonPlaceholder": {
+  "requestAccessModalReasonRequiredV2": {
     "message": "Proč to potřebujete?"
   },
-  "requestAccessModalAutomaticReasonHint": {
-    "message": "Tento důvod je uložen s Vaší žádostí o přístup."
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Proč to potřebujete?"
   },
-  "requestAccessModalHumanReasonHint": {
-    "message": "Schvalovatelé uvidí tento důvod při přezkumu vaší žádosti."
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "např. čtvrtletní audit, musím spustit několik dotazů jen pro čtení"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Viditelné pro Vašeho schvalovatele a uloženo do protokolu auditu."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Viditelné pro Vašeho schvalovatele a uloženo do protokolu auditu."
   },
   "requestAccessModalGenericError": {
     "message": "Nelze požádat o přístup. Zkuste to znovu."
@@ -19015,32 +19326,23 @@
   "requestAccessModalAlreadyActive": {
     "message": "Již máte aktivní přístup k této položce."
   },
-  "requestAccessModalApprovedSuccess": {
-    "message": "Přístup byl schválen - zvolte začátek přísupu pro spuštění."
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Přístup byl schválen - zvolte \"Spusti přístup\" pro spuštění."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "Žádost odeslána - čeká na schválení."
-  },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "Žádný aktivní přístup"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Aktivní přístup"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Sbírka"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "Žádné žádosti čekající na Vaše rozhodnutí"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Čeká na schválení"
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Vyžádán přístup"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Žadatel"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Najít přihlašovací údaje, sbírku, žadatele"
+  "pamApprovalsApproveRequest": {
+    "message": "Schválit žádost"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Odmítnout žádost"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Zrušit přístup"
   },
   "pamDecideAdditionalInformation": {
     "message": "Další informace"
@@ -19080,12 +19382,6 @@
   },
   "pamInboxCommentPlaceholder": {
     "message": "Přidat volitelný komentář"
-  },
-  "pamInboxConfirmApproveButton": {
-    "message": "Schválit žádost"
-  },
-  "pamInboxConfirmDenyButton": {
-    "message": "Odmítnout žádost"
   },
   "pamInboxDecisionFailed": {
     "message": "Nelze zaznamenat rozhodnutí"
@@ -19153,11 +19449,8 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Schválení nelze zrušit"
   },
-  "pamInboxWindow": {
-    "message": "Požadované okno"
-  },
-  "pamApprovalsNoResults": {
-    "message": "Vašim filtrům neodpovídají žádné požadavky na přístup."
+  "pamAccessRequestsNoResults": {
+    "message": "Vašim filtrům neodpovídají žádné žádosti o přístup."
   },
   "pamApprovalsLoaded": {
     "message": "Přístupové požadavky byly načteny"
@@ -19173,6 +19466,20 @@
   },
   "pamInboxRevokeConfirm": {
     "message": "To okamžitě zruší přístup člena. K jeho získání budou potřebovat nové schválení."
+  },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "Tímto se ruší schválení pro položku $ITEM$. Přístup se nespustí a $REQUESTER$ bude potřebovat nové schválení, aby jej získal.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
   },
   "pamWithdrawApprovalWarningOne": {
     "message": "Toto odebere Vaše schválení pro",
@@ -19225,9 +19532,9 @@
   "pamAccessRules": {
     "message": "Pravidla přístupu"
   },
-  "pamCollectionRequiresRequest": {
-    "message": "Položky v této sbírce vyžadují žádost.",
-    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+  "pamSharedFolderRequiresRequest": {
+    "message": "Položky v této sdílené složce vyžadují žádost.",
+    "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
   },
   "pamGatedCollectionBannerName": {
     "message": "Privilegovaný přístup",
@@ -19291,11 +19598,11 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "Volitelné podmínky"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Vybrat sbírky"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Vybrat sdílené složky"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "Toto pravidlo pro přístup bude platit pro všechny vybrané sbírky."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "Toto pravidlo pro přístup bude platit pro všechny vybrané sdílené složky."
   },
   "pamAccessRuleEventLogNotice": {
     "message": "Všechny žádosti a rozhodnutí jsou zaznamenány."
@@ -19303,8 +19610,8 @@
   "pamAccessRuleViewAuditLog": {
     "message": "Zobrazit log auditu"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Nelze načíst sbírky. Aktualizujte stránku a zkuste to znovu."
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Nelze načíst sdílené složky. Aktualizujte stránku a zkuste to znovu."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "Tato doba bude v žádostech o přístup předvyplněna."
@@ -19323,36 +19630,6 @@
   },
   "pamAccessRuleMaxDurationLimitHint": {
     "message": "Přístup je omezen na tuto délku, bez ohledu na dobu trvání."
-  },
-  "pamAccessRuleDuration15m": {
-    "message": "15 minut"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 minut"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 hodina"
-  },
-  "pamAccessRuleDuration2h": {
-    "message": "2 hodiny"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 hodiny"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 hodin"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 den"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 dny"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 dnů"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 dnů"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "V daném okamžiku může mít aktivní přístup jen jeden uživatel"
@@ -19381,8 +19658,8 @@
   "pamAccessRuleApprovers": {
     "message": "Schvalovatelé"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Správci sbírek"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Manažeři sdílených složek"
   },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (kopie)",
@@ -19407,8 +19684,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Kopie vytvořena. Vyberte sbírky, na které se vztahuje."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Kopie vytvořena. Vyberte sdílené složky, na které se vztahuje."
   },
   "pamAccessRuleCreated": {
     "message": "Přístupové pravidlo bylo vytvořeno."
@@ -19422,8 +19699,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Smazat přístupové pravidlo?"
   },
-  "pamAccessRuleDeleteConfirmDescription": {
-    "message": "Toto trvale odebere toto pravidlo. Uživatelé ve sbírkách, které pravidlo spravuje, získají zpět normální přístup."
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "Toto trvale odebere toto pravidlo. Uživatelé ve sdílených složkách, které pravidlo spravuje, získají zpět normální přístup."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Deaktivovat přístupové pravidlo"
@@ -19440,11 +19717,11 @@
   "pamAccessRuleErrorNameTaken": {
     "message": "Tento název již používá jiné pravidlo. Zadejte jiný název."
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Jedna z těchto sbírek již podléhá jinému přístupovému pravidlu. Vyberte jiné sbírky."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Jedna z těchto sdílených složek již podléhá jinému přístupovému pravidlu. Vyberte jiné sdílené složky."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "Na $COLLECTIONS$ se již vztahuje jiné přístupové pravidlo. Vyberte jiné sbírky.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "Na $COLLECTIONS$ se již vztahuje jiné přístupové pravidlo. Vyberte jiné sdílené složky.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -19452,11 +19729,11 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "Jedna ze sbírek, které jste vybrali, již neexistuje. Vyberte jinou sbírku."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "Jedna z Vámi vybraných sdílených složek již neexistuje. Vyberte jinou sdílenou složku."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "Jedna z Vámi vybraných sbírek nepatří k této organizaci. Vyberte jinou sbírku."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "Jedna z Vámi sdílených složek nepatří k této organizaci. Vyberte jinou sdílenou složku."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "Vyberte maximální délku rozšíření nebo vypněte rozšíření."
@@ -19467,8 +19744,8 @@
   "pamNoAccessRulesYetTitle": {
     "message": "Zatím žádná pravidla přístupu"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Vytvořte pravidlo pro přidání další ochrany do citlivých sbírek."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Vytvořte pravidlo pro přidání další ochrany do citlivých sdílených složek."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Vytvořit vlastní pravidlo"
@@ -19506,17 +19783,17 @@
   "pamTemplateIpRestrictedName": {
     "message": "Omezený přístup IP"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Sbírky"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Sdílené složky"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Nepřiřazeno"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 sbírka"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 sdílená složka"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ sbírek",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ sdílených složek",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -19814,7 +20091,7 @@
     "message": "Poměrný poplatek za úložiště"
   },
   "secretsManagerProratedCharge": {
-    "message": "Poměrný poplatek za správce tajných kódů"
+    "message": "Poměrný poplatek za Secrets Manager"
   },
   "privilegedControlsProratedCharge": {
     "message": "Poměrná částka Privileged Controls",
@@ -19900,9 +20177,6 @@
   },
   "pamRotation": {
     "message": "Rotace"
-  },
-  "pamRotationSubtitle": {
-    "message": "Přidejte spravované přihlašovací údaje a cílové systémy, ve kterých se tyto údaje nacházejí. Poté zaregistrujte přístupové konektory, které budou běžet ve Vaší síti a provádět rotaci. Po dokončení nastavení lze přihlašovací údaje na cílových systémech automaticky obměňovat."
   },
   "pamRotationTabManagedCredentials": {
     "message": "Spravované přihlašovací údaje"
@@ -20041,6 +20315,50 @@
       }
     }
   },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Každý den v $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "Každých $COUNT$ dnů v $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Každý den v $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "Každých $COUNT$ měsíců v $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
   "pamRotationScheduleTimezoneHint": {
     "message": "Naplánuje běh v UTC, ne v místní časové zóně."
   },
@@ -20074,20 +20392,14 @@
   "pamTargetSystemNew": {
     "message": "Nový cílový systém"
   },
-  "pamTargetSystemSearch": {
-    "message": "Hledat cílové systémy"
-  },
-  "pamTargetSystemMethodColumn": {
-    "message": "Metoda"
-  },
   "pamTargetSystemTypeColumn": {
     "message": "Typ"
   },
-  "pamTargetSystemSessionTerminationColumn": {
-    "message": "Ukončení relace"
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Spravované přihlašovací údaje"
   },
-  "pamTargetSystemSessionTerminationYes": {
-    "message": "Podporováno"
+  "pamTargetSystemNone": {
+    "message": "Žádné"
   },
   "pamTargetSystemSessionTerminationNo": {
     "message": "Nepodporováno"
@@ -20110,11 +20422,11 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden automaticky rotuje tajný klíč aplikace Microsoft Entra ID."
   },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden automaticky rotuje heslo k doménovému účtu na serveru Active Directory, který máte spuštěn."
+  },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
     "message": "Bitwarden automaticky rotuje přihlašovací údaje spuštěním skriptu na registrovaném přístupovém konektoru."
-  },
-  "pamTargetSystemNoFilterResults": {
-    "message": "Vašim filtrům neodpovídají žádné cílové systémy."
   },
   "pamTargetSystemEditTarget": {
     "message": "Upravit cílový systém"
@@ -20143,6 +20455,12 @@
   "pamTargetSystemAssignConnectorNoOptions": {
     "message": "Všechny aktivní přístupové konektory jsou již přiřazeny k tomuto cílovému systému."
   },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Jen pro automatickou rotaci."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Nejprve odeberte jeho spravované přihlašovací údaje."
+  },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Přístupové konektory lze přiřadit jen k cílovým systémům nastaveným na automatickou rotaci."
   },
@@ -20152,14 +20470,11 @@
   "pamTargetSystemAssignConnectorNone": {
     "message": "Neexistují žádné aktivní přístupové konektory k přiřazení. Zaregistrujte se na záložce Přístupové konektory nebo aktivujte existující."
   },
-  "pamTargetSystemAssignGoToConnectors": {
-    "message": "Přejít na přístupové konektory"
+  "pamTargetSystemDeactivateDialogTitle": {
+    "message": "Deaktivovat cílový systém"
   },
-  "pamTargetSystemDeactivateTitle": {
-    "message": "Deaktivovat cílový systém?"
-  },
-  "pamTargetSystemDeactivateContent": {
-    "message": "Deaktivace tohoto cílového systému zabrání nabízení nových rotací. Nevyřízené úkoly budou nepřípustné. Již probíhající rotace bude pokračovat do dokončení."
+  "pamTargetSystemDeactivateDialogContent": {
+    "message": "Na tomto cílovém systému nebudou spuštěny žádné nové rotace, dokud jej neaktivujete. Probíhající rotace budou ukončeny a čekající budou zachovány."
   },
   "pamTargetSystemDeactivateConfirm": {
     "message": "Deaktivovat"
@@ -20167,32 +20482,29 @@
   "pamTargetSystemDeactivateSuccess": {
     "message": "Cílový systém byl deaktivován."
   },
+  "pamTargetSystemDeactivateFailed": {
+    "message": "Nelze deaktivovat. Zkuste to znovu."
+  },
   "pamTargetSystemActivateSuccess": {
     "message": "Cílový systém byl aktivován."
   },
-  "pamTargetSystemDeleteTitle": {
-    "message": "Smazat cílový systém?"
+  "pamTargetSystemActivateFailed": {
+    "message": "Nepodařilo se aktivovat. Zkuste to znova."
   },
-  "pamTargetSystemDeleteContent": {
-    "message": "Smazání $NAME$ je trvalé. Všechny spravované přihlašovací údaje, které podle něj rotují, musí být nejdříve odebrány.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogTitle": {
+    "message": "Smazat cílový systém"
   },
-  "pamTargetSystemDeleteContentDeactivateInstead": {
-    "message": "Smazání $NAME$ je trvalé. Všechny spravované přihlašovací údaje, které podle něj rotují, musí být nejdříve odebrány. Chcete-li zastavit rotaci bez ztráty cílového systému, deaktivujte ji. Deaktivace podrží čekající úlohy a může být vrácena zpět.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogContent": {
+    "message": "Tento cílový systém bude smazán."
+  },
+  "pamTargetSystemDeleteDialogContentDeactivateInstead": {
+    "message": "Tento cílový systém bude smazán. Chcete-li zastavit rotaci, ale ponechat jej, vypněte jej."
   },
   "pamTargetSystemDeleteSuccess": {
     "message": "Cílový systém byl smazán."
+  },
+  "pamTargetSystemDeleteFailed": {
+    "message": "Nebylo možné vymazat."
   },
   "pamTargetSystemMethodAutomatic": {
     "message": "Automaticky"
@@ -20200,17 +20512,15 @@
   "pamTargetSystemMethodManual": {
     "message": "Ručně"
   },
-  "pamTargetSystemMethodAutomaticHint": {
-    "message": "Rotace se spouštějí podle vámi nastaveného plánu, jakmile dokončíte kroky nastavení zobrazené po uložení."
-  },
-  "pamTargetSystemMethodManualHint": {
-    "message": "Nebyla vytvořena žádná rotační úloha. Rotaci přihlašovacích údajů můžete provést ručně a pak ji označte jako rotovanou."
-  },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
   },
   "pamTargetSystemTypeCustomScript": {
     "message": "Vlastní skript"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
   },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
@@ -20226,11 +20536,24 @@
       }
     }
   },
+  "pamTargetSystemRemoveConnector": {
+    "message": "Odebrat $NAME$",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
   "pamTargetSystemStatusActive": {
     "message": "Aktivní"
   },
   "pamTargetSystemStatusInactive": {
     "message": "Neaktivní"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Nepřipojeno"
   },
   "pamTargetSystemStatusPendingSeal": {
     "message": "Nastavení nebylo dokončeno"
@@ -20250,17 +20573,8 @@
   "pamTargetSystemMethodLabel": {
     "message": "Metoda rotace"
   },
-  "pamTargetSystemTypeHeading": {
-    "message": "Typ"
-  },
-  "pamTargetSystemTypeLabel": {
-    "message": "Typ"
-  },
   "pamTargetSystemTypeUnverifiedHint": {
     "message": "Integraci tohoto cíle nelze potvrdit. Zvolte ji znovu pro dokončení nastavení."
-  },
-  "pamTargetSystemPolicyManualHint": {
-    "message": "Toto jsou pravidla, která je třeba dodržovat při ručním rotování tohoto přístupového údaje."
   },
   "pamTargetSystemPolicyHeading": {
     "message": "Zásady pro heslo"
@@ -20280,41 +20594,20 @@
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "Tato zásada je příliš slabá. Zvyšte délku nebo zahrňte více typů znaků."
   },
-  "pamTargetSystemPolicyUppercase": {
-    "message": "Zahrnout velká písmena"
-  },
-  "pamTargetSystemPolicyLowercase": {
-    "message": "Zahrnout malá písmena"
-  },
-  "pamTargetSystemPolicyDigits": {
-    "message": "Zahrnout číslice"
-  },
-  "pamTargetSystemPolicySymbols": {
-    "message": "Zahrnout symboly"
-  },
-  "pamTargetSystemSupportsSessionTermination": {
-    "message": "Podporuje ukončení relace"
-  },
-  "pamTargetSystemSupportsSessionTerminationHintConnector": {
-    "message": "Pokud je povoleno, přístupový konektor ukončí aktivní relace po otočení pověření."
-  },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Podporováno"
   },
-  "pamTargetSystemSessionTerminationNativeHint": {
-    "message": "Nativní integrace vždy ukončí aktivní relace po rotaci přihlašovacích údajů."
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "Tato integrace nemůže ukončit relace, které jsou již otevřené. Rotace důvěryhodných bloků blokuje nové podpisy, ale existující relace pokračují, dokud nevyprší."
   },
-  "pamTargetSystemSessionTerminationUnknown": {
-    "message": "Neznámé"
-  },
-  "pamTargetSystemSessionTerminationUnknownTooltip": {
-    "message": "Nastavení tohoto cílového systému nelze ověřit, takže podpora ukončení relace není známa."
-  },
-  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
-    "message": "Odebrání podpory ukončení relace je zamítnuto, zatímco se na ni spoléhají jakékoli spravované přihlašovací údajes v tomto cílovém systému. Aktualizujte tyto přihlašovací údaje jako první."
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "Tento cílový systém je zaznamenán jako podpůrné ukončení relace a jeho spravované přihlašovací údaje jej stále mohou používat. Uložení ponechá tento záznam tak, jak je."
   },
   "pamTargetSystemCreated": {
     "message": "Cílový systém byl vytvořen."
+  },
+  "pamTargetSystemCreatedSuccess": {
+    "message": "Cílový systém byl přidán."
   },
   "pamTargetSystemSaved": {
     "message": "Cílový systém byl uložen."
@@ -20327,9 +20620,6 @@
   },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Dokončit nastavení rotace"
-  },
-  "pamTargetSystemSetupGuidanceAutomaticConnector": {
-    "message": "Přiřaďte přístupový konektor v níže uvedené části Přiřazené přístupové konektory."
   },
   "pamTargetSystemSetupGuidanceCredential": {
     "message": "Přidejte spravované přihlašovací údaje na záložce Spravované přihlašovací údaje."
@@ -20355,20 +20645,17 @@
   "pamTargetSystemNotFound": {
     "message": "Cílový systém nebyl nalezen."
   },
-  "pamAccessConnectorSearch": {
-    "message": "Hledat přístupové konektory"
-  },
-  "pamAccessConnectorNew": {
-    "message": "Nový přístupový konektor"
-  },
   "pamAccessConnectorRegister": {
     "message": "Zaregistrovat přístupový konektor"
   },
-  "pamAccessConnectorEmptyStateTitle": {
-    "message": "Nebyly zaregistrovány žádné přístupové konektory"
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "Zatím žádné přístupové konektory"
   },
-  "pamAccessConnectorEmptyStateDescription": {
-    "message": "Zaregistrujte přístupový konektor, abyste mohli začít rotovat přihlašovací údaje."
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Přistupuje ke konektorům běžícím uvnitř Vaší sítě a mění hesla na Vašich cílových systémech. Pro spuštění nějaký zaregistrujte."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Cílové systémy"
   },
   "pamAccessConnectorConnection": {
     "message": "Připojení"
@@ -20385,14 +20672,14 @@
   "pamAccessConnectorDisconnected": {
     "message": "Odpojeno"
   },
-  "pamAccessConnectorAssignTargetDisabled": {
-    "message": "Cílové systémy mohou být přiřazeny jen pokud je aktivní přístupový konektor."
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Aktivujte tento přístupový konektor pro přiřazení cílových systémů."
   },
-  "pamAccessConnectorViewDetails": {
-    "message": "Zobrazit podrobnosti"
+  "pamAccessConnectorEdit": {
+    "message": "Upravit přístupový konektor"
   },
-  "pamAccessConnectorAssignTargets": {
-    "message": "Přiřadit cíle"
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Přiřadit cílové systémy"
   },
   "pamAccessConnectorDeleteAccessConnector": {
     "message": "Smazat přístupový konektor"
@@ -20406,8 +20693,8 @@
   "pamAccessConnectorAssignSelectLabel": {
     "message": "Přiřadit cílové systémy"
   },
-  "pamAccessConnectorAssignSelectHint": {
-    "message": "Přiřazeny mohou být jen cílové systémy nastavené na automatickou rotaci."
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Vyberte cílové systémy, na kterých může tento přístupový konektor rotovat hesla. Mohou být přiřazeny jen cílové systémy, které používají automatickou rotaci."
   },
   "pamAccessConnectorAssignNoOptions": {
     "message": "K tomuto přístupovému konektoru jsou již přiřazeny všechny automatické cílové systémy."
@@ -20439,77 +20726,62 @@
       }
     }
   },
-  "pamAccessConnectorUnassignConfirmTitle": {
-    "message": "Odebrat přiřazení?"
-  },
-  "pamAccessConnectorUnassignConfirmContent": {
-    "message": "Odebrat $NAME$ z tohoto přístupového konektoru? Aktivní úlohy rotace, které si tento přístupový konektor vyhradil, budou pokračovat až do dokončení.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
-  },
-  "pamAccessConnectorUnassigned": {
-    "message": "Cílový systém byl odebrán."
-  },
   "pamAccessConnectorDeactivate": {
     "message": "Deaktivovat"
   },
   "pamAccessConnectorActivate": {
     "message": "Aktivovat"
   },
-  "pamAccessConnectorDeactivateConfirmTitle": {
-    "message": "Deaktivovat přístupový konektor?"
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Deaktivovat přístupový konektor"
   },
-  "pamAccessConnectorDeactivateConfirmContent": {
-    "message": "Deaktivovat $NAME$? Přestane nárokovat nové rotační úlohy a jakékoliv úlohy, které právě běží, jsou uvolněny. Můžete jej znovu aktivovat později.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "Tento přístupový konektor nepřijímá nové rotace. Probíhající rotace jsou ukončeny."
   },
   "pamAccessConnectorDeactivated": {
     "message": "Přístupový konektor byl deaktivován."
   },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Nelze deaktivovat. Zkuste to znovu."
+  },
   "pamAccessConnectorActivated": {
     "message": "Přístupový konektor byl aktivován."
   },
-  "pamAccessConnectorDeleteConfirmTitle": {
-    "message": "Smazat přístupový konektor?"
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Smazat přístupový konektor"
   },
-  "pamAccessConnectorDeleteConfirmContent": {
-    "message": "Smazání $NAME$ je nevratné a zneplatní jeho přihlašovací údaje. Tento přístupový konektor uchovával organizační klíč v paměti. Pokud máte podezření na narušení bezpečnosti, proveďte jako nápravné opatření rotaci klíče organizace. Probíhající úlohy rotace budou ukončeny. Zaregistrujte nový přístupový konektor, abyste mohli v rotaci pokračovat.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Jeho token přestane fungovat a probíhající rotace budou zrušeny. Tento krok nelze vrátit zpět."
   },
   "pamAccessConnectorDeleted": {
     "message": "Přístupový konektor byl smazán."
   },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Nebylo možné smazat. Zkuste to znovu."
+  },
   "pamAccessConnectorSaved": {
     "message": "Přístupový konektor byl uložen."
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Přístupový konektor nebyl uložen. Zkuste to znovu."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Přístupový konektor nebyl uložen. Zkontrolujte připojení, a poté znovu vyberte Uložit."
   },
   "pamAccessConnectorRegisterTitle": {
     "message": "Zaregistrovat přístupový konektor"
   },
-  "pamAccessConnectorNamePlaceholder": {
-    "message": "např. Výrobní server On-prem"
+  "pamAccessConnectorRegisterDescription": {
+    "message": "Získáte token, který je třeba přidat do nastavení přístupového konektoru. Zobrazí se jen jednou."
   },
-  "pamAccessConnectorNameHint": {
-    "message": "Popisný název pro identifikaci tohoto přístupového konektoru. Max 200 znaků."
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Použijte název, který Váš tým pozná, například \"Východní datové centrum\"."
   },
   "pamAccessConnectorRegistered": {
     "message": "Přístupový konektor byl zaregistrován."
   },
-  "pamAccessConnectorNoResults": {
-    "message": "Vašim filtrům neodpovídají žádné přístupové konektory."
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Přístupový konektor nebyl zaregistrován. Zkuste to znovu."
   },
   "pamAccessConnectorDetailTitle": {
     "message": "Přístupový konektor"
@@ -20520,38 +20792,38 @@
   "pamAccessConnectorTabConfiguration": {
     "message": "Nastavení"
   },
-  "pamAccessConnectorTabHistory": {
-    "message": "Historie"
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "Historie rotace"
   },
-  "pamAccessConnectorActivityEmpty": {
-    "message": "Zatím žádná aktivita rotace."
+  "pamAccessConnectorRotationHeading": {
+    "message": "Rotace"
   },
-  "pamAccessConnectorActiveHint": {
-    "message": "Je-li přístupový konektor neaktivní, nepřijímá nové úlohy rotace a všechny úlohy, které právě zpracovává, jsou uvolněny."
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Vyberte cílové systémy"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "Tento přístupový konektor není připojen, takže nemůže rotovat hesla. Zkontrolujte, zda je spuštěn na svém počítači a že se může připojit k Bitwardenu."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Dokončete nastavení. Přidejte token a podrobnosti připojení každého cílového systému do nastavení přístupového konektoru a poté ho spusťte."
   },
   "pamAccessConnectorTokenTitle": {
     "message": "Token přístupového konektoru"
   },
-  "pamAccessConnectorTokenWarningTitle": {
-    "message": "Uložit tento token nyní"
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Zkopírujte tento token nyní, protože jej po zavření znovu neuvidíte."
   },
-  "pamAccessConnectorTokenWarningBody": {
-    "message": "Tento token se zobrazí jen jednou a později jej již nelze znovu získat. Zkopírujte jej a předávejte mimo systém operátorovi, který bude tento přístupový konektor provozovat, a poté jej vložte do souboru nastavení konektoru. Pokud dojde ke ztrátě tokenu, smažte tento přístupový konektor a zaregistrujte nový."
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Přidejte jej do nastavení přístupového konektoru a připojte jej."
   },
-  "pamAccessConnectorTokenLabel": {
-    "message": "Token přístupového konektoru"
-  },
-  "pamAccessConnectorTokenHint": {
-    "message": "Tento token se znovu nezobrazí."
+  "pamAccessConnectorTokenStored": {
+    "message": "Tento token jsem bezpečně uložil"
   },
   "pamAccessConnectorTokenCopy": {
     "message": "Kopírovat token"
   },
-  "pamAccessConnectorTokenCopied": {
-    "message": "Token přístupového konektoru byl zkopírován."
-  },
-  "pamRotationConfigNew": {
-    "message": "Nové spravované přihlašovací údaje"
+  "pamTokenCopied": {
+    "message": "Token byl zkopírován."
   },
   "pamRotationConfigSearch": {
     "message": "Prohledat spravované přihlašovací údaje"
@@ -20559,8 +20831,23 @@
   "pamRotationConfigEmptyState": {
     "message": "Nebyly nastaveny žádné přihlašovací údaje"
   },
+  "pamRotationConfigEmptyTitle": {
+    "message": "Zatím žádné spravované přihlašovací údaje"
+  },
   "pamRotationConfigEmptyStateDescription": {
     "message": "Přidá spravované přihlašovací údaje, aby se začaly automaticky rotovat."
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Spravované přihlašovací údaje Vám pomohou změnit hesla podle plánu nebo při ukončení přístupu."
+  },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Spravované přihlašovací údaje na tomto cílovém systému se zobrazí zde."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Spravované přihlašovací údaje Vám pomohou změnit hesla podle plánu nebo při ukončení přístupu. Chcete-li začít, přidejte přístupový konektor a cílový systém."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Přidat přístupový konektor"
   },
   "pamRotationListLoadErrorTitle": {
     "message": "Načtení se nezdařilo"
@@ -20568,14 +20855,8 @@
   "pamRotationListLoadErrorDescription": {
     "message": "Zkontrolujte připojení a zkuste to znovu. Pokud problém přetrvává, obnovte stránku."
   },
-  "pamRotationConfigNoTargetSystems": {
-    "message": "Nastavte cílový systém před tím, než budete moci rotovat přihlašovací údaje. Cílový systém definuje, kde je pověření a jak ho Bitwarden rotuje."
-  },
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Nastavit cílový systém"
-  },
-  "pamRotationConfigNoResultsFiltered": {
-    "message": "Vašim filtrům neodpovídají žádné spravované přihlašovací údaje."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Přihlašovací údaje"
@@ -20592,9 +20873,6 @@
   "pamRotationConfigColumnRotateOnAccessEnd": {
     "message": "Rotovat po ukončení přístupu"
   },
-  "pamRotationConfigColumnLastRotation": {
-    "message": "Poslední rotace"
-  },
   "pamRotationConfigColumnLastRotated": {
     "message": "Naposledy rotováno"
   },
@@ -20603,6 +20881,270 @@
   },
   "pamRotationConfigStatusPaused": {
     "message": "Pozastaveno"
+  },
+  "pamRotationConfigStatusFailed": {
+    "message": "Selhalo"
+  },
+  "pamRotationConfigStatusNotConnected": {
+    "message": "Nepřipojeno"
+  },
+  "pamRotationConfigStatusManualRotation": {
+    "message": "Ruční rotace"
+  },
+  "pamRotationConfigColumnAccount": {
+    "message": "Účet"
+  },
+  "pamRotationFilterTrigger": {
+    "message": "Spouštěč rotace"
+  },
+  "pamRotationTriggerSchedule": {
+    "message": "Podle plánu"
+  },
+  "pamRotationTriggerAccessEnd": {
+    "message": "Po ukončení přístupu"
+  },
+  "pamRotationTriggerOnDemand": {
+    "message": "Jen na vyžádání"
+  },
+  "pamRotationNextInProgress": {
+    "message": "Probíhá"
+  },
+  "pamRotationNextNone": {
+    "message": "Žádná"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "Před $COUNT$ min.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "Před $COUNT$ hod.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "Před $COUNT$ dny",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "Před $COUNT$ týdny",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "Před $COUNT$ měsíci",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "Včera"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "Za $COUNT$ hod.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "Za $COUNT$ týdnů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "Po termínu spolnění $COUNT$ dnů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationDetailNone": {
+    "message": "Nic"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Rotace je pozastavena, takže tyto přihlašovací údaje nebudou rotovat podle plánu nebo po ukončení přístupu."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "První pokus se nezdařil, a proto se opakuje pokus. Není zapotřebí žádná akce, pokud všechny pokusy selžou."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "Tento cílový systém nemá žádný přístupový konektor, takže tyto přihlašovací údaje nemohou rotovat."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "Přístupové konektory jsou odpojeny, takže tyto přihlašovací údaje nemohou rotovat."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "Poslední rotace nebyla ukončena za čas. Vyberte \"$ACTION$\" a zkuste to znovu.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "Tyto přihlašovací údaje se měly rotovat $AGE$. Změňte své heslo, aktualizujte položku trezoru a označte ji jako rotovanou.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "Zobrazit přístupové konektory"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Přístupové konektory pro tento cílový systém"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Všechny přihlašovací údaje v tomto cílovém systému je využívají."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "Přihlašovací jméno účtu, například name@company.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "Hodnota, kterou Váš skript používá k identifikaci účtu, například jeho uživatelské jméno."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "Uživatelské jméno účtu na cílovém systému pro Vaše záznamy. Bitwarden jej nepoužívá k rotaci."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "Uživatelské jméno účtu na cílovém systému, zadané přesně tak, jak jej systém očekává."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Termín $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Po termínu"
+  },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Spouštěč rotace"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "První pokus selhal; pokus byl úspěšný."
+  },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Rotace byla spuštěna"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Konečný výsledek"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "Pokus $NUMBER$ se nezdařil.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "Tuto rotaci nezískal žádný přístupový konektor."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Relace byly ukončeny"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Nelze ukončit relace"
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Detaily rotace"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Selhalo"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Proběhlo úspěšně"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "Cílový systém nereagoval."
+  },
+  "pamRotationConfigRotateNowInProgress": {
+    "message": "Probíhá rotace."
+  },
+  "pamRotationConfigRotateNowPaused": {
+    "message": "Pokračovat v rotaci a rotovat nyní."
+  },
+  "pamRotationConfigRotateNowNotConnected": {
+    "message": "Není připojen žádný přístupový konektor"
+  },
+  "pamRotationConfigRemoveLockedReason": {
+    "message": "Dostupné po skončení rotace."
+  },
+  "pamRotationConfigEditSettings": {
+    "message": "Upravit nastavení rotace"
+  },
+  "pamRotationConfigViewHistory": {
+    "message": "Zobrazit historii rotace"
+  },
+  "pamRotationConfigRotateNowStarted": {
+    "message": "Rotace byla spuštěna."
+  },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Rotace se nespustila. Zkuste to znovu."
+  },
+  "pamRotationConfigMarkedRotated": {
+    "message": "Označeno jako rotované."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Nelze označit jako rotované. Zkuste to znovu."
+  },
+  "pamRotationConfigPauseWhileRotatingSuccess": {
+    "message": "Rotace byla pozastavena. Probíhající rotace bude ukončena."
+  },
+  "pamRotationConfigPauseContent": {
+    "message": "Tyto přihlašovací údaje nebudou rotovat podle plánu nebo po ukončení přístupu. Probíhající rotace bude dokončena."
+  },
+  "pamRotationConfigMarkRotatedContent": {
+    "message": "Toto proveďte až po změně hesla v cílovém systému a aktualizaci položky v trezoru."
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Spravujte rotaci pověření napříč cílovými systémy pomocí přístupových konektorů běžících uvnitř Vaší sítě."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Spravovaný přihlašovací údaj"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Cílový systém"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Přístupový konektor"
   },
   "pamRotationConfigRotatingBadge": {
     "message": "Rotace"
@@ -20613,12 +21155,6 @@
   "pamRotationConfigRotateNow": {
     "message": "Rotovat nyní"
   },
-  "pamRotationConfigRotateNowUnavailableTitle": {
-    "message": "V tuto chvíli nelze provést rotaci. Cílový systém je neaktivní, nebo je rotace pozastavena či již probíhá."
-  },
-  "pamRotationConfigRotateNowSuccess": {
-    "message": "Rotace byla zadána."
-  },
   "pamRotationConfigMarkRotated": {
     "message": "Označit jako rotované"
   },
@@ -20627,15 +21163,6 @@
   },
   "pamRotationConfigMarkRotatedTitle": {
     "message": "Označit jako rotované"
-  },
-  "pamRotationConfigRecordManualContent": {
-    "message": "Tím se zaznamená, že došlo k rotaci přihlašovacích údajů mimo Bitwarden, a resetuje se plán. Ruční rotace se projeví v logu auditu."
-  },
-  "pamRotationConfigRecordManualConfirm": {
-    "message": "Rotace záznamu"
-  },
-  "pamRotationConfigRecordManualSuccess": {
-    "message": "Byla zaznamenána ruční rotace."
   },
   "pamRotationConfigEditCredential": {
     "message": "Upravit přihlašovací údaje"
@@ -20649,6 +21176,9 @@
   "pamRotationConfigPauseSuccess": {
     "message": "Rotace byla pozastavena."
   },
+  "pamRotationConfigPauseFailed": {
+    "message": "Rotace nebyla pozastavena. Zkuste to znovu."
+  },
   "pamRotationConfigResumeRotation": {
     "message": "Pokračovat v rotaci"
   },
@@ -20658,8 +21188,14 @@
   "pamRotationConfigDeleteConfirmTitle": {
     "message": "Odebrat spravované přihlašovací údaje"
   },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Odebrat z rotace"
+  },
   "pamRotationConfigDeleteConfirmContent": {
     "message": "Tím se zruší správa rotace pro tyto přístupové údaje. Položka zůstane ve Vašem trezoru a historie rotace hesla zůstane v logu auditu."
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "Tyto přihlašovací údaje a jejich nastavení budou odebrány ze spravovaných přihlašovacích údajů. Položka trezoru se nezmění a její historie zůstane v protokolu auditu."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Nelze odebrat, dokud probíhá rotace. Vyčistí se, když aktuální úloha skončí nebo vyprší."
@@ -20667,26 +21203,32 @@
   "pamRotationConfigDeleteSuccess": {
     "message": "Spravované přihlašovací údaje byly odebrány."
   },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Odebráno z rotace."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Nelze odebrat z rotace. Zkuste to znovu."
+  },
   "pamRotationConfigNeverRotated": {
     "message": "Nikdy"
+  },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "Zatím žádné rotace"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Přidat spravované přihlašovací údaje"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Rotací těchto přihlašovacích údajů bude odhlášen každý, kdo stále používá aktuální heslo."
   },
   "pamRotationConfigHistoryEmpty": {
     "message": "Zatím nebyly spuštěny žádné rotace."
   },
-  "pamRotationConfigRemoveLockedContentConnector": {
-    "message": "V současné době probíhá úloha rotace. Tyto přihlašovací údaje můžete z rotace odebrat, jakmile ji konektor pro přístup dokončí, nebo jakmile vyprší časový limit. Pozastavení zastaví jen nové úlohy; již spuštěnou úlohu nezruší."
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Zde se objeví rotace pro tyto přihlašovací údaje."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Podrobnosti o přihlašovacích údajích"
-  },
-  "pamRotationConfigDetailsHeading": {
-    "message": "Podrobnosti"
-  },
-  "pamRotationConfigSettingsHeading": {
-    "message": "Nastavení rotace"
-  },
-  "pamRotationConfigAccountHeading": {
-    "message": "Účet"
   },
   "pamRotationConfigTabConfiguration": {
     "message": "Nastavení"
@@ -20694,32 +21236,11 @@
   "pamRotationConfigTabHistory": {
     "message": "Historie"
   },
-  "pamRotationConfigCipher": {
-    "message": "Přihlašovací údaje"
-  },
-  "pamRotationConfigCipherPlaceholder": {
-    "message": "Vyberte přihlašovací údaje"
-  },
-  "pamRotationConfigCipherHint": {
-    "message": "Vyberte položku trezoru, jejíž heslo bude rotováno."
-  },
   "pamRotationConfigTargetSystem": {
     "message": "Cílový systém"
   },
   "pamRotationConfigTargetSystemPlaceholder": {
     "message": "Vybrat cílový systém"
-  },
-  "pamRotationConfigAccountIdentity": {
-    "message": "Identita účtu"
-  },
-  "pamRotationConfigAccountIdentityHintConnector": {
-    "message": "Účet pro rotaci v cílovém systému, např. UPN, SQL přihlášení nebo argument skriptu. Předává se konektoru pro přístup v nezměněné podobě."
-  },
-  "pamRotationConfigTerminateSessions": {
-    "message": "Ukončit aktivní relace po rotaci"
-  },
-  "pamRotationConfigTerminateSessionsHint": {
-    "message": "Vyžaduje, aby cílový systém podporoval ukončení relace."
   },
   "pamRotationConfigTerminationUnknownHint": {
     "message": "Nebylo možné ověřit, zda tento cílový systém podporuje ukončení relace."
@@ -20727,20 +21248,8 @@
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Rotovat po skončení přístupu"
   },
-  "pamRotationConfigRotateWhenAccessEndsHint": {
-    "message": "Automaticky rotovat tyto přihlašovací údaje po ukončení přístupu k PAM."
-  },
-  "pamRotationConfigCreated": {
-    "message": "Spravované přihlašovací údaje byly vytvořeny."
-  },
   "pamRotationConfigSaved": {
     "message": "Spravované přihlašovací údaje byly uloženy."
-  },
-  "pamRotationConfigAccountLockedTitle": {
-    "message": "Nastavení není dostupné"
-  },
-  "pamRotationConfigAccountLockedContent": {
-    "message": "Změny nelze uložit, dokud probíhá úloha rotace. Uložit je budete moci znovu, jakmile úloha skončí nebo vyprší časový limit."
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
     "message": "Kontrola integrity se nezdařila"
@@ -20781,9 +21290,6 @@
   "pamRotationJobStatusPending": {
     "message": "Čekající"
   },
-  "pamRotationJobStatusClaimed": {
-    "message": "Uplatněno"
-  },
   "pamRotationJobStatusSucceeded": {
     "message": "Proběhlo úspěšně"
   },
@@ -20793,14 +21299,11 @@
   "pamRotationJobStatusTimedOut": {
     "message": "Vypršel časový limit"
   },
+  "pamRotationJobStatusRetrying": {
+    "message": "Opakování pokusu"
+  },
   "pamRotationJobStatusUnknown": {
     "message": "Neznámé"
-  },
-  "pamRotationAssignmentPendingAssign": {
-    "message": "Čekající přiřazení"
-  },
-  "pamRotationAssignmentPendingUnassign": {
-    "message": "Čekající na odebrání"
   },
   "pamRotationAttemptStatusExecuting": {
     "message": "Provádění"
@@ -20865,15 +21368,6 @@
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "Přístupovému konektoru se nepodařilo dosáhnout cílového systému. Zkontrolujte adresu cílového systému a zda se konektor může dostat do sítě a pak znovu proveďte rotaci."
   },
-  "pamRotationFailureReportedDetail": {
-    "message": "Nahlášeno přístupovým konektorem: $REASON$",
-    "placeholders": {
-      "reason": {
-        "content": "$1",
-        "example": "target_rejected: LDAP result code 50"
-      }
-    }
-  },
   "pamRotationHistoryCaption": {
     "message": "Úlohy rotace, nejnovější první"
   },
@@ -20888,15 +21382,6 @@
   },
   "pamRotationHistoryAttemptsCaption": {
     "message": "Pokusy, nejstarší první"
-  },
-  "pamRotationHistoryAttemptsAllAlike": {
-    "message": "Každý pokus skončil stejným způsobem."
-  },
-  "pamRotationJobDrawerTitle": {
-    "message": "Úloha rotace"
-  },
-  "pamRotationHistoryFailureHeading": {
-    "message": "Proč se nezdařilo"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$ s",
@@ -21035,9 +21520,9 @@
   "pamAuditAccessConnector": {
     "message": "Přístupový konektor"
   },
-  "pamAccessConnectorAssignmentCountSingular": {
-    "message": "$COUNT$ cíl",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ cílový systém",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21045,9 +21530,9 @@
       }
     }
   },
-  "pamAccessConnectorAssignmentCount": {
-    "message": "$COUNT$ cílů",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ cílových systémů",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21057,7 +21542,7 @@
   },
   "pamAccessConnectorAssignmentsNone": {
     "message": "Žádný",
-    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
   },
   "pamRotationConfigNoActiveTargetSystems": {
     "message": "Žádné aktivní cílové systémy k výběru."
@@ -21071,14 +21556,179 @@
   "pamTargetSystemConnectorAssignmentsLoadError": {
     "message": "Nelze načíst přístupové konektory pro tento cílový systém."
   },
-  "pamTargetSystemDeleteAssignedConnectorsContent": {
-    "message": "Smazání $NAME$ je trvalé. Všechny spravované přihlašovací údaje, které podle něj rotují, musí být nejdříve odebrány; přiřazení přístupového konektoru je také odebráno.",
+  "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
+    "message": "Tento cílový systém a přiřazení jeho přístupového konektoru budou smazány."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
+    "message": "Tento cílový systém a přiřazení jeho přístupového konektoru budou smazány. Chcete-li zastavit rotaci, ale funkci ponechat, raději jej deaktivujte."
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Položka v trezoru"
+  },
+  "pamRotationConfigCredentialName": {
+    "message": "Název přihlašovacích údajů"
+  },
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Vyberte přihlašovací údaje"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Přihlašovací údaje, které jsou již v rotaci, nejsou uvedeny."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "Přihlašovací údaje žijí v cílovém systému."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Ručně"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "Není připojen žádný přístupový konektor"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "Tento cílový systém používá ruční rotace. Změňte heslo pro tento přihlašovací údaj a poté jej označte jako rotovaný."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "Tento cílový systém nemá připojený přístupový konektor, takže tyto přihlašovací údaje ještě nerotují. Stále jej můžete uložit."
+  },
+  "pamRotationConfigAccountId": {
+    "message": "ID účtu"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "Zadejte ID"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "Uživatelské jméno na cílovém systému, například name@company.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Spouštěče rotace"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "Po rotaci"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Plán"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Změní heslo, když někdo ukončí přístup, takže staré heslo přestane fungovat."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Dostupné jen pro automatickou rotaci."
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "Ukončit aktivní relace"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Po každé rotaci odhlásí kohokoli, kdo stále používá staré heslo. Pokud se to nepodaří, rotace se stále počítá."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Dostupné jakmile vyberete cílový systém, který jej podporuje."
+  },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Spravované přihlašovací údaje byly přidány."
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Cílový systém byl přidán."
+  },
+  "pamTargetSystemNameHelp": {
+    "message": "Použijte název, který bude rozpoznán, např. \"Entra ID produkce\". Zobrazí se to, ať už si jako cílový systém vyberete cokoli."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "Přístupový konektor pro Vás mění hesla v tomto cílovém systému."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "V tomto cílovém systému si sami změníte hesla, poté je označte jako rotované."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "Typ systému"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Řekne přístupovému konektoru, jak změnit hesla v tomto systému."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Ukončování relací"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra může po rotaci ukončit aktivní relace."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "Tento typ systému po rotaci nemůže odhlásit aktivní relace."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Zobrazí se, jakmile vyberete typ systému."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Vyberte typ systému"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Vyberte přístupové konektory"
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Přístupové konektory"
+  },
+  "pamTargetSystemAccessConnectorFilter": {
+    "message": "Přístupový konektor"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Vyberte přístupové konektory, které mohou rotovat hesla v tomto cílovém systému. Vyberte více než jeden pro zálohu."
+  },
+  "pamTargetSystemCalloutNoConnectorConnected": {
+    "message": "Není připojen žádný z vybraných přístupových konektorů, takže tento cílový systém ještě nemůže rotovst. Stále můžete uložit."
+  },
+  "pamTargetSystemCalloutNoConnectorConnectedEditing": {
+    "message": "Není připojen žádný z vybraných přístupových konektorů, takže tento cílový systém ještě nemůže rotovst."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Automatická rotace"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Nastavení"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "Tento cílový systém je neaktivní, takže na něm nezačínají nové rotace. Chcete-li je znovu spustit, klepněte na tlačítko Aktivovat."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "Nejsou přiřazeny žádné přístupové konektory, proto vyberte alespoň jeden, než může tento cílový systém rotovat."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "Tento typ systému po rotaci může odhlásit aktivní relace."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Odebrat poslední přístupový konektor"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Odebrat přístupový konektor"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "Tento cílový systém nebude moci rotovat, dokud nebude přiřazen další přístupový konektor."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "1 spravovaný přihlašovací údaj na tomto cílovém systému přestane rotovat, dokud nebude přiřazen jiný přístupový konektor."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "$COUNT$ spravovaných přihlašovacích údajů na tomto cílovém systému přestane rotovat, dokud nebude přiřazen jiný přístupový konektor.",
     "placeholders": {
-      "name": {
+      "count": {
         "content": "$1",
-        "example": "Production database"
+        "example": "8"
       }
     }
+  },
+  "pamTargetSystemCalloutNoConnectorsExist": {
+    "message": "Zatím nejsou žádné přístupové konektory. Spouští se ve Vaší síti a rotují hesla pro tento cílový systém. Uložte nyní a poté přidejte jeden z karty \"Přístupové konektory\"."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Znaky, které se mají zahrnout"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Velká písmena"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Malá písmena"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Číslice"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Symboly"
   },
   "pamEventRequestedAccess": {
     "message": "Požadován privilegovaný přístup k položce $ITEM$ (žádost $ID$).",

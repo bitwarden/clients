@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 
 import { DelineaCsvImporter } from "./delinea-csv-importer";
@@ -8,7 +11,7 @@ import {
 
 describe("Delinea CSV Importer", () => {
   it("should parse CSV data", async () => {
-    const importer = new DelineaCsvImporter();
+    const importer = new DelineaCsvImporter(mock<LogService>());
     const result = await importer.parse(DelineaCsvTestData);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();
@@ -16,7 +19,7 @@ describe("Delinea CSV Importer", () => {
   });
 
   it("should return a result with no data if the import file has now rows besides the header", async () => {
-    const importer = new DelineaCsvImporter();
+    const importer = new DelineaCsvImporter(mock<LogService>());
     const result = await importer.parse(DelineaCsvTestDataEmpty);
     expect(result.success).toEqual(false);
     expect(result.ciphers.length).toEqual(0);
@@ -25,7 +28,7 @@ describe("Delinea CSV Importer", () => {
   });
 
   it("should import folders if they exist", async () => {
-    const importer = new DelineaCsvImporter();
+    const importer = new DelineaCsvImporter(mock<LogService>());
     const result = await importer.parse(DelineaCsvTestData);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();
@@ -37,7 +40,7 @@ describe("Delinea CSV Importer", () => {
   });
 
   it("should import Secrets without a url field as Secure Notes with custom fields for all Secret info except notes", async () => {
-    const importer = new DelineaCsvImporter();
+    const importer = new DelineaCsvImporter(mock<LogService>());
     const result = await importer.parse(DelineaCsvTestData);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();
@@ -61,7 +64,7 @@ describe("Delinea CSV Importer", () => {
   });
 
   it("should import Secrets with a url field as Logins with Secret info set in the correct place", async () => {
-    const importer = new DelineaCsvImporter();
+    const importer = new DelineaCsvImporter(mock<LogService>());
     const result = await importer.parse(DelineaCsvTestData);
     expect(result.success).toEqual(true);
     expect(result).not.toBeNull();

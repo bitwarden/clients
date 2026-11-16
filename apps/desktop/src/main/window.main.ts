@@ -567,6 +567,7 @@ export class WindowMain {
 
     win.on("close", async () => {
       this.isClosing = true;
+      await this.notifyIfModalWindowClosed(win);
       await this.updateWindowState(mainWindowSizeKey, win);
     });
 
@@ -675,6 +676,18 @@ export class WindowMain {
       return undefined;
     }
     return fn(this.win);
+  }
+
+  /**
+   * Notifies the renderer that the user closed the window while the modal was
+   * active, e.g. during a passkey ceremony.
+   */
+  private async notifyIfModalWindowClosed(win: BrowserWindow) {
+    const modalMode = await firstValueFrom(this.desktopSettingsService.modalMode$);
+    if (!modalMode?.isModalModeActive || win.isDestroyed()) {
+      return;
+    }
+    win.webContents.send("messagingService", { command: "modalWindowClosed" });
   }
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {

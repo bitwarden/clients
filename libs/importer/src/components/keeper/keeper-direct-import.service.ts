@@ -1,5 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { ClientOptions, KeeperRegion, Vault } from "../../importers/keeper/access";
@@ -15,6 +16,7 @@ import { KeeperDirectImportUIService } from "./keeper-direct-import-ui.service";
 })
 export class KeeperDirectImportService {
   private readonly keeperDirectImportUIService = inject(KeeperDirectImportUIService);
+  private readonly logService = inject(LogService);
 
   private inFlight: Promise<KeeperDirectImportResult> | undefined;
 
@@ -37,7 +39,7 @@ export class KeeperDirectImportService {
     this.inFlight = (async () => {
       try {
         const vault = await Vault.open(email, options);
-        const importer = new KeeperDirectImporter();
+        const importer = new KeeperDirectImporter(this.logService);
         if (organizationId !== undefined) {
           importer.organizationId = organizationId;
         }
