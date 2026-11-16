@@ -105,6 +105,12 @@ describe("VaultHeaderComponent", () => {
     vfo1Enabled = false;
 
     mockI18nService.t.mockImplementation((key: string, ...args: any[]) => {
+      if (key === "orgNameCollections") {
+        return `${args[0]} collections`;
+      }
+      if (key === "orgNameSharedFolders") {
+        return `${args[0]} shared folders`;
+      }
       const map: Record<string, string> = {
         collections: "Collections",
         sharedFolders: "Shared folders",
@@ -161,6 +167,12 @@ describe("VaultHeaderComponent", () => {
       expect((component as any).title()).toBe("Acme Corp collections");
     });
 
+    it("passes the org name to the translation instead of lowercasing the collections term", () => {
+      setInputs({ organization: makeOrg({ name: "Acme Corp" }) });
+      (component as any).title();
+      expect(mockI18nService.t).toHaveBeenCalledWith("orgNameCollections", "Acme Corp");
+    });
+
     it("returns 'Collections' when org has no name", () => {
       setInputs({ organization: makeOrg({ name: "" }) });
       expect((component as any).title()).toBe("Collections");
@@ -178,6 +190,19 @@ describe("VaultHeaderComponent", () => {
       vfo1Enabled = true;
       setInputs({ organization: makeOrg({ name: "Acme Corp" }) });
       expect((component as any).title()).toBe(mockI18nService.t("sharedFolders"));
+    });
+  });
+
+  describe("organizationBreadcrumb", () => {
+    it("returns '<OrgName> collections'", () => {
+      setInputs({ organization: makeOrg({ name: "Acme Corp" }) });
+      expect((component as any).organizationBreadcrumb()).toBe("Acme Corp collections");
+    });
+
+    it("returns '<OrgName> shared folders' when the VFO1 flag is on", () => {
+      vfo1Enabled = true;
+      setInputs({ organization: makeOrg({ name: "Acme Corp" }) });
+      expect((component as any).organizationBreadcrumb()).toBe("Acme Corp shared folders");
     });
   });
 

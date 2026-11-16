@@ -202,7 +202,7 @@ export class VaultHeaderComponent {
 
     const activeOrganization = this.activeOrganization;
     if (activeOrganization) {
-      return `${activeOrganization.name} ${this.i18nService.t("vault").toLowerCase()}`;
+      return this.i18nService.t("orgNameVault", activeOrganization.name);
     }
 
     return this.i18nService.t("allVaults");

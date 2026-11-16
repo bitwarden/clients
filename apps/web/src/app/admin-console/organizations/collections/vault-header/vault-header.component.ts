@@ -121,8 +121,15 @@ export class VaultHeaderComponent {
       return this.i18nService.t(collectionsKey);
     }
 
-    return `${orgName} ${this.i18nService.t(collectionsKey).toLowerCase()}`;
+    return this.i18nService.t("orgNameCollections", orgName);
   });
+
+  protected readonly organizationBreadcrumb = computed(() =>
+    this.i18nService.t(
+      this.vfo1TerminologyService.enabled() ? "orgNameSharedFolders" : "orgNameCollections",
+      this.organization().name,
+    ),
+  );
 
   protected readonly icon = computed(() =>
     this.filter().collectionId !== undefined
