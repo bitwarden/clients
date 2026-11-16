@@ -7,7 +7,9 @@ import {
   input,
   signal,
 } from "@angular/core";
-import { NgControl } from "@angular/forms";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { NgControl, StatusChangeEvent, TouchedChangeEvent } from "@angular/forms";
+import { EMPTY, filter, switchMap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -46,7 +48,36 @@ export class FormControlBaseDirective {
 
   private i18nService = inject(I18nService);
 
-  get displayError() {
+  // Bridges NgControl's RxJS events into the signal graph so the control state below
+  // re-evaluates on StatusChangeEvent / TouchedChangeEvent.
+  private readonly controlEvent = toSignal(
+    toObservable(this.ngControl).pipe(
+      switchMap(
+        (ngControl) =>
+          ngControl?.control?.events.pipe(
+            filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
+          ) ?? EMPTY,
+      ),
+    ),
+  );
+
+  readonly disabled = computed(() => {
+    this.controlEvent();
+    return this.formControl().disabled;
+  });
+
+  readonly required = computed(() => {
+    this.controlEvent();
+    return this.formControl().required;
+  });
+
+  readonly hasError = computed(() => {
+    this.controlEvent();
+    return this.formControl().hasError;
+  });
+
+  readonly displayError = computed(() => {
+    this.controlEvent();
     const error = this.formControl().error;
     switch (error[0]) {
       case "required":
@@ -57,5 +88,5 @@ export class FormControlBaseDirective {
         }
         return error;
     }
-  }
+  });
 }

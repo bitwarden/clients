@@ -3,6 +3,7 @@ import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
@@ -17,6 +18,7 @@ import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encry
 import {
   emptyUnencryptedExport,
   unencryptedExportWithCipherKey,
+  unencryptedExportWithHTTPAuthentication,
 } from "../spec-data/bitwarden-json/unencrypted.json";
 
 import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
@@ -80,6 +82,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
       keyGenerationService,
       accountService,
       promptForPassword_callback,
+      mock<LogService>(),
     );
   });
 
@@ -99,6 +102,17 @@ describe("BitwardenPasswordProtectedImporter", () => {
       expect(result.success).toEqual(true);
       expect(result.ciphers).toHaveLength(1);
       expect(result.ciphers[0].key).toBeNull();
+    });
+
+    it("keeps each login's HTTP authentication setting", async () => {
+      const result = await importer.parse(unencryptedExportWithHTTPAuthentication);
+
+      expect(result.success).toEqual(true);
+      expect(result.ciphers.map((cipher) => cipher.login.httpAuthenticationEnabled)).toEqual([
+        true,
+        false,
+        undefined,
+      ]);
     });
   });
 
@@ -123,6 +137,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
         keyGenerationService,
         accountService,
         promptForPassword_callback,
+        mock<LogService>(),
       );
     });
 
@@ -243,6 +258,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
           keyGenerationService,
           accountService,
           promptForPassword,
+          mock<LogService>(),
         );
         jDoc.kdfType = KdfType.Argon2id;
         jDoc.kdfIterations = 3;

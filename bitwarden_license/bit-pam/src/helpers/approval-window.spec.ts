@@ -1,4 +1,4 @@
-import { durationLabel, exactWindow, reasonText, relativeStart } from "./approval-window";
+import { durationText, exactWindow, reasonText, relativeStart } from "./approval-window";
 
 describe("reasonText", () => {
   it("returns the trimmed reason", () => {
@@ -11,51 +11,31 @@ describe("reasonText", () => {
   });
 });
 
-describe("durationLabel", () => {
+describe("durationText", () => {
+  const window = (leaseNotAfter: string) => ({
+    leaseNotBefore: "2024-01-01T00:00:00.000Z",
+    leaseNotAfter,
+  });
+
   it("labels sub-hour windows in minutes", () => {
-    expect(
-      durationLabel({
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T00:30:00.000Z",
-      }),
-    ).toEqual({ key: "pamInboxDurationMinutes", value: 30 });
+    expect(durationText(window("2024-01-01T00:30:00.000Z"), "en-US")).toBe("30 minutes");
   });
 
   it("labels a 1-hour window distinctly", () => {
-    expect(
-      durationLabel({
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T01:00:00.000Z",
-      }),
-    ).toEqual({ key: "pamInboxDuration1Hour", value: null });
+    expect(durationText(window("2024-01-01T01:00:00.000Z"), "en-US")).toBe("1 hour");
   });
 
   it("labels multi-hour windows in hours", () => {
-    expect(
-      durationLabel({
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T04:00:00.000Z",
-      }),
-    ).toEqual({ key: "pamInboxDurationHours", value: 4 });
+    expect(durationText(window("2024-01-01T04:00:00.000Z"), "en-US")).toBe("4 hours");
   });
 
-  it.each([
-    ["just under an hour", "2024-01-01T00:59:50.000Z"],
-    ["just over an hour", "2024-01-01T01:02:00.000Z"],
-  ])("labels a window %s as 1 hour", (_label, leaseNotAfter) => {
-    expect(durationLabel({ leaseNotBefore: "2024-01-01T00:00:00.000Z", leaseNotAfter })).toEqual({
-      key: "pamInboxDuration1Hour",
-      value: null,
-    });
+  it("carries past a day rather than counting on in hours", () => {
+    // The old hour-only label read this as "50 hours", which the My requests table never did.
+    expect(durationText(window("2024-01-03T02:00:00.000Z"), "en-US")).toBe("2 days, 2 hours");
   });
 
-  it("keeps one decimal for a fractional number of hours", () => {
-    expect(
-      durationLabel({
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T01:30:00.000Z",
-      }),
-    ).toEqual({ key: "pamInboxDurationHours", value: 1.5 });
+  it("follows the caller's locale", () => {
+    expect(durationText(window("2024-01-01T04:00:00.000Z"), "de-DE")).not.toBe("4 hours");
   });
 });
 
@@ -98,15 +78,14 @@ describe("relativeStart", () => {
 });
 
 describe("exactWindow", () => {
-  it("formats both bounds", () => {
+  it("formats both bounds as timestamps", () => {
     const text = exactWindow(
       {
-        leaseNotBefore: "2024-01-01T00:00:00.000Z",
-        leaseNotAfter: "2024-01-01T01:00:00.000Z",
+        leaseNotBefore: new Date(2024, 0, 1, 9, 0).toISOString(),
+        leaseNotAfter: new Date(2024, 0, 1, 10, 30).toISOString(),
       },
       "en-US",
     );
-    expect(text).toContain("–");
-    expect(text.length).toBeGreaterThan(0);
+    expect(text).toBe("Jan 1, 2024, 9:00 AM – Jan 1, 2024, 10:30 AM");
   });
 });

@@ -7,7 +7,7 @@ import {
   inject,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { PRIMARY_OUTLET, Router, UrlTree } from "@angular/router";
+import { ActivatedRoute, PRIMARY_OUTLET, Router, UrlTree } from "@angular/router";
 
 import { DialogService } from "@bitwarden/components";
 
@@ -17,6 +17,9 @@ import { MyRequestsTabComponent } from "../my-requests-tab.component";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 import { AccessRequestDialogComponent } from "./access-request-dialog.component";
+
+/** Opens the dialog on the withdraw confirmation. */
+const WITHDRAW_QUERY_PARAM = "action";
 
 /** The tabs that link to a request row, and so the surfaces the dialog can be opened over. */
 type OriginTab = "approvals" | "history" | "my-requests";
@@ -38,6 +41,7 @@ export class AccessRequestRouteComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   /**
    * The tab the caller navigated from, so an approver opening a row keeps the Approvals inbox
@@ -69,6 +73,11 @@ export class AccessRequestRouteComponent implements OnInit {
   ngOnInit(): void {
     const dialogRef = AccessRequestDialogComponent.open(this.dialogService, {
       detail: this.detail,
+      readOnly: this.navigatedFrom === "history",
+      intent:
+        this.route.snapshot.queryParamMap.get(WITHDRAW_QUERY_PARAM) === "withdraw"
+          ? "withdraw"
+          : undefined,
     });
 
     // Leaving the route also closes the dialog, and that close must not navigate a second time.

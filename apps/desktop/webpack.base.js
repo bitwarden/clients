@@ -112,7 +112,12 @@ module.exports.buildConfig = function buildConfig(params) {
     optimization: {
       minimize: false,
     },
-    output: getOutputConfig(NODE_ENV === "development"),
+    output: {
+      ...getOutputConfig(NODE_ENV === "development"),
+      // The renderer shares the output path and lazy-loads the same modules (e.g. the SDK
+      // .wasm), so equal chunk names would overwrite each other.
+      chunkFilename: "main/[name].js",
+    },
     devtool: NODE_ENV === "development" ? "cheap-source-map" : false,
     module: {
       rules: [

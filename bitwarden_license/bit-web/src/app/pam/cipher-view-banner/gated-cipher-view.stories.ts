@@ -12,10 +12,10 @@ import {
   LeasingErrorService,
 } from "@bitwarden/bit-pam";
 import {
+  CipherViewBannerComponent,
   ItemDetailsStateBadgeComponent,
   AccessRequestCancelService,
   MyLeasesService,
-  CipherViewBannerComponent,
 } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -110,7 +110,7 @@ function provideStoryCipherView() {
     { provide: CollectionService, useValue: { decryptedCollections$: () => of([]) } },
     { provide: FolderService, useValue: { getDecrypted$: () => of(undefined) } },
     { provide: TaskService, useValue: { pendingTasks$: () => of([]) } },
-    { provide: PlatformUtilsService, useValue: { launchUri: () => {} } },
+    { provide: PlatformUtilsService, useValue: { launchUri: () => {}, copyToClipboard: () => {} } },
     {
       provide: DialogService,
       useValue: {

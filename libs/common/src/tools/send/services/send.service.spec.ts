@@ -7,7 +7,6 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   KeyGenerationService,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
@@ -21,7 +20,6 @@ import {
   mockAccountServiceWith,
   mockAccountInfoWith,
 } from "../../../../spec";
-import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
@@ -58,7 +56,6 @@ describe("SendService", () => {
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
   const environmentService = mock<EnvironmentService>();
-  const configService = mock<ConfigService>();
   const sdkService = mock<SdkService>();
   const sendDecryptionService = mock<SendDecryptionService>();
   let sendStateProvider: SendStateProvider;
@@ -110,7 +107,6 @@ describe("SendService", () => {
       keyGenerationService,
       sendStateProvider,
       encryptService,
-      configService,
       sdkService,
       sendDecryptionService,
     );
@@ -509,30 +505,6 @@ describe("SendService", () => {
   describe("getRotatedData", () => {
     const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
     const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-    let encryptedKey: EncString;
-
-    beforeEach(() => {
-      encryptService.decryptBytes.mockResolvedValue(new Uint8Array(16));
-      encryptedKey = new EncString("Re-encrypted Send Key");
-      encryptService.encryptBytes.mockResolvedValue(encryptedKey);
-    });
-
-    it("returns re-encrypted user sends", async () => {
-      const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-      expect(result).toMatchObject([{ id: "1", key: "Re-encrypted Send Key" }]);
-    });
-
-    it("returns empty array if there are no sends", async () => {
-      await sendService.replace(null, mockUserId);
-
-      await awaitAsync();
-
-      const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-      const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-      expect(result).toEqual([]);
-    });
 
     it("throws if the original user key is null", async () => {
       await expect(sendService.getRotatedData(null, newUserKey, mockUserId)).rejects.toThrow(
@@ -546,17 +518,7 @@ describe("SendService", () => {
       );
     });
 
-    it("uses the manual decrypt/re-encrypt path when the SDK sends flag is off", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-
-      await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-      expect(encryptService.decryptBytes).toHaveBeenCalled();
-      expect(encryptService.encryptBytes).toHaveBeenCalled();
-      expect(sdkService.userClient$).not.toHaveBeenCalled();
-    });
-
-    describe("with the SDK sends flag on", () => {
+    describe("via the SDK", () => {
       const sendGuid = Utils.newGuid();
       let encryptSendForRotation: jest.Mock;
       let decryptedView: SendView;
@@ -567,12 +529,6 @@ describe("SendService", () => {
       });
 
       beforeEach(() => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-        // Mocks are not auto-cleared between tests in this suite; reset the call counts the
-        // legacy-path assertions rely on so the SDK path can assert they are never called.
-        encryptService.decryptBytes.mockClear();
-        encryptService.encryptBytes.mockClear();
-
         decryptedView = new SendView();
         decryptedView.id = sendGuid;
         decryptedView.type = SendType.Text;
@@ -612,6 +568,17 @@ describe("SendService", () => {
         (sdkService.userClient$ as jest.Mock).mockReturnValue(of(client));
       });
 
+      it("returns empty array if there are no sends", async () => {
+        await sendService.replace(null, mockUserId);
+
+        await awaitAsync();
+
+        const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
+        const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+        expect(result).toEqual([]);
+      });
+
       it("rotates each send through the SDK and returns SendWithIdRequests", async () => {
         const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
@@ -620,13 +587,6 @@ describe("SendService", () => {
           newUserKey.toBase64(),
         );
         expect(result).toMatchObject([{ id: sendGuid, key: "2.rotatedKey" }]);
-      });
-
-      it("does not use the manual decrypt/re-encrypt path", async () => {
-        await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-        expect(encryptService.decryptBytes).not.toHaveBeenCalled();
-        expect(encryptService.encryptBytes).not.toHaveBeenCalled();
       });
 
       // A decrypted SendView only ever carries `password` as an already-derived hash, never the

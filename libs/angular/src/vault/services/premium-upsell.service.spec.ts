@@ -7,9 +7,9 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId, CipherId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { PremiumUpsellService } from "./premium-upsell.service";
 
@@ -21,7 +21,7 @@ describe("PremiumUpsellService", () => {
 
   let hasPremiumSubject: BehaviorSubject<boolean>;
   let accountAgeThresholdSubject: BehaviorSubject<number>;
-  let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
+  let ciphersSubject: BehaviorSubject<CipherListView[]>;
 
   const userId = "user-id" as UserId;
   // Jan 1 creation date; tests run with system time set to Feb 15 = 45 days old
@@ -29,13 +29,8 @@ describe("PremiumUpsellService", () => {
   const currentDate = new Date("2024-02-15T00:00:00.000Z");
   const accountAgeInDays = 45;
 
-  const makeCiphers = (count: number): Record<CipherId, CipherData> => {
-    const ciphers = {} as Record<CipherId, CipherData>;
-    for (let i = 0; i < count; i++) {
-      ciphers[`cipher-${i}` as CipherId] = {} as CipherData;
-    }
-    return ciphers;
-  };
+  const makeCiphers = (count: number): CipherListView[] =>
+    Array.from({ length: count }, () => ({}) as CipherListView);
 
   const createService = (options: { creationDate?: Date | undefined } = {}) => {
     const accountService = mockAccountServiceWith(userId, {
@@ -61,7 +56,7 @@ describe("PremiumUpsellService", () => {
 
     hasPremiumSubject = new BehaviorSubject<boolean>(false);
     accountAgeThresholdSubject = new BehaviorSubject<number>(30);
-    ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>(makeCiphers(5));
+    ciphersSubject = new BehaviorSubject<CipherListView[]>(makeCiphers(5));
 
     billingAccountService = mock<BillingAccountProfileStateService>();
     configService = mock<ConfigService>();
@@ -69,7 +64,7 @@ describe("PremiumUpsellService", () => {
 
     billingAccountService.hasPremiumFromAnySource$.mockReturnValue(hasPremiumSubject);
     configService.getFeatureFlag$.mockReturnValue(accountAgeThresholdSubject);
-    cipherService.ciphers$.mockReturnValue(ciphersSubject);
+    cipherService.cipherListViewsIncludingRestricted$.mockReturnValue(ciphersSubject);
 
     service = createService();
   });
@@ -141,8 +136,8 @@ describe("PremiumUpsellService", () => {
       });
     });
 
-    it("verifies ciphers$ is called with the active user id", () => {
-      expect(cipherService.ciphers$).toHaveBeenCalledWith(userId);
+    it("verifies cipherListViewsIncludingRestricted$ is called with the active user id", () => {
+      expect(cipherService.cipherListViewsIncludingRestricted$).toHaveBeenCalledWith(userId);
     });
 
     it("verifies hasPremiumFromAnySource$ is called with the active user id", () => {

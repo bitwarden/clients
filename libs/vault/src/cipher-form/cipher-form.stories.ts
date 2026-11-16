@@ -226,6 +226,7 @@ export default {
           provide: AutofillSettingsServiceAbstraction,
           useValue: {
             autofillOnPageLoadDefault$: new BehaviorSubject(true),
+            httpAuthenticationAvailable$: new BehaviorSubject(false),
           },
         },
         {
@@ -396,16 +397,14 @@ export const WithSubmitButton: Story = {
   },
 };
 
-/** Provides a `ConfigService` with only the HTTP authentication feature flag turned on */
-const withHTTPAuthenticationFeatureFlag = moduleMetadata({
+/** Provides an `AutofillSettingsServiceAbstraction` with HTTP authentication available */
+const withHTTPAuthenticationAvailable = moduleMetadata({
   providers: [
     {
-      provide: ConfigService,
+      provide: AutofillSettingsServiceAbstraction,
       useValue: {
-        getFeatureFlag: (flag: FeatureFlag) =>
-          Promise.resolve(flag === FeatureFlag.EnableBasicAuthResponse),
-        getFeatureFlag$: (flag: FeatureFlag) =>
-          new BehaviorSubject(flag === FeatureFlag.EnableBasicAuthResponse),
+        autofillOnPageLoadDefault$: new BehaviorSubject(true),
+        httpAuthenticationAvailable$: new BehaviorSubject(true),
       },
     },
   ],
@@ -414,13 +413,13 @@ const withHTTPAuthenticationFeatureFlag = moduleMetadata({
 /** Editing a login with no URIs, so the HTTP authentication setting can be turned on */
 export const HTTPAuthentication: Story = {
   ...Edit,
-  decorators: [withHTTPAuthenticationFeatureFlag],
+  decorators: [withHTTPAuthenticationAvailable],
 };
 
 /** Adding a login whose URI uses the default match strategy, so the HTTP authentication setting is disabled */
 export const HTTPAuthenticationRequiresMatchDetection: Story = {
   ...Add,
-  decorators: [withHTTPAuthenticationFeatureFlag],
+  decorators: [withHTTPAuthenticationAvailable],
 };
 
 export const OrganizationDataOwnershipEnabled: Story = {

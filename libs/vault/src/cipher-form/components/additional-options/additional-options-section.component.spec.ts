@@ -3,10 +3,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
@@ -48,8 +47,8 @@ describe("AdditionalOptionsSectionComponent", () => {
   let cipherFormProvider: MockProxy<CipherFormContainer>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let passwordRepromptEnabled$: BehaviorSubject<boolean>;
-  let configService: MockProxy<ConfigService>;
-  let httpAuthenticationFeatureFlag$: BehaviorSubject<boolean>;
+  let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
+  let httpAuthenticationAvailable$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let httpAuthenticationService: CipherFormHTTPAuthenticationService;
@@ -68,16 +67,12 @@ describe("AdditionalOptionsSectionComponent", () => {
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
-    httpAuthenticationFeatureFlag$ = new BehaviorSubject(true);
+    httpAuthenticationAvailable$ = new BehaviorSubject(true);
     mockDevFlagEnabled.mockImplementation(
       (flag: string) => flag === "httpAuthenticationCipherControls",
     );
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
-      flag === FeatureFlag.EnableBasicAuthResponse
-        ? httpAuthenticationFeatureFlag$
-        : new BehaviorSubject(false),
-    );
+    autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
+    autofillSettingsService.httpAuthenticationAvailable$ = httpAuthenticationAvailable$;
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
     platformUtilsService = mock<PlatformUtilsService>();
@@ -90,7 +85,7 @@ describe("AdditionalOptionsSectionComponent", () => {
         { provide: CipherFormContainer, useValue: cipherFormProvider },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: ConfigService, useValue: configService },
+        { provide: AutofillSettingsServiceAbstraction, useValue: autofillSettingsService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: DialogService, useValue: dialogService },
         CipherFormHTTPAuthenticationService,
@@ -190,14 +185,14 @@ describe("AdditionalOptionsSectionComponent", () => {
 
     const flushPromises = () => fixture.whenStable();
 
-    it("shows the HTTP authentication setting for login items when the feature flag and dev flag are on", () => {
+    it("shows the HTTP authentication setting for login items when HTTP authentication is available and the dev flag is on", () => {
       fixture.detectChanges();
 
       expect(getHTTPAuthenticationCheckbox()).not.toBeNull();
     });
 
-    it("hides the HTTP authentication setting when the HTTP authentication feature flag is off", () => {
-      httpAuthenticationFeatureFlag$.next(false);
+    it("hides the HTTP authentication setting when HTTP authentication is unavailable", () => {
+      httpAuthenticationAvailable$.next(false);
       fixture.detectChanges();
 
       expect(getHTTPAuthenticationCheckbox()).toBeNull();
@@ -335,7 +330,7 @@ describe("AdditionalOptionsSectionComponent", () => {
       });
 
       it("turns HTTP authentication off without telling the user when the setting is hidden", async () => {
-        httpAuthenticationFeatureFlag$.next(false);
+        httpAuthenticationAvailable$.next(false);
 
         loadCipher(true, true);
         await flushPromises();

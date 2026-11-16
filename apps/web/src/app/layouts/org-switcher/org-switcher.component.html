@@ -43,7 +43,7 @@
         }
       </bit-nav-item>
     }
-    @if (!hideNewButton && !vfo1Enabled()) {
+    @if (!hideNewButton() && !vfo1Enabled()) {
       <bit-nav-item
         icon="bwi-plus"
         [text]="'newOrganization' | i18n"

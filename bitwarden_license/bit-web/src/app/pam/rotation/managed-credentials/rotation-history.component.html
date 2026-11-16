@@ -1,4 +1,62 @@
-@if (jobViews().length === 0) {
+@if (!showCredential()) {
+  <bit-table-v2 [tableDef]="table" data-testid="rotation-history-table">
+    <div slot="empty" class="tw-py-4" data-testid="rotation-history-empty">
+      <bit-status-lockup>
+        <span slot="title">{{ "pamRotationConfigHistoryEmptyTitle" | i18n }}</span>
+        <span slot="description">{{ "pamRotationConfigHistoryEmptyState" | i18n }}</span>
+      </bit-status-lockup>
+    </div>
+
+    <bit-column sortable defaultSort="desc" [sortFn]="sortByStarted" width="minmax(12rem, 1.2fr)">
+      <bit-header-cell>{{ "pamRotationHistoryColumnRotationStarted" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.startedAt; let job" [truncate]="false">
+        <button
+          type="button"
+          bitLink
+          linkType="secondary"
+          class="!tw-font-medium"
+          [id]="'rotation-history_button_details-' + job.id"
+          data-testid="rotation-history-job-result"
+          (click)="openJob(job, $any($event.currentTarget))"
+        >
+          {{ job.displayStartedAt | timestamp }}
+        </button>
+      </bit-cell>
+    </bit-column>
+
+    <bit-column width="minmax(8rem, 1fr)">
+      <bit-header-cell>{{ "pamRotationHistoryColumnFinalResult" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.statusLabelKey; let job" [truncate]="false">
+        <span class="tw-text-sm">{{ job.statusLabelKey | i18n }}</span>
+      </bit-cell>
+    </bit-column>
+
+    <bit-column width="minmax(8rem, 1fr)">
+      <bit-header-cell>{{ "pamRotationHistoryColumnRotationTrigger" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.sourceLabelKey; let job" [truncate]="false">
+        <span class="tw-text-sm">{{ job.sourceLabelKey | i18n }}</span>
+      </bit-cell>
+    </bit-column>
+
+    <bit-column width="minmax(20rem, 2fr)">
+      <bit-header-cell>{{ "details" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.retrySucceeded; let job" [truncate]="false">
+        <span class="tw-text-sm" data-testid="rotation-history-job-details">
+          @if (job.details; as details) {
+            @if (details.attemptOrdinal != null) {
+              {{ details.key | i18n: details.attemptOrdinal }}
+              @if (details.causeLabelKey; as causeKey) {
+                {{ causeKey | i18n }}
+              }
+            } @else {
+              {{ details.key | i18n }}
+            }
+          }
+        </span>
+      </bit-cell>
+    </bit-column>
+  </bit-table-v2>
+} @else if (jobViews().length === 0) {
   <p class="tw-m-0 tw-text-sm tw-text-muted">{{ "pamRotationHistoryEmpty" | i18n }}</p>
 } @else {
   <div class="tw-overflow-x-auto">
@@ -19,34 +77,43 @@
             <th bitCell scope="col" class="tw-text-start">
               {{ "pamRotationConfigColumnCredential" | i18n }}
             </th>
+            <th
+              bitCell
+              scope="col"
+              class="tw-whitespace-nowrap tw-text-start"
+              [class.tw-hidden]="detailsOpen()"
+            >
+              {{ "pamRotationHistoryColumnSource" | i18n }}
+            </th>
           }
-          <th
-            bitCell
-            scope="col"
-            class="tw-whitespace-nowrap tw-text-start"
-            [class.tw-hidden]="detailsOpen()"
-          >
-            {{ "pamRotationHistoryColumnSource" | i18n }}
-          </th>
           <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
             {{ "pamRotationHistoryColumnResult" | i18n }}
           </th>
-          <th
-            bitCell
-            scope="col"
-            class="tw-whitespace-nowrap tw-text-start"
-            [class.tw-hidden]="detailsOpen()"
-          >
-            {{ "pamRotationHistoryDurationLabel" | i18n }}
-          </th>
-          <th
-            bitCell
-            scope="col"
-            class="tw-whitespace-nowrap tw-text-start"
-            [class.tw-hidden]="detailsOpen()"
-          >
-            {{ "pamRotationHistoryColumnAttempts" | i18n }}
-          </th>
+          @if (showCredential()) {
+            <th
+              bitCell
+              scope="col"
+              class="tw-whitespace-nowrap tw-text-start"
+              [class.tw-hidden]="detailsOpen()"
+            >
+              {{ "pamRotationHistoryDurationLabel" | i18n }}
+            </th>
+            <th
+              bitCell
+              scope="col"
+              class="tw-whitespace-nowrap tw-text-start"
+              [class.tw-hidden]="detailsOpen()"
+            >
+              {{ "pamRotationHistoryColumnAttempts" | i18n }}
+            </th>
+          } @else {
+            <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
+              {{ "pamRotationHistoryColumnRotationTrigger" | i18n }}
+            </th>
+            <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
+              {{ "details" | i18n }}
+            </th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -63,7 +130,7 @@
               scope="row"
               class="tw-whitespace-nowrap tw-text-start tw-text-sm tw-font-normal"
             >
-              {{ job.startedAt | date: "short" }}
+              {{ job.startedAt | timestamp }}
             </th>
 
             @if (showCredential()) {
@@ -75,11 +142,11 @@
                   >{{ job.credentialName }}</span
                 >
               </td>
-            }
 
-            <td bitCell class="tw-whitespace-nowrap tw-text-sm" [class.tw-hidden]="detailsOpen()">
-              {{ job.sourceLabelKey | i18n }}
-            </td>
+              <td bitCell class="tw-whitespace-nowrap tw-text-sm" [class.tw-hidden]="detailsOpen()">
+                {{ job.sourceLabelKey | i18n }}
+              </td>
+            }
 
             <td
               bitCell
@@ -89,42 +156,62 @@
               id="rotation-history_button_details-{{ job.id }}"
               [attr.aria-label]="
                 (job.statusLabelKey | i18n) +
-                (job.startedAt ? ' ' + (job.startedAt | date: 'medium') : '') +
-                (job.sessionTerminationFailed
-                  ? ' ' + ('pamRotationSessionTerminationTermFailed' | i18n)
-                  : '')
+                (job.startedAt ? ' ' + (job.startedAt | timestamp) : '')
+              "
+              [attr.aria-describedby]="
+                job.sessionTerminationFailed ? 'rotation-history_note_term-failed-' + job.id : null
               "
               (keydown.enter)="openJob(job, resultCell)"
               (keydown.space)="openJob(job, resultCell); $event.preventDefault()"
               data-testid="rotation-history-job-result"
               #resultCell
             >
-              <span bitBadge [variant]="job.statusVariant" class="tw-whitespace-nowrap">{{
-                job.statusLabelKey | i18n
-              }}</span>
+              @if (showCredential()) {
+                <span bitBadge [variant]="job.statusVariant" class="tw-whitespace-nowrap">{{
+                  job.statusLabelKey | i18n
+                }}</span>
+              } @else {
+                <span class="tw-text-sm">{{ job.statusLabelKey | i18n }}</span>
+              }
               @if (job.sessionTerminationFailed) {
-                <p class="tw-m-0 tw-mt-1.5 tw-text-xs tw-text-warning">
+                <p
+                  class="tw-m-0 tw-mt-1.5 tw-text-xs tw-text-warning"
+                  id="rotation-history_note_term-failed-{{ job.id }}"
+                >
                   {{ "pamRotationSessionTerminationTermFailed" | i18n }}
                 </p>
               }
             </td>
 
-            <td bitCell class="tw-whitespace-nowrap tw-text-sm" [class.tw-hidden]="detailsOpen()">
-              @if (job.duration) {
-                <pam-rotation-duration [parts]="job.duration" />
-              } @else if (job.running) {
-                <span class="tw-text-muted">{{ "pamRotationAttemptInProgress" | i18n }}</span>
-              }
-            </td>
+            @if (showCredential()) {
+              <td bitCell class="tw-whitespace-nowrap tw-text-sm" [class.tw-hidden]="detailsOpen()">
+                @if (job.duration) {
+                  <pam-rotation-duration [parts]="job.duration" />
+                } @else if (job.running) {
+                  <span class="tw-text-muted">{{ "pamRotationAttemptInProgress" | i18n }}</span>
+                }
+              </td>
 
-            <td
-              bitCell
-              class="tw-whitespace-nowrap tw-text-sm"
-              [class.tw-hidden]="detailsOpen()"
-              data-testid="rotation-history-job-attempts"
-            >
-              {{ job.attempts.length }}
-            </td>
+              <td
+                bitCell
+                class="tw-whitespace-nowrap tw-text-sm"
+                [class.tw-hidden]="detailsOpen()"
+                data-testid="rotation-history-job-attempts"
+              >
+                {{ job.attempts.length }}
+              </td>
+            } @else {
+              <td bitCell class="tw-whitespace-nowrap tw-text-sm">
+                {{ job.sourceLabelKey | i18n }}
+              </td>
+              <td bitCell class="tw-text-sm" data-testid="rotation-history-job-details">
+                @if (job.retrySucceeded) {
+                  {{ "pamRotationHistoryRetrySucceeded" | i18n }}
+                } @else if (!job.failed) {
+                  {{ "pamRotationDetailNone" | i18n }}
+                }
+              </td>
+            }
           </tr>
         }
       </tbody>

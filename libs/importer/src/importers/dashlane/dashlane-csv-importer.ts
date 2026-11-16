@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -54,8 +55,11 @@ const _mappedPersonalInfoAsIdentityColumns = new Set([
 const _mappedSecureNoteColumns = new Set(["title", "note"]);
 
 export class DashlaneCsvImporter extends BaseImporter implements Importer {
-  constructor(private configService: ConfigService) {
-    super();
+  constructor(
+    private configService: ConfigService,
+    logService: LogService,
+  ) {
+    super(logService);
   }
 
   async parse(data: string): Promise<ImportResult> {
@@ -147,6 +151,13 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
     let mappedValues: string[] = [];
     switch (row.type) {
       case "credit_card":
+      case "payment_card":
+        // Dashlane's curent CSV export uses `payment_card` instead of `credit_card`, but we support both
+        // If a credit card item has no specific item name (exported to the `name` column in the current
+        // export format) the cardholder name in `account_name` is used as the item title instead
+        cipher.type = CipherType.Card;
+        cipher.card = new CardView();
+        cipher.name = !this.isNullOrWhitespace(row.name) ? row.name : row.account_name;
         cipher.card.cardholderName = row.account_name;
         cipher.card.number = row.cc_number;
         cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
@@ -161,6 +172,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           "code",
           "expiration_month",
           "expiration_year",
+          "name",
         ];
         break;
       case "bank":

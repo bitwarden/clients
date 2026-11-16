@@ -1,13 +1,6 @@
 import { NgZone } from "@angular/core";
 
 import {
-  AccessLeasesSdkService,
-  AccessRequestsSdkService,
-  AccessRulesSdkService,
-  ApprovalsSdkService,
-  DefaultAccessEventService,
-  DefaultAccessRefreshService,
-  DefaultLeasingErrorService,
   AccessEventService,
   ApprovalSdkService,
   AccessLeaseSdkService,
@@ -15,12 +8,21 @@ import {
   AccessRequestSdkService,
   AccessRuleSdkService,
   LeasingErrorService,
+  AccessLeasesSdkService,
+  AccessRequestsSdkService,
+  AccessRulesSdkService,
+  ApprovalsSdkService,
+  DefaultAccessEventService,
+  DefaultAccessRefreshService,
+  DefaultLeasingErrorService,
 } from "@bitwarden/bit-pam";
 import {
   AccessBadgeTickerService,
   CipherViewBannerComponent,
   ItemDetailsStateBadgeComponent,
   AccessRequestCancelService,
+  controlledAccessItemFilter,
+  ControlledAccessVaultFilterService,
   MyLeasesService,
 } from "@bitwarden/bit-pam-components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -49,7 +51,6 @@ import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-
 import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
-import { VAULT_CONTROLLED_ACCESS_FILTER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/pam/vault-filter-gated-collection-indicator.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
@@ -67,8 +68,6 @@ import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
 import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
-import { controlledAccessItemFilter } from "./vault-filter-controlled-access/controlled-access-item-filter";
-import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-access/controlled-access-vault-filter.service";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 import { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
@@ -141,16 +140,11 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_GATED_COLLECTION_BANNER,
       useValue: GatedCollectionBannerComponent,
     }),
-    // One instance behind the sidebar filter, the table chip, and the column, so they share one
-    // per-row state cache.
+    // One instance behind the table chip and the column, so they share one per-row state cache.
     safeProvider({
       provide: ControlledAccessVaultFilterService,
       useClass: ControlledAccessVaultFilterService,
       deps: [],
-    }),
-    safeProvider({
-      provide: VAULT_CONTROLLED_ACCESS_FILTER,
-      useExisting: ControlledAccessVaultFilterService,
     }),
     safeProvider({
       provide: VAULT_ITEM_FILTER,

@@ -1,11 +1,12 @@
 import { cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { BrowserContext, Page, chromium, expect, test as base } from "@playwright/test";
+import { BrowserContext, CDPSession, Page, chromium, expect, test as base } from "@playwright/test";
 
 import { pruneVideo, videoDir } from "../artifacts";
 import { BROWSER_BUILD_DIR, CHROME_PROFILE_DIR, E2E_STATE_DIR } from "../paths";
 import { IS_DEV_SERVER } from "../server";
+import { skipOnboardingDialogs } from "../web/onboarding";
 
 // A copy of the build whose manifest grants nativeMessaging, see `NativeMessaging.Granted`.
 const GRANTED_BUILD_DIR = resolve(E2E_STATE_DIR, "browser-build-native-messaging");
@@ -113,17 +114,63 @@ export async function popupUrl(context: BrowserContext): Promise<string> {
 const REOPEN_TIMEOUT_MS = 30_000;
 const REOPEN_RETRY_MS = 100;
 
-/**
- * Resolves once the running extension instance shut down, which lock does to wipe it from
- * memory (BrowserProcessReloadService). Call before locking. The next instance starts
- * lazily, e.g. when the popup opens; extension pages opened earlier die with the old one.
- */
-export async function extensionShutdown(context: BrowserContext): Promise<void> {
-  const worker =
-    context.serviceWorkers().find((w) => w.url().startsWith(EXTENSION_SCHEME)) ??
-    (await context.waitForEvent("serviceworker", { timeout: SERVICE_WORKER_TIMEOUT_MS }));
+const SERVICE_WORKER_TARGET = "service_worker";
+const SHUTDOWN_POLL_MS = 100;
 
-  await worker.waitForEvent("close", { timeout: SERVICE_WORKER_TIMEOUT_MS });
+/** Ids of the extension's running service workers, as the browser reports them over CDP. */
+async function workerTargetIds(session: CDPSession): Promise<Set<string>> {
+  const { targetInfos } = await session.send("Target.getTargets");
+  const workers = targetInfos.filter(
+    (target) => target.type === SERVICE_WORKER_TARGET && target.url.startsWith(EXTENSION_SCHEME),
+  );
+
+  return new Set(workers.map((target) => target.targetId));
+}
+
+/**
+ * Notes the running extension instance, which lock shuts down to wipe it from memory
+ * (BrowserProcessReloadService). Await it before locking, so the instance is captured before
+ * the restart can happen. Await the returned function after locking: it resolves once that
+ * instance is gone. The next instance starts lazily, e.g. when the popup opens; extension
+ * pages opened earlier die with the old one.
+ *
+ * Asks the browser which workers still exist instead of waiting for the worker's "close"
+ * event: Playwright does not reliably deliver it when the extension reloads on CI.
+ */
+export async function watchShutdown(context: BrowserContext): Promise<() => Promise<void>> {
+  const probe = await context.newPage();
+
+  try {
+    const session = await context.newCDPSession(probe);
+    const deadline = Date.now() + SERVICE_WORKER_TIMEOUT_MS;
+
+    // The worker may be idle, so it can take a moment to start.
+    let running = await workerTargetIds(session);
+    while (running.size === 0 && Date.now() < deadline) {
+      await probe.waitForTimeout(SHUTDOWN_POLL_MS);
+      running = await workerTargetIds(session);
+    }
+
+    return async () => {
+      try {
+        while (Date.now() < deadline) {
+          const current = await workerTargetIds(session);
+          if (![...running].some((id) => current.has(id))) {
+            return;
+          }
+
+          await probe.waitForTimeout(SHUTDOWN_POLL_MS);
+        }
+
+        throw new Error("The extension never shut down.");
+      } finally {
+        await probe.close();
+      }
+    };
+  } catch (error) {
+    await probe.close();
+    throw error;
+  }
 }
 
 /**
@@ -159,8 +206,11 @@ export async function reopenPopup(
 /**
  * A fresh install walks through onboarding — the "make Bitwarden your default password
  * manager" prompt, then the intro carousel — before it offers the login page.
+ * Also arms the handlers for the modals that open over the vault after login.
  */
 export async function reachLoginPage(page: Page) {
+  await skipOnboardingDialogs(page);
+
   const email = page.getByTestId("login-email-input");
   const skipDefaultPrompt = page.locator(SKIP_DEFAULT_MANAGER_BUTTON);
   // Scoped to the carousel: the login page has a "Log in" button of its own.

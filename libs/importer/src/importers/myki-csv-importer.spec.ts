@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -434,7 +437,7 @@ function expectTourVisa(cipher: CipherView) {
 describe("Myki CSV Importer", () => {
   let importer: MykiCsvImporter;
   beforeEach(() => {
-    importer = new MykiCsvImporter();
+    importer = new MykiCsvImporter(mock<LogService>());
   });
 
   it("should parse userAccount records", async () => {

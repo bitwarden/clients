@@ -91,6 +91,24 @@
         [options]="nestedFolderOptions()"
       ></bit-filter-menu>
     }
+
+    @if (itemFilter != null && contributedFilterOptions().length) {
+      <bit-filter-menu
+        [key]="itemFilter.key"
+        [placeholderText]="itemFilter.label"
+        multiple
+        [icon]="itemFilter.icon"
+      >
+        @for (option of contributedFilterOptions(); track option.id) {
+          <bit-filter-option
+            [value]="option.id"
+            [iconTile]="contributedFilterTiles().get(option.id)"
+            [count]="contributedFilterCount(option.id)"
+            >{{ option.name }}</bit-filter-option
+          >
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
   <app-vault-filters-tour [toolbar]="toolbar" />
   <!--
@@ -166,10 +184,13 @@
                   [appA11yTitle]="'attachments' | i18n"
                 ></bit-icon>
               }
+              @if (rowIcon) {
+                <ng-container *ngComponentOutlet="rowIcon; inputs: { cipher: row.cipher }" />
+              }
             </div>
           </div>
           <span class="tw-text-muted tw-text-xs tw-truncate">
-            {{ CipherViewLikeUtils.subtitle(row.cipher, i18nService) }}
+            <app-vault-row-subtitle [cipher]="row.cipher"></app-vault-row-subtitle>
           </span>
         </div>
       </button>
@@ -193,7 +214,9 @@
             [label]="'launchWebsiteForName' | i18n: row.cipher.name"
           ></button>
         }
-        <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        @if (row.actions.showCopyActions) {
+          <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        }
         <app-item-more-options
           [cipher]="row.cipher"
           [showAutofill]="row.actions.showAutofillInMenu"

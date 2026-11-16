@@ -44,6 +44,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   IconModule,
+  IconTileComponent,
   Option,
   SectionComponent,
   SelectModule,
@@ -73,6 +74,7 @@ import type { ShareLink } from "../../services/share-link.service";
     CheckboxModule,
     FormControlModule,
     IconModule,
+    IconTileComponent,
     TypographyModule,
     I18nPipe,
   ],
@@ -95,6 +97,10 @@ export class ShareItemFormComponent implements OnDestroy {
   protected readonly activeLinks = signal<ShareLink[]>([]);
   protected readonly collections = signal<CollectionView[]>([]);
   protected readonly folder = signal<FolderView | undefined>(undefined);
+  /** Folder and collections are the only item details, so without them there is nothing to expand. */
+  protected readonly hasItemDetails = computed(
+    () => this.collections().length > 0 || this.folder() != null,
+  );
 
   protected readonly cipherTypeIcon = computed<BitwardenIcon>(() => {
     const currentCipher = this.cipher();

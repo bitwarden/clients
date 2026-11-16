@@ -22,6 +22,12 @@ describe("AutofillSettingsService", () => {
   let enableBasicAuthResponseByUser: Map<UserId, Observable<boolean | null>>;
   let autofillSettingsService: AutofillSettingsService;
 
+  const collectEmissions = (observable$: Observable<boolean>) => {
+    const emissions: boolean[] = [];
+    const subscription = observable$.subscribe((value) => emissions.push(value));
+    return { emissions, subscription };
+  };
+
   beforeEach(() => {
     accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
@@ -59,12 +65,6 @@ describe("AutofillSettingsService", () => {
   });
 
   describe("resolvedEnableBasicAuthResponse$", () => {
-    const collectEmissions = (observable$: Observable<boolean>) => {
-      const emissions: boolean[] = [];
-      const subscription = observable$.subscribe((value) => emissions.push(value));
-      return { emissions, subscription };
-    };
-
     it("emits true when the feature flag and the user setting are both enabled", async () => {
       await expect(
         firstValueFrom(autofillSettingsService.resolvedEnableBasicAuthResponse$),
@@ -146,6 +146,19 @@ describe("AutofillSettingsService", () => {
       subscription.unsubscribe();
     });
 
+    it("follows HTTP authentication availability", () => {
+      const resolved = collectEmissions(autofillSettingsService.resolvedEnableBasicAuthResponse$);
+      const available = collectEmissions(autofillSettingsService.httpAuthenticationAvailable$);
+
+      featureFlag$.next(false);
+      featureFlag$.next(true);
+
+      expect(resolved.emissions).toEqual([true, false, true]);
+      expect(available.emissions).toEqual([true, false, true]);
+      resolved.subscription.unsubscribe();
+      available.subscription.unsubscribe();
+    });
+
     it("does not give a new subscriber the previous user's value before the active user's setting is read", async () => {
       // Stands in for a newly active user whose setting is still being read from storage.
       const pendingOtherUserSetting$ = new Subject<boolean | null>();
@@ -166,6 +179,74 @@ describe("AutofillSettingsService", () => {
       expect(newSubscriber.emissions).toEqual([false]);
       longLived.subscription.unsubscribe();
       newSubscriber.subscription.unsubscribe();
+    });
+  });
+
+  describe("httpAuthenticationAvailable$", () => {
+    it("emits true when there is an active user and the feature flag is on", async () => {
+      await expect(
+        firstValueFrom(autofillSettingsService.httpAuthenticationAvailable$),
+      ).resolves.toBe(true);
+    });
+
+    it("emits true when the user setting is off", async () => {
+      enableBasicAuthResponseByUser.set(userId, new BehaviorSubject<boolean | null>(false));
+
+      await expect(
+        firstValueFrom(autofillSettingsService.httpAuthenticationAvailable$),
+      ).resolves.toBe(true);
+    });
+
+    it("emits false when the feature flag is off", async () => {
+      featureFlag$.next(false);
+
+      await expect(
+        firstValueFrom(autofillSettingsService.httpAuthenticationAvailable$),
+      ).resolves.toBe(false);
+    });
+
+    it("emits false when there is no active user", async () => {
+      await accountService.switchAccount(null);
+
+      await expect(
+        firstValueFrom(autofillSettingsService.httpAuthenticationAvailable$),
+      ).resolves.toBe(false);
+    });
+
+    it("follows a change of active user", async () => {
+      const { emissions, subscription } = collectEmissions(
+        autofillSettingsService.httpAuthenticationAvailable$,
+      );
+
+      await accountService.switchAccount(null);
+      await accountService.switchAccount(otherUserId);
+
+      expect(emissions).toEqual([true, false, true]);
+      subscription.unsubscribe();
+    });
+
+    it("updates when the feature flag changes", () => {
+      const { emissions, subscription } = collectEmissions(
+        autofillSettingsService.httpAuthenticationAvailable$,
+      );
+
+      featureFlag$.next(false);
+      featureFlag$.next(true);
+
+      expect(emissions).toEqual([true, false, true]);
+      subscription.unsubscribe();
+    });
+
+    it("does not re-emit an unchanged value", async () => {
+      const { emissions, subscription } = collectEmissions(
+        autofillSettingsService.httpAuthenticationAvailable$,
+      );
+
+      featureFlag$.next(true);
+      await accountService.switchAccount(otherUserId);
+
+      expect(emissions).toEqual([true]);
+      subscription.unsubscribe();
     });
   });
 });

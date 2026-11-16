@@ -21,6 +21,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
@@ -487,6 +488,40 @@ describe("CipherViewComponent", () => {
       expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
+  });
+
+  describe("cardIsExpired", () => {
+    const createCard = (expYear: string): CipherView => {
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.type = CipherType.Card;
+      cipher.card = Object.assign(new CardView(), { expMonth: "1", expYear });
+      return cipher;
+    };
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
+    });
+
+    it("flags an expired card", () => {
+      fixture.componentRef.setInput("cipher", createCard("1999"));
+
+      expect(component.cardIsExpired()).toBe(true);
+    });
+
+    it("does not flag a card that has not expired", () => {
+      fixture.componentRef.setInput("cipher", createCard(String(new Date().getFullYear() + 5)));
+
+      expect(component.cardIsExpired()).toBe(false);
+    });
+
+    it("does not flag an expired card when the host hides the warning", () => {
+      fixture.componentRef.setInput("cipher", createCard("1999"));
+      fixture.componentRef.setInput("hideExpiredCardWarning", true);
+
+      expect(component.cardIsExpired()).toBe(false);
+    });
   });
 
   describe("showChangePasswordLink", () => {
