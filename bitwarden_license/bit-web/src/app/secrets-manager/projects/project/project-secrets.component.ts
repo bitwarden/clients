@@ -13,6 +13,7 @@ import {
 } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
+import { ProjectService, ProjectView, SecretListView, SecretService } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,
@@ -25,8 +26,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 
-import { ProjectView } from "../../models/view/project.view";
-import { SecretListView } from "../../models/view/secret-list.view";
 import {
   SecretDeleteDialogComponent,
   SecretDeleteOperation,
@@ -41,9 +40,8 @@ import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
 } from "../../secrets/dialog/secret-view-dialog.component";
-import { SecretService } from "../../secrets/secret.service";
 import { SecretsListComponent } from "../../shared/secrets-list.component";
-import { ProjectService } from "../project.service";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

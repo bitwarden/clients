@@ -51,6 +51,24 @@ export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
     return withRevealed(ciphers, revealed);
   }
 
+  override async ciphersForIds(
+    userId: UserId,
+    ids: string[],
+    use: CipherUse,
+  ): Promise<CipherView[]> {
+    if (use !== CipherUse.UserFill) {
+      return super.ciphersForIds(userId, ids, use);
+    }
+    const [ciphers, revealed] = await Promise.all([
+      super.ciphersForIds(userId, ids, use),
+      this.getRevealed(userId),
+    ]);
+    return withRevealed(
+      ciphers,
+      revealed.filter((view) => ids.includes(view.id)),
+    );
+  }
+
   override async ciphersForUrl(
     url: string,
     userId: UserId,

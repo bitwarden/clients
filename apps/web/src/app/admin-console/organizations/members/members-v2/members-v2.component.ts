@@ -27,7 +27,7 @@ import { RegistrationUserAddIcon, SearchFolder } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -604,6 +604,9 @@ export class MembersV2Component {
   protected readonly sortByStatus = (a: OrganizationUserView, b: OrganizationUserView) =>
     statusOrder(a.status) - statusOrder(b.status);
 
+  protected readonly sortByRole = (a: OrganizationUserView, b: OrganizationUserView) =>
+    roleOrder(a.type) - roleOrder(b.type);
+
   /** Orders by the first name shown in the badge, then by how many more there are. */
   protected readonly sortByFirstName = (a: string[], b: string[]) =>
     this.compareText(a[0] ?? "", b[0] ?? "") || a.length - b.length;
@@ -644,4 +647,9 @@ export class MembersV2Component {
 function statusOrder(status: OrganizationUserStatusType): number {
   const index = STATUS_BADGES.findIndex((badge) => badge.status === status);
   return index === -1 ? STATUS_BADGES.length : index;
+}
+
+function roleOrder(type: OrganizationUserType): number {
+  const index = ROLE_OPTIONS.findIndex((role) => role.value === type);
+  return index === -1 ? ROLE_OPTIONS.length : index;
 }

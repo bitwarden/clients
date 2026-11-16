@@ -131,6 +131,9 @@ describe("NotificationBackground", () => {
     accountService.activeAccount$ = activeAccountSubject;
     const storedCipherPolicy = new DefaultFillCipherPolicy(cipherService);
     fillCipherPolicy.ciphers.mockImplementation((...args) => storedCipherPolicy.ciphers(...args));
+    fillCipherPolicy.ciphersForIds.mockImplementation((...args) =>
+      storedCipherPolicy.ciphersForIds(...args),
+    );
     fillCipherPolicy.ciphersForUrl.mockImplementation((...args) =>
       storedCipherPolicy.ciphersForUrl(...args),
     );
