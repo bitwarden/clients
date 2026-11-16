@@ -5,6 +5,7 @@ import {
 } from "@angular/cdk/dialog";
 import { ComponentType } from "@angular/cdk/overlay";
 import { Portal } from "@angular/cdk/portal";
+import { signal } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/logging";
@@ -71,7 +72,15 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   private _closedSubject = new Subject<R | undefined>();
   private _isClosed = false;
   closed = this._closedSubject.asObservable();
-  disableClose = false;
+
+  // Signal-backed so OnPush dialog templates update when consumers toggle it at runtime.
+  private readonly _disableClose = signal(false);
+  get disableClose(): boolean {
+    return this._disableClose();
+  }
+  set disableClose(value: boolean) {
+    this._disableClose.set(value);
+  }
   closePredicate?: (result?: R) => Promise<boolean>;
 
   /** The portal containing the drawer — set by DialogService after construction. */
@@ -204,11 +213,15 @@ export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     return this.cdkDialogRefBase.closed;
   }
 
+  // The CDK ref owns the value; this signal only notifies OnPush dialog templates that read it.
+  private readonly disableCloseChanged = signal(0);
   get disableClose(): boolean | undefined {
+    this.disableCloseChanged();
     return this.cdkDialogRefBase.disableClose;
   }
   set disableClose(value: boolean | undefined) {
     this.cdkDialogRefBase.disableClose = value;
+    this.disableCloseChanged.update((n) => n + 1);
   }
 
   get componentInstance(): C | null {

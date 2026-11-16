@@ -14,11 +14,6 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   AccessDecisionVerdict,
   AccessEventService,
@@ -31,7 +26,12 @@ import {
   LeasingErrorService,
   canApprove,
   isRequestNoLongerPendingError,
-} from "../..";
+} from "@bitwarden/bit-pam";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
 import { ApprovalRow } from "../../approvals/approval-row";
 import { ApproverInboxService } from "../../approvals/approver-inbox.service";
 import {
@@ -201,13 +201,16 @@ export class AccessRequestDetailService {
     await this.fetch(id);
   }
 
-  /** Withdraws an approval the requester has not started yet. */
-  async withdrawApproval(): Promise<void> {
+  /**
+   * Withdraws an approval the requester has not started yet. The server requires a managing
+   * approver to say why and shows the note to the requester.
+   */
+  async withdrawApproval(reason: string): Promise<void> {
     const id = this._request$.value?.id;
     if (id == null) {
       return;
     }
-    await this.inbox.cancelApproval(id);
+    await this.inbox.cancelApproval(id, reason);
     await this.fetch(id);
   }
 

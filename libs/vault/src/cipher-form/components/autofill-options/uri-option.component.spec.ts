@@ -3,11 +3,11 @@ import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
-import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
@@ -226,21 +226,47 @@ describe("UriOptionComponent", () => {
       expect(component["uriLabel"]).toBe("websiteUriCount 2");
     });
 
-    it("returns 'appUri' for a desktopapp:// URI at index 0 when showAppLabel is true", () => {
+    it("returns 'desktopApp' for a desktopapp:// URI at index 0 when showAppLabel is true", () => {
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 0;
       fixture.componentRef.setInput("showAppLabel", true);
 
-      expect(component["uriLabel"]).toBe("appUri");
+      expect(component["uriLabel"]).toBe("desktopApp");
     });
 
-    it("returns 'appUriCount' for a desktopapp:// URI at index greater than 0 when showAppLabel is true", () => {
+    it("returns 'desktopAppCount' for a desktopapp:// URI at index greater than 0 when showAppLabel is true", () => {
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 1;
       fixture.componentRef.setInput("showAppLabel", true);
 
-      expect(component["uriLabel"]).toBe("appUriCount 2");
+      expect(component["uriLabel"]).toBe("desktopAppCount 2");
     });
+  });
+
+  describe("isAppUri", () => {
+    it("returns true for a desktopapp:// URI when showAppLabel is true", () => {
+      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
+      fixture.componentRef.setInput("showAppLabel", true);
+
+      expect(component["isAppUri"]).toBe(true);
+    });
+
+    it("returns false for a desktopapp:// URI when showAppLabel is false", () => {
+      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
+      fixture.componentRef.setInput("showAppLabel", false);
+
+      expect(component["isAppUri"]).toBe(false);
+    });
+
+    it.each(["https://example.com", ""])(
+      "returns false for the non desktop app URI %p when showAppLabel is true",
+      (uri) => {
+        component.writeValue({ uri, matchDetection: null });
+        fixture.componentRef.setInput("showAppLabel", true);
+
+        expect(component["isAppUri"]).toBe(false);
+      },
+    );
   });
 
   describe("advanced match strategy dialog", () => {

@@ -23,6 +23,17 @@ function neutralizeFormula(value: string): string {
   return FORMULA_TRIGGERS.some((trigger) => value.startsWith(trigger)) ? `'${value}` : value;
 }
 
+/** ISO 8601 in the exporter's time zone, with its offset: "2026-11-04T15:30:05.000+05:30". */
+function toLocalIsoString(date: Date): string {
+  const offsetMinutes = -date.getTimezoneOffset();
+  const wallClock = new Date(date.getTime() + offsetMinutes * 60_000).toISOString().slice(0, -1);
+  const sign = offsetMinutes < 0 ? "-" : "+";
+  const absMinutes = Math.abs(offsetMinutes);
+  const hours = String(Math.floor(absMinutes / 60)).padStart(2, "0");
+  const minutes = String(absMinutes % 60).padStart(2, "0");
+  return `${wallClock}${sign}${hours}:${minutes}`;
+}
+
 /** Applied to the whole record rather than per field, so a column added later cannot be missed. */
 function neutralizeRecord(record: AuditExport): AuditExport {
   return Object.fromEntries(
@@ -48,7 +59,7 @@ export class AuditExportService {
 
   toAuditExport(row: AuditRow): AuditExport {
     return neutralizeRecord({
-      timestamp: row.occurredAt.toISOString(),
+      timestamp: toLocalIsoString(row.occurredAt),
       event: this.i18nService.t(row.kindLabelKey),
       actorName: row.actor ?? "",
       actorEmail: row.actorEmail ?? "",
@@ -59,11 +70,8 @@ export class AuditExportService {
       ruleName: row.ruleName ?? "",
       targetSystemName: row.targetSystemName ?? "",
       accessConnectorName: row.accessConnectorName ?? "",
-      grantedDuration:
-        row.duration == null
-          ? ""
-          : this.i18nService.t(row.duration.key, row.duration.value ?? undefined),
-      extendedUntil: row.extendedUntil == null ? "" : new Date(row.extendedUntil).toISOString(),
+      grantedDuration: row.duration ?? "",
+      extendedUntil: row.extendedUntil == null ? "" : toLocalIsoString(new Date(row.extendedUntil)),
       detail: row.detail ?? "",
       automated: row.automated,
       incomplete: row.inDoubt,

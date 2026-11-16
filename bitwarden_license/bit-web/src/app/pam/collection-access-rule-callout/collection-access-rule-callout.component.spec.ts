@@ -3,14 +3,14 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { AccessRuleSdkService } from "@bitwarden/bit-pam";
+import type { AccessRuleView } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef } from "@bitwarden/components";
 
-import { AccessRuleSdkService } from "..";
-import type { AccessRuleView } from "../abstractions/access-rule";
 import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";
@@ -156,7 +156,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     expect(callout()).toBeNull();
   });
 
-  it("reads nothing without a collection id — that is the create-mode dialog", async () => {
+  it("reads nothing without a collection id, that is the create-mode dialog", async () => {
     await create({ organizationId: ORG_ID, collectionId: undefined });
 
     expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();

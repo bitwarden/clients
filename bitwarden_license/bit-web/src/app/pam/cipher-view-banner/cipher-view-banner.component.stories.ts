@@ -2,33 +2,34 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { EMPTY, of } from "rxjs";
 
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  LeasingErrorService,
+} from "@bitwarden/bit-pam";
+import {
+  CipherViewBannerComponent,
+  AccessRequestCancelService,
+  MyLeasesService,
+} from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { HOUR, MINUTE, liveFromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { LeasingErrorService } from "../abstractions/leasing-error.service";
-import { AccessRequestCancelService } from "../services/access-request-cancel.service";
-import { MyLeasesService } from "../services/my-leases.service";
 import {
-  HOUR,
-  MINUTE,
   accessLease,
   accessRequest,
-  liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
-  startClockAtStoryNow,
 } from "../testing/story-fixtures";
-
-import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 const ORGANIZATION_ID = "org-1";
 
@@ -133,6 +134,7 @@ function pam(
         useValue: { cancelOutstandingRequest: () => Promise.resolve() },
       },
       { provide: LeasingErrorService, useValue: { isLeasingError: () => false } },
+      { provide: PlatformUtilsService, useValue: { copyToClipboard: () => {} } },
       {
         provide: DialogService,
         useValue: {

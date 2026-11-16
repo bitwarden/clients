@@ -51,13 +51,14 @@ export type TargetSystemMethod = SdkTargetSystemMethod;
 export const TargetSystemKind = Object.freeze({
   Entra: "entra",
   CustomScript: "custom_script",
+  ActiveDirectory: "active_directory",
   Unknown: "unknown",
 } as const satisfies Record<string, SdkTargetSystemKind>);
 export type TargetSystemKind = SdkTargetSystemKind;
 
 /**
  * `Disabled` stops new jobs; in-flight jobs finish. `PendingSeal` is a target left incomplete by
- * a failed create — no trustworthy `sealed` fields, no jobs — until re-saving the edit form seals it.
+ * a failed create, no trustworthy `sealed` fields, no jobs, until re-saving the edit form seals it.
  */
 export const TargetSystemStatus = Object.freeze({
   Active: "active",

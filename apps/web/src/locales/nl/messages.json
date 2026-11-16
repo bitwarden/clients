@@ -2645,6 +2645,9 @@
   "noItemsMatchSelectedFilters": {
     "message": "Geen items gevonden met de geselecteerde filters"
   },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "Geen items komen overeen met de geselecteerde filters"
+  },
   "noItemsMatchSearchTerm": {
     "message": "Geen items komen overeen met \"$SEARCH_TERM$\"",
     "placeholders": {
@@ -3632,6 +3635,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Kluis selecteren",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Locatie selecteren",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Selecteer een kluis"
+  },
+  "selectALocationTitle": {
+    "message": "Selecteer een locatie"
+  },
+  "importDestinationDescription": {
+    "message": "Kies waar deze items te importeren."
+  },
+  "importMyItemsOption": {
+    "message": "Mijn items",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Alleen zichtbaar voor jou"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Eigendom van $ORGANIZATION$, maar alleen zichtbaar voor jou",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organisatiekluis"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Gedeeld met één persoon"
+  },
+  "importFamilyVault": {
+    "message": "Familiekluis"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Alle items naar een $ORGANIZATION$ gedeelde map verplaatsen",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Alle items naar een $ORGANIZATION$ gedeelde map verplaatsen",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Alles naar een bovenliggende map verplaatsen, de geneste mappenstructuur zal worden behouden."
+  },
+  "importSharedFolderRequired": {
+    "message": "Een gedeelde map is vereist."
+  },
+  "importIntoOrganization": {
+    "message": "Items worden geïmporteerd in $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Alle items naar een gedeelde map verplaatsen"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items kunnen niet geïmporteerd worden in $ORGANIZATION$ zonder gedeelde map, en je beheert en geen. Kies een andere locatie.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "$COUNT$ items importeren",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "1 item importeren"
+  },
+  "importToOrganization": {
+    "message": "Importeren naar $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Je gegevens kunnen worden gedeeld met leden van deze organisatie."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ staat niet toe om $ITEM_TYPES$ te importeren. Als ze in je import staan, worden ze overgeslagen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "veilige notities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "kaarten",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identiteiten",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH-sleutels",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bankrekeningen",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "rijbewijzen",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "paspoorten",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "Bestand kiezen"
@@ -4908,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Overzicht prijzen weergeven"
-  },
-  "hidePricingSummary": {
-    "message": "Overzicht prijzen verbergen"
-  },
   "summary": {
     "message": "Samenvatting"
   },
@@ -4992,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "Abonnement vervaldatum"
-  },
-  "subscriptionCanceled": {
-    "message": "Het abonnement is opgezegd."
   },
   "pendingCancellation": {
     "message": "In afwachting van opzegging"
@@ -5215,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "tot $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -6195,6 +6338,70 @@
       }
     }
   },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ uitgeschakeld door beleid",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ ingeschakeld door beleid",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Item Send$SENDID$ aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Item Send$SENDID$ bewerkt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Item Send$SENDID$ verwijderd",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Item Send$SENDID$ geopend aangemaakt door $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
   "sendAccessExternal": {
     "message": "Extern"
   },
@@ -6678,6 +6885,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Verplaatsen van items naar organisatie geweigerd"
+  },
+  "revocationReasonByAdmin": {
+    "message": "Door beheerder",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "Geen reden geregistreerd",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Toegang tot de organisatie ingetrokken voor $ID$ voor niet-naleving van het tweestapsorganisatiebeleid.",
@@ -7531,10 +7746,6 @@
     "message": "Abonnement wijzigen",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Upgrade je account naar een ander abonnement door onderstaande informatie door te geven. Verzeker jezelf ervan dat er een actieve betaalmethode aan het account is gekoppeld.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Factuur #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7609,6 +7820,18 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "Stel een limiet voor gebruikersplaatsen in voor je Secrets Manager-abonnement. Zodra deze limiet is bereikt, kun je geen nieuwe leden uitnodigen."
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Stel een zetellimiet in voor je Privileged Controls-abonnement. Zodra deze limiet is bereikt, kun je de leden geen toegang verlenen tot Privileged Controls."
+  },
+  "maximumSeatsCount": {
+    "message": "Maximaal $COUNT$ plaatsen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "Maximale gebruikersplaatsen (optioneel)",
@@ -9228,6 +9451,15 @@
   "desktopAutotypePolicyDescVfo1": {
     "message": "Bureaublad autotype voor leden inschakelen."
   },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Desktop-app automatisch aanvullen"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Schakel automatisch aanvullen op de desktop standaard in voor alle leden."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Automatisch invullen voor desktop-app standaard inschakelen voor alle leden. Je kunt een sneltoets instellen en kiezen of leden dit moeten bevestigen voordat het invult. Deze functie is beta."
+  },
   "disableSend": {
     "message": "Send uitschakelen"
   },
@@ -9377,6 +9609,9 @@
   },
   "estimatedTax": {
     "message": "Geschatte belasting"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "Je uiteindelijke kosten kunnen enigszins verschillen, aangezien de berekening tot op het moment dat je indient wordt gemaakt."
   },
   "subtotal": {
     "message": "Subtotaal"
@@ -11868,10 +12103,6 @@
     "message": "Service-account",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "Service-accounts",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "Geheimen",
     "description": "The title for the section of the application that deals with secrets."
@@ -14097,9 +14328,6 @@
     "message": "Beschrijf je reden voor annulering",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "1 jaar gratis"
-  },
   "newWebApp": {
     "message": "Welkom bij de nieuwe en verbeterde webapp. Meer informatie over wat er is veranderd."
   },
@@ -14902,15 +15130,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ korting",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Secrets Manager toevoegen"
   },
@@ -15130,9 +15349,6 @@
     "message": "contact op Bitwarden support.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "Gesponsord"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "Na het bijwerken in de Bitwarden-cloud-server, upload je je licentiebestand voor het toepassen van de meest recente wijzigingen."
   },
@@ -15343,9 +15559,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Toegang tot premium functionaliteiten"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB extra opslagruimte"
   },
   "sshKeyAlgorithm": {
     "message": "Sleutelalgoritme"
@@ -16742,9 +16955,6 @@
   "familiesUpdated": {
     "message": "Je hebt opgewaardeerd naar Families!"
   },
-  "taxCalculationError": {
-    "message": "Er is een fout opgetreden bij het berekenen van de belasting voor je locatie. Probeer het opnieuw."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Welkom bij Bitwarden"
   },
@@ -16766,8 +16976,8 @@
   "upgradeNow": {
     "message": "Nu upgraden"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
-    "message": "Geavanceerde online beveiliging met Bitwarden premium."
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
+    "message": "Geavanceerde online beveiliging met Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Met het invullen van dit formulier maak je een nieuwe Familie-organisatie. Je kunt je gratis organisatie upgraden vanuit de Admin Console."
@@ -18964,14 +19174,26 @@
   "pamInboxRevokeConfirm": {
     "message": "Dit trekt de toegang van het lid onmiddellijk in. Ze hebben een nieuwe goedkeuring nodig om deze opnieuw te verkrijgen."
   },
-  "pamInboxWithdrawApprovalConfirm": {
-    "message": "Dit trekt de ledengoedkeuring voor $ITEM$ in. Toegang wordt niet gestart en ze hebben een nieuwe goedkeuring nodig om het te krijgen.",
-    "placeholders": {
-      "item": {
-        "content": "$1",
-        "example": "Prod database"
-      }
-    }
+  "pamWithdrawApprovalWarningOne": {
+    "message": "Dit trekt je goedkeuring in voor",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Toegang zal niet starten en",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "er is een nieuwe goedkeuring voor nodig.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Reden"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Wordt weergegeven aan de aanvrager in hun beslissingenlogboek."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Houd het kort. De aanvrager leest dit direct."
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "Toegangsregel"
@@ -19201,7 +19423,7 @@
     "message": "Toegangsregel verwijderen?"
   },
   "pamAccessRuleDeleteConfirmDescription": {
-    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+    "message": "Dit zal deze regel permanent verwijderen. Gebruikers in de collecties die deze beheert zullen de normale toegang terugkrijgen."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Toegangsregel gedeactiveerd"

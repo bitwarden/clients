@@ -20,6 +20,7 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   exemptFromBillingAutomation: boolean;
   pendingAnnualUpgrade?: PendingAnnualUpgradeResponse;
   pamSeats?: number;
+  occupiedPamSeats?: number;
   maxAutoscalePamSeats?: number;
   isOnPamSalesInitiatedTrial?: boolean;
 
@@ -45,6 +46,7 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
       this.pendingAnnualUpgrade = new PendingAnnualUpgradeResponse(pendingAnnualUpgrade);
     }
     this.pamSeats = this.getResponseProperty("PamSeats") ?? undefined;
+    this.occupiedPamSeats = this.getResponseProperty("OccupiedPamSeats") ?? undefined;
     this.maxAutoscalePamSeats = this.getResponseProperty("MaxAutoscalePamSeats") ?? undefined;
     this.isOnPamSalesInitiatedTrial =
       this.getResponseProperty("IsOnPamSalesInitiatedTrial") ?? undefined;

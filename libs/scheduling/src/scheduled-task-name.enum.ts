@@ -10,6 +10,7 @@ export const ScheduledTaskNames = {
   clearPopupViewCache: "clearPopupViewCache",
   targetingRulesUpdate: "targetingRulesUpdate",
   phishingDomainUpdate: "phishingDomainUpdate",
+  pamLeaseExpiry: "pamLeaseExpiry",
 } as const;
 
 export type ScheduledTaskName = (typeof ScheduledTaskNames)[keyof typeof ScheduledTaskNames];

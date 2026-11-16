@@ -15,7 +15,6 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { AccountBillingClient } from "../../../../clients/account-billing.client";
-import { PreviewInvoiceClient } from "../../../../clients/preview-invoice.client";
 import { SubscriberBillingClient } from "../../../../clients/subscriber-billing.client";
 import { BillingAddress } from "../../../../payment/types";
 import { InvoicePreviewService } from "../../../../services/invoice-preview.service";
@@ -29,7 +28,6 @@ import {
 describe("PremiumOrgUpgradeService", () => {
   let service: PremiumOrgUpgradeService;
   let accountBillingClient: jest.Mocked<AccountBillingClient>;
-  let previewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let subscriberBillingClient: jest.Mocked<SubscriberBillingClient>;
   let syncService: jest.Mocked<SyncService>;
   let legacyCompatKeyService: jest.Mocked<LegacyCompatKeyService>;
@@ -63,11 +61,6 @@ describe("PremiumOrgUpgradeService", () => {
   beforeEach(() => {
     accountBillingClient = {
       upgradePremiumToOrganization: jest.fn().mockResolvedValue("new-org-id"),
-    } as any;
-    previewInvoiceClient = {
-      previewProrationForPremiumUpgrade: jest
-        .fn()
-        .mockResolvedValue({ tax: 5, total: 55, credit: 0 }),
     } as any;
     subscriberBillingClient = {
       getPaymentMethod: jest.fn().mockResolvedValue({
@@ -109,7 +102,6 @@ describe("PremiumOrgUpgradeService", () => {
       providers: [
         PremiumOrgUpgradeService,
         { provide: AccountBillingClient, useValue: accountBillingClient },
-        { provide: PreviewInvoiceClient, useValue: previewInvoiceClient },
         { provide: SubscriberBillingClient, useValue: subscriberBillingClient },
         { provide: SyncService, useValue: syncService },
         { provide: AccountService, useValue: { activeAccount$: of(mockAccount) } },
@@ -459,27 +451,6 @@ describe("PremiumOrgUpgradeService", () => {
         "Invalid plan tier for organization upgrade",
       );
       expect(invoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("previewProratedInvoice", () => {
-    it("should call previewProrationForPremiumUpgrade and return invoice preview", async () => {
-      const result = await service.previewProratedInvoice(mockPlanDetails, mockBillingAddress);
-
-      expect(result).toEqual({ tax: 5, total: 55, credit: 0 });
-      expect(previewInvoiceClient.previewProrationForPremiumUpgrade).toHaveBeenCalledWith(
-        2, // ProductTierType.Teams
-        mockBillingAddress,
-      );
-    });
-
-    it("should throw an error if invoice preview fails", async () => {
-      previewInvoiceClient.previewProrationForPremiumUpgrade.mockRejectedValue(
-        new Error("Invoice API error"),
-      );
-      await expect(
-        service.previewProratedInvoice(mockPlanDetails, mockBillingAddress),
-      ).rejects.toThrow("Invoice API error");
     });
   });
 

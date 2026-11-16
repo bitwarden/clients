@@ -1489,7 +1489,7 @@
     "message": "自动填充正在此页面上使用填充辅助。"
   },
   "activateFillAssistV2": {
-    "message": "启用填充辅助"
+    "message": "开启填充辅助"
   },
   "activateFillAssistDescriptionV2": {
     "message": "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
@@ -1608,6 +1608,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "选择密码库",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "选择位置",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "选择一个密码库"
+  },
+  "selectALocationTitle": {
+    "message": "选择一个位置"
+  },
+  "importDestinationDescription": {
+    "message": "选择这些项目的导入位置。"
+  },
+  "importMyItemsOption": {
+    "message": "我的项目",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "仅您可见"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "由 $ORGANIZATION$ 拥有，但仅您可见",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "组织密码库"
+  },
+  "importSharedWithOnePerson": {
+    "message": "已与某人共享"
+  },
+  "importFamilyVault": {
+    "message": "家庭密码库"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将被保留。"
+  },
+  "importSharedFolderRequired": {
+    "message": "必须选择共享文件夹。"
+  },
+  "importIntoOrganization": {
+    "message": "项目将被导入到 $ORGANIZATION$。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "将所有项目移动到共享文件夹"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "项目无法导入到没有共享文件夹且您在其中无任何管理权限的 $ORGANIZATION$ 中。请选择其他位置。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "导入 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "导入 1 个项目"
+  },
+  "importToOrganization": {
+    "message": "导入到 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "您的数据可能会与此​​组织的成员共享。"
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ 不允许您导入 $ITEM_TYPES$。如果您的导入内容中包含这些项目，它们将被跳过。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "登录",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "安全笔记",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "支付卡",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "身份",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH 密钥",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "银行账户",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "驾驶证",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "护照",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "前往 Access Intelligence"
   },
   "importItems": {
     "message": "导入项目"
@@ -2075,10 +2236,10 @@
     "message": "轻松找到自动填充建议"
   },
   "autofillSpotlightDesc": {
-    "message": "停用您浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
+    "message": "关闭您浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
   },
   "turnOffBrowserAutofill": {
-    "message": "停用 $BROWSER$ 自动填充",
+    "message": "关闭 $BROWSER$ 自动填充",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -2087,7 +2248,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "停用自动填充"
+    "message": "关闭自动填充"
   },
   "confirmAutofill": {
     "message": "确认自动填充"
@@ -2162,7 +2323,7 @@
     "message": "适用于所有已登录的账户。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "停用您浏览器的内置密码管理器设置以避免冲突。"
+    "message": "关闭您浏览器的内置密码管理器设置以避免冲突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "编辑浏览器设置。"
@@ -2201,7 +2362,7 @@
     "message": "登录项目的默认自动填充设置"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "您可以从项目编辑视图中为单个登录项目停用页面加载时自动填充。"
+    "message": "您可以从项目编辑视图中为单个登录项目关闭页面加载时自动填充。"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "使用默认设置"
@@ -3586,10 +3747,10 @@
     "message": "提示用户更新登录的 Bitwarden 通知示意图。"
   },
   "turnOnAutofill": {
-    "message": "启用自动填充"
+    "message": "开启自动填充"
   },
   "turnedOnAutofill": {
-    "message": "启用了自动填充"
+    "message": "开启了自动填充"
   },
   "dismiss": {
     "message": "忽略"
@@ -4534,7 +4695,7 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "您的组织策略已启用页面加载时自动填充。"
+    "message": "您的组织策略已开启页面加载时自动填充。"
   },
   "autofillSelectInfoWithCommand": {
     "message": "从此界面选择一个项目，使用快捷键 $COMMAND$，或探索设置中的其他选项。",
@@ -5021,7 +5182,7 @@
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
-    "message": "启用"
+    "message": "开启"
   },
   "ignore": {
     "message": "忽略"
@@ -6366,7 +6527,7 @@
     "description": "Label for the setting to make Bitwarden the default password manager"
   },
   "defaultPasswordManagerSettingHintV2": {
-    "message": "停用浏览器自动填充设置以避免冲突。",
+    "message": "关闭浏览器自动填充设置以避免冲突。",
     "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
   },
   "defaultPasswordManagerSettingHintLinkV2": {
@@ -6377,7 +6538,7 @@
     "message": "根据浏览器提示授予 Bitwarden 更改您的设置的权限。"
   },
   "defaultPasswordManagerPromptStep3": {
-    "message": "我们将停用您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
+    "message": "我们将关闭您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
   },
   "defaultPasswordManagerSuccessToast": {
     "message": "已将 Bitwarden 设置为浏览器的默认密码管理器"
@@ -6547,6 +6708,9 @@
   "myItems": {
     "message": "我的项目"
   },
+  "myItemsV2": {
+    "message": "我的项目"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },
@@ -6578,7 +6742,7 @@
     "message": "潜在的安全风险有哪些？"
   },
   "autoConfirmEnabled": {
-    "message": "启用了自动确认"
+    "message": "开启了自动确认"
   },
   "availableNow": {
     "message": "目前可用"
@@ -8081,17 +8245,11 @@
   "sharedUnlock": {
     "message": "共享解锁"
   },
-  "syncUnlockWithDesktop": {
-    "message": "与桌面 App 同步解锁状态"
+  "syncUnlockWithDesktop1": {
+    "message": "与桌面端同步解锁"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Bitwarden 浏览器扩展与桌面 App 会一起锁定或解锁。"
-  },
-  "syncUnlockWithWeb": {
-    "message": "与网页 App 同步解锁状态"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Bitwarden 浏览器扩展与网页 App 会一起锁定或解锁。"
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Bitwarden 浏览器扩展与桌面 App 将同步锁定和解锁。若可用，将使用生物识别。"
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "共享解锁不可用，因为您选择了不记住此设备。要启用此设置，请尝试重新登录。"
@@ -8675,37 +8833,37 @@
     "message": "响应匹配此登录项目的网站的基本 HTTP 身份验证提示。"
   },
   "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open help article on autofilling browser login prompts"
+    "message": "打开浏览器登录自动填充提示帮助文章"
   },
   "httpAuthenticationSettingWarning": {
     "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
     "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+    "message": "要使用此设置，请为此登录项目的每个网站选择「默认」以外的匹配检测选项。"
   },
   "turnOnHttpAuthenticationTitle": {
-    "message": "Turn on autofill for browser login prompts?"
+    "message": "开启浏览器登录自动填充提示吗？"
   },
   "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+    "message": "此项目的主密码二次验证将被关闭。这两项设置无法同时开启。"
   },
   "turnOnPasswordRepromptTitle": {
-    "message": "启用主密码二次验证吗？"
+    "message": "开启主密码二次验证吗？"
   },
   "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+    "message": "此项目的浏览器登录自动填充提示将被关闭。这两项设置无法同时开启。"
   },
   "useDefaultMatchDetectionTitle": {
-    "message": "Use default match detection?"
+    "message": "使用默认匹配检测吗？"
   },
   "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+    "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被关闭。"
   },
   "httpAuthenticationTurnedOffTitle": {
-    "message": "Autofill for browser login prompts turned off"
+    "message": "浏览器登录自动填充提示已关闭"
   },
   "httpAuthenticationTurnedOffNotice": {
-    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存此条目以保留此更改。"
   }
 }

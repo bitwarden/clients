@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -12,7 +11,6 @@ import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/mode
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -21,10 +19,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
-import {
-  SubscriberBillingClient,
-  PreviewInvoiceClient,
-} from "@bitwarden/web-vault/app/billing/clients";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
@@ -35,15 +30,11 @@ import { ChangePlanDialogComponent } from "./change-plan-dialog.component";
 describe("ChangePlanDialogComponent (additional service accounts)", () => {
   let component: ChangePlanDialogComponent;
   let vfo1Enabled: jest.Mock<boolean, []>;
-  let previewCartFlag$: BehaviorSubject<boolean>;
   let invoicePreviewService: jest.Mocked<InvoicePreviewService>;
 
   beforeEach(() => {
     vfo1Enabled = jest.fn<boolean, []>().mockReturnValue(false);
-    previewCartFlag$ = new BehaviorSubject<boolean>(false);
 
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(previewCartFlag$);
     invoicePreviewService = mock<InvoicePreviewService>();
 
     TestBed.configureTestingModule({
@@ -69,10 +60,8 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: BillingNotificationService, useValue: mock<BillingNotificationService>() },
         { provide: SubscriberBillingClient, useValue: mock<SubscriberBillingClient>() },
-        { provide: PreviewInvoiceClient, useValue: mock<PreviewInvoiceClient>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
         { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
-        { provide: ConfigService, useValue: configService },
         { provide: InvoicePreviewService, useValue: invoicePreviewService },
       ],
     });
@@ -188,86 +177,6 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
     });
   });
 
-  describe("server-sourced total (PM-40440)", () => {
-    let previewPlanChange: jest.Mock;
-
-    // These assertions exercise the component class directly (matching the rest of this spec).
-    // `estimatedTotal ?? total` is the exact expression both template total bindings now render.
-    beforeEach(() => {
-      previewPlanChange = (component as any).previewInvoiceClient
-        .previewTaxForOrganizationSubscriptionPlanChange;
-    });
-
-    const setupPlanChange = ({ percentOff }: { percentOff?: number } = {}) => {
-      component.organizationId = "organization-id";
-      component.organization = { useSecretsManager: false } as any;
-      component.selectedPlan = {
-        type: PlanType.EnterpriseAnnually,
-        productTier: ProductTierType.Enterprise,
-        PasswordManager: {
-          basePrice: 300,
-          hasAdditionalSeatsOption: false,
-          hasPremiumAccessOption: false,
-          hasAdditionalStorageOption: false,
-        },
-      } as any;
-      component.sub = { customerDiscount: percentOff ? { percentOff } : undefined } as any;
-      // A saved billing address lets refreshSalesTax() run past its early-return guard.
-      component.billingAddress = { country: "US", postalCode: "12345" } as any;
-    };
-
-    it("stores the server-computed total returned by the preview", async () => {
-      setupPlanChange();
-      previewPlanChange.mockResolvedValue({ tax: 10, total: 330 });
-
-      await (component as any).refreshSalesTax();
-
-      expect((component as any).estimatedTax).toBe(10);
-      expect((component as any).estimatedTotal).toBe(330);
-    });
-
-    it("displays the full server total for a migrating org, not the coupon-discounted client total", async () => {
-      // Org carries a leaked 20% migration coupon surfaced as customerDiscount.
-      setupPlanChange({ percentOff: 20 });
-      // The server preview returns the true, undiscounted Enterprise total.
-      previewPlanChange.mockResolvedValue({ tax: 0, total: 300 });
-
-      await (component as any).refreshSalesTax();
-
-      const displayedTotal = (component as any).estimatedTotal ?? component.total;
-      expect(displayedTotal).toBe(300);
-      expect(displayedTotal).not.toBe(component.total * 0.8);
-    });
-
-    it("keeps the displayed total equal to the client total for a non-discounted org", async () => {
-      setupPlanChange();
-      previewPlanChange.mockResolvedValue({ tax: 0, total: 300 });
-
-      await (component as any).refreshSalesTax();
-
-      const displayedTotal = (component as any).estimatedTotal ?? component.total;
-      expect(displayedTotal).toBe(component.total);
-      expect(displayedTotal).toBe(300);
-    });
-
-    it("falls back to the client total when the preview fails, without throwing", async () => {
-      setupPlanChange();
-      (component as any).estimatedTotal = 999;
-      // A current plan distinct from the selected plan lets selectPlan() reach refreshSalesTax().
-      component.currentPlan = { productTier: ProductTierType.Teams } as any;
-      previewPlanChange.mockRejectedValue(new Error("preview failed"));
-
-      await expect((component as any).selectPlan(component.selectedPlan)).resolves.toBeUndefined();
-
-      expect((component as any).estimatedTotal).toBeUndefined();
-      expect((component as any).estimatedTax).toBe(0);
-    });
-
-    it("no longer exposes the client-side applied-discount calculation the provider-discount rows used", () => {
-      expect((component as any).calculateTotalAppliedDiscount).toBeUndefined();
-    });
-  });
-
   describe("preview-driven cart", () => {
     const address = {
       country: "US",
@@ -304,42 +213,8 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).buildPlanChangePreviewRequest()).toBeUndefined();
     });
 
-    it("refreshCostSummary sets the preview request from the selection when the flag is on", async () => {
-      selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
-      const previewTax = (component as any).previewInvoiceClient
-        .previewTaxForOrganizationSubscriptionPlanChange;
-
-      await (component as any).refreshCostSummary();
-
-      expect((component as any).planChangeRequest()).toEqual({
-        tier: "enterprise",
-        cadence: "annually",
-        billingAddress: {
-          country: "US",
-          postalCode: "12345",
-          taxId: { code: "us_ein", value: "12-3456789" },
-        },
-      });
-      // The legacy tax path is not used when the preview cart is on.
-      expect(previewTax).not.toHaveBeenCalled();
-    });
-
-    it("refreshCostSummary uses the legacy tax path and leaves the request signal untouched when the flag is off", async () => {
-      selectEnterpriseAnnual();
-      const previewTax = (component as any).previewInvoiceClient
-        .previewTaxForOrganizationSubscriptionPlanChange;
-      previewTax.mockResolvedValue({ tax: 0, total: 0 });
-
-      await (component as any).refreshCostSummary();
-
-      expect((component as any).planChangeRequest()).toBeUndefined();
-      expect(previewTax).toHaveBeenCalled();
-    });
-
     it("fetches the preview cart when the flag is on and a selection exists", () => {
       selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
       const request = (component as any).buildPlanChangePreviewRequest();
       (component as any).planChangeRequest.set(request);
 
@@ -351,23 +226,13 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       );
     });
 
-    it("does not fetch the preview while the flag is off", () => {
-      selectEnterpriseAnnual();
-      (component as any).planChangeRequest.set((component as any).buildPlanChangePreviewRequest());
-
-      TestBed.tick();
-
-      expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
-    });
-
     it("does not refetch when a rebuilt request is identical", () => {
       selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockResolvedValue({} as any);
 
-      (component as any).refreshPlanChangePreview();
+      (component as any).refreshCostSummary();
       TestBed.tick();
-      (component as any).refreshPlanChangePreview();
+      (component as any).refreshCostSummary();
       TestBed.tick();
 
       expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(1);
@@ -375,68 +240,132 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("refetches when the request changes", () => {
       selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockResolvedValue({} as any);
 
-      (component as any).refreshPlanChangePreview();
+      (component as any).refreshCostSummary();
       TestBed.tick();
       component.selectedPlan = { type: PlanType.TeamsAnnually } as any;
-      (component as any).refreshPlanChangePreview();
+      (component as any).refreshCostSummary();
       TestBed.tick();
 
       expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(2);
     });
 
-    it("disables submit while the flag is on and the preview has not loaded", () => {
-      previewCartFlag$.next(true);
+    it("sets the preview request from the selection when the cost summary refreshes", () => {
+      selectEnterpriseAnnual();
+
+      (component as any).refreshCostSummary();
+
+      expect((component as any).planChangeRequest()).toEqual({
+        tier: "enterprise",
+        cadence: "annually",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          taxId: { code: "us_ein", value: "12-3456789" },
+        },
+      });
+    });
+
+    it("previews the plan-change cart for an active subscription", () => {
+      selectEnterpriseAnnual();
+      invoicePreviewService.previewPlanChangeCart.mockResolvedValue({} as any);
+
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledWith(
+        "organization-id",
+        (component as any).planChangeRequest(),
+      );
+      expect(invoicePreviewService.previewRestartCart).not.toHaveBeenCalled();
+    });
+
+    it("previews the restart cart for a canceled subscription", () => {
+      selectEnterpriseAnnual();
+      component.sub = { subscription: { status: "canceled" } } as any;
+      invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
+
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledWith("organization-id", {
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          taxId: { code: "us_ein", value: "12-3456789" },
+        },
+      });
+      expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
+    });
+
+    it("previews the restart cart for a cancelled org downgraded to the Free tier", () => {
+      selectEnterpriseAnnual();
+      component.sub = { subscription: { cancelled: true, status: "active" } } as any;
+      component.organization = { productTierType: ProductTierType.Free } as any;
+      invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
+
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledWith("organization-id", {
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          taxId: { code: "us_ein", value: "12-3456789" },
+        },
+      });
+      expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
+    });
+
+    it("previews the restart cart for a canceled org on a plan with no plan-change mapping", async () => {
+      component.organizationId = "organization-id";
+      component.selectedPlan = { type: PlanType.TeamsStarter } as any;
+      component.billingAddress = address;
+      component.sub = { subscription: { status: "canceled" } } as any;
+      invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
+
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(1);
+      expect((component as any).planChangeCart.hasValue()).toBe(true);
+      expect((component as any).isSubmitDisabled).toBe(false);
+    });
+
+    it("does not refetch the restart cart when a rebuilt address is identical", () => {
+      selectEnterpriseAnnual();
+      component.sub = { subscription: { status: "canceled" } } as any;
+      invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
+
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(1);
+    });
+
+    it("disables submit until the preview has loaded", () => {
       (component as any).planChangeCart = { hasValue: () => false };
 
       expect((component as any).isSubmitDisabled).toBe(true);
     });
 
     it("enables submit once the preview has loaded", () => {
-      previewCartFlag$.next(true);
       (component as any).planChangeCart = { hasValue: () => true };
-
-      expect((component as any).isSubmitDisabled).toBe(false);
-    });
-
-    it("leaves submit enabled when the flag is off, regardless of the preview", () => {
-      previewCartFlag$.next(false);
-      (component as any).planChangeCart = { hasValue: () => false };
-
-      expect((component as any).isSubmitDisabled).toBe(false);
-    });
-
-    it("uses the legacy tax path for a cancelled subscription even when the flag is on", async () => {
-      selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
-      (component as any).isSubscriptionCanceled = true;
-      const previewTax = (component as any).previewInvoiceClient
-        .previewTaxForOrganizationSubscriptionPlanChange;
-      previewTax.mockResolvedValue({ tax: 0, total: 0 });
-
-      await (component as any).refreshCostSummary();
-
-      expect((component as any).planChangeRequest()).toBeUndefined();
-      expect(previewTax).toHaveBeenCalled();
-    });
-
-    it("leaves submit enabled for a cancelled subscription with the flag on", () => {
-      previewCartFlag$.next(true);
-      (component as any).isSubscriptionCanceled = true;
-      (component as any).planChangeCart = { hasValue: () => false };
 
       expect((component as any).isSubmitDisabled).toBe(false);
     });
 
     it("holds the preview in a loading state (spinner shown, submit disabled) while the request is in flight", () => {
       selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
       // A never-resolving preview keeps the resource loading so the spinner branch stays active.
       invoicePreviewService.previewPlanChangeCart.mockReturnValue(new Promise(() => {}));
 
-      (component as any).refreshPlanChangePreview();
+      (component as any).refreshCostSummary();
       TestBed.tick();
 
       expect((component as any).planChangeCart.isLoading()).toBe(true);
@@ -446,13 +375,12 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("shows a toast and surfaces the error callout (submit disabled) when the preview request fails", async () => {
       selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(new Error("preview failed"));
       const billingNotificationService = TestBed.inject(BillingNotificationService);
       const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
       i18nService.t.mockImplementation((key: string) => key);
 
-      (component as any).refreshPlanChangePreview();
+      (component as any).refreshCostSummary();
       TestBed.tick();
       // Let the rejected loader settle, then flush the resource's status update.
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -469,7 +397,6 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("shows a toast pointing at the billing details when the preview fails validation (400)", async () => {
       selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(
         new ErrorResponse(
           {
@@ -487,7 +414,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
       i18nService.t.mockImplementation((key: string) => key);
 
-      (component as any).refreshPlanChangePreview();
+      (component as any).refreshCostSummary();
       TestBed.tick();
       await new Promise((resolve) => setTimeout(resolve, 0));
       TestBed.tick();
@@ -500,14 +427,13 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("shows the generic message for a 400 that is not about the billing address", async () => {
       selectEnterpriseAnnual();
-      previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(
         new ErrorResponse({ Message: "Your organization is already on this plan." }, 400),
       );
       const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
       i18nService.t.mockImplementation((key: string) => key);
 
-      (component as any).refreshPlanChangePreview();
+      (component as any).refreshCostSummary();
       TestBed.tick();
       await new Promise((resolve) => setTimeout(resolve, 0));
       TestBed.tick();
@@ -602,8 +528,6 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       setupDiscount(false);
 
       expect(component.isSecretsManagerTrial()).toBe(true);
-      // Trial seat line shows "Free for 1 year"; passwordManagerSeatTotal is zeroed.
-      expect(component.passwordManagerSeatTotal(component.selectedPlan)).toBe(0);
     });
 
     it("does not report an SM trial for a deferred price-migration (schedule) discount", () => {
@@ -611,8 +535,6 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
       // Guard short-circuits even though appliesTo matches a subscription product.
       expect(component.isSecretsManagerTrial()).toBe(false);
-      // Non-trial seat line renders the real seat total (10 seats × $4), not "Free for 1 year".
-      expect(component.passwordManagerSeatTotal(component.selectedPlan)).toBe(40);
       // Template selects the non-trial summary layout, not the trial one.
       expect(component.organization.useSecretsManager && !component.isSecretsManagerTrial()).toBe(
         true,

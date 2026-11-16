@@ -17,9 +17,9 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { FingerprintDialogComponent } from "@bitwarden/angular/auth/fingerprint-dialog";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";

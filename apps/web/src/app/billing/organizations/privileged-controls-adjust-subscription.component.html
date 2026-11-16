@@ -51,15 +51,27 @@
       </bit-hint>
     </bit-form-field>
   }
-  <button
-    type="submit"
-    id="privileged-controls-adjust_button_save"
-    bitButton
-    bitFormButton
-    buttonType="primary"
-    [disabled]="unchanged()"
-  >
-    {{ "save" | i18n }}
-  </button>
+  <div class="tw-flex tw-gap-2">
+    <button
+      type="submit"
+      id="privileged-controls-adjust_button_save"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      [disabled]="unchanged()"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      type="button"
+      id="privileged-controls-adjust_button_remove"
+      bitButton
+      bitFormButton
+      buttonType="danger"
+      [bitAction]="remove"
+    >
+      {{ "removePrivilegedControls" | i18n }}
+    </button>
+  </div>
   <bit-error-summary [formGroup]="formGroup" class="tw-mt-2"></bit-error-summary>
 </form>

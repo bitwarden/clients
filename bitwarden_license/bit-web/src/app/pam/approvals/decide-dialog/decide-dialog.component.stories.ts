@@ -1,17 +1,15 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import type { AccessRequestView } from "@bitwarden/bit-pam";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+import { STORY_NOW } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import type { AccessRequestView } from "../../abstractions/access-lease";
 import { emptyResolvedNames } from "../../access-requests/access-name-resolver.service";
 import { ApprovalRow, toApprovalRow } from "../approval-row";
 
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog.component";
-
-/** Fixed so the window and "submitted N ago" labels don't drift with the clock. */
-const NOW = new Date("2026-08-17T12:00:00.000Z");
 
 /** Built through `toApprovalRow` so the summary matches the inbox row's precomputed labels. */
 function approvalRow(
@@ -44,7 +42,7 @@ function approvalRow(
       collectionNameById: collectionName ? new Map([["col-1", collectionName]]) : new Map(),
       organizationNameById: organizationName ? new Map([["org-1", organizationName]]) : new Map(),
     },
-    NOW,
+    STORY_NOW,
     true,
     "en-US",
   );

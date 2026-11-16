@@ -51,7 +51,7 @@
     "message": "Crítica"
   },
   "accessIntelligence": {
-    "message": "Inteligência de Acesso"
+    "message": "Inteligência de acesso"
   },
   "noApplicationsMatchTheseFilters": {
     "message": "Nenhuma aplicação corresponde a estes filtros"
@@ -218,19 +218,19 @@
     "message": "Os seus dados já estão disponíveis. Vamos colocá-los em ação."
   },
   "takeAQuickTourOfAccessIntelligence": {
-    "message": "Faça uma visita rápida ao Inteligência de Acesso e veja exatamente como transformar os dados da sua organização em ações concretas."
+    "message": "Faça uma visita rápida ao Inteligência de acesso e veja exatamente como transformar os dados da sua organização em ações concretas."
   },
   "yourEntireOrgsSecurityInOneView": {
     "message": "Toda a segurança da sua organização, numa só vista"
   },
   "accessIntelligenceGivesYouSinglePlace": {
-    "message": "A Inteligência de Acesso dá-lhe um único local para ver todas as apps, palavras-passe e membros em risco."
+    "message": "A Inteligência de acesso dá-lhe um único local para ver todas as apps, palavras-passe e membros em risco."
   },
   "youSetThePrioritiesWeSurfaceTheRisks": {
     "message": "Vocês definem as prioridades. Nós destacamos os riscos."
   },
   "youMarkWhichAppsAreMostCritical": {
-    "message": "Marque quais são as apps mais críticas, e a Inteligência de Acesso identifica automaticamente as palavras-passe em risco que precisam de atenção primeiro."
+    "message": "Marque quais são as apps mais críticas, e a Inteligência de acesso identifica automaticamente as palavras-passe em risco que precisam de atenção primeiro."
   },
   "trackImprovementsAcrossYourTeam": {
     "message": "Acompanhe as melhorias em toda a sua equipa"
@@ -242,10 +242,10 @@
     "message": "Importe os dados da sua organização para começar"
   },
   "onceItHasTheVaultData": {
-    "message": "Assim que tiver os dados do cofre, a Inteligência de Acesso terá tudo o que precisa para apresentar relatórios sobre a saúde das palavras-passe da sua organização."
+    "message": "Assim que tiver os dados do cofre, a Inteligência de acesso terá tudo o que precisa para apresentar relatórios sobre a saúde das palavras-passe da sua organização."
   },
   "accessIntelligenceWelcomeTour": {
-    "message": "Visita de boas-vindas à Inteligência de Acesso"
+    "message": "Visita de boas-vindas à Inteligência de acesso"
   },
   "startTour": {
     "message": "Iniciar visita guiada"
@@ -254,7 +254,7 @@
     "message": "Não foram encontrados dados"
   },
   "noDataInOrgDescription": {
-    "message": "Importe os dados de início de sessão da sua organização para começar a utilizar a Inteligência de Acesso. Depois disso, poderá:"
+    "message": "Importe os dados de início de sessão da sua organização para começar a utilizar a Inteligência de acesso. Depois disso, poderá:"
   },
   "feature1Title": {
     "message": "Marcar aplicações como críticas"
@@ -2197,7 +2197,7 @@
     "message": "Editar informações"
   },
   "access": {
-    "message": "Acessos"
+    "message": "Acesso"
   },
   "accessLevel": {
     "message": "Nível de acesso"
@@ -2645,6 +2645,9 @@
   "noItemsMatchSelectedFilters": {
     "message": "Nenhum item corresponde aos filtros selecionados"
   },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "Nenhum item corresponde aos filtros selecionados"
+  },
   "noItemsMatchSearchTerm": {
     "message": "Nenhum item corresponde a \"$SEARCH_TERM$\"",
     "placeholders": {
@@ -2796,10 +2799,10 @@
     "message": "aplicação web"
   },
   "notificationSentDevicePart2": {
-    "message": "Certifique-se de que a frase da impressão digital corresponde à frase abaixo indicada antes de a aprovar."
+    "message": "Certifique-se de que a frase da impressão digital corresponde à apresentada abaixo antes de a aprovar."
   },
   "notificationSentDeviceComplete": {
-    "message": "Desbloqueie o Bitwarden no seu dispositivo. Certifique-se de que a frase da impressão digital corresponde à frase abaixo antes de a aprovar."
+    "message": "Desbloqueie o Bitwarden no seu dispositivo. Certifique-se de que a frase da impressão digital corresponde à apresentada abaixo antes de a aprovar."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo"
@@ -3632,6 +3635,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Selecionar cofre",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Selecionar localização",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Selecione um cofre"
+  },
+  "selectALocationTitle": {
+    "message": "Selecione uma localização"
+  },
+  "importDestinationDescription": {
+    "message": "Escolha onde pretende importar estes itens."
+  },
+  "importMyItemsOption": {
+    "message": "Os meus itens",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visível apenas para si"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Propriedade de $ORGANIZATION$, mas visível apenas para si",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Cofre da organização"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Partilhado com uma pessoa"
+  },
+  "importFamilyVault": {
+    "message": "Cofre da família"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Mover todos os itens para uma pasta partilhada de $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Mover todos os itens para uma pasta partilhada de $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Mova tudo para uma pasta principal. A estrutura de pastas e subpastas será mantida."
+  },
+  "importSharedFolderRequired": {
+    "message": "É necessária uma pasta partilhada."
+  },
+  "importIntoOrganization": {
+    "message": "Os itens serão importados para $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Mover todos os itens para uma pasta partilhada"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Não é possível importar itens para $ORGANIZATION$ sem uma pasta partilhada, e não gere nenhuma nessa organização. Escolha outra localização.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Importar $COUNT$ itens",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Importar 1 item"
+  },
+  "importToOrganization": {
+    "message": "Importar para $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Os seus dados poderão ser partilhados com os membros desta organização."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ não permite a importação de $ITEM_TYPES$. Se estiverem incluídos na importação, serão ignorados.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "credenciais",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "notas seguras",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cartões",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identidades",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "chaves SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "contas bancárias",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "cartas de condução",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "passaportes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "Escolher ficheiro"
@@ -4908,12 +5069,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Mostrar resumo de preços"
-  },
-  "hidePricingSummary": {
-    "message": "Ocultar resumo de preços"
-  },
   "summary": {
     "message": "Resumo"
   },
@@ -4992,9 +5147,6 @@
   },
   "subscriptionExpiration": {
     "message": "Validade da subscrição"
-  },
-  "subscriptionCanceled": {
-    "message": "A subscrição foi cancelada."
   },
   "pendingCancellation": {
     "message": "Cancelamento pendente"
@@ -5215,15 +5367,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "até $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -6195,6 +6338,70 @@
       }
     }
   },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ desativado por política",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ ativado por política",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Item criado Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Item editado Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Item eliminado Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Item acedido Send$SENDID$, criado por $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
   "sendAccessExternal": {
     "message": "Externo"
   },
@@ -6678,6 +6885,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Transferência de item para a organização recusada"
+  },
+  "revocationReasonByAdmin": {
+    "message": "Pelo administrador",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "Nenhum motivo registado",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Revogado o acesso à organização para $ID$ por incumprimento da política de verificação de dois passos.",
@@ -7193,7 +7408,7 @@
     "message": "Atualizar navegador"
   },
   "generatingYourAccessIntelligence": {
-    "message": "A gerar a sua Inteligência de Acesso..."
+    "message": "A gerar a sua Inteligência de acesso..."
   },
   "loadingProgress": {
     "message": "A carregar progresso"
@@ -7226,7 +7441,7 @@
     "message": "Executar relatório"
   },
   "goToAccessIntelligence": {
-    "message": "Ir para a Inteligência de Acesso"
+    "message": "Ir para a Inteligência de acesso"
   },
   "updateBrowserDesc": {
     "message": "Está a utilizar um navegador web não suportado. O cofre web pode não funcionar corretamente."
@@ -7531,10 +7746,6 @@
     "message": "Alterar plano",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Atualize a sua conta para outro plano fornecendo as informações abaixo. Certifique-se de que existe um método de pagamento ativo associado à conta.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Fatura #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7609,6 +7820,18 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "Definir um limite de lugares para a sua subscrição do Gestor de Segredos. Quando este limite for atingido, não poderá convidar novos membros."
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Defina um limite de lugares para a sua subscrição do Privileged Controls. Quando este limite for atingido, deixará de poder conceder acesso ao Privileged Controls a outros membros."
+  },
+  "maximumSeatsCount": {
+    "message": "Máximo de $COUNT$ lugares",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "Limite de lugares (opcional)",
@@ -9228,6 +9451,15 @@
   "desktopAutotypePolicyDescVfo1": {
     "message": "Ativar a introdução automática no ambiente de trabalho para os membros."
   },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Preenchimento automático na app para computador"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Ative o preenchimento automático no computador por predefinição para todos os membros."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Ative o preenchimento automático no computador por predefinição para todos os membros. Pode definir um atalho de teclado e escolher se os membros têm de confirmar antes do preenchimento. Esta funcionalidade está em versão beta."
+  },
   "disableSend": {
     "message": "Remover Send"
   },
@@ -9377,6 +9609,9 @@
   },
   "estimatedTax": {
     "message": "Imposto estimado"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "O valor final a pagar poderá sofrer pequenas alterações, uma vez que o cálculo proporcional é feito até ao momento da submissão."
   },
   "subtotal": {
     "message": "Subtotal"
@@ -11868,10 +12103,6 @@
     "message": "Conta de serviço",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "Contas de serviço",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "Segredos",
     "description": "The title for the section of the application that deals with secrets."
@@ -12016,7 +12247,7 @@
     "message": "Segredos eliminados permanentemente"
   },
   "smAccess": {
-    "message": "Acessos",
+    "message": "Acesso",
     "description": "Title indicating what permissions a service account has"
   },
   "projectCommaSecret": {
@@ -14097,9 +14328,6 @@
     "message": "Descreva o motivo do cancelamento",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Gratuito durante 1 ano"
-  },
   "newWebApp": {
     "message": "Bem-vindo à nova e melhorada aplicação web. Saiba mais sobre o que mudou."
   },
@@ -14902,15 +15130,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ de desconto",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Obter o Gestor de Segredos"
   },
@@ -15130,9 +15349,6 @@
     "message": "contacte o suporte do Bitwarden.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "Patrocinado"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "Depois de fazer atualizações no servidor de nuvem Bitwarden, carregue o seu ficheiro de licença para aplicar as alterações mais recentes."
   },
@@ -15343,9 +15559,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Acesso a funcionalidades Premium"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB de armazenamento adicional"
   },
   "sshKeyAlgorithm": {
     "message": "Algoritmo de chaves"
@@ -16742,9 +16955,6 @@
   "familiesUpdated": {
     "message": "Atualizou para o plano Familiar!"
   },
-  "taxCalculationError": {
-    "message": "Ocorreu um erro ao calcular o imposto para a sua localização. Tente novamente."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Bem-vindo ao Bitwarden"
   },
@@ -16766,7 +16976,7 @@
   "upgradeNow": {
     "message": "Atualizar agora"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
     "message": "Obtenha segurança online avançada com o Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
@@ -18188,7 +18398,7 @@
     "message": "Estado"
   },
   "pamColumnResolvedBy": {
-    "message": "Resolved by"
+    "message": "Resolvido por"
   },
   "pamColumnResolved": {
     "message": "Resolvido"
@@ -18366,7 +18576,7 @@
     "message": "Revogado"
   },
   "pamStatusSessionEnded": {
-    "message": "Session ended"
+    "message": "Sessão terminada"
   },
   "pamStatusUnknown": {
     "message": "Desconhecido"
@@ -18499,43 +18709,43 @@
     "message": "Acesso ativado"
   },
   "pamAuditKindLeaseActivationRejected": {
-    "message": "Activation rejected"
+    "message": "Ativação rejeitada"
   },
   "pamAuditKindAccessExtended": {
-    "message": "Access extended"
+    "message": "Acesso prolongado"
   },
   "pamAuditKindAccessExpired": {
-    "message": "Access expired"
+    "message": "Acesso expirado"
   },
   "pamAuditKindCredentialAccessed": {
-    "message": "Credential accessed"
+    "message": "Credencial acedida"
   },
   "pamAuditKindCredentialAccessDenied": {
-    "message": "Credential access denied"
+    "message": "Acesso à credencial recusado"
   },
   "pamAuditKindRuleCreated": {
-    "message": "Access rule created"
+    "message": "Regra de acesso criada"
   },
   "pamAuditKindRuleUpdated": {
-    "message": "Access rule updated"
+    "message": "Regra de acesso atualizada"
   },
   "pamAuditKindRuleDeleted": {
-    "message": "Access rule deleted"
+    "message": "Regra de acesso eliminada"
   },
   "pamAuditKindLeasingKillSwitchTriggered": {
-    "message": "Kill switch triggered"
+    "message": "Mecanismo de interrupção acionado"
   },
   "pamAuditKindAccessFreezeEnabled": {
-    "message": "Access freeze enabled"
+    "message": "Bloqueio de acesso ativado"
   },
   "pamAuditKindAccessFreezeLifted": {
-    "message": "Access freeze lifted"
+    "message": "Bloqueio de acesso removido"
   },
   "pamAuditKindUnknown": {
-    "message": "Unknown event"
+    "message": "Evento desconhecido"
   },
   "pamAuditLog": {
-    "message": "Audit log"
+    "message": "Registo de auditoria"
   },
   "pamAccessRequestTitle": {
     "message": "Pedido de acesso"
@@ -18544,7 +18754,7 @@
     "message": "Detalhes do pedido"
   },
   "pamAccessRequestLeaseTitle": {
-    "message": "Access"
+    "message": "Acesso"
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "Registo de decisões"
@@ -18908,7 +19118,7 @@
     }
   },
   "pamInboxElapsedWeeks": {
-    "message": "$WEEKS$w ago",
+    "message": "Há $WEEKS$ sem.",
     "placeholders": {
       "weeks": {
         "content": "$1",
@@ -18964,14 +19174,26 @@
   "pamInboxRevokeConfirm": {
     "message": "Esta ação revoga imediatamente o acesso do membro. Para voltar a ter acesso, será necessária uma nova aprovação."
   },
-  "pamInboxWithdrawApprovalConfirm": {
-    "message": "Esta ação retira a aprovação do membro para aceder a $ITEM$. O acesso não será iniciado e será necessária uma nova aprovação para o obter.",
-    "placeholders": {
-      "item": {
-        "content": "$1",
-        "example": "Prod database"
-      }
-    }
+  "pamWithdrawApprovalWarningOne": {
+    "message": "Isto retira a sua aprovação para",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". O acesso não será iniciado e",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "terá de obter uma nova aprovação para lhe aceder.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Motivo"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Visível para o requerente no registo de decisões."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Seja breve. O requerente verá esta mensagem."
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "Regra de acesso"
@@ -19201,7 +19423,7 @@
     "message": "Eliminar regra de acesso?"
   },
   "pamAccessRuleDeleteConfirmDescription": {
-    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+    "message": "Esta ação eliminará permanentemente esta regra. Os utilizadores das coleções abrangidas por esta regra voltarão a ter acesso normal."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Desativar regra de acesso"
@@ -19252,7 +19474,7 @@
     "message": "Criar regra personalizada"
   },
   "pamAccessRulesStartFromTemplate": {
-    "message": "Partir de um modelo"
+    "message": "Começar a partir de um modelo"
   },
   "pamAccessRuleUseTemplate": {
     "message": "Utilizar modelo"
@@ -19686,19 +19908,19 @@
     "message": "Credenciais geridas"
   },
   "pamRotationTabTargetSystems": {
-    "message": "Target systems"
+    "message": "Sistemas de destino"
   },
   "pamRotationTabAccessConnectors": {
-    "message": "Access connectors"
+    "message": "Conectores de acesso"
   },
   "pamManagedCredentialsLoaded": {
     "message": "Credenciais geridas carregadas"
   },
   "pamAccessConnectorsLoaded": {
-    "message": "Access connectors loaded"
+    "message": "Conectores de acesso carregados"
   },
   "pamTargetSystemsLoaded": {
-    "message": "Target systems loaded"
+    "message": "Sistemas de destino carregados"
   },
   "pamRotationPageLoaded": {
     "message": "Página carregada"
@@ -19713,7 +19935,7 @@
     "message": "Adicionar sistema de destino"
   },
   "pamTargetSystemEditTitle": {
-    "message": "Edit target system"
+    "message": "Editar sistema de destino"
   },
   "pamRotationScheduleLabel": {
     "message": "Agendamento da rotação"
@@ -19850,76 +20072,76 @@
     "message": "Introduza um número inteiro."
   },
   "pamTargetSystemNew": {
-    "message": "New target system"
+    "message": "Novo sistema de destino"
   },
   "pamTargetSystemSearch": {
-    "message": "Search target systems"
+    "message": "Pesquisar sistemas de destino"
   },
   "pamTargetSystemMethodColumn": {
-    "message": "Method"
+    "message": "Método"
   },
   "pamTargetSystemTypeColumn": {
     "message": "Tipo"
   },
   "pamTargetSystemSessionTerminationColumn": {
-    "message": "Session termination"
+    "message": "Terminação de sessão"
   },
   "pamTargetSystemSessionTerminationYes": {
-    "message": "Supported"
+    "message": "Suportada"
   },
   "pamTargetSystemSessionTerminationNo": {
-    "message": "Not supported"
+    "message": "Não suportada"
   },
   "pamNoTargetSystemsYetTitle": {
     "message": "Ainda não existem sistemas de destino"
   },
   "pamNoTargetSystemsYetDescription": {
-    "message": "Add the system whose credentials Bitwarden should rotate."
+    "message": "Adicione o sistema cujas credenciais o Bitwarden deverá rodar."
   },
   "pamTargetSystemsStartFromTemplate": {
-    "message": "Start from a template"
+    "message": "Começar a partir de um modelo"
   },
   "pamTargetSystemUseTemplate": {
-    "message": "Use template"
+    "message": "Utilizar modelo"
   },
   "pamTargetSystemTemplateManualSummary": {
-    "message": "You rotate the credential yourself; Bitwarden tracks the schedule and logs each rotation."
+    "message": "A rotação da credencial é feita manualmente por si; o Bitwarden acompanha o agendamento e regista cada rotação."
   },
   "pamTargetSystemTemplateEntraSummary": {
-    "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
+    "message": "O Bitwarden roda automaticamente o segredo de uma aplicação do Microsoft Entra ID."
   },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
-    "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
+    "message": "O Bitwarden roda automaticamente a credencial executando o seu script num conector de acesso registado."
   },
   "pamTargetSystemNoFilterResults": {
-    "message": "No target systems match your filters."
+    "message": "Nenhum sistema de destino corresponde aos filtros aplicados."
   },
   "pamTargetSystemEditTarget": {
-    "message": "Edit target system"
+    "message": "Editar sistema de destino"
   },
   "pamTargetSystemDeactivate": {
-    "message": "Deactivate"
+    "message": "Desativar"
   },
   "pamTargetSystemActivate": {
-    "message": "Activate"
+    "message": "Ativar"
   },
   "pamTargetSystemActivationBlockedPendingSeal": {
-    "message": "Finish setting up this target system before activating or deactivating it."
+    "message": "Conclua a configuração deste sistema de destino antes de o ativar ou desativar."
   },
   "pamTargetSystemDeleteTarget": {
-    "message": "Delete target system"
+    "message": "Eliminar sistema de destino"
   },
   "pamTargetSystemAssignConnectors": {
     "message": "Atribuir conectores de acesso"
   },
   "pamTargetSystemAssignConnectorTitle": {
-    "message": "Assign access connector"
+    "message": "Atribuir conector de acesso"
   },
   "pamTargetSystemAssignConnectorLabel": {
-    "message": "Access connector"
+    "message": "Conector de acesso"
   },
   "pamTargetSystemAssignConnectorNoOptions": {
-    "message": "All active access connectors are already assigned to this target system."
+    "message": "Todos os conectores de acesso ativos já estão atribuídos a este sistema de destino."
   },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Só é possível atribuir conectores de acesso a sistemas de destino configurados para rotação automática."
@@ -19931,28 +20153,28 @@
     "message": "Não existem conectores de acesso ativos para atribuir. Registe um no separador Conectores de acesso ou ative um já existente."
   },
   "pamTargetSystemAssignGoToConnectors": {
-    "message": "Go to Access connectors"
+    "message": "Ir para Conectores de acesso"
   },
   "pamTargetSystemDeactivateTitle": {
-    "message": "Deactivate target system?"
+    "message": "Desativar sistema de destino?"
   },
   "pamTargetSystemDeactivateContent": {
-    "message": "Deactivating this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+    "message": "A desativação deste sistema de destino impedirá que sejam iniciadas novas rotações. As tarefas pendentes ficarão suspensas e não poderão ser assumidas. As rotações já em curso continuarão até à sua conclusão."
   },
   "pamTargetSystemDeactivateConfirm": {
-    "message": "Deactivate"
+    "message": "Desativar"
   },
   "pamTargetSystemDeactivateSuccess": {
-    "message": "Target system deactivated."
+    "message": "Sistema de destino desativado."
   },
   "pamTargetSystemActivateSuccess": {
-    "message": "Target system activated."
+    "message": "Sistema de destino ativado."
   },
   "pamTargetSystemDeleteTitle": {
-    "message": "Delete target system?"
+    "message": "Eliminar sistema de destino?"
   },
   "pamTargetSystemDeleteContent": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+    "message": "A eliminação de $NAME$ é permanente. Todas as credenciais geridas cuja rotação é feita neste sistema têm de ser removidas primeiro.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -19961,7 +20183,7 @@
     }
   },
   "pamTargetSystemDeleteContentDeactivateInstead": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, deactivate it instead. Deactivating holds pending jobs and can be undone.",
+    "message": "A eliminação de $NAME$ é permanente. Todas as credenciais geridas cuja rotação é feita neste sistema têm de ser removidas primeiro. Para interromper as rotações sem perder o sistema de destino, desative-o. A desativação suspende as tarefas pendentes e pode ser revertida.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -19970,7 +20192,7 @@
     }
   },
   "pamTargetSystemDeleteSuccess": {
-    "message": "Target system deleted."
+    "message": "Sistema de destino eliminado."
   },
   "pamTargetSystemMethodAutomatic": {
     "message": "Automático"
@@ -19979,10 +20201,10 @@
     "message": "Manual"
   },
   "pamTargetSystemMethodAutomaticHint": {
-    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
+    "message": "As rotações são executadas de acordo com o agendamento definido, após concluir os passos de configuração apresentados depois de guardar."
   },
   "pamTargetSystemMethodManualHint": {
-    "message": "No rotation job is created. You rotate the credential by hand, then mark it as rotated."
+    "message": "Não é criada nenhuma tarefa de rotação. A rotação da credencial é feita manualmente e, em seguida, deve marcá-la como rodada."
   },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
@@ -20005,154 +20227,154 @@
     }
   },
   "pamTargetSystemStatusActive": {
-    "message": "Active"
+    "message": "Ativo"
   },
   "pamTargetSystemStatusInactive": {
-    "message": "Inactive"
+    "message": "Inativo"
   },
   "pamTargetSystemStatusPendingSeal": {
-    "message": "Setup incomplete"
+    "message": "Configuração incompleta"
   },
   "pamTargetSystemGeneralInfoHeading": {
-    "message": "General information"
+    "message": "Informações gerais"
   },
   "pamTargetSystemIdLabel": {
-    "message": "System ID"
+    "message": "ID do sistema"
   },
   "pamTargetSystemCopyId": {
-    "message": "Copy system ID"
+    "message": "Copiar ID do sistema"
   },
   "pamTargetSystemNamePlaceholder": {
-    "message": "Enter a name"
+    "message": "Introduza um nome"
   },
   "pamTargetSystemMethodLabel": {
-    "message": "Rotation method"
+    "message": "Método de rotação"
   },
   "pamTargetSystemTypeHeading": {
-    "message": "Type"
+    "message": "Tipo"
   },
   "pamTargetSystemTypeLabel": {
-    "message": "Type"
+    "message": "Tipo"
   },
   "pamTargetSystemTypeUnverifiedHint": {
-    "message": "This target's integration could not be confirmed. Choose it again to finish setup."
+    "message": "Não foi possível confirmar a integração deste destino. Selecione-o novamente para concluir a configuração."
   },
   "pamTargetSystemPolicyManualHint": {
-    "message": "These are the rules to follow when you rotate this credential by hand."
+    "message": "Estas são as regras a seguir ao rodar manualmente esta credencial."
   },
   "pamTargetSystemPolicyHeading": {
-    "message": "Password policy"
+    "message": "Política de palavras-passe"
   },
   "pamTargetSystemPolicyMinLength": {
-    "message": "Minimum length"
+    "message": "Comprimento mínimo"
   },
   "pamTargetSystemPolicyMaxLength": {
-    "message": "Maximum length"
+    "message": "Comprimento máximo"
   },
   "pamTargetSystemPolicyMinExceedsMax": {
-    "message": "Minimum length must be less than or equal to maximum length."
+    "message": "O comprimento mínimo tem de ser inferior ou igual ao comprimento máximo."
   },
   "pamTargetSystemPolicyNoCharacterClass": {
-    "message": "Include at least one character type."
+    "message": "Inclua pelo menos um tipo de caractere."
   },
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "Esta política é demasiado fraca. Aumente o comprimento ou inclua mais tipos de caracteres."
   },
   "pamTargetSystemPolicyUppercase": {
-    "message": "Include uppercase letters"
+    "message": "Incluir letras maiúsculas"
   },
   "pamTargetSystemPolicyLowercase": {
-    "message": "Include lowercase letters"
+    "message": "Incluir letras minúsculas"
   },
   "pamTargetSystemPolicyDigits": {
-    "message": "Include digits"
+    "message": "Incluir algarismos"
   },
   "pamTargetSystemPolicySymbols": {
-    "message": "Include symbols"
+    "message": "Incluir símbolos"
   },
   "pamTargetSystemSupportsSessionTermination": {
-    "message": "Supports session termination"
+    "message": "Suporta a terminação de sessões"
   },
   "pamTargetSystemSupportsSessionTerminationHintConnector": {
-    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
+    "message": "Quando ativada, esta opção faz com que o conector de acesso termine as sessões ativas após a rotação de uma credencial."
   },
   "pamTargetSystemSessionTerminationSupported": {
-    "message": "Supported"
+    "message": "Suportada"
   },
   "pamTargetSystemSessionTerminationNativeHint": {
-    "message": "Native integrations always terminate active sessions after a credential is rotated."
+    "message": "As integrações nativas terminam sempre as sessões ativas após a rotação de uma credencial."
   },
   "pamTargetSystemSessionTerminationUnknown": {
-    "message": "Unknown"
+    "message": "Desconhecida"
   },
   "pamTargetSystemSessionTerminationUnknownTooltip": {
-    "message": "This target system's settings could not be verified, so its session-termination support is unknown."
+    "message": "Não foi possível verificar as definições deste sistema de destino, pelo que não é possível determinar se suporta a terminação de sessões."
   },
   "pamTargetSystemTerminationWithdrawalCredentialWarning": {
-    "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
+    "message": "A remoção do suporte para terminação de sessões é rejeitada enquanto existirem credenciais geridas neste sistema de destino que dependam dessa funcionalidade. Atualize primeiro essas credenciais."
   },
   "pamTargetSystemCreated": {
-    "message": "Target system created."
+    "message": "Sistema de destino criado."
   },
   "pamTargetSystemSaved": {
-    "message": "Target system saved."
+    "message": "Sistema de destino guardado."
   },
   "pamTargetSystemSavedNotReread": {
-    "message": "Target system saved. The saved values could not be read back, so this page may be out of date."
+    "message": "Sistema de destino guardado. Não foi possível recuperar os valores guardados, pelo que esta página poderá não estar atualizada."
   },
   "pamTargetSystemCreatePartialFailure": {
-    "message": "The target system was created, but setup could not finish. Save again to finish securing it."
+    "message": "O sistema de destino foi criado, mas não foi possível concluir a configuração. Guarde novamente para concluir a sua proteção."
   },
   "pamTargetSystemSetupGuidanceTitle": {
-    "message": "Finish setting up rotation"
+    "message": "Concluir a configuração da rotação"
   },
   "pamTargetSystemSetupGuidanceAutomaticConnector": {
-    "message": "Assign an access connector in the Assigned access connectors section below."
+    "message": "Atribua um conector de acesso na secção Conectores de acesso atribuídos abaixo."
   },
   "pamTargetSystemSetupGuidanceCredential": {
-    "message": "Add a managed credential on the Managed credentials tab."
+    "message": "Adicione uma credencial gerida no separador Credenciais geridas."
   },
   "pamTargetSystemSetupIncompleteTitle": {
-    "message": "Setup incomplete"
+    "message": "Configuração incompleta"
   },
   "pamTargetSystemSetupIncompleteContent": {
-    "message": "This target system was created but never finished securing its settings. Save to finish, or delete it."
+    "message": "Este sistema de destino foi criado, mas a proteção das respetivas definições não foi concluída. Guarde-o para concluir a configuração ou elimine-o."
   },
   "pamTargetSystemIntegrityCheckFailedTitle": {
-    "message": "Integrity check failed"
+    "message": "Falha na verificação de integridade"
   },
   "pamTargetSystemIntegrityCheckFailedContent": {
-    "message": "This target system's settings could not be verified. Save to re-secure it, or delete it."
+    "message": "Não foi possível verificar as definições deste sistema de destino. Guarde-o para voltar a protegê-lo ou elimine-o."
   },
   "pamTargetSystemIntegrityCheckFailedTooltip": {
-    "message": "This target system's settings could not be verified."
+    "message": "Não foi possível verificar as definições deste sistema de destino."
   },
   "pamTargetSystemImmutableFieldMismatch": {
     "message": "Não foi possível confirmar se a tecnologia deste sistema de destino corresponde à esperada. Atualize a página e tente novamente."
   },
   "pamTargetSystemNotFound": {
-    "message": "Target system not found."
+    "message": "Sistema de destino não encontrado."
   },
   "pamAccessConnectorSearch": {
-    "message": "Search access connectors"
+    "message": "Pesquisar conectores de acesso"
   },
   "pamAccessConnectorNew": {
-    "message": "New access connector"
+    "message": "Novo conector de acesso"
   },
   "pamAccessConnectorRegister": {
-    "message": "Register access connector"
+    "message": "Registar conector de acesso"
   },
   "pamAccessConnectorEmptyStateTitle": {
-    "message": "No access connectors registered"
+    "message": "Nenhum conector de acesso registado"
   },
   "pamAccessConnectorEmptyStateDescription": {
-    "message": "Register an access connector to start rotating credentials."
+    "message": "Registe um conector de acesso para começar a rotação de credenciais."
   },
   "pamAccessConnectorConnection": {
     "message": "Ligação"
   },
   "pamAccessConnectorLastSeen": {
-    "message": "Last seen"
+    "message": "Última atividade"
   },
   "pamAccessConnectorAssignments": {
     "message": "Destinos atribuídos"
@@ -20167,16 +20389,16 @@
     "message": "Só é possível atribuir sistemas de destino enquanto o conector de acesso estiver ativo."
   },
   "pamAccessConnectorViewDetails": {
-    "message": "View details"
+    "message": "Ver detalhes"
   },
   "pamAccessConnectorAssignTargets": {
-    "message": "Assign targets"
+    "message": "Atribuir destinos"
   },
   "pamAccessConnectorDeleteAccessConnector": {
-    "message": "Delete access connector"
+    "message": "Eliminar conector de acesso"
   },
   "pamAccessConnectorAssignTargetTitle": {
-    "message": "Assign target system"
+    "message": "Atribuir sistema de destino"
   },
   "pamAccessConnectorAssignTargetLabel": {
     "message": "Sistema de destino"
@@ -20188,7 +20410,7 @@
     "message": "Só é possível atribuir sistemas de destino configurados para rotação automática."
   },
   "pamAccessConnectorAssignNoOptions": {
-    "message": "All automatic target systems are already assigned to this access connector."
+    "message": "Todos os sistemas de destino automáticos já estão atribuídos a este conector de acesso."
   },
   "pamAccessConnectorAssignNoTargetSystems": {
     "message": "Não existem sistemas de destino com rotação automática para atribuir. Crie um no separador Sistemas de destino."
@@ -20200,13 +20422,13 @@
     "message": "Não foi possível carregar os sistemas de destino. Atualize a página para tentar novamente."
   },
   "pamAccessConnectorAssigned": {
-    "message": "Target system assigned."
+    "message": "Sistema de destino atribuído."
   },
   "pamAccessConnectorAssignmentsEmpty": {
     "message": "Nenhum sistema de destino atribuído."
   },
   "pamTargetSystemAssignConnectorSuccess": {
-    "message": "Access connector assigned."
+    "message": "Conector de acesso atribuído."
   },
   "pamAccessConnectorUnassign": {
     "message": "Remover $NAME$",
@@ -20218,10 +20440,10 @@
     }
   },
   "pamAccessConnectorUnassignConfirmTitle": {
-    "message": "Remove assignment?"
+    "message": "Remover atribuição?"
   },
   "pamAccessConnectorUnassignConfirmContent": {
-    "message": "Remove $NAME$ from this access connector? Active rotation jobs claimed by this access connector will continue to completion.",
+    "message": "Remover $NAME$ deste conector de acesso? As tarefas de rotação ativas atribuídas a este conector de acesso continuarão até à sua conclusão.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -20230,13 +20452,13 @@
     }
   },
   "pamAccessConnectorUnassigned": {
-    "message": "Target system removed."
+    "message": "Sistema de destino removido."
   },
   "pamAccessConnectorDeactivate": {
     "message": "Desativar"
   },
   "pamAccessConnectorActivate": {
-    "message": "Activate"
+    "message": "Ativar"
   },
   "pamAccessConnectorDeactivateConfirmTitle": {
     "message": "Desativar o conector de acesso?"
@@ -20251,13 +20473,13 @@
     }
   },
   "pamAccessConnectorDeactivated": {
-    "message": "Access connector deactivated."
+    "message": "Conector de acesso desativado."
   },
   "pamAccessConnectorActivated": {
-    "message": "Access connector activated."
+    "message": "Conector de acesso ativado."
   },
   "pamAccessConnectorDeleteConfirmTitle": {
-    "message": "Eliminar o conector de acesso?"
+    "message": "Eliminar conector de acesso?"
   },
   "pamAccessConnectorDeleteConfirmContent": {
     "message": "A eliminação de $NAME$ é permanente e invalida as respetivas credenciais. Este conector de acesso tinha a chave da organização armazenada na memória. Se suspeitar de uma violação de segurança, proceda à rotação da chave da organização para corrigir a situação. As tarefas de rotação em execução serão libertadas. Registe um novo conector de acesso para retomar a rotação.",
@@ -20269,64 +20491,64 @@
     }
   },
   "pamAccessConnectorDeleted": {
-    "message": "Access connector deleted."
+    "message": "Conector de acesso eliminado."
   },
   "pamAccessConnectorSaved": {
-    "message": "Access connector saved."
+    "message": "Conector de acesso guardado."
   },
   "pamAccessConnectorRegisterTitle": {
-    "message": "Register access connector"
+    "message": "Registar conector de acesso"
   },
   "pamAccessConnectorNamePlaceholder": {
-    "message": "e.g. On-prem production server"
+    "message": "Por exemplo, servidor de produção on-premises"
   },
   "pamAccessConnectorNameHint": {
-    "message": "A descriptive name to identify this access connector. Max 200 characters."
+    "message": "Um nome descritivo para identificar este conector de acesso. Máximo de 200 caracteres."
   },
   "pamAccessConnectorRegistered": {
-    "message": "Access connector registered."
+    "message": "Conector de acesso registado."
   },
   "pamAccessConnectorNoResults": {
-    "message": "No access connectors match your filters."
+    "message": "Nenhum conector de acesso corresponde aos filtros aplicados."
   },
   "pamAccessConnectorDetailTitle": {
-    "message": "Access connector"
+    "message": "Conector de acesso"
   },
   "pamAccessConnectorDetailsHeading": {
-    "message": "Details"
+    "message": "Detalhes"
   },
   "pamAccessConnectorTabConfiguration": {
-    "message": "Configuration"
+    "message": "Configuração"
   },
   "pamAccessConnectorTabHistory": {
-    "message": "History"
+    "message": "Histórico"
   },
   "pamAccessConnectorActivityEmpty": {
-    "message": "No rotation activity yet."
+    "message": "Ainda não existem atividades de rotação."
   },
   "pamAccessConnectorActiveHint": {
-    "message": "When inactive, the access connector does not claim new rotation jobs and any jobs it is running are released."
+    "message": "Quando está inativo, o conector de acesso não assume novas tarefas de rotação e liberta todas as tarefas que estiver a executar."
   },
   "pamAccessConnectorTokenTitle": {
-    "message": "Access connector token"
+    "message": "Token do conector de acesso"
   },
   "pamAccessConnectorTokenWarningTitle": {
-    "message": "Save this token now"
+    "message": "Guarde este token agora"
   },
   "pamAccessConnectorTokenWarningBody": {
-    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator who will run this access connector, then paste it into the connector's configuration file. If the token is lost, delete this access connector and register a new one."
+    "message": "Este token só é apresentado uma vez e não poderá ser recuperado posteriormente. Copie-o e envie-o por um canal separado ao operador responsável pela execução deste conector de acesso. Em seguida, cole-o no ficheiro de configuração do conector. Se perder o token, elimine este conector de acesso e registe um novo."
   },
   "pamAccessConnectorTokenLabel": {
-    "message": "Access connector token"
+    "message": "Token do conector de acesso"
   },
   "pamAccessConnectorTokenHint": {
-    "message": "This token will not be shown again."
+    "message": "Este token não voltará a ser apresentado."
   },
   "pamAccessConnectorTokenCopy": {
-    "message": "Copy token"
+    "message": "Copiar token"
   },
   "pamAccessConnectorTokenCopied": {
-    "message": "Access connector token copied."
+    "message": "Token do conector de acesso copiado."
   },
   "pamRotationConfigNew": {
     "message": "Nova credencial gerida"
@@ -20395,7 +20617,7 @@
     "message": "Não é possível rodar agora. O sistema de destino está inativo, a rotação está em pausa ou já está em curso."
   },
   "pamRotationConfigRotateNowSuccess": {
-    "message": "Rotação iniciada."
+    "message": "Rotação enviada."
   },
   "pamRotationConfigMarkRotated": {
     "message": "Marcar como rodada"
@@ -20575,10 +20797,10 @@
     "message": "Desconhecido"
   },
   "pamRotationAssignmentPendingAssign": {
-    "message": "Pending assignment"
+    "message": "Atribuição pendente"
   },
   "pamRotationAssignmentPendingUnassign": {
-    "message": "Pending removal"
+    "message": "Remoção pendente"
   },
   "pamRotationAttemptStatusExecuting": {
     "message": "Em execução"
@@ -20712,109 +20934,109 @@
     }
   },
   "pamAuditKindRotationConfigCreated": {
-    "message": "Rotation config created"
+    "message": "Configuração de rotação criada"
   },
   "pamAuditKindRotationSettingsUpdated": {
-    "message": "Rotation settings updated"
+    "message": "Definições de rotação atualizadas"
   },
   "pamAuditKindRotationAccountUpdated": {
-    "message": "Rotation account updated"
+    "message": "Conta de rotação atualizada"
   },
   "pamAuditKindRotationPaused": {
-    "message": "Rotation paused"
+    "message": "Rotação em pausa"
   },
   "pamAuditKindRotationResumed": {
-    "message": "Rotation resumed"
+    "message": "Rotação retomada"
   },
   "pamAuditKindRotationConfigDeleted": {
-    "message": "Rotation config deleted"
+    "message": "Configuração de rotação eliminada"
   },
   "pamAuditKindRotationConfigUpdated": {
-    "message": "Rotation config updated"
+    "message": "Configuração de rotação atualizada"
   },
   "pamAuditKindRotationOfferedToConnector": {
-    "message": "Rotation offered to access connector"
+    "message": "Rotação disponibilizada ao conector de acesso"
   },
   "pamAuditKindRotationDispatched": {
-    "message": "Rotation dispatched"
+    "message": "Rotação enviada"
   },
   "pamAuditKindRotationSucceeded": {
-    "message": "Credential rotated"
+    "message": "Credencial rodada"
   },
   "pamAuditKindRotationAttemptFailed": {
-    "message": "Rotation attempt failed"
+    "message": "Tentativa de rotação falhada"
   },
   "pamAuditKindRotationFailed": {
-    "message": "Rotation failed"
+    "message": "Rotação falhada"
   },
   "pamAuditKindRotationReleased": {
-    "message": "Rotation released"
+    "message": "Rotação libertada"
   },
   "pamAuditKindRotationTimedOut": {
-    "message": "Rotation timed out"
+    "message": "Tempo limite da rotação excedido"
   },
   "pamAuditKindRotationWriteRejected": {
-    "message": "Vault write rejected"
+    "message": "Gravação no cofre rejeitada"
   },
   "pamAuditKindRotationReportRejected": {
-    "message": "Rotation report rejected"
+    "message": "Relatório de rotação rejeitado"
   },
   "pamAuditKindManualRotationDue": {
-    "message": "Manual rotation due"
+    "message": "Rotação manual pendente"
   },
   "pamAuditKindManualRotationRecorded": {
-    "message": "Manual rotation recorded"
+    "message": "Rotação manual registada"
   },
   "pamAuditKindAccessConnectorRegistered": {
-    "message": "Access connector registered"
+    "message": "Conector de acesso registado"
   },
   "pamAuditKindAccessConnectorRevoked": {
-    "message": "Access connector revoked"
+    "message": "Conector de acesso revogado"
   },
   "pamAuditKindAccessConnectorDeactivated": {
-    "message": "Access connector deactivated"
+    "message": "Conector de acesso desativado"
   },
   "pamAuditKindAccessConnectorActivated": {
-    "message": "Access connector activated"
+    "message": "Conector de acesso ativado"
   },
   "pamAuditKindAccessConnectorDeleted": {
-    "message": "Access connector deleted"
+    "message": "Conector de acesso eliminado"
   },
   "pamAuditKindAccessConnectorAssigned": {
-    "message": "Access connector assigned to target"
+    "message": "Conector de acesso atribuído ao destino"
   },
   "pamAuditKindAccessConnectorUnassigned": {
-    "message": "Access connector unassigned from target"
+    "message": "Conector de acesso desassociado do destino"
   },
   "pamAuditKindTargetRegistered": {
-    "message": "Target system registered"
+    "message": "Sistema de destino registado"
   },
   "pamAuditKindTargetDeactivated": {
-    "message": "Target system deactivated"
+    "message": "Sistema de destino desativado"
   },
   "pamAuditKindTargetActivated": {
-    "message": "Target system activated"
+    "message": "Sistema de destino ativado"
   },
   "pamAuditKindTargetRenamed": {
-    "message": "Target system renamed"
+    "message": "Sistema de destino renomeado"
   },
   "pamAuditKindTargetPolicyUpdated": {
-    "message": "Target system settings updated"
+    "message": "Definições do sistema de destino atualizadas"
   },
   "pamAuditKindTargetDeleted": {
-    "message": "Target system deleted"
+    "message": "Sistema de destino eliminado"
   },
   "pamAuditKindTargetUpdated": {
-    "message": "Target system updated"
+    "message": "Sistema de destino atualizado"
   },
   "pamAuditTargetSystem": {
-    "message": "Target system"
+    "message": "Sistema de destino"
   },
   "pamAuditAccessConnector": {
-    "message": "Access connector"
+    "message": "Conector de acesso"
   },
   "pamAccessConnectorAssignmentCountSingular": {
-    "message": "$COUNT$ target",
+    "message": "$COUNT$ destino",
     "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
     "placeholders": {
       "count": {
@@ -20824,7 +21046,7 @@
     }
   },
   "pamAccessConnectorAssignmentCount": {
-    "message": "$COUNT$ targets",
+    "message": "$COUNT$ destinos",
     "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
     "placeholders": {
       "count": {
@@ -20834,7 +21056,7 @@
     }
   },
   "pamAccessConnectorAssignmentsNone": {
-    "message": "None",
+    "message": "Nenhum",
     "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
   },
   "pamRotationConfigNoActiveTargetSystems": {
@@ -20850,7 +21072,7 @@
     "message": "Não foi possível carregar os conectores de acesso deste sistema de destino."
   },
   "pamTargetSystemDeleteAssignedConnectorsContent": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first, and its access connector assignments are removed with it.",
+    "message": "A eliminação de $NAME$ é permanente. Tem de remover primeiro todas as credenciais geridas que utilizem este sistema para a rotação de palavras-passe. As atribuições dos respetivos conectores de acesso também serão removidas.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -20859,7 +21081,7 @@
     }
   },
   "pamEventRequestedAccess": {
-    "message": "Requested privileged access to item $ITEM$ (request $ID$).",
+    "message": "Acesso privilegiado ao item $ITEM$ solicitado (pedido $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20872,7 +21094,7 @@
     }
   },
   "pamEventApprovedAccessRequest": {
-    "message": "Approved privileged access to item $ITEM$ (request $ID$).",
+    "message": "Acesso privilegiado ao item $ITEM$ aprovado (pedido $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20885,7 +21107,7 @@
     }
   },
   "pamEventDeniedAccessRequest": {
-    "message": "Denied privileged access to item $ITEM$ (request $ID$).",
+    "message": "Acesso privilegiado ao item $ITEM$ recusado (pedido $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20898,7 +21120,7 @@
     }
   },
   "pamEventActivatedAccess": {
-    "message": "Activated privileged access to item $ITEM$ (access $ID$).",
+    "message": "Acesso privilegiado ao item $ITEM$ ativado (acesso $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20911,7 +21133,7 @@
     }
   },
   "pamEventRevokedAccess": {
-    "message": "Revoked privileged access to item $ITEM$ (access $ID$).",
+    "message": "Acesso privilegiado ao item $ITEM$ revogado (acesso $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20924,7 +21146,7 @@
     }
   },
   "pamEventCancelledAccessRequest": {
-    "message": "Cancelled the privileged access request for item $ITEM$ (request $ID$).",
+    "message": "Pedido de acesso privilegiado ao item $ITEM$ cancelado (pedido $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20937,7 +21159,7 @@
     }
   },
   "pamEventExtendedAccess": {
-    "message": "Extended privileged access to item $ITEM$ (access $ID$).",
+    "message": "Acesso privilegiado ao item $ITEM$ prolongado (acesso $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20950,7 +21172,7 @@
     }
   },
   "pamEventExpiredAccess": {
-    "message": "Privileged access to item $ITEM$ expired (access $ID$).",
+    "message": "Acesso privilegiado ao item $ITEM$ expirado (acesso $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20963,7 +21185,7 @@
     }
   },
   "pamEventRejectedAccessLeaseActivation": {
-    "message": "Could not activate privileged access to item $ITEM$ (request $ID$).",
+    "message": "Não foi possível ativar o acesso privilegiado ao item $ITEM$ (pedido $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20976,16 +21198,16 @@
     }
   },
   "pamEventCreatedAccessRule": {
-    "message": "Created a privileged access rule."
+    "message": "Regra de acesso privilegiado criada."
   },
   "pamEventUpdatedAccessRule": {
-    "message": "Edited a privileged access rule."
+    "message": "Regra de acesso privilegiado editada."
   },
   "pamEventDeletedAccessRule": {
-    "message": "Deleted a privileged access rule."
+    "message": "Regra de acesso privilegiado eliminada."
   },
   "pamEventRotatedCredential": {
-    "message": "Rotated the credential for item $ITEM$.",
+    "message": "Credencial do item $ITEM$ rodada.",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -20994,7 +21216,7 @@
     }
   },
   "pamEventFailedCredentialRotation": {
-    "message": "Could not rotate the credential for item $ITEM$.",
+    "message": "Não foi possível rodar a credencial do item $ITEM$.",
     "placeholders": {
       "item": {
         "content": "$1",

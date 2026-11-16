@@ -6,5 +6,13 @@
   },
   "browser_action": {
     "default_title": "Bitwarden Beta"
+  },
+  "sidebar_action": {
+    "default_title": "Bitwarden Beta"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{54c7abf2-9fd5-45ad-af64-c1c0b2e2ecc8}"
+    }
   }
 }

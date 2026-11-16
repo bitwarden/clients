@@ -266,6 +266,86 @@ describe("scrollDirection", () => {
     });
   });
 
+  describe("scrollbar drag", () => {
+    /** jsdom has no `PointerEvent`, and only the event type is read. */
+    const press = (target: EventTarget) =>
+      target.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+
+    /** Attached, since presses are heard on the document. */
+    const createAttached = () => document.body.appendChild(createScrollable(2000, 500));
+
+    afterEach(() => {
+      window.dispatchEvent(new Event("pointerup"));
+      document.body.replaceChildren();
+    });
+
+    it("holds direction while the scrollbar is dragged", async () => {
+      const element = createAttached();
+      const direction = create(signal(element));
+
+      await scrollTo(element, 200);
+      expect(direction()).toBe("down");
+
+      // A collapse moved the track under the pointer, jumping the offset back up.
+      press(element);
+      await scrollTo(element, 120);
+
+      expect(direction()).toBe("down");
+    });
+
+    it("re-evaluates once the drag is released", async () => {
+      const element = createAttached();
+      const direction = create(signal(element));
+
+      await scrollTo(element, 200);
+      press(element);
+      await scrollTo(element, 0);
+      expect(direction()).toBe("down");
+
+      window.dispatchEvent(new Event("pointerup"));
+      await nextFrame();
+
+      expect(direction()).toBe("up");
+    });
+
+    it("ends the drag on scrollend, where pointerup never arrives", async () => {
+      const element = createAttached();
+      const direction = create(signal(element));
+
+      await scrollTo(element, 200);
+      press(element);
+      element.dispatchEvent(new Event("scrollend"));
+
+      await scrollTo(element, 120);
+
+      expect(direction()).toBe("up");
+    });
+
+    it("counts a press that lands before the element is resolved", async () => {
+      // The scroller can resolve only after the drag has scrolled it.
+      const element = createAttached();
+      const scrollable = signal<HTMLElement | null>(null);
+      const direction = create(scrollable);
+
+      press(element);
+      scrollable.set(element);
+      await scrollTo(element, 200);
+      expect(direction()).toBe("up");
+    });
+
+    it("ignores a press on the content", async () => {
+      const element = createAttached();
+      const content = element.appendChild(document.createElement("div"));
+      const direction = create(signal(element));
+
+      await scrollTo(element, 200);
+      press(content);
+      await scrollTo(element, 120);
+
+      expect(direction()).toBe("up");
+    });
+  });
+
   it("does not flip on a viewport-sized jump", async () => {
     const element = createScrollable(2000, 500);
     const direction = create(signal(element));

@@ -3,7 +3,7 @@ import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from "@angular/router";
 import { mockAccountServiceWith } from "@bitwarden/common/../spec/fake-account-service";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -488,7 +488,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       const links = fixture.debugElement
-        .queryAll(By.css("a[bitLink]"))
+        .queryAll(By.css("a[vaultTableRowName]"))
         .map((link) => (link.nativeElement as HTMLAnchorElement).getAttribute("href"));
 
       expect(links).toEqual([
@@ -1311,6 +1311,84 @@ describe("SharedFoldersComponent", () => {
       const pinItem = document.querySelector("#shared-folders_menu-item_pin-col-a");
       expect(pinItem?.textContent).toContain("pinToSidebar");
       expect(pinItem?.textContent).not.toContain("unpinFromSidebar");
+    });
+  });
+
+  describe("clicking a row cell", () => {
+    let navigate: jest.SpyInstance;
+
+    beforeEach(async () => {
+      await setup({ collections: [collection({ id: "col-a", name: "Engineering" })] });
+      fixture.detectChanges();
+      navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    });
+
+    /** The `role="cell"` divs of the first body row, in column order. */
+    function firstRowCells(): HTMLElement[] {
+      return Array.from(
+        fixture.nativeElement.querySelector("bit-row").querySelectorAll("[role=cell]"),
+      );
+    }
+
+    /** Name, permissions and items — between the selection checkbox cell and the options cell. */
+    function firstRowDataCells(): HTMLElement[] {
+      return firstRowCells().slice(1, -1);
+    }
+
+    function click(element: Element, init: MouseEventInit = {}) {
+      element.dispatchEvent(new MouseEvent("click", { bubbles: true, ...init }));
+    }
+
+    it("opens the shared folder from any data cell, not just the name link", () => {
+      const dataCells = firstRowDataCells();
+      expect(dataCells).toHaveLength(3);
+
+      for (const cell of dataCells) {
+        navigate.mockClear();
+        click(cell);
+        expect(navigate).toHaveBeenCalledTimes(1);
+        expect(navigate).toHaveBeenCalledWith([
+          "/vault",
+          ORGANIZATION_ID,
+          "shared-folders",
+          "col-a",
+        ]);
+      }
+    });
+
+    it("leaves a click on the name link to the link itself", () => {
+      click(fixture.nativeElement.querySelector("#shared-folders_link_name-col-a"));
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("leaves the selection checkbox to the selection", () => {
+      click(firstRowCells()[0].querySelector("input[type=checkbox]")!);
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("opens the shared folder from blank space in the options cell", () => {
+      click(firstRowCells().at(-1)!);
+
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(["/vault", ORGANIZATION_ID, "shared-folders", "col-a"]);
+    });
+
+    it("leaves the options menu trigger to the menu", () => {
+      click(fixture.debugElement.query(By.directive(MenuTriggerForDirective)).nativeElement);
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("ignores modifier clicks so selection and browser gestures stay available", () => {
+      const cell = firstRowDataCells()[1];
+
+      for (const modifier of ["ctrlKey", "metaKey", "shiftKey", "altKey"]) {
+        click(cell, { [modifier]: true });
+      }
+
+      expect(navigate).not.toHaveBeenCalled();
     });
   });
 

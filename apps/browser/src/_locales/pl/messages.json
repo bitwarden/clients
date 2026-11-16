@@ -1609,6 +1609,167 @@
       }
     }
   },
+  "selectVault": {
+    "message": "Wybierz sejf",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Wybierz lokalizację",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Wybierz sejf"
+  },
+  "selectALocationTitle": {
+    "message": "Wybierz lokalizację"
+  },
+  "importDestinationDescription": {
+    "message": "Wybierz, gdzie zaimportować elementy."
+  },
+  "importMyItemsOption": {
+    "message": "Moje elementy",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible only to you"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Sejf organizacji"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "Family vault"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+  },
+  "importSharedFolderRequired": {
+    "message": "A shared folder is required."
+  },
+  "importIntoOrganization": {
+    "message": "Items will be imported into $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Move all items into a shared folder"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Import $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Importuj 1 element"
+  },
+  "importToOrganization": {
+    "message": "Import to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "Organizacja $ORGANIZATION$ nie pozwala na importowanie $ITEM_TYPES$. Jeśli te dane są w Twoim imporcie, zostaną pominięte.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "danych logowania",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "notatek",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "kart",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "tożsamości",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "kluczy SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "kont bankowych",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "prawa jazdy",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "paszportów",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
+  },
   "importItems": {
     "message": "Importuj elementy"
   },
@@ -5386,7 +5547,7 @@
     "message": "Your credentials are encrypted in transit and never stored."
   },
   "importDataSecureByDesignTitle": {
-    "message": "Secure by design"
+    "message": "Zaprojektowano z myślą o bezpieczeństwie"
   },
   "importDataSecureByDesignBody": {
     "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
@@ -5541,30 +5702,30 @@
     "message": "W aplikacji mobilnej PassKeep przejdź do \"Kopia zapasowa/Przywracanie\". Znajdź sekcję \"Kopia zapasowa/przywracanie CSV\" i kliknij \"Kopia zapasowa do CSV\", aby zapisać plik CSV."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Upewnij się, że masz zainstalowane python-keyring i python-gnomekeyring. Zapisz",
+    "message": "Upewnij się, że masz zainstalowane pakiety python-keyring i python-gnomekeyring. Zapisz skrypt",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "Import/Eksport GNOME Keyring"
+    "message": "pęku kluczy GNOME"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "skrypt Pythona na pulpicie jako",
+    "message": "na pulpicie jako",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Otwórz terminal i uruchom",
+    "message": ". Otwórz terminal i uruchom polecenie",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "a następnie",
+    "message": ", a następnie",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Następnie prześlij wynikowy",
+    "message": ". Na koniec prześlij plik",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "plik tutaj do Bitwarden.",
+    "message": "do Bitwarden.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
@@ -5889,7 +6050,7 @@
     "message": "Keeper Push notification sent to approved device."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Zatwierdź urządzenie, wybierając metodę poniżej."
   },
   "keeperLoginEmailCodeDesc": {
     "message": "Wpisz kod weryfikacyjny wysłany na adres e-mail."
@@ -5907,7 +6068,7 @@
     "message": "Keeper DNA sent"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Zatwierdź powiadomienie Keeper DNA na swoim urządzeniu."
   },
   "keeperLoginCancelRequestDesc": {
     "message": "Your approval request will be canceled. Are you sure you want to proceed?"
@@ -6117,7 +6278,7 @@
     "message": "Powiadomienie Keeper zostało wysłane"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Prośba o zatwierdzenie zostanie anulowana"
+    "message": "Prośba o potwierdzenie zostanie anulowana"
   },
   "pendingApprovalCancelConfirmation": {
     "message": "Czy na pewno chcesz wyjść? Twoja prośba o zatwierdzenie przez administratora zostanie anulowana."
@@ -6546,6 +6707,9 @@
   },
   "myItems": {
     "message": "Moje elementy"
+  },
+  "myItemsV2": {
+    "message": "My items"
   },
   "adminConsole": {
     "message": "Konsola administratora"
@@ -8081,17 +8245,11 @@
   "sharedUnlock": {
     "message": "Odblokuj powiązane aplikacje"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Sync unlock with desktop app"
+  "syncUnlockWithDesktop1": {
+    "message": "Synchronize unlock with desktop"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Sync unlock with web app"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "The Bitwarden browser extension and web app lock and unlock together."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together. Biometrics will be used if available."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Współdzielone odblokowanie jest niedostępne, ponieważ wybrano, aby nie zapamiętywać tego urządzenia. Aby włączyć to ustawienie, spróbuj zalogować się ponownie."
@@ -8420,7 +8578,7 @@
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "upgradeToViewPasswords": {
-    "message": "Uaktualnij, aby wyświetlić hasła"
+    "message": "Ulepsz konto, aby wyświetlić hasła"
   },
   "categoryHealthy": {
     "message": "Żadne elementy nie wymagają uwagi",
@@ -8494,7 +8652,7 @@
     }
   },
   "exposedPasswordsEmpty": {
-    "message": "Żadne z Twoich haseł nie zostało znalezione w naruszeniach danych."
+    "message": "Żadne z Twoich haseł nie zostało znalezione w wyciekach danych."
   },
   "weakPasswordEmpty": {
     "message": "Wszystkie hasła są silne."
@@ -8503,7 +8661,7 @@
     "message": "Wszystkie hasła są unikalne."
   },
   "youreAllSet": {
-    "message": "Wszystko gotowe!"
+    "message": "Gotowe!"
   },
   "permissions": {
     "message": "Uprawnienia"
@@ -8540,7 +8698,7 @@
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "Udostępnienie jednorazowe",
+    "message": "Jednorazowe udostępnienie",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
@@ -8609,15 +8767,15 @@
     "message": "Unable to determine item ID"
   },
   "newExperienceDialogTitle": {
-    "message": "Bitwarden has a new look",
+    "message": "Bitwarden ma nowy wygląd",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
   },
   "newExperienceDialogDesc": {
-    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "message": "Lepsze wrażenia z użytkowania, ten sam sprawdzony poziom bezpieczeństwa. Sejf Bitwarden został przeprojektowany na podstawie opinii użytkowników, dzięki czemu łatwiej znajdziesz potrzebne elementy.",
     "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
   },
   "newExperienceDialogImgAlt": {
-    "message": "A preview of the redesigned Bitwarden vault.",
+    "message": "Podgląd przeprojektowanego sejfu Bitwarden.",
     "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
   },
   "exploreTheNewVault": {
@@ -8638,10 +8796,10 @@
     }
   },
   "coachmarkSwitchVaultsTitle": {
-    "message": "Switch between vaults"
+    "message": "Przełącz między sejfami"
   },
   "coachmarkVaultSwitcherDescription": {
-    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
+    "message": "Dzięki nowemu przełącznikowi sejfów szybko przejrzysz elementy osobiste i udostępnione."
   },
   "coachmarkFiltersTitle": {
     "message": "Mix and match filters"
