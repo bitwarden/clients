@@ -91,7 +91,27 @@ describe("WebLoginDecryptionOptionsService", () => {
       expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalled();
     });
 
+    it("should clear the redirect URL and the direct org invite when InviteLinkAutoConfirm is off", async () => {
+      setInviteLinkAutoConfirm(false);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(directInvite);
+
+      await service.handleCreateUserSuccess();
+
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalled();
+    });
+
     it("should NOT clear the redirect URL or the org invite when no org invite is stashed", async () => {
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      await service.handleCreateUserSuccess();
+
+      expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should NOT clear the redirect URL or the org invite when no org invite is stashed and InviteLinkAutoConfirm is on", async () => {
+      setInviteLinkAutoConfirm(true);
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       await service.handleCreateUserSuccess();

@@ -308,6 +308,22 @@ describe("WebSetInitialPasswordService", () => {
         expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
         expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
       });
+
+      it("should NOT clear the login redirect URL or the org invite when InviteLinkAutoConfirm is on", async () => {
+        // Arrange
+        configService.getFeatureFlag.mockImplementation(
+          async (flag) => flag === FeatureFlag.InviteLinkAutoConfirm,
+        );
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+        expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+      });
     });
 
     describe("given the initial password was NOT successfully set (due to some error in setInitialPassword())", () => {
@@ -340,6 +356,25 @@ describe("WebSetInitialPasswordService", () => {
         // Assert
         await expect(promise).rejects.toThrow();
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+        expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+      });
+
+      it("should NOT clear the login redirect URL or the org invite when an open org invite is stashed and InviteLinkAutoConfirm is on", async () => {
+        // Arrange
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOpenOrgInvite);
+        configService.getFeatureFlag.mockImplementation(
+          async (flag) => flag === FeatureFlag.InviteLinkAutoConfirm,
+        );
+        credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
+        setupMocks();
+
+        // Act
+        const promise = sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        await expect(promise).rejects.toThrow();
+        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+        expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
         expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
       });
     });
@@ -433,6 +468,22 @@ describe("WebSetInitialPasswordService", () => {
     it("should NOT clear the login redirect URL or the org invite when no org invite is stashed", async () => {
       // Arrange
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(superSpy).toHaveBeenCalledWith(credentials, userId);
+      expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should NOT clear the login redirect URL or the org invite when no org invite is stashed and InviteLinkAutoConfirm is on", async () => {
+      // Arrange
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+      configService.getFeatureFlag.mockImplementation(
+        async (flag) => flag === FeatureFlag.InviteLinkAutoConfirm,
+      );
 
       // Act
       await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
