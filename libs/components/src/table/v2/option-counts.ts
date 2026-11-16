@@ -10,7 +10,6 @@
  * @param matches - Whether a row passes every other active filter, with the counted chip cleared.
  * @param rowValues - The values the row holds for the counted chip.
  * @returns One count for each entry of `pinned`, in the same order.
- * @internal
  */
 export function countOptions<T>(
   rows: readonly T[],
