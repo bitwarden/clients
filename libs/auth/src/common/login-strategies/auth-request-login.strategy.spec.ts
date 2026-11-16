@@ -8,7 +8,6 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
-import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
@@ -21,6 +20,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { makeEncString, FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -53,7 +53,7 @@ describe("AuthRequestLoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let keySyncService: MockProxy<KeySyncService>;
+  let sdkService: MockSdkService;
   let unlockService: MockProxy<UnlockService>;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -89,7 +89,7 @@ describe("AuthRequestLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    keySyncService = mock<KeySyncService>();
+    sdkService = new MockSdkService();
     unlockService = mock<UnlockService>();
 
     accountService = mockAccountServiceWith(mockUserId);
@@ -123,7 +123,7 @@ describe("AuthRequestLoginStrategy", () => {
       environmentService,
       configService,
       accountCryptographicStateService,
-      keySyncService,
+      sdkService,
     );
 
     credentials = new AuthRequestLoginCredentials(email, accessCode, authRequestId, decUserKey);

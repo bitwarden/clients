@@ -20,7 +20,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -31,6 +30,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
@@ -103,7 +103,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private loginStrategyCacheService: LoginStrategyCacheService,
     private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
     private legacyCompatKeyService: LegacyCompatKeyService,
-    private keySyncService: KeySyncService,
+    private sdkService: SdkService,
   ) {
     this.authRequestPushNotificationState = this.stateProvider.get(
       AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
@@ -315,7 +315,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.environmentService,
       this.configService,
       this.accountCryptographicStateService,
-      this.keySyncService,
+      this.sdkService,
     ];
 
     return source.pipe(

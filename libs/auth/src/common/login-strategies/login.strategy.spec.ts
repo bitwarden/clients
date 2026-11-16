@@ -20,7 +20,6 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -38,6 +37,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
@@ -109,7 +109,7 @@ describe("LoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let keySyncService: MockProxy<KeySyncService>;
+  let sdkService: MockSdkService;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -138,7 +138,7 @@ describe("LoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    keySyncService = mock<KeySyncService>();
+    sdkService = new MockSdkService();
 
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
@@ -176,7 +176,7 @@ describe("LoginStrategy", () => {
       environmentService,
       configService,
       accountCryptographicStateService,
-      keySyncService,
+      sdkService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
   });
@@ -351,6 +351,14 @@ describe("LoginStrategy", () => {
         return tokenResponse;
       };
 
+      let cryptoSyncHandler: ReturnType<
+        ReturnType<MockSdkService["simulate"]["userLogin"]>["crypto_sync_handler"]["mockDeep"]
+      >;
+
+      beforeEach(() => {
+        cryptoSyncHandler = sdkService.simulate.userLogin(userId).crypto_sync_handler.mockDeep();
+      });
+
       it("syncs keys from the Key Service when the flag is on", async () => {
         configService.getFeatureFlag.mockImplementation(
           async (flag) => flag === FeatureFlag.PM47063_KeyServiceKeySync,
@@ -359,7 +367,7 @@ describe("LoginStrategy", () => {
 
         await passwordLoginStrategy.logIn(credentials);
 
-        expect(keySyncService.syncKeys).toHaveBeenCalledWith(userId);
+        expect(cryptoSyncHandler.sync_keys).toHaveBeenCalledTimes(1);
         expect(masterPasswordService.mock.setMasterPasswordUnlockData).not.toHaveBeenCalled();
         expect(kdfConfigService.setKdfConfig).not.toHaveBeenCalled();
         expect(
@@ -373,7 +381,7 @@ describe("LoginStrategy", () => {
 
         await passwordLoginStrategy.logIn(credentials);
 
-        expect(keySyncService.syncKeys).not.toHaveBeenCalled();
+        expect(cryptoSyncHandler.sync_keys).not.toHaveBeenCalled();
         expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalled();
         expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(
           userId,
@@ -384,7 +392,7 @@ describe("LoginStrategy", () => {
 
       it("fails the login when the key sync fails", async () => {
         configService.getFeatureFlag.mockResolvedValue(true);
-        keySyncService.syncKeys.mockRejectedValue(new Error("Key Service unavailable"));
+        cryptoSyncHandler.sync_keys.mockRejectedValue(new Error("Key Service unavailable"));
         apiService.postIdentityToken.mockResolvedValue(tokenResponseWithAccountKeys());
 
         await expect(passwordLoginStrategy.logIn(credentials)).rejects.toThrow(
@@ -554,7 +562,7 @@ describe("LoginStrategy", () => {
         environmentService,
         configService,
         accountCryptographicStateService,
-        keySyncService,
+        sdkService,
       );
 
       apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
@@ -623,7 +631,7 @@ describe("LoginStrategy", () => {
         environmentService,
         configService,
         accountCryptographicStateService,
-        keySyncService,
+        sdkService,
       );
 
       const result = await passwordLoginStrategy.logIn(credentials);
@@ -659,7 +667,7 @@ describe("LoginStrategy", () => {
         environmentService,
         configService,
         accountCryptographicStateService,
-        keySyncService,
+        sdkService,
       );
 
       await expect(

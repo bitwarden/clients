@@ -20,8 +20,8 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { withPasswordManagerSdk } from "@bitwarden/common/key-management/utils";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -32,6 +32,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -87,7 +88,7 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
     protected environmentService: EnvironmentService,
     protected configService: ConfigService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
-    protected keySyncService: KeySyncService,
+    protected sdkService: SdkService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -257,7 +258,9 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
 
     // Needs the access token, set in saveAccountInformation.
     if (await this.configService.getFeatureFlag(FeatureFlag.PM47063_KeyServiceKeySync)) {
-      await this.keySyncService.syncKeys(userId);
+      await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+        sdk.crypto_sync_handler().sync_keys(),
+      );
     } else {
       await this.setKeysFromIdentity(response, userId);
     }

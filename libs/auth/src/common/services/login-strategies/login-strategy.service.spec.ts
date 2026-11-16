@@ -20,7 +20,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
@@ -34,6 +33,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import {
   FakeAccountService,
   FakeGlobalStateProvider,
@@ -99,7 +99,7 @@ describe("LoginStrategyService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
-  let keySyncService: MockProxy<KeySyncService>;
+  let sdkService: MockSdkService;
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let loginStrategyCacheService: MockProxy<LoginStrategyCacheService>;
   let loginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutService>;
@@ -137,7 +137,7 @@ describe("LoginStrategyService", () => {
     kdfConfigService = mock<KdfConfigService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
-    keySyncService = mock<KeySyncService>();
+    sdkService = new MockSdkService();
     passwordPreloginService = mock<PasswordPreloginService>();
     loginStrategyCacheService = mock<LoginStrategyCacheService>();
     loginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutService>();
@@ -201,7 +201,7 @@ describe("LoginStrategyService", () => {
       loginStrategyCacheService,
       loginStrategySessionTimeoutService,
       legacyCompatKeyService,
-      keySyncService,
+      sdkService,
     );
 
     const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
@@ -370,7 +370,7 @@ describe("LoginStrategyService", () => {
       loginStrategyCacheService,
       loginStrategySessionTimeoutService,
       legacyCompatKeyService,
-      keySyncService,
+      sdkService,
     );
 
     const twoFactorToken = new TokenTwoFactorRequest(

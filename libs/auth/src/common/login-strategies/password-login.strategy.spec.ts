@@ -20,7 +20,6 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import {
@@ -34,6 +33,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -109,7 +109,7 @@ describe("PasswordLoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let keySyncService: MockProxy<KeySyncService>;
+  let sdkService: MockSdkService;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -140,7 +140,7 @@ describe("PasswordLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    keySyncService = mock<KeySyncService>();
+    sdkService = new MockSdkService();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -188,7 +188,7 @@ describe("PasswordLoginStrategy", () => {
       environmentService,
       configService,
       accountCryptographicStateService,
-      keySyncService,
+      sdkService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
     tokenResponse = identityTokenResponseFactory(masterPasswordPolicyResponse);
@@ -288,7 +288,9 @@ describe("PasswordLoginStrategy", () => {
 
       describe("when the flag is on", () => {
         beforeEach(() => {
-          configService.getFeatureFlag.mockResolvedValue(true);
+          configService.getFeatureFlag.mockImplementation(
+            async (flag) => flag === FeatureFlag.PM27060_PasswordPreloginFromSdk,
+          );
         });
 
         it("derives the master key from the prelogin salt for prefetched data", async () => {
