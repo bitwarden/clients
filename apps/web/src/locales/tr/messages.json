@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Uygulama (URI)"
+  "desktopApp": {
+    "message": "Masaüstü uygulaması",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Uygulama (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Masaüstü uygulaması $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5754,6 +5755,31 @@
   "trialIncludesPrivilegedControls": {
     "message": "Deneme sürümünüz Privileged Controls'ü içerir."
   },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls, Bitwarden satış ekibi aracılığıyla sunulur ve bu kuruluşa dahil değildir."
+  },
+  "contactSales": {
+    "message": "Satış ekibiyle iletişime geçin"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls, Bitwarden satış ekibi aracılığıyla sunulur. Kuruluşunuza eklemek için satış ekibiyle iletişime geçin."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "Privileged Controls yerlerinizi değiştirmek için satış ekibiyle iletişime geçin."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$TOTAL$ yerden $OCCUPIED$ tanesi kullanımda",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
   "monthly": {
     "message": "Aylık"
   },
@@ -7824,6 +7850,18 @@
   "limitPrivilegedControlsSubscriptionDesc": {
     "message": "Privileged Controls aboneliğiniz için bir yer sınırı belirleyin. Bu sınıra ulaşıldığında üyelere Privileged Controls erişimi veremezsiniz."
   },
+  "removePrivilegedControls": {
+    "message": "Privileged Controls'ü kaldır",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Kuruluşunuzdaki tüm kullanıcılar Privileged Controls erişimini kaybedecek. Devam etmek istediğinizden emin misiniz?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls kaldırıldı",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
   "maximumSeatsCount": {
     "message": "En fazla $COUNT$ yer",
     "placeholders": {
@@ -8435,6 +8473,9 @@
   "viewApiKey": {
     "message": "API anahtarını görüntüle"
   },
+  "copyApiKey": {
+    "message": "API anahtarını kopyala"
+  },
   "rotateApiKey": {
     "message": "API anahtarını yenile"
   },
@@ -8966,14 +9007,34 @@
     "message": "Send bağlantısını kopyala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Parolayı veya e-posta doğrulamasını kaldır"
+  },
+  "removedAuth": {
+    "message": "Parola veya e-posta doğrulaması kaldırıldı"
+  },
+  "removeAuthConfirmation": {
+    "message": "Bu Send'den parola veya e-posta doğrulaması gereksinimini kaldırmak istediğinizden emin misiniz?"
+  },
   "removePassword": {
     "message": "Parolayı kaldır"
+  },
+  "removeEmailVerification": {
+    "message": "E-posta doğrulamasını kaldır"
   },
   "removedPassword": {
     "message": "Parola kaldırıldı"
   },
-  "removePasswordConfirmation": {
-    "message": "Parolayı kaldırmak istediğinizden emin misiniz?"
+  "removedEmailVerification": {
+    "message": "E-posta doğrulaması kaldırıldı"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Bu Send'den parola gereksinimini kaldırmak istediğinizden emin misiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Bu Send'den e-posta doğrulaması gereksinimini kaldırmak istediğinizden emin misiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Tüm Send'ler"
@@ -9424,6 +9485,24 @@
       }
     }
   },
+  "sentInviteReminderToUserId": {
+    "message": "$ID$ kullanıcısına davet hatırlatıcısı gönderildi.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "$ID$ kullanıcısına davet yeniden gönderildi.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Sistem"
   },
@@ -9611,7 +9690,7 @@
     "message": "Tahmini vergi"
   },
   "prorationChargeMayDiffer": {
-    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+    "message": "Orantılı hesaplama gönderdiğiniz ana kadar yapıldığı için son tutarınız biraz farklı olabilir."
   },
   "subtotal": {
     "message": "Ara toplam"
@@ -12943,8 +13022,91 @@
   "userAccessSecretsManagerGA": {
     "message": "Bu kullanıcı Sır Yöneticisi'ne erişebilir"
   },
+  "products": {
+    "message": "Ürünler"
+  },
   "privilegedControls": {
     "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "Ayrıcalıklı ve iş açısından kritik hesaplarınızı Bitwarden Parola Yöneticisi için bu eklentiyle hızla ve kolayca koruyun.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Kimlik bilgisi kiralama"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Gelişmiş erişim kuralları"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Otomatik parola değiştirme"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Uyumluluğa hazır denetim günlükleri"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Yönetişim panosu"
+  },
+  "addPrivilegedControls": {
+    "message": "Privileged Controls ekle",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Yer sınırı",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "Neler dahil"
+  },
+  "pricePerMember": {
+    "message": "Üye başına $COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Yerler, Parola Yöneticisi yerlerinizden ($COUNT$) fazla olamaz.",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Yer sınırı, Parola Yöneticisi yerlerinizden ($COUNT$) fazla olamaz.",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Yer sınırı, Parola Yöneticisi yer sınırınızdan ($COUNT$) fazla olamaz.",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Privileged Controls aboneliğiniz için bir yer sınırı belirleyin. Bu sınıra ulaşıldığında üyelere Privileged Controls erişimi veremezsiniz.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Yer sınırı, yer sayısından büyük olmalıdır."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Abonelik güncellendi. Artık Privileged Controls'e sahipsiniz.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13698,23 +13860,8 @@
   "inviteUsers": {
     "message": "Kullanıcıları davet et"
   },
-  "secretsManagerForPlan": {
-    "message": "$PLAN$ için Sır Yöneticisi",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "Mühendislik ve DevOps ekiplerinin yazılım geliştirme yaşam döngüsü boyunca sırları yönetmesi için."
-  },
-  "free2PersonOrganization": {
-    "message": "Ücretsiz 2 Kişilik Kuruluşlar"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Paylaşılan kasalı ücretsiz paket"
+  "secretsManagerPurchaseDesc": {
+    "message": "Mühendislik ve DevOps ekiplerinizin sırları yazılım geliştirme yaşam döngüsü boyunca merkezi olarak saklamasını, yönetmesini ve dağıtmasını sağlayın."
   },
   "unlimitedSecrets": {
     "message": "Sınırsız sır"
@@ -13749,8 +13896,9 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "Secrets Manager'a abone olun"
+  "addSecretsManager": {
+    "message": "Sır Yöneticisi ekle",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Önceki planınızla oluşturulan sırlara erişimi sürdürmek için yükseltilmiş planınıza Sır Yöneticisi'ni ekleyin."
@@ -14645,15 +14793,6 @@
   },
   "smAccessRemovalWarningMaMessage": {
     "message": "Bu işlem, makine hesabına erişiminizi kaldıracaktır."
-  },
-  "machineAccountsIncluded": {
-    "message": "$COUNT$ makine hesabı dahil",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "additionalMachineAccountCost": {
     "message": "İlave makine hesapları için aylık $COST$",
@@ -18352,29 +18491,23 @@
   "pamTabHistory": {
     "message": "Geçmiş"
   },
-  "pamAccessRequestsSearchPlaceholder": {
-    "message": "Kimlik bilgisi, koleksiyon, isteyen kişi ara"
-  },
-  "pamCollectionFilter": {
-    "message": "Koleksiyon"
-  },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Uzatma istekleri"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Etkin erişim"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "Etkin erişim yok"
+  "pamMyRequestsLoaded": {
+    "message": "İstekler yüklendi"
   },
   "pamMyRequestsLoadError": {
     "message": "İstekleriniz yüklenemedi"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "Beklemede"
+  "pamStatusInUse": {
+    "message": "Kullanımda",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsPendingEmpty": {
-    "message": "Bekleyen istek yok"
+  "pamStatusEndingSoon": {
+    "message": "Yakında sona eriyor",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "Filtrelenecek paylaşılan klasör yok",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
   },
   "pamMyRequestsEmptyTitle": {
     "message": "Hiç isteğiniz yok"
@@ -18409,12 +18542,63 @@
   "pamColumnActions": {
     "message": "İşlemler"
   },
-  "pamWindowUntil": {
-    "message": "$DATE$ tarihine kadar",
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ ile $END$ arası",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "$END$ zamanına kadar",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "$DATE$ $TIME$ tarihinde sona eriyor",
     "placeholders": {
       "date": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Bugün $TIME$ saatinde sona eriyor",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
       }
     }
   },
@@ -18449,7 +18633,7 @@
   "pamResolverUnknown": {
     "message": "Bilinmeyen kullanıcı"
   },
-  "pamInboxInCollection": {
+  "pamInboxInSharedFolder": {
     "message": "$COLLECTION$ içinde",
     "placeholders": {
       "collection": {
@@ -18457,9 +18641,6 @@
         "example": "Production"
       }
     }
-  },
-  "pamInboxReason": {
-    "message": "Sebep"
   },
   "pamInboxReasonMissing": {
     "message": "Neden belirtilmedi"
@@ -18470,32 +18651,11 @@
   "pamInboxRequester": {
     "message": "İsteyen"
   },
-  "pamInboxDurationMinutes": {
-    "message": "$MINUTES$ dk",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
-  },
   "pamStartLeaseButton": {
     "message": "Erişimi başlat"
   },
   "pamStartLeaseSuccess": {
     "message": "Erişim başlatıldı."
-  },
-  "pamInboxDuration1Hour": {
-    "message": "1 saat"
-  },
-  "pamInboxDurationHours": {
-    "message": "$HOURS$ saat",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "4"
-      }
-    }
   },
   "pamInboxStartAsap": {
     "message": "hemen başlayarak"
@@ -18536,8 +18696,8 @@
   "pamEndLeaseSuccess": {
     "message": "Erişim sonlandırıldı."
   },
-  "pamExtendLeaseButton": {
-    "message": "Uzat"
+  "pamExtendLeaseButtonV2": {
+    "message": "Erişimi uzat"
   },
   "pamExtendLeaseDialogTitle": {
     "message": "Erişimi uzat"
@@ -18621,6 +18781,10 @@
     "message": "Aktif",
     "description": "Controlled access filter option in the vault table: items with an active access session."
   },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Yakında sona eriyor",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
+  },
   "pamAuditKindAccessEndedByRequester": {
     "message": "Erişim isteyen tarafından sonlandırıldı"
   },
@@ -18648,6 +18812,40 @@
       "days": {
         "content": "$1",
         "example": "90"
+      }
+    }
+  },
+  "pamAuditCustomRange": {
+    "message": "$START$ ile $END$ arası",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "$START$ itibarıyla",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "$END$ zamanına kadar",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
       }
     }
   },
@@ -18684,7 +18882,7 @@
   "pamAuditIncomplete": {
     "message": "Tamamlanmadı"
   },
-  "pamAuditIncompleteTooltip": {
+  "pamAuditOutcomeUnconfirmedTooltip": {
     "message": "Bu işlem kaydedildi ancak sonucu hiç doğrulanmadı; başarısız olmuş veya yarıda kesilmiş olabilir."
   },
   "pamAuditKindRequestSubmitted": {
@@ -18753,11 +18951,71 @@
   "pamAccessRequestDetailsTitle": {
     "message": "İstek ayrıntıları"
   },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Ayrıntılar",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
   "pamAccessRequestLeaseTitle": {
     "message": "Erişim"
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "Karar günlüğü"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Karar",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Onaylayan",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Reddeden",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "İptal eden",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Sonlandıran",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "E-posta",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Karar yorumu",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Oturumu başlat",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "Oturumu sonlandır",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "Sistem (otomatik)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Yeni istek gönder",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Neden",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "İsteyen kişiye karar günlüğünde gösterilir.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Kısa tutun. İsteyen kişi bunu doğrudan okur.",
+    "description": "Hint under the withdrawal reason field."
   },
   "pamAccessRequestNotFound": {
     "message": "Erişim isteği kullanılamıyor"
@@ -18768,36 +19026,83 @@
   "pamAccessRequestLoadError": {
     "message": "Bu erişim isteği yüklenemedi."
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "Bu kayda etkin erişiminiz var: $DURATION$ kaldı",
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Erişim etkin • $DURATION$ kaldı",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "23m"
+        "example": "20 days"
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Bu kayda erişiminiz yakında sona eriyor: $DURATION$ kaldı",
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Yakında sona eriyor • $DURATION$ kaldı",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "4m"
+        "example": "4 minutes"
       }
     }
   },
   "pamPendingRequestBannerHeading": {
     "message": "Erişim isteği onay bekliyor"
   },
-  "pamApprovedRequestBannerHeading": {
-    "message": "Erişim onaylandı"
+  "pamPendingSubmittedJustNow": {
+    "message": "Az önce gönderildi"
   },
-  "pamApprovedRequestBannerDuration": {
-    "message": "$DURATION$ erişim",
+  "pamPendingSubmittedAgo": {
+    "message": "$WHEN$ gönderildi",
     "placeholders": {
-      "duration": {
+      "when": {
         "content": "$1",
-        "example": "1 hour"
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Ayrıcalıklı kimlik bilgileri"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls lisansı gerekli",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Kullanım talep et"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Erişiminiz sona erdi"
+  },
+  "pamEndedBannerBody": {
+    "message": "Bu kimlik bilgisinin kullanım süresi doldu. Erişiminiz sona erdiği için bu kimlik bilgisi şimdi değiştirilecek."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Şu anda erişim talep edemezsiniz"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Bu kimlik bilgisinin erişim kuralı, mevcut ağınızdan veya bu saatte istek yapılmasına izin vermiyor."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Kullanıma hazır"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Bu kimlik bilgisine bugün $TIME$ saatine kadar erişebilirsiniz.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Bu kimlik bilgisine $DATE$ $TIME$ saatine kadar erişebilirsiniz.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
       }
     }
   },
@@ -18807,17 +19112,17 @@
   "pamRequestAccessBannerHeading": {
     "message": "Erişim isteyebilirsiniz"
   },
-  "pamUnlicensedBannerHeading": {
-    "message": "Privileged Controls lisansı gerekli",
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Bu kaydı kullanmak için Privileged Controls lisansına ihtiyacınız var",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
-  },
-  "pamUnlicensedBannerBody": {
-    "message": "Bu kaydı görüntülemek için Privileged Controls lisansına ihtiyacınız var. Yöneticinizden lisansınızı etkinleştirmesini isteyin.",
-    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
     "message": "Lisansınız yokken erişim isteme kullanılamaz.",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Yöneticinizden lisansınızı etkinleştirmesini isteyin.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Onaylanan erişim aralığı henüz başlamadı."
@@ -18904,8 +19209,8 @@
   "pendingStateCancelError": {
     "message": "İstek iptal edilemedi."
   },
-  "requestAccessModalSubmit": {
-    "message": "Erişim iste"
+  "requestAccessModalSubmitV2": {
+    "message": "İsteği gönder"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Bir süre seçin. Bu süre boyunca hemen erişim elde edersiniz."
@@ -18913,8 +19218,14 @@
   "requestAccessModalHumanDescription": {
     "message": "Bir aralık seçin ve onaylayana neden erişime ihtiyacınız olduğunu söyleyin. İnceleyip karar verecekler."
   },
-  "requestAccessModalDuration": {
-    "message": "Süre"
+  "requestAccessModalDurationV2": {
+    "message": "Ne kadar süreye ihtiyacınız var?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Onaylandığında bildirim alırsınız. Süreniz ancak bu kimlik bilgisini kullanmaya başladığınızda işlemeye başlar."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "İstek ayrıntıları"
   },
   "requestAccessModalStartDate": {
     "message": "Başlangıç tarihi"
@@ -18994,20 +19305,20 @@
       }
     }
   },
-  "requestAccessModalReasonRequired": {
-    "message": "Neden"
-  },
-  "requestAccessModalReasonOptional": {
-    "message": "Neden (isteğe bağlı)"
-  },
-  "requestAccessModalReasonPlaceholder": {
+  "requestAccessModalReasonRequiredV2": {
     "message": "Buna neden ihtiyacınız var?"
   },
-  "requestAccessModalAutomaticReasonHint": {
-    "message": "Bu neden erişim isteğinizle birlikte kaydedilir."
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Buna neden ihtiyacınız var?"
   },
-  "requestAccessModalHumanReasonHint": {
-    "message": "Onaylayanlar isteğinizi incelerken bu nedeni görecek."
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "örn. Üç aylık denetim, birkaç salt okunur sorgu çalıştırmam gerekiyor"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Onaylayan kişi görebilir ve denetim günlüğüne kaydedilir."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Onaylayan kişi görebilir ve denetim günlüğüne kaydedilir."
   },
   "requestAccessModalGenericError": {
     "message": "Erişim istenemedi. Yeniden deneyin."
@@ -19015,32 +19326,23 @@
   "requestAccessModalAlreadyActive": {
     "message": "Bu kayda zaten etkin erişiminiz var."
   },
-  "requestAccessModalApprovedSuccess": {
+  "requestAccessModalApprovedSuccessV2": {
     "message": "Erişim onaylandı. Başlamak için Erişimi başlat'ı seçin."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "İstek gönderildi. Onay bekleniyor."
-  },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "Etkin erişim yok"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Etkin erişim"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Koleksiyon"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "Kararınızı bekleyen istek yok"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Onay bekliyor"
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Erişim istendi"
   },
   "pamApprovalsRequesterFilter": {
     "message": "İsteyen"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Kimlik bilgisi, koleksiyon, isteyen kişi ara"
+  "pamApprovalsApproveRequest": {
+    "message": "İsteği onayla"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "İsteği reddet"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Erişimi iptal et"
   },
   "pamDecideAdditionalInformation": {
     "message": "Ek bilgiler"
@@ -19080,12 +19382,6 @@
   },
   "pamInboxCommentPlaceholder": {
     "message": "İsteğe bağlı bir yorum ekleyin"
-  },
-  "pamInboxConfirmApproveButton": {
-    "message": "İsteği onayla"
-  },
-  "pamInboxConfirmDenyButton": {
-    "message": "İsteği reddet"
   },
   "pamInboxDecisionFailed": {
     "message": "Karar kaydedilemedi"
@@ -19153,10 +19449,7 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Onay geri çekilemedi"
   },
-  "pamInboxWindow": {
-    "message": "İstenen aralık"
-  },
-  "pamApprovalsNoResults": {
+  "pamAccessRequestsNoResults": {
     "message": "Filtrelerinizle eşleşen erişim isteği yok."
   },
   "pamApprovalsLoaded": {
@@ -19173,6 +19466,20 @@
   },
   "pamInboxRevokeConfirm": {
     "message": "Bu işlem üyenin erişimini hemen iptal eder. Erişimi yeniden kazanmak için yeni bir onaya ihtiyaçları olacak."
+  },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "Bu işlem $ITEM$ için verdiğiniz onayı geri çeker. Erişim başlamaz ve $REQUESTER$ erişim almak için yeni bir onaya ihtiyaç duyar.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
   },
   "pamWithdrawApprovalWarningOne": {
     "message": "Bu işlem şunun için verdiğiniz onayı geri çeker:",
@@ -19225,9 +19532,9 @@
   "pamAccessRules": {
     "message": "Erişim kuralları"
   },
-  "pamCollectionRequiresRequest": {
-    "message": "Bu koleksiyondaki kayıtlar istek gerektirir.",
-    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+  "pamSharedFolderRequiresRequest": {
+    "message": "Bu paylaşılan klasördeki kayıtlar istek gerektirir.",
+    "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
   },
   "pamGatedCollectionBannerName": {
     "message": "Ayrıcalıklı erişim",
@@ -19291,11 +19598,11 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "İsteğe bağlı koşullar"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Koleksiyonları seç"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Paylaşılan klasörleri seç"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "Bu erişim kuralı seçilen tüm koleksiyonlara uygulanacak."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "Bu erişim kuralı seçilen tüm paylaşılan klasörlere uygulanacak."
   },
   "pamAccessRuleEventLogNotice": {
     "message": "Tüm istekler ve kararlar kaydedilir."
@@ -19303,8 +19610,8 @@
   "pamAccessRuleViewAuditLog": {
     "message": "Denetim günlüğünü görüntüle"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Koleksiyonlar yüklenemedi. Yeniden denemek için sayfayı yenileyin."
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Paylaşılan klasörler yüklenemedi. Yeniden denemek için sayfayı yenileyin."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "Bu süre erişim isteklerinde önceden doldurulacak."
@@ -19323,36 +19630,6 @@
   },
   "pamAccessRuleMaxDurationLimitHint": {
     "message": "İstenen süre ne olursa olsun erişim bu süreyle sınırlıdır."
-  },
-  "pamAccessRuleDuration15m": {
-    "message": "15 dakika"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 dakika"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 saat"
-  },
-  "pamAccessRuleDuration2h": {
-    "message": "2 saat"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 saat"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 saat"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 gün"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 gün"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 gün"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 gün"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "Aynı anda yalnızca 1 kullanıcının etkin erişimi olabilir"
@@ -19381,8 +19658,8 @@
   "pamAccessRuleApprovers": {
     "message": "Onaylayanlar"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Koleksiyon yöneticileri"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Paylaşılan klasör yöneticileri"
   },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (kopya)",
@@ -19407,8 +19684,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Kopya oluşturuldu. Uygulanacağı koleksiyonları seçin."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Kopya oluşturuldu. Uygulanacağı paylaşılan klasörleri seçin."
   },
   "pamAccessRuleCreated": {
     "message": "Erişim kuralı oluşturuldu."
@@ -19422,8 +19699,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Erişim kuralı silinsin mi?"
   },
-  "pamAccessRuleDeleteConfirmDescription": {
-    "message": "Bu işlem bu kuralı kalıcı olarak kaldırır. Kuralın yönettiği koleksiyonlardaki kullanıcılar normal erişimlerine yeniden kavuşur."
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "Bu işlem bu kuralı kalıcı olarak kaldırır. Kuralın yönettiği paylaşılan klasörlerdeki kullanıcılar normal erişimlerine yeniden kavuşur."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Erişim kuralını pasifleştir"
@@ -19440,11 +19717,11 @@
   "pamAccessRuleErrorNameTaken": {
     "message": "Bu adı başka bir kural kullanıyor. Farklı bir ad girin."
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Bu koleksiyonlardan birini zaten başka bir erişim kuralı kapsıyor. Farklı koleksiyonlar seçin."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Bu paylaşılan klasörlerden birini zaten başka bir erişim kuralı kapsıyor. Farklı paylaşılan klasörler seçin."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "$COLLECTIONS$ zaten başka bir erişim kuralı tarafından kapsanıyor. Farklı koleksiyonlar seçin.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "$COLLECTIONS$ zaten başka bir erişim kuralı tarafından kapsanıyor. Farklı paylaşılan klasörler seçin.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -19452,11 +19729,11 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "Seçtiğiniz koleksiyonlardan biri artık mevcut değil. Farklı bir koleksiyon seçin."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "Seçtiğiniz paylaşılan klasörlerden biri artık mevcut değil. Farklı bir paylaşılan klasör seçin."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "Seçtiğiniz koleksiyonlardan biri bu kuruluşa ait değil. Farklı bir koleksiyon seçin."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "Seçtiğiniz paylaşılan klasörlerden biri bu kuruluşa ait değil. Farklı bir paylaşılan klasör seçin."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "En uzun uzatma süresini seçin veya uzatmaları kapatın."
@@ -19467,8 +19744,8 @@
   "pamNoAccessRulesYetTitle": {
     "message": "Henüz erişim kuralı yok"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Hassas koleksiyonlara ek koruma eklemek için bir kural oluşturun."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Hassas paylaşılan klasörlere ek koruma eklemek için bir kural oluşturun."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Özel kural oluştur"
@@ -19506,17 +19783,17 @@
   "pamTemplateIpRestrictedName": {
     "message": "IP kısıtlamalı erişim"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Koleksiyonlar"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Paylaşılan klasörler"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Atanmamış"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 koleksiyon"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 paylaşılan klasör"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ koleksiyon",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ paylaşılan klasör",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -19901,9 +20178,6 @@
   "pamRotation": {
     "message": "Rotasyon"
   },
-  "pamRotationSubtitle": {
-    "message": "Yönetilen kimlik bilgilerini ve bu kimlik bilgilerinin bulunduğu hedef sistemleri ekleyin. Ardından ağınızın içinde çalışacak ve değiştirme işlemini yapacak erişim bağlayıcılarını kaydedin. Yapılandırma tamamlandığında kimlik bilgileri hedef sistemlerde otomatik olarak değiştirilebilir."
-  },
   "pamRotationTabManagedCredentials": {
     "message": "Yönetilen kimlik bilgileri"
   },
@@ -20041,6 +20315,50 @@
       }
     }
   },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Her gün UTC $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "$COUNT$ günde bir, UTC $TIME$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Her ay UTC $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "$COUNT$ ayda bir, UTC $TIME$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
   "pamRotationScheduleTimezoneHint": {
     "message": "Planlar yerel saat diliminize göre değil, UTC'ye göre çalışır."
   },
@@ -20074,20 +20392,14 @@
   "pamTargetSystemNew": {
     "message": "Yeni hedef sistem"
   },
-  "pamTargetSystemSearch": {
-    "message": "Hedef sistemlerde ara"
-  },
-  "pamTargetSystemMethodColumn": {
-    "message": "Yöntem"
-  },
   "pamTargetSystemTypeColumn": {
     "message": "Tür"
   },
-  "pamTargetSystemSessionTerminationColumn": {
-    "message": "Oturum sonlandırma"
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Yönetilen kimlik bilgileri"
   },
-  "pamTargetSystemSessionTerminationYes": {
-    "message": "Destekleniyor"
+  "pamTargetSystemNone": {
+    "message": "Yok"
   },
   "pamTargetSystemSessionTerminationNo": {
     "message": "Desteklenmiyor"
@@ -20110,11 +20422,11 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden bir Microsoft Entra ID uygulama sırrını otomatik olarak değiştirir."
   },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden, işlettiğiniz bir Active Directory sunucusundaki etki alanı hesabının parolasını otomatik olarak değiştirir."
+  },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
     "message": "Bitwarden, betiğinizi kayıtlı bir erişim bağlayıcısında çalıştırarak kimlik bilgisini otomatik olarak değiştirir."
-  },
-  "pamTargetSystemNoFilterResults": {
-    "message": "Filtrelerinizle eşleşen hedef sistem yok."
   },
   "pamTargetSystemEditTarget": {
     "message": "Hedef sistemi düzenle"
@@ -20143,6 +20455,12 @@
   "pamTargetSystemAssignConnectorNoOptions": {
     "message": "Tüm etkin erişim bağlayıcıları zaten bu hedef sisteme atanmış."
   },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Yalnızca otomatik değiştirme için."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Önce yönetilen kimlik bilgilerini kaldırın."
+  },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Erişim bağlayıcıları yalnızca otomatik değiştirmeye ayarlanmış hedef sistemlere atanabilir."
   },
@@ -20152,14 +20470,11 @@
   "pamTargetSystemAssignConnectorNone": {
     "message": "Atanacak etkin erişim bağlayıcısı yok. Erişim bağlayıcıları sekmesinden bir tane kaydedin veya mevcut birini etkinleştirin."
   },
-  "pamTargetSystemAssignGoToConnectors": {
-    "message": "Erişim bağlayıcılarına git"
+  "pamTargetSystemDeactivateDialogTitle": {
+    "message": "Hedef sistemi pasifleştir"
   },
-  "pamTargetSystemDeactivateTitle": {
-    "message": "Hedef sistem pasifleştirilsin mi?"
-  },
-  "pamTargetSystemDeactivateContent": {
-    "message": "Bu hedef sistemi pasifleştirmek yeni değiştirmelerin sunulmasını durdurur. Bekleyen işler alınamaz durumda tutulur. Zaten devam eden değiştirmeler tamamlanana kadar sürer."
+  "pamTargetSystemDeactivateDialogContent": {
+    "message": "Siz etkinleştirene kadar bu hedef sistemde yeni değiştirme başlamaz. Devam eden değiştirmeler tamamlanır, bekleyenler tutulur."
   },
   "pamTargetSystemDeactivateConfirm": {
     "message": "Pasifleştir"
@@ -20167,32 +20482,29 @@
   "pamTargetSystemDeactivateSuccess": {
     "message": "Hedef sistem pasifleştirildi."
   },
+  "pamTargetSystemDeactivateFailed": {
+    "message": "Pasifleştirilemedi. Yeniden deneyin."
+  },
   "pamTargetSystemActivateSuccess": {
     "message": "Hedef sistem etkinleştirildi."
   },
-  "pamTargetSystemDeleteTitle": {
-    "message": "Hedef sistem silinsin mi?"
+  "pamTargetSystemActivateFailed": {
+    "message": "Etkinleştirilemedi. Yeniden deneyin."
   },
-  "pamTargetSystemDeleteContent": {
-    "message": "$NAME$ silindiğinde bu işlem kalıcıdır. Önce ona göre değiştirilen tüm yönetilen kimlik bilgileri kaldırılmalıdır.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogTitle": {
+    "message": "Hedef sistemi sil"
   },
-  "pamTargetSystemDeleteContentDeactivateInstead": {
-    "message": "$NAME$ silindiğinde bu işlem kalıcıdır. Önce ona göre değiştirilen tüm yönetilen kimlik bilgileri kaldırılmalıdır. Hedef sistemi kaybetmeden değiştirmeleri durdurmak için onu silmek yerine pasifleştirin. Pasifleştirme bekleyen işleri tutar ve geri alınabilir.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogContent": {
+    "message": "Bu hedef sistem silinecek."
+  },
+  "pamTargetSystemDeleteDialogContentDeactivateInstead": {
+    "message": "Bu hedef sistem silinecek. Değiştirmeleri durdurup sistemi korumak için bunun yerine pasifleştirin."
   },
   "pamTargetSystemDeleteSuccess": {
     "message": "Hedef sistem silindi."
+  },
+  "pamTargetSystemDeleteFailed": {
+    "message": "Silinemedi. Yeniden deneyin."
   },
   "pamTargetSystemMethodAutomatic": {
     "message": "Otomatik"
@@ -20200,17 +20512,15 @@
   "pamTargetSystemMethodManual": {
     "message": "Manuel"
   },
-  "pamTargetSystemMethodAutomaticHint": {
-    "message": "Kaydettikten sonra gösterilen kurulum adımlarını tamamladığınızda değiştirmeler belirlediğiniz plana göre çalışır."
-  },
-  "pamTargetSystemMethodManualHint": {
-    "message": "Değiştirme işi oluşturulmaz. Kimlik bilgisini elle değiştirir, ardından değiştirildi olarak işaretlersiniz."
-  },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
   },
   "pamTargetSystemTypeCustomScript": {
     "message": "Özel betik"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
   },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
@@ -20226,11 +20536,24 @@
       }
     }
   },
+  "pamTargetSystemRemoveConnector": {
+    "message": "$NAME$ bağlayıcısını kaldır",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
   "pamTargetSystemStatusActive": {
     "message": "Etkin"
   },
   "pamTargetSystemStatusInactive": {
     "message": "Etkin değil"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Bağlı değil"
   },
   "pamTargetSystemStatusPendingSeal": {
     "message": "Kurulum tamamlanmadı"
@@ -20250,17 +20573,8 @@
   "pamTargetSystemMethodLabel": {
     "message": "Değiştirme yöntemi"
   },
-  "pamTargetSystemTypeHeading": {
-    "message": "Tür"
-  },
-  "pamTargetSystemTypeLabel": {
-    "message": "Tür"
-  },
   "pamTargetSystemTypeUnverifiedHint": {
     "message": "Bu hedefin entegrasyonu doğrulanamadı. Kurulumu tamamlamak için yeniden seçin."
-  },
-  "pamTargetSystemPolicyManualHint": {
-    "message": "Bu kimlik bilgisini elle değiştirirken uyulması gereken kurallar bunlardır."
   },
   "pamTargetSystemPolicyHeading": {
     "message": "Parola ilkesi"
@@ -20280,41 +20594,20 @@
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "Bu ilke çok zayıf. Uzunluğu artırın veya daha fazla karakter türü ekleyin."
   },
-  "pamTargetSystemPolicyUppercase": {
-    "message": "Büyük harf ekle"
-  },
-  "pamTargetSystemPolicyLowercase": {
-    "message": "Küçük harf ekle"
-  },
-  "pamTargetSystemPolicyDigits": {
-    "message": "Rakam ekle"
-  },
-  "pamTargetSystemPolicySymbols": {
-    "message": "Sembol ekle"
-  },
-  "pamTargetSystemSupportsSessionTermination": {
-    "message": "Oturum sonlandırmayı destekler"
-  },
-  "pamTargetSystemSupportsSessionTerminationHintConnector": {
-    "message": "Etkinleştirildiğinde erişim bağlayıcısı, bir kimlik bilgisi değiştirildikten sonra etkin oturumları sonlandırır."
-  },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Destekleniyor"
   },
-  "pamTargetSystemSessionTerminationNativeHint": {
-    "message": "Yerel entegrasyonlar bir kimlik bilgisi değiştirildikten sonra etkin oturumları her zaman sonlandırır."
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "Bu entegrasyon zaten açık olan oturumları sonlandıramaz. Kimlik bilgisini değiştirmek yeni girişleri engeller, ancak mevcut oturumlar süreleri dolana kadar devam eder."
   },
-  "pamTargetSystemSessionTerminationUnknown": {
-    "message": "Bilinmiyor"
-  },
-  "pamTargetSystemSessionTerminationUnknownTooltip": {
-    "message": "Bu hedef sistemin ayarları doğrulanamadı, bu nedenle oturum sonlandırma desteği bilinmiyor."
-  },
-  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
-    "message": "Bu hedef sistemdeki herhangi bir yönetilen kimlik bilgisi hâlâ oturum sonlandırma desteğine dayanıyorsa bu destek kaldırılamaz. Önce o kimlik bilgilerini güncelleyin."
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "Bu hedef sistem oturum sonlandırmayı destekliyor olarak kayıtlı ve yönetilen kimlik bilgileri bunu kullanmaya devam edebilir. Burada kaydetmek bu kaydı değiştirmez."
   },
   "pamTargetSystemCreated": {
     "message": "Hedef sistem oluşturuldu."
+  },
+  "pamTargetSystemCreatedSuccess": {
+    "message": "Hedef sistem eklendi."
   },
   "pamTargetSystemSaved": {
     "message": "Hedef sistem kaydedildi."
@@ -20327,9 +20620,6 @@
   },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Değiştirme kurulumunu tamamlayın"
-  },
-  "pamTargetSystemSetupGuidanceAutomaticConnector": {
-    "message": "Aşağıdaki Atanmış erişim bağlayıcıları bölümünden bir erişim bağlayıcısı atayın."
   },
   "pamTargetSystemSetupGuidanceCredential": {
     "message": "Yönetilen kimlik bilgileri sekmesinden bir yönetilen kimlik bilgisi ekleyin."
@@ -20355,20 +20645,17 @@
   "pamTargetSystemNotFound": {
     "message": "Hedef sistem bulunamadı."
   },
-  "pamAccessConnectorSearch": {
-    "message": "Erişim bağlayıcılarında ara"
-  },
-  "pamAccessConnectorNew": {
-    "message": "Yeni erişim bağlayıcısı"
-  },
   "pamAccessConnectorRegister": {
     "message": "Erişim bağlayıcısı kaydet"
   },
-  "pamAccessConnectorEmptyStateTitle": {
-    "message": "Kayıtlı erişim bağlayıcısı yok"
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "Henüz erişim bağlayıcısı yok"
   },
-  "pamAccessConnectorEmptyStateDescription": {
-    "message": "Kimlik bilgilerini değiştirmeye başlamak için bir erişim bağlayıcısı kaydedin."
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Erişim bağlayıcıları ağınızda çalışır ve hedef sistemlerinizdeki parolaları değiştirir. Başlamak için bir tane kaydedin."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Hedef sistemler"
   },
   "pamAccessConnectorConnection": {
     "message": "Bağlantı"
@@ -20385,14 +20672,14 @@
   "pamAccessConnectorDisconnected": {
     "message": "Bağlantı kesildi"
   },
-  "pamAccessConnectorAssignTargetDisabled": {
-    "message": "Hedef sistemler yalnızca erişim bağlayıcısı etkinken atanabilir."
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Hedef sistem atamak için bu erişim bağlayıcısını etkinleştirin."
   },
-  "pamAccessConnectorViewDetails": {
-    "message": "Ayrıntıları görüntüle"
+  "pamAccessConnectorEdit": {
+    "message": "Erişim bağlayıcısını düzenle"
   },
-  "pamAccessConnectorAssignTargets": {
-    "message": "Hedef ata"
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Hedef sistemleri ata"
   },
   "pamAccessConnectorDeleteAccessConnector": {
     "message": "Erişim bağlayıcısını sil"
@@ -20406,8 +20693,8 @@
   "pamAccessConnectorAssignSelectLabel": {
     "message": "Hedef sistemleri ata"
   },
-  "pamAccessConnectorAssignSelectHint": {
-    "message": "Yalnızca otomatik değiştirmeye ayarlanmış hedef sistemler atanabilir."
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Bu erişim bağlayıcısının parolaları değiştirebileceği hedef sistemleri seçin. Yalnızca otomatik değiştirme kullanan hedef sistemler atanabilir."
   },
   "pamAccessConnectorAssignNoOptions": {
     "message": "Tüm otomatik hedef sistemler zaten bu erişim bağlayıcısına atanmış."
@@ -20439,77 +20726,62 @@
       }
     }
   },
-  "pamAccessConnectorUnassignConfirmTitle": {
-    "message": "Atama kaldırılsın mı?"
-  },
-  "pamAccessConnectorUnassignConfirmContent": {
-    "message": "$NAME$ bu erişim bağlayıcısından kaldırılsın mı? Bu erişim bağlayıcısının aldığı etkin değiştirme işleri tamamlanana kadar sürer.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
-  },
-  "pamAccessConnectorUnassigned": {
-    "message": "Hedef sistem kaldırıldı."
-  },
   "pamAccessConnectorDeactivate": {
     "message": "Pasifleştir"
   },
   "pamAccessConnectorActivate": {
     "message": "Etkinleştir"
   },
-  "pamAccessConnectorDeactivateConfirmTitle": {
-    "message": "Erişim bağlayıcısı pasifleştirilsin mi?"
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Erişim bağlayıcısını pasifleştir"
   },
-  "pamAccessConnectorDeactivateConfirmContent": {
-    "message": "$NAME$ pasifleştirilsin mi? Yeni değiştirme işlerini almayı bırakır ve şu anda çalıştırdığı işler serbest bırakılır. Daha sonra yeniden etkinleştirebilirsiniz.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "Bu erişim bağlayıcısı yeni değiştirme almaz. Devam eden değiştirmeler serbest bırakılır."
   },
   "pamAccessConnectorDeactivated": {
     "message": "Erişim bağlayıcısı pasifleştirildi."
   },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Pasifleştirilemedi. Yeniden deneyin."
+  },
   "pamAccessConnectorActivated": {
     "message": "Erişim bağlayıcısı etkinleştirildi."
   },
-  "pamAccessConnectorDeleteConfirmTitle": {
-    "message": "Erişim bağlayıcısı silinsin mi?"
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Erişim bağlayıcısını sil"
   },
-  "pamAccessConnectorDeleteConfirmContent": {
-    "message": "$NAME$ silindiğinde bu işlem kalıcıdır ve kimlik bilgileri geçersiz olur. Bu erişim bağlayıcısı kuruluş anahtarını bellekte tutuyordu. Ele geçirildiğinden şüpheleniyorsanız önlem olarak kuruluş anahtarını değiştirin. Çalışan değiştirme işleri serbest bırakılır. Değiştirmeye devam etmek için yeni bir erişim bağlayıcısı kaydedin.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Erişim anahtarı çalışmayı durdurur ve devam eden değiştirmeler serbest bırakılır. Bu işlem geri alınamaz."
   },
   "pamAccessConnectorDeleted": {
     "message": "Erişim bağlayıcısı silindi."
   },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Silinemedi. Yeniden deneyin."
+  },
   "pamAccessConnectorSaved": {
     "message": "Erişim bağlayıcısı kaydedildi."
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Erişim bağlayıcısı kaydedilmedi. Yeniden deneyin."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Erişim bağlayıcısı kaydedilmedi. Bağlantınızı kontrol edin, ardından yeniden Kaydet'i seçin."
   },
   "pamAccessConnectorRegisterTitle": {
     "message": "Erişim bağlayıcısı kaydet"
   },
-  "pamAccessConnectorNamePlaceholder": {
-    "message": "örn. Şirket içi üretim sunucusu"
+  "pamAccessConnectorRegisterDescription": {
+    "message": "Erişim bağlayıcısının yapılandırmasına eklemeniz için bir erişim anahtarı alacaksınız. Yalnızca bir kez gösterilir."
   },
-  "pamAccessConnectorNameHint": {
-    "message": "Bu erişim bağlayıcısını tanımlamak için açıklayıcı bir ad. En fazla 200 karakter."
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Ekibinizin tanıyacağı bir ad kullanın; örneğin Doğu veri merkezi."
   },
   "pamAccessConnectorRegistered": {
     "message": "Erişim bağlayıcısı kaydedildi."
   },
-  "pamAccessConnectorNoResults": {
-    "message": "Filtrelerinizle eşleşen erişim bağlayıcısı yok."
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Erişim bağlayıcısı kaydedilmedi. Yeniden deneyin."
   },
   "pamAccessConnectorDetailTitle": {
     "message": "Erişim bağlayıcısı"
@@ -20520,38 +20792,38 @@
   "pamAccessConnectorTabConfiguration": {
     "message": "Yapılandırma"
   },
-  "pamAccessConnectorTabHistory": {
-    "message": "Geçmiş"
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "Değiştirme geçmişi"
   },
-  "pamAccessConnectorActivityEmpty": {
-    "message": "Henüz değiştirme etkinliği yok."
+  "pamAccessConnectorRotationHeading": {
+    "message": "Değiştirme"
   },
-  "pamAccessConnectorActiveHint": {
-    "message": "Etkin olmadığında erişim bağlayıcısı yeni değiştirme işleri almaz ve çalıştırdığı işler serbest bırakılır."
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Hedef sistemleri seçin"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "Bu erişim bağlayıcısı bağlı değil, bu yüzden parola değiştiremez. Kendi makinesinde çalıştığını ve Bitwarden'a ulaşabildiğini kontrol edin."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Kurulumu tamamlayın. Erişim anahtarını ve her hedef sistemin bağlantı ayrıntılarını bu erişim bağlayıcısının yapılandırmasına ekleyin, ardından başlatın."
   },
   "pamAccessConnectorTokenTitle": {
     "message": "Erişim bağlayıcısı erişim anahtarı"
   },
-  "pamAccessConnectorTokenWarningTitle": {
-    "message": "Bu erişim anahtarını şimdi kaydedin"
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Bu erişim anahtarını şimdi kopyalayın; bunu kapattıktan sonra bir daha göremezsiniz."
   },
-  "pamAccessConnectorTokenWarningBody": {
-    "message": "Bu erişim anahtarı yalnızca bir kez gösterilir ve daha sonra alınamaz. Kopyalayın ve bu erişim bağlayıcısını çalıştıracak operatöre ayrı bir kanaldan iletin, ardından bağlayıcının yapılandırma dosyasına yapıştırın. Erişim anahtarı kaybolursa bu erişim bağlayıcısını silin ve yenisini kaydedin."
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Bağlamak için bunu erişim bağlayıcısının yapılandırmasına ekleyin."
   },
-  "pamAccessConnectorTokenLabel": {
-    "message": "Erişim bağlayıcısı erişim anahtarı"
-  },
-  "pamAccessConnectorTokenHint": {
-    "message": "Bu erişim anahtarı bir daha gösterilmeyecek."
+  "pamAccessConnectorTokenStored": {
+    "message": "Bu erişim anahtarını güvenli bir şekilde sakladım"
   },
   "pamAccessConnectorTokenCopy": {
     "message": "Erişim anahtarını kopyala"
   },
-  "pamAccessConnectorTokenCopied": {
-    "message": "Erişim bağlayıcısı erişim anahtarı kopyalandı."
-  },
-  "pamRotationConfigNew": {
-    "message": "Yeni yönetilen kimlik bilgisi"
+  "pamTokenCopied": {
+    "message": "Erişim anahtarı kopyalandı."
   },
   "pamRotationConfigSearch": {
     "message": "Yönetilen kimlik bilgilerinde ara"
@@ -20559,8 +20831,23 @@
   "pamRotationConfigEmptyState": {
     "message": "Yapılandırılmış yönetilen kimlik bilgisi yok"
   },
+  "pamRotationConfigEmptyTitle": {
+    "message": "Henüz yönetilen kimlik bilgisi yok"
+  },
   "pamRotationConfigEmptyStateDescription": {
     "message": "Otomatik olarak değiştirmeye başlamak için bir yönetilen kimlik bilgisi ekleyin."
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Yönetilen kimlik bilgileri, parolaları bir plana göre veya birinin erişimi sona erdiğinde değiştirmenize yardımcı olur."
+  },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Bu hedef sistemdeki yönetilen kimlik bilgileri burada görünür."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Yönetilen kimlik bilgileri, parolaları bir plana göre veya birinin erişimi sona erdiğinde değiştirmenize yardımcı olur. Başlamak için bir erişim bağlayıcısı ve bir hedef sistem ekleyin."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Erişim bağlayıcısı ekle"
   },
   "pamRotationListLoadErrorTitle": {
     "message": "Yüklenemiyor"
@@ -20568,14 +20855,8 @@
   "pamRotationListLoadErrorDescription": {
     "message": "Bağlantınızı kontrol edip yeniden deneyin. Sorun devam ederse sayfayı yenileyin."
   },
-  "pamRotationConfigNoTargetSystems": {
-    "message": "Kimlik bilgilerini değiştirebilmek için önce bir hedef sistem ayarlayın. Hedef sistem, bir kimlik bilgisinin nerede bulunduğunu ve Bitwarden'ın onu nasıl değiştireceğini tanımlar."
-  },
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Hedef sistem ayarla"
-  },
-  "pamRotationConfigNoResultsFiltered": {
-    "message": "Filtrelerinizle eşleşen yönetilen kimlik bilgisi yok."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Kimlik bilgisi"
@@ -20592,9 +20873,6 @@
   "pamRotationConfigColumnRotateOnAccessEnd": {
     "message": "Erişim bitince değiştir"
   },
-  "pamRotationConfigColumnLastRotation": {
-    "message": "Son değiştirme"
-  },
   "pamRotationConfigColumnLastRotated": {
     "message": "Son değiştirilme"
   },
@@ -20603,6 +20881,270 @@
   },
   "pamRotationConfigStatusPaused": {
     "message": "Duraklatıldı"
+  },
+  "pamRotationConfigStatusFailed": {
+    "message": "Başarısız"
+  },
+  "pamRotationConfigStatusNotConnected": {
+    "message": "Bağlı değil"
+  },
+  "pamRotationConfigStatusManualRotation": {
+    "message": "Elle değiştirme"
+  },
+  "pamRotationConfigColumnAccount": {
+    "message": "Hesap"
+  },
+  "pamRotationFilterTrigger": {
+    "message": "Değiştirme tetikleyicisi"
+  },
+  "pamRotationTriggerSchedule": {
+    "message": "Plana göre"
+  },
+  "pamRotationTriggerAccessEnd": {
+    "message": "Erişim sona erdiğinde"
+  },
+  "pamRotationTriggerOnDemand": {
+    "message": "Yalnızca istek üzerine"
+  },
+  "pamRotationNextInProgress": {
+    "message": "Devam ediyor"
+  },
+  "pamRotationNextNone": {
+    "message": "Yok"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "$COUNT$ dk önce",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "$COUNT$ sa önce",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "$COUNT$ gün önce",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "$COUNT$ hf önce",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "$COUNT$ ay önce",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "Dün"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "$COUNT$ sa sonra",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "$COUNT$ hf sonra",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "$COUNT$ gün önce zamanı geldi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationDetailNone": {
+    "message": "Yok"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Değiştirme duraklatıldı; bu nedenle bu kimlik bilgisi ne plana göre ne de birinin erişimi sona erdiğinde değiştirilir."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "İlk deneme başarısız oldu, bu yüzden Bitwarden yeniden deniyor. Tüm denemeler başarısız olmadıkça bir şey yapmanıza gerek yok."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "Bu hedef sistemin erişim bağlayıcısı yok, bu yüzden bu kimlik bilgisi değiştirilemez."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "Erişim bağlayıcılarının bağlantısı kesik, bu yüzden bu kimlik bilgisi değiştirilemez."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "Son değiştirme zamanında tamamlanmadı. Yeniden denemek için $ACTION$ seçeneğini seçin.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "Bu kimlik bilgisinin zamanı $AGE$ geldi. Parolasını değiştirin, kasa kaydını güncelleyin ve ardından değiştirildi olarak işaretleyin.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "Erişim bağlayıcılarını görüntüle"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Bu hedef sistemin erişim bağlayıcıları"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Bu hedef sistemdeki tüm kimlik bilgileri bunları kullanır."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "Hesabın oturum açma adı; örneğin ad@sirket.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "Betiğinizin hesabı tanımlamak için kullandığı değer; örneğin kullanıcı adı."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "Hesabın hedef sistemdeki kullanıcı adı, kayıtlarınız için. Bitwarden bunu değiştirme için kullanmaz."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "Hesabın hedef sistemdeki kullanıcı adı, sistemin beklediği şekilde birebir girilmiş olarak."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Zamanı: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Zaman planı"
+  },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Değiştirme tetikleyicisi"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "İlk deneme başarısız oldu; yeniden deneme başarılı oldu."
+  },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Değiştirme başladı"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Nihai sonuç"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "$NUMBER$. deneme başarısız oldu.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "Bu değiştirmeyi hiçbir erişim bağlayıcısı almadı."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Oturumlar sonlandırıldı"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Oturumlar sonlandırılamadı"
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Değiştirme ayrıntıları"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Başarısız"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Başarılı"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "Hedef sistem yanıt vermedi."
+  },
+  "pamRotationConfigRotateNowInProgress": {
+    "message": "Bir değiştirme işlemi devam ediyor."
+  },
+  "pamRotationConfigRotateNowPaused": {
+    "message": "Şimdi değiştirmek için değiştirmeyi sürdürün."
+  },
+  "pamRotationConfigRotateNowNotConnected": {
+    "message": "Bağlı erişim bağlayıcısı yok"
+  },
+  "pamRotationConfigRemoveLockedReason": {
+    "message": "Değiştirme tamamlandığında kullanılabilir."
+  },
+  "pamRotationConfigEditSettings": {
+    "message": "Değiştirme ayarlarını düzenle"
+  },
+  "pamRotationConfigViewHistory": {
+    "message": "Değiştirme geçmişini görüntüle"
+  },
+  "pamRotationConfigRotateNowStarted": {
+    "message": "Değiştirme başlatıldı."
+  },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Değiştirme başlatılamadı. Yeniden deneyin."
+  },
+  "pamRotationConfigMarkedRotated": {
+    "message": "Değiştirildi olarak işaretlendi."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Değiştirildi olarak işaretlenemedi. Yeniden deneyin."
+  },
+  "pamRotationConfigPauseWhileRotatingSuccess": {
+    "message": "Değiştirme duraklatıldı. Devam eden değiştirme tamamlanacak."
+  },
+  "pamRotationConfigPauseContent": {
+    "message": "Bu kimlik bilgisi ne plana göre ne de birinin erişimi sona erdiğinde değiştirilecek. Zaten devam eden bir değiştirme tamamlanacak."
+  },
+  "pamRotationConfigMarkRotatedContent": {
+    "message": "Bunu yalnızca hedef sistemdeki parolayı değiştirip kasa kaydını güncelledikten sonra yapın."
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Ağınızda çalışan erişim bağlayıcılarını kullanarak hedef sistemlerdeki kimlik bilgilerinin değiştirilmesini yönetin."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Yönetilen kimlik bilgisi"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Hedef sistem"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Erişim bağlayıcısı"
   },
   "pamRotationConfigRotatingBadge": {
     "message": "Değiştiriliyor"
@@ -20613,12 +21155,6 @@
   "pamRotationConfigRotateNow": {
     "message": "Şimdi değiştir"
   },
-  "pamRotationConfigRotateNowUnavailableTitle": {
-    "message": "Şu anda değiştirilemiyor. Hedef sistem etkin değil veya değiştirme duraklatılmış ya da zaten devam ediyor."
-  },
-  "pamRotationConfigRotateNowSuccess": {
-    "message": "Değiştirme başlatıldı."
-  },
   "pamRotationConfigMarkRotated": {
     "message": "Değiştirildi olarak işaretle"
   },
@@ -20627,15 +21163,6 @@
   },
   "pamRotationConfigMarkRotatedTitle": {
     "message": "Değiştirildi olarak işaretle"
-  },
-  "pamRotationConfigRecordManualContent": {
-    "message": "Bu işlem, kimlik bilgisinin Bitwarden dışında değiştirildiğini kaydeder ve planı sıfırlar. Denetim günlüğü elle yapılan değiştirmeyi gösterecek."
-  },
-  "pamRotationConfigRecordManualConfirm": {
-    "message": "Değiştirmeyi kaydet"
-  },
-  "pamRotationConfigRecordManualSuccess": {
-    "message": "Elle değiştirme kaydedildi."
   },
   "pamRotationConfigEditCredential": {
     "message": "Kimlik bilgisini düzenle"
@@ -20649,6 +21176,9 @@
   "pamRotationConfigPauseSuccess": {
     "message": "Değiştirme duraklatıldı."
   },
+  "pamRotationConfigPauseFailed": {
+    "message": "Değiştirme duraklatılamadı. Yeniden deneyin."
+  },
   "pamRotationConfigResumeRotation": {
     "message": "Değiştirmeyi sürdür"
   },
@@ -20658,8 +21188,14 @@
   "pamRotationConfigDeleteConfirmTitle": {
     "message": "Yönetilen kimlik bilgisini kaldır"
   },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Değiştirmeden çıkar"
+  },
   "pamRotationConfigDeleteConfirmContent": {
     "message": "Bu işlem bu kimlik bilgisinin değiştirme yönetimini kaldırır. Kayıt kasanızda kalır ve değiştirme geçmişi denetim günlüğünde korunur."
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "Bu kimlik bilgisi ve ayarları Yönetilen kimlik bilgileri bölümünden kaldırılacak. Kasa kaydı değişmez ve geçmişi denetim günlüğünde kalır."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Bir değiştirme işlemi devam ederken kaldırılamaz. Mevcut iş bittiğinde veya zaman aşımına uğradığında bu durum ortadan kalkar."
@@ -20667,26 +21203,32 @@
   "pamRotationConfigDeleteSuccess": {
     "message": "Yönetilen kimlik bilgisi kaldırıldı."
   },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Değiştirmeden çıkarıldı."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Değiştirmeden çıkarılamadı. Yeniden deneyin."
+  },
   "pamRotationConfigNeverRotated": {
     "message": "Hiçbir zaman"
+  },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "Henüz değiştirme yok"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Yönetilen kimlik bilgisi ekle"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Bu kimlik bilgisini değiştirmek, mevcut parolayı hâlâ kullanan herkesin de oturumunu kapatır."
   },
   "pamRotationConfigHistoryEmpty": {
     "message": "Henüz hiç değiştirme yapılmadı."
   },
-  "pamRotationConfigRemoveLockedContentConnector": {
-    "message": "Şu anda bir değiştirme işi devam ediyor. Erişim bağlayıcısı işi bitirdiğinde veya iş zaman aşımına uğradığında bu kimlik bilgisini değiştirmeden çıkarabilirsiniz. Duraklatma yalnızca yeni işleri durdurur; zaten çalışan işi iptal etmez."
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Bu kimlik bilgisinin değiştirmeleri burada görünecek."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Kimlik bilgisi ayrıntıları"
-  },
-  "pamRotationConfigDetailsHeading": {
-    "message": "Ayrıntılar"
-  },
-  "pamRotationConfigSettingsHeading": {
-    "message": "Değiştirme ayarları"
-  },
-  "pamRotationConfigAccountHeading": {
-    "message": "Hesap"
   },
   "pamRotationConfigTabConfiguration": {
     "message": "Yapılandırma"
@@ -20694,32 +21236,11 @@
   "pamRotationConfigTabHistory": {
     "message": "Geçmiş"
   },
-  "pamRotationConfigCipher": {
-    "message": "Kimlik bilgisi"
-  },
-  "pamRotationConfigCipherPlaceholder": {
-    "message": "Bir kimlik bilgisi seçin"
-  },
-  "pamRotationConfigCipherHint": {
-    "message": "Parolası değiştirilecek kasa kaydını seçin."
-  },
   "pamRotationConfigTargetSystem": {
     "message": "Hedef sistem"
   },
   "pamRotationConfigTargetSystemPlaceholder": {
     "message": "Bir hedef sistem seçin"
-  },
-  "pamRotationConfigAccountIdentity": {
-    "message": "Hesap kimliği"
-  },
-  "pamRotationConfigAccountIdentityHintConnector": {
-    "message": "Hedef sistemde değiştirilecek hesap; örn. bir UPN, SQL girişi veya betik bağımsız değişkeni. Erişim bağlayıcısına olduğu gibi aktarılır."
-  },
-  "pamRotationConfigTerminateSessions": {
-    "message": "Değiştirmeden sonra etkin oturumları sonlandır"
-  },
-  "pamRotationConfigTerminateSessionsHint": {
-    "message": "Hedef sistemin oturum sonlandırmayı desteklemesi gerekir."
   },
   "pamRotationConfigTerminationUnknownHint": {
     "message": "Bu hedef sistemin oturum sonlandırma desteği doğrulanamadı."
@@ -20727,20 +21248,8 @@
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Erişim sona erdiğinde değiştir"
   },
-  "pamRotationConfigRotateWhenAccessEndsHint": {
-    "message": "Bu kimlik bilgisine PAM erişimi sona erdiğinde kimlik bilgisini otomatik olarak değiştir."
-  },
-  "pamRotationConfigCreated": {
-    "message": "Yönetilen kimlik bilgisi oluşturuldu."
-  },
   "pamRotationConfigSaved": {
     "message": "Yönetilen kimlik bilgisi kaydedildi."
-  },
-  "pamRotationConfigAccountLockedTitle": {
-    "message": "Ayarlar kullanılamıyor"
-  },
-  "pamRotationConfigAccountLockedContent": {
-    "message": "Bir değiştirme işi devam ederken değişiklikler kaydedilemez. İş bittiğinde veya zaman aşımına uğradığında yeniden kaydedebilirsiniz."
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
     "message": "Bütünlük denetimi başarısız oldu"
@@ -20781,9 +21290,6 @@
   "pamRotationJobStatusPending": {
     "message": "Beklemede"
   },
-  "pamRotationJobStatusClaimed": {
-    "message": "Alındı"
-  },
   "pamRotationJobStatusSucceeded": {
     "message": "Başarılı"
   },
@@ -20793,14 +21299,11 @@
   "pamRotationJobStatusTimedOut": {
     "message": "Zaman aşımına uğradı"
   },
+  "pamRotationJobStatusRetrying": {
+    "message": "Yeniden deneniyor"
+  },
   "pamRotationJobStatusUnknown": {
     "message": "Bilinmiyor"
-  },
-  "pamRotationAssignmentPendingAssign": {
-    "message": "Atama bekliyor"
-  },
-  "pamRotationAssignmentPendingUnassign": {
-    "message": "Kaldırma bekliyor"
   },
   "pamRotationAttemptStatusExecuting": {
     "message": "Yürütülüyor"
@@ -20865,15 +21368,6 @@
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "Erişim bağlayıcısı hedef sisteme ulaşamadı. Hedef sistemin adresini ve bağlayıcının ağ üzerinden ona ulaşabildiğini kontrol edin, ardından yeniden değiştirin."
   },
-  "pamRotationFailureReportedDetail": {
-    "message": "Erişim bağlayıcısının bildirdiği: $REASON$",
-    "placeholders": {
-      "reason": {
-        "content": "$1",
-        "example": "target_rejected: LDAP result code 50"
-      }
-    }
-  },
   "pamRotationHistoryCaption": {
     "message": "Değiştirme işleri, en yeniden eskiye"
   },
@@ -20888,15 +21382,6 @@
   },
   "pamRotationHistoryAttemptsCaption": {
     "message": "Denemeler, en eskiden yeniye"
-  },
-  "pamRotationHistoryAttemptsAllAlike": {
-    "message": "Tüm denemeler aynı şekilde sonuçlandı."
-  },
-  "pamRotationJobDrawerTitle": {
-    "message": "Değiştirme işi"
-  },
-  "pamRotationHistoryFailureHeading": {
-    "message": "Başarısızlık nedeni"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$ sn",
@@ -21035,9 +21520,9 @@
   "pamAuditAccessConnector": {
     "message": "Erişim bağlayıcısı"
   },
-  "pamAccessConnectorAssignmentCountSingular": {
-    "message": "$COUNT$ hedef",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ hedef sistem",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21045,9 +21530,9 @@
       }
     }
   },
-  "pamAccessConnectorAssignmentCount": {
-    "message": "$COUNT$ hedef",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ hedef sistem",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21057,7 +21542,7 @@
   },
   "pamAccessConnectorAssignmentsNone": {
     "message": "Yok",
-    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
   },
   "pamRotationConfigNoActiveTargetSystems": {
     "message": "Seçilebilecek etkin hedef sistem yok."
@@ -21071,14 +21556,179 @@
   "pamTargetSystemConnectorAssignmentsLoadError": {
     "message": "Bu hedef sistemin erişim bağlayıcıları yüklenemedi."
   },
-  "pamTargetSystemDeleteAssignedConnectorsContent": {
-    "message": "$NAME$ silindiğinde bu işlem kalıcıdır. Önce ona göre değiştirilen tüm yönetilen kimlik bilgileri kaldırılmalıdır; erişim bağlayıcısı atamaları da onunla birlikte kaldırılır.",
+  "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
+    "message": "Bu hedef sistem ve erişim bağlayıcısı atamaları silinecek."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
+    "message": "Bu hedef sistem ve erişim bağlayıcısı atamaları silinecek. Değiştirmeleri durdurup sistemi korumak için bunun yerine pasifleştirin."
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Kasa kaydı"
+  },
+  "pamRotationConfigCredentialName": {
+    "message": "Kimlik bilgisi adı"
+  },
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Kimlik bilgisi seç"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Zaten değiştirme kapsamındaki kimlik bilgileri listelenmez."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "Kimlik bilgisi hedef sistemde bulunur."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Elle"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "Bağlı erişim bağlayıcısı yok"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "Bu hedef sistem elle değiştirme kullanıyor. Bu kimlik bilgisinin parolasını kendiniz değiştirir, ardından değiştirildi olarak işaretlersiniz."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "Bu hedef sistemin bağlı erişim bağlayıcısı yok, bu yüzden bu kimlik bilgisi henüz değiştirilmeyecek. Yine de kaydedebilirsiniz."
+  },
+  "pamRotationConfigAccountId": {
+    "message": "Hesap kimliği"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "Bir kimlik girin"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "Hedef sistemdeki kullanıcı adı; örneğin ad@sirket.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Değiştirme tetikleyicileri"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "Değiştirmeden sonra"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Plan"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Birinin erişimi sona erdiğinde parolayı değiştirir, böylece eski parola artık çalışmaz."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Yalnızca otomatik değiştirmede kullanılabilir."
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "Etkin oturumları sonlandır"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Her değiştirmeden sonra eski parolayı hâlâ kullanan herkesin oturumunu kapatır. Bu başarısız olsa bile değiştirme geçerli sayılır."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Bunu destekleyen bir hedef sistem seçtiğinizde kullanılabilir."
+  },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Yönetilen kimlik bilgisi eklendi."
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Hedef sistem eklendi."
+  },
+  "pamTargetSystemNameHelp": {
+    "message": "Ekibinizin tanıyacağı bir ad kullanın; örn. Entra ID üretim. Hedef sistem seçtiğiniz her yerde görünür."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "Bir erişim bağlayıcısı bu hedef sistemdeki parolaları sizin için değiştirir."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "Bu hedef sistemdeki parolaları kendiniz değiştirir, ardından değiştirildi olarak işaretlersiniz."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "Sistem türü"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Erişim bağlayıcısına bu sistemde parolaların nasıl değiştirileceğini bildirir."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Oturumları sonlandırma"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra, değiştirmeden sonra etkin oturumları kapatabilir."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "Bu sistem türü, değiştirmeden sonra etkin oturumları kapatamaz."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Bir sistem türü seçtiğinizde görünür."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Bir sistem türü seçin"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Erişim bağlayıcılarını seçin"
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Erişim bağlayıcıları"
+  },
+  "pamTargetSystemAccessConnectorFilter": {
+    "message": "Erişim bağlayıcısı"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Bu hedef sistemdeki parolaları değiştirebilecek erişim bağlayıcılarını seçin. Yedek olması için birden fazla seçin."
+  },
+  "pamTargetSystemCalloutNoConnectorConnected": {
+    "message": "Seçilen erişim bağlayıcılarının hiçbiri bağlı değil, bu yüzden bu hedef sistem henüz değiştirme yapamaz. Yine de kaydedebilirsiniz."
+  },
+  "pamTargetSystemCalloutNoConnectorConnectedEditing": {
+    "message": "Seçilen erişim bağlayıcılarının hiçbiri bağlı değil, bu yüzden bu hedef sistem henüz değiştirme yapamaz."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Otomatik değiştirme"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Yapılandırma"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "Bu hedef sistem etkin değil, bu yüzden üzerinde yeni değiştirme başlamaz. Yeniden başlatmak için Etkinleştir'i seçin."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "Atanmış erişim bağlayıcısı yok; bu hedef sistemin değiştirme yapabilmesi için en az birini seçin."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "Bu sistem türü, değiştirmeden sonra etkin oturumları kapatabilir."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Son erişim bağlayıcısını kaldır"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Erişim bağlayıcısını kaldır"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "Başka bir erişim bağlayıcısı atanana kadar bu hedef sistem değiştirme yapamaz."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "Bu hedef sistemdeki 1 yönetilen kimlik bilgisi, başka bir erişim bağlayıcısı atanana kadar değiştirilmeyecek."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "Bu hedef sistemdeki $COUNT$ yönetilen kimlik bilgisi, başka bir erişim bağlayıcısı atanana kadar değiştirilmeyecek.",
     "placeholders": {
-      "name": {
+      "count": {
         "content": "$1",
-        "example": "Production database"
+        "example": "8"
       }
     }
+  },
+  "pamTargetSystemCalloutNoConnectorsExist": {
+    "message": "Henüz erişim bağlayıcısı yok. Bunlar ağınızda çalışır ve bu hedef sistemin parolalarını değiştirir. Şimdi kaydedin, ardından Erişim bağlayıcıları sekmesinden bir tane ekleyin."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Dahil edilecek karakterler"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Büyük harfler"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Küçük harfler"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Rakamlar"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Semboller"
   },
   "pamEventRequestedAccess": {
     "message": "$ITEM$ kaydı için ayrıcalıklı erişim istendi (istek $ID$).",
