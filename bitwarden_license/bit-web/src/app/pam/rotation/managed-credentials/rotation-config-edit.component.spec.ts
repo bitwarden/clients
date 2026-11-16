@@ -739,7 +739,8 @@ describe("RotationConfigEditComponent: add form", () => {
         By.css("#rotation-config-edit_select_target-system"),
       ).componentInstance;
       const options = select["options"]() as OptionComponent<string>[];
-      expect(options.at(-1)?.label()).toBe("pamRotationConfigAddTargetSystemOption");
+      expect(options.at(-1)?.label()).toBe("pamTargetSystemCreateTitle");
+      expect(options.at(-1)?.icon()).toBe("bwi-plus");
     });
 
     it("saves the previous target in the draft and leaves for target creation on choosing it", async () => {

@@ -287,9 +287,10 @@
             }
             <bit-option
               id="rotation-config-edit_option_new-target-system"
+              icon="bwi-plus"
               [value]="addTargetSystemOption"
-              [label]="'pamRotationConfigAddTargetSystemOption' | i18n"
-            ></bit-option>
+              [label]="'pamTargetSystemCreateTitle' | i18n"
+            />
           </bit-select>
           <bit-hint>
             @if (!hasActiveTargetSystems()) {
