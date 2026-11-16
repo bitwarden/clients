@@ -290,7 +290,7 @@ export const CollectionSelectedVfo1Enabled: Story = {
 };
 
 /**
- * Three levels of nesting with the VFO1 flag on — the full trail renders the organization, each
+ * Three levels of nesting with the VFO1 flag on — the full trail renders "Shared folders", each
  * ancestor as a link, and the collection in view as the final, non-linked crumb.
  */
 export const DeeplyNestedCollectionVfo1Enabled: Story = {

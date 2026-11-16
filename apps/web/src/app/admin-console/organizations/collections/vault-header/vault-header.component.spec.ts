@@ -18,7 +18,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, SimpleDialogCloseType } from "@bitwarden/components";
-import { All, orgIconTile, RoutedVaultFilterModel, Vfo1TerminologyService } from "@bitwarden/vault";
+import { All, RoutedVaultFilterModel, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
@@ -234,13 +234,6 @@ describe("VaultHeaderComponent", () => {
       vfo1Enabled = true;
       setInputs({ filter: { organizationId: orgId } });
       expect((component as any).showFullNestingBreadcrumbs()).toBe(false);
-    });
-  });
-
-  describe("orgTile", () => {
-    it("builds the organization's tier icon tile", () => {
-      setInputs({ organization: makeOrg({ productTierType: ProductTierType.Enterprise }) });
-      expect((component as any).orgTile()).toEqual(orgIconTile(ProductTierType.Enterprise));
     });
   });
 

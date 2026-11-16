@@ -2,14 +2,7 @@
   @if (showFullNestingBreadcrumbs()) {
     <bit-breadcrumbs slot="breadcrumbs">
       <bit-breadcrumb [route]="[]" [queryParams]="orgRootQueryParams()" queryParamsHandling="merge">
-        <bit-icon-tile
-          slot="start"
-          [icon]="orgTile().icon"
-          [variant]="orgTile().variant ?? 'primary'"
-          [emphasis]="orgTile().emphasis ?? 'subtle'"
-          aria-hidden="true"
-        />
-        {{ organization().name }}
+        {{ "sharedFolders" | i18n }}
       </bit-breadcrumb>
       @for (collection of collections(); track collection.id) {
         <bit-breadcrumb
