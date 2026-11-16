@@ -22,7 +22,7 @@
     "message": "Τα στοιχεία μου"
   },
   "vaults": {
-    "message": "Vaults"
+    "message": "Θυρίδες"
   },
   "tools": {
     "message": "Εργαλεία"
@@ -178,7 +178,7 @@
     }
   },
   "folderCount": {
-    "message": "$COUNT$ folders",
+    "message": "$COUNT$ φάκελοι",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -187,7 +187,7 @@
     }
   },
   "folderSingular": {
-    "message": "$COUNT$ folder",
+    "message": "$COUNT$ φάκελος",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -947,7 +947,7 @@
     "message": "Edit info"
   },
   "editAccess": {
-    "message": "Edit access"
+    "message": "Επεξεργασία πρόσβασης"
   },
   "authenticatorKeyTotp": {
     "message": "Κλειδί αυθεντικοποίησης (TOTP)"
@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Εφαρμογή (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Εφαρμογή (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1483,7 +1484,7 @@
     "message": "Folder edited"
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "Εισαγάγετε ένα όνομα."
   },
   "deleteFolderConfirmation": {
     "message": "Σίγουρα θέλετε να διαγράψετε αυτόν τον φάκελο;"
@@ -1492,10 +1493,10 @@
     "message": "Ο φάκελος διαγράφηκε"
   },
   "foldersDeleted": {
-    "message": "Folders deleted"
+    "message": "Οι φάκελοι διαγράφηκαν"
   },
   "deleteFoldersCount": {
-    "message": "Delete $COUNT$ folders",
+    "message": "Διαγραφή $COUNT$ φακέλων",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2433,6 +2434,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 στοιχείο",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "all": {
     "message": "Όλα"
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Απενεργοποιημένο"
   },
+  "removeAuth": {
+    "message": "Remove password or email verification"
+  },
+  "removedAuth": {
+    "message": "Password or email verification removed"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "Αφαίρεση κωδικού πρόσβασης"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
   },
   "removedPassword": {
     "message": "Ο κωδικός πρόσβασης αφαιρέθηκε"
   },
-  "removePasswordConfirmation": {
-    "message": "Είστε σίγουροι ότι θέλετε να αφαιρέσετε τον κωδικό πρόσβασης;"
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Φτάσατε στον μέγιστο αριθμό πρόσβασης"
@@ -7352,8 +7377,8 @@
   "makeACopy": {
     "message": "Δημιουργία αντιγράφου"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Δεν μπορείτε να εισάγετε στοιχεία στα \"Στοιχεία μου\" που αποτελούν μέρος πολλαπλών συλλογών"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "Λεπτομέρειες άδειας"

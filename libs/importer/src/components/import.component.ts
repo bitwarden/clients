@@ -399,10 +399,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     let importer: Importer;
     switch (this.keeperMethod) {
       case "csv":
-        importer = new KeeperCsvImporter(this.configService);
+        importer = new KeeperCsvImporter(this.configService, this.logService);
         break;
       case "json":
-        importer = new KeeperJsonImporter(this.configService);
+        importer = new KeeperJsonImporter(this.configService, this.logService);
         break;
       default:
         throw new Error(`Unsupported Keeper method for file import: ${this.keeperMethod}`);

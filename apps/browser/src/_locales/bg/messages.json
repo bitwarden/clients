@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Създаване на акаунт"
   },
+  "welcomeToBitwarden": {
+    "message": "Добре дошли в Битуорден"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Създайте акаунт или се впишете"
+  },
   "newToBitwarden": {
     "message": "За пръв път ли ползвате Битуорден?"
   },
@@ -3837,14 +3843,14 @@
     "message": "Копиране на връзката към изпратеното",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Премахване на парола"
+  "removeAuth": {
+    "message": "Премахване на паролата или проверката на е-пощата"
   },
   "delete": {
     "message": "Изтриване"
   },
-  "removedPassword": {
-    "message": "Паролата е премахната"
+  "removedAuth": {
+    "message": "Паролата или проверката на е-пощата е премахната"
   },
   "deletedSend": {
     "message": "Изтрито изпращане",
@@ -3857,8 +3863,28 @@
   "disabled": {
     "message": "Изключено"
   },
-  "removePasswordConfirmation": {
-    "message": "Сигурни ли сте, че искате да премахнете паролата?"
+  "removeAuthConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола или проверка на е-пощата от това Изпращане?"
+  },
+  "removePassword": {
+    "message": "Премахване на парола"
+  },
+  "removeEmailVerification": {
+    "message": "Премахване на проверката на е-пощата"
+  },
+  "removedPassword": {
+    "message": "Паролата е премахната"
+  },
+  "removedEmailVerification": {
+    "message": "Проверката на е-пощата е премахната"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за проверка на е-пощата от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Изтриване на изпращане",
@@ -7052,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (адрес)"
+  "desktopApp": {
+    "message": "Настолно приложение",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Приложение (адрес) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Настолно приложение $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8865,5 +8892,429 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Повторното запитване за главната парола е включено за този елемент, така че автоматичното попълване на заявки за вписване към браузъра е изключено. Запазете елемента, за да се приложи тази промяна."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Одобреният период на достъп все още не е започнал."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Одобреният период на достъп вече е приключил."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Тази заявка все още не е одобрена."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Тази заявка вече не може да бъде активирана."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Достъпът от тази заявка вече е бил използван и тя вече не е активна."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Само 1 потребител може да има активен достъп до този елемент в даден момент. Опитайте отново след като текущият потребител се е оттеглил."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен от текущата Ви мрежа."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен в този момент."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен точно сега."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Вече имате одобрена заявка за този елемент."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Вече имате чакаща заявка за този елемент."
+  },
+  "pamLeaseExpires": {
+    "message": "Изтича на $DATE$ в $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Изтича днес в $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Стартиране на достъпа"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Достъпът е стартиран."
+  },
+  "pamStartLeaseError": {
+    "message": "Периодът на достъп не може да започне."
+  },
+  "pamEndLeaseButton": {
+    "message": "Приключване на достъпа"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Приключване на достъпа?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Това отнема достъпа Ви веднага. Това действие е необратимо."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Достъпът е приключил."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Удължаване на достъпа"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Удължаване на достъпа"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Продължителност на удължението"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Причина"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Достъпът е удължен."
+  },
+  "pamExtendLeaseError": {
+    "message": "Периодът на достъп не може да бъде удължен."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Достъпът Ви приключи преди да бъде удължен. Заявката е в историята Ви."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "С повече правомощия"
+  },
+  "pamAccessBadgePending": {
+    "message": "Чакащо одобрение"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Недостъпно"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Готово за ползване"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Приключва скоро • оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Сесията приключи"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Достъпът е активен • Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Приключва скоро • Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Заявка за достъп чакаща одобрение"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Изпратено току-що"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Изпратено $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Привилегировани удостоверителни данни"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Необходим е лиценз за Разширено управление",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Подайте заявка за ползване"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Заявяването на достъп не е възможно",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Удължаване на достъпа",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "остава <1мин",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Контролиран достъп"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Използвани в момента"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Приключващи скоро"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Достъпът Ви приключи"
+  },
+  "pamEndedBannerBody": {
+    "message": "Времето за достъп до тези удостоверителни данни приключи. Сега, след като вече не се ползват, те ще бъдат подновени."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Не можете да поискате достъп точно сега"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Правилото за достъп до тези удостоверителни данни не разрешава заявки от текущата Ви мрежа, или в този момент."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Готово за ползване"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Имате достъп до тези удостоверителни данни до $TIME$ днес.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Имате достъп до тези удостоверителни данни до $DATE$ в $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Удостоверителните данни се маскират, докато не бъде получен достъп."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Можете да поискате достъп"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Необходим е лиценз за Разширено управление, за да можете да ползвате този елемент",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Заявяването на достъп не е възможно, когато нямате лиценз.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Помолете администратора си да активира лиценза Ви.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Изисква се лиценз за Разширено управление. Помолете администратора си да активира лиценза Ви.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Време на достъп до $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Време на достъп до $DURATION$, моментално одобрение ако отговаряте на условията",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Изпращане на заявка за достъп"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Някой друг вече има достъп до този елемент в момента. Можете да поискате достъп, но няма да може да го стартирате, докато другият човек не приключи."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Някой друг вече има достъп до този елемент в момента. Можете да поискате достъп, но няма да може да го стартирате до $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Отмяна на заявката"
+  },
+  "pamKeepRequest": {
+    "message": "Запазване на заявката"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Отмяна на заявката за достъп"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Това оттегля заявката Ви, преди одобряващият да е взел решение по нея. Можете да подадете нова заявка по всяко време."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Това отказва достъпа, който вече е бил одобрен. Можете да подадете нова заявка, но тя ще трябва да бъде одобрена отново."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Заявката е отменена"
+  },
+  "pendingStateCancelError": {
+    "message": "Заявката не може да бъде отменена."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Изпращане на заявка"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "За колко време Ви трябва?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Ще получите известие, когато получите одобрение. Времето Ви започва да тече щом започнете да ползвате удостоверителните данни."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Подробности за заявката"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Начална дата"
+  },
+  "requestAccessModalStart": {
+    "message": "Начален час"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Крайна дата"
+  },
+  "requestAccessModalEnd": {
+    "message": "Краен час"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Краят трябва да бъде след началото."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (сега)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Персонализирано време…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Персонализирана крайна дата и час…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Показване на предложения за начален час"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Обратно към предложените продължителности"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, до $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Заявяване на достъп за $DURATION$: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Заявеният прозорец вече е отминал. Изберете по-късна дата или час."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Прозорецът не може да превишава $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Защо Ви трябва?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Защо Ви трябва?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "напр. отчет за тримесечието, необходимост от изпълнение на няколко заявки без правене на промени"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Видимо за одобряващия, запазва се в журнала за одит."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Видимо за одобряващия, запазва се в журнала за одит."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Имаше грешка при заявката за достъп. Опитайте отново."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Вече имате активен достъп до този елемент."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Достъпът е одобрен. Стартирайте достъпа, за да започнете."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Заявен е достъп"
   }
 }

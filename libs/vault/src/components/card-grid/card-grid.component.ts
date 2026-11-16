@@ -19,6 +19,7 @@ import { RouterLink } from "@angular/router";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   IconComponent,
   IconTileComponent,
@@ -118,6 +119,9 @@ export class CardGridComponent {
    */
   readonly folders = input<FolderView[]>([]);
 
+  /** Every item the user holds, for each card's count of the items in and beneath it. */
+  readonly ciphers = input<CipherViewLike[]>([]);
+
   /**
    * The page the grid is on, and the folder within it the URL has drilled into. The folder is what
    * the grid renders the children of, so a scope naming none renders nothing.
@@ -204,6 +208,7 @@ export class CardGridComponent {
     resolveCardGridSource(this.scope(), {
       collections: this.collections(),
       folders: this.folders(),
+      ciphers: this.ciphers(),
     }),
   );
 
@@ -260,6 +265,13 @@ export class CardGridComponent {
       return "";
     }
     return count === 1 ? this.i18nService.t(keys.singular) : this.i18nService.t(keys.plural, count);
+  }
+
+  /** The trailing text of a card, counting the items in it and every folder nested beneath it. */
+  protected itemLabel(count: number): string {
+    return count === 1
+      ? this.i18nService.t("itemSingular")
+      : this.i18nService.t("itemCount", count);
   }
 
   protected readonly overflowCards = computed(() => this.cards().slice(this.collapsedCardCount()));

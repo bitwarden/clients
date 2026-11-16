@@ -1,3 +1,4 @@
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -10,8 +11,8 @@ import { CipherImportContext } from "./cipher-import-context";
 import { OnePasswordCsvImporter } from "./onepassword-csv-importer";
 
 export class OnePasswordWinCsvImporter extends OnePasswordCsvImporter implements Importer {
-  constructor() {
-    super();
+  constructor(logService: LogService) {
+    super(logService);
     this.identityPropertyParsers.push(this.setIdentityAddress);
   }
 
