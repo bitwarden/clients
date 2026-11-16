@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "アカウントの作成"
   },
+  "welcomeToBitwarden": {
+    "message": "Bitwarden へようこそ"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "アカウントを作成するかログインしてください"
+  },
   "newToBitwarden": {
     "message": "Bitwarden は初めてですか？"
   },
@@ -288,10 +294,10 @@
     "message": "アカウントのメールアドレス"
   },
   "requestHint": {
-    "message": "ヒントを要求"
+    "message": "ヒントをリクエスト"
   },
   "requestPasswordHint": {
-    "message": "パスワードのヒントを要求する"
+    "message": "パスワードのヒントをリクエストする"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "アカウントのメールアドレスを入力すると、パスワードのヒントが送信されます"
@@ -3664,7 +3670,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "このサイトのパスワードは危険です。$ORGANIZATION$ が変更を要求しています。",
+    "message": "このサイトのパスワードは危険です。$ORGANIZATION$ が変更をリクエストしています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3674,7 +3680,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "このサイトのパスワードは危険です。 $ORGANIZATION$ はアカウント設定に移動して変更するよう要求しています。",
+    "message": "このサイトのパスワードは危険です。 $ORGANIZATION$ はアカウント設定に移動して変更するようリクエストしています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3837,14 +3843,14 @@
     "message": "Send リンクをコピー",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "パスワードを削除"
+  "removeAuth": {
+    "message": "パスワードまたはメール認証を削除する"
   },
   "delete": {
     "message": "削除"
   },
-  "removedPassword": {
-    "message": "パスワードを削除"
+  "removedAuth": {
+    "message": "パスワードまたはメールアドレスが削除されました"
   },
   "deletedSend": {
     "message": "削除した Send",
@@ -3857,8 +3863,28 @@
   "disabled": {
     "message": "無効"
   },
-  "removePasswordConfirmation": {
-    "message": "パスワードを削除してもよろしいですか？"
+  "removeAuthConfirmation": {
+    "message": "この Send からパスワードまたはメール認証要件を削除してもよろしいですか？"
+  },
+  "removePassword": {
+    "message": "パスワードを削除"
+  },
+  "removeEmailVerification": {
+    "message": "メール認証を削除"
+  },
+  "removedPassword": {
+    "message": "パスワードを削除"
+  },
+  "removedEmailVerification": {
+    "message": "メール認証を削除しました"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "この Send からパスワードの要件を削除してもよろしいですか？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "この Send からメール認証要件を削除してもよろしいですか？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Send を削除",
@@ -4619,7 +4645,7 @@
     "message": "ログイン開始"
   },
   "logInRequestSent": {
-    "message": "リクエストが送信されました"
+    "message": "リクエストを送信しました"
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "$EMAIL$ に $DEVICE$ でのログインを承認しました",
@@ -4834,7 +4860,7 @@
     "message": "たった今"
   },
   "requestedXMinutesAgo": {
-    "message": "$MINUTES$ 分前に要求されました",
+    "message": "$MINUTES$ 分前にリクエストされました",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4861,7 +4887,7 @@
     "message": "他のデバイスから承認する"
   },
   "requestAdminApproval": {
-    "message": "管理者の承認を要求する"
+    "message": "管理者の承認をリクエストする"
   },
   "unableToCompleteLogin": {
     "message": "ログインを完了できません"
@@ -4910,10 +4936,10 @@
     "message": "アカウントを正常に作成しました！"
   },
   "adminApprovalRequested": {
-    "message": "管理者の承認を要求しました"
+    "message": "管理者の承認をリクエストしました"
   },
   "adminApprovalRequestSentToAdmins": {
-    "message": "要求を管理者に送信しました。"
+    "message": "リクエストを管理者に送信しました。"
   },
   "troubleLoggingIn": {
     "message": "ログインできない場合"
@@ -6089,7 +6115,7 @@
     "message": "認証アプリに表示されているワンタイムパスコードを入力してください"
   },
   "lastPassOOBDesc": {
-    "message": "認証アプリでログイン要求を承認するか、ワンタイムパスコードを入力してください。"
+    "message": "認証アプリでログインリクエストを承認するか、ワンタイムパスコードを入力してください。"
   },
   "passcode": {
     "message": "パスコード"
@@ -6290,7 +6316,7 @@
     "message": "Keeper 2段階認証が必要です"
   },
   "mfaPushDesc": {
-    "message": "認証アプリでログイン要求を承認します。このダイアログは自動的に閉じます。"
+    "message": "認証アプリでログインリクエストを承認してください。このダイアログは自動的に閉じます。"
   },
   "selectTwoFactorMethod": {
     "message": "2 段階認証の方法を選択"
@@ -7052,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "アプリ (URI)"
+  "desktopApp": {
+    "message": "デスクトップアプリ",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "アプリ (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "デスクトップアプリ $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7418,7 +7445,7 @@
     "message": "拡張機能アイコンにログイン自動入力の候補の数を表示する"
   },
   "accountAccessRequested": {
-    "message": "アカウントへのアクセスが要求されました"
+    "message": "アカウントへのアクセスがリクエストされました"
   },
   "confirmAccessAttempt": {
     "message": "$EMAIL$ のログイン試行を確認",
@@ -8865,5 +8892,429 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "このアイテムにはマスターパスワードの再プロンプトが有効になっているため、ブラウザーのログインプロンプトの自動入力がオフになりました。この変更を維持するにはアイテムを保存してください。"
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "承認されたアクセス期間はまだ開始されていません。"
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "承認されたアクセス期間はすでに終了しています。"
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "このリクエストはまだ承認されていません。"
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "このリクエストはアクティベートできません。"
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "このリクエストのアクセスは既に使用されており、もうアクティブではありません。"
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "一度にこのアイテムへのアクティブなアクセスを持つことができるのは1人のユーザーだけです。現在のアクセスが終了したら、もう一度お試しください。"
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "現在のネットワークからのこのアイテムへのアクセスは許可されていません。"
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "このアイテムへのアクセスは現在許可されていません。"
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "このアイテムへのアクセスは現在許可されていません。"
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "すでにこのアイテムの承認済みのリクエストがあります。"
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "このアイテムへのリクエストはすでに承認待ちです。"
+  },
+  "pamLeaseExpires": {
+    "message": "$DATE$ $TIME$ に期限切れ",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "今日 $TIME$ に期限切れ",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "アクセスを開始"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "アクセスを開始しました。"
+  },
+  "pamStartLeaseError": {
+    "message": "アクセスを開始できませんでした。"
+  },
+  "pamEndLeaseButton": {
+    "message": "アクセスを終了"
+  },
+  "pamEndLeaseTitle": {
+    "message": "アクセスを終了しますか？"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "直ちにアクセスを取り消します。この操作は元に戻せません。"
+  },
+  "pamEndLeaseSuccess": {
+    "message": "アクセスを終了しました。"
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "アクセスを延長"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "アクセスを延長"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "延長する長さ"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "理由"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "アクセスが延長されました。"
+  },
+  "pamExtendLeaseError": {
+    "message": "アクセスを延長できませんでした。"
+  },
+  "pamExtendLeaseEnded": {
+    "message": "延長する前にアクセスが終了しました。リクエストは履歴に残っています。"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "特権"
+  },
+  "pamAccessBadgePending": {
+    "message": "承認待ち"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "利用不可"
+  },
+  "pamAccessBadgeReady": {
+    "message": "使用可能"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "残り $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "残り $DURATION$ で終了します",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "セッションは終了しました"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "残り $DURATION$ アクセスが有効です",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "残り $DURATION$ で終了します",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "アクセスリクエストが承認待ちです"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "たったいま送信済み"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "$WHEN$ に送信済み",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "特権資格情報"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls ライセンスが必要です",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "使用のリクエスト"
+  },
+  "pamUnavailableToRequest": {
+    "message": "リクエストできません",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "アクセスを延長",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "残り1分未満",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "制御されたアクセス"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "使用中"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "まもなく終了"
+  },
+  "pamEndedBannerHeading": {
+    "message": "アクセスが終了しました"
+  },
+  "pamEndedBannerBody": {
+    "message": "この資格情報のリース有効期限が切れました。アクセスが終了した後、この資格情報はロテートされます。"
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "現在アクセスをリクエストできません"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "この資格情報のアクセスルールでは、現在のネットワークからのリクエストや、現時点でのリクエストは許可されていません。"
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "使用可能"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "今日 $TIME$ までこの資格情報にアクセスできます。",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "$DATE$ $TIME$ までこの資格情報にアクセスできます。",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "アクセスが許可されるまで資格情報はマスクされます。"
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "アクセスをリクエストできます"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "このアイテムを使用するには Privileged Controls ライセンスが必要です",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "ライセンスがない場合アクセスをリクエストできません。",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "管理者にライセンスの有効化を依頼してください。",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Privileged Controls ライセンスが必要です。管理者にライセンスの有効化を依頼してください。",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "$DURATION$ までアクセス有効",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "$DURATION$ までアクセスできます。条件を満たすと即座に承認されます",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "アクセスをリクエスト"
+  },
+  "pamRequestSlotTaken": {
+    "message": "他の誰かがこのアイテムへのアクセス権を持っています。アクセスをリクエストすることはできますが、完了するまでは開始できません。"
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "他の誰かがこのアイテムへのアクセス権を持っています。アクセスをリクエストすることはできますが、$TIME$ までは開始できません。",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "リクエストをキャンセル"
+  },
+  "pamKeepRequest": {
+    "message": "リクエストを保持"
+  },
+  "pamCancelRequestTitle": {
+    "message": "アクセスリクエストをキャンセル"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "承認者が決定する前にリクエストを撤回します。いつでも新しいリクエストを送信できます。"
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "すでに承認されたアクセスを放棄します。新しいリクエストを送信することはできますが、再度承認する必要があります。"
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "リクエストをキャンセルしました"
+  },
+  "pendingStateCancelError": {
+    "message": "リクエストをキャンセルできませんでした。"
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "リクエストを送信"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "どれぐらい必要ですか？"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "承認されると通知が届きます。利用時間は、この認証情報を使用し始めた時点からカウントダウンが始まります。"
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "リクエストの詳細"
+  },
+  "requestAccessModalStartDate": {
+    "message": "開始日"
+  },
+  "requestAccessModalStart": {
+    "message": "開始時間"
+  },
+  "requestAccessModalEndDate": {
+    "message": "終了日"
+  },
+  "requestAccessModalEnd": {
+    "message": "終了時間"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "終了は開始より後でなければなりません。"
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (現在)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "カスタム時間…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "カスタム終了日時…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "提案された開始日時を表示"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "提案された期間に戻る"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$END$ まで残り $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "$DURATION$ のアクセスをリクエスト中: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "指定された期間はすでに終了しています。別の日時を選択してください。"
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "$DURATION$ を超える期間は指定できません。",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "なぜ必要なのですか？"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "なぜ必要なのですか？"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "例：四半期監査、読み取り専用のクエリをいくつか実行する必要がある"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "承認者に表示され、監査ログに保存されます。"
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "承認者に表示され、監査ログに保存されます。"
+  },
+  "requestAccessModalGenericError": {
+    "message": "アクセスをリクエストできませんでした。もう一度お試しください。"
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "すでにこのアイテムへのアクセス権があります。"
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "アクセスが承認されました。開始するアクセスを選択してください。"
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "アクセスをリクエストしました"
   }
 }

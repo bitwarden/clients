@@ -211,8 +211,11 @@ export class ContextMenuClickedHandler {
 
       cipher = ciphers[0];
     } else {
-      const ciphers = await this.fillCipherPolicy.ciphers(activeUserId, CipherUse.UserFill);
-      cipher = ciphers.find(({ id }) => id === menuItemId);
+      [cipher] = await this.fillCipherPolicy.ciphersForIds(
+        activeUserId,
+        [menuItemId],
+        CipherUse.UserFill,
+      );
     }
 
     if (!cipher && !isCreateCipherAction) {

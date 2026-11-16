@@ -35,6 +35,8 @@ export abstract class FillCipherPolicy {
   /** Emits when a lookup result can change. A cached result must recompute. */
   abstract changed$(userId: UserId): Observable<void>;
   abstract ciphers(userId: UserId, use: CipherUse): Promise<CipherView[]>;
+  /** The ciphers among `ids`. Decrypts only those, not the whole vault. */
+  abstract ciphersForIds(userId: UserId, ids: string[], use: CipherUse): Promise<CipherView[]>;
   abstract ciphersForUrl(
     url: string,
     userId: UserId,

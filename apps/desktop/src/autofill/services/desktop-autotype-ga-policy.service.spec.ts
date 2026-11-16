@@ -4,6 +4,7 @@ import { BehaviorSubject, firstValueFrom, take } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -30,6 +31,7 @@ describe("DesktopAutotypeGaPolicyService", () => {
   let featureFlagSubject: BehaviorSubject<AutotypeFeatureFlagState>;
   let mockAuthStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let mockPolicyAppliesSubject: BehaviorSubject<boolean>;
+  let mockPoliciesSubject: BehaviorSubject<Policy[]>;
 
   const mockUserId = "user-123" as UserId;
 
@@ -46,6 +48,7 @@ describe("DesktopAutotypeGaPolicyService", () => {
       AuthenticationStatus.Unlocked,
     );
     mockPolicyAppliesSubject = new BehaviorSubject<boolean>(false);
+    mockPoliciesSubject = new BehaviorSubject<Policy[]>([]);
 
     accountService = mock<AccountService>();
     authService = mock<AuthService>();
@@ -60,6 +63,7 @@ describe("DesktopAutotypeGaPolicyService", () => {
     policyService.policyAppliesToUser$ = jest
       .fn()
       .mockReturnValue(mockPolicyAppliesSubject.asObservable());
+    policyService.policiesByType$ = jest.fn().mockReturnValue(mockPoliciesSubject.asObservable());
 
     TestBed.configureTestingModule({
       providers: [
@@ -80,6 +84,7 @@ describe("DesktopAutotypeGaPolicyService", () => {
     featureFlagSubject.complete();
     mockAuthStatusSubject.complete();
     mockPolicyAppliesSubject.complete();
+    mockPoliciesSubject.complete();
   });
 
   describe("autotypeGaDefaultSetting$", () => {
@@ -244,6 +249,101 @@ describe("DesktopAutotypeGaPolicyService", () => {
         PolicyType.AutotypeGaPolicy,
         mockUserId,
       );
+    });
+  });
+
+  describe("autotypeGaDefaultKeyboardShortcut$", () => {
+    const policyWith = (data: unknown, enabled = true, organizationId = "org-1") =>
+      ({ enabled, data, organizationId }) as Policy;
+
+    const custom = (defaultKeyboardShortcut: unknown, organizationId = "org-1", enabled = true) =>
+      policyWith({ shortcutOption: "custom", defaultKeyboardShortcut }, enabled, organizationId);
+
+    const latest = () => firstValueFrom(service.autotypeGaDefaultKeyboardShortcut$.pipe(take(1)));
+
+    const record = () => {
+      const emissions: (string[] | null)[] = [];
+      const subscription = service.autotypeGaDefaultKeyboardShortcut$.subscribe((value) =>
+        emissions.push(value),
+      );
+      return { emissions, subscription };
+    };
+
+    it("emits the enabled custom shortcut for the active user", async () => {
+      mockPoliciesSubject.next([custom(["Super", "K"])]);
+
+      expect(await latest()).toEqual(["Super", "K"]);
+      expect(policyService.policiesByType$).toHaveBeenCalledWith(
+        PolicyType.AutotypeGaPolicy,
+        mockUserId,
+      );
+    });
+
+    it("skips policies that do not yield a registerable custom shortcut", () => {
+      const { emissions, subscription } = record();
+
+      for (const policies of [
+        [],
+        [custom(["Super", "K"], "org-1", false)],
+        [policyWith(null)],
+        [
+          policyWith({
+            shortcutOption: "default",
+            defaultKeyboardShortcut: ["Control", "Alt", "B"],
+          }),
+        ],
+        [custom(["Shift", "1"])],
+        [custom(["Control", "Bogus"])],
+        [custom(["Alt", "Alt", "K"])],
+        [custom(["Control", 5])],
+      ]) {
+        mockPoliciesSubject.next(policies);
+      }
+
+      mockPoliciesSubject.next([custom(["Super", "K"])]);
+      mockPoliciesSubject.next([custom(["Super", "K"])]);
+      mockPoliciesSubject.next([custom(["Alt", "Q"])]);
+
+      expect(emissions).toEqual([null, ["Super", "K"], ["Alt", "Q"]]);
+      subscription.unsubscribe();
+    });
+
+    it("uses the custom shortcut from the organization with the lowest id", async () => {
+      mockPoliciesSubject.next([
+        custom(["Alt", "Q"], "org-b"),
+        custom(["Control", "L"], "org-0", false),
+        policyWith(
+          { shortcutOption: "default", defaultKeyboardShortcut: ["Control", "Alt", "B"] },
+          true,
+          "org-1",
+        ),
+        custom(["Super", "K"], "org-a"),
+      ]);
+
+      expect(await latest()).toEqual(["Super", "K"]);
+    });
+
+    it("emits null unless the GA flag is on for an unlocked account", async () => {
+      mockPoliciesSubject.next([custom(["Super", "K"])]);
+      featureFlagSubject.next(AutotypeFeatureFlagState.Mvp);
+
+      expect(await latest()).toBeNull();
+      expect(policyService.policiesByType$).not.toHaveBeenCalled();
+
+      featureFlagSubject.next(AutotypeFeatureFlagState.Ga);
+      mockAuthStatusSubject.next(AuthenticationStatus.Locked);
+      expect(await latest()).toBeNull();
+    });
+
+    it("emits null while locked and the shortcut again after unlock", () => {
+      mockPoliciesSubject.next([custom(["Super", "K"])]);
+      const { emissions, subscription } = record();
+
+      mockAuthStatusSubject.next(AuthenticationStatus.Locked);
+      mockAuthStatusSubject.next(AuthenticationStatus.Unlocked);
+
+      expect(emissions).toEqual([["Super", "K"], null, ["Super", "K"]]);
+      subscription.unsubscribe();
     });
   });
 });

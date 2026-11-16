@@ -25,17 +25,25 @@ describe("DefaultFillCipherPolicy", () => {
   });
 
   it("emits changed$ after each decryption and not while decryption is in progress", async () => {
-    const cipherViews$ = new Subject<CipherView[] | null>();
-    cipherService.cipherViews$.mockReturnValue(cipherViews$);
+    const listViews$ = new Subject<CipherView[] | null>();
+    cipherService.cipherListViews$.mockReturnValue(listViews$);
 
     const emitted = firstValueFrom(policy.changed$(userId).pipe(toArray()));
-    cipherViews$.next([view("a")]);
-    cipherViews$.next(null);
-    cipherViews$.next([view("b")]);
-    cipherViews$.complete();
+    listViews$.next([view("a")]);
+    listViews$.next(null);
+    listViews$.next([view("b")]);
+    listViews$.complete();
 
     expect(await emitted).toEqual([undefined, undefined]);
-    expect(cipherService.cipherViews$).toHaveBeenCalledWith(userId);
+    expect(cipherService.cipherListViews$).toHaveBeenCalledWith(userId);
+  });
+
+  it("watches list views for changed$, so the background never decrypts the whole vault", () => {
+    cipherService.cipherListViews$.mockReturnValue(new Subject<CipherView[] | null>());
+
+    policy.changed$(userId).subscribe();
+
+    expect(cipherService.cipherViews$).not.toHaveBeenCalled();
   });
 
   it.each(Object.values(CipherUse))("returns the stored ciphers for %s", async (use) => {
@@ -43,6 +51,15 @@ describe("DefaultFillCipherPolicy", () => {
     cipherService.getAllDecrypted.mockResolvedValue(stored);
 
     expect(await policy.ciphers(userId, use)).toBe(stored);
+  });
+
+  it("decrypts only the requested ids", async () => {
+    const stored = [view("a")];
+    cipherService.getAllDecryptedForIds.mockResolvedValue(stored);
+
+    expect(await policy.ciphersForIds(userId, ["a"], CipherUse.UserFill)).toBe(stored);
+    expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith(userId, ["a"]);
+    expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
   });
 
   it("passes the URL options to the stored lookup", async () => {

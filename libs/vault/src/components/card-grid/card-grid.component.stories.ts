@@ -4,6 +4,7 @@ import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@stor
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { I18nMockService } from "@bitwarden/components";
 
@@ -48,6 +49,26 @@ const DEFAULT_FOLDERS = childFolders([
   "Finance",
   "People Ops",
 ]);
+
+/** `count` items in the shared folder `collectionId`, for the cards' item counts. */
+function itemsIn(collectionId: string, count: number): CipherView[] {
+  return Array.from({ length: count }, (_, i) =>
+    Object.assign(new CipherView(), {
+      id: `${collectionId}-item-${i}`,
+      organizationId,
+      collectionIds: [collectionId as CollectionId],
+    }),
+  );
+}
+
+/** Engineering's count includes the items in Backend and Frontend beneath it. */
+const DEFAULT_CIPHERS = [
+  ...itemsIn("folder-0", 4),
+  ...itemsIn("folder-1", 3),
+  ...itemsIn("folder-2", 3),
+  ...itemsIn("folder-3", 5),
+  ...itemsIn("folder-5", 1),
+];
 
 /**
  * Fourteen children — more than the three rows on show hold at any width, so the rest always
@@ -96,6 +117,18 @@ const MY_FOLDERS = [
   myFolder("taxes", "Banking/Taxes"),
 ];
 
+/** Checking's and Savings' counts include the items in the folders nested beneath them. */
+const MY_FOLDER_CIPHERS = [
+  "checking",
+  "joint",
+  "joint",
+  "savings",
+  "cards",
+  "cards",
+  "cards",
+  "taxes",
+].map((folderId, i) => Object.assign(new CipherView(), { id: `my-item-${i}`, folderId }));
+
 const LONG_NAME_FOLDERS = childFolders([
   "Engineering — Platform, Infrastructure, and Developer Experience",
   "Design — Brand, Product, and Marketing Systems",
@@ -124,6 +157,8 @@ export default {
               folderSingular: (count) => `${count} folder`,
               nestedFolderCount: (count) => `${count} nested folders`,
               nestedFolderSingular: "1 nested folder",
+              itemCount: (count) => `${count} items`,
+              itemSingular: "1 item",
               showAll: "Show all",
               showLess: "Show less",
             }),
@@ -134,6 +169,7 @@ export default {
   ],
   args: {
     collections: DEFAULT_FOLDERS,
+    ciphers: DEFAULT_CIPHERS,
     scope: SCOPE,
   },
 } as Meta<CardGridComponent>;
@@ -147,7 +183,7 @@ type Story = StoryObj<CardGridComponent>;
 
 /**
  * Five children — one full row of three plus a partial row, no overflow. Engineering and Design
- * count the folders nested inside them beneath their names.
+ * count the folders nested inside them beneath their names, and each card its items at its end.
  */
 export const Default: Story = {};
 
@@ -166,6 +202,7 @@ export const MyFolders: Story = {
   args: {
     collections: [],
     folders: MY_FOLDERS,
+    ciphers: MY_FOLDER_CIPHERS,
     scope: { type: VaultScopeType.Folder, folderId: "banking" },
   },
 };
