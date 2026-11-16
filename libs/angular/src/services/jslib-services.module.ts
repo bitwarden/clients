@@ -153,6 +153,11 @@ import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauth
 import { WebAuthnLoginPrfKeyService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-key.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
 import {
+  DefaultSsoJitProvisionFinishService,
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
+import {
   DefaultTwoFactorApiService,
   DefaultTwoFactorService,
   TwoFactorApiService,
@@ -2132,6 +2137,16 @@ const safeProviders: SafeProvider[] = [
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
     deps: [PasswordPreloginApiService, SdkService, ConfigService],
+  }),
+  safeProvider({
+    provide: SsoJitProvisionFinishApiService,
+    useClass: SsoJitProvisionFinishApiService,
+    deps: [ApiServiceAbstraction, ConfigService, LogService],
+  }),
+  safeProvider({
+    provide: SsoJitProvisionFinishService,
+    useClass: DefaultSsoJitProvisionFinishService,
+    deps: [SsoJitProvisionFinishApiService, RegisterSdkService, ConfigService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,
