@@ -353,7 +353,7 @@ describe("LoginStrategy", () => {
 
       it("syncs keys from the Key Service when the flag is on", async () => {
         configService.getFeatureFlag.mockImplementation(
-          async (flag) => flag === FeatureFlag.PM46805_KeyServiceKeySync,
+          async (flag) => flag === FeatureFlag.PM47063_KeyServiceKeySync,
         );
         apiService.postIdentityToken.mockResolvedValue(tokenResponseWithAccountKeys());
 

@@ -256,7 +256,7 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
     }
 
     // Needs the access token, set in saveAccountInformation.
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM46805_KeyServiceKeySync)) {
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM47063_KeyServiceKeySync)) {
       await this.keySyncService.syncKeys(userId);
     } else {
       await this.setKeysFromIdentity(response, userId);
