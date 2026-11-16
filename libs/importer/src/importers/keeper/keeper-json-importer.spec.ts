@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BankAccountType } from "@bitwarden/common/vault/enums";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -944,9 +945,12 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse custom field keys", () => {
-    const importer = new KeeperJsonImporter({
-      getFeatureFlag: () => false,
-    } as any as ConfigService) as any; // Accessing private method for testing
+    const importer = new KeeperJsonImporter(
+      {
+        getFeatureFlag: () => false,
+      } as any as ConfigService,
+      mock<LogService>(),
+    ) as any; // Accessing private method for testing
 
     [
       [undefined, "", ""],
@@ -974,7 +978,7 @@ describe("Keeper Json Importer", () => {
   //
 
   function makeImporter(orgId?: string): KeeperJsonImporter {
-    const importer = new KeeperJsonImporter(configService);
+    const importer = new KeeperJsonImporter(configService, mock<LogService>());
     if (orgId) {
       importer.organizationId = orgId as OrganizationId;
     }
