@@ -82,6 +82,10 @@ export class SendComponent {
     initialValue: false,
   });
 
+  protected readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
+    initialValue: false,
+  });
+
   protected readonly listState = toSignal(
     combineLatest([
       this.sendItemsService.emptyList$,
@@ -154,7 +158,7 @@ export class SendComponent {
   }
 
   protected async onRemoveAuth(send: SendView): Promise<void> {
-    if (this.disableSend()) {
+    if (this.disableSend() || this.sendAuthRequired() || send.disabled) {
       return;
     }
 

@@ -60,6 +60,12 @@ export class SendTableComponent {
   readonly disableSend = input(false);
 
   /**
+   * Whether policy requires Sends to keep their password or email verification.
+   * When true, the "Remove password" / "Remove email verification" option is hidden from the action menu.
+   */
+  readonly sendAuthRequired = input(false);
+
+  /**
    * Emitted when a user clicks on a Send item to edit it.
    * The clicked SendView is passed as the event payload.
    */
@@ -74,7 +80,8 @@ export class SendTableComponent {
   /**
    * Emitted when a user clicks the "Remove password" / "Remove email verification" action.
    * The SendView is passed as the event payload for authentication removal.
-   * This action is only available if the Send has authentication and Send is not disabled.
+   * This action is only available if the Send has authentication, Send is not disabled, policy
+   * doesn't require authentication, and the Send is compliant with policy.
    */
   readonly removeAuth = output<SendView>();
 
