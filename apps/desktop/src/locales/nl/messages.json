@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Alles"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Uitgeschakeld"
   },
+  "removeAuth": {
+    "message": "Wachtwoord of e-mailverificatie verwijderen"
+  },
+  "removedAuth": {
+    "message": "Wachtwoord of e-mailverificatie verwijderd"
+  },
+  "removeAuthConfirmation": {
+    "message": "Weet je zeker dat je het wachtwoord of de e-mailverificatie van deze Send wilt verwijderen?"
+  },
   "removePassword": {
     "message": "Wachtwoord verwijderen"
+  },
+  "removeEmailVerification": {
+    "message": "E-mailverificatie verwijderen"
   },
   "removedPassword": {
     "message": "Wachtwoord verwijderd"
   },
-  "removePasswordConfirmation": {
-    "message": "Weet je zeker dat je het wachtwoord wilt verwijderen?"
+  "removedEmailVerification": {
+    "message": "E-mailverificatie verwijderd"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Weet je zeker dat je de wachtwoordvereiste van deze Send wilt verwijderen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Weet je zeker dat je de e-mailverificatie-vereiste van deze Send wilt verwijderen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Maximum aantal keren benaderd"
@@ -7352,7 +7377,7 @@
   "makeACopy": {
     "message": "Een kopie maken"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"
   },
   "driversLicenseDetails": {
