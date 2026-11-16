@@ -2,12 +2,12 @@
   @if (options.image; as image) {
     <div class="premium-nudge-image premium-nudge-{{ image }} tw-mx-auto tw-mb-4"></div>
   }
-  <p bitTypography="body1" class="tw-text-muted">{{ options.descriptionKey | i18n }}</p>
+  <p bitTypography="body1" class="tw-text-fg-body">{{ options.descriptionKey | i18n }}</p>
   @if (options.unlockedFeatureKeys?.length) {
     <ul class="tw-m-0 tw-mb-3 tw-list-none tw-p-0">
       @for (key of options.unlockedFeatureKeys; track key) {
         <li class="tw-mb-2 tw-flex tw-items-center tw-gap-3">
-          <bit-icon name="bwi-check" class="tw-text-xl tw-text-main"></bit-icon>
+          <bit-icon name="bwi-check" class="tw-text-xl tw-text-fg-heading"></bit-icon>
           <span bitTypography="body1">{{ key | i18n }}</span>
         </li>
       }
@@ -18,7 +18,7 @@
 <ng-template #priceLine>
   @if (monthlyPrice(); as price) {
     <p
-      class="tw-mb-0 tw-text-muted"
+      class="tw-mb-0 tw-text-fg-body-subtle"
       [bitTypography]="sheet ? 'helper' : 'body2'"
       data-testid="premium-upgrade-nudge-price"
       [class.tw-text-center]="sheet"
@@ -72,7 +72,7 @@
     } @else {
       <ng-container [ngTemplateOutlet]="priceLine" />
       <div
-        class="tw--mx-6 tw-mt-4 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-100"
+        class="tw--mx-6 tw-mt-4 tw-border-0 tw-border-t tw-border-solid tw-border-border-base"
       ></div>
     }
   </div>
