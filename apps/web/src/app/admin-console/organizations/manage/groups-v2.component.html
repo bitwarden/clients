@@ -3,7 +3,8 @@
 <bit-table-v2
   [tableDef]="table"
   [filter]="filterGroups"
-  [filters]="initialFilters"
+  [filters]="initialFilters()"
+  [(sort)]="sort"
   [selection]="selection"
   [loading]="loading()"
   (selectedChange)="selectedGroups.set($event)"
