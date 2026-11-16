@@ -1086,13 +1086,10 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   /**
    * Read by the CanDeactivate guard, which a `:tab` change doesn't trigger. Nothing is unsaved
-   * while loading, since `savedValue` has no snapshot until `initialize()` settles, and the
-   * read-only history tab never asks.
+   * while loading, since `savedValue` has no snapshot until `initialize()` settles. The form
+   * outlives a switch to the history tab, so an edit still counts there.
    */
   unsavedChanges(): boolean {
-    if (this.editing && this.activeTab() === "history") {
-      return false;
-    }
     return !this.loading() && JSON.stringify(this.liveForm().getRawValue()) !== this.savedValue();
   }
 

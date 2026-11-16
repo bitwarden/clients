@@ -1404,7 +1404,7 @@ describe("RotationConfigEditComponent: unsaved changes", () => {
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
-  it("never asks on the History tab, even holding an edit", async () => {
+  it("still asks on the History tab when holding an edit", async () => {
     const { component, fixture, dialogService } = setup({
       configId: configId("cfg-1"),
       tab: "history",
@@ -1412,9 +1412,9 @@ describe("RotationConfigEditComponent: unsaved changes", () => {
     await fixture.whenStable();
     component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
-    expect(component.unsavedChanges()).toBe(false);
-    await expect(leaveThroughGuard(component)).resolves.toBe(true);
-    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+    expect(component.unsavedChanges()).toBe(true);
+    await leaveThroughGuard(component);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
   it("does not ask once an edit is reverted", async () => {
