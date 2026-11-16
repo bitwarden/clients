@@ -81,6 +81,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private ruleFailureFallback: boolean | undefined = undefined;
   private ruleQualificationResult: QualificationResult | undefined = undefined;
   private ruleQualificationService?: RuleQualificationService;
+  // Flipped true whenever a collection path (targeted, heuristic, or bypass)
+  // produces page details for this frame. Reset on cache-clear and on
+  // navigation. Read by the child-frame fallback handler to skip a redundant
+  // bypass when the parent dispatched to a frame that already filled.
+  private resolvedFields = false;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
@@ -374,6 +379,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.domRecentlyMutated = false;
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
     this.setupOverlayListeners(pageDetails);
+    this.resolvedFields = true;
 
     return pageDetails;
   }
@@ -399,6 +405,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   setRuleQualificationService(ruleQualificationService: RuleQualificationService): void {
     this.ruleQualificationService = ruleQualificationService;
+  }
+
+  hasResolvedTargetedFields(): boolean {
+    return this.resolvedFields;
+  }
+
+  async handleRunFillAssistHeuristicFallback(): Promise<void> {
+    if (this.resolvedFields) {
+      return;
+    }
+    await this.collectHeuristicPageDetailsBypass();
   }
 
   /**
@@ -512,6 +529,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.getFormattedAutofillFieldsData(),
       );
       this.setupOverlayListeners(cachedPageDetails);
+      this.resolvedFields = true;
       return cachedPageDetails;
     }
 
@@ -522,6 +540,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
      */
     const pageDetails = this.getFormattedPageDetails({}, localFields);
     this.setupOverlayListeners(pageDetails);
+    this.resolvedFields = true;
 
     return pageDetails;
   }
@@ -732,6 +751,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pageTargetingRules = undefined;
     this.ruleFailureFallback = undefined;
     this.ruleQualificationResult = undefined;
+    this.resolvedFields = false;
   }
 
   /**
@@ -1762,6 +1782,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pageTargetingRules = undefined;
     this.ruleFailureFallback = undefined;
     this.ruleQualificationResult = undefined;
+    this.resolvedFields = false;
 
     this.clearFieldCache();
 

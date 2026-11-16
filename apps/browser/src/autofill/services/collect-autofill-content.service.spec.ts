@@ -566,18 +566,113 @@ describe("CollectAutofillContentService", () => {
     });
 
     describe("clearCachedTargetingRules", () => {
-      it("resets all three URL-scoped caches", () => {
+      it("resets all three URL-scoped caches and the resolvedFields flag", () => {
         collectAutofillContentService["pageTargetingRules"] = [] as any;
         collectAutofillContentService["ruleFailureFallback"] = true;
         collectAutofillContentService["ruleQualificationResult"] = {
           kind: "proceedTargeted",
         } as any;
+        collectAutofillContentService["resolvedFields"] = true;
 
         collectAutofillContentService.clearCachedTargetingRules();
 
         expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
         expect(collectAutofillContentService["ruleFailureFallback"]).toBeUndefined();
         expect(collectAutofillContentService["ruleQualificationResult"]).toBeUndefined();
+        expect(collectAutofillContentService["resolvedFields"]).toBe(false);
+      });
+    });
+
+    describe("resolvedFields flag transitions", () => {
+      it("flips resolvedFields to true after a heuristic collection run", async () => {
+        expect(collectAutofillContentService["resolvedFields"]).toBe(false);
+
+        jest
+          .spyOn(collectAutofillContentService as any, "queryAutofillFormAndFieldElements")
+          .mockReturnValue({ formElements: [], formFieldElements: [] });
+        jest
+          .spyOn(collectAutofillContentService as any, "buildAutofillFormsData")
+          .mockReturnValue({});
+        jest
+          .spyOn(collectAutofillContentService as any, "buildAutofillFieldsData")
+          .mockResolvedValue([]);
+
+        await (collectAutofillContentService as any).runHeuristicCollection();
+
+        expect(collectAutofillContentService["resolvedFields"]).toBe(true);
+      });
+
+      it("flips resolvedFields to true after a bypass run", async () => {
+        expect(collectAutofillContentService["resolvedFields"]).toBe(false);
+
+        jest
+          .spyOn(collectAutofillContentService as any, "queryAutofillFormAndFieldElements")
+          .mockReturnValue({ formElements: [], formFieldElements: [] });
+        jest
+          .spyOn(collectAutofillContentService as any, "buildAutofillFormsData")
+          .mockReturnValue({});
+        jest
+          .spyOn(collectAutofillContentService as any, "buildAutofillFieldsData")
+          .mockResolvedValue([]);
+
+        await collectAutofillContentService.collectHeuristicPageDetailsBypass();
+
+        expect(collectAutofillContentService["resolvedFields"]).toBe(true);
+      });
+
+      it("flips resolvedFields to true after a targeted collection run", () => {
+        expect(collectAutofillContentService["resolvedFields"]).toBe(false);
+
+        jest
+          .spyOn(collectAutofillContentService as any, "resolveTargetedFields")
+          .mockReturnValue({ localFields: [], iframeTargets: new Map() });
+        jest
+          .spyOn(collectAutofillContentService as any, "routeIframeTargets")
+          .mockImplementation(() => undefined);
+        jest
+          .spyOn(collectAutofillContentService as any, "setupOverlayListeners")
+          .mockImplementation(() => undefined);
+
+        (collectAutofillContentService as any).getTargetedPageDetails([
+          { category: "login", fields: {} },
+        ]);
+
+        expect(collectAutofillContentService["resolvedFields"]).toBe(true);
+      });
+    });
+
+    describe("hasResolvedTargetedFields", () => {
+      it("returns false before any collection run", () => {
+        expect(collectAutofillContentService.hasResolvedTargetedFields()).toBe(false);
+      });
+
+      it("returns true once the resolvedFields flag is set", () => {
+        collectAutofillContentService["resolvedFields"] = true;
+        expect(collectAutofillContentService.hasResolvedTargetedFields()).toBe(true);
+      });
+    });
+
+    describe("handleRunFillAssistHeuristicFallback", () => {
+      it("skips the bypass when fields are already resolved in this frame", async () => {
+        collectAutofillContentService["resolvedFields"] = true;
+        const bypassSpy = jest
+          .spyOn(collectAutofillContentService, "collectHeuristicPageDetailsBypass")
+          .mockResolvedValue({} as any);
+
+        await collectAutofillContentService.handleRunFillAssistHeuristicFallback();
+
+        expect(bypassSpy).not.toHaveBeenCalled();
+      });
+
+      it("runs the bypass when no fields have been resolved yet", async () => {
+        expect(collectAutofillContentService["resolvedFields"]).toBe(false);
+        const bypassSpy = jest
+          .spyOn(collectAutofillContentService, "collectHeuristicPageDetailsBypass")
+          .mockResolvedValue({} as any);
+
+        await collectAutofillContentService.handleRunFillAssistHeuristicFallback();
+
+        expect(bypassSpy).toHaveBeenCalledWith();
       });
     });
 
