@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { MSecureCsvImporter } from "./msecure-csv-importer";
@@ -5,7 +8,7 @@ import { MSecureCsvImporter } from "./msecure-csv-importer";
 describe("MSecureCsvImporter.parse", () => {
   let importer: MSecureCsvImporter;
   beforeEach(() => {
-    importer = new MSecureCsvImporter();
+    importer = new MSecureCsvImporter(mock<LogService>());
   });
 
   it("should correctly parse legacy formatted cards", async () => {
