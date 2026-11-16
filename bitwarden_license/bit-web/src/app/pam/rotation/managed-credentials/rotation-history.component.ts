@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,12 +10,21 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { take } from "rxjs";
 
+import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import {
   BadgeModule,
   BadgeVariant,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTableV2Component,
   DialogService,
   DrawerRef,
+  LinkModule,
+  StatusLockupComponent,
   TableModule,
+  defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -31,7 +39,13 @@ import {
 
 import { RotationDurationComponent } from "./rotation-duration.component";
 import { RotationJobDrawerComponent } from "./rotation-job-drawer/rotation-job-drawer.component";
-import type { AttemptView, DurationParts, JobView } from "./rotation-job-row";
+import type {
+  AttemptView,
+  DurationParts,
+  EndingSessionsInfo,
+  JobDetails,
+  JobView,
+} from "./rotation-job-row";
 
 const SOURCE_LABEL_KEYS: Partial<Record<RotationSource, string>> = {
   [RotationSource.Scheduled]: "pamRotationSourceScheduled",
@@ -49,7 +63,7 @@ const JOB_STATUS_VARIANTS: Partial<Record<RotationJobStatus, BadgeVariant>> = {
 
 const JOB_STATUS_LABEL_KEYS: Partial<Record<RotationJobStatus, string>> = {
   [RotationJobStatus.Pending]: "pamRotationJobStatusPending",
-  [RotationJobStatus.Claimed]: "pamRotationJobStatusClaimed",
+  [RotationJobStatus.Claimed]: "pamRotationAttemptInProgress",
   [RotationJobStatus.Succeeded]: "pamRotationJobStatusSucceeded",
   [RotationJobStatus.Failed]: "pamRotationJobStatusFailed",
   [RotationJobStatus.TimedOut]: "pamRotationJobStatusTimedOut",
@@ -78,7 +92,20 @@ const SESSION_TERMINATION_LABEL_KEYS: Partial<Record<SessionTerminationOutcome, 
   selector: "app-rotation-history",
   templateUrl: "./rotation-history.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, BadgeModule, TableModule, I18nPipe, RotationDurationComponent],
+  imports: [
+    BadgeModule,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitTableV2Component,
+    LinkModule,
+    StatusLockupComponent,
+    TableModule,
+    I18nPipe,
+    TimestampPipe,
+    RotationDurationComponent,
+  ],
 })
 export class RotationHistoryComponent {
   private readonly dialogService = inject(DialogService);
@@ -91,6 +118,12 @@ export class RotationHistoryComponent {
 
   /** Managed-credential display names by rotation config id, for {@link showCredential}. */
   readonly credentialNames = input<ReadonlyMap<RotationConfigId, string>>(new Map());
+
+  /** Access connector names by id, for the drawer's attempts. */
+  readonly connectorNames = input<ReadonlyMap<string, string>>(new Map());
+
+  /** What the drawer says about session termination, or `null` to leave the field out. */
+  readonly endingSessions = input<EndingSessionsInfo | null>(null);
 
   /** Newest first by start time, falling back to `createdAt` for a job that never started. */
   protected readonly jobViews = computed(() =>
@@ -108,6 +141,11 @@ export class RotationHistoryComponent {
   /** Whether the pane is beside the table, which is what drops Source and Duration from it. */
   protected readonly detailsOpen = computed(() => this.detailsDrawer() != null);
 
+  protected readonly table = defineTable<JobView>(this.jobViews);
+
+  protected readonly sortByStarted = (a: JobView, b: JobView): number =>
+    Date.parse(a.displayStartedAt) - Date.parse(b.displayStartedAt);
+
   /** Guards {@link showJob}'s focus restore against a still-pending, since-superseded open. */
   private readonly openSeq = signal(0);
 
@@ -121,7 +159,11 @@ export class RotationHistoryComponent {
     this.openSeq.set(seq);
     const drawer = await RotationJobDrawerComponent.open(this.dialogService, {
       closeOnNavigation: true,
-      data: { job, showCredential: this.showCredential() },
+      data: {
+        job,
+        showCredential: this.showCredential(),
+        endingSessions: this.endingSessions(),
+      },
     });
     if (drawer == null) {
       return;
@@ -161,25 +203,41 @@ export class RotationHistoryComponent {
     const startedAt = attempts.length > 0 ? attempts[0].startedAt : null;
     const duration =
       startedAt == null ? null : this.durationParts(startedAt, this.lastEndedAt(attempts));
+    const attemptViews = attempts.map((attempt, index) =>
+      this.toAttemptView(attempt, index + 1, job.status === RotationJobStatus.TimedOut),
+    );
+    const retrySucceeded = job.status === RotationJobStatus.Succeeded && attempts.length > 1;
+    const lastFailedAttempt = attemptViews.filter((attempt) => attempt.failed).at(-1);
+    const retrying =
+      (job.status === RotationJobStatus.Pending || job.status === RotationJobStatus.Claimed) &&
+      lastFailedAttempt != null;
 
     return {
       id: job.id,
       credentialName: credentialName ?? String(job.rotationConfigId),
       credentialResolved: credentialName != null,
       sourceLabelKey: this.sourceLabelKey(job.source),
-      statusLabelKey: this.jobStatusLabelKey(job.status),
+      statusLabelKey: retrying
+        ? "pamRotationJobStatusRetrying"
+        : this.jobStatusLabelKey(job.status),
       statusVariant: this.jobStatusVariant(job.status),
       failed,
+      retrySucceeded,
       running,
       startedAt,
       createdAt: job.createdAt,
+      displayStartedAt: startedAt ?? job.createdAt,
       duration,
-      attempts: attempts.map((attempt, index) =>
-        this.toAttemptView(attempt, index + 1, reportedReason),
-      ),
+      attempts: attemptViews,
       attemptsUniform: attemptsUniform && attempts.length > 1,
       causeLabelKey: reportedReason ? this.failureCauseLabelKey(reportedReason) : null,
       reportedReason,
+      details: this.jobDetails(
+        job,
+        attemptViews,
+        retrySucceeded,
+        retrying ? lastFailedAttempt : null,
+      ),
       syncStateLabelKey:
         failed && finalAttempt?.syncState != null
           ? this.syncStateLabelKey(finalAttempt.syncState)
@@ -195,21 +253,95 @@ export class RotationHistoryComponent {
     };
   }
 
+  /** The Details column: why a job failed or is retrying, or what became of its sessions. */
+  private jobDetails(
+    job: RotationJob,
+    attempts: AttemptView[],
+    retrySucceeded: boolean,
+    retryingAfter: AttemptView | null | undefined,
+  ): JobDetails | null {
+    if (retryingAfter != null) {
+      return {
+        key: "pamRotationHistoryAttemptFailed",
+        attemptOrdinal: retryingAfter.ordinal,
+        causeLabelKey: retryingAfter.causeLabelKey,
+      };
+    }
+    switch (job.status) {
+      case RotationJobStatus.Pending:
+      case RotationJobStatus.Claimed:
+        return { key: "pamRotationDetailNone" };
+      case RotationJobStatus.Failed:
+      case RotationJobStatus.TimedOut: {
+        if (job.status === RotationJobStatus.TimedOut && attempts.length === 0) {
+          return { key: "pamRotationHistoryNoConnectorPickedUp" };
+        }
+        const cause = attempts.at(-1)?.causeLabelKey;
+        return cause == null ? null : { key: cause };
+      }
+      case RotationJobStatus.Succeeded: {
+        const termination = (job.attempts ?? [])
+          .filter((attempt) => attempt.status === RotationAttemptStatus.Rotated)
+          .at(-1)?.sessionTermination;
+        if (termination === SessionTerminationOutcome.TermFailed) {
+          return { key: "pamRotationHistorySessionsNotEnded" };
+        }
+        if (retrySucceeded) {
+          return { key: "pamRotationHistoryRetrySucceeded" };
+        }
+        if (termination === SessionTerminationOutcome.Terminated) {
+          return { key: "pamRotationHistorySessionsEnded" };
+        }
+        return { key: "pamRotationDetailNone" };
+      }
+      default:
+        return null;
+    }
+  }
+
   private toAttemptView(
     attempt: RotationAttempt,
     ordinal: number,
-    jobLevelReason: string | null,
+    jobTimedOut: boolean,
   ): AttemptView {
     const reason = attempt.failureReason ?? null;
+    const failed =
+      attempt.status === RotationAttemptStatus.Errored ||
+      attempt.status === RotationAttemptStatus.Abandoned;
+    const connectorId = attempt.claimedByAccessConnectorId;
     return {
       id: attempt.id,
       ordinal,
       startedAt: attempt.startedAt,
       duration: this.durationParts(attempt.startedAt, attempt.endedAt ?? null),
-      running: attempt.status === RotationAttemptStatus.Executing,
       statusLabelKey: this.attemptStatusLabelKey(attempt.status),
-      divergentFailureReason: reason !== null && reason !== jobLevelReason ? reason : null,
+      resultLabelKey: this.attemptResultLabelKey(attempt.status),
+      failed,
+      connectorName:
+        connectorId == null ? null : (this.connectorNames().get(String(connectorId)) ?? null),
+      causeLabelKey: failed ? this.attemptCauseLabelKey(reason, jobTimedOut) : null,
+      failureReason: reason,
     };
+  }
+
+  private attemptResultLabelKey(status: RotationAttemptStatus): string {
+    switch (status) {
+      case RotationAttemptStatus.Rotated:
+        return "pamRotationAttemptResultSucceeded";
+      case RotationAttemptStatus.Errored:
+      case RotationAttemptStatus.Abandoned:
+        return "pamRotationAttemptResultFailed";
+      default:
+        return this.attemptStatusLabelKey(status);
+    }
+  }
+
+  private attemptCauseLabelKey(reason: string | null, jobTimedOut: boolean): string | null {
+    const unreachable = reason?.split(":", 1)[0].trim().toLowerCase() === "target_unreachable";
+    if (unreachable || jobTimedOut) {
+      return "pamRotationAttemptCauseTargetUnreachable";
+    }
+    return reason ? this.failureCauseLabelKey(reason) : null;
   }
 
   /** The latest end recorded across a job's attempts, or `null` while any of it is unfinished. */

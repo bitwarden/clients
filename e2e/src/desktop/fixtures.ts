@@ -13,6 +13,7 @@ import {
 import { pruneVideo, startTrace, stopTrace, videoDir } from "../artifacts";
 import { DESKTOP_BUILD_DIR, E2E_STATE_DIR } from "../paths";
 import { IS_DEV_SERVER } from "../server";
+import { skipOnboardingDialogs } from "../web/onboarding";
 
 // The main process also talks to the local dev server, and its certificate is self-signed.
 const TLS_ARGS = IS_DEV_SERVER ? ["--ignore-certificate-errors"] : [];
@@ -26,6 +27,21 @@ const WINDOW_TIMEOUT_MS = 60_000;
 // Lets a test reach the renderer again after a process reload crashed it (WindowMain).
 const REMOTE_DEBUGGING_PORT = 9719;
 const DEVTOOLS_URL = "devtools://";
+
+// On a narrow window the side nav opens as a modal overlay (libs/components side-nav).
+const SIDE_NAV_OVERLAY = "Side navigation";
+
+/**
+ * Closes the side nav whenever it opens as an overlay. Dismissing the new look dialog opens it
+ * (vault-v3), and it then covers the vault and matches every `getByRole("dialog")`.
+ */
+async function closeSideNavOverlay(window: Page) {
+  const overlay = window.getByRole("dialog", { name: SIDE_NAV_OVERLAY });
+
+  await window.addLocatorHandler(overlay, async () => {
+    await window.keyboard.press("Escape");
+  });
+}
 
 async function launch(
   extraArgs: string[],
@@ -101,6 +117,9 @@ export const test = base.extend<{
   window: async ({ app }, use) => {
     const window = await app.firstWindow({ timeout: WINDOW_TIMEOUT_MS });
     await window.waitForLoadState("domcontentloaded");
+    // E.g. "Bitwarden has a new look" opens over the vault after login.
+    await skipOnboardingDialogs(window);
+    await closeSideNavOverlay(window);
 
     await use(window);
   },

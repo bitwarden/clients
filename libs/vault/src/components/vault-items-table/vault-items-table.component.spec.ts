@@ -433,7 +433,7 @@ describe("VaultItemsTableComponent", () => {
       const itemAction = jest.fn();
       renderRows(itemAction);
 
-      const nameButton = fixture.nativeElement.querySelector("bit-row button[bitlink]");
+      const nameButton = fixture.nativeElement.querySelector("bit-row button[vaultTableRowName]");
       nameButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
       expect(itemAction).toHaveBeenCalledTimes(1);

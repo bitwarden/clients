@@ -70,4 +70,20 @@ describe("ImportSourceSelectDesktopComponent", () => {
 
     expect(router.navigate).toHaveBeenCalledWith(["/import", "keeper"]);
   });
+
+  it("keeps the vault scope in the URL when the picker emits continue", async () => {
+    const scopeQuery = {
+      defaultOrganizationId: "5bb2e4b0-5d4e-4a58-9a6a-3a5f5b8c2f11",
+      defaultCollectionId: "9c1d7e2a-3b4f-4c5d-8e6f-7a8b9c0d1e2f",
+    };
+    await setup(scopeQuery);
+
+    fixture.debugElement
+      .query(By.css("importer-source-select"))
+      .triggerEventHandler("continue", "keeper");
+
+    expect(router.navigate).toHaveBeenCalledWith(["/import", "keeper"], {
+      queryParams: scopeQuery,
+    });
+  });
 });

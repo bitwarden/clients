@@ -1207,6 +1207,14 @@ describe("DefaultOrganizationInviteService", () => {
           variant: "SingleOrganizationPolicy",
           expectedKind: "single-org-policy-violation-other-org",
         },
+        {
+          variant: "AutoConfirmPolicyViolationTargetOrg",
+          expectedKind: "auto-confirm-policy-violation-target-org",
+        },
+        {
+          variant: "AutoConfirmPolicyViolationOtherOrg",
+          expectedKind: "auto-confirm-policy-violation-other-org",
+        },
         { variant: "TwoFactorRequiredForMembership", expectedKind: "two-factor-required" },
         {
           variant: "OnlyOneFreeOrganizationAdminAllowed",

@@ -51,11 +51,16 @@
 
   <bit-column sortable defaultSort="asc" width="minmax(12rem, 20rem)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.name; let row">
+    <bit-cell
+      *bitCellDef="table.columns.name; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
       <bit-icon-tile slot="start" icon="bwi-folder" size="sm" aria-hidden="true" />
+      <!-- An anchor, not just the row click, so keyboard users can reach the folder and middle- and
+           right-click behave as expected on the name. -->
       <a
-        bitLink
-        truncate
+        vaultTableRowName
         [bitTooltip]="row.displayName"
         [attr.id]="'my-folders_link_name-' + row.id"
         [routerLink]="folderCommands(row.id)"
@@ -76,7 +81,13 @@
 
   <bit-column sortable width="120px">
     <bit-header-cell>{{ "items" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.itemCount; let row">{{ row.itemCount }}</bit-cell>
+    <bit-cell
+      *bitCellDef="table.columns.itemCount; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
+      {{ row.itemCount }}
+    </bit-cell>
   </bit-column>
 
   <bit-column>
@@ -88,7 +99,11 @@
         <bit-skeleton-text class="tw-w-6" />
       </div>
     </bit-cell>
-    <bit-cell *bitCellDef="table.columns.options; let row">
+    <bit-cell
+      *bitCellDef="table.columns.options; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
       <button
         slot="end"
         type="button"

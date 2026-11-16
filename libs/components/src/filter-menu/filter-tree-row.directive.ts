@@ -1,5 +1,15 @@
 import { TreeKeyManagerItem } from "@angular/cdk/a11y";
-import { Directive, ElementRef, computed, inject, input, signal } from "@angular/core";
+import {
+  Directive,
+  ElementRef,
+  computed,
+  contentChild,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
+
+import { TooltipDirective } from "../tooltip";
 
 import { FILTER_TREE_HOST, FilterTreeHost, FilterTreeNode } from "./filter-tokens";
 
@@ -9,6 +19,8 @@ import { FILTER_TREE_HOST, FilterTreeHost, FilterTreeNode } from "./filter-token
   exportAs: "bitFilterTreeRow",
   host: {
     "[tabindex]": "tabbable() ? 0 : -1",
+    "(focus)": "onFocus()",
+    "(blur)": "labelTooltip()?.hideTooltip()",
   },
 })
 export class FilterTreeRowDirective implements TreeKeyManagerItem {
@@ -21,6 +33,16 @@ export class FilterTreeRowDirective implements TreeKeyManagerItem {
   readonly tabbable = signal(false);
 
   readonly isDisabled = computed(() => this.node().row.disabled());
+
+  /** `focusin` only bubbles up, so the row opens its label's tooltip itself. */
+  protected readonly labelTooltip = contentChild(TooltipDirective);
+
+  /** Opens on keyboard focus only, as the tooltip does for its own host. */
+  protected onFocus(): void {
+    if (this.el.nativeElement.matches(":focus-visible")) {
+      this.labelTooltip()?.showTooltip();
+    }
+  }
 
   /** @see TreeKeyManagerItem.getLabel — the manager's typeahead matches on this. */
   getLabel(): string {

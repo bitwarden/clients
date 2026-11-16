@@ -76,6 +76,7 @@ describe("ConfirmationDetailsComponent", () => {
     it("renders the Privileged Controls line for a Password Manager trial that includes them", () => {
       component.product = ProductType.PasswordManager;
       component.includesPrivilegedControls = true;
+      component.trialLength = 7;
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain("trialIncludesPrivilegedControls");
@@ -84,6 +85,15 @@ describe("ConfirmationDetailsComponent", () => {
     it("omits the Privileged Controls line when the trial does not include them", () => {
       component.product = ProductType.PasswordManager;
       component.includesPrivilegedControls = false;
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).not.toContain("trialIncludesPrivilegedControls");
+    });
+
+    it("omits the Privileged Controls line on a direct purchase that includes them", () => {
+      component.product = ProductType.PasswordManager;
+      component.includesPrivilegedControls = true;
+      component.trialLength = 0;
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).not.toContain("trialIncludesPrivilegedControls");

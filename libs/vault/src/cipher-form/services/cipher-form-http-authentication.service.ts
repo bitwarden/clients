@@ -2,6 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { BehaviorSubject, distinctUntilChanged } from "rxjs";
 
+import { everyUriHasExplicitMatchStrategy } from "@bitwarden/common/autofill/utils/http-authentication-eligibility";
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { DialogService } from "@bitwarden/components";
 
@@ -40,7 +41,7 @@ export class CipherFormHTTPAuthenticationService {
    * is turned off unless a confirmation for that change is still open.
    */
   updateUriMatchStrategies(matchStrategies: UriMatchStrategySetting[]) {
-    const allExplicit = matchStrategies.every((matchStrategy) => matchStrategy != null);
+    const allExplicit = everyUriHasExplicitMatchStrategy(matchStrategies);
 
     if (!allExplicit && this.httpAuthenticationControl.value && !this.confirmationPending) {
       this.httpAuthenticationControl.setValue(false);
@@ -107,18 +108,10 @@ export class CipherFormHTTPAuthenticationService {
   }
 
   /**
-   * Resolves the HTTP authentication value for a cipher being loaded into the form. Reprompt takes
-   * priority, so HTTP authentication is turned off when both are on and the user is told about the change.
-   * @returns the HTTP authentication value to use in the form.
+   * Tells the user that HTTP authentication was turned off for a cipher loaded with both HTTP authentication
+   * and master password reprompt on. Reprompt takes priority.
    */
-  async resolveInitialHTTPAuthentication(
-    httpAuthentication: boolean,
-    reprompt: boolean,
-  ): Promise<boolean> {
-    if (!httpAuthentication || !reprompt) {
-      return httpAuthentication;
-    }
-
+  async notifyHTTPAuthenticationTurnedOff(): Promise<void> {
     await this.dialogService.openSimpleDialog({
       title: { key: "httpAuthenticationTurnedOffTitle" },
       content: { key: "httpAuthenticationTurnedOffNotice" },
@@ -126,7 +119,5 @@ export class CipherFormHTTPAuthenticationService {
       acceptButtonText: { key: "ok" },
       cancelButtonText: null,
     });
-
-    return false;
   }
 }

@@ -13,6 +13,8 @@ on:
     paths:
       - 'apps/web/**'
       - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-pam/**'
+      - 'bitwarden_license/bit-pam-components/**'
       - 'bitwarden_license/bit-web/**'
       - 'libs/**'
       - '*'
@@ -27,6 +29,8 @@ on:
     paths:
       - 'apps/web/**'
       - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-pam/**'
+      - 'bitwarden_license/bit-pam-components/**'
       - 'bitwarden_license/bit-web/**'
       - 'libs/**'
       - '*'

@@ -1,9 +1,7 @@
-import { Observable, catchError, concatMap, distinctUntilChanged, map, of, switchMap } from "rxjs";
+import { Observable, catchError, concatMap, map, of } from "rxjs";
 
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
@@ -15,7 +13,6 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
   constructor(
     private sdkService: SdkService,
     private logService: LogService,
-    private configService: ConfigService,
   ) {}
 
   decrypt(collection: Collection, userId: UserId): Observable<CollectionView> {
@@ -36,70 +33,6 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       return of([]);
     }
 
-    return this.configService.getFeatureFlag$(FeatureFlag.CollectionsDecryptListFailures).pipe(
-      distinctUntilChanged(),
-      switchMap((bulkDecryptEnabled) =>
-        bulkDecryptEnabled
-          ? this.decryptManyV2(collections, userId)
-          : this.decryptManyV1(collections, userId),
-      ),
-    );
-  }
-
-  /**
-   * V1 implementation: decrypts each collection individually via the SDK, one at a time.
-   * A collection that fails to decrypt is logged and dropped rather than aborting the rest
-   * of the batch.
-   */
-  private decryptManyV1(collections: Collection[], userId: UserId): Observable<CollectionView[]> {
-    return this.sdkService.userClient$(userId).pipe(
-      concatMap(async (sdk) => {
-        const startTime = performance.now();
-        using ref = sdk.take();
-
-        const success: CollectionView[] = [];
-        for (const collection of collections) {
-          try {
-            const sdkView = await ref.value
-              .vault()
-              .collections()
-              .decrypt(collection.toSdkCollection());
-            success.push(CollectionView.fromSdkCollectionView(sdkView, collection));
-          } catch (error: unknown) {
-            this.logService.error(`Failed to decrypt collection ${collection.id}: ${error}`);
-          }
-        }
-
-        this.logService.measure(
-          startTime,
-          "Admin Console",
-          "DefaultCollectionEncryptionService",
-          "decryptMany (v1, one at a time)",
-          [
-            ["Items", collections.length],
-            ["Successes", success.length],
-          ],
-        );
-
-        return success;
-      }),
-      catchError((error: unknown) => {
-        this.logService.error(`Failed to decrypt collections in batch: ${error}`);
-        throw error;
-      }),
-    );
-  }
-
-  /**
-   * V2 implementation using the SDK's `decrypt_list_with_failures` for batch performance with
-   * per-item failure tolerance. The SDK natively separates successes from failures. Collections
-   * that fail to decrypt are still returned to the caller as a placeholder view (`name` replaced
-   * by the decrypt-error placeholder, `decryptionFailure` set) rather than being dropped, so the
-   * item remains visible instead of silently disappearing from the vault. Gated behind
-   * {@link FeatureFlag.CollectionsDecryptListFailures} until the SDK bindings have rolled out
-   * everywhere this service is used.
-   */
-  private decryptManyV2(collections: Collection[], userId: UserId): Observable<CollectionView[]> {
     return this.sdkService.userClient$(userId).pipe(
       concatMap(async (sdk) => {
         const startTime = performance.now();
@@ -144,7 +77,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           startTime,
           "Admin Console",
           "DefaultCollectionEncryptionService",
-          "decryptMany (v2, decrypt_list_with_failures)",
+          "decryptMany",
           [
             ["Items", collections.length],
             ["Successes", views.filter((v) => !v.decryptionFailure).length],

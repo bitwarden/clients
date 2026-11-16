@@ -143,6 +143,52 @@ describe("Cipher Export", () => {
     });
   });
 
+  describe("HTTP authentication setting", () => {
+    /** Builds an export from the cipher, then reads it back from its JSON, as an export file would be. */
+    const roundTrip = (cipher: Cipher | CipherView): CipherExport => {
+      const exported = new CipherExport();
+      exported.build(cipher);
+      return JSON.parse(JSON.stringify(exported)) as CipherExport;
+    };
+
+    describe.each([
+      ["a personal", undefined],
+      ["an organization", "organization-id"],
+    ])("for %s login", (_, organizationId) => {
+      it.each([true, false])(
+        "round trips through a plaintext export (%s)",
+        (httpAuthenticationEnabled) => {
+          const view = new CipherView();
+          view.type = CipherType.Login;
+          view.organizationId = organizationId;
+          view.login.httpAuthenticationEnabled = httpAuthenticationEnabled;
+
+          const imported = CipherExport.toView(roundTrip(view));
+
+          expect(imported.organizationId).toBe(organizationId);
+          expect(imported.login.httpAuthenticationEnabled).toBe(httpAuthenticationEnabled);
+        },
+      );
+
+      it.each([true, false])(
+        "round trips through an encrypted export of a legacy-format cipher (%s)",
+        (httpAuthenticationEnabled) => {
+          const cipher = new Cipher();
+          cipher.type = CipherType.Login;
+          cipher.organizationId = organizationId;
+          cipher.name = conditionalEncString("2.name|iv|mac");
+          cipher.login = new Login();
+          cipher.login.httpAuthenticationEnabled = httpAuthenticationEnabled;
+
+          const imported = CipherExport.toDomain(roundTrip(cipher));
+
+          expect(imported.organizationId).toBe(organizationId);
+          expect(imported.login?.httpAuthenticationEnabled).toBe(httpAuthenticationEnabled);
+        },
+      );
+    });
+  });
+
   describe("SshKeyExport.toView", () => {
     const validSshKey = {
       privateKey: "PRIVATE_KEY",
@@ -155,31 +201,15 @@ describe("Cipher Export", () => {
       expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key private key is required.");
     });
 
-    it.each([null, undefined, "", "   "])("should throw when publicKey is %p", (value) => {
+    it.each([null, undefined, "", "   "])("should not throw when publicKey is %p", (value) => {
       const sshKey = { ...validSshKey, publicKey: value } as any;
-      expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key public key is required.");
+      expect(() => SshKeyExport.toView(sshKey)).not.toThrow();
     });
 
-    it.each([null, undefined, "", "   "])("should throw when keyFingerprint is %p", (value) => {
+    it.each([null, undefined, "", "   "])("should not throw when keyFingerprint is %p", (value) => {
       const sshKey = { ...validSshKey, keyFingerprint: value } as any;
-      expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key fingerprint is required.");
+      expect(() => SshKeyExport.toView(sshKey)).not.toThrow();
     });
-
-    it.each([null, undefined, ""])(
-      "should not throw for a missing publicKey when derived keys are allowed (value %p)",
-      (value) => {
-        const sshKey = { ...validSshKey, publicKey: value } as any;
-        expect(() => SshKeyExport.toView(sshKey, undefined, true)).not.toThrow();
-      },
-    );
-
-    it.each([null, undefined, ""])(
-      "should not throw for a missing keyFingerprint when derived keys are allowed (value %p)",
-      (value) => {
-        const sshKey = { ...validSshKey, keyFingerprint: value } as any;
-        expect(() => SshKeyExport.toView(sshKey, undefined, true)).not.toThrow();
-      },
-    );
 
     it("should succeed with valid inputs", () => {
       const sshKey = { ...validSshKey };

@@ -6,11 +6,6 @@ import { DiscountType } from "./discount";
  *
  * These types are the wire contract. They are converted into the render-ready `Cart` view model by
  * `adaptInvoicePreviewToCart`; components never consume them directly.
- *
- * Not to be confused with the unrelated, screen-local `InvoicePreview` interface in
- * `apps/web/src/app/billing/individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service.ts`,
- * which is a flat prorated-total summary for the premium-to-organization upgrade screen. That
- * legacy shape is superseded by this envelope and is removed at PM-40422.
  */
 
 /**

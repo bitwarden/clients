@@ -14,18 +14,10 @@ import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
-  PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { LogService } from "@bitwarden/logging";
 
-import {
-  AccountBillingClient,
-  OrganizationSubscriptionPurchase,
-  SubscriberBillingClient,
-  TaxAmounts,
-  PreviewInvoiceClient,
-} from "../../../../clients";
+import { AccountBillingClient, SubscriberBillingClient } from "../../../../clients";
 import {
   BillingAddress,
   NonTokenizablePaymentMethods,
@@ -49,15 +41,13 @@ export type PaymentFormValues = {
 };
 
 /**
- * Service for handling payment submission and sales tax calculation for upgrade payment component
+ * Service for handling payment submission for upgrade payment component
  */
 @Injectable({ providedIn: "root" })
 export class UpgradePaymentService {
   constructor(
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private accountBillingClient: AccountBillingClient,
-    private previewInvoiceClient: PreviewInvoiceClient,
-    private logService: LogService,
     private syncService: SyncService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
@@ -87,56 +77,6 @@ export class UpgradePaymentService {
     mapAccountToSubscriber,
     switchMap((account) => this.subscriberBillingClient.getCredit(account)),
   );
-
-  /**
-   * Calculate estimated tax for the selected plan
-   */
-  async calculateEstimatedTax(
-    planDetails: PlanDetails,
-    billingAddress: BillingAddress,
-    coupons?: string[],
-  ): Promise<number> {
-    const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
-    const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
-
-    let previewInvoiceClientCall: Promise<TaxAmounts> | null = null;
-
-    if (isFamiliesPlan) {
-      // Currently, only Families plan is supported for organization plans
-      const request: OrganizationSubscriptionPurchase = {
-        tier: "families",
-        cadence: "annually",
-        passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
-      };
-
-      previewInvoiceClientCall =
-        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-          request,
-          billingAddress,
-          coupons,
-        );
-    }
-
-    if (isPremiumPlan) {
-      previewInvoiceClientCall = this.previewInvoiceClient.previewTaxForPremiumSubscriptionPurchase(
-        0,
-        billingAddress,
-        coupons,
-      );
-    }
-
-    if (previewInvoiceClientCall === null) {
-      throw new Error("Preview client call is not defined");
-    }
-
-    try {
-      const preview = await previewInvoiceClientCall;
-      return preview.tax;
-    } catch (error) {
-      this.logService.error("Tax calculation failed:", error);
-      throw error;
-    }
-  }
 
   /**
    * Process premium upgrade

@@ -5,6 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   Region,
@@ -14,7 +15,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Message, IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -40,6 +40,7 @@ import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums
 import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
+import { CipherUse, FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
 import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -67,6 +68,7 @@ type RuntimeBackgroundOverrides = {
   autofillOrchestrator?: MockProxy<AutofillOrchestrator>;
   intraprocessMessageSender?: MockProxy<IntraprocessMessageSender>;
   fillAssistEventReceiver?: MockProxy<FillAssistEventReceiver>;
+  configService?: MockProxy<ConfigService>;
 };
 
 function createRuntimeBackground({
@@ -79,6 +81,7 @@ function createRuntimeBackground({
   autofillOrchestrator = mock<AutofillOrchestrator>(),
   intraprocessMessageSender = mock<IntraprocessMessageSender>(),
   fillAssistEventReceiver = mock<FillAssistEventReceiver>(),
+  configService = mock<ConfigService>(),
 }: RuntimeBackgroundOverrides = {}) {
   // The `undefined` slots are collaborators no covered path reaches.
   // Give one a mock as soon as a test needs it.
@@ -90,7 +93,7 @@ function createRuntimeBackground({
     environmentService as any,
     messagingService as any,
     logService,
-    undefined as any, // configService
+    configService,
     undefined as any, // messageListener
     accountService,
     undefined as any, // lockService
@@ -213,15 +216,21 @@ describe("RuntimeBackground collection dispatch", () => {
     });
   });
 
+  /** Serves `ciphers` to lookups by id, as the vault would. */
+  const serveCiphers = (policy: MockProxy<FillCipherPolicy>, ciphers: CipherView[]) =>
+    policy.ciphersForIds.mockImplementation(async (_userId, ids) =>
+      ciphers.filter((cipher) => ids.includes(cipher.id)),
+    );
+
   describe("fillCipherForPopup", () => {
     const cipher = Object.assign(new CipherView(), { id: "cipher-1" });
-    let cipherService: MockProxy<CipherService>;
+    let fillCipherPolicy: MockProxy<FillCipherPolicy>;
 
     beforeEach(() => {
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
-      cipherService = mock<CipherService>();
-      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
-      (main as any).cipherService = cipherService;
+      fillCipherPolicy = mock<FillCipherPolicy>();
+      serveCiphers(fillCipherPolicy, [cipher]);
+      (main as any).fillCipherPolicy = fillCipherPolicy;
       autofillOrchestrator.unsafeAutofillTabWithCipher.mockResolvedValue({
         outcome: AutofillOutcome.Filled,
         totp: "totp-123",
@@ -238,6 +247,19 @@ describe("RuntimeBackground collection dispatch", () => {
       expect(result).toEqual({ outcome: AutofillOutcome.Filled, totp: "totp-123" });
     });
 
+    it("looks up the cipher as a user fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "cipher-1" },
+        popupSender,
+      );
+
+      expect(fillCipherPolicy.ciphersForIds).toHaveBeenCalledWith(
+        "user-1",
+        ["cipher-1"],
+        CipherUse.UserFill,
+      );
+    });
+
     it("security: rejects a content-script sender without fetching or filling", async () => {
       // Assert the handler consults `BrowserApi.senderIsInternal`, so that the boundary cannot be silently
       // removed without this failing. The spy calls through to detect regressions inside the guard.
@@ -252,7 +274,7 @@ describe("RuntimeBackground collection dispatch", () => {
       // Logging the rejection is part of the security requirement: the warning is the
       // observable record that the boundary fired on this sender.
       expect(logService.warning).toHaveBeenCalled();
-      expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
+      expect(fillCipherPolicy.ciphersForIds).not.toHaveBeenCalled();
       expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
     });
 
@@ -466,6 +488,7 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
   let runtimeBackground: RuntimeBackground;
   let mainBackground: MockProxy<MainBackground>;
   let domainSettingsService: MockProxy<DomainSettingsService>;
+  let configService: MockProxy<ConfigService>;
 
   const message = { command: "getUrlAutofillTargetingRules" };
 
@@ -482,8 +505,10 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     domainSettingsService = mock<DomainSettingsService>();
     mainBackground = mock<MainBackground>();
     (mainBackground as any).domainSettingsService = domainSettingsService;
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false as any);
 
-    runtimeBackground = createRuntimeBackground({ main: mainBackground });
+    runtimeBackground = createRuntimeBackground({ main: mainBackground, configService });
   });
 
   afterEach(() => {
@@ -555,7 +580,7 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     expect(domainSettingsService.getTargetingRulesForUrl).toHaveBeenCalledWith(committedUrl);
   });
 
-  it("returns the resolved rules to the caller", async () => {
+  it("returns the resolved rules in the envelope under `targetingRules`", async () => {
     const rules = [{ category: "account-login", fields: {} }] as any;
     mockFrameLookup(routedUrl);
     domainSettingsService.getTargetingRulesForUrl.mockResolvedValue(rules);
@@ -567,7 +592,23 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
 
     const result = await runtimeBackground.processMessageWithSender(message, sender);
 
-    expect(result).toBe(rules);
+    expect(result).toEqual({ targetingRules: rules, ruleFailureFallback: false });
+  });
+
+  it("sets ruleFailureFallback=true in the envelope when the fallback flag is on", async () => {
+    const rules = [{ category: "account-login", fields: {} }] as any;
+    mockFrameLookup(routedUrl);
+    domainSettingsService.getTargetingRulesForUrl.mockResolvedValue(rules);
+    configService.getFeatureFlag.mockResolvedValue(true as any);
+    const sender = {
+      frameId: 0,
+      url: committedUrl,
+      tab: createChromeTabMock({ id: 1, url: routedUrl }),
+    } as chrome.runtime.MessageSender;
+
+    const result = await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(result).toEqual({ targetingRules: rules, ruleFailureFallback: true });
   });
 });
 

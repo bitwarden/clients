@@ -2,17 +2,18 @@ import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
+  AfterViewInit,
+  booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
+  computed,
   contentChild,
   effect,
-  inject,
-  viewChild,
-  input,
-  booleanAttribute,
   ElementRef,
-  computed,
+  inject,
+  input,
   signal,
-  AfterViewInit,
+  viewChild,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
@@ -53,10 +54,9 @@ export const drawerSizeToWidthRem: Record<string, number> = {
   large: 42,
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-dialog, [bit-dialog]",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./dialog.component.html",
   host: {
     "[class]": "classes()",
@@ -96,12 +96,12 @@ export class DialogComponent implements AfterViewInit {
   private readonly scrollableBody = viewChild.required(CdkScrollable);
   private readonly scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
 
-  protected dialogRef = inject(DialogRef, { optional: true });
-  protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
-  private scrollableBody$ = toObservable(this.scrollableBody);
-  private scrollBottom$ = toObservable(this.scrollBottom);
+  protected readonly dialogRef = inject(DialogRef, { optional: true });
+  protected readonly bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
+  private readonly scrollableBody$ = toObservable(this.scrollableBody);
+  private readonly scrollBottom$ = toObservable(this.scrollBottom);
 
-  protected isScrollable$ = combineLatest([this.scrollableBody$, this.scrollBottom$]).pipe(
+  protected readonly isScrollable$ = combineLatest([this.scrollableBody$, this.scrollBottom$]).pipe(
     switchMap(([body, bottom]) =>
       hasScrollableContent$(body.getElementRef().nativeElement, bottom.nativeElement),
     ),
