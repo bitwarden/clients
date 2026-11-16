@@ -206,6 +206,8 @@ export {
   matchesSharedFolder,
   matchesFolder,
   idString,
+  sharedFolderValues,
+  folderValues,
 } from "./utils/vault-filter-predicates";
 export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
 export * from "./directives/remount-on.directive";
