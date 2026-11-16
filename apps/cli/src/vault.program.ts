@@ -35,7 +35,7 @@ export class VaultProgram extends BaseProgram {
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
       .addCommand(this.importCommand(useSharedFoldersTerm))
-      .addCommand(this.exportCommand())
+      .addCommand(this.exportCommand(useSharedFoldersTerm))
       .addCommand(this.shareCommand("share", true))
       .addCommand(this.archiveCommand());
   }
@@ -630,7 +630,7 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private exportCommand(): Command {
+  private exportCommand(vfo1Enabled: boolean): Command {
     return new Command("export")
       .description("Export vault data to a CSV, JSON or ZIP file.")
       .option("--output <output>", "Output directory or filename.")
@@ -639,7 +639,15 @@ export class VaultProgram extends BaseProgram {
         "--password [password]",
         "Use password to encrypt instead of your Bitwarden account encryption key. Only applies to the encrypted_json format.",
       )
-      .option("--organizationid <organizationid>", "Organization id for an organization.")
+      .addOption(
+        new Option("--vaultid <vaultid>", "ID of the vault to export.").hideHelp(!vfo1Enabled),
+      )
+      .option(
+        "--organizationid <organizationid>",
+        vfo1Enabled
+          ? "--DEPRECATED-- ID of the organization to export. Use --vaultid instead."
+          : "Organization id for an organization.",
+      )
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
@@ -661,7 +669,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("    bw export --output ./exp/bw.csv");
         writeLn("    bw export myPassword321 --output bw.json --format json");
         writeLn(
-          "    bw export myPassword321 --organizationid 7063feab-4b10-472e-b64c-785e2b870b92",
+          `    bw export myPassword321 ${vfo1Enabled ? "--vaultid" : "--organizationid"} 7063feab-4b10-472e-b64c-785e2b870b92`,
         );
         writeLn("", true);
       })
@@ -672,6 +680,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.policyService,
           this.serviceContainer.eventCollectionService,
           this.serviceContainer.accountService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(options);
         this.processResponse(response);
