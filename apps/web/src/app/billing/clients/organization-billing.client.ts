@@ -7,6 +7,11 @@ import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/o
 
 type ChurnMitigationOfferDuration = "once" | "repeating";
 
+export type PurchasePrivilegedControlsRequest = {
+  seats: number;
+  maxAutoscaleSeats: number | null;
+};
+
 export type UpdatePrivilegedControlsSubscriptionRequest = {
   seatAdjustment: number;
   maxAutoscaleSeats: number | null;
@@ -101,6 +106,19 @@ export class OrganizationBillingClient {
       "POST",
       `/organizations/${organizationId}/billing/vnext/annual-upgrade-offer/redeem`,
       null,
+      true,
+      false,
+    );
+  };
+
+  purchasePrivilegedControls = async (
+    organizationId: OrganizationId,
+    request: PurchasePrivilegedControlsRequest,
+  ): Promise<void> => {
+    await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/billing/subscription/privileged-controls/purchase`,
+      request,
       true,
       false,
     );

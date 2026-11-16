@@ -27,6 +27,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService } from "@bitwarden/components";
 import {
   ALL_ITEMS_SCOPE,
@@ -65,6 +66,8 @@ export interface VaultRowActions {
   showFillOnHover: boolean;
   /** Show the launch-in-new-tab button (still gated on the cipher being launchable). */
   showLaunch: boolean;
+  /** Show the quick copy actions. */
+  showCopyActions: boolean;
   /** Offer "Autofill" in the more-options menu. */
   showAutofillInMenu: boolean;
   /** Offer "View" in the more-options menu. */
@@ -290,9 +293,12 @@ export class VaultPopupListTableService {
     { currentUriIsBlocked }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
+    // The list swaps a revealed view in for its restricted row, so a restricted row has nothing
+    // revealed: the server withholds its credentials.
+    const gated = RestrictedCipherPolicy.isRestricted(cipher as CipherViewLike);
 
     // Whether clicking the row autofills: the autofill section fills unless the URI is blocked.
-    const primaryAutofill = isAutofill && !currentUriIsBlocked;
+    const primaryAutofill = !gated && isAutofill && !currentUriIsBlocked;
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";
@@ -300,8 +306,9 @@ export class VaultPopupListTableService {
     return {
       primaryAutofill,
       showFillOnHover: primaryAutofill,
-      showLaunch: !isAutofill,
-      showAutofillInMenu: !primaryAutofill,
+      showLaunch: !isAutofill && !gated,
+      showCopyActions: !gated,
+      showAutofillInMenu: !gated && !primaryAutofill,
       showViewInMenu: primaryAutofill,
       // Name the login's username field in the label when it has one.
       titleKey: login?.username != null ? `${titleBase}WithField` : titleBase,
@@ -343,7 +350,11 @@ export class VaultPopupListTableService {
    */
   async launchCipher(cipher: CipherViewLike) {
     const launchURI = CipherViewLikeUtils.getLaunchUri(cipher);
-    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI) {
+    if (
+      !CipherViewLikeUtils.canLaunch(cipher) ||
+      !launchURI ||
+      RestrictedCipherPolicy.isRestricted(cipher)
+    ) {
       return;
     }
 

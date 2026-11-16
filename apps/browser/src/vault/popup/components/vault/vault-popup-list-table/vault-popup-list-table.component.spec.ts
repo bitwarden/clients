@@ -1,5 +1,5 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, signal } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -22,15 +22,18 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   ChipFilterOption,
   CompactModeService,
@@ -47,7 +50,9 @@ import {
   CoachmarkService,
   NO_FOLDER,
   PasswordRepromptService,
+  VAULT_ITEM_FILTER,
   VaultCopyButtonsService,
+  VaultItemFilter,
   VaultNavItemType,
   VaultNavService,
   VaultScopeType,
@@ -63,6 +68,7 @@ import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
+import { VAULT_ROW_ICON, VaultRowIcon } from "../vault-row-slots/vault-row-icon.token";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
 
@@ -88,6 +94,18 @@ const makeRow = (
   section: "autofill" | "favorites" | "allItems",
   overrides: Partial<PopupCipherViewLike> = {},
 ) => ({ cipher: makeCipher(overrides), _section: section, actions: {} }) as any;
+
+/** A contributed filter key unlike any built-in one, so the table must use the provider's key. */
+const FILTER_KEY = "accessStatus";
+
+@Component({
+  selector: "test-row-icon",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span data-testid="row-icon">{{ cipher()?.id }}</span>`,
+})
+class TestRowIconComponent {
+  readonly cipher = input<CipherViewLike | null>(null);
+}
 
 describe("VaultPopupListTableComponent", () => {
   let fixture: ComponentFixture<VaultPopupListTableComponent>;
@@ -155,6 +173,17 @@ describe("VaultPopupListTableComponent", () => {
   /** Whether the vault in view is suspended, which blanks the rows. */
   const suspendedVault$ = new BehaviorSubject<boolean>(false);
   const organizationNames$ = new BehaviorSubject<Map<string, string>>(new Map());
+
+  /** The contributed filter chip. Null leaves the seam unprovided, as in OSS builds. */
+  let itemFilter: VaultItemFilter | null = null;
+  /** The row icon slot. Null leaves it unprovided. */
+  let rowIcon: VaultRowIcon | null = null;
+  const contributedOptions$ = new BehaviorSubject<
+    { id: string; name: string; icon: "bwi-lock"; tileVariant?: "danger" }[]
+  >([]);
+  const contributedMatches$ = new BehaviorSubject<
+    ReadonlyMap<string, ReadonlySet<CipherId>> | undefined
+  >(undefined);
 
   const vaultPopupListTableFiltersService = {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
@@ -240,11 +269,21 @@ describe("VaultPopupListTableComponent", () => {
     collections$.next([]);
     folders$.next([]);
     vaultPopupListTableFiltersService.filterDialogOpen.set(false);
+    vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(of({}));
+    itemFilter = null;
+    rowIcon = null;
+    contributedOptions$.next([]);
+    contributedMatches$.next(undefined);
     viewCacheSnapshot = {};
     nav$.next({ vaults: [], organizationDataOwnership: false });
     vaultNavService.viewModel$.mockReturnValue(nav$.asObservable());
     liveAnnouncer.announce.mockClear();
 
+    await createFixture();
+  });
+
+  /** Builds the testing module and the component; `itemFilter` is read when it is first injected. */
+  async function createFixture() {
     await TestBed.configureTestingModule({
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
@@ -263,6 +302,8 @@ describe("VaultPopupListTableComponent", () => {
           },
         },
         { provide: ConfigService, useValue: configService },
+        { provide: VAULT_ITEM_FILTER, useFactory: () => itemFilter },
+        { provide: VAULT_ROW_ICON, useFactory: () => rowIcon },
         { provide: ImportUpgradeNavigationService, useValue: importUpgradeNavigationService },
         { provide: VaultPopupAutofillService, useValue: vaultPopupAutofillService },
         { provide: VaultPopupItemsService, useValue: vaultPopupItemsService },
@@ -276,6 +317,7 @@ describe("VaultPopupListTableComponent", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (k: string) => k }) },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
+        { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "test-user-id" }) } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
@@ -325,7 +367,7 @@ describe("VaultPopupListTableComponent", () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     jest.spyOn(router, "navigate").mockResolvedValue(true);
-  });
+  }
 
   describe("collapsible sections", () => {
     const headerToggle = (label: string): HTMLButtonElement | undefined =>
@@ -570,6 +612,216 @@ describe("VaultPopupListTableComponent", () => {
         fixture.detectChanges();
 
         expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("row icon slot", () => {
+    const render = async () => {
+      filteredCiphers$.next([makeCipher({ id: "all-1" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+    const icons = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("[data-testid='row-icon']"));
+
+    it("renders no extra icon when the slot is not provided", async () => {
+      await render();
+
+      expect(icons()).toHaveLength(0);
+    });
+
+    it("renders the provided component with the row's cipher", async () => {
+      rowIcon = TestRowIconComponent;
+      TestBed.resetTestingModule();
+      await createFixture();
+      await render();
+
+      expect(icons().map((icon) => icon.textContent)).toEqual(["all-1"]);
+    });
+  });
+
+  describe("contributed filter chip", () => {
+    const matchesFor = jest.fn();
+    const chipFor = (key: string) =>
+      fixture.debugElement
+        .queryAll(By.directive(FilterMenuComponent))
+        .find((chip) => chip.componentInstance.key() === key)?.componentInstance;
+
+    const OPTIONS = [
+      { id: "privileged", name: "Privileged", icon: "bwi-lock" as const },
+      { id: "pending", name: "Pending approval", icon: "bwi-lock" as const },
+    ];
+
+    async function provideFilter() {
+      matchesFor.mockImplementation(() => contributedMatches$.asObservable());
+      itemFilter = {
+        key: FILTER_KEY,
+        label: "Controlled access",
+        icon: "bwi-lock-encrypted",
+        options$: contributedOptions$.asObservable(),
+        matches$: matchesFor,
+      };
+      contributedOptions$.next(OPTIONS);
+      // The component reads the provider at construction, and the module caches it.
+      TestBed.resetTestingModule();
+      return createFixture();
+    }
+
+    const rowFor = (id: string) => makeRow("allItems", { id });
+
+    it("is absent when the seam is not provided", () => {
+      fixture.detectChanges();
+
+      expect(chipFor(FILTER_KEY)).toBeUndefined();
+      expect(component["filterPredicate"](rowFor("a"), { [FILTER_KEY]: ["pending"] })).toBe(true);
+    });
+
+    it("throws in dev mode when the provider's key matches a built-in chip key", async () => {
+      itemFilter = {
+        key: "folder",
+        label: "Clash",
+        options$: contributedOptions$.asObservable(),
+        matches$: matchesFor,
+      };
+      TestBed.resetTestingModule();
+
+      await expect(createFixture()).rejects.toThrow(
+        'VAULT_ITEM_FILTER key "folder" matches a built-in popup filter key.',
+      );
+    });
+
+    it("is absent while the provider offers no options, and reads no matches", async () => {
+      await provideFilter();
+      contributedOptions$.next([]);
+      fixture.detectChanges();
+
+      expect(chipFor(FILTER_KEY)).toBeUndefined();
+      expect(matchesFor).not.toHaveBeenCalled();
+    });
+
+    it("renders a multi-select chip with the provider's label and icon", async () => {
+      await provideFilter();
+      fixture.detectChanges();
+
+      const chip = chipFor(FILTER_KEY) as FilterMenuComponent;
+      expect(chip).toBeDefined();
+      expect(chip.placeholderText()).toBe("Controlled access");
+      expect(chip.icon()).toBe("bwi-lock-encrypted");
+      expect(chip.multiple()).toBe(true);
+      expect((chip["allOptions"]() as FilterOptionRow[]).map((o) => o.value())).toEqual([
+        "privileged",
+        "pending",
+      ]);
+    });
+
+    it("reads matches off the unsearched list", async () => {
+      const gated = makeCipher({ id: "a" });
+      await provideFilter();
+      activeCiphers$.next([gated]);
+      fixture.detectChanges();
+
+      expect(matchesFor).toHaveBeenCalledWith([gated]);
+    });
+
+    it("counts each option from the matches once they land, and not before", async () => {
+      await provideFilter();
+      filteredCiphers$.next([makeCipher({ id: "a" }), makeCipher({ id: "b" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      const counts = () =>
+        (chipFor(FILTER_KEY)["allOptions"]() as FilterOptionRow[]).map((o) => o.count());
+
+      expect(counts()).toEqual([undefined, undefined]);
+
+      contributedMatches$.next(
+        new Map([
+          ["privileged", new Set(["a" as CipherId, "b" as CipherId])],
+          ["pending", new Set(["b" as CipherId])],
+        ]),
+      );
+      fixture.detectChanges();
+
+      expect(counts()).toEqual([2, 1]);
+    });
+
+    describe("predicate", () => {
+      beforeEach(async () => {
+        await provideFilter();
+        fixture.detectChanges();
+      });
+
+      it("passes every row until the matches land", () => {
+        expect(component["filterPredicate"](rowFor("a"), { [FILTER_KEY]: ["pending"] })).toBe(true);
+      });
+
+      it("keeps a row in any selected option and drops the rest", () => {
+        contributedMatches$.next(
+          new Map([
+            ["privileged", new Set(["a" as CipherId])],
+            ["pending", new Set(["b" as CipherId])],
+          ]),
+        );
+        const pass = (id: string, selected: string[]) =>
+          component["filterPredicate"](rowFor(id), { [FILTER_KEY]: selected });
+
+        expect(pass("a", ["pending"])).toBe(false);
+        expect(pass("b", ["pending"])).toBe(true);
+        expect(pass("a", ["pending", "privileged"])).toBe(true);
+        expect(pass("c", ["pending", "privileged"])).toBe(false);
+        expect(pass("c", [])).toBe(true);
+      });
+
+      it("passes every row for an option the provider does not offer", () => {
+        contributedMatches$.next(new Map([["pending", new Set<CipherId>()]]));
+
+        expect(component["filterPredicate"](rowFor("a"), { [FILTER_KEY]: ["old-link"] })).toBe(
+          true,
+        );
+      });
+
+      it("ANDs with the other chips", () => {
+        contributedMatches$.next(new Map([["pending", new Set(["a" as CipherId])]]));
+
+        expect(
+          component["filterPredicate"](rowFor("a"), {
+            [FILTER_KEY]: ["pending"],
+            cipherType: CipherType.Card,
+          }),
+        ).toBe(false);
+      });
+
+      it("lets the empty state see a selection as a filter", () => {
+        (component as any).tableEl = () => ({
+          filterValues: () => ({ [FILTER_KEY]: ["pending"] }),
+        });
+
+        expect(component["emptyStateFilterValues"]()).toMatchObject({
+          [FILTER_KEY]: ["pending"],
+        });
+      });
+    });
+
+    describe("restoring a cached selection", () => {
+      it("seeds the chip from the selection cached under its key", async () => {
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(
+          of({ contributed: { [FILTER_KEY]: ["pending"], other: ["x"] } }),
+        );
+        await provideFilter();
+
+        expect(component["filtersToRestore"]()).toEqual({ [FILTER_KEY]: ["pending"] });
+      });
+
+      it("drops it when the seam is not provided", async () => {
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(
+          of({ contributed: { [FILTER_KEY]: ["pending"] }, cipherType: CipherType.Login }),
+        );
+        TestBed.resetTestingModule();
+        await createFixture();
+
+        expect(component["filtersToRestore"]()).toEqual({ cipherType: CipherType.Login });
       });
     });
   });

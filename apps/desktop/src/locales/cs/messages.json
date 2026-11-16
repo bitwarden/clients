@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Aplikace (URI)"
+  "desktopApp": {
+    "message": "Aplikace pro počítač",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Aplikace (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Aplikace pro počítač $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 položka",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Vše"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Zakázáno"
   },
+  "removeAuth": {
+    "message": "Odebrat heslo nebo ověření e-mailu"
+  },
+  "removedAuth": {
+    "message": "Heslo nebo ověření e-mailu bylo odebráno"
+  },
+  "removeAuthConfirmation": {
+    "message": "Opravdu chcete odebrat požadavek na heslo nebo ověření e-mailu z tohoto Send?"
+  },
   "removePassword": {
     "message": "Odebrat heslo"
+  },
+  "removeEmailVerification": {
+    "message": "Odebrat ověření e-mailu"
   },
   "removedPassword": {
     "message": "Heslo odebráno"
   },
-  "removePasswordConfirmation": {
-    "message": "Opravdu chcete odebrat heslo?"
+  "removedEmailVerification": {
+    "message": "Ověření e-mailu bylo odebráno"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Opravdu chcete odebrat požadavek na heslo z tohoto Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Opravdu chcete odebrat požadavek na ověření e-mailu z tohoto Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Dosažen maximální počet přístupů"
@@ -7352,7 +7377,7 @@
   "makeACopy": {
     "message": "Vytvořit kopii"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Nemůžete importovat položky do Mých položek, které jsou součástí více sbírek"
   },
   "driversLicenseDetails": {
