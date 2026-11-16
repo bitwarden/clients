@@ -867,6 +867,58 @@ describe("Cipher Service", () => {
       expect(cipherSdkService.updateWithServer).not.toHaveBeenCalled();
     });
 
+    it.each([
+      ["favorite", { favorite: true }],
+      ["folder", { folderId: "3b1c9d2e-7f4a-4e6b-8c5d-2a9f0e1b7c64" }],
+      ["favorite and folder", { favorite: true, folderId: "3b1c9d2e-7f4a-4e6b-8c5d-2a9f0e1b7c64" }],
+    ])("saves user fields when an editor changes only %s (row 2)", async (_, change) => {
+      store(cipherData);
+      jest.spyOn(cipherService, "decrypt").mockImplementation(async () => view());
+      const request = view(change);
+
+      await cipherService.updateWithServer(request, userId);
+
+      expect(cipherSdkService.updateUserFieldsWithServer).toHaveBeenCalledWith(request, userId);
+      expect(cipherSdkService.updateWithServer).not.toHaveBeenCalled();
+    });
+
+    it("edits the item when an editor changes item data with user fields (row 3)", async () => {
+      store(cipherData);
+      jest.spyOn(cipherService, "decrypt").mockImplementation(async () => view());
+      const request = view({ favorite: true, name: "changed" });
+
+      await cipherService.updateWithServer(request, userId);
+
+      expect(cipherSdkService.updateWithServer).toHaveBeenCalledWith(
+        request,
+        userId,
+        undefined,
+        undefined,
+      );
+      expect(cipherSdkService.updateUserFieldsWithServer).not.toHaveBeenCalled();
+    });
+
+    it("edits the item when an editor's cipher has no stored copy (row 3)", async () => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({});
+      const request = view({ favorite: true });
+
+      await cipherService.updateWithServer(request, userId);
+
+      expect(cipherSdkService.updateWithServer).toHaveBeenCalled();
+      expect(cipherSdkService.updateUserFieldsWithServer).not.toHaveBeenCalled();
+    });
+
+    it("does not compare against a restricted stored copy for an editor (row 3)", async () => {
+      store(restrictedData);
+      const request = view({ favorite: true });
+
+      await cipherService.updateWithServer(request, userId, view());
+
+      expect(cipherService.decrypt).not.toHaveBeenCalled();
+      expect(cipherSdkService.updateWithRevealedOriginal).toHaveBeenCalled();
+      expect(cipherSdkService.updateUserFieldsWithServer).not.toHaveBeenCalled();
+    });
+
     it("edits against the stored original when it is full (row 3)", async () => {
       store(cipherData);
       const request = view({ name: "changed" });
