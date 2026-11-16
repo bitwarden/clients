@@ -233,11 +233,7 @@ export class RotationHistoryComponent {
       duration,
       attempts: attemptViews,
       attemptsUniform: attemptsUniform && attempts.length > 1,
-      causeLabelKey: failed
-        ? reportedReason
-          ? this.failureCauseLabelKey(reportedReason)
-          : UNKNOWN_FAILURE_CAUSE_KEY
-        : null,
+      causeLabelKey: this.jobCauseLabelKey(failed, reportedReason),
       reportedReason,
       details: this.jobDetails(
         job,
@@ -303,6 +299,16 @@ export class RotationHistoryComponent {
       default:
         return null;
     }
+  }
+
+  private jobCauseLabelKey(failed: boolean, reportedReason: string | null): string | null {
+    if (!failed) {
+      return null;
+    }
+    if (!reportedReason) {
+      return UNKNOWN_FAILURE_CAUSE_KEY;
+    }
+    return this.failureCauseLabelKey(reportedReason);
   }
 
   private toAttemptView(
