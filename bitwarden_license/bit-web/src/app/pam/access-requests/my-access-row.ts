@@ -1,6 +1,3 @@
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import type { BadgeVariant } from "@bitwarden/components";
-
 import {
   AccessLeaseId,
   AccessLeaseStatus,
@@ -12,8 +9,10 @@ import {
   findHumanDecision,
   humanApprover,
   requestedWindowSeconds,
-} from "..";
-import { AccessBadgeState } from "../access-state-badge/access-badge-state";
+  AccessBadgeState,
+} from "@bitwarden/bit-pam";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import type { BadgeVariant } from "@bitwarden/components";
 
 import { ResolvedNames } from "./access-name-resolver.service";
 
@@ -47,6 +46,14 @@ export type MyAccessRequestRow = {
   /** The human resolver's name, falling back to email; null when neither is known. */
   resolverName: string | null;
   approverComment: string | null;
+  /** The requester's name, falling back to email; blank when the server resolved neither. */
+  requester: string;
+  requesterEmail: string | null;
+  /**
+   * The latest human Deny, and so whoever ended the request: an approver denying it, withdrawing
+   * its approval or revoking its lease, or the holder ending their own lease. Null when none did.
+   */
+  finalDeny: FinalDeny | null;
   /** The raw id of the lease this request minted; null if it never activated one. */
   producedLeaseId: string | null;
   /**
@@ -54,6 +61,8 @@ export type MyAccessRequestRow = {
    * derives from it.
    */
   producedLeaseStatus: AccessLeaseStatus | null;
+  /** The produced lease's current end, which moves when it is extended; null until activation. */
+  producedLeaseNotAfter: string | null;
   /** Set only when the minted lease was extended; see {@link buildMyAccessRequestRows}. */
   extendedBySeconds: number | null;
   extendedUntil: string | null;
@@ -74,6 +83,9 @@ export type MyAccessLeaseRow = {
   extendedBySeconds: number | null;
   extendedUntil: string | null;
 };
+
+/** Who recorded a Deny decision, null when the server resolved neither name nor email, and when. */
+export type FinalDeny = { name: string | null; at: string };
 
 /** Colour + copy for a terminal status, which the shared access-state model does not describe. */
 export type TerminalStatusBadge = { readonly labelKey: string; readonly variant: BadgeVariant };
@@ -110,13 +122,29 @@ export function isRedeemableGrant(
 }
 
 /**
- * The badge for a grant whose activation window closed unused. {@link historyDisplayStatus} cannot
- * see the clock, so it still reads "Approved" for one until the next load.
+ * The badge for access that is over but whose server record has not caught up,
+ * {@link historyDisplayStatus} cannot see the clock, so it still reads "Approved" or "Active".
+ * See {@link lapsedInHistory}.
  */
 export const lapsedGrantBadge: TerminalStatusBadge = {
   labelKey: "pamStatusExpired",
-  variant: "warning",
+  variant: "danger",
 };
+
+/**
+ * True for an approved row that reached a terminal list with its access already over: a grant
+ * nobody started, or a lease that lapsed since the load. A row only joins History once its lease
+ * has stopped running, so a record still reading `active` there has run out, and "Active" is
+ * something a terminal list cannot mean.
+ */
+export function lapsedInHistory(
+  row: Pick<MyAccessRequestRow, "status" | "producedLeaseId" | "producedLeaseStatus">,
+): boolean {
+  return (
+    row.status === "approved" &&
+    (row.producedLeaseId == null || row.producedLeaseStatus === "active")
+  );
+}
 
 /** Exported for tests. */
 export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStatusBadge {
@@ -126,7 +154,7 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
     case "canceled":
       return { labelKey: "pamStatusCanceled", variant: "subtle" };
     case "expired":
-      return { labelKey: "pamStatusExpired", variant: "warning" };
+      return { labelKey: "pamStatusExpired", variant: "danger" };
     case "unknown":
     default:
       return { labelKey: "pamStatusUnknown", variant: "subtle" };
@@ -134,8 +162,9 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
 }
 
 /**
- * Only a pending request maps onto the shared access-state model; every other outcome keeps its
- * own label. A lease the requester ended reads Canceled, one an operator ended Revoked.
+ * A pending request and a lease that ran to completion map onto the shared access-state model;
+ * every other outcome keeps its own label. A lease the requester ended reads Canceled, one an
+ * operator cut short reads Revoked, and one that simply ran out reads "Session ended".
  */
 export function historyDisplayStatus(
   request: Pick<AccessRequestView, "status" | "producedLeaseId" | "producedLeaseStatus">,
@@ -153,10 +182,12 @@ export function historyDisplayStatus(
       return terminal("pamStatusCanceled", "subtle");
     }
     if (request.producedLeaseStatus === "revoked") {
-      return terminal("pamStatusRevoked", "subtle");
+      return terminal("pamStatusRevoked", "danger");
     }
-    // `expired`, plus the SDK's `unknown` default.
-    return terminal("pamStatusExpired", "warning");
+    // `expired`, plus the SDK's `unknown` default: a lease that simply ran its course, which the
+    // shared pill already words as "Session ended". Distinct from a request that expired
+    // undecided, that one never issued a lease and reads as blocked.
+    return { badgeState: { kind: "expired" }, statusBadge: null };
   }
   if (request.status === "pending") {
     return { badgeState: { kind: "pending" }, statusBadge: null };
@@ -200,6 +231,18 @@ export function resolveResolver(
   };
 }
 
+/** The log is oldest first, so the last human Deny is the one that ended the request. */
+export function findFinalDeny(decisions: AccessRequestDecisionView[]): FinalDeny | null {
+  const deny = [...decisions]
+    .reverse()
+    .find((d) => d.decider !== "automatic" && d.verdict === "deny");
+  if (deny == null) {
+    return null;
+  }
+  const approver = humanApprover(deny);
+  return { name: approver?.name || approver?.email || null, at: deny.decidedAt };
+}
+
 export function toRequestRow(request: AccessRequestView, names: ResolvedNames): MyAccessRequestRow {
   const cipherId = uuidAsString(request.cipherId);
   const collectionId = uuidAsString(request.collectionId);
@@ -217,11 +260,15 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
     leaseNotBefore: request.leaseNotBefore,
     leaseNotAfter: request.leaseNotAfter,
     ...resolveResolver(request.status, request.decisions),
+    requester: request.requesterName || request.requesterEmail || "",
+    requesterEmail: request.requesterEmail ?? null,
+    finalDeny: findFinalDeny(request.decisions),
     // Falls back to the decision log when no human decided, e.g. an automatic denial.
     approverComment:
       human?.comment ?? request.decisions.find((d) => d.comment != null)?.comment ?? null,
     producedLeaseId: request.producedLeaseId == null ? null : uuidAsString(request.producedLeaseId),
     producedLeaseStatus: request.producedLeaseStatus ?? null,
+    producedLeaseNotAfter: request.producedLeaseNotAfter ?? null,
     // Defaults; buildMyAccessRequestRows fills these in for an original whose lease was extended.
     extendedBySeconds: null,
     extendedUntil: null,

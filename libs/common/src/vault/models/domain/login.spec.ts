@@ -34,6 +34,7 @@ describe("Login DTO", () => {
     expect(data.passwordRevisionDate).toBeUndefined();
     expect(data.totp).toBeUndefined();
     expect(data.autofillOnPageLoad).toBeUndefined();
+    expect(data.httpAuthenticationEnabled).toBeUndefined();
     expect(data.uris).toBeUndefined();
     expect(data.fido2Credentials).toBeUndefined();
   });
@@ -47,6 +48,7 @@ describe("Login DTO", () => {
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
       totp: "123",
       autofillOnPageLoad: false,
+      httpAuthenticationEnabled: true,
       fido2Credentials: [fido2CredentialData],
     };
     const login = new Login(data);
@@ -54,6 +56,7 @@ describe("Login DTO", () => {
     expect(login).toEqual({
       passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
       autofillOnPageLoad: false,
+      httpAuthenticationEnabled: true,
       username: { encryptedString: "username", encryptionType: 0 },
       password: { encryptedString: "password", encryptionType: 0 },
       totp: { encryptedString: "123", encryptionType: 0 },
@@ -82,6 +85,7 @@ describe("Login DTO", () => {
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
       totp: "123",
       autofillOnPageLoad: false,
+      httpAuthenticationEnabled: true,
       fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
     };
     const login = new Login(data);
@@ -154,6 +158,24 @@ describe("Login DTO", () => {
     it("returns undefined if object is null", () => {
       expect(Login.fromJSON(null)).toBeUndefined();
     });
+
+    it("keeps the HTTP authentication setting", () => {
+      expect(Login.fromJSON({ httpAuthenticationEnabled: true }).httpAuthenticationEnabled).toBe(
+        true,
+      );
+    });
+  });
+
+  describe("fromSdkLogin", () => {
+    it("keeps the HTTP authentication setting", () => {
+      expect(
+        Login.fromSdkLogin({ httpAuthenticationEnabled: true }).httpAuthenticationEnabled,
+      ).toBe(true);
+    });
+
+    it("leaves the HTTP authentication setting unset when the SDK login has none", () => {
+      expect(Login.fromSdkLogin({}).httpAuthenticationEnabled).toBeUndefined();
+    });
   });
 
   describe("toSdkLogin", () => {
@@ -165,6 +187,7 @@ describe("Login DTO", () => {
         passwordRevisionDate: "2022-01-31T12:00:00.000Z",
         totp: "123",
         autofillOnPageLoad: false,
+        httpAuthenticationEnabled: true,
         fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
       };
       const login = new Login(data);
@@ -183,6 +206,7 @@ describe("Login DTO", () => {
         ],
         totp: "123",
         autofillOnPageLoad: false,
+        httpAuthenticationEnabled: true,
         fido2Credentials: [
           {
             credentialId: "credentialId",

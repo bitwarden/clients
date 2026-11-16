@@ -157,11 +157,6 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       allowDesktop,
       userId,
     );
-
-    const allowWeb = await firstValueFrom(
-      this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(userId),
-    );
-    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(allowWeb, userId);
   }
 
   /**
@@ -183,7 +178,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
   /**
    * The clients this peer shares the user's unlock state with.
    *
-   *   browser  ->  desktop and/or web, per the user's settings
+   *   browser  ->  web, and desktop if the user allows it
    *   desktop  ->  browser
    *   web      ->  browser
    */
@@ -192,9 +187,8 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.configService.getFeatureFlag$(FeatureFlag.SharedUnlockPart2),
       this.sharedUnlockSettingsService.unlockSharingDisabled$(userId),
       this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(userId),
-      this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(userId),
     ]).pipe(
-      map(([featureEnabled, sharingDisabled, allowDesktop, allowWeb]) => {
+      map(([featureEnabled, sharingDisabled, allowDesktop]) => {
         if (!featureEnabled || sharingDisabled) {
           return NO_DESTINATIONS;
         }
@@ -203,12 +197,10 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
           return BROWSER_ONLY;
         }
 
-        const destinations: SharedUnlockClient[] = [];
+        // Web is always a destination; only desktop is opt-in.
+        const destinations: SharedUnlockClient[] = ["Web"];
         if (allowDesktop) {
           destinations.push("Desktop");
-        }
-        if (allowWeb) {
-          destinations.push("Web");
         }
 
         return destinations;

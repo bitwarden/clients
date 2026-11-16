@@ -158,4 +158,93 @@ describe("OrganizationBillingClient", () => {
       await expect(sut.redeemAnnualUpgradeOffer(orgId)).rejects.toBeInstanceOf(ErrorResponse);
     });
   });
+
+  describe("purchasePrivilegedControls", () => {
+    it("calls the purchase route with the request body", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      await sut.purchasePrivilegedControls(orgId, { seats: 10, maxAutoscaleSeats: 20 });
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        `/organizations/${orgId}/billing/subscription/privileged-controls/purchase`,
+        { seats: 10, maxAutoscaleSeats: 20 },
+        true,
+        false,
+      );
+    });
+
+    it("propagates errors from the API", async () => {
+      const serverError = new ErrorResponse(null, 400);
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(
+        sut.purchasePrivilegedControls(orgId, { seats: 10, maxAutoscaleSeats: null }),
+      ).rejects.toBe(serverError);
+    });
+  });
+
+  describe("updatePrivilegedControlsSubscription", () => {
+    it("sends the seat adjustment and limit to the correct route", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      const result = await sut.updatePrivilegedControlsSubscription(orgId, {
+        seatAdjustment: 2,
+        maxAutoscaleSeats: null,
+      });
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/organizations/org-123/billing/subscription/privileged-controls",
+        { seatAdjustment: 2, maxAutoscaleSeats: null },
+        true,
+        false,
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it("propagates errors", async () => {
+      const serverError = new ErrorResponse(
+        { Message: "Privileged Controls requires at least 10 seats." },
+        400,
+      );
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(
+        sut.updatePrivilegedControlsSubscription(orgId, {
+          seatAdjustment: -1,
+          maxAutoscaleSeats: null,
+        }),
+      ).rejects.toBe(serverError);
+    });
+  });
+
+  describe("removePrivilegedControls", () => {
+    it("sends a DELETE to the privileged controls route", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      const result = await sut.removePrivilegedControls(orgId);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-123/billing/subscription/privileged-controls",
+        null,
+        true,
+        false,
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it("propagates errors", async () => {
+      const serverError = new ErrorResponse(
+        {
+          Message: "Work with your customer service representative to remove Privileged Controls.",
+        },
+        400,
+      );
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(sut.removePrivilegedControls(orgId)).rejects.toBe(serverError);
+    });
+  });
 });

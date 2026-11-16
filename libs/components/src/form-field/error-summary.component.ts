@@ -1,14 +1,15 @@
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, UntypedFormGroup } from "@angular/forms";
+import { EMPTY, switchMap } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-error-summary",
-  template: ` @if (errorCount > 0) {
-    <i class="bwi bwi-error"></i> {{ "fieldsNeedAttention" | i18n: errorString }}
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: ` @if (errorCount() > 0) {
+    <i class="bwi bwi-error"></i> {{ "fieldsNeedAttention" | i18n: errorCount().toString() }}
   }`,
   host: {
     class: "tw-block tw-text-danger tw-mt-2",
@@ -19,14 +20,16 @@ import { I18nPipe } from "@bitwarden/ui-common";
 export class BitErrorSummaryComponent {
   readonly formGroup = input<UntypedFormGroup>();
 
-  get errorCount(): number {
+  // Descendant status, touched, and pristine changes all surface on the group's `events`.
+  private readonly formEvent = toSignal(
+    toObservable(this.formGroup).pipe(switchMap((form) => form?.events ?? EMPTY)),
+  );
+
+  protected readonly errorCount = computed(() => {
+    this.formEvent();
     const form = this.formGroup();
     return form ? this.getErrorCount(form) : 0;
-  }
-
-  get errorString() {
-    return this.errorCount.toString();
-  }
+  });
 
   private getErrorCount(form: UntypedFormGroup): number {
     return Object.values(form.controls).reduce((acc: number, control: AbstractControl) => {

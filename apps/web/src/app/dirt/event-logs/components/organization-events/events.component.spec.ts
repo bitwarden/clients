@@ -6,14 +6,14 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EventType, EventView } from "@bitwarden/common/dirt/event-logs";
+import { EventSystemUser, EventType, EventView } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ProviderService } from "@bitwarden/common/provider";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { EventExportService } from "../../../../tools/event-export";
@@ -138,6 +138,96 @@ describe("EventsComponent Send access linking", () => {
         "creator-user-id",
       );
       expect(user.name).toBe("sendAccessExternal");
+    });
+  });
+
+  describe("getUserName (PAM Member column)", () => {
+    it("names Privileged Controls for an auto-approved request filed under the requester", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.Pam_AccessRequest_Approved,
+          actingUserId: null,
+          systemUser: EventSystemUser.Pam,
+        },
+        "member-user-id",
+      );
+      expect(user.name).toBe("privilegedControls");
+    });
+
+    it("names Privileged Controls for the lease-expiry sweep", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.Pam_AccessLease_Expired,
+          actingUserId: null,
+          systemUser: EventSystemUser.Pam,
+        },
+        "member-user-id",
+      );
+      expect(user.name).toBe("privilegedControls");
+    });
+
+    it("names the approver when a human decided the request", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.Pam_AccessRequest_Approved,
+          actingUserId: "creator-user-id",
+          systemUser: null,
+        },
+        "creator-user-id",
+      );
+      expect(user.name).toBe("Pat Owner");
+    });
+
+    it("still names the member for a non-PAM system user event", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.OrganizationUser_Revoked,
+          actingUserId: null,
+          systemUser: EventSystemUser.SCIM,
+        },
+        "member-user-id",
+      );
+      expect(user.name).toBe("Jack Smith");
+    });
+  });
+
+  describe("getUserName (invite reminder and resend events)", () => {
+    it("names System for a reminder sent by the scheduled job", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.OrganizationUser_InviteReminderSent,
+          actingUserId: null,
+          userId: null,
+          systemUser: EventSystemUser.ScheduledJob,
+        },
+        null,
+      );
+      expect(user.name).toBe("system");
+    });
+
+    it("names Public API for a resend through the Public API", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.OrganizationUser_Reinvited,
+          actingUserId: null,
+          userId: null,
+          systemUser: EventSystemUser.PublicApi,
+        },
+        null,
+      );
+      expect(user.name).toBe("publicApi");
+    });
+
+    it("names the admin for a resend by an admin", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.OrganizationUser_Reinvited,
+          actingUserId: "creator-user-id",
+          systemUser: null,
+        },
+        "creator-user-id",
+      );
+      expect(user.name).toBe("Pat Owner");
     });
   });
 

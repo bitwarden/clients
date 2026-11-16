@@ -1,4 +1,12 @@
-import { Component, Directive, importProvidersFrom, Input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Directive,
+  effect,
+  importProvidersFrom,
+  input,
+  signal,
+} from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
@@ -7,9 +15,7 @@ import { BehaviorSubject, Observable, of } from "rxjs";
 import { PasswordManagerLogo, SideNavLogo } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { LogoutService } from "@bitwarden/common/auth/logout";
@@ -22,6 +28,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { ProviderService, Provider } from "@bitwarden/common/provider";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BadgeComponent,
@@ -50,45 +57,44 @@ import { ProductSwitcherService } from "../shared/product-switcher.service";
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";
 
+const mockOrgs$ = new BehaviorSubject<Organization[]>([]);
+const mockProviders$ = new BehaviorSubject<Provider[]>([]);
+
+class MockOrganizationService implements Partial<OrganizationService> {
+  organizations$(): Observable<Organization[]> {
+    return mockOrgs$.asObservable();
+  }
+}
+
+class MockProviderService implements Partial<ProviderService> {
+  providers$() {
+    return mockProviders$.asObservable();
+  }
+}
+
+/** Feeds the story's `mockOrgs` arg into the mock organization service. */
 @Directive({
   selector: "[mockOrgs]",
   standalone: false,
 })
-// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
-// eslint-disable-next-line @angular-eslint/directive-class-suffix
-class MockOrganizationService implements Partial<OrganizationService> {
-  private static _orgs = new BehaviorSubject<Organization[]>([]);
+class MockOrgsDirective {
+  readonly mockOrgs = input<Organization[]>([]);
 
-  organizations$(): Observable<Organization[]> {
-    return MockOrganizationService._orgs.asObservable();
-  }
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  set mockOrgs(orgs: Organization[]) {
-    MockOrganizationService._orgs.next(orgs);
+  constructor() {
+    effect(() => mockOrgs$.next(this.mockOrgs()));
   }
 }
 
+/** Feeds the story's `mockProviders` arg into the mock provider service. */
 @Directive({
   selector: "[mockProviders]",
   standalone: false,
 })
-// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
-// eslint-disable-next-line @angular-eslint/directive-class-suffix
-class MockProviderService implements Partial<ProviderService> {
-  private static _providers = new BehaviorSubject<Provider[]>([]);
+class MockProvidersDirective {
+  readonly mockProviders = input<Provider[]>([]);
 
-  providers$() {
-    return MockProviderService._providers.asObservable();
-  }
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  set mockProviders(providers: Provider[]) {
-    MockProviderService._providers.next(providers);
+  constructor() {
+    effect(() => mockProviders$.next(this.mockProviders()));
   }
 }
 
@@ -157,9 +163,8 @@ const mockCoachmarkService: Partial<CoachmarkService> = {
   completeTour: () => Promise.resolve(),
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "story-content",
   template: ``,
   standalone: false,
@@ -183,8 +188,8 @@ const translations: Record<string, string> = {
   skipLink: "Skip link",
   upgradeYourPlan: "Upgrade your plan",
   upgradeNow: "Upgrade now",
-  getAdvancedOnlineSecurityWithBitwardenPremium:
-    "Get advanced online security with Bitwarden premium.",
+  getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized:
+    "Get advanced online security with Bitwarden Premium.",
   loggedInAs: "Logged in as",
   accountSettings: "Account settings",
   getHelp: "Get help",
@@ -198,7 +203,7 @@ export default {
   decorators: [
     positionFixedWrapperDecorator(),
     moduleMetadata({
-      declarations: [MockOrganizationService, MockProviderService, StoryContentComponent],
+      declarations: [MockOrgsDirective, MockProvidersDirective, StoryContentComponent],
       imports: [
         NavigationModule,
         RouterModule,
@@ -267,7 +272,7 @@ export default {
 } as Meta<NavigationProductSwitcherComponent>;
 
 type Story = StoryObj<
-  NavigationProductSwitcherComponent & MockProviderService & MockOrganizationService
+  NavigationProductSwitcherComponent & MockProvidersDirective & MockOrgsDirective
 >;
 
 const Template: Story = {
@@ -376,7 +381,7 @@ export const WithAllOptions: Story = {
  * see the `RealisticSideNav` (v1) and `RealisticSideNavV2` (v2) stories.
  */
 const RealisticTemplate: StoryObj<
-  NavigationProductSwitcherComponent & MockProviderService & MockOrganizationService
+  NavigationProductSwitcherComponent & MockProvidersDirective & MockOrgsDirective
 > = {
   render: (args) => ({
     props: { ...args, logo: PasswordManagerLogo },

@@ -1944,6 +1944,27 @@ describe("AutofillOverlayContentService", () => {
         autofillFieldElement,
       );
     });
+
+    it("stamps the TOTP sub-type marker on a targeted oneTimeCode field", async () => {
+      // Without this marker the inline menu background wiring never activates its
+      // TOTP flow for targeted one time code fields, so the menu either fails to
+      // offer the saved cipher or offers it and does not fill.
+      const targetedOtpField = createAutofillFieldMock({
+        opid: "targeted_field_0_oneTimeCode_0",
+        fieldQualifier: "oneTimeCode",
+        formCategory: "account-login",
+        targeted: true,
+        viewable: true,
+      });
+
+      await autofillOverlayContentService.setupOverlayListeners(
+        autofillFieldElement,
+        targetedOtpField,
+        pageDetailsMock,
+      );
+
+      expect(targetedOtpField.accountCreationFieldType).toBe("totp");
+    });
   });
 
   describe("refreshMenuLayerPosition", () => {
@@ -1961,28 +1982,6 @@ describe("AutofillOverlayContentService", () => {
       );
 
       expect(() => serviceWithoutInlineMenu.refreshMenuLayerPosition()).not.toThrow();
-    });
-  });
-
-  describe("getOwnedInlineMenuTagNames", () => {
-    it("returns tag names from the inline menu content service", () => {
-      inlineMenuContentService.getOwnedTagNames.mockReturnValue(["div", "span"]);
-
-      const result = autofillOverlayContentService.getOwnedInlineMenuTagNames();
-
-      expect(result).toEqual(["div", "span"]);
-    });
-
-    it("returns an empty array if inline menu content service is not available", () => {
-      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
-        domQueryService,
-        domElementVisibilityService,
-        inlineMenuFieldQualificationService,
-      );
-
-      const result = serviceWithoutInlineMenu.getOwnedInlineMenuTagNames();
-
-      expect(result).toEqual([]);
     });
   });
 
@@ -2019,7 +2018,7 @@ describe("AutofillOverlayContentService", () => {
 
   describe("getUnownedTopLayerItems", () => {
     it("returns unowned top layer items from the inline menu content service", () => {
-      const mockElements = document.querySelectorAll("div");
+      const mockElements = Array.from(document.querySelectorAll("div"));
       inlineMenuContentService.getUnownedTopLayerItems.mockReturnValue(mockElements);
 
       const result = autofillOverlayContentService.getUnownedTopLayerItems(true);

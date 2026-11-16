@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
@@ -13,41 +13,36 @@ import { I18nMockService } from "../utils";
 import { TabGroupComponent } from "./tab-group/tab-group.component";
 import { TabsModule } from "./tabs.module";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-tab-active-dummy",
   template: "Router - Active selected",
 })
 class ActiveDummyComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-tab-item-2-dummy",
   template: "Router - Item 2 selected",
 })
 class ItemTwoDummyComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-tab-item-3-dummy",
   template: "Router - Item 3 selected",
 })
 class ItemThreeDummyComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-tab-disabled-dummy",
   template: "Router - Disabled selected",
 })
 class DisabledDummyComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-tab-item-with-child-counter-dummy",
   template: "Router - Item With Child Counter selected",
 })

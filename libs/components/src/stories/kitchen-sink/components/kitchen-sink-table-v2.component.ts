@@ -71,8 +71,14 @@ const PRODUCT_ROWS: ProductRow[] = [
     <bit-table-v2 [tableDef]="table" [filter]="filter">
       <bit-table-toolbar>
         <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+        <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-download">
+          Import from another app
+        </button>
+        <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-upload">
+          Export all items
+        </button>
         <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
-          Add
+          Add new item
         </button>
 
         <bit-filter-menu key="user" placeholderText="User" unsetLabel="All">

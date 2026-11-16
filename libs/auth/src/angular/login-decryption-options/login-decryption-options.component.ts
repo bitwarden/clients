@@ -343,14 +343,10 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       !trustDevice,
     );
 
-    // An untrusted device must not share its unlock state with other clients, so turn both
-    // allow-sharing settings off.
+    // An untrusted device must not share its unlock state with other clients, so turn the
+    // desktop allow-sharing setting off. Web sharing is covered by unlockSharingDisabled.
     if (!trustDevice) {
       await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(
-        false,
-        this.activeAccountId,
-      );
-      await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(
         false,
         this.activeAccountId,
       );

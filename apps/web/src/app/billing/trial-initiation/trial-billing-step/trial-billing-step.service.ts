@@ -13,7 +13,6 @@ import { InitiationPath, PaymentMethodType, PlanType } from "@bitwarden/common/b
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { Cart } from "@bitwarden/pricing";
-import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
   getBillingAddressFromControls,
@@ -69,7 +68,6 @@ export class TrialBillingStepService {
     private accountService: AccountService,
     private apiService: ApiService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private previewInvoiceClient: PreviewInvoiceClient,
     private invoicePreviewService: InvoicePreviewService,
     private subscriptionDiscountService: SubscriptionDiscountService,
   ) {}
@@ -128,42 +126,6 @@ export class TrialBillingStepService {
         }
       }),
     );
-
-  getCosts = async (
-    product: Product,
-    tier: Tier,
-    cadence: Cadence,
-    billingAddressControls: BillingAddressControls,
-    privilegedControls?: PrivilegedControlsSelection,
-    coupons?: string[],
-  ): Promise<{
-    tax: number;
-    total: number;
-  }> => {
-    const billingAddress = getBillingAddressFromControls(billingAddressControls);
-    return await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-      {
-        tier,
-        cadence,
-        passwordManager: {
-          seats: 1,
-          additionalStorage: 0,
-          sponsored: false,
-        },
-        secretsManager:
-          product === "secretsManager"
-            ? {
-                seats: 1,
-                additionalServiceAccounts: 0,
-                standalone: true,
-              }
-            : undefined,
-        privilegedControls,
-      },
-      billingAddress,
-      coupons,
-    );
-  };
 
   /**
    * Previews the trial's direct purchase at the given cadence as a cart

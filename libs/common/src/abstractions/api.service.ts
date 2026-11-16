@@ -10,30 +10,12 @@ import {
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
-import { ProviderAddOrganizationRequest } from "../admin-console/models/request/provider/provider-add-organization.request";
-import { ProviderOrganizationCreateRequest } from "../admin-console/models/request/provider/provider-organization-create.request";
-import { ProviderUserAcceptRequest } from "../admin-console/models/request/provider/provider-user-accept.request";
-import { ProviderUserBulkConfirmRequest } from "../admin-console/models/request/provider/provider-user-bulk-confirm.request";
-import { ProviderUserBulkRequest } from "../admin-console/models/request/provider/provider-user-bulk.request";
-import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
-import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
-import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
-import {
-  ProviderOrganizationOrganizationDetailsResponse,
-  ProviderOrganizationResponse,
-} from "../admin-console/models/response/provider/provider-organization.response";
-import { ProviderUserBulkPublicKeyResponse } from "../admin-console/models/response/provider/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "../admin-console/models/response/provider/provider-user-bulk.response";
-import {
-  ProviderUserResponse,
-  ProviderUserUserDetailsResponse,
-} from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -71,6 +53,24 @@ import { UserKeyResponse } from "../models/response/user-key.response";
 import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { SyncResponse } from "../platform/sync";
+import { ProviderAddOrganizationRequest } from "../provider/models/request/provider-add-organization.request";
+import { ProviderOrganizationCreateRequest } from "../provider/models/request/provider-organization-create.request";
+import { ProviderUserAcceptRequest } from "../provider/models/request/provider-user-accept.request";
+import { ProviderUserBulkConfirmRequest } from "../provider/models/request/provider-user-bulk-confirm.request";
+import { ProviderUserBulkRequest } from "../provider/models/request/provider-user-bulk.request";
+import { ProviderUserConfirmRequest } from "../provider/models/request/provider-user-confirm.request";
+import { ProviderUserInviteRequest } from "../provider/models/request/provider-user-invite.request";
+import { ProviderUserUpdateRequest } from "../provider/models/request/provider-user-update.request";
+import {
+  ProviderOrganizationOrganizationDetailsResponse,
+  ProviderOrganizationResponse,
+} from "../provider/models/response/provider-organization.response";
+import { ProviderUserBulkPublicKeyResponse } from "../provider/models/response/provider-user-bulk-public-key.response";
+import { ProviderUserBulkResponse } from "../provider/models/response/provider-user-bulk.response";
+import {
+  ProviderUserResponse,
+  ProviderUserUserDetailsResponse,
+} from "../provider/models/response/provider-user.response";
 import { UserId } from "../types/guid";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";

@@ -89,10 +89,12 @@ function buildRegisterContentScriptsPolyfill() {
     if (host === "*") {
       host = "[^/]+";
     } else if (host) {
-      host = host
-        .replace(/^[*][.]/, "([^/]+.)*")
-        .replaceAll(/[.]/g, "[.]")
-        .replace(/[*]$/, "[^.]+");
+      // A pattern's host has no port, and matches the host on any port.
+      host =
+        host
+          .replace(/^[*][.]/, "([^/]+.)*")
+          .replaceAll(/[.]/g, "[.]")
+          .replace(/[*]$/, "[^.]+") + "(:[0-9]+)?";
     }
 
     pathname = pathname
@@ -349,8 +351,12 @@ function buildRegisterContentScriptsPolyfill() {
   }
 
   async function isOriginPermitted(url: string) {
+    // Match patterns have no port component; a host-only pattern covers every port of that host.
+    // Safari rejects a pattern that includes a port, so the pattern omits it.
+    const { protocol, hostname } = new URL(url);
+
     return chromeProxy.permissions.contains({
-      origins: [new URL(url).origin + "/*"],
+      origins: [`${protocol}//${hostname}/*`],
     });
   }
 

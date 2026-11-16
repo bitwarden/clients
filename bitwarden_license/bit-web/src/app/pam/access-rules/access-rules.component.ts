@@ -1,5 +1,4 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,6 +11,24 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
+import {
+  AccessRuleFilter,
+  AccessRuleId,
+  AccessRuleView,
+  AccessRuleStatusFilter,
+  accessRuleErrorMessageKey,
+  accessRuleMatchesFilter,
+  classifyAccessRuleError,
+  copyRuleName,
+  filterRulesToToggle,
+} from "@bitwarden/bit-pam";
+import {
+  accessRuleDeactivateConfirmOptions,
+  accessRuleDeleteConfirmOptions,
+  DurationLongPipe,
+  RelativeTimePipe,
+  TimestampPipe,
+} from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -45,22 +62,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import {
-  AccessRuleFilter,
-  AccessRuleId,
-  AccessRuleView,
-  AccessRuleStatusFilter,
-  accessRuleDeactivateConfirmOptions,
-  accessRuleDeleteConfirmOptions,
-  accessRuleErrorMessageKey,
-  accessRuleMatchesFilter,
-  classifyAccessRuleError,
-  copyRuleName,
-  resolveCollectionNames,
-  filterRulesToToggle,
-} from "..";
-import { DurationLongPipe } from "../date/duration-long.pipe";
-import { RelativeTimePipe } from "../date/relative-time.pipe";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
@@ -73,7 +74,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
-    DatePipe,
+    TimestampPipe,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
     BadgeModule,
@@ -128,18 +129,21 @@ export class AccessRulesComponent {
       BitTableV2Component,
     );
 
+  /** Collection name by id, which the search matches a rule's collections against. */
+  private readonly collectionNamesById = computed(
+    () => new Map<string, string>(this.collections().map((c) => [c.id, c.name])),
+  );
+
   /** The table's row test, given the search term and the chips' selections keyed by chip. */
   protected readonly rowMatchesFilter = (
     rule: AccessRuleView,
     values: AccessRuleFilterValues,
-  ): boolean => {
-    const ruleCollectionIds = rule.collections.map(uuidAsString);
-    return accessRuleMatchesFilter(
-      { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
-      resolveCollectionNames(ruleCollectionIds, this.collections()),
+  ): boolean =>
+    accessRuleMatchesFilter(
+      { name: rule.name, enabled: rule.enabled, collections: rule.collections.map(uuidAsString) },
+      this.collectionNamesById(),
       toAccessRuleFilter(values),
     );
-  };
 
   /** The rows the filters leave visible, which select-all spans. */
   private readonly selectableRows = computed(() => this.rulesTable()?.filtered() ?? []);
@@ -214,7 +218,7 @@ export class AccessRulesComponent {
     // Outside the try, so a failed navigation can't follow the success toast with an error.
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("pamAccessRuleCopyCreated"),
+      message: this.i18nService.t("pamAccessRuleCopyCreatedSharedFolder"),
     });
     // `renaming` opens the edit page with the name field focused.
     await this.router.navigate([created.id], {
@@ -273,9 +277,7 @@ export class AccessRulesComponent {
   };
 
   protected readonly remove = async (rule: AccessRuleView): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog(
-      accessRuleDeleteConfirmOptions(rule.name),
-    );
+    const confirmed = await this.dialogService.openSimpleDialog(accessRuleDeleteConfirmOptions());
     if (!confirmed) {
       return;
     }

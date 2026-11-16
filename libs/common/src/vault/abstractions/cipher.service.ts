@@ -66,6 +66,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherListViewsIncludingRestricted$(
     userId: UserId,
   ): Observable<CipherListView[] | CipherView[]>;
+  /** Not filtered: includes restricted ciphers, as do {@link get} and {@link getAll}. */
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -118,6 +119,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     ids: string[],
   ): Promise<CipherView[]>;
+  /** Excludes restricted ciphers; a revealed view (`partial` false) can match. */
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
@@ -131,10 +133,25 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     includeMemberItems?: boolean,
   ): Promise<CipherView[]>;
   /**
+   * Same as {@link getAllFromApiForOrganization}, but ciphers that fail to decrypt are returned
+   * separately in `failures`.
+   */
+  abstract getAllFromApiForOrganizationWithFailures(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<DecryptAllCiphersResult>;
+  /**
    * Gets ciphers belonging to the specified organization that the user has explicit collection level access to.
    * Ciphers that are not assigned to any collections are only included for users with admin access.
    */
   abstract getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
+  /**
+   * Same as {@link getManyFromApiForOrganization}, but ciphers that fail to decrypt are returned
+   * separately in `failures`.
+   */
+  abstract getManyFromApiForOrganizationWithFailures(
+    organizationId: string,
+  ): Promise<DecryptAllCiphersResult>;
   /**
    * Gets all Login ciphers belonging to the specified organization, including those in default
    * user collections. Ciphers that fail to decrypt are returned separately in `failures`.
@@ -266,6 +283,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<void>;
   /**
    * Update the local store of CipherData with the provided data. Values are upserted into the existing store.
+   * Never replaces a stored restricted cipher with an unrestricted copy; {@link replace} stays authoritative.
    *
    * @param cipher The cipher data to upsert. Can be a single CipherData object or an array of CipherData objects.
    * @param userId Optional user ID for whom the cipher data is being upserted.

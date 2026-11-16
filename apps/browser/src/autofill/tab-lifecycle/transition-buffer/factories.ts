@@ -1,6 +1,8 @@
-import { defer, finalize, merge, Observable } from "rxjs";
+import { merge, Observable } from "rxjs";
 
 import { StateProvider } from "@bitwarden/state";
+
+import { usingDisposable } from "../../rx/using-disposable";
 
 import { DefaultTransitionBuffer } from "./default";
 import { BUFFERED_TRANSITIONS, PersistentTransitionBuffer } from "./persistent";
@@ -18,12 +20,10 @@ import type { BufferedTransitionReport } from "./types";
 export function transitionBuffer$(
   sources: BufferSources & { now: () => number },
 ): Observable<BufferedTransitionReport> {
-  return defer(() => {
-    const buffer = new DefaultTransitionBuffer(sources.now);
-    return merge(buffer.resolved$, feedTransitionBuffer(buffer, sources)).pipe(
-      finalize(() => buffer[Symbol.dispose]()),
-    );
-  });
+  return usingDisposable(
+    () => new DefaultTransitionBuffer(sources.now),
+    (buffer) => merge(buffer.resolved$, feedTransitionBuffer(buffer, sources)),
+  );
 }
 
 /**
@@ -40,13 +40,12 @@ export function transitionBuffer$(
 export function persistentTransitionBuffer$(
   sources: BufferSources & { stateProvider: StateProvider; now: () => number },
 ): Observable<BufferedTransitionReport> {
-  return defer(() => {
-    const buffer = new PersistentTransitionBuffer(
-      sources.stateProvider.getGlobal(BUFFERED_TRANSITIONS),
-      sources.now,
-    );
-    return merge(buffer.resolved$, feedTransitionBuffer(buffer, sources)).pipe(
-      finalize(() => buffer[Symbol.dispose]()),
-    );
-  });
+  return usingDisposable(
+    () =>
+      new PersistentTransitionBuffer(
+        sources.stateProvider.getGlobal(BUFFERED_TRANSITIONS),
+        sources.now,
+      ),
+    (buffer) => merge(buffer.resolved$, feedTransitionBuffer(buffer, sources)),
+  );
 }

@@ -5,7 +5,7 @@
     </ng-container>
   </popup-header>
 
-  <div class="tw-bg-background-alt">
+  <div>
     @if (showSpotlightNudge$ | async) {
       @if (canOverrideBrowserAutofillSetting) {
         <div class="tw-mb-4">
@@ -215,7 +215,7 @@
           <i
             appA11yTitle="{{ 'opensInANewWindow' | i18n }}"
             aria-hidden="true"
-            class="bwi bwi-fw bwi-external-link bwi-lg tw-text-muted"
+            class="bwi bwi-fw bwi-external-link bwi-lg tw-text-fg-body-subtle"
             slot="end"
           ></i>
         </button>

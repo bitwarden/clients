@@ -483,10 +483,11 @@ surface AccessAuditLog {
         -- and exports, blank. A lease_revoked whose actor is its requester is shown
         -- as the holder ending their own access, not as an operator revoke.
         --
-        -- CSV columns: timestamp (ISO 8601 UTC), event label, actor name and email,
-        -- requester name and email, item, collection, rule, target system, access
-        -- connector, granted duration (lease_activated), extended-until
-        -- (lease_extended), detail, automated, incomplete, request id, lease id.
+        -- CSV columns: timestamp (ISO 8601 in the exporter's local time, with the
+        -- UTC offset), event label, actor name and email, requester name and email,
+        -- item, collection, rule, target system, access connector, granted duration
+        -- (lease_activated), extended-until (lease_extended, written like timestamp),
+        -- detail, automated, incomplete, request id, lease id.
         -- `detail` exports the free text as written: requester reasons, approver
         -- comments and denial reasons, and revoke reasons. See the open question.
         --

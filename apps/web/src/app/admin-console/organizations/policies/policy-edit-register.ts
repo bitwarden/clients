@@ -2,7 +2,7 @@ import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import {
   AutoConfirmPolicy,
   DesktopAutotypeDefaultSettingPolicy,
-  DisableSendPolicy,
+  DesktopAutotypeGaPolicy,
   FillAssistPolicy,
   MasterPasswordPolicy,
   OrganizationDataOwnershipPolicy,
@@ -13,7 +13,6 @@ import {
   ResetPasswordPolicy,
   RestrictedItemTypesPolicy,
   SendControlsPolicy,
-  SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
   UriMatchDefaultPolicy,
@@ -32,12 +31,12 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new SingleOrgPolicy(),
   new RequireSsoPolicy(),
   new OrganizationDataOwnershipPolicy(),
-  new DisableSendPolicy(),
-  new SendOptionsPolicy(),
   new SendControlsPolicy(),
   new RestrictedItemTypesPolicy(),
   // Autotype MVP only: only displayed when the Autotype MVP feature flag is on and GA is off
   new DesktopAutotypeDefaultSettingPolicy(),
+  // Autotype GA only: only displayed when the Autotype GA feature flag is on and MVP is off
+  new DesktopAutotypeGaPolicy(),
   new UriMatchDefaultPolicy(),
   new FillAssistPolicy(),
   new AutoConfirmPolicy(),

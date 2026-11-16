@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -19,6 +20,10 @@ import {
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { CipherReportComponent } from "./cipher-report.component";
+
+class TestCipherReportComponent extends CipherReportComponent {
+  protected readonly vfo1Enabled = signal(false);
+}
 
 describe("CipherReportComponent", () => {
   let component: CipherReportComponent;
@@ -44,7 +49,7 @@ describe("CipherReportComponent", () => {
     mockAccountService.activeAccount$ = of({ id: "user1" } as any);
     mockAdminConsoleCipherFormConfigService = mock<AdminConsoleCipherFormConfigService>();
 
-    component = new CipherReportComponent(
+    component = new TestCipherReportComponent(
       mockCipherService,
       mock<DialogService>(),
       mock<PasswordRepromptService>(),

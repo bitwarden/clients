@@ -20,6 +20,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
+  BiometricsStatus as SdkBiometricsStatus,
   ipcRequestAuthenticateBiometrics,
   ipcRequestGetBiometricsStatus,
   ipcRequestUnlockBiometrics,
@@ -190,6 +191,12 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
           fromTsUserId(id),
           AbortSignal.timeout(this.BIOMETRICS_NO_INTERACTION_TIMEOUT),
         );
+        // The status comes from the desktop app, so "not enabled" means not enabled there.
+        // Mirrors the legacy translation in the desktop's BiometricMessageHandlerService.
+        if (status === SdkBiometricsStatus.NotEnabled) {
+          return BiometricsStatus.NotEnabledInConnectedDesktopApp;
+        }
+
         return toTsBiometricsStatus(status);
       } catch {
         return BiometricsStatus.DesktopDisconnected;

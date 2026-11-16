@@ -239,6 +239,16 @@ describe("background browser biometrics service tests", function () {
       expect(result).toBe(BiometricsStatus.UnlockNeeded);
       expect(nativeMessagingBackground.callCommand).not.toHaveBeenCalled();
     });
+
+    it("returns NotEnabledInConnectedDesktopApp when the desktop app reports NotEnabled over SDK IPC", async () => {
+      platformUtilsService.isSafari.mockReturnValue(false);
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      jest.mocked(ipcRequestGetBiometricsStatus).mockResolvedValue(SdkBiometricsStatus.NotEnabled);
+
+      const result = await service.getBiometricsStatusForUser(userId);
+
+      expect(result).toBe(BiometricsStatus.NotEnabledInConnectedDesktopApp);
+    });
   });
 
   describe("canEnableBiometricUnlock", () => {

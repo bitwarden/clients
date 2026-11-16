@@ -2,13 +2,13 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+
+import { SendPolicyService } from "../services/send-policy.service";
 
 import { NewSendDropdownV2Component } from "./new-send-dropdown-v2.component";
 
@@ -38,12 +38,10 @@ describe("NewSendDropdownV2Component", () => {
         { provide: AccountService, useValue: accountService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradeService },
         { provide: I18nService, useValue: i18nService },
-        { provide: PolicyService, useValue: mock<PolicyService>() },
         {
-          provide: ConfigService,
+          provide: SendPolicyService,
           useValue: {
-            getFeatureFlag$: () => of(false),
-            getFeatureFlag: () => Promise.resolve(false),
+            allowedSendTypes$: of([]),
           },
         },
       ],

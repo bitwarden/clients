@@ -1,5 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { adaptInvoicePreviewToCart, InvoicePreviewFlowContext } from "@bitwarden/pricing";
 import { SubscriptionPreview } from "@bitwarden/subscription";
@@ -25,6 +26,18 @@ export class SubscriptionPreviewService {
     );
 
     return response.toDomain(cart);
+  };
+
+  hasAccountSubscription = async (): Promise<boolean> => {
+    try {
+      await this.subscriptionPreviewClient.getAccountSubscriptionPreview();
+      return true;
+    } catch (error) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return false;
+      }
+      throw error;
+    }
   };
 
   getOrganizationSubscriptionPreview = async (

@@ -1,9 +1,20 @@
 import { DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Observable, combineLatest, concatMap, from, map } from "rxjs";
-
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  BehaviorSubject,
+  EMPTY,
+  Observable,
+  combineLatest,
+  concatMap,
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  from,
+  map,
+  merge,
+  switchMap,
+  take,
+} from "rxjs";
 
 import {
   AccessEventService,
@@ -14,7 +25,12 @@ import {
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
-} from "..";
+  isLeaseLive,
+} from "@bitwarden/bit-pam";
+import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
   AccessNameResolverService,
@@ -29,6 +45,7 @@ import {
   extensionsByLeaseId,
   isRedeemableGrant,
   lapsedGrantBadge,
+  lapsedInHistory,
   resolvedOrSubmittedMs,
   toLeaseRow,
   toRequestRow,
@@ -46,7 +63,9 @@ export class MyAccessService {
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly accessEvents = inject(AccessEventService);
   private readonly accessRefresh = inject(AccessRefreshService);
+  private readonly accountService = inject(AccountService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ticker = inject(AccessBadgeTickerService);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _leases$ = new BehaviorSubject<AccessLeaseView[]>([]);
@@ -70,8 +89,9 @@ export class MyAccessService {
   ]).pipe(
     map(([leases, requests, names]) => {
       const extByLease = extensionsByLeaseId(requests);
+      const nowMs = Date.now();
       return leases
-        .filter((l) => l.status === "active")
+        .filter((l) => l.status === "active" && isLeaseLive(l, nowMs))
         .map((l) => toLeaseRow(l, names, extByLease.get(uuidAsString(l.id))));
     }),
   );
@@ -108,7 +128,8 @@ export class MyAccessService {
 
   /**
    * Terminal requests, newest first. A grant with an active lease joins once the lease ends, and
-   * an unactivated grant that lapsed gets {@link lapsedGrantBadge}.
+   * anything whose access is already over gets {@link lapsedGrantBadge}, see
+   * {@link lapsedInHistory}.
    */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this.rows$,
@@ -124,11 +145,7 @@ export class MyAccessService {
             !isRedeemableGrant(r, nowMs) &&
             !(r.producedLeaseId != null && activeLeaseIds.has(r.producedLeaseId)),
         )
-        .map((r) =>
-          r.status === "approved" && r.producedLeaseId == null
-            ? { ...r, statusBadge: lapsedGrantBadge }
-            : r,
-        )
+        .map((r) => (lapsedInHistory(r) ? { ...r, statusBadge: lapsedGrantBadge } : r))
         .sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a))
         .slice(0, MY_ACCESS_PAGE_LIMIT);
     }),
@@ -143,9 +160,16 @@ export class MyAccessService {
   );
 
   constructor() {
-    // `concatMap` so two pushes can't interleave their loads and leave the subjects out of step.
-    this.accessEvents
-      .accessChanged$()
+    // A window closing and a push arriving are both reasons to re-read, so they share one
+    // stream: `concatMap` only serialises within a stream, and two of them could overlap and
+    // land out of order, leaving the subjects showing the older read.
+    const lapsed$ = combineLatest([this._leases$, this._requests$]).pipe(
+      map(([leases, requests]) => nextLapseMs(leases, requests)),
+      distinctUntilChanged(),
+      switchMap((endMs) => (endMs == null ? EMPTY : this.lapseAt(endMs))),
+    );
+
+    merge(this.accessEvents.accessChanged$(), lapsed$)
       .pipe(
         concatMap(() => from(this.load())),
         takeUntilDestroyed(this.destroyRef),
@@ -153,16 +177,28 @@ export class MyAccessService {
       .subscribe();
   }
 
+  /**
+   * Waits on the badges' shared clock rather than a timer: `setTimeout` fires immediately for a
+   * delay past 2^31-1 ms (~24.8 days), so a distant end would reload in a loop.
+   */
+  private lapseAt(endMs: number): Observable<number> {
+    return this.ticker.ticks$.pipe(
+      filter((nowMs) => nowMs >= endMs),
+      take(1),
+    );
+  }
+
   async load(): Promise<void> {
     this._loading$.next(true);
     this._loadError$.next(null);
     try {
-      const [requests, leases] = await Promise.all([
+      const [requests, leases, account] = await Promise.all([
         this.requestsApi.listMyAccessRequests(),
         this.leasesApi.listMyLeases(),
+        firstValueFrom(this.accountService.activeAccount$),
       ]);
       const names = await this.nameResolver.resolveNames(refsFor(requests, leases));
-      this._requests$.next(requests);
+      this._requests$.next(requests.map((request) => withRequester(request, account)));
       this._leases$.next(leases);
       this._names$.next(names);
     } catch (e) {
@@ -241,6 +277,17 @@ export class MyAccessService {
   }
 }
 
+/**
+ * The server leaves the requester's name and email off this read, since every request on it is the
+ * caller's own, so they are filled in from the active account.
+ */
+function withRequester(request: AccessRequestView, account: Account | null): AccessRequestView {
+  if (account == null || request.requesterName || request.requesterEmail) {
+    return request;
+  }
+  return { ...request, requesterName: account.name, requesterEmail: account.email };
+}
+
 function refsFor(
   requests: AccessRequestView[],
   leases: AccessLeaseView[],
@@ -255,4 +302,21 @@ function refsFor(
       collectionId: uuidAsString(l.collectionId),
     })),
   ];
+}
+
+/**
+ * When the soonest window closes, across both things that can close one: a running lease, and an
+ * approved grant nobody started. The grants matter as much as the leases, the server refuses to
+ * activate past `leaseNotAfter`, so a lapsed grant has to leave Pending for History, and nothing
+ * announces that either.
+ */
+function nextLapseMs(leases: AccessLeaseView[], requests: AccessRequestView[]): number | null {
+  const nowMs = Date.now();
+  const ends = [
+    ...leases.filter((l) => l.status === "active").map((l) => Date.parse(l.notAfter)),
+    ...requests
+      .filter((r) => r.status === "approved" && r.producedLeaseId == null)
+      .map((r) => Date.parse(r.leaseNotAfter)),
+  ].filter((ms) => Number.isFinite(ms) && ms > nowMs);
+  return ends.length === 0 ? null : Math.min(...ends);
 }

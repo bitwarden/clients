@@ -83,23 +83,21 @@
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
 
-    <bit-cell *bitCellDef="table.columns.name; let row">
+    <bit-cell
+      *bitCellDef="table.columns.name; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
       <!-- Decorative: the folder name beside it already names the row. -->
       <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
-      <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
+      <!-- An anchor, not just the row click, so keyboard users can reach the folder and middle- and
+           right-click behave as expected on the name. -->
       <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
         <a
-          bitLink
-          truncate
+          vaultTableRowName
           [bitTooltip]="row.name"
           [attr.id]="'shared-folders_link_name-' + row.id"
-          [routerLink]="
-            vaultScopeCommands({
-              type: VaultScopeType.Organization,
-              organizationId: row.organizationId,
-              collectionId: row.id,
-            })
-          "
+          [routerLink]="sharedFolderCommands(row)"
         >
           {{ row.name }}
         </a>
@@ -132,7 +130,11 @@
   <bit-column sortable [sortFn]="sortByPermission" width="minmax(200px, 320px)">
     <bit-header-cell>{{ "permissions" | i18n }}</bit-header-cell>
 
-    <bit-cell *bitCellDef="table.columns.permissions; let row">
+    <bit-cell
+      *bitCellDef="table.columns.permissions; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
       {{ permissionMessageKey(row.permissions) | i18n }}
     </bit-cell>
   </bit-column>
@@ -141,7 +143,13 @@
   <bit-column sortable width="minmax(100px, 160px)">
     <bit-header-cell>{{ "items" | i18n }}</bit-header-cell>
 
-    <bit-cell *bitCellDef="table.columns.items; let row">{{ row.items }}</bit-cell>
+    <bit-cell
+      *bitCellDef="table.columns.items; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
+      {{ row.items }}
+    </bit-cell>
   </bit-column>
 
   <!-- Options -->
@@ -158,7 +166,11 @@
       </div>
     </bit-cell>
 
-    <bit-cell *bitCellDef="table.columns.options; let row">
+    <bit-cell
+      *bitCellDef="table.columns.options; let row"
+      class="tw-cursor-pointer"
+      (click)="onCellActivate(row, $event)"
+    >
       <!-- In the `end` slot so the cell's flex-grow middle element pushes the trigger hard right,
            anchoring it to the same position on every row. -->
       <div slot="end">
