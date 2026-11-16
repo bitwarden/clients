@@ -1,19 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SelectItemView } from "@bitwarden/components";
 
 import {
   GroupAccessPolicyView,
+  PotentialGranteeView,
+  ProjectPeopleAccessPoliciesView,
+  ProjectServiceAccountsAccessPoliciesView,
+  SecretAccessPoliciesView,
   ServiceAccountAccessPolicyView,
+  ServiceAccountGrantedPoliciesView,
+  ServiceAccountPeopleAccessPoliciesView,
   UserAccessPolicyView,
-} from "../../../../models/view/access-policies/access-policy.view";
-import { PotentialGranteeView } from "../../../../models/view/access-policies/potential-grantee.view";
-import { ProjectPeopleAccessPoliciesView } from "../../../../models/view/access-policies/project-people-access-policies.view";
-import { ProjectServiceAccountsAccessPoliciesView } from "../../../../models/view/access-policies/project-service-accounts-access-policies.view";
-import { SecretAccessPoliciesView } from "../../../../models/view/access-policies/secret-access-policies.view";
-import { ServiceAccountGrantedPoliciesView } from "../../../../models/view/access-policies/service-account-granted-policies.view";
-import { ServiceAccountPeopleAccessPoliciesView } from "../../../../models/view/access-policies/service-account-people-access-policies.view";
+} from "@bitwarden/bit-sm";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SelectItemView } from "@bitwarden/components";
 
 import { ApItemEnum, ApItemEnumUtil } from "./enums/ap-item.enum";
 import { ApPermissionEnum, ApPermissionEnumUtil } from "./enums/ap-permission.enum";
