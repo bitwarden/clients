@@ -1198,8 +1198,8 @@ describe("VaultBatchBarService", () => {
       );
     });
 
-    it("opens BulkMoveDialog with correct cipher IDs", async () => {
-      const cipher = makeCipher();
+    it("opens BulkMoveDialog with each cipher's ID and current folder", async () => {
+      const cipher = makeCipher({ folderId: "folder-1" });
       service.selection.select({ cipher });
       mockDialogService.open.mockReturnValue({
         closed: of(BulkMoveDialogResult.Canceled),
@@ -1210,7 +1210,7 @@ describe("VaultBatchBarService", () => {
       expect(mockDialogService.open).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
-          data: expect.objectContaining({ cipherIds: [cipher.id] }),
+          data: { ciphers: [{ id: cipher.id, folderId: "folder-1" }] },
         }),
       );
     });

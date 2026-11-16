@@ -2144,11 +2144,23 @@
   "deletedItems": {
     "message": "Items sent to trash"
   },
-  "movedItem": {
-    "message": "Item moved"
+  "itemAddedToFolder": {
+    "message": "Item added to folder"
   },
-  "movedItems": {
-    "message": "Items moved"
+  "itemsAddedToFolder": {
+    "message": "Items added to folder"
+  },
+  "itemNowHasNoFolder": {
+    "message": "Item now has no folder"
+  },
+  "itemsNowHaveNoFolder": {
+    "message": "Items now have no folder"
+  },
+  "someItemsAlreadyInFolder": {
+    "message": "Some selected items are already in this folder. Only the others will be added."
+  },
+  "someItemsAlreadyHaveNoFolder": {
+    "message": "Some selected items already have no folder. Only the others will be changed."
   },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"

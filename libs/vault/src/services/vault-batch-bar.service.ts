@@ -713,8 +713,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       return;
     }
 
-    const selectedCipherIds = ciphers.map((c) => uuidAsString(c.id as unknown as CipherId));
-    if (selectedCipherIds.length === 0) {
+    if (ciphers.length === 0) {
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("nothingSelected"),
@@ -723,7 +722,12 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     }
 
     const dialog = openBulkMoveDialog(this.dialogService, {
-      data: { cipherIds: selectedCipherIds },
+      data: {
+        ciphers: ciphers.map((c) => ({
+          id: uuidAsString(c.id as unknown as CipherId),
+          folderId: c.folderId == null ? null : String(c.folderId),
+        })),
+      },
     });
 
     const result = await lastValueFrom(dialog.closed);
