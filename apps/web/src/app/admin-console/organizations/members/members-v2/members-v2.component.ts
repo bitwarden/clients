@@ -27,7 +27,12 @@ import { RegistrationUserAddIcon, SearchFolder } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserType,
+  PolicyType,
+  RevocationReasonMessageMap,
+  RevocationReasonType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -596,6 +601,14 @@ export class MembersV2Component {
 
   protected statusBadge(status: OrganizationUserStatusType): StatusBadge | undefined {
     return STATUS_BADGES.find((badge) => badge.status === status);
+  }
+
+  /** Revoked members' badges explain why they were revoked, matching the v1 table. */
+  protected statusTooltipKey(member: OrganizationUserView): string | undefined {
+    if (member.status !== OrganizationUserStatusType.Revoked) {
+      return undefined;
+    }
+    return RevocationReasonMessageMap[member.revocationReason ?? RevocationReasonType.Unknown];
   }
 
   protected readonly sortByName = (a: OrganizationUserView, b: OrganizationUserView) =>
