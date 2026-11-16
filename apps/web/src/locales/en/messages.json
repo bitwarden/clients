@@ -18819,7 +18819,7 @@
     "message": "Review access requests, approvals, and access rule changes across your organization.",
     "description": "Description shown below the Audit log page title."
   },
-  "pamAuditCustomRange": {
+  "pamAuditCustomRangeBetween": {
     "message": "$START$ to $END$",
     "description": "The custom range in force on the audit log's Date filter, shown on the filter chip and as the selected option in its menu.",
     "placeholders": {

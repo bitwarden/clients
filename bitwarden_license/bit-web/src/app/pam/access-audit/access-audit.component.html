@@ -257,7 +257,6 @@
         } @else if (linkedMember(row.actorId, row.actor); as member) {
           <a
             href="#"
-            class="tw-text-main"
             id="access-audit_link_actor-{{ rowIndex().get(row) }}"
             [title]="member.email"
             (click)="openMemberEvents($event, member)"
@@ -281,7 +280,6 @@
         @if (linkedMember(row.requesterId, row.requester); as member) {
           <a
             href="#"
-            class="tw-text-main"
             id="access-audit_link_requester-{{ rowIndex().get(row) }}"
             [title]="member.email"
             (click)="openMemberEvents($event, member)"
@@ -305,7 +303,6 @@
         @if (row.cipherName && row.cipherId) {
           <a
             href="#"
-            class="tw-text-main"
             id="access-audit_link_item-{{ rowIndex().get(row) }}"
             [bitTooltip]="row.collectionName"
             (click)="openCipherEvents($event, row)"

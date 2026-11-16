@@ -360,7 +360,7 @@ export class AccessAuditComponent implements OnInit {
       // The year rides on the end date alone, unless the range spans two years.
       const spansYears = from.getFullYear() !== to.getFullYear();
       return this.i18nService.t(
-        "pamAuditCustomRange",
+        "pamAuditCustomRangeBetween",
         formatChipDate(this.locale, from, spansYears),
         formatChipDate(this.locale, to, true),
       );

@@ -139,7 +139,7 @@ describe("AccessAuditComponent", () => {
             recentlyActivePast7Days: "Past 7 days",
             recentlyActivePast30Days: "Past 30 days",
             custom: "Custom",
-            pamAuditCustomRange: "__$1__ to __$2__",
+            pamAuditCustomRangeBetween: "__$1__ to __$2__",
             pamAuditSubheading: "Review access requests.",
             date: "Date",
             pamAuditCustomRangeFrom: "From __$1__",
@@ -1352,7 +1352,6 @@ describe("AccessAuditComponent", () => {
       const links = fixture.nativeElement.querySelectorAll("a[id^=access-audit_link_]");
       for (const link of links) {
         expect(link.classList).not.toContain("tw-text-primary-600");
-        expect(link.classList).toContain("tw-text-main");
       }
     });
 
