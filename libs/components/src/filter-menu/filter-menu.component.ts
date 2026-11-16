@@ -453,8 +453,9 @@ export class FilterMenuComponent
   private readonly hostCounts = computed(() => {
     const multiple = this.multiple();
     const options: FilterOptionRow[] = [];
-    // `null` pins nothing: the "All" row.
-    const pinned: unknown[] = [null];
+    // `null` pins nothing: the "All" row, which only a single-select chip shows.
+    const pinned: unknown[] = multiple ? [] : [null];
+    const firstOption = pinned.length;
     for (const option of this.allOptions()) {
       if (option.count() != null) {
         continue;
@@ -468,8 +469,8 @@ export class FilterMenuComponent
     }
     const counts = this.filterHost?.optionCounts?.(this.key(), pinned);
     return {
-      unset: counts?.[0],
-      options: new Map(options.map((option, index) => [option, counts?.[index + 1]])),
+      unset: multiple ? undefined : counts?.[0],
+      options: new Map(options.map((option, index) => [option, counts?.[firstOption + index]])),
     };
   });
 
