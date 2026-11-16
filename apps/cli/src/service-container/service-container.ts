@@ -787,7 +787,6 @@ export class ServiceContainer {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
-      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -1132,6 +1131,7 @@ export class ServiceContainer {
       this.restrictedItemTypesService,
       this.configService,
       this.sdkService,
+      this.logService,
     );
 
     this.individualExportService = new IndividualVaultExportService(

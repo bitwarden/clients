@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Skrivbordsapp",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Skrivbordsapp $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2646,7 +2647,7 @@
     "message": "Inga objekt matchar de valda filtren"
   },
   "noItemsMatchTheSelectedFilters": {
-    "message": "No items match the selected filters"
+    "message": "Inga poster matchar de valda filtren"
   },
   "noItemsMatchSearchTerm": {
     "message": "Inga objekt matchar ”$SEARCH_TERM$”",
@@ -3637,31 +3638,31 @@
     }
   },
   "selectVault": {
-    "message": "Select vault",
+    "message": "Välj valv",
     "description": "Progress label of the import step where the user picks which vault to import into."
   },
   "selectLocation": {
-    "message": "Select location",
+    "message": "Välj plats",
     "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
   },
   "selectAVaultTitle": {
-    "message": "Select a vault"
+    "message": "Välj ett valv"
   },
   "selectALocationTitle": {
-    "message": "Select a location"
+    "message": "Välj en plats"
   },
   "importDestinationDescription": {
-    "message": "Choose where to import these items."
+    "message": "Välj var de här posterna ska importeras."
   },
   "importMyItemsOption": {
-    "message": "My items",
+    "message": "Mina poster",
     "description": "Card title for the user's own collection inside an organization that centralizes ownership."
   },
   "importVisibleOnlyToYou": {
-    "message": "Visible only to you"
+    "message": "Endast synlig för dig"
   },
   "importMyItemsOwnedBy": {
-    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "message": "Ägs av $ORGANIZATION$, men är endast synlig för dig",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3670,16 +3671,16 @@
     }
   },
   "importOrganizationVault": {
-    "message": "Organization vault"
+    "message": "Organisationsvalv"
   },
   "importSharedWithOnePerson": {
-    "message": "Shared with one person"
+    "message": "Delat med en person"
   },
   "importFamilyVault": {
-    "message": "Family vault"
+    "message": "Familjevalv"
   },
   "importMoveAllItemsIntoSharedFolderA": {
-    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "message": "Flytta alla poster till en delad mapp i $ORGANIZATION$",
     "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
     "placeholders": {
       "organization": {
@@ -3689,7 +3690,7 @@
     }
   },
   "importMoveAllItemsIntoSharedFolderAn": {
-    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "message": "Flytta alla poster till en delad mapp i $ORGANIZATION$",
     "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
     "placeholders": {
       "organization": {
@@ -3699,13 +3700,13 @@
     }
   },
   "importSharedFolderHint": {
-    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+    "message": "Flytta allt till en överordnad mapp. Den nästlade mappstrukturen behålls."
   },
   "importSharedFolderRequired": {
-    "message": "A shared folder is required."
+    "message": "En delad mapp krävs."
   },
   "importIntoOrganization": {
-    "message": "Items will be imported into $ORGANIZATION$.",
+    "message": "Posterna importeras till $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3714,10 +3715,10 @@
     }
   },
   "importMoveAllItemsIntoSharedFolder": {
-    "message": "Move all items into a shared folder"
+    "message": "Flytta alla poster till en delad mapp"
   },
   "importNoSharedFoldersForOrg": {
-    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "message": "Det går inte att importera poster till $ORGANIZATION$ utan en delad mapp, och du hanterar ingen sådan där. Välj en annan plats.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3726,7 +3727,7 @@
     }
   },
   "importItemsCount": {
-    "message": "Import $COUNT$ items",
+    "message": "Importera $COUNT$ poster",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3735,10 +3736,10 @@
     }
   },
   "importItemsSingular": {
-    "message": "Import 1 item"
+    "message": "Importera 1 post"
   },
   "importToOrganization": {
-    "message": "Import to $ORGANIZATION$",
+    "message": "Importera till $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3747,10 +3748,10 @@
     }
   },
   "importDataMayBeShared": {
-    "message": "Your data may be shared with members of this organization."
+    "message": "Dina data kan delas med medlemmar i den här organisationen."
   },
   "importItemTypesRestricted": {
-    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "message": "$ORGANIZATION$ tillåter inte att du importerar $ITEM_TYPES$. Om de ingår i importen hoppas de över.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3763,35 +3764,35 @@
     }
   },
   "importRestrictedTypeLogin": {
-    "message": "logins",
+    "message": "inloggningar",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSecureNote": {
-    "message": "secure notes",
+    "message": "säkra anteckningar",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeCard": {
-    "message": "cards",
+    "message": "kort",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeIdentity": {
-    "message": "identities",
+    "message": "identiteter",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSshKey": {
-    "message": "SSH keys",
+    "message": "SSH-nycklar",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeBankAccount": {
-    "message": "bank accounts",
+    "message": "bankkonton",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeDriversLicense": {
-    "message": "licenses",
+    "message": "körkort",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypePassport": {
-    "message": "passports",
+    "message": "pass",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
@@ -5754,6 +5755,31 @@
   "trialIncludesPrivilegedControls": {
     "message": "Din provperiod omfattar Privileged Controls."
   },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls är tillgängligt via Bitwardens säljteam och ingår inte i den här organisationen."
+  },
+  "contactSales": {
+    "message": "Kontakta försäljningsavdelningen"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls är tillgängligt via Bitwardens säljteam. Kontakta försäljningsavdelningen för att lägga till det i organisationen."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "Kontakta försäljningsavdelningen för att ändra antalet användarplatser för Privileged Controls."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$OCCUPIED$ av $TOTAL$ användarplatser används",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
   "monthly": {
     "message": "Månadsvis"
   },
@@ -6339,7 +6365,7 @@
     }
   },
   "sendDisabledByPolicy": {
-    "message": "Send$SENDID$ disabled by policy",
+    "message": "Send$SENDID$ har inaktiverats av en policy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6349,7 +6375,7 @@
     }
   },
   "sendEnabledByPolicy": {
-    "message": "Send$SENDID$ enabled by policy",
+    "message": "Send$SENDID$ har aktiverats av en policy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6359,7 +6385,7 @@
     }
   },
   "createdItemSend": {
-    "message": "Created item Send$SENDID$",
+    "message": "Skapade posten Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6369,7 +6395,7 @@
     }
   },
   "editedItemSend": {
-    "message": "Edited item Send$SENDID$",
+    "message": "Redigerade posten Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6379,7 +6405,7 @@
     }
   },
   "deletedItemSend": {
-    "message": "Deleted item Send$SENDID$",
+    "message": "Tog bort posten Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6389,7 +6415,7 @@
     }
   },
   "accessedItemSend": {
-    "message": "Accessed item Send$SENDID$ created by $ID$",
+    "message": "Öppnade posten Send$SENDID$ som skapades av $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6887,11 +6913,11 @@
     "message": "Avböjde överföring av objekt till organisationen"
   },
   "revocationReasonByAdmin": {
-    "message": "By admin",
+    "message": "Av administratör",
     "description": "Status filter option for revoked members whose access an admin revoked."
   },
   "revocationReasonNotRecorded": {
-    "message": "No reason recorded",
+    "message": "Ingen orsak registrerad",
     "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
@@ -7822,10 +7848,22 @@
     "message": "Ange en platsgräns för din prenumeration på Secrets Manager. När denna gräns är nådd kommer du inte att kunna bjuda in nya medlemmar."
   },
   "limitPrivilegedControlsSubscriptionDesc": {
-    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
+    "message": "Ange en gräns för antalet användarplatser i din prenumeration på Privileged Controls. När gränsen nås kan du inte ge medlemmar åtkomst till Privileged Controls."
+  },
+  "removePrivilegedControls": {
+    "message": "Ta bort Privileged Controls",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Alla användare i organisationen förlorar åtkomsten till Privileged Controls. Vill du fortsätta?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls har tagits bort",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
   },
   "maximumSeatsCount": {
-    "message": "Maximum $COUNT$ seats",
+    "message": "Maximalt $COUNT$ användarplatser",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8435,6 +8473,9 @@
   "viewApiKey": {
     "message": "Visa API-nyckel"
   },
+  "copyApiKey": {
+    "message": "Kopiera API-nyckel"
+  },
   "rotateApiKey": {
     "message": "Rotera API-nyckel"
   },
@@ -8966,14 +9007,34 @@
     "message": "Kopiera Send-länk",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Ta bort lösenords- eller e-postverifiering"
+  },
+  "removedAuth": {
+    "message": "Verifiering med lösenord eller e-post har tagits bort"
+  },
+  "removeAuthConfirmation": {
+    "message": "Vill du verkligen ta bort kravet på verifiering med lösenord eller e-post från detta Send?"
+  },
   "removePassword": {
     "message": "Ta bort lösenord"
+  },
+  "removeEmailVerification": {
+    "message": "Ta bort e-postverifiering"
   },
   "removedPassword": {
     "message": "Tog bort lösenord"
   },
-  "removePasswordConfirmation": {
-    "message": "Är du säker på att du vill ta bort lösenordet?"
+  "removedEmailVerification": {
+    "message": "E-postverifieringen har tagits bort"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Vill du verkligen ta bort lösenordskravet från detta Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Vill du verkligen ta bort kravet på e-postverifiering från detta Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Alla Sends"
@@ -9424,6 +9485,24 @@
       }
     }
   },
+  "sentInviteReminderToUserId": {
+    "message": "Skickade en inbjudningspåminnelse till användaren $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "Skickade inbjudan igen till användaren $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "System"
   },
@@ -9452,13 +9531,13 @@
     "message": "Aktivera automatisk inmatning på skrivbordet för medlemmar."
   },
   "desktopAppAutofillPolicyTitle": {
-    "message": "Desktop app autofill"
+    "message": "Automatisk ifyllning i skrivbordsappen"
   },
   "desktopAppAutofillPolicyDesc": {
-    "message": "Turn on desktop autofill by default for all members."
+    "message": "Slå på automatisk ifyllning i skrivbordsappen som standard för alla medlemmar."
   },
   "desktopAppAutofillPolicyDrawerDesc": {
-    "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
+    "message": "Slå på automatisk ifyllning i skrivbordsappen som standard för alla medlemmar. Du kan ange ett kortkommando och välja om medlemmar måste bekräfta innan den fyller i. Funktionen är i beta."
   },
   "disableSend": {
     "message": "Radera Send"
@@ -9611,7 +9690,7 @@
     "message": "Uppskattad moms"
   },
   "prorationChargeMayDiffer": {
-    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+    "message": "Din slutliga avgift kan skilja sig något, eftersom den proportionella avgiften beräknas fram till att du skickar in."
   },
   "subtotal": {
     "message": "Delsumma"
@@ -12943,8 +13022,91 @@
   "userAccessSecretsManagerGA": {
     "message": "Denna användare har åtkomst till Secrets Manager"
   },
+  "products": {
+    "message": "Produkter"
+  },
   "privilegedControls": {
     "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "Skydda dina privilegierade och verksamhetskritiska konton snabbt och enkelt med detta tillägg för Bitwarden Password Manager.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Utlåning av autentiseringsuppgifter"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Avancerade åtkomstregler"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Automatisk lösenordsrotation"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Granskningsloggar för regelefterlevnad"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Översiktspanel för styrning"
+  },
+  "addPrivilegedControls": {
+    "message": "Lägg till Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Gräns för användarplatser",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "Detta ingår"
+  },
+  "pricePerMember": {
+    "message": "$COST$ per medlem",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Antalet användarplatser kan inte vara större än antalet Password Manager-användarplatser ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Gränsen för användarplatser kan inte vara större än antalet Password Manager-användarplatser ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Gränsen för användarplatser kan inte vara större än gränsen för Password Manager-användarplatser ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Ange en gräns för användarplatser i Privileged Controls-prenumerationen. När gränsen har nåtts kan du inte ge fler medlemmar åtkomst till Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Gränsen för användarplatser måste vara större än antalet användarplatser."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Prenumerationen har uppdaterats. Du har nu Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13698,23 +13860,8 @@
   "inviteUsers": {
     "message": "Bjud in användare"
   },
-  "secretsManagerForPlan": {
-    "message": "Secrets Manager för $PLAN$",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "För teknik- och DevOps-team som hanterar hemligheter under hela livscykeln för programvaruutveckling."
-  },
-  "free2PersonOrganization": {
-    "message": "Gratis organisationer för 2 personer"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Gratisabonnemang med delat valv"
+  "secretsManagerPurchaseDesc": {
+    "message": "Gör det möjligt för teknik- och DevOps-teamen att centralt lagra, hantera och distribuera hemligheter genom hela programvaruutvecklingslivscykeln."
   },
   "unlimitedSecrets": {
     "message": "Obegränsade hemligheter"
@@ -13749,8 +13896,9 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "Prenumerera på Secrets Manager"
+  "addSecretsManager": {
+    "message": "Lägg till Secrets Manager",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Lägg till Secrets Manager till din uppgraderade plan för att behålla åtkomsten till alla hemligheter som skapats med din tidigare plan."
@@ -14645,15 +14793,6 @@
   },
   "smAccessRemovalWarningMaMessage": {
     "message": "Denna åtgärd kommer att ta bort din tillgång till maskinkontot."
-  },
-  "machineAccountsIncluded": {
-    "message": "$COUNT$ maskinkonton ingår",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "additionalMachineAccountCost": {
     "message": "$COST$ per månad för ytterligare maskinkonton",
@@ -16977,7 +17116,7 @@
     "message": "Uppgradera nu"
   },
   "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
-    "message": "Get advanced online security with Bitwarden Premium."
+    "message": "Få avancerad säkerhet på nätet med Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Genom att fylla i detta formulär skapas en ny Familjer-organisation. Du kan uppgradera din kostnadsfria organisation från administratörskonsolen."
@@ -18352,29 +18491,23 @@
   "pamTabHistory": {
     "message": "Historik"
   },
-  "pamAccessRequestsSearchPlaceholder": {
-    "message": "Sök autentiseringsuppgift, samling eller begärare"
-  },
-  "pamCollectionFilter": {
-    "message": "Samling"
-  },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Begäranden om utökning"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Aktiv åtkomst"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "Ingen aktiv åtkomst"
+  "pamMyRequestsLoaded": {
+    "message": "Begäranden har lästs in"
   },
   "pamMyRequestsLoadError": {
     "message": "Det gick inte att läsa in dina begäranden"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "Väntande"
+  "pamStatusInUse": {
+    "message": "Används",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsPendingEmpty": {
-    "message": "Inga väntande begäranden"
+  "pamStatusEndingSoon": {
+    "message": "Avslutas snart",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "Inga delade mappar att filtrera efter",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
   },
   "pamMyRequestsEmptyTitle": {
     "message": "Du har inga förfrågningar"
@@ -18409,12 +18542,63 @@
   "pamColumnActions": {
     "message": "Åtgärder"
   },
-  "pamWindowUntil": {
-    "message": "Till $DATE$",
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ till $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "Till $END$",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "Upphör $DATE$ kl. $TIME$",
     "placeholders": {
       "date": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Upphör i dag kl. $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
       }
     }
   },
@@ -18449,7 +18633,7 @@
   "pamResolverUnknown": {
     "message": "Okänd användare"
   },
-  "pamInboxInCollection": {
+  "pamInboxInSharedFolder": {
     "message": "i $COLLECTION$",
     "placeholders": {
       "collection": {
@@ -18457,9 +18641,6 @@
         "example": "Production"
       }
     }
-  },
-  "pamInboxReason": {
-    "message": "Orsak"
   },
   "pamInboxReasonMissing": {
     "message": "Ingen anledning angavs"
@@ -18470,32 +18651,11 @@
   "pamInboxRequester": {
     "message": "Begärare"
   },
-  "pamInboxDurationMinutes": {
-    "message": "$MINUTES$ min",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
-  },
   "pamStartLeaseButton": {
     "message": "Starta åtkomst"
   },
   "pamStartLeaseSuccess": {
     "message": "Åtkomst har startats."
-  },
-  "pamInboxDuration1Hour": {
-    "message": "1 timme"
-  },
-  "pamInboxDurationHours": {
-    "message": "$HOURS$ timmar",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "4"
-      }
-    }
   },
   "pamInboxStartAsap": {
     "message": "från och med nu"
@@ -18536,8 +18696,8 @@
   "pamEndLeaseSuccess": {
     "message": "Åtkomsten har avslutats."
   },
-  "pamExtendLeaseButton": {
-    "message": "Förläng"
+  "pamExtendLeaseButtonV2": {
+    "message": "Förläng åtkomsten"
   },
   "pamExtendLeaseDialogTitle": {
     "message": "Förläng åtkomst"
@@ -18621,6 +18781,10 @@
     "message": "Aktiv",
     "description": "Controlled access filter option in the vault table: items with an active access session."
   },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Upphör snart",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
+  },
   "pamAuditKindAccessEndedByRequester": {
     "message": "Åtkomsten avslutades av den som begärde den"
   },
@@ -18648,6 +18812,40 @@
       "days": {
         "content": "$1",
         "example": "90"
+      }
+    }
+  },
+  "pamAuditCustomRange": {
+    "message": "$START$ – $END$",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "Från $START$",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "Till $END$",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
       }
     }
   },
@@ -18684,8 +18882,8 @@
   "pamAuditIncomplete": {
     "message": "Ofullständig"
   },
-  "pamAuditIncompleteTooltip": {
-    "message": "Den här åtgärden registrerades, men resultatet bekräftades aldrig. Den kan ha misslyckats eller avbrutits."
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "Åtgärden registrerades men resultatet bekräftades aldrig. Den kan ha misslyckats eller avbrutits."
   },
   "pamAuditKindRequestSubmitted": {
     "message": "Åtkomst begärd"
@@ -18753,11 +18951,71 @@
   "pamAccessRequestDetailsTitle": {
     "message": "Information om begäran"
   },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Information",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
   "pamAccessRequestLeaseTitle": {
     "message": "Åtkomst"
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "Beslutslogg"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Beslut",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Godkänd av",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Nekad av",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Återkallad av",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Avslutad av",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "E-post",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Kommentar till beslut",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Starta session",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "Avsluta session",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "Systemet (automatiskt)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Skicka ny begäran",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Orsak",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Visas för den som begär åtkomst i beslutsloggen.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Håll den kort. Den som begär åtkomst läser den direkt.",
+    "description": "Hint under the withdrawal reason field."
   },
   "pamAccessRequestNotFound": {
     "message": "Åtkomstbegäran är inte tillgänglig"
@@ -18768,36 +19026,83 @@
   "pamAccessRequestLoadError": {
     "message": "Det gick inte att läsa in åtkomstbegäran."
   },
-  "pamActiveLeaseBannerTitle": {
-    "message": "Du har aktiv åtkomst till det här objektet – $DURATION$ återstår",
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Åtkomst aktiv • $DURATION$ kvar",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "23m"
+        "example": "20 days"
       }
     }
   },
-  "pamActiveLeaseBannerEndingSoonTitle": {
-    "message": "Åtkomsten till det här objektet upphör snart – $DURATION$ återstår",
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Upphör snart • $DURATION$ kvar",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "4m"
+        "example": "4 minutes"
       }
     }
   },
   "pamPendingRequestBannerHeading": {
     "message": "Åtkomstbegäran väntar på godkännande"
   },
-  "pamApprovedRequestBannerHeading": {
-    "message": "Åtkomst beviljad"
+  "pamPendingSubmittedJustNow": {
+    "message": "Skickades nyss"
   },
-  "pamApprovedRequestBannerDuration": {
-    "message": "Åtkomst i $DURATION$",
+  "pamPendingSubmittedAgo": {
+    "message": "Skickades $WHEN$",
     "placeholders": {
-      "duration": {
+      "when": {
         "content": "$1",
-        "example": "1 hour"
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privilegierade autentiseringsuppgifter"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls-licens krävs",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Begär att få använda"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Din åtkomst har upphört"
+  },
+  "pamEndedBannerBody": {
+    "message": "Åtkomstperioden för den här autentiseringsuppgiften har gått ut. Den roteras nu när din åtkomst har upphört."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Du kan inte begära åtkomst just nu"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Åtkomstregeln för den här autentiseringsuppgiften tillåter inte begäranden från ditt nuvarande nätverk eller vid den här tidpunkten."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Klar att använda"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Du kan använda den här autentiseringsuppgiften till kl. $TIME$ i dag.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Du kan använda den här autentiseringsuppgiften till kl. $TIME$ den $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
       }
     }
   },
@@ -18807,17 +19112,17 @@
   "pamRequestAccessBannerHeading": {
     "message": "Du kan begära åtkomst"
   },
-  "pamUnlicensedBannerHeading": {
-    "message": "En licens för Privileged Controls krävs",
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Du behöver en Privileged Controls-licens för att använda den här posten",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
-  },
-  "pamUnlicensedBannerBody": {
-    "message": "Du behöver en licens för Privileged Controls för att visa det här objektet. Be administratören aktivera licensen.",
-    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
     "message": "Det går inte att begära åtkomst utan licens.",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Be din administratör att aktivera licensen.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Det godkända åtkomstfönstret har inte börjat ännu."
@@ -18904,8 +19209,8 @@
   "pendingStateCancelError": {
     "message": "Det gick inte att avbryta begäran."
   },
-  "requestAccessModalSubmit": {
-    "message": "Begär åtkomst"
+  "requestAccessModalSubmitV2": {
+    "message": "Skicka begäran"
   },
   "requestAccessModalAutomaticDescription": {
     "message": "Välj en varaktighet. Du får åtkomst direkt under den perioden."
@@ -18913,8 +19218,14 @@
   "requestAccessModalHumanDescription": {
     "message": "Välj ett tidsintervall och berätta för godkännaren varför du behöver åtkomst. Personen granskar och fattar ett beslut."
   },
-  "requestAccessModalDuration": {
-    "message": "Varaktighet"
+  "requestAccessModalDurationV2": {
+    "message": "Hur länge behöver du den?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Du får en avisering när begäran godkänns. Tiden räknas först ned när du börjar använda den här autentiseringsuppgiften."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Uppgifter om begäran"
   },
   "requestAccessModalStartDate": {
     "message": "Startdatum"
@@ -18994,20 +19305,20 @@
       }
     }
   },
-  "requestAccessModalReasonRequired": {
-    "message": "Motivering"
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Varför behöver du den?"
   },
-  "requestAccessModalReasonOptional": {
-    "message": "Motivering (valfritt)"
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Varför behöver du den?"
   },
-  "requestAccessModalReasonPlaceholder": {
-    "message": "Varför behöver du åtkomst?"
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "t.ex. kvartalsgranskning, behöver köra några skrivskyddade frågor"
   },
-  "requestAccessModalAutomaticReasonHint": {
-    "message": "Den här motiveringen sparas med din åtkomstbegäran."
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Synlig för den som godkänner begäran och sparas i granskningsloggen."
   },
-  "requestAccessModalHumanReasonHint": {
-    "message": "Godkännare ser den här motiveringen när de granskar din begäran."
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Synlig för den som godkänner begäran och sparas i granskningsloggen."
   },
   "requestAccessModalGenericError": {
     "message": "Det gick inte att begära åtkomst. Försök igen."
@@ -19015,32 +19326,23 @@
   "requestAccessModalAlreadyActive": {
     "message": "Du har redan aktiv åtkomst till detta objekt."
   },
-  "requestAccessModalApprovedSuccess": {
-    "message": "Åtkomsten har godkänts – välj Starta åtkomst för att börja."
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Åtkomst godkänd. Välj Starta åtkomst för att börja."
   },
-  "requestAccessModalRequestCreatedSuccess": {
-    "message": "Begäran har skickats – väntar på godkännande."
-  },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "Ingen aktiv åtkomst"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Aktiv åtkomst"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Samling"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "Inga begäranden väntar på ditt beslut"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Väntar på godkännande"
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Åtkomst har begärts"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Begärande"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Sök efter inloggningsuppgift, samling eller begärande"
+  "pamApprovalsApproveRequest": {
+    "message": "Godkänn begäran"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Neka begäran"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Återkalla åtkomst"
   },
   "pamDecideAdditionalInformation": {
     "message": "Ytterligare information"
@@ -19080,12 +19382,6 @@
   },
   "pamInboxCommentPlaceholder": {
     "message": "Lägg till en valfri kommentar"
-  },
-  "pamInboxConfirmApproveButton": {
-    "message": "Godkänn begäran"
-  },
-  "pamInboxConfirmDenyButton": {
-    "message": "Neka begäran"
   },
   "pamInboxDecisionFailed": {
     "message": "Det gick inte att registrera beslutet"
@@ -19153,11 +19449,8 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Det gick inte att dra tillbaka godkännandet"
   },
-  "pamInboxWindow": {
-    "message": "Begärt tidsfönster"
-  },
-  "pamApprovalsNoResults": {
-    "message": "Inga åtkomstbegäranden matchar dina filter."
+  "pamAccessRequestsNoResults": {
+    "message": "Inga åtkomstbegäranden matchar filtren."
   },
   "pamApprovalsLoaded": {
     "message": "Åtkomstbegäranden har lästs in"
@@ -19174,26 +19467,40 @@
   "pamInboxRevokeConfirm": {
     "message": "Detta återkallar omedelbart medlemmens åtkomst. Medlemmen behöver ett nytt godkännande för att få tillbaka den."
   },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "Detta återkallar ditt godkännande för $ITEM$. Åtkomsten startar inte och $REQUESTER$ behöver ett nytt godkännande för att få den.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
+  },
   "pamWithdrawApprovalWarningOne": {
-    "message": "This withdraws your approval for",
+    "message": "Detta återkallar ditt godkännande för",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
   },
   "pamWithdrawApprovalWarningTwo": {
-    "message": ". Access won't start, and",
+    "message": ". Åtkomsten startar inte och",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
   },
   "pamWithdrawApprovalWarningThree": {
-    "message": "will need a new approval to get it.",
+    "message": "behöver ett nytt godkännande för att få åtkomst.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
   },
   "pamWithdrawApprovalReasonLabel": {
-    "message": "Reason"
+    "message": "Orsak"
   },
   "pamWithdrawApprovalReasonPlaceholder": {
-    "message": "Shown to the requester in their decision log."
+    "message": "Visas för den som begär i beslutsloggen."
   },
   "pamWithdrawApprovalReasonHint": {
-    "message": "Keep it brief. The requester reads this directly."
+    "message": "Håll det kort. Den som begär läser detta direkt."
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "Åtkomstregel"
@@ -19225,9 +19532,9 @@
   "pamAccessRules": {
     "message": "Åtkomstregler"
   },
-  "pamCollectionRequiresRequest": {
-    "message": "Objekten i den här samlingen kräver en begäran.",
-    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+  "pamSharedFolderRequiresRequest": {
+    "message": "Poster i den här delade mappen kräver en begäran.",
+    "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
   },
   "pamGatedCollectionBannerName": {
     "message": "Privilegierad åtkomst",
@@ -19291,11 +19598,11 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "Valfria villkor"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Välj samlingar"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Välj delade mappar"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "Den här åtkomstregeln gäller för alla valda samlingar."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "Åtkomstregeln tillämpas på alla valda delade mappar."
   },
   "pamAccessRuleEventLogNotice": {
     "message": "Alla begäranden och beslut loggas."
@@ -19303,8 +19610,8 @@
   "pamAccessRuleViewAuditLog": {
     "message": "Visa granskningslogg"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Det gick inte att läsa in samlingarna. Uppdatera sidan och försök igen."
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Det gick inte att läsa in de delade mapparna. Uppdatera sidan och försök igen."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "Den här tiden fylls i automatiskt i åtkomstbegäranden."
@@ -19323,36 +19630,6 @@
   },
   "pamAccessRuleMaxDurationLimitHint": {
     "message": "Åtkomsten begränsas till denna längd, oavsett vilken längd som begärs."
-  },
-  "pamAccessRuleDuration15m": {
-    "message": "15 minuter"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 minuter"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 timme"
-  },
-  "pamAccessRuleDuration2h": {
-    "message": "2 timmar"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 timmar"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 timmar"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 dag"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 dagar"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 dagar"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 dagar"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "Endast 1 användare kan ha aktiv åtkomst åt gången"
@@ -19381,8 +19658,8 @@
   "pamAccessRuleApprovers": {
     "message": "Godkännare"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Samlingsansvariga"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Ansvariga för delade mappar"
   },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (kopia)",
@@ -19407,8 +19684,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Kopian har skapats. Välj vilka samlingar den gäller för."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Kopia skapad. Välj vilka delade mappar den ska gälla för."
   },
   "pamAccessRuleCreated": {
     "message": "Åtkomstregeln skapades."
@@ -19422,8 +19699,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Ta bort åtkomstregel?"
   },
-  "pamAccessRuleDeleteConfirmDescription": {
-    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "Detta tar bort regeln permanent. Användare i de delade mappar som regeln gäller för får tillbaka normal åtkomst."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Inaktivera åtkomstregel"
@@ -19440,11 +19717,11 @@
   "pamAccessRuleErrorNameTaken": {
     "message": "En annan regel använder redan detta namn. Ange ett annat namn."
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "En annan åtkomstregel omfattar redan en av dessa samlingar. Välj andra samlingar."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "En annan åtkomstregel omfattar redan en av de delade mapparna. Välj andra delade mappar."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "En annan åtkomstregel omfattar redan $COLLECTIONS$. Välj andra samlingar.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "En annan åtkomstregel omfattar redan $COLLECTIONS$. Välj andra delade mappar.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -19452,11 +19729,11 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "En av samlingarna du valde finns inte längre. Välj en annan samling."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "En av de delade mappar du valt finns inte längre. Välj en annan delad mapp."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "En av samlingarna du valde ingår inte i denna organisation. Välj en annan samling."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "En av de delade mappar du valt ingår inte i den här organisationen. Välj en annan delad mapp."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "Välj längsta förlängningstid eller stäng av förlängningar."
@@ -19467,8 +19744,8 @@
   "pamNoAccessRulesYetTitle": {
     "message": "Inga åtkomstregler ännu"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Skapa en regel för att ge känsliga samlingar ett extra skydd."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Skapa en regel för att ge känsliga delade mappar extra skydd."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Skapa anpassad regel"
@@ -19506,17 +19783,17 @@
   "pamTemplateIpRestrictedName": {
     "message": "IP-begränsad åtkomst"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Samlingar"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Delade mappar"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Inte tilldelad"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 samling"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 delad mapp"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ samlingar",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ delade mappar",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -19901,9 +20178,6 @@
   "pamRotation": {
     "message": "Rotering"
   },
-  "pamRotationSubtitle": {
-    "message": "Lägg till hanterade inloggningsuppgifter och de målsystem där de används. Registrera sedan åtkomstanslutningar som körs i ditt nätverk och utför rotering. När de har konfigurerats kan inloggningsuppgifter roteras automatiskt i målsystemen."
-  },
   "pamRotationTabManagedCredentials": {
     "message": "Hanterade inloggningsuppgifter"
   },
@@ -20041,6 +20315,50 @@
       }
     }
   },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Varje dag kl. $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "Var $COUNT$:e dag kl. $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Varje månad kl. $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "Var $COUNT$:e månad kl. $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
   "pamRotationScheduleTimezoneHint": {
     "message": "Scheman körs i UTC, inte i din lokala tidszon."
   },
@@ -20074,20 +20392,14 @@
   "pamTargetSystemNew": {
     "message": "Nytt målsystem"
   },
-  "pamTargetSystemSearch": {
-    "message": "Sök målsystem"
-  },
-  "pamTargetSystemMethodColumn": {
-    "message": "Metod"
-  },
   "pamTargetSystemTypeColumn": {
     "message": "Typ"
   },
-  "pamTargetSystemSessionTerminationColumn": {
-    "message": "Sessionsavslut"
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Hanterade autentiseringsuppgifter"
   },
-  "pamTargetSystemSessionTerminationYes": {
-    "message": "Stöds"
+  "pamTargetSystemNone": {
+    "message": "Ingen"
   },
   "pamTargetSystemSessionTerminationNo": {
     "message": "Stöds inte"
@@ -20110,11 +20422,11 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden roterar automatiskt en Microsoft Entra ID-programhemlighet."
   },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden roterar automatiskt lösenordet för ett domänkonto på en Active Directory-server som du driver."
+  },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
     "message": "Bitwarden roterar automatiskt inloggningsuppgiften genom att köra ditt skript på en registrerad åtkomstanslutning."
-  },
-  "pamTargetSystemNoFilterResults": {
-    "message": "Inga målsystem matchar dina filter."
   },
   "pamTargetSystemEditTarget": {
     "message": "Redigera målsystem"
@@ -20143,6 +20455,12 @@
   "pamTargetSystemAssignConnectorNoOptions": {
     "message": "Alla aktiva åtkomstanslutningar har redan tilldelats det här målsystemet."
   },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Endast för automatisk rotation."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Ta först bort dess hanterade autentiseringsuppgifter."
+  },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Åtkomstanslutningar kan bara tilldelas målsystem som är inställda på automatisk rotering."
   },
@@ -20152,14 +20470,11 @@
   "pamTargetSystemAssignConnectorNone": {
     "message": "Det finns inga aktiva åtkomstanslutningar att tilldela. Registrera en på fliken Åtkomstanslutningar eller aktivera en befintlig."
   },
-  "pamTargetSystemAssignGoToConnectors": {
-    "message": "Gå till åtkomstanslutningar"
+  "pamTargetSystemDeactivateDialogTitle": {
+    "message": "Inaktivera målsystem"
   },
-  "pamTargetSystemDeactivateTitle": {
-    "message": "Inaktivera målsystem?"
-  },
-  "pamTargetSystemDeactivateContent": {
-    "message": "Om du inaktiverar det här målsystemet erbjuds inga nya rotationer. Väntande jobb kan inte tas emot. Rotationer som redan pågår fortsätter tills de är klara."
+  "pamTargetSystemDeactivateDialogContent": {
+    "message": "Inga nya rotationer startar på det här målsystemet förrän du aktiverar det. Redan pågående rotationer slutförs och väntande rotationer hålls kvar."
   },
   "pamTargetSystemDeactivateConfirm": {
     "message": "Inaktivera"
@@ -20167,32 +20482,29 @@
   "pamTargetSystemDeactivateSuccess": {
     "message": "Målsystem inaktiverat."
   },
+  "pamTargetSystemDeactivateFailed": {
+    "message": "Kunde inte inaktivera. Försök igen."
+  },
   "pamTargetSystemActivateSuccess": {
     "message": "Målsystem aktiverat."
   },
-  "pamTargetSystemDeleteTitle": {
-    "message": "Ta bort målsystem?"
+  "pamTargetSystemActivateFailed": {
+    "message": "Kunde inte aktivera. Försök igen."
   },
-  "pamTargetSystemDeleteContent": {
-    "message": "Om du tar bort $NAME$ är det permanent. Hanterade inloggningsuppgifter som roteras mot systemet måste först tas bort.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogTitle": {
+    "message": "Ta bort målsystem"
   },
-  "pamTargetSystemDeleteContentDeactivateInstead": {
-    "message": "Om du tar bort $NAME$ är det permanent. Hanterade inloggningsuppgifter som roteras mot systemet måste först tas bort. Om du vill stoppa rotationer utan att förlora målsystemet inaktiverar du det i stället. Inaktivering håller väntande jobb och kan ångras.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
+  "pamTargetSystemDeleteDialogContent": {
+    "message": "Det här målsystemet tas bort."
+  },
+  "pamTargetSystemDeleteDialogContentDeactivateInstead": {
+    "message": "Det här målsystemet tas bort. Om du vill stoppa rotationer men behålla det ska du inaktivera det i stället."
   },
   "pamTargetSystemDeleteSuccess": {
     "message": "Målsystem borttaget."
+  },
+  "pamTargetSystemDeleteFailed": {
+    "message": "Kunde inte ta bort. Försök igen."
   },
   "pamTargetSystemMethodAutomatic": {
     "message": "Automatisk"
@@ -20200,17 +20512,15 @@
   "pamTargetSystemMethodManual": {
     "message": "Manuell"
   },
-  "pamTargetSystemMethodAutomaticHint": {
-    "message": "Rotationer körs enligt schemat du anger när du har slutfört konfigurationsstegen som visas efter att du har sparat."
-  },
-  "pamTargetSystemMethodManualHint": {
-    "message": "Inget roteringsjobb skapas. Du roterar inloggningsuppgiften manuellt och markerar den sedan som roterad."
-  },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
   },
   "pamTargetSystemTypeCustomScript": {
     "message": "Anpassat skript"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
   },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
@@ -20226,11 +20536,24 @@
       }
     }
   },
+  "pamTargetSystemRemoveConnector": {
+    "message": "Ta bort $NAME$",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
   "pamTargetSystemStatusActive": {
     "message": "Aktiv"
   },
   "pamTargetSystemStatusInactive": {
     "message": "Inaktiv"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Inte ansluten"
   },
   "pamTargetSystemStatusPendingSeal": {
     "message": "Konfigurationen är inte slutförd"
@@ -20250,17 +20573,8 @@
   "pamTargetSystemMethodLabel": {
     "message": "Roteringsmetod"
   },
-  "pamTargetSystemTypeHeading": {
-    "message": "Typ"
-  },
-  "pamTargetSystemTypeLabel": {
-    "message": "Typ"
-  },
   "pamTargetSystemTypeUnverifiedHint": {
     "message": "Målets integration kunde inte bekräftas. Välj det igen för att slutföra konfigurationen."
-  },
-  "pamTargetSystemPolicyManualHint": {
-    "message": "Det här är reglerna som ska följas när du roterar inloggningsuppgiften manuellt."
   },
   "pamTargetSystemPolicyHeading": {
     "message": "Lösenordspolicy"
@@ -20280,41 +20594,20 @@
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "Den här principen är för svag. Öka längden eller inkludera fler teckentyper."
   },
-  "pamTargetSystemPolicyUppercase": {
-    "message": "Inkludera versaler"
-  },
-  "pamTargetSystemPolicyLowercase": {
-    "message": "Inkludera gemener"
-  },
-  "pamTargetSystemPolicyDigits": {
-    "message": "Inkludera siffror"
-  },
-  "pamTargetSystemPolicySymbols": {
-    "message": "Inkludera symboler"
-  },
-  "pamTargetSystemSupportsSessionTermination": {
-    "message": "Stöder sessionsavslut"
-  },
-  "pamTargetSystemSupportsSessionTerminationHintConnector": {
-    "message": "När funktionen är aktiverad avslutar åtkomstanslutningen aktiva sessioner efter att en inloggningsuppgift har roterats."
-  },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Stöds"
   },
-  "pamTargetSystemSessionTerminationNativeHint": {
-    "message": "Inbyggda integrationer avslutar alltid aktiva sessioner efter att en inloggningsuppgift har roterats."
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "Den här integrationen kan inte avsluta sessioner som redan är öppna. Rotation av autentiseringsuppgiften blockerar nya inloggningar, men befintliga sessioner fortsätter tills de upphör."
   },
-  "pamTargetSystemSessionTerminationUnknown": {
-    "message": "Okänt"
-  },
-  "pamTargetSystemSessionTerminationUnknownTooltip": {
-    "message": "Det gick inte att verifiera målsystemets inställningar, så stödet för sessionsavslut är okänt."
-  },
-  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
-    "message": "Det går inte att ta bort stödet för sessionsavslut så länge någon hanterad inloggningsuppgift på målsystemet fortfarande är beroende av det. Uppdatera först dessa inloggningsuppgifter."
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "Det här målsystemet är registrerat som ett system med stöd för att avsluta sessioner och dess hanterade autentiseringsuppgifter kan fortfarande använda funktionen. Om du sparar här behålls registreringen."
   },
   "pamTargetSystemCreated": {
     "message": "Målsystem skapat."
+  },
+  "pamTargetSystemCreatedSuccess": {
+    "message": "Målsystem har lagts till."
   },
   "pamTargetSystemSaved": {
     "message": "Målsystem sparat."
@@ -20327,9 +20620,6 @@
   },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Slutför konfigurationen av rotation"
-  },
-  "pamTargetSystemSetupGuidanceAutomaticConnector": {
-    "message": "Tilldela en åtkomstanslutning i avsnittet Tilldelade åtkomstanslutningar nedan."
   },
   "pamTargetSystemSetupGuidanceCredential": {
     "message": "Lägg till en hanterad inloggningsuppgift på fliken Hanterade inloggningsuppgifter."
@@ -20355,20 +20645,17 @@
   "pamTargetSystemNotFound": {
     "message": "Målsystemet hittades inte."
   },
-  "pamAccessConnectorSearch": {
-    "message": "Sök åtkomstanslutningar"
-  },
-  "pamAccessConnectorNew": {
-    "message": "Ny åtkomstanslutning"
-  },
   "pamAccessConnectorRegister": {
     "message": "Registrera åtkomstanslutning"
   },
-  "pamAccessConnectorEmptyStateTitle": {
-    "message": "Inga åtkomstanslutningar har registrerats"
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "Inga åtkomstanslutningar ännu"
   },
-  "pamAccessConnectorEmptyStateDescription": {
-    "message": "Registrera en åtkomstanslutning för att börja rotera inloggningsuppgifter."
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Åtkomstanslutningar körs i ditt nätverk och ändrar lösenord på målsystemen. Registrera en för att komma igång."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Målsystem"
   },
   "pamAccessConnectorConnection": {
     "message": "Anslutning"
@@ -20385,14 +20672,14 @@
   "pamAccessConnectorDisconnected": {
     "message": "Frånkopplad"
   },
-  "pamAccessConnectorAssignTargetDisabled": {
-    "message": "Målsystem kan bara tilldelas när åtkomstanslutningen är aktiv."
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Aktivera den här åtkomstanslutningen för att tilldela målsystem."
   },
-  "pamAccessConnectorViewDetails": {
-    "message": "Visa information"
+  "pamAccessConnectorEdit": {
+    "message": "Redigera åtkomstanslutning"
   },
-  "pamAccessConnectorAssignTargets": {
-    "message": "Tilldela mål"
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Tilldela målsystem"
   },
   "pamAccessConnectorDeleteAccessConnector": {
     "message": "Ta bort åtkomstanslutning"
@@ -20406,8 +20693,8 @@
   "pamAccessConnectorAssignSelectLabel": {
     "message": "Tilldela målsystem"
   },
-  "pamAccessConnectorAssignSelectHint": {
-    "message": "Endast målsystem som är inställda på automatisk rotering kan tilldelas."
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Välj de målsystem som den här åtkomstanslutningen kan rotera lösenord för. Endast målsystem som använder automatisk rotation kan tilldelas."
   },
   "pamAccessConnectorAssignNoOptions": {
     "message": "Alla automatiska målsystem har redan tilldelats den här åtkomstanslutningen."
@@ -20439,77 +20726,62 @@
       }
     }
   },
-  "pamAccessConnectorUnassignConfirmTitle": {
-    "message": "Ta bort tilldelningen?"
-  },
-  "pamAccessConnectorUnassignConfirmContent": {
-    "message": "Ta bort $NAME$ från den här åtkomstanslutningen? Aktiva roteringsjobb som åtkomstanslutningen har tagit emot fortsätter tills de är klara.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
-  },
-  "pamAccessConnectorUnassigned": {
-    "message": "Målsystem borttaget."
-  },
   "pamAccessConnectorDeactivate": {
     "message": "Inaktivera"
   },
   "pamAccessConnectorActivate": {
     "message": "Aktivera"
   },
-  "pamAccessConnectorDeactivateConfirmTitle": {
-    "message": "Inaktivera åtkomstanslutning?"
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Inaktivera åtkomstanslutning"
   },
-  "pamAccessConnectorDeactivateConfirmContent": {
-    "message": "Inaktivera $NAME$? Den slutar ta emot nya rotationsjobb och alla jobb den kör just nu släpps. Du kan aktivera den igen senare.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "Den här åtkomstanslutningen tar inte emot nya rotationer. Pågående rotationer frisläpps."
   },
   "pamAccessConnectorDeactivated": {
     "message": "Åtkomstanslutning inaktiverad."
   },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Kunde inte inaktivera. Försök igen."
+  },
   "pamAccessConnectorActivated": {
     "message": "Åtkomstanslutning aktiverad."
   },
-  "pamAccessConnectorDeleteConfirmTitle": {
-    "message": "Ta bort åtkomstanslutning?"
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Ta bort åtkomstanslutning"
   },
-  "pamAccessConnectorDeleteConfirmContent": {
-    "message": "Att ta bort $NAME$ är permanent och ogiltigförklarar dess inloggningsuppgifter. Åtkomstanslutningen har haft organisationsnyckeln i minnet. Om du misstänker en kompromettering ska du rotera organisationsnyckeln som skyddsåtgärd. Pågående rotationsjobb släpps. Registrera en ny åtkomstanslutning för att återuppta roteringen.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "On-prem production server"
-      }
-    }
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Dess token slutar fungera och pågående rotationer frisläpps. Detta går inte att ångra."
   },
   "pamAccessConnectorDeleted": {
     "message": "Åtkomstanslutning borttagen."
   },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Kunde inte ta bort. Försök igen."
+  },
   "pamAccessConnectorSaved": {
     "message": "Åtkomstanslutning sparad."
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Åtkomstanslutningen sparades inte. Försök igen."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Åtkomstanslutningen sparades inte. Kontrollera anslutningen och välj sedan Spara igen."
   },
   "pamAccessConnectorRegisterTitle": {
     "message": "Registrera åtkomstanslutning"
   },
-  "pamAccessConnectorNamePlaceholder": {
-    "message": "t.ex. produktionsserver lokalt"
+  "pamAccessConnectorRegisterDescription": {
+    "message": "Du får en token som ska läggas till i åtkomstanslutningens konfiguration. Den visas bara en gång."
   },
-  "pamAccessConnectorNameHint": {
-    "message": "Ett beskrivande namn för att identifiera den här åtkomstanslutningen. Högst 200 tecken."
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Använd ett namn som teamet känner igen, till exempel Östra datacentret."
   },
   "pamAccessConnectorRegistered": {
     "message": "Åtkomstanslutning registrerad."
   },
-  "pamAccessConnectorNoResults": {
-    "message": "Inga åtkomstanslutningar matchar dina filter."
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Åtkomstanslutningen registrerades inte. Försök igen."
   },
   "pamAccessConnectorDetailTitle": {
     "message": "Åtkomstanslutning"
@@ -20520,38 +20792,38 @@
   "pamAccessConnectorTabConfiguration": {
     "message": "Konfiguration"
   },
-  "pamAccessConnectorTabHistory": {
-    "message": "Historik"
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "Rotationshistorik"
   },
-  "pamAccessConnectorActivityEmpty": {
-    "message": "Ingen roteringsaktivitet ännu."
+  "pamAccessConnectorRotationHeading": {
+    "message": "Rotation"
   },
-  "pamAccessConnectorActiveHint": {
-    "message": "När den är inaktiv tar åtkomstanslutningen inte emot nya roteringsjobb och eventuella pågående jobb frisläpps."
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Välj målsystem"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "Den här åtkomstanslutningen är inte ansluten och kan därför inte rotera lösenord. Kontrollera att den körs på sin dator och kan nå Bitwarden."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Slutför installationen. Lägg till token och anslutningsuppgifter för varje målsystem i åtkomstanslutningens konfiguration och starta den sedan."
   },
   "pamAccessConnectorTokenTitle": {
     "message": "Åtkomstanslutningens token"
   },
-  "pamAccessConnectorTokenWarningTitle": {
-    "message": "Spara den här token nu"
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Kopiera token nu, eftersom du inte kan se den igen när du har stängt detta."
   },
-  "pamAccessConnectorTokenWarningBody": {
-    "message": "Den här token visas bara en gång och kan inte hämtas senare. Kopiera den och överlämna den via en annan kanal till den operatör som ska köra åtkomstanslutningen. Klistra sedan in den i anslutningens konfigurationsfil. Om token går förlorad tar du bort åtkomstanslutningen och registrerar en ny."
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Lägg till den i åtkomstanslutningens konfiguration för att ansluta den."
   },
-  "pamAccessConnectorTokenLabel": {
-    "message": "Åtkomstanslutningens token"
-  },
-  "pamAccessConnectorTokenHint": {
-    "message": "Den här token visas inte igen."
+  "pamAccessConnectorTokenStored": {
+    "message": "Jag har sparat token säkert"
   },
   "pamAccessConnectorTokenCopy": {
     "message": "Kopiera token"
   },
-  "pamAccessConnectorTokenCopied": {
-    "message": "Åtkomstanslutningens token har kopierats."
-  },
-  "pamRotationConfigNew": {
-    "message": "Ny hanterad inloggningsuppgift"
+  "pamTokenCopied": {
+    "message": "Token kopierad."
   },
   "pamRotationConfigSearch": {
     "message": "Sök hanterade inloggningsuppgifter"
@@ -20559,8 +20831,23 @@
   "pamRotationConfigEmptyState": {
     "message": "Inga hanterade inloggningsuppgifter har konfigurerats"
   },
+  "pamRotationConfigEmptyTitle": {
+    "message": "Inga hanterade autentiseringsuppgifter ännu"
+  },
   "pamRotationConfigEmptyStateDescription": {
     "message": "Lägg till en hanterad inloggningsuppgift för att börja rotera den automatiskt."
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Hanterade autentiseringsuppgifter hjälper dig att ändra lösenord enligt ett schema eller när någons åtkomst upphör."
+  },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Hanterade autentiseringsuppgifter på det här målsystemet visas här."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Hanterade autentiseringsuppgifter hjälper dig att ändra lösenord enligt ett schema eller när någons åtkomst upphör. Kom igång genom att lägga till en åtkomstanslutning och ett målsystem."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Lägg till åtkomstanslutning"
   },
   "pamRotationListLoadErrorTitle": {
     "message": "Det gick inte att läsa in"
@@ -20568,14 +20855,8 @@
   "pamRotationListLoadErrorDescription": {
     "message": "Kontrollera anslutningen och försök igen. Uppdatera sidan om problemet kvarstår."
   },
-  "pamRotationConfigNoTargetSystems": {
-    "message": "Konfigurera ett målsystem innan du kan rotera inloggningsuppgifter. Ett målsystem anger var en inloggningsuppgift används och hur Bitwarden roterar den."
-  },
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Konfigurera ett målsystem"
-  },
-  "pamRotationConfigNoResultsFiltered": {
-    "message": "Inga hanterade inloggningsuppgifter matchar dina filter."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Inloggningsuppgift"
@@ -20592,9 +20873,6 @@
   "pamRotationConfigColumnRotateOnAccessEnd": {
     "message": "Rotera när åtkomsten avslutas"
   },
-  "pamRotationConfigColumnLastRotation": {
-    "message": "Senaste rotering"
-  },
   "pamRotationConfigColumnLastRotated": {
     "message": "Senast roterad"
   },
@@ -20603,6 +20881,270 @@
   },
   "pamRotationConfigStatusPaused": {
     "message": "Pausad"
+  },
+  "pamRotationConfigStatusFailed": {
+    "message": "Misslyckades"
+  },
+  "pamRotationConfigStatusNotConnected": {
+    "message": "Inte ansluten"
+  },
+  "pamRotationConfigStatusManualRotation": {
+    "message": "Manuell rotation"
+  },
+  "pamRotationConfigColumnAccount": {
+    "message": "Konto"
+  },
+  "pamRotationFilterTrigger": {
+    "message": "Utlösare för rotation"
+  },
+  "pamRotationTriggerSchedule": {
+    "message": "Enligt schema"
+  },
+  "pamRotationTriggerAccessEnd": {
+    "message": "När åtkomsten upphör"
+  },
+  "pamRotationTriggerOnDemand": {
+    "message": "Endast vid behov"
+  },
+  "pamRotationNextInProgress": {
+    "message": "Pågår"
+  },
+  "pamRotationNextNone": {
+    "message": "Ingen"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "för $COUNT$ min sedan",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "för $COUNT$ tim sedan",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "för $COUNT$ d sedan",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "för $COUNT$ veckor sedan",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "för $COUNT$ månader sedan",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "I går"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "om $COUNT$ tim",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "om $COUNT$ veckor",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "Förföll för $COUNT$ d sedan",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationDetailNone": {
+    "message": "Ingen"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Rotation är pausad, så den här autentiseringsuppgiften roteras inte enligt schemat eller när någons åtkomst upphör."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "Det första försöket misslyckades, så Bitwarden försöker igen. Du behöver inte göra något om inte alla försök misslyckas."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "Det här målsystemet saknar åtkomstanslutning, så den här autentiseringsuppgiften kan inte roteras."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "Åtkomstanslutningarna är frånkopplade, så den här autentiseringsuppgiften kan inte roteras."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "Den senaste rotationen slutfördes inte i tid. Välj $ACTION$ för att försöka igen.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "Den här autentiseringsuppgiften skulle ha roterats $AGE$. Ändra lösenordet, uppdatera posten i valvet och markera den sedan som roterad.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "Visa åtkomstanslutningar"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Åtkomstanslutningar för det här målsystemet"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Alla autentiseringsuppgifter på det här målsystemet använder dessa."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "Kontots inloggningsnamn, till exempel name@company.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "Värdet som skriptet använder för att identifiera kontot, till exempel dess användarnamn."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "Kontots användarnamn på målsystemet, för dokumentationen. Bitwarden använder det inte för rotation."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "Kontots användarnamn på målsystemet, angivet precis som systemet förväntar sig."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Ska roteras $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Rotationsschema"
+  },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Utlösare för rotation"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "Det första försöket misslyckades, men återförsöket lyckades."
+  },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Rotation startade"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Slutligt resultat"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "Försök $NUMBER$ misslyckades.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "Ingen åtkomstanslutning tog hand om den här rotationen."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Sessioner avslutades"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Kunde inte avsluta sessioner"
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Uppgifter om rotation"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Misslyckades"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Lyckades"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "Målsystemet svarade inte."
+  },
+  "pamRotationConfigRotateNowInProgress": {
+    "message": "En rotation pågår."
+  },
+  "pamRotationConfigRotateNowPaused": {
+    "message": "Återuppta rotationen för att rotera nu."
+  },
+  "pamRotationConfigRotateNowNotConnected": {
+    "message": "Ingen åtkomstanslutning är ansluten"
+  },
+  "pamRotationConfigRemoveLockedReason": {
+    "message": "Tillgängligt när rotationen är klar."
+  },
+  "pamRotationConfigEditSettings": {
+    "message": "Redigera rotationsinställningar"
+  },
+  "pamRotationConfigViewHistory": {
+    "message": "Visa rotationshistorik"
+  },
+  "pamRotationConfigRotateNowStarted": {
+    "message": "Rotationen startade."
+  },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Rotationen startade inte. Försök igen."
+  },
+  "pamRotationConfigMarkedRotated": {
+    "message": "Markerades som roterad."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Kunde inte markera som roterad. Försök igen."
+  },
+  "pamRotationConfigPauseWhileRotatingSuccess": {
+    "message": "Rotationen har pausats. Den pågående rotationen slutförs."
+  },
+  "pamRotationConfigPauseContent": {
+    "message": "Den här autentiseringsuppgiften roteras inte enligt schemat eller när någons åtkomst upphör. En redan pågående rotation slutförs."
+  },
+  "pamRotationConfigMarkRotatedContent": {
+    "message": "Gör detta först när du har ändrat lösenordet på målsystemet och uppdaterat posten i valvet."
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Hantera rotation av autentiseringsuppgifter mellan målsystem med åtkomstanslutningar som körs i ditt nätverk."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Hanterad autentiseringsuppgift"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Målsystem"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Åtkomstanslutning"
   },
   "pamRotationConfigRotatingBadge": {
     "message": "Roterar"
@@ -20613,12 +21155,6 @@
   "pamRotationConfigRotateNow": {
     "message": "Rotera nu"
   },
-  "pamRotationConfigRotateNowUnavailableTitle": {
-    "message": "Det går inte att rotera nu. Målsystemet är inaktivt eller roteringen är pausad eller redan pågår."
-  },
-  "pamRotationConfigRotateNowSuccess": {
-    "message": "Roteringen har skickats."
-  },
   "pamRotationConfigMarkRotated": {
     "message": "Markera som roterad"
   },
@@ -20627,15 +21163,6 @@
   },
   "pamRotationConfigMarkRotatedTitle": {
     "message": "Markera som roterad"
-  },
-  "pamRotationConfigRecordManualContent": {
-    "message": "Det här registrerar att inloggningsuppgiften roterades utanför Bitwarden och återställer schemat. Granskningsloggen visar den manuella roteringen."
-  },
-  "pamRotationConfigRecordManualConfirm": {
-    "message": "Registrera rotering"
-  },
-  "pamRotationConfigRecordManualSuccess": {
-    "message": "Manuell rotering har registrerats."
   },
   "pamRotationConfigEditCredential": {
     "message": "Redigera inloggningsuppgift"
@@ -20649,6 +21176,9 @@
   "pamRotationConfigPauseSuccess": {
     "message": "Roteringen har pausats."
   },
+  "pamRotationConfigPauseFailed": {
+    "message": "Rotationen pausades inte. Försök igen."
+  },
   "pamRotationConfigResumeRotation": {
     "message": "Återuppta rotering"
   },
@@ -20658,8 +21188,14 @@
   "pamRotationConfigDeleteConfirmTitle": {
     "message": "Ta bort hanterad inloggningsuppgift"
   },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Ta bort från rotation"
+  },
   "pamRotationConfigDeleteConfirmContent": {
     "message": "Det här tar bort rotationshanteringen för inloggningsuppgiften. Objektet finns kvar i ditt valv och rotationshistoriken finns kvar i granskningsloggen."
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "Den här autentiseringsuppgiften och dess inställningar tas bort från Hanterade autentiseringsuppgifter. Posten i valvet ändras inte och historiken finns kvar i granskningsloggen."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Det går inte att ta bort medan en rotering pågår. Det här försvinner när det aktuella jobbet är klart eller tidsgränsen går ut."
@@ -20667,26 +21203,32 @@
   "pamRotationConfigDeleteSuccess": {
     "message": "Hanterad inloggningsuppgift har tagits bort."
   },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Togs bort från rotation."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Kunde inte ta bort från rotation. Försök igen."
+  },
   "pamRotationConfigNeverRotated": {
     "message": "Aldrig"
+  },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "Inga rotationer ännu"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Lägg till hanterad autentiseringsuppgift"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Om du roterar den här autentiseringsuppgiften loggas även alla som fortfarande använder det nuvarande lösenordet ut."
   },
   "pamRotationConfigHistoryEmpty": {
     "message": "Inga roteringar har körts ännu."
   },
-  "pamRotationConfigRemoveLockedContentConnector": {
-    "message": "Ett rotationsjobb pågår. Du kan ta bort inloggningsuppgiften från rotering när åtkomstanslutningen har slutfört det eller tidsgränsen går ut. En paus stoppar bara nya jobb och avbryter inte det som redan körs."
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Rotationer för den här autentiseringsuppgiften visas här."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Information om inloggningsuppgiften"
-  },
-  "pamRotationConfigDetailsHeading": {
-    "message": "Information"
-  },
-  "pamRotationConfigSettingsHeading": {
-    "message": "Rotationsinställningar"
-  },
-  "pamRotationConfigAccountHeading": {
-    "message": "Konto"
   },
   "pamRotationConfigTabConfiguration": {
     "message": "Konfiguration"
@@ -20694,32 +21236,11 @@
   "pamRotationConfigTabHistory": {
     "message": "Historik"
   },
-  "pamRotationConfigCipher": {
-    "message": "Inloggningsuppgift"
-  },
-  "pamRotationConfigCipherPlaceholder": {
-    "message": "Välj en inloggningsuppgift"
-  },
-  "pamRotationConfigCipherHint": {
-    "message": "Välj objektet i valvet vars lösenord ska roteras."
-  },
   "pamRotationConfigTargetSystem": {
     "message": "Målsystem"
   },
   "pamRotationConfigTargetSystemPlaceholder": {
     "message": "Välj ett målsystem"
-  },
-  "pamRotationConfigAccountIdentity": {
-    "message": "Kontoidentitet"
-  },
-  "pamRotationConfigAccountIdentityHintConnector": {
-    "message": "Kontot som ska roteras i målsystemet, till exempel en UPN, SQL-inloggning eller ett skriptargument. Skickas oförändrat till åtkomstanslutningen."
-  },
-  "pamRotationConfigTerminateSessions": {
-    "message": "Avsluta aktiva sessioner efter rotering"
-  },
-  "pamRotationConfigTerminateSessionsHint": {
-    "message": "Kräver att målsystemet har stöd för att avsluta sessioner."
   },
   "pamRotationConfigTerminationUnknownHint": {
     "message": "Det gick inte att verifiera om målsystemet har stöd för att avsluta sessioner."
@@ -20727,20 +21248,8 @@
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Rotera när åtkomsten avslutas"
   },
-  "pamRotationConfigRotateWhenAccessEndsHint": {
-    "message": "Rotera automatiskt inloggningsuppgiften när PAM-åtkomsten till den avslutas."
-  },
-  "pamRotationConfigCreated": {
-    "message": "Hanterad inloggningsuppgift har skapats."
-  },
   "pamRotationConfigSaved": {
     "message": "Hanterad inloggningsuppgift har sparats."
-  },
-  "pamRotationConfigAccountLockedTitle": {
-    "message": "Inställningarna är inte tillgängliga"
-  },
-  "pamRotationConfigAccountLockedContent": {
-    "message": "Ändringar kan inte sparas medan ett rotationsjobb pågår. Du kan spara igen när jobbet är klart eller tidsgränsen går ut."
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
     "message": "Integritetskontrollen misslyckades"
@@ -20781,9 +21290,6 @@
   "pamRotationJobStatusPending": {
     "message": "Väntande"
   },
-  "pamRotationJobStatusClaimed": {
-    "message": "Hämtat"
-  },
   "pamRotationJobStatusSucceeded": {
     "message": "Lyckades"
   },
@@ -20793,14 +21299,11 @@
   "pamRotationJobStatusTimedOut": {
     "message": "Tidsgränsen överskreds"
   },
+  "pamRotationJobStatusRetrying": {
+    "message": "Försöker igen"
+  },
   "pamRotationJobStatusUnknown": {
     "message": "Okänd"
-  },
-  "pamRotationAssignmentPendingAssign": {
-    "message": "Väntar på tilldelning"
-  },
-  "pamRotationAssignmentPendingUnassign": {
-    "message": "Väntar på borttagning"
   },
   "pamRotationAttemptStatusExecuting": {
     "message": "Körs"
@@ -20865,15 +21368,6 @@
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "Åtkomstanslutningen kunde inte nå målsystemet. Kontrollera målsystemets adress och att anslutningen kan nå det via nätverket och rotera sedan igen."
   },
-  "pamRotationFailureReportedDetail": {
-    "message": "Rapporterat av åtkomstanslutningen: $REASON$",
-    "placeholders": {
-      "reason": {
-        "content": "$1",
-        "example": "target_rejected: LDAP result code 50"
-      }
-    }
-  },
   "pamRotationHistoryCaption": {
     "message": "Rotationsjobb, senaste först"
   },
@@ -20888,15 +21382,6 @@
   },
   "pamRotationHistoryAttemptsCaption": {
     "message": "Försök, äldsta först"
-  },
-  "pamRotationHistoryAttemptsAllAlike": {
-    "message": "Alla försök slutade på samma sätt."
-  },
-  "pamRotationJobDrawerTitle": {
-    "message": "Rotationsjobb"
-  },
-  "pamRotationHistoryFailureHeading": {
-    "message": "Varför det misslyckades"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$ s",
@@ -21035,9 +21520,9 @@
   "pamAuditAccessConnector": {
     "message": "Åtkomstanslutning"
   },
-  "pamAccessConnectorAssignmentCountSingular": {
-    "message": "$COUNT$ mål",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ målsystem",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21045,9 +21530,9 @@
       }
     }
   },
-  "pamAccessConnectorAssignmentCount": {
-    "message": "$COUNT$ mål",
-    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ målsystem",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21057,7 +21542,7 @@
   },
   "pamAccessConnectorAssignmentsNone": {
     "message": "Inga",
-    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
   },
   "pamRotationConfigNoActiveTargetSystems": {
     "message": "Det finns inga aktiva målsystem att välja bland."
@@ -21071,14 +21556,179 @@
   "pamTargetSystemConnectorAssignmentsLoadError": {
     "message": "Åtkomstanslutningarna för det här målsystemet kunde inte läsas in."
   },
-  "pamTargetSystemDeleteAssignedConnectorsContent": {
-    "message": "Om du tar bort $NAME$ är det permanent. Hanterade inloggningsuppgifter som roteras mot systemet måste först tas bort, och dess tilldelningar av åtkomstanslutningar tas bort samtidigt.",
+  "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
+    "message": "Det här målsystemet och dess tilldelningar av åtkomstanslutningar tas bort."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
+    "message": "Det här målsystemet och dess tilldelningar av åtkomstanslutningar tas bort. Om du vill stoppa rotationer men behålla det ska du inaktivera det i stället."
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Post i valvet"
+  },
+  "pamRotationConfigCredentialName": {
+    "message": "Namn på autentiseringsuppgift"
+  },
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Välj autentiseringsuppgift"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Autentiseringsuppgifter som redan roteras visas inte."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "Autentiseringsuppgiften finns på målsystemet."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Manuell"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "Ingen ansluten åtkomstanslutning"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "Det här målsystemet använder manuell rotation. Du ändrar själv lösenordet för den här autentiseringsuppgiften och markerar den sedan som roterad."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "Det här målsystemet saknar ansluten åtkomstanslutning, så den här autentiseringsuppgiften kan inte roteras ännu. Du kan ändå spara den."
+  },
+  "pamRotationConfigAccountId": {
+    "message": "Konto-id"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "Ange ett id"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "Användarnamnet på målsystemet, till exempel name@company.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Utlösare för rotation"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "Efter rotation"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Schema"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Ändrar lösenordet när någons åtkomst upphör så att det gamla lösenordet slutar fungera."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Endast tillgängligt för automatisk rotation."
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "Avsluta aktiva sessioner"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Loggar ut alla som fortfarande använder det gamla lösenordet efter varje rotation. Om detta misslyckas räknas rotationen ändå."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Tillgängligt när du väljer ett målsystem som har stöd för det."
+  },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Hanterad autentiseringsuppgift har lagts till."
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Målsystem har lagts till."
+  },
+  "pamTargetSystemNameHelp": {
+    "message": "Använd ett namn som teamet känner igen, till exempel Entra ID-produktion. Det visas överallt där du väljer ett målsystem."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "En åtkomstanslutning ändrar lösenord på det här målsystemet åt dig."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "Du ändrar själv lösenord på det här målsystemet och markerar dem sedan som roterade."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "Systemtyp"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Anger för åtkomstanslutningen hur lösenord ska ändras på det här systemet."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Avslutar sessioner"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra kan logga ut aktiva sessioner efter rotation."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "Den här systemtypen kan inte logga ut aktiva sessioner efter rotation."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Visas när du väljer en systemtyp."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Välj en systemtyp"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Välj åtkomstanslutningar"
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Åtkomstanslutningar"
+  },
+  "pamTargetSystemAccessConnectorFilter": {
+    "message": "Åtkomstanslutning"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Välj de åtkomstanslutningar som kan rotera lösenord på det här målsystemet. Välj fler än en för reservdrift."
+  },
+  "pamTargetSystemCalloutNoConnectorConnected": {
+    "message": "Ingen av de valda åtkomstanslutningarna är ansluten, så det här målsystemet kan inte roteras ännu. Du kan ändå spara."
+  },
+  "pamTargetSystemCalloutNoConnectorConnectedEditing": {
+    "message": "Ingen av de valda åtkomstanslutningarna är ansluten, så det här målsystemet kan inte roteras ännu."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Automatisk rotation"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Konfiguration"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "Det här målsystemet är inaktivt, så inga nya rotationer startar på det. Välj Aktivera för att starta dem igen."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "Inga åtkomstanslutningar är tilldelade, så välj minst en innan det här målsystemet kan roteras."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "Den här systemtypen kan logga ut aktiva sessioner efter rotation."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Ta bort sista åtkomstanslutningen"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Ta bort åtkomstanslutning"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "Det här målsystemet kan inte roteras förrän en annan åtkomstanslutning har tilldelats."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "1 hanterad autentiseringsuppgift på det här målsystemet slutar roteras tills en annan åtkomstanslutning har tilldelats."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "$COUNT$ hanterade autentiseringsuppgifter på det här målsystemet slutar roteras tills en annan åtkomstanslutning har tilldelats.",
     "placeholders": {
-      "name": {
+      "count": {
         "content": "$1",
-        "example": "Production database"
+        "example": "8"
       }
     }
+  },
+  "pamTargetSystemCalloutNoConnectorsExist": {
+    "message": "Det finns inga åtkomstanslutningar ännu. De körs i ditt nätverk och roterar lösenord för det här målsystemet. Spara nu och lägg sedan till en på fliken Åtkomstanslutningar."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Tecken som ska inkluderas"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Versaler"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Gemener"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Siffror"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Symboler"
   },
   "pamEventRequestedAccess": {
     "message": "Begärde privilegierad åtkomst till objektet $ITEM$ (begäran $ID$).",

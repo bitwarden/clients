@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
   GroupsComponentRefactor = "pm-43419-groups-table-v2",
   MembersTableV2 = "pm-37463-members-table-v2",
@@ -101,6 +100,7 @@ export enum FeatureFlag {
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
+  SmCli = "sm-2107-cli",
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
@@ -125,7 +125,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
   [FeatureFlag.GroupsComponentRefactor]: FALSE,
   [FeatureFlag.MembersTableV2]: FALSE,
@@ -211,6 +210,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
+  [FeatureFlag.SmCli]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
