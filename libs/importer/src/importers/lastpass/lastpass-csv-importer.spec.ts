@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FieldType, CipherType, BankAccountType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -214,7 +215,7 @@ describe("Lastpass CSV Importer", () => {
   CipherData.forEach((data) => {
     it(data.title, async () => {
       jest.useFakeTimers().setSystemTime(data.expected.creationDate);
-      const importer = new LastPassCsvImporter(configService);
+      const importer = new LastPassCsvImporter(configService, mock<LogService>());
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -236,7 +237,7 @@ describe("Lastpass CSV Importer", () => {
     const input = `url,username,password,totp,extra,name,grouping,fav
         http://example.com,someUser,myPassword,Y64VEVMBTSXCYIWRSHRNDZW62MPGVU2G,super secure notes,example.com,,0`;
 
-    const importer = new LastPassCsvImporter(configService);
+    const importer = new LastPassCsvImporter(configService, mock<LogService>());
     const result = await importer.parse(input);
     baseExcept(result);
 
@@ -246,7 +247,7 @@ describe("Lastpass CSV Importer", () => {
 
   describe("should parse bank account record", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new LastPassCsvImporter(configService);
+      const importer = new LastPassCsvImporter(configService, mock<LogService>());
       const result = await importer.parse(BankAccountCSV);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -270,7 +271,7 @@ Notes:`);
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new LastPassCsvImporter(configService);
+      const importer = new LastPassCsvImporter(configService, mock<LogService>());
       const result = await importer.parse(BankAccountCSV);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -291,7 +292,7 @@ Notes:`);
 
   describe("should parse passport record", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new LastPassCsvImporter(configService);
+      const importer = new LastPassCsvImporter(configService, mock<LogService>());
       const result = await importer.parse(PassportCSV);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -316,7 +317,7 @@ Notes:`);
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new LastPassCsvImporter(configService);
+      const importer = new LastPassCsvImporter(configService, mock<LogService>());
       const result = await importer.parse(PassportCSV);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -339,7 +340,7 @@ Notes:`);
 
   describe("should parse drivers license record", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new LastPassCsvImporter(configService);
+      const importer = new LastPassCsvImporter(configService, mock<LogService>());
       const result = await importer.parse(DriversLicenseCSV);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
@@ -366,7 +367,7 @@ Notes:`);
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new LastPassCsvImporter(configService);
+      const importer = new LastPassCsvImporter(configService, mock<LogService>());
       const result = await importer.parse(DriversLicenseCSV);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toEqual(1);
