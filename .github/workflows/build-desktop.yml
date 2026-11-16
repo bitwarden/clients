@@ -1614,7 +1614,7 @@ jobs:
           - variant: oss
             license_type: oss
             artifact_prefix: ""
-            browser_artifact_prefix: ""
+            browser_artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
@@ -2171,7 +2171,7 @@ jobs:
           - variant: oss
             license_type: oss
             artifact_prefix: ""
-            browser_artifact_prefix: ""
+            browser_artifact_prefix: "oss-"
             build_number_suffix: ""
           # Both variants upload to the same TestFlight app, so the commercial
           # build needs its own build number (e.g. 3456 vs 3456.1).
