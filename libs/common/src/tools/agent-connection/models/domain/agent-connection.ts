@@ -1,0 +1,77 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Jsonify } from "type-fest";
+
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+
+import Domain from "../../../../platform/models/domain/domain-base";
+import { UserKey } from "../../../../types/key";
+import { AgentConnectionData } from "../data/agent-connection.data";
+import { AgentConnectionView } from "../view/agent-connection.view";
+
+/**
+ * Domain model for an agent connection. The agent-access PSK lives in {@link key} as an
+ * {@link EncString} wrapped directly under the user key (no per-item key derivation, unlike
+ * `Send`). Only the user's own clients can decrypt it; the server never sees plaintext.
+ */
+export class AgentConnection extends Domain {
+  id: string;
+  partnerClientId: string;
+  name: string;
+  key: EncString;
+  creationDate: Date;
+  revisionDate: Date;
+  revokedDate: Date | null;
+
+  constructor(obj?: AgentConnectionData) {
+    super();
+    if (obj == null) {
+      return;
+    }
+
+    this.id = obj.id;
+    this.partnerClientId = obj.partnerClientId;
+    this.name = obj.name;
+    this.key = obj.key != null ? new EncString(obj.key) : null;
+    this.creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
+    this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
+    this.revokedDate = obj.revokedDate != null ? new Date(obj.revokedDate) : null;
+  }
+
+  get revoked(): boolean {
+    return this.revokedDate != null;
+  }
+
+  /** Decrypts the PSK with the user key, producing a {@link AgentConnectionView}. */
+  async decrypt(userKey: UserKey, encryptService: EncryptService): Promise<AgentConnectionView> {
+    const view = new AgentConnectionView(this);
+    view.psk = this.key != null ? await encryptService.decryptString(this.key, userKey) : null;
+    return view;
+  }
+
+  toAgentConnectionData(): AgentConnectionData {
+    const data = new AgentConnectionData();
+    data.id = this.id;
+    data.partnerClientId = this.partnerClientId;
+    data.name = this.name;
+    data.key = this.key?.encryptedString ?? null;
+    data.creationDate = this.creationDate?.toISOString() ?? null;
+    data.revisionDate = this.revisionDate?.toISOString() ?? null;
+    data.revokedDate = this.revokedDate?.toISOString() ?? null;
+    return data;
+  }
+
+  static fromJSON(obj: Jsonify<AgentConnection>): AgentConnection {
+    if (obj == null) {
+      return null;
+    }
+
+    return Object.assign(new AgentConnection(), obj, {
+      key: EncString.fromJSON(obj.key),
+      creationDate: obj.creationDate == null ? null : new Date(obj.creationDate),
+      revisionDate: obj.revisionDate == null ? null : new Date(obj.revisionDate),
+      revokedDate: obj.revokedDate == null ? null : new Date(obj.revokedDate),
+    });
+  }
+}

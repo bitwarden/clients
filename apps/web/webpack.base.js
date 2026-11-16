@@ -147,6 +147,11 @@ module.exports.buildConfig = function buildConfig(params) {
       chunks: ["connectors/redirect", "styles"],
     }),
     new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, "src/connectors/oauth-complete.html"),
+      filename: "oauth-complete-connector.html",
+      chunks: ["connectors/oauth-complete", "styles"],
+    }),
+    new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/connectors/duo-redirect.html"),
       filename: "duo-redirect-connector.html",
       chunks: ["connectors/duo-redirect", "styles"],
@@ -253,6 +258,15 @@ module.exports.buildConfig = function buildConfig(params) {
               context: ["/identity"],
               target: envConfig.dev?.proxyIdentity,
               pathRewrite: { "^/identity": "" },
+              secure: false,
+              changeOrigin: true,
+            },
+            {
+              // Duende's interactive OIDC flow (e.g. Login with Bitwarden consent) emits root-relative
+              // redirects to /connect/*. Proxy them to Identity so they resolve in dev (prod serves
+              // Identity on its own origin, so this isn't needed there).
+              context: ["/connect"],
+              target: envConfig.dev?.proxyIdentity,
               secure: false,
               changeOrigin: true,
             },
@@ -399,6 +413,7 @@ module.exports.buildConfig = function buildConfig(params) {
       "connectors/sso": path.resolve(__dirname, "src/connectors/sso.ts"),
       "connectors/duo-redirect": path.resolve(__dirname, "src/connectors/duo-redirect.ts"),
       "connectors/redirect": path.resolve(__dirname, "src/connectors/redirect.ts"),
+      "connectors/oauth-complete": path.resolve(__dirname, "src/connectors/oauth-complete.ts"),
       "connectors/platform/proxy-cookie-redirect": path.resolve(
         __dirname,
         "src/connectors/platform/proxy-cookie-redirect.ts",

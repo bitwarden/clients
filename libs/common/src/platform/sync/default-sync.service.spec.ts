@@ -38,6 +38,7 @@ import {
   SyncSendNotification,
 } from "../../models/response/notification.response";
 import { ProviderService } from "../../provider/abstractions/provider.service";
+import { InternalAgentConnectionService } from "../../tools/agent-connection/services/agent-connection.service.abstraction";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { SendType } from "../../tools/send/types/send-type";
@@ -85,6 +86,7 @@ describe("DefaultSyncService", () => {
   let stateProvider: MockProxy<StateProvider>;
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
+  let agentConnectionService: MockProxy<InternalAgentConnectionService>;
   let cryptoSyncHandler: { on_sync: jest.Mock<Promise<void>, [CryptoSyncData]> };
   let sendsClient: { fetch: jest.Mock; retry_pending_deletions: jest.Mock };
 
@@ -118,6 +120,7 @@ describe("DefaultSyncService", () => {
     stateProvider = mock();
     configService = mock();
     sdkService = mock();
+    agentConnectionService = mock();
     cryptoSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
     sendsClient = {
       fetch: jest.fn(),
@@ -162,6 +165,7 @@ describe("DefaultSyncService", () => {
       stateProvider,
       configService,
       sdkService,
+      agentConnectionService,
     );
   });
 

@@ -15,6 +15,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
+import { AgentConnectionService } from "@bitwarden/common/tools/agent-connection/services/agent-connection.service.abstraction";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -244,6 +245,7 @@ describe("KeyRotationService", () => {
   let mockCipherService: MockProxy<CipherService>;
   let mockFolderService: MockProxy<FolderService>;
   let mockSendService: MockProxy<SendService>;
+  let mockAgentConnectionService: MockProxy<AgentConnectionService>;
   let mockEmergencyAccessService: MockProxy<EmergencyAccessService>;
   let mockResetPasswordService: MockProxy<OrganizationUserResetPasswordService>;
   let mockDeviceTrustService: MockProxy<DeviceTrustServiceAbstraction>;
@@ -280,6 +282,8 @@ describe("KeyRotationService", () => {
     mockCipherService = mock<CipherService>();
     mockFolderService = mock<FolderService>();
     mockSendService = mock<SendService>();
+    mockAgentConnectionService = mock<AgentConnectionService>();
+    mockAgentConnectionService.getRotatedData.mockResolvedValue([]);
     mockEmergencyAccessService = mock<EmergencyAccessService>();
     mockEmergencyAccessService.getPublicKeys.mockResolvedValue(
       mockTrustedPublicKeys.map((key) => {
@@ -329,6 +333,7 @@ describe("KeyRotationService", () => {
       mockCipherService,
       mockFolderService,
       mockSendService,
+      mockAgentConnectionService,
       mockEmergencyAccessService,
       mockResetPasswordService,
       mockDeviceTrustService,
@@ -945,6 +950,7 @@ describe("KeyRotationService", () => {
         ciphers: mockCiphers,
         folders: mockFolders,
         sends: mockSends,
+        agentConnections: [],
       });
     });
 

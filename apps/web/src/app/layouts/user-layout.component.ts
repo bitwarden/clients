@@ -98,6 +98,11 @@ export class UserLayoutComponent implements OnInit {
     { initialValue: false },
   );
 
+  protected readonly loginWithBitwardenEnabled: Signal<boolean> = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.LoginWithBitwarden),
+    { initialValue: false },
+  );
+
   protected readonly singleOrgPolicyApplies = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,

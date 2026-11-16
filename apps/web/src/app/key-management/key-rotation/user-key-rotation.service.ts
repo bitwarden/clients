@@ -12,6 +12,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { AgentConnectionService } from "@bitwarden/common/tools/agent-connection/services/agent-connection.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -66,6 +67,7 @@ export class UserKeyRotationService {
     private cipherService: CipherService,
     private folderService: FolderService,
     private sendService: SendService,
+    private agentConnectionService: AgentConnectionService,
     private emergencyAccessService: EmergencyAccessService,
     private resetPasswordService: OrganizationUserResetPasswordService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
@@ -462,7 +464,24 @@ export class UserKeyRotationService {
       this.logService.info("[Userkey rotation] ciphers, folders, or sends are null. Aborting!");
       throw new Error("ciphers, folders, or sends are null");
     }
-    return new UserDataRequest(rotatedCiphers, rotatedFolders, rotatedSends);
+
+    // The agent-access PSK is wrapped with the user key, so each connection must be re-wrapped on
+    // rotation. Gated behind the feature flag; when off no connections are stored, so this is empty.
+    let rotatedAgentConnections: Awaited<ReturnType<AgentConnectionService["getRotatedData"]>> = [];
+    if (await this.configService.getFeatureFlag(FeatureFlag.LoginWithBitwarden)) {
+      rotatedAgentConnections = await this.agentConnectionService.getRotatedData(
+        originalUserKey,
+        newUnencryptedUserKey,
+        user.id,
+      );
+    }
+
+    return new UserDataRequest(
+      rotatedCiphers,
+      rotatedFolders,
+      rotatedSends,
+      rotatedAgentConnections,
+    );
   }
 
   /**

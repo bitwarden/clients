@@ -4,6 +4,7 @@ import { UserDecryptionResponse } from "../../key-management/models/response/use
 import { BaseResponse } from "../../models/response/base.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
+import { AgentConnectionResponse } from "../../tools/agent-connection/models/response/agent-connection.response";
 import { SendResponse } from "../../tools/send/models/response/send.response";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
@@ -17,6 +18,7 @@ export class SyncResponse extends BaseResponse {
   policies?: PolicyResponse[] = [];
   policiesNew?: PolicyResponse[];
   sends: SendResponse[] = [];
+  agentConnections: AgentConnectionResponse[] = [];
   userDecryption?: UserDecryptionResponse;
 
   constructor(response: any) {
@@ -60,6 +62,11 @@ export class SyncResponse extends BaseResponse {
     const sends = this.getResponseProperty("Sends");
     if (sends != null) {
       this.sends = sends.map((s: any) => new SendResponse(s));
+    }
+
+    const agentConnections = this.getResponseProperty("AgentConnections");
+    if (agentConnections != null) {
+      this.agentConnections = agentConnections.map((c: any) => new AgentConnectionResponse(c));
     }
 
     const userDecryption = this.getResponseProperty("UserDecryption");

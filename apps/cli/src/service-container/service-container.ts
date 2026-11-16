@@ -145,6 +145,8 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider";
 import { ProviderApiService } from "@bitwarden/common/provider/services/provider-api.service";
 import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
+import { AgentConnectionStateProvider } from "@bitwarden/common/tools/agent-connection/services/agent-connection-state.provider";
+import { AgentConnectionService } from "@bitwarden/common/tools/agent-connection/services/agent-connection.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
 import {
@@ -1067,6 +1069,15 @@ export class ServiceContainer {
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
+    // Agent connections are only populated on sync when the LoginWithBitwarden flag is on; the CLI
+    // does not wire the broker UI (web-only v1) but must still satisfy the sync dependency.
+    const agentConnectionService = new AgentConnectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      new AgentConnectionStateProvider(this.stateProvider),
+    );
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1094,6 +1105,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.sdkService,
+      agentConnectionService,
     );
 
     this.totpService = new TotpService(this.sdkService);

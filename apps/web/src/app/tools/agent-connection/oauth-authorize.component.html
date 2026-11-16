@@ -1,0 +1,51 @@
+@if (loading) {
+  <div class="tw-text-center">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+} @else if (context) {
+  <p bitTypography="body1">
+    {{ "loginWithBitwardenConsentDescription" | i18n: context.clientName }}
+  </p>
+
+  <p bitTypography="body1" class="tw-mb-2 tw-font-bold">
+    {{ "loginWithBitwardenScopesTitle" | i18n }}
+  </p>
+  <ul class="tw-mb-6 tw-flex tw-list-none tw-flex-col tw-gap-2 tw-pl-0">
+    @for (scope of context.scopes; track scope) {
+      <li class="tw-flex tw-items-center tw-gap-2">
+        <i class="bwi bwi-check tw-text-success" aria-hidden="true"></i>
+        <span bitTypography="body1">{{ scopeLabel(scope) }}</span>
+      </li>
+    }
+  </ul>
+
+  <div class="tw-flex tw-flex-col tw-gap-2">
+    <button
+      bitButton
+      type="button"
+      buttonType="primary"
+      block
+      [loading]="submitting"
+      (click)="approve()"
+    >
+      {{ "loginWithBitwardenApprove" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      block
+      [disabled]="submitting"
+      (click)="deny()"
+    >
+      {{ "loginWithBitwardenDeny" | i18n }}
+    </button>
+  </div>
+} @else {
+  <p bitTypography="body1">{{ "loginWithBitwardenRequestInvalid" | i18n }}</p>
+}
