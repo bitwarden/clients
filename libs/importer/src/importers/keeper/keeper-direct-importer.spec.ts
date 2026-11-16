@@ -2,7 +2,9 @@
  * @jest-environment node
  */
 import { fromBinary } from "@bufbuild/protobuf";
+import { mock } from "jest-mock-extended";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
@@ -44,18 +46,19 @@ describe("Keeper Direct Importer", () => {
       new Uint8Array(Buffer.from(fixture.masterKey, "base64")),
     );
 
-    const importer = new KeeperDirectImporter();
+    const importer = new KeeperDirectImporter(mock<LogService>());
     ({ result, errors } = importer.convertVaultToImportResult(vault));
   });
 
   it("moves a result converted without an organization to the shape it would have had with one", () => {
     const organizationId = "org-1" as OrganizationId;
-    const direct = new KeeperDirectImporter();
-    direct.organizationId = organizationId;
-    const expected = direct.convertVaultToImportResult(vault).result;
+    const directWithOrg = new KeeperDirectImporter(mock<LogService>());
+    directWithOrg.organizationId = organizationId;
+    const expected = directWithOrg.convertVaultToImportResult(vault).result;
 
-    const actual = new KeeperDirectImporter().convertVaultToImportResult(vault).result;
-    new KeeperDirectImporter().moveToOrganization(actual, organizationId);
+    const directWithoutOrg = new KeeperDirectImporter(mock<LogService>());
+    const actual = directWithoutOrg.convertVaultToImportResult(vault).result;
+    directWithoutOrg.moveToOrganization(actual, organizationId);
 
     expect(expected.collections.length).toBeGreaterThan(0);
     expect(actual.collections.map((c) => [c.name, c.organizationId])).toEqual(
@@ -593,7 +596,7 @@ describe("Keeper Direct Importer error handling", () => {
 
   function importWith(items: VaultItem[], vaultErrors: VaultRecordError[]) {
     const vault = new (Vault as any)(items, vaultErrors) as Vault;
-    return new KeeperDirectImporter().convertVaultToImportResult(vault);
+    return new KeeperDirectImporter(mock<LogService>()).convertVaultToImportResult(vault);
   }
 
   it("maps an UnsupportedVersion vault error to UnsupportedFeature with the UID as name", () => {
