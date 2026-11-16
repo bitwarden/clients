@@ -8865,33 +8865,6 @@
     "message": "Learn more about filling pop-up prompts (opens in a new tab)",
     "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Turn on autofill for browser login prompts?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Turn on master password re-prompt?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Use default match detection?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Autofill for browser login prompts turned off"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
-  },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "The approved access window has not started yet."
   },

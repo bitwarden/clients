@@ -39,14 +39,14 @@
           <button
             type="button"
             bitMenuItem
-            (click)="addUriFromUser({ uri: null, matchDetection: null })"
+            (click)="addUri({ uri: null, matchDetection: null }, true)"
           >
             {{ "website" | i18n }}
           </button>
           <button
             type="button"
             bitMenuItem
-            (click)="addUriFromUser({ uri: desktopAppUriPrefix, matchDetection: null })"
+            (click)="addUri({ uri: desktopAppUriPrefix, matchDetection: null }, true)"
           >
             {{ "app" | i18n }}
           </button>
@@ -57,7 +57,7 @@
           bitLink
           linkType="primary"
           [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
-          (click)="addUriFromUser({ uri: null, matchDetection: null })"
+          (click)="addUri({ uri: null, matchDetection: null }, true)"
           startIcon="bwi-plus"
         >
           {{ "addWebsite" | i18n }}

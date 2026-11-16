@@ -444,11 +444,10 @@ export default class WebRequestBackground {
     }
 
     try {
-      // The Host strategy is only applied to URIs using "Default", and logins with any such URI are
-      // removed by the eligibility filter below, so each remaining URI matched by its own strategy.
-      // Host is still passed so that a "Default" URI is never matched more loosely. The filter also
-      // removes logins with reprompt on, and, unless the global setting is on, logins without HTTP
-      // authentication turned on in their own settings, before the single-match check.
+      // Each URI is matched by its own strategy; a URI using "Default" is matched as Host, so it is never
+      // matched more loosely than the challenging host. Unless the global setting is on, the filter
+      // removes logins without HTTP authentication turned on in their own settings, before the
+      // single-match check.
       const ciphers = await this.fillCipherPolicy.ciphersForUrl(
         details.url,
         activeUserId,

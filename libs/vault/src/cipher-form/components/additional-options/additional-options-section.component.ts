@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, inject, Input, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, concatMap, filter, firstValueFrom, map, shareReplay } from "rxjs";
+import { firstValueFrom, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -22,7 +22,6 @@ import {
 
 import { PasswordRepromptService } from "../../../services/password-reprompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
-import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
 
 import { HTTPAuthenticationWarningDialogComponent } from "./http-authentication-warning-dialog.component";
@@ -51,14 +50,13 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CustomFieldsComponent) customFieldsComponent: CustomFieldsComponent;
 
-  private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
   private autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
   private dialogService = inject(DialogService);
 
   additionalOptionsForm = this.formBuilder.group({
     notes: [null as string],
     reprompt: [false],
-    httpAuthentication: this.httpAuthenticationService.httpAuthenticationControl,
+    httpAuthentication: [false],
   });
 
   passwordRepromptEnabled$ = this.passwordRepromptService.enabled$.pipe(
@@ -66,12 +64,12 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   );
 
   /**
-   * Emits true when the HTTP authentication setting is shown: for logins, while HTTP authentication is
+   * True when the HTTP authentication setting is shown: for logins, while HTTP authentication is
    * available. It is shown on every client that edits logins, including the Safari extension, which can't
    * answer HTTP authentication challenges itself. The cipher-level controls are also gated behind a dev
    * flag until every cipher format saves the setting.
    */
-  private readonly showHTTPAuthenticationCipherSetting$ =
+  protected readonly showHTTPAuthenticationCipherSetting = toSignal(
     this.autofillSettingsService.httpAuthenticationAvailable$.pipe(
       map(
         (httpAuthenticationAvailable) =>
@@ -79,18 +77,6 @@ export class AdditionalOptionsSectionComponent implements OnInit {
           devFlagEnabled("httpAuthenticationCipherControls") &&
           this.cipherFormContainer.config.cipherType === CipherType.Login,
       ),
-    );
-
-  /** True when the HTTP authentication setting is shown */
-  protected readonly showHTTPAuthenticationCipherSetting = toSignal(
-    this.showHTTPAuthenticationCipherSetting$,
-    { initialValue: false },
-  );
-
-  /** True when a URI uses the default match strategy, which prevents HTTP authentication from being used */
-  protected readonly httpAuthenticationBlockedByMatchStrategy = toSignal(
-    this.httpAuthenticationService.allUrisHaveExplicitMatchStrategy$.pipe(
-      map((allExplicit) => !allExplicit),
     ),
     { initialValue: false },
   );
@@ -132,17 +118,6 @@ export class AdditionalOptionsSectionComponent implements OnInit {
         return cipher;
       });
     });
-
-    this.enforceRepromptAndHTTPAuthenticationExclusivity();
-
-    combineLatest([
-      this.httpAuthenticationService.allUrisHaveExplicitMatchStrategy$,
-      this.cipherFormContainer.formStatusChange$,
-    ])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([allUrisHaveExplicitMatchStrategy, formStatus]) => {
-        this.updateHTTPAuthenticationDisabledState(allUrisHaveExplicitMatchStrategy, formStatus);
-      });
   }
 
   ngOnInit() {
@@ -150,89 +125,18 @@ export class AdditionalOptionsSectionComponent implements OnInit {
 
     if (prefillCipher) {
       const reprompt = prefillCipher.reprompt === CipherRepromptType.Password;
-      const storedHTTPAuthentication = prefillCipher.login?.httpAuthenticationEnabled === true;
+      const httpAuthentication = prefillCipher.login?.httpAuthenticationEnabled === true;
 
-      // Reprompt takes priority, so a login stored with both on loads with HTTP authentication off, and the
-      // change is saved with the next save. The value is set here rather than through the exclusivity
-      // handlers, which would ask the user to confirm turning HTTP authentication on.
       this.additionalOptionsForm.patchValue({
         notes: prefillCipher.notes,
         reprompt,
-        httpAuthentication: storedHTTPAuthentication && !reprompt,
+        httpAuthentication,
       });
-
-      if (storedHTTPAuthentication && reprompt) {
-        void this.notifyHTTPAuthenticationTurnedOff();
-      }
     }
 
     if (this.cipherFormContainer.config.mode === "partial-edit") {
       this.additionalOptionsForm.disable();
       this.isPartialEdit = true;
-    }
-  }
-
-  /** Tells the user that HTTP authentication was turned off on load, when the setting is shown */
-  private async notifyHTTPAuthenticationTurnedOff() {
-    if (await firstValueFrom(this.showHTTPAuthenticationCipherSetting$)) {
-      await this.httpAuthenticationService.notifyHTTPAuthenticationTurnedOff();
-    }
-  }
-
-  /**
-   * HTTP authentication and master password reprompt can't both be on. Turning either on while the other
-   * is on asks the user to confirm turning the other off; declining reverts the change.
-   */
-  private enforceRepromptAndHTTPAuthenticationExclusivity() {
-    const { reprompt, httpAuthentication } = this.additionalOptionsForm.controls;
-
-    httpAuthentication.valueChanges
-      .pipe(
-        filter((httpAuthenticationEnabled) => httpAuthenticationEnabled && reprompt.value),
-        concatMap(() => this.httpAuthenticationService.confirmTurnOnHTTPAuthentication()),
-        takeUntilDestroyed(),
-      )
-      .subscribe((confirmed) => {
-        if (confirmed) {
-          reprompt.setValue(false);
-        } else {
-          httpAuthentication.setValue(false);
-        }
-      });
-
-    reprompt.valueChanges
-      .pipe(
-        filter((repromptEnabled) => repromptEnabled && httpAuthentication.value),
-        concatMap(() => this.httpAuthenticationService.confirmTurnOnReprompt()),
-        takeUntilDestroyed(),
-      )
-      .subscribe((confirmed) => {
-        if (confirmed) {
-          httpAuthentication.setValue(false);
-        } else {
-          reprompt.setValue(false);
-        }
-      });
-  }
-
-  /**
-   * The HTTP authentication setting is disabled while any URI uses the default match strategy, while the
-   * form is disabled, and in `partial-edit` mode.
-   */
-  private updateHTTPAuthenticationDisabledState(
-    allUrisHaveExplicitMatchStrategy: boolean,
-    formStatus: "enabled" | "disabled" | null,
-  ) {
-    const { httpAuthentication } = this.additionalOptionsForm.controls;
-
-    if (
-      !allUrisHaveExplicitMatchStrategy ||
-      formStatus === "disabled" ||
-      this.cipherFormContainer.config.mode === "partial-edit"
-    ) {
-      httpAuthentication.disable({ emitEvent: false });
-    } else {
-      httpAuthentication.enable({ emitEvent: false });
     }
   }
 

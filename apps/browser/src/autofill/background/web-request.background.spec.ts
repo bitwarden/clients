@@ -686,40 +686,25 @@ describe("WebRequestBackground", () => {
         },
       );
 
-      it("declines a login stored with both HTTP authentication and master password reprompt on, and leaves it unchanged", async () => {
-        const cipher = createCipher(
-          "jane.doe@example.com",
-          "fake-password",
-          "cipher-id",
-          "organization-id",
-          { reprompt: CipherRepromptType.Password },
-        );
-        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
-
-        await triggerAuthRequired();
-
-        expectDeclined();
-        expect(cipher.login.httpAuthenticationEnabled).toBe(true);
-        expect(cipher.reprompt).toBe(CipherRepromptType.Password);
-        expect(cipherService.updateWithServer).not.toHaveBeenCalled();
-      });
-
-      it("declines a login whose only URI uses the default match strategy", async () => {
+      it("answers with an opted-in login that has master password reprompt on", async () => {
         cipherService.getAllDecryptedForUrl.mockResolvedValue([
           createCipher("jane.doe@example.com", "fake-password", "cipher-id", "organization-id", {
-            uris: [createLoginUri(url, null)],
+            reprompt: CipherRepromptType.Password,
           }),
         ]);
 
         await triggerAuthRequired();
 
-        expectDeclined();
+        expectAnswered();
       });
 
-      it("declines a login with a default-strategy URI that the lookup's default would match", async () => {
+      it("matches a default-strategy URI as Host", async () => {
         resolveLookupByMatching([
-          createCipher("jane.doe@example.com", "fake-password", "cipher-id", "organization-id", {
-            uris: [createLoginUri(url, null), createLoginUri(url, UriMatchStrategy.Host)],
+          createCipher("jane.doe@example.com", "fake-password", "matching-id", null, {
+            uris: [createLoginUri("https://example.com/elsewhere", null)],
+          }),
+          createCipher("john.doe@example.com", "other-fake-password", "subdomain-id", null, {
+            uris: [createLoginUri("https://login.example.com/protected", null)],
           }),
         ]);
 
@@ -731,7 +716,7 @@ describe("WebRequestBackground", () => {
           undefined,
           UriMatchStrategy.Host,
         );
-        expectDeclined();
+        expectAnswered();
       });
 
       it("declines a login with no URIs", async () => {
@@ -821,14 +806,11 @@ describe("WebRequestBackground", () => {
 
       it("answers with the one eligible login when it matches alongside ineligible logins", async () => {
         cipherService.getAllDecryptedForUrl.mockResolvedValue([
-          createCipher("reprompt@example.com", "reprompt-password", "reprompt-id", null, {
-            reprompt: CipherRepromptType.Password,
-          }),
-          createCipher("default@example.com", "default-password", "default-id", null, {
-            uris: [createLoginUri(url, null)],
-          }),
           createCipher("opted-out@example.com", "opted-out-password", "opted-out-id", null, {
             httpAuthenticationEnabled: false,
+          }),
+          createCipher("no-uris@example.com", "no-uris-password", "no-uris-id", null, {
+            uris: [],
           }),
           createCipher("jane.doe@example.com", "fake-password", "eligible-id", null),
         ]);
@@ -840,8 +822,8 @@ describe("WebRequestBackground", () => {
 
       it("declines when more than one eligible login matches alongside ineligible logins", async () => {
         cipherService.getAllDecryptedForUrl.mockResolvedValue([
-          createCipher("reprompt@example.com", "reprompt-password", "reprompt-id", null, {
-            reprompt: CipherRepromptType.Password,
+          createCipher("opted-out@example.com", "opted-out-password", "opted-out-id", null, {
+            httpAuthenticationEnabled: false,
           }),
           createCipher("jane.doe@example.com", "fake-password", "first-eligible-id", null),
           createCipher("john.doe@example.com", "other-fake-password", "second-eligible-id", null),
@@ -869,23 +851,10 @@ describe("WebRequestBackground", () => {
           expectAnswered();
         });
 
-        it("still declines a login with master password reprompt on", async () => {
+        it("still declines a login with no URIs", async () => {
           cipherService.getAllDecryptedForUrl.mockResolvedValue([
             createCipher("jane.doe@example.com", "fake-password", "cipher-id", null, {
-              reprompt: CipherRepromptType.Password,
-              httpAuthenticationEnabled: false,
-            }),
-          ]);
-
-          await triggerAuthRequired();
-
-          expectDeclined();
-        });
-
-        it("still declines a login whose URI uses the default match strategy", async () => {
-          cipherService.getAllDecryptedForUrl.mockResolvedValue([
-            createCipher("jane.doe@example.com", "fake-password", "cipher-id", null, {
-              uris: [createLoginUri(url, null)],
+              uris: [],
               httpAuthenticationEnabled: false,
             }),
           ]);
