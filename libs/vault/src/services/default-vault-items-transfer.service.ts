@@ -18,10 +18,14 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -84,11 +88,28 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     );
   }
 
-  private personalCiphers$(userId: UserId): Observable<CipherView[]> {
-    return this.cipherService.cipherViews$(userId).pipe(
+  private personalListViews$(userId: UserId): Observable<CipherViewLike[]> {
+    return this.cipherService.cipherListViews$(userId).pipe(
       filterOutNullish(),
-      map((ciphers) => ciphers.filter((c) => c.organizationId == null)),
+      map((views: CipherViewLike[]) => views.filter((v) => v.organizationId == null)),
     );
+  }
+
+  /**
+   * Decrypts only the personal ciphers. Ids come from the list views, which already exclude
+   * restricted ciphers and decryption failures.
+   */
+  private async personalCipherViews(userId: UserId): Promise<CipherView[]> {
+    const listViews = await firstValueFrom(this.personalListViews$(userId));
+    const ids = listViews
+      .map((v) => CipherViewLikeUtils.getId(v))
+      .filter((id): id is CipherId => id != null);
+
+    if (ids.length === 0) {
+      return [];
+    }
+
+    return this.cipherService.decryptByIds(userId, ids);
   }
 
   userMigrationInfo$(userId: UserId): Observable<UserMigrationInfo> {
@@ -100,12 +121,12 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
           });
         }
         return combineLatest([
-          this.personalCiphers$(userId),
+          this.personalListViews$(userId),
           this.collectionService.defaultUserCollection$(userId, enforcingOrganization.id),
         ]).pipe(
-          map(([personalCiphers, defaultCollection]): UserMigrationInfo => {
+          map(([personalListViews, defaultCollection]): UserMigrationInfo => {
             return {
-              requiresMigration: personalCiphers.length > 0,
+              requiresMigration: personalListViews.length > 0,
               enforcingOrganization,
               defaultCollectionId: defaultCollection?.id,
             };
@@ -218,7 +239,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     organizationId: OrganizationId,
     defaultCollectionId: CollectionId,
   ): Promise<void> {
-    let personalCiphers = await firstValueFrom(this.personalCiphers$(userId));
+    let personalCiphers = await this.personalCipherViews(userId);
 
     if (personalCiphers.length === 0) {
       return;
@@ -228,7 +249,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
 
     if (oldAttachmentCiphers.length > 0) {
       await this.upgradeOldAttachments(oldAttachmentCiphers, userId, organizationId);
-      personalCiphers = await firstValueFrom(this.personalCiphers$(userId));
+      personalCiphers = await this.personalCipherViews(userId);
 
       // Sanity check to ensure all old attachments were upgraded, though upgradeOldAttachments should throw if any fail
       const remainingOldAttachments = personalCiphers.filter((c) => c.hasOldAttachments);
