@@ -202,18 +202,12 @@
     <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.status; let row">
       @let badge = statusBadge(row.status);
-      @let tooltipKey = statusTooltipKey(row);
       @if (badge) {
-        <!-- An empty tooltip lets the badge fall back to showing its own text. -->
-        <span
-          bitBadge
-          class="focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
-          tabindex="0"
+        <app-member-status-badge
+          [label]="badge.labelKey | i18n"
           [variant]="badge.variant"
-          [bitTooltip]="tooltipKey ? (tooltipKey | i18n) : ''"
-          [addTooltipToDescribedby]="!!tooltipKey"
-          >{{ badge.labelKey | i18n }}</span
-        >
+          [tooltip]="statusTooltip(row)"
+        />
       }
     </bit-cell>
   </bit-column>

@@ -612,7 +612,7 @@ describe("MembersV2Component", () => {
 
     it("explains why a revoked member was revoked", () => {
       expect(
-        component.statusTooltipKey(
+        component.statusTooltip(
           member({
             status: OrganizationUserStatusType.Revoked,
             revocationReason: RevocationReasonType.TwoFactorPolicyNonCompliance,
@@ -622,13 +622,13 @@ describe("MembersV2Component", () => {
     });
 
     it("falls back to the unknown reason when none is recorded", () => {
-      expect(
-        component.statusTooltipKey(member({ status: OrganizationUserStatusType.Revoked })),
-      ).toBe("revocationReasonNotLogged");
+      expect(component.statusTooltip(member({ status: OrganizationUserStatusType.Revoked }))).toBe(
+        "revocationReasonNotLogged",
+      );
     });
 
     it("has no tooltip for members who aren't revoked", () => {
-      expect(component.statusTooltipKey(member())).toBeUndefined();
+      expect(component.statusTooltip(member())).toBe("");
     });
   });
 

@@ -90,6 +90,7 @@ import {
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberActionResult } from "../services/member-actions/member-actions.types";
 
+import { MemberStatusBadgeComponent } from "./member-status-badge.component";
 import {
   AccountRecoveryFilter,
   matchesAccess,
@@ -134,6 +135,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
     FilterMenuModule,
     HeaderModule,
     IconModule,
+    MemberStatusBadgeComponent,
     SharedOrganizationModule,
     StatusLockupComponent,
     SvgComponent,
@@ -604,11 +606,13 @@ export class MembersV2Component {
   }
 
   /** Revoked members' badges explain why they were revoked, matching the v1 table. */
-  protected statusTooltipKey(member: OrganizationUserView): string | undefined {
+  protected statusTooltip(member: OrganizationUserView): string {
     if (member.status !== OrganizationUserStatusType.Revoked) {
-      return undefined;
+      return "";
     }
-    return RevocationReasonMessageMap[member.revocationReason ?? RevocationReasonType.Unknown];
+    return this.i18nService.t(
+      RevocationReasonMessageMap[member.revocationReason ?? RevocationReasonType.Unknown],
+    );
   }
 
   protected readonly sortByName = (a: OrganizationUserView, b: OrganizationUserView) =>
