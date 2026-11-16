@@ -19,7 +19,16 @@
 } @else {
   <bit-form-field>
     <bit-label>{{ "verificationCode" | i18n }}</bit-label>
-    <input bitInput type="text" [formControl]="otp" appInputVerbatim appAutofocus />
+    <input
+      bitInput
+      type="text"
+      [formControl]="otp"
+      appInputVerbatim
+      appAutofocus
+      autocomplete="one-time-code"
+      inputmode="numeric"
+      pattern="[0-9]*"
+    />
     <bit-hint>
       {{ "didNotReceiveCodeContactSenderOr" | i18n
       }}<a bitLink type="button" (click)="onResendCode()">{{ "resendCode" | i18n | lowercase }}</a>

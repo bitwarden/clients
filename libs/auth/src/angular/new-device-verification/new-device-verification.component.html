@@ -8,6 +8,9 @@
       name="verificationCode"
       formControlName="code"
       appInputVerbatim
+      autocomplete="one-time-code"
+      inputmode="numeric"
+      pattern="[0-9]*"
       (paste)="onPaste($event)"
     />
   </bit-form-field>

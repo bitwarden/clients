@@ -6,6 +6,9 @@
       type="text"
       appAutofocus
       appInputVerbatim
+      autocomplete="one-time-code"
+      inputmode="numeric"
+      pattern="[0-9]*"
       [formControl]="tokenFormControl"
       (keyup)="onTokenChange($event)"
       (paste)="onPaste($event)"
