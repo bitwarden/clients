@@ -8,6 +8,7 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
@@ -52,6 +53,7 @@ describe("AuthRequestLoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let keySyncService: MockProxy<KeySyncService>;
   let unlockService: MockProxy<UnlockService>;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -87,6 +89,7 @@ describe("AuthRequestLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    keySyncService = mock<KeySyncService>();
     unlockService = mock<UnlockService>();
 
     accountService = mockAccountServiceWith(mockUserId);
@@ -120,6 +123,7 @@ describe("AuthRequestLoginStrategy", () => {
       environmentService,
       configService,
       accountCryptographicStateService,
+      keySyncService,
     );
 
     credentials = new AuthRequestLoginCredentials(email, accessCode, authRequestId, decUserKey);

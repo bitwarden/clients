@@ -18,7 +18,9 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   VaultTimeoutAction,
@@ -85,6 +87,7 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
     protected environmentService: EnvironmentService,
     protected configService: ConfigService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
+    protected keySyncService: KeySyncService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -209,15 +212,6 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
       UserDecryptionOptions.fromIdentityTokenResponse(tokenResponse),
     );
 
-    if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {
-      const masterPasswordUnlockData =
-        tokenResponse.userDecryptionOptions.masterPasswordUnlock.toMasterPasswordUnlockData();
-      await this.masterPasswordService.setMasterPasswordUnlockData(
-        masterPasswordUnlockData,
-        userId,
-      );
-    }
-
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
@@ -232,8 +226,6 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
       vaultTimeout,
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
-
-    await this.KdfConfigService.setKdfConfig(userId as UserId, tokenResponse.kdfConfig);
 
     await this.billingAccountProfileStateService.setHasPremium(
       accountInformation.premium ?? false,
@@ -263,7 +255,12 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
       await this.tokenService.setTwoFactorToken(userEmail, response.twoFactorToken);
     }
 
-    await this.setAccountCryptographicState(response, userId);
+    // Needs the access token, set in saveAccountInformation.
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM46805_KeyServiceKeySync)) {
+      await this.keySyncService.syncKeys(userId);
+    } else {
+      await this.setKeysFromIdentity(response, userId);
+    }
     await this.unlock(response, userId);
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
@@ -281,6 +278,27 @@ export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrat
    * Unlocks the SDK for the user using the implementation for the login strategy.
    */
   protected abstract unlock(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+
+  /**
+   * Sets the master password unlock data, KDF and account cryptographic state from the Identity
+   * token response.
+   */
+  private async setKeysFromIdentity(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
+    if (response.userDecryptionOptions?.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        response.userDecryptionOptions.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+    }
+
+    await this.KdfConfigService.setKdfConfig(userId, response.kdfConfig);
+    await this.setAccountCryptographicState(response, userId);
+  }
 
   protected async setAccountCryptographicState(
     response: IdentityTokenResponse,

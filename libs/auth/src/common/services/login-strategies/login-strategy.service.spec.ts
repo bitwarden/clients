@@ -20,6 +20,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
@@ -98,6 +99,7 @@ describe("LoginStrategyService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
+  let keySyncService: MockProxy<KeySyncService>;
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let loginStrategyCacheService: MockProxy<LoginStrategyCacheService>;
   let loginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutService>;
@@ -135,6 +137,7 @@ describe("LoginStrategyService", () => {
     kdfConfigService = mock<KdfConfigService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
+    keySyncService = mock<KeySyncService>();
     passwordPreloginService = mock<PasswordPreloginService>();
     loginStrategyCacheService = mock<LoginStrategyCacheService>();
     loginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutService>();
@@ -198,6 +201,7 @@ describe("LoginStrategyService", () => {
       loginStrategyCacheService,
       loginStrategySessionTimeoutService,
       legacyCompatKeyService,
+      keySyncService,
     );
 
     const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
@@ -366,6 +370,7 @@ describe("LoginStrategyService", () => {
       loginStrategyCacheService,
       loginStrategySessionTimeoutService,
       legacyCompatKeyService,
+      keySyncService,
     );
 
     const twoFactorToken = new TokenTwoFactorRequest(

@@ -20,6 +20,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -102,6 +103,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private loginStrategyCacheService: LoginStrategyCacheService,
     private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
     private legacyCompatKeyService: LegacyCompatKeyService,
+    private keySyncService: KeySyncService,
   ) {
     this.authRequestPushNotificationState = this.stateProvider.get(
       AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
@@ -313,6 +315,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.environmentService,
       this.configService,
       this.accountCryptographicStateService,
+      this.keySyncService,
     ];
 
     return source.pipe(

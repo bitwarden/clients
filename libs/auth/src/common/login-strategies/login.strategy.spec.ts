@@ -18,7 +18,9 @@ import {
 } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -107,6 +109,7 @@ describe("LoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let keySyncService: MockProxy<KeySyncService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -135,6 +138,7 @@ describe("LoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    keySyncService = mock<KeySyncService>();
 
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
@@ -172,6 +176,7 @@ describe("LoginStrategy", () => {
       environmentService,
       configService,
       accountCryptographicStateService,
+      keySyncService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
   });
@@ -334,6 +339,60 @@ describe("LoginStrategy", () => {
         userId,
       );
     });
+
+    describe("key sync", () => {
+      const tokenResponseWithAccountKeys = () => {
+        const tokenResponse = identityTokenResponseFactory();
+        (tokenResponse as any).accountKeysResponseModel = {
+          toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+            V1: { private_key: "testPrivateKey" },
+          }),
+        };
+        return tokenResponse;
+      };
+
+      it("syncs keys from the Key Service when the flag is on", async () => {
+        configService.getFeatureFlag.mockImplementation(
+          async (flag) => flag === FeatureFlag.PM46805_KeyServiceKeySync,
+        );
+        apiService.postIdentityToken.mockResolvedValue(tokenResponseWithAccountKeys());
+
+        await passwordLoginStrategy.logIn(credentials);
+
+        expect(keySyncService.syncKeys).toHaveBeenCalledWith(userId);
+        expect(masterPasswordService.mock.setMasterPasswordUnlockData).not.toHaveBeenCalled();
+        expect(kdfConfigService.setKdfConfig).not.toHaveBeenCalled();
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
+      });
+
+      it("sets keys from the Identity response when the flag is off", async () => {
+        configService.getFeatureFlag.mockResolvedValue(false);
+        apiService.postIdentityToken.mockResolvedValue(tokenResponseWithAccountKeys());
+
+        await passwordLoginStrategy.logIn(credentials);
+
+        expect(keySyncService.syncKeys).not.toHaveBeenCalled();
+        expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalled();
+        expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(
+          userId,
+          new PBKDF2KdfConfig(kdfIterations),
+        );
+        expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
+      });
+
+      it("fails the login when the key sync fails", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        keySyncService.syncKeys.mockRejectedValue(new Error("Key Service unavailable"));
+        apiService.postIdentityToken.mockResolvedValue(tokenResponseWithAccountKeys());
+
+        await expect(passwordLoginStrategy.logIn(credentials)).rejects.toThrow(
+          "Key Service unavailable",
+        );
+        expect(messagingService.send).not.toHaveBeenCalledWith("loggedIn");
+      });
+    });
   });
 
   describe("Two-factor authentication", () => {
@@ -495,6 +554,7 @@ describe("LoginStrategy", () => {
         environmentService,
         configService,
         accountCryptographicStateService,
+        keySyncService,
       );
 
       apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
@@ -563,6 +623,7 @@ describe("LoginStrategy", () => {
         environmentService,
         configService,
         accountCryptographicStateService,
+        keySyncService,
       );
 
       const result = await passwordLoginStrategy.logIn(credentials);
@@ -598,6 +659,7 @@ describe("LoginStrategy", () => {
         environmentService,
         configService,
         accountCryptographicStateService,
+        keySyncService,
       );
 
       await expect(

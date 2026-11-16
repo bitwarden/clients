@@ -88,6 +88,7 @@ import { DeviceTrustService } from "@bitwarden/common/key-management/device-trus
 import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { DefaultKeySyncService } from "@bitwarden/common/key-management/key-sync/default-key-sync.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
@@ -947,6 +948,7 @@ export class ServiceContainer {
       loginStrategyCacheService,
       loginStrategySessionTimeoutService,
       this.legacyCompatKeyService,
+      new DefaultKeySyncService(this.sdkService),
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(

@@ -11,6 +11,7 @@ import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/se
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
@@ -62,6 +63,7 @@ describe("WebAuthnLoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let keySyncService: MockProxy<KeySyncService>;
   let unlockService: MockProxy<UnlockService>;
 
   let webAuthnLoginStrategy!: WebAuthnLoginStrategy;
@@ -108,6 +110,7 @@ describe("WebAuthnLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    keySyncService = mock<KeySyncService>();
     unlockService = mock<UnlockService>();
 
     tokenService.getTwoFactorToken.mockResolvedValue(null);
@@ -137,6 +140,7 @@ describe("WebAuthnLoginStrategy", () => {
       environmentService,
       configService,
       accountCryptographicStateService,
+      keySyncService,
     );
 
     // Create credentials

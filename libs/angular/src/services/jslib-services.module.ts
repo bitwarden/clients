@@ -210,6 +210,8 @@ import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-con
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { DefaultKeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/services/default-key-connector-api.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { KeySyncService } from "@bitwarden/common/key-management/key-sync/abstractions/key-sync.service";
+import { DefaultKeySyncService } from "@bitwarden/common/key-management/key-sync/default-key-sync.service";
 import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
 import { DefaultRotateableKeySetService } from "@bitwarden/common/key-management/keys/services/default-rotateable-key-set.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
@@ -692,7 +694,13 @@ const safeProviders: SafeProvider[] = [
       LoginStrategyCacheService,
       LoginStrategySessionTimeoutService,
       LegacyCompatKeyService,
+      KeySyncService,
     ],
+  }),
+  safeProvider({
+    provide: KeySyncService,
+    useClass: DefaultKeySyncService,
+    deps: [SdkService],
   }),
   safeProvider({
     provide: FileUploadServiceAbstraction,
