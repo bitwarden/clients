@@ -106,7 +106,7 @@ describe("DefaultVaultItemsTransferService", () => {
     }): void {
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
-      mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
+      mockCipherService.cipherListViews$.mockReturnValue(of(options.ciphers ?? []));
       mockCollectionService.defaultUserCollection$.mockReturnValue(of(options.defaultCollection));
     }
 
@@ -212,7 +212,7 @@ describe("DefaultVaultItemsTransferService", () => {
 
       describe("and user has no personal ciphers", () => {
         beforeEach(() => {
-          mockCipherService.cipherViews$.mockReturnValue(of([]));
+          mockCipherService.cipherListViews$.mockReturnValue(of([]));
         });
 
         it("returns requiresMigration: false", async () => {
@@ -228,7 +228,9 @@ describe("DefaultVaultItemsTransferService", () => {
 
       describe("and user has personal ciphers", () => {
         beforeEach(() => {
-          mockCipherService.cipherViews$.mockReturnValue(of([{ id: "cipher-1" } as CipherView]));
+          mockCipherService.cipherListViews$.mockReturnValue(
+            of([{ id: "cipher-1" } as CipherView]),
+          );
         });
 
         it("returns requiresMigration: true", async () => {
@@ -261,7 +263,7 @@ describe("DefaultVaultItemsTransferService", () => {
       });
 
       it("filters out organization ciphers when checking for personal ciphers", async () => {
-        mockCipherService.cipherViews$.mockReturnValue(
+        mockCipherService.cipherListViews$.mockReturnValue(
           of([
             {
               id: "cipher-1",
@@ -277,6 +279,16 @@ describe("DefaultVaultItemsTransferService", () => {
           enforcingOrganization: organization,
           defaultCollectionId: undefined,
         });
+      });
+
+      it("determines requiresMigration from list views without decrypting full ciphers", async () => {
+        mockCipherService.cipherListViews$.mockReturnValue(of([{ id: "cipher-1" } as CipherView]));
+
+        const result = await firstValueFrom(service.userMigrationInfo$(userId));
+
+        expect(result.requiresMigration).toBe(true);
+        expect(mockCipherService.cipherListViews$).toHaveBeenCalledWith(userId);
+        expect(mockCipherService.decryptByIds).not.toHaveBeenCalled();
       });
     });
 
@@ -364,18 +376,31 @@ describe("DefaultVaultItemsTransferService", () => {
 
   describe("transferPersonalItems", () => {
     it("does nothing when user has no personal ciphers", async () => {
-      mockCipherService.cipherViews$.mockReturnValue(of([]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([]));
 
       await service.transferPersonalItems(userId, organizationId, collectionId);
 
+      expect(mockCipherService.decryptByIds).not.toHaveBeenCalled();
       expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
       expect(mockLogService.info).not.toHaveBeenCalled();
+    });
+
+    it("does not decrypt when every list view belongs to an organization", async () => {
+      mockCipherService.cipherListViews$.mockReturnValue(
+        of([{ id: "cipher-1", organizationId: "other-org-id" }] as CipherView[]),
+      );
+
+      await service.transferPersonalItems(userId, organizationId, collectionId);
+
+      expect(mockCipherService.decryptByIds).not.toHaveBeenCalled();
+      expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
     });
 
     it("calls shareManyWithServer with correct parameters", async () => {
       const personalCiphers = [{ id: "cipher-1" }, { id: "cipher-2" }] as CipherView[];
 
-      mockCipherService.cipherViews$.mockReturnValue(of(personalCiphers));
+      mockCipherService.cipherListViews$.mockReturnValue(of(personalCiphers));
+      mockCipherService.decryptByIds.mockResolvedValue(personalCiphers);
       mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
 
       await service.transferPersonalItems(userId, organizationId, collectionId);
@@ -397,7 +422,8 @@ describe("DefaultVaultItemsTransferService", () => {
 
       const expectedPersonalCiphers = [allCiphers[0], allCiphers[2]];
 
-      mockCipherService.cipherViews$.mockReturnValue(of(allCiphers));
+      mockCipherService.cipherListViews$.mockReturnValue(of(allCiphers));
+      mockCipherService.decryptByIds.mockResolvedValue(expectedPersonalCiphers);
       mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
 
       await service.transferPersonalItems(userId, organizationId, collectionId);
@@ -410,12 +436,47 @@ describe("DefaultVaultItemsTransferService", () => {
       );
     });
 
+    it("decrypts only personal cipher ids, excluding organization ciphers", async () => {
+      mockCipherService.cipherListViews$.mockReturnValue(
+        of([
+          { id: "cipher-1" },
+          { id: "cipher-2", organizationId: "other-org-id" },
+          { id: "cipher-3" },
+        ] as CipherView[]),
+      );
+      mockCipherService.decryptByIds.mockResolvedValue([]);
+
+      await service.transferPersonalItems(userId, organizationId, collectionId);
+
+      expect(mockCipherService.decryptByIds).toHaveBeenCalledTimes(1);
+      expect(mockCipherService.decryptByIds).toHaveBeenCalledWith(userId, ["cipher-1", "cipher-3"]);
+    });
+
+    it("skips a null emission from cipherListViews$ before the vault loads", async () => {
+      const personalCiphers = [{ id: "cipher-1" }] as CipherView[];
+
+      mockCipherService.cipherListViews$.mockReturnValue(of(null, personalCiphers));
+      mockCipherService.decryptByIds.mockResolvedValue(personalCiphers);
+      mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
+
+      await service.transferPersonalItems(userId, organizationId, collectionId);
+
+      expect(mockCipherService.decryptByIds).toHaveBeenCalledWith(userId, ["cipher-1"]);
+      expect(mockCipherService.shareManyWithServer).toHaveBeenCalledWith(
+        personalCiphers,
+        organizationId,
+        [collectionId],
+        userId,
+      );
+    });
+
     it("propagates errors from shareManyWithServer", async () => {
       const personalCiphers = [{ id: "cipher-1" }] as CipherView[];
 
       const error = new Error("Transfer failed");
 
-      mockCipherService.cipherViews$.mockReturnValue(of(personalCiphers));
+      mockCipherService.cipherListViews$.mockReturnValue(of(personalCiphers));
+      mockCipherService.decryptByIds.mockResolvedValue(personalCiphers);
       mockCipherService.shareManyWithServer.mockRejectedValue(error);
 
       await expect(
@@ -440,9 +501,10 @@ describe("DefaultVaultItemsTransferService", () => {
         attachments: [{ key: "new-key" }],
       } as unknown as CipherView;
 
-      mockCipherService.cipherViews$
-        .mockReturnValueOnce(of([cipherWithOldAttachment]))
-        .mockReturnValueOnce(of([upgradedCipher]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([cipherWithOldAttachment]));
+      mockCipherService.decryptByIds
+        .mockResolvedValueOnce([cipherWithOldAttachment])
+        .mockResolvedValueOnce([upgradedCipher]);
       mockCipherService.upgradeOldCipherAttachments.mockResolvedValue(upgradedCipher);
       mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
 
@@ -452,6 +514,7 @@ describe("DefaultVaultItemsTransferService", () => {
         cipherWithOldAttachment,
         userId,
       );
+      expect(mockCipherService.decryptByIds).toHaveBeenCalledTimes(2);
       expect(mockCipherService.shareManyWithServer).toHaveBeenCalledWith(
         [upgradedCipher],
         organizationId,
@@ -478,9 +541,10 @@ describe("DefaultVaultItemsTransferService", () => {
       const upgradedCipher1 = { ...cipher1, hasOldAttachments: false } as CipherView;
       const upgradedCipher2 = { ...cipher2, hasOldAttachments: false } as CipherView;
 
-      mockCipherService.cipherViews$
-        .mockReturnValueOnce(of([cipher1, cipher2]))
-        .mockReturnValueOnce(of([upgradedCipher1, upgradedCipher2]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([cipher1, cipher2]));
+      mockCipherService.decryptByIds
+        .mockResolvedValueOnce([cipher1, cipher2])
+        .mockResolvedValueOnce([upgradedCipher1, upgradedCipher2]);
       mockCipherService.upgradeOldCipherAttachments
         .mockResolvedValueOnce(upgradedCipher1)
         .mockResolvedValueOnce(upgradedCipher2);
@@ -506,9 +570,10 @@ describe("DefaultVaultItemsTransferService", () => {
         hasOldAttachments: false,
       } as unknown as CipherView;
 
-      mockCipherService.cipherViews$
-        .mockReturnValueOnce(of([cipherWithMixedAttachments]))
-        .mockReturnValueOnce(of([upgradedCipher]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([cipherWithMixedAttachments]));
+      mockCipherService.decryptByIds
+        .mockResolvedValueOnce([cipherWithMixedAttachments])
+        .mockResolvedValueOnce([upgradedCipher]);
       mockCipherService.upgradeOldCipherAttachments.mockResolvedValue(upgradedCipher);
       mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
 
@@ -526,7 +591,8 @@ describe("DefaultVaultItemsTransferService", () => {
         attachments: [{ key: null }],
       } as unknown as CipherView;
 
-      mockCipherService.cipherViews$.mockReturnValue(of([cipherWithOldAttachment]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([cipherWithOldAttachment]));
+      mockCipherService.decryptByIds.mockResolvedValue([cipherWithOldAttachment]);
       mockCipherService.upgradeOldCipherAttachments.mockRejectedValue(new Error("Upgrade failed"));
 
       await expect(
@@ -550,7 +616,8 @@ describe("DefaultVaultItemsTransferService", () => {
         hasOldAttachments: true,
       } as unknown as CipherView;
 
-      mockCipherService.cipherViews$.mockReturnValue(of([cipherWithOldAttachment]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([cipherWithOldAttachment]));
+      mockCipherService.decryptByIds.mockResolvedValue([cipherWithOldAttachment]);
       mockCipherService.upgradeOldCipherAttachments.mockResolvedValue(stillOldCipher);
 
       await expect(
@@ -575,9 +642,10 @@ describe("DefaultVaultItemsTransferService", () => {
       } as unknown as CipherView;
 
       // First call returns cipher with old attachment, second call (after upgrade) still returns old attachment
-      mockCipherService.cipherViews$
-        .mockReturnValueOnce(of([cipherWithOldAttachment]))
-        .mockReturnValueOnce(of([cipherWithOldAttachment])); // Still has old attachments after re-fetch
+      mockCipherService.cipherListViews$.mockReturnValue(of([cipherWithOldAttachment]));
+      mockCipherService.decryptByIds
+        .mockResolvedValueOnce([cipherWithOldAttachment])
+        .mockResolvedValueOnce([cipherWithOldAttachment]); // Still has old attachments after re-fetch
       mockCipherService.upgradeOldCipherAttachments.mockResolvedValue(upgradedCipher);
 
       await expect(
@@ -602,9 +670,10 @@ describe("DefaultVaultItemsTransferService", () => {
         hasOldAttachments: false,
       } as unknown as CipherView;
 
-      mockCipherService.cipherViews$
-        .mockReturnValueOnce(of([cipherWithOldAttachment]))
-        .mockReturnValueOnce(of([upgradedCipher]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([cipherWithOldAttachment]));
+      mockCipherService.decryptByIds
+        .mockResolvedValueOnce([cipherWithOldAttachment])
+        .mockResolvedValueOnce([upgradedCipher]);
       mockCipherService.upgradeOldCipherAttachments.mockResolvedValue(upgradedCipher);
       mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
 
@@ -625,7 +694,8 @@ describe("DefaultVaultItemsTransferService", () => {
         hasOldAttachments: false,
       } as unknown as CipherView;
 
-      mockCipherService.cipherViews$.mockReturnValue(of([cipherWithoutOldAttachment]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([cipherWithoutOldAttachment]));
+      mockCipherService.decryptByIds.mockResolvedValue([cipherWithoutOldAttachment]);
       mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
 
       await service.transferPersonalItems(userId, organizationId, collectionId);
@@ -655,7 +725,8 @@ describe("DefaultVaultItemsTransferService", () => {
     }): void {
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
-      mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
+      mockCipherService.cipherListViews$.mockReturnValue(of(options.ciphers ?? []));
+      mockCipherService.decryptByIds.mockResolvedValue(options.ciphers ?? []);
       mockCollectionService.defaultUserCollection$.mockReturnValue(of(options.defaultCollection));
       mockSyncService.fullSync.mockResolvedValue(true);
       mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
@@ -943,7 +1014,8 @@ describe("DefaultVaultItemsTransferService", () => {
     }): void {
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
-      mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
+      mockCipherService.cipherListViews$.mockReturnValue(of(options.ciphers ?? []));
+      mockCipherService.decryptByIds.mockResolvedValue(options.ciphers ?? []);
       mockCollectionService.defaultUserCollection$.mockReturnValue(of(options.defaultCollection));
     }
 
@@ -1029,7 +1101,8 @@ describe("DefaultVaultItemsTransferService", () => {
     beforeEach(() => {
       mockPolicyService.policiesByType$.mockReturnValue(of([policy]));
       mockOrganizationService.organizations$.mockReturnValue(of([organization]));
-      mockCipherService.cipherViews$.mockReturnValue(of(personalCiphers));
+      mockCipherService.cipherListViews$.mockReturnValue(of(personalCiphers));
+      mockCipherService.decryptByIds.mockResolvedValue(personalCiphers);
       mockCollectionService.defaultUserCollection$.mockReturnValue(of(defaultCollection));
       mockSyncService.fullSync.mockResolvedValue(true);
       mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
@@ -1108,7 +1181,9 @@ describe("DefaultVaultItemsTransferService", () => {
 
       // Second call should be allowed (though no migration needed after first transfer)
       // Set up scenario where migration is needed again
-      mockCipherService.cipherViews$.mockReturnValue(of([{ id: "cipher-2" } as CipherView]));
+      const secondPersonalCiphers = [{ id: "cipher-2" } as CipherView];
+      mockCipherService.cipherListViews$.mockReturnValue(of(secondPersonalCiphers));
+      mockCipherService.decryptByIds.mockResolvedValue(secondPersonalCiphers);
 
       mockDialogService.open.mockReturnValueOnce(
         createMockDialogRef(TransferItemsDialogResult.Accepted),
