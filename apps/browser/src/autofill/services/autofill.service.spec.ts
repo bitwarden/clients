@@ -1945,6 +1945,96 @@ describe("AutofillService", () => {
         expect(result?.untrustedIframe).toBe(true);
       });
     });
+
+    describe("one-time code fields", () => {
+      it("distributes one character per input when the field count matches the code length", async () => {
+        // Multi-input OTP forms accept one digit per box. Filling every box with the
+        // full code would overflow each input's maxLength and leave the form invalid.
+        const otpFields = Array.from({ length: 6 }, (_, i) =>
+          buildTargetedField({
+            opid: `targeted_field_0_oneTimeCode_${i}`,
+            fieldQualifier: AutofillTargetingRuleTypes.oneTimeCode,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        );
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ totp: "totp-seed", uris: [] });
+        options.inlineMenuFillType = CipherType.Login;
+        options.allowTotpAutofill = true;
+        options.canAccessTotp = true;
+        totpService.getCode$.mockReturnValue(of({ code: "246810", period: 30 }));
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails(otpFields),
+          options,
+        );
+
+        expect(result).not.toBeNull();
+        otpFields.forEach((field, i) => {
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            expect.anything(),
+            field,
+            "246810".charAt(i),
+          );
+        });
+      });
+
+      it("fills every input with the full code when the field count does not match the code length", async () => {
+        // A single standalone OTP input (or any other count mismatch) receives the
+        // whole code — the distribution semantics only kick in for exact matches.
+        const otpField = buildTargetedField({
+          opid: "targeted_field_0_oneTimeCode_0",
+          fieldQualifier: AutofillTargetingRuleTypes.oneTimeCode,
+          formCategory: FormPurposeCategories.AccountLogin,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ totp: "totp-seed", uris: [] });
+        options.inlineMenuFillType = CipherType.Login;
+        options.allowTotpAutofill = true;
+        options.canAccessTotp = true;
+        totpService.getCode$.mockReturnValue(of({ code: "246810", period: 30 }));
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([otpField]),
+          options,
+        );
+
+        expect(result).not.toBeNull();
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          expect.anything(),
+          otpField,
+          "246810",
+        );
+      });
+
+      it("does not call the TOTP service when the cipher has no totp seed", async () => {
+        const otpField = buildTargetedField({
+          opid: "targeted_field_0_oneTimeCode_0",
+          fieldQualifier: AutofillTargetingRuleTypes.oneTimeCode,
+          formCategory: FormPurposeCategories.AccountLogin,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ totp: undefined, uris: [] });
+        options.inlineMenuFillType = CipherType.Login;
+        options.allowTotpAutofill = true;
+        options.canAccessTotp = true;
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([otpField]),
+          options,
+        );
+
+        expect(totpService.getCode$).not.toHaveBeenCalled();
+        expect(AutofillService.fillByOpid).not.toHaveBeenCalled();
+        expect(result).toBeNull();
+      });
+    });
   });
 
   describe("generateLoginFillScript", () => {
