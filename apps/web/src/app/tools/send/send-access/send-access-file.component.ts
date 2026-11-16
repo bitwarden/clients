@@ -1,7 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -31,15 +29,15 @@ export class SendAccessFileComponent {
   readonly accessToken = input<SendAccessToken | null>(null);
 
   constructor(
-    private i18nService: I18nService,
-    private toastService: ToastService,
-    private encryptService: EncryptService,
-    private fileDownloadService: FileDownloadService,
-    private sendApiService: SendApiService,
-    private environmentService: EnvironmentService,
+    private readonly i18nService: I18nService,
+    private readonly toastService: ToastService,
+    private readonly encryptService: EncryptService,
+    private readonly fileDownloadService: FileDownloadService,
+    private readonly sendApiService: SendApiService,
+    private readonly environmentService: EnvironmentService,
   ) {}
 
-  protected download = async () => {
+  protected readonly download = async () => {
     const accessToken = this.accessToken();
     if (this.send() == null || this.decKey() == null || !accessToken) {
       return;

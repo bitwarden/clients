@@ -24,7 +24,7 @@ export class GatedCollectionBannerComponent implements VaultGatedCollectionBanne
   private readonly i18nService = inject(I18nService);
 
   protected readonly bannerName = this.i18nService.t("pamGatedCollectionBannerName");
-  protected readonly requiresRequestLabel = this.i18nService.t("pamCollectionRequiresRequest");
+  protected readonly requiresRequestLabel = this.i18nService.t("pamSharedFolderRequiresRequest");
 
   private readonly selected = computed(() => ({
     id: this.collectionId(),

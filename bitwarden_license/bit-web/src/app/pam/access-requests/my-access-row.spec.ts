@@ -96,7 +96,7 @@ describe("terminalStatusBadge", () => {
   it.each([
     ["denied", "pamStatusDenied", "danger"],
     ["canceled", "pamStatusCanceled", "subtle"],
-    ["expired", "pamStatusExpired", "warning"],
+    ["expired", "pamStatusExpired", "danger"],
     ["unknown", "pamStatusUnknown", "subtle"],
   ] as const)("maps %s to %s / %s", (status, labelKey, variant) => {
     expect(terminalStatusBadge(status)).toEqual({ labelKey, variant });
@@ -136,7 +136,7 @@ describe("historyDisplayStatus", () => {
     });
     expect(historyDisplayStatus(r)).toEqual({
       badgeState: null,
-      statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
+      statusBadge: { labelKey: "pamStatusRevoked", variant: "danger" },
     });
   });
 
@@ -150,19 +150,19 @@ describe("historyDisplayStatus", () => {
     });
     expect(historyDisplayStatus(r)).toEqual({
       badgeState: null,
-      statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
+      statusBadge: { labelKey: "pamStatusRevoked", variant: "danger" },
     });
   });
 
-  it("defaults an activated request's lapsed/expired lease to Expired", () => {
+  it("reads a lease that ran its course as a session that ended, not a blocked request", () => {
     const r = request("req-1", {
       status: "approved",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "expired",
     });
     expect(historyDisplayStatus(r)).toEqual({
-      badgeState: null,
-      statusBadge: { labelKey: "pamStatusExpired", variant: "warning" },
+      badgeState: { kind: "expired" },
+      statusBadge: null,
     });
   });
 

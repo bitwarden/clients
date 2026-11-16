@@ -1,4 +1,4 @@
-import { Component, DebugElement } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -53,9 +53,8 @@ describe("RadioButton", () => {
   });
 });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "test-component",
   template: `
     <form [formGroup]="formObj">
@@ -68,7 +67,7 @@ describe("RadioButton", () => {
   imports: [FormsModule, ReactiveFormsModule, RadioButtonModule],
 })
 class TestComponent {
-  formObj = new FormGroup({
+  readonly formObj = new FormGroup({
     radio: new FormControl(0),
   });
 }

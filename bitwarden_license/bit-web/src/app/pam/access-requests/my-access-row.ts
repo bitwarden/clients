@@ -122,13 +122,29 @@ export function isRedeemableGrant(
 }
 
 /**
- * The badge for a grant whose activation window closed unused. {@link historyDisplayStatus} cannot
- * see the clock, so it still reads "Approved" for one until the next load.
+ * The badge for access that is over but whose server record has not caught up,
+ * {@link historyDisplayStatus} cannot see the clock, so it still reads "Approved" or "Active".
+ * See {@link lapsedInHistory}.
  */
 export const lapsedGrantBadge: TerminalStatusBadge = {
   labelKey: "pamStatusExpired",
-  variant: "warning",
+  variant: "danger",
 };
+
+/**
+ * True for an approved row that reached a terminal list with its access already over: a grant
+ * nobody started, or a lease that lapsed since the load. A row only joins History once its lease
+ * has stopped running, so a record still reading `active` there has run out, and "Active" is
+ * something a terminal list cannot mean.
+ */
+export function lapsedInHistory(
+  row: Pick<MyAccessRequestRow, "status" | "producedLeaseId" | "producedLeaseStatus">,
+): boolean {
+  return (
+    row.status === "approved" &&
+    (row.producedLeaseId == null || row.producedLeaseStatus === "active")
+  );
+}
 
 /** Exported for tests. */
 export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStatusBadge {
@@ -138,7 +154,7 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
     case "canceled":
       return { labelKey: "pamStatusCanceled", variant: "subtle" };
     case "expired":
-      return { labelKey: "pamStatusExpired", variant: "warning" };
+      return { labelKey: "pamStatusExpired", variant: "danger" };
     case "unknown":
     default:
       return { labelKey: "pamStatusUnknown", variant: "subtle" };
@@ -146,8 +162,9 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
 }
 
 /**
- * Only a pending request maps onto the shared access-state model; every other outcome keeps its
- * own label. A lease the requester ended reads Canceled, one an operator ended Revoked.
+ * A pending request and a lease that ran to completion map onto the shared access-state model;
+ * every other outcome keeps its own label. A lease the requester ended reads Canceled, one an
+ * operator cut short reads Revoked, and one that simply ran out reads "Session ended".
  */
 export function historyDisplayStatus(
   request: Pick<AccessRequestView, "status" | "producedLeaseId" | "producedLeaseStatus">,
@@ -165,10 +182,12 @@ export function historyDisplayStatus(
       return terminal("pamStatusCanceled", "subtle");
     }
     if (request.producedLeaseStatus === "revoked") {
-      return terminal("pamStatusRevoked", "subtle");
+      return terminal("pamStatusRevoked", "danger");
     }
-    // `expired`, plus the SDK's `unknown` default.
-    return terminal("pamStatusExpired", "warning");
+    // `expired`, plus the SDK's `unknown` default: a lease that simply ran its course, which the
+    // shared pill already words as "Session ended". Distinct from a request that expired
+    // undecided, that one never issued a lease and reads as blocked.
+    return { badgeState: { kind: "expired" }, statusBadge: null };
   }
   if (request.status === "pending") {
     return { badgeState: { kind: "pending" }, statusBadge: null };

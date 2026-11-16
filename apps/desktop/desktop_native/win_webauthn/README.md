@@ -16,9 +16,10 @@ In this initial version, there are some limitations that need to be addressed:
   these are included in the `windows` crate, but there has not been a released
   version of that crate since it was added. As soon as it is released, we can
   update to it.
-- We are not using the `dwVersion` fields of the structs and are instead
-  hard-coding availability for all the structs as of the Windows 11 passkey plugin
-  authenticator (November 2025). To make this more generally useful, we should
+- The GetAssertion client checks `dwVersion` and the API version before using
+  fields that were added after version 1. The remaining structs, such as the
+  plugin request structs, still hard-code availability for all the structs as of
+  the Windows 11 passkey plugin authenticator (November 2025). To make this more generally useful, we should
   read these fields and optionally omit known fields that were introduced in a
   higher version than `dwVersion` specifies (e.g., by returning an Option<T> for
   those fields).

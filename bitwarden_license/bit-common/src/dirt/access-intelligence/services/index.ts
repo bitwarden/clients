@@ -19,11 +19,9 @@ export * from "./implementations/domain/default-report-generation.service";
 
 // Persistence implementations
 export * from "./implementations/persistence/default-access-report-encryption.service";
-export * from "./implementations/persistence/default-report-persistence.service";
 export * from "./implementations/persistence/versioning/application-versioning.service";
 export * from "./implementations/persistence/versioning/report-versioning.service";
 export * from "./implementations/persistence/versioning/summary-versioning.service";
-export * from "./implementations/persistence/report-persistence-feature-flag.service";
 export * from "./implementations/persistence/file-report-persistence.service";
 
 // View implementations

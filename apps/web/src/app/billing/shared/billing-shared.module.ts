@@ -1,6 +1,11 @@
 import { NgModule } from "@angular/core";
 
-import { BannerModule, FileUploadComponent, SpinnerComponent } from "@bitwarden/components";
+import {
+  AccordionComponent,
+  BannerModule,
+  FileUploadComponent,
+  SpinnerComponent,
+} from "@bitwarden/components";
 import { CartSummaryComponent, DiscountBadgeComponent } from "@bitwarden/pricing";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
@@ -24,6 +29,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
 
 @NgModule({
   imports: [
+    AccordionComponent,
     BannerModule,
     CartSummaryComponent,
     DiscountBadgeComponent,

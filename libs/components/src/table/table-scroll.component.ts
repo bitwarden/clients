@@ -6,16 +6,18 @@ import {
 import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
-  Component,
-  OnDestroy,
-  TemplateRef,
-  Directive,
-  NgZone,
   AfterViewInit,
-  ElementRef,
-  TrackByFunction,
-  input,
+  ChangeDetectionStrategy,
+  Component,
   contentChild,
+  Directive,
+  ElementRef,
+  inject,
+  input,
+  OnDestroy,
+  signal,
+  TemplateRef,
+  TrackByFunction,
 } from "@angular/core";
 
 import { ScrollLayoutDirective } from "../layout";
@@ -44,10 +46,9 @@ export class BitRowDefDirective {
  *
  * Utilizes virtual scrolling to render large datasets.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-table-scroll",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./table-scroll.component.html",
   providers: [{ provide: TableComponent, useExisting: TableScrollComponent }],
   imports: [
@@ -76,35 +77,24 @@ export class TableScrollComponent
    *
    * Used to increase the table's total height to avoid items being cut off.
    */
-  protected headerHeight = 0;
+  protected readonly headerHeight = signal(0);
 
   /**
    * Observer for table header, applies padding on resize.
    */
-  private headerObserver?: ResizeObserver;
+  private readonly headerObserver = new ResizeObserver((entries) => {
+    this.headerHeight.set(entries[0].contentRect.height);
+  });
 
-  constructor(
-    private zone: NgZone,
-    private el: ElementRef,
-  ) {
-    super();
-  }
+  private readonly el = inject(ElementRef);
 
   ngAfterViewInit(): void {
-    this.headerObserver = new ResizeObserver((entries) => {
-      this.zone.run(() => {
-        this.headerHeight = entries[0].contentRect.height;
-      });
-    });
-
     this.headerObserver.observe(this.el.nativeElement.querySelector("thead"));
   }
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
 
-    if (this.headerObserver) {
-      this.headerObserver.disconnect();
-    }
+    this.headerObserver.disconnect();
   }
 }

@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { Subject, of } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,6 +30,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
   let dialogRef: jest.Mocked<DialogRef>;
   let toastService: jest.Mocked<ToastService>;
   let i18nService: jest.Mocked<I18nService>;
+  let router: { navigate: jest.Mock };
   /** The component's own DialogService, which DialogModule may provide over the test's. */
   let injectedDialogService: DialogService;
 
@@ -58,6 +61,8 @@ describe("AccessConnectorRegisterDialogComponent", () => {
       t: (id: string) => id,
     } as unknown as jest.Mocked<I18nService>;
 
+    router = { navigate: jest.fn().mockResolvedValue(true) };
+
     await TestBed.configureTestingModule({
       imports: [AccessConnectorRegisterDialogComponent],
       providers: [
@@ -65,6 +70,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
         { provide: DialogRef, useValue: dialogRef },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
+        { provide: Router, useValue: router },
       ],
     })
       .overrideComponent(AccessConnectorRegisterDialogComponent, {
@@ -111,20 +117,43 @@ describe("AccessConnectorRegisterDialogComponent", () => {
   it("opens the token dialog after successful registration", async () => {
     const openSpy = jest
       .spyOn(injectedDialogService, "open")
-      .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
+      .mockReturnValue({ closed: new Subject() } as any);
 
     (component as any).form.controls.name.setValue("Good access connector");
     await (component as any).submit();
 
     expect(openSpy).toHaveBeenCalledWith(
       AccessConnectorTokenDialogComponent,
-      expect.objectContaining({
-        data: expect.objectContaining({
-          token: fakeRegistration.token,
-          accessConnectorName: "Good access connector",
-        }),
-      }),
+      expect.objectContaining({ data: { token: fakeRegistration.token } }),
     );
+  });
+
+  it("opens the new access connector's page once the token dialog closes", async () => {
+    const closed = new Subject<void>();
+    jest.spyOn(injectedDialogService, "open").mockReturnValue({ closed } as any);
+
+    (component as any).form.controls.name.setValue("Good access connector");
+    await (component as any).submit();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(toastService.showToast).not.toHaveBeenCalled();
+
+    closed.next();
+    closed.complete();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(router.navigate).toHaveBeenCalledWith([
+      "/organizations",
+      orgId,
+      "pam",
+      "rotation",
+      "access-connectors",
+      String(fakeRegistration.id),
+    ]);
+    expect(toastService.showToast).toHaveBeenCalledTimes(1);
+    expect(toastService.showToast).toHaveBeenCalledWith({
+      variant: "success",
+      message: "pamAccessConnectorRegistered",
+    });
   });
 
   it("does not open the token dialog until the register dialog has closed", async () => {
@@ -134,7 +163,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
     );
     const openSpy = jest
       .spyOn(injectedDialogService, "open")
-      .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
+      .mockReturnValue({ closed: of(undefined) } as any);
 
     (component as any).form.controls.name.setValue("Good access connector");
     const submitted = (component as any).submit();

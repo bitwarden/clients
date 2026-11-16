@@ -15,11 +15,26 @@ const DEFAULT_ACCOUNT = "local-web";
  */
 const DEFAULT_SECOND_ACCOUNT = "local-web-2";
 
+/**
+ * Section holding the SeederApi's basic-auth account, one of its `seederSettings:accounts`.
+ */
+const SEEDER_SECTION = "seeder";
+
+/** Where `dotnet run` serves the SeederApi — see util/SeederApi/Properties/launchSettings.json. */
+const DEFAULT_SEEDER_URL = "http://localhost:5047";
+
 export type Account = {
   email: string;
   password: string;
   /** Web vault URL, which is also the self-hosted base URL, e.g. `https://localhost:8080`. */
   server: string;
+};
+
+export type SeederAccount = {
+  /** SeederApi base URL, e.g. `http://localhost:5047`. */
+  url: string;
+  username: string;
+  password: string;
 };
 
 /**
@@ -65,20 +80,23 @@ function parse(contents: string): Map<string, Record<string, string>> {
  * CI passes it in. Otherwise reads the account named by `E2E_ACCOUNT` from the credentials file.
  */
 export function account(): Account {
-  return fromEnv() ?? fromFile();
+  return fromEnv("E2E") ?? fromFile();
 }
 
-/** All three variables, or none: a partial set is a misconfigured job, not a fallback. */
-function fromEnv(): Account | undefined {
-  const { E2E_EMAIL: email, E2E_PASSWORD: password, E2E_SERVER: server } = process.env;
-  const values = [email, password, server];
+/**
+ * All three variables, or none: a partial set is a misconfigured job, not a fallback.
+ * `prefix` selects the set, e.g. `E2E` reads `E2E_EMAIL`, `E2E_PASSWORD` and `E2E_SERVER`.
+ */
+function fromEnv(prefix: string): Account | undefined {
+  const names = ["EMAIL", "PASSWORD", "SERVER"].map((key) => `${prefix}_${key}`);
+  const [email, password, server] = names.map((name) => process.env[name]);
 
-  if (values.every((value) => !value)) {
+  if (!email && !password && !server) {
     return undefined;
   }
 
   if (!email || !password || !server) {
-    throw new Error("Set all of E2E_EMAIL, E2E_PASSWORD and E2E_SERVER, or none.");
+    throw new Error(`Set all of ${names.join(", ")}, or none.`);
   }
 
   return { email, password, server: vaultUrl(server) };
@@ -89,31 +107,83 @@ function fromFile(): Account {
   return readAccount(process.env.E2E_ACCOUNT ?? DEFAULT_ACCOUNT);
 }
 
-/** Reads the account named by `E2E_SECOND_ACCOUNT`, for tests that need two accounts. */
+/**
+ * Reads the account from `E2E_SECOND_EMAIL`, `E2E_SECOND_PASSWORD` and `E2E_SECOND_SERVER` when
+ * set. Otherwise reads the account named by `E2E_SECOND_ACCOUNT`. For tests that need two accounts.
+ */
 export function secondAccount(): Account {
-  return readAccount(process.env.E2E_SECOND_ACCOUNT ?? DEFAULT_SECOND_ACCOUNT);
+  return (
+    fromEnv("E2E_SECOND") ?? readAccount(process.env.E2E_SECOND_ACCOUNT ?? DEFAULT_SECOND_ACCOUNT)
+  );
 }
 
 function readAccount(name: string): Account {
-  let contents: string;
+  const section = readSection(name, ["email", "password", "server"]);
+
+  return { email: section.email, password: section.password, server: vaultUrl(section.server) };
+}
+
+/**
+ * Reads the SeederApi's basic-auth account from `E2E_SEEDER_USERNAME` and `E2E_SEEDER_PASSWORD`
+ * when set, otherwise from the `[seeder]` section. Its URL comes from `E2E_SEEDER_URL`, then the
+ * section's `url`, then the local default, wherever the account came from.
+ */
+export function seederAccount(): SeederAccount {
+  const { username, password } =
+    seederLoginFromEnv() ?? readSection(SEEDER_SECTION, ["username", "password"]);
+  const url =
+    process.env.E2E_SEEDER_URL || readSections()?.get(SEEDER_SECTION)?.url || DEFAULT_SEEDER_URL;
+
+  return { url, username, password };
+}
+
+/** Whether a SeederApi account is configured, which tests that seed data need. */
+export function hasSeederAccount(): boolean {
+  return seederLoginFromEnv() != null || (readSections()?.has(SEEDER_SECTION) ?? false);
+}
+
+/** Both variables, or neither: like `fromEnv`, a partial set is a misconfigured job. */
+function seederLoginFromEnv(): { username: string; password: string } | undefined {
+  const { E2E_SEEDER_USERNAME: username, E2E_SEEDER_PASSWORD: password } = process.env;
+
+  if (!username && !password) {
+    return undefined;
+  }
+
+  if (!username || !password) {
+    throw new Error("Set both E2E_SEEDER_USERNAME and E2E_SEEDER_PASSWORD, or neither.");
+  }
+
+  return { username, password };
+}
+
+/** The credentials file's sections, or undefined when there is no file, as on CI. */
+function readSections(): Map<string, Record<string, string>> | undefined {
   try {
-    contents = readFileSync(CREDENTIALS_FILE, "utf8");
+    return parse(readFileSync(CREDENTIALS_FILE, "utf8"));
   } catch {
+    return undefined;
+  }
+}
+
+function readSection(name: string, required: string[]): Record<string, string> {
+  const sections = readSections();
+  if (sections == null) {
     throw new Error(`No credentials at ${CREDENTIALS_FILE}. See e2e/README.md.`);
   }
 
-  const section = parse(contents).get(name);
+  const section = sections.get(name);
   if (section == null) {
     throw new Error(`No [${name}] section in ${CREDENTIALS_FILE}.`);
   }
 
-  for (const key of ["email", "password", "server"] as const) {
+  for (const key of required) {
     if (!section[key]) {
       throw new Error(`[${name}] in ${CREDENTIALS_FILE} is missing ${key}.`);
     }
   }
 
-  return { email: section.email, password: section.password, server: vaultUrl(section.server) };
+  return section;
 }
 
 /** Accepts a bare host, e.g. `vault.usdev.bitwarden.pw`, as its https URL. */

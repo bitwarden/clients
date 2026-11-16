@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -27,10 +28,9 @@ type IconButtonSize = "default" | "xsmall" | "small" | "large";
 
   * Similar to the main button components, spacing between multiple icon buttons should be .5rem.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "button[bitIconButton]:not(button[bitButton])",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "icon-button.component.html",
   providers: [
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
@@ -57,9 +57,9 @@ type IconButtonSize = "default" | "xsmall" | "small" | "large";
   ],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
-  private baseButton = inject(BaseButtonDirective);
-  private elementRef = inject(ElementRef);
-  private tooltip = inject(TooltipDirective, { host: true, optional: true });
+  private readonly baseButton = inject(BaseButtonDirective);
+  private readonly elementRef = inject(ElementRef);
+  private readonly tooltip = inject(TooltipDirective, { host: true, optional: true });
 
   readonly icon = model.required<string>({ alias: "bitIconButton" });
 
@@ -81,9 +81,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
 
-  protected get showLoadingStyle() {
-    return this.baseButton.showLoadingStyle();
-  }
+  protected readonly showLoadingStyle = this.baseButton.showLoadingStyle;
 
   protected readonly classList = computed(() => {
     const classes: string[] = [];

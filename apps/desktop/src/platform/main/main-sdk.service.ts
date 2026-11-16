@@ -46,6 +46,10 @@ export class MainSdkService implements SdkService {
     return throwError(() => unsupported());
   }
 
+  cryptoReady$(userId: UserId): Observable<boolean> {
+    return throwError(() => unsupported());
+  }
+
   async unlock(): Promise<Rc<PasswordManagerClient> | null> {
     throw unsupported();
   }

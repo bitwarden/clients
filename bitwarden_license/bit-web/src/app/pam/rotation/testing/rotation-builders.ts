@@ -161,7 +161,7 @@ export function rotationConfig(overrides: Partial<RotationConfigView> = {}): Rot
   } as RotationConfigView;
 }
 
-/** A config whose blob exists but failed to verify — always invalid, unlike a target system. */
+/** A config whose blob exists but failed to verify, always invalid, unlike a target system. */
 export function unverifiableRotationConfig(
   overrides: Partial<RotationConfigView> = {},
 ): RotationConfigView {

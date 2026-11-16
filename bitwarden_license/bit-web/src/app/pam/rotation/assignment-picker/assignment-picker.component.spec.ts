@@ -95,7 +95,7 @@ class AssignmentPickerHostComponent {
 
 type PickerApi = {
   pendingSelection: { (): SelectItemView[]; set(items: SelectItemView[]): void };
-  hintKey: () => string;
+  hintKey: () => string | null;
   canAssign: () => boolean;
   canSelect: () => boolean;
 };
@@ -500,12 +500,24 @@ describe("AssignmentPickerComponent", () => {
       expect(select?.querySelector("ng-select")?.classList).not.toContain("ng-select-disabled");
     });
 
-    it("answers a blocked record first, since nothing else is actionable until it is", async () => {
+    it("leaves a blocked record to Assign's tooltip rather than stating it twice", async () => {
+      host.disabled = true;
+      host.disabledTooltipKey = "blockedTooltip";
+      host.loadError = true;
+      const picker = await render();
+
+      expect(picker.hintKey()).toBeNull();
+      expect(el("bit-hint")).toBeNull();
+      expect(assignTooltip().tooltipContent()).toBe("blockedTooltip");
+    });
+
+    it("answers a blocked record itself when Assign carries no tooltip to say it", async () => {
       host.disabled = true;
       host.loadError = true;
       const picker = await render();
 
       expect(picker.hintKey()).toBe("hintDisabled");
+      expect(textOf("bit-hint")).toBe("hintDisabled");
     });
 
     it("falls through to the other states when the caller gives no blocked hint", async () => {
@@ -515,6 +527,7 @@ describe("AssignmentPickerComponent", () => {
       const picker = await render();
 
       expect(picker.hintKey()).toBe("hintLoadError");
+      expect(textOf("bit-hint")).toBe("hintLoadError");
     });
 
     it("keeps the standing hint when the options run out, since the list says so itself", async () => {
@@ -530,6 +543,7 @@ describe("AssignmentPickerComponent", () => {
       const picker = await render();
 
       expect(picker.hintKey()).toBe("hintNoneEligible");
+      expect(textOf("bit-hint")).toBe("hintNoneEligible");
     });
 
     it("says the list could not be read rather than that there is nothing to assign", async () => {
@@ -539,6 +553,7 @@ describe("AssignmentPickerComponent", () => {
       const picker = await render();
 
       expect(picker.hintKey()).toBe("hintLoadError");
+      expect(textOf("bit-hint")).toBe("hintLoadError");
     });
   });
 

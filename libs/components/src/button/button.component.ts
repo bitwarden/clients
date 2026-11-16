@@ -1,4 +1,12 @@
-import { Component, inject, ElementRef, computed, input, model } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  model,
+} from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
 import { BaseButtonDirective } from "../shared/base-button.directive";
@@ -9,10 +17,9 @@ import { ariaDisableElement } from "../utils";
 
 export type ButtonSize = "default" | "small" | "large";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "button[bitButton], a[bitButton]",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
   imports: [SpinnerComponent],
@@ -28,8 +35,8 @@ export type ButtonSize = "default" | "small" | "large";
   ],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
-  private baseButton = inject(BaseButtonDirective);
-  private el = inject(ElementRef<HTMLButtonElement>);
+  private readonly baseButton = inject(BaseButtonDirective);
+  private readonly el = inject(ElementRef<HTMLButtonElement>);
 
   // Expose loading and disabled from base directive for ButtonLikeAbstraction
   readonly loading = this.baseButton.loading;
@@ -60,9 +67,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     this.size() === "small" ? "sm" : "md",
   );
 
-  protected get showLoadingStyle() {
-    return this.baseButton.showLoadingStyle;
-  }
+  protected readonly showLoadingStyle = this.baseButton.showLoadingStyle;
 
   protected readonly classList = computed(() => {
     const classes: string[] = [];

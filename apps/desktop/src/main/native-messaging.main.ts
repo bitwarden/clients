@@ -152,6 +152,13 @@ export class NativeMessagingMain {
     return this.clients.get(clientId);
   }
 
+  /**
+   * The ids of the clients currently connected to the native messaging server.
+   */
+  connectedClientIds(): number[] {
+    return [...this.clients.keys()];
+  }
+
   send(message: object) {
     this.logService.debug("Native messaging reply:", message);
     this.ipcServer?.send(JSON.stringify(message));
@@ -494,6 +501,8 @@ export class NativeMessagingMain {
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      Arbalete: `${this.homedir()}/Library/Application\ Support/Arbalete/`,
+      "Arbalete Dev": `${this.homedir()}/Library/Application\ Support/Arbalete\ Dev/`,
       Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
       "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
       "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,

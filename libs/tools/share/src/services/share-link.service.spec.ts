@@ -11,7 +11,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { OrganizationId, CipherId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -71,8 +71,8 @@ describe("ShareLinkService", () => {
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: OrganizationService, useValue: organizationService },
         { provide: PolicyService, useValue: policyService },
+        { provide: SendApiService, useValue: mock<SendApiService>() },
         { provide: RevealedCipherService, useValue: revealedCipherService },
-        { provide: SendSdkApiService, useValue: mock<SendSdkApiService>() },
         { provide: SendService, useValue: mock<SendService>() },
         { provide: FolderService, useValue: mock<FolderService>() },
       ],

@@ -82,6 +82,7 @@ import {
   GenerateFillScriptOptions,
 } from "./abstractions/autofill.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
+import { FillCipherPolicy } from "./abstractions/fill-cipher-policy";
 import { AutoFillConstants } from "./autofill-constants";
 import AutofillService from "./autofill.service";
 import { DomQueryService } from "./dom-query.service";
@@ -905,12 +906,12 @@ describe("AutofillService", () => {
       const orchestrator = new DefaultAutofillOrchestrator(
         autofillLifecycleService,
         autofillService,
-        cipherService,
         autofillSettingsService,
         accountService,
         platformUtilsService,
         async () => {},
         logService,
+        mock<FillCipherPolicy>(),
       );
 
       try {

@@ -191,6 +191,46 @@ describe("EventsComponent Send access linking", () => {
     });
   });
 
+  describe("getUserName (invite reminder and resend events)", () => {
+    it("names System for a reminder sent by the scheduled job", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.OrganizationUser_InviteReminderSent,
+          actingUserId: null,
+          userId: null,
+          systemUser: EventSystemUser.ScheduledJob,
+        },
+        null,
+      );
+      expect(user.name).toBe("system");
+    });
+
+    it("names Public API for a resend through the Public API", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.OrganizationUser_Reinvited,
+          actingUserId: null,
+          userId: null,
+          systemUser: EventSystemUser.PublicApi,
+        },
+        null,
+      );
+      expect(user.name).toBe("publicApi");
+    });
+
+    it("names the admin for a resend by an admin", () => {
+      const user = component.getUserName(
+        {
+          type: EventType.OrganizationUser_Reinvited,
+          actingUserId: "creator-user-id",
+          systemUser: null,
+        },
+        "creator-user-id",
+      );
+      expect(user.name).toBe("Pat Owner");
+    });
+  });
+
   describe("interactive id clicks open a dialog in place", () => {
     it("opens a Send-scoped events dialog when a Send id is clicked (and does NOT navigate)", () => {
       component.onEventMessageClick(clickOnHref(SEND_EVENTS_HREF_PREFIX + "send-123"));

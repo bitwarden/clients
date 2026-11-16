@@ -411,4 +411,40 @@ describe("OrganizationMembersService", () => {
       expect(Math.abs(getUsersCallTime - getGroupsCallTime)).toBeLessThan(50);
     });
   });
+  describe("loadMembers", () => {
+    it("returns every group's name keyed by ID, including groups without members", async () => {
+      const organization = createMockOrganization({ useGroups: true });
+      organizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [createMockUserResponse({ groups: ["group-1"] })],
+      } as any);
+      groupService.getAll.mockResolvedValue([
+        createMockGroup("group-1", "Sales"),
+        createMockGroup("group-2", "Sales"),
+      ] as any);
+
+      const { users, accessNames } = await service.loadMembers(organization);
+
+      expect(users).toHaveLength(1);
+      expect([...accessNames]).toEqual([
+        ["group-1", "Sales"],
+        ["group-2", "Sales"],
+      ]);
+    });
+
+    it("returns every collection's name keyed by ID when the organization doesn't use groups", async () => {
+      const organization = createMockOrganization({ useGroups: false });
+      organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
+      apiService.getCollections.mockResolvedValue({
+        data: [createMockCollection("col-1", "Collection 1")],
+      } as any);
+      keyService.orgKeys$.mockReturnValue(of({ [mockOrganizationId]: {} as any }));
+      collectionService.decryptMany$.mockReturnValue(
+        of([{ id: "col-1", name: "Collection 1" }] as any),
+      );
+
+      const { accessNames } = await service.loadMembers(organization);
+
+      expect([...accessNames]).toEqual([["col-1", "Collection 1"]]);
+    });
+  });
 });

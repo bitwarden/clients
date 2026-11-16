@@ -3,11 +3,19 @@ import { PlanResponse, PrivilegedControlsPlanFeaturesResponse } from "./plan.res
 describe("PlanResponse", () => {
   it("parses PrivilegedControls when present", () => {
     const response = new PlanResponse({
-      PrivilegedControls: { SeatPrice: 5 },
+      PrivilegedControls: {
+        StripeSeatPlanId: "privileged-controls-enterprise-seat-annually",
+        SeatPrice: 5,
+        BaseSeats: 0,
+      },
     });
 
     expect(response.PrivilegedControls).toBeInstanceOf(PrivilegedControlsPlanFeaturesResponse);
     expect(response.PrivilegedControls!.seatPrice).toBe(5);
+    expect(response.PrivilegedControls!.baseSeats).toBe(0);
+    expect(response.PrivilegedControls!.stripeSeatPlanId).toBe(
+      "privileged-controls-enterprise-seat-annually",
+    );
   });
 
   it("leaves PrivilegedControls null when absent", () => {

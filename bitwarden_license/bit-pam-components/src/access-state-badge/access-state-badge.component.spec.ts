@@ -47,7 +47,7 @@ describe("AccessStateBadgeComponent", () => {
     ["privileged", "primary", "bwi-key", "pamAccessBadgePrivileged"],
     ["pending", "warning", "bwi-clock", "pamAccessBadgePending"],
     ["unavailable", "subtle", "bwi-lock", "pamAccessBadgeUnavailable"],
-    ["ready", "success", "bwi-check", "pamAccessBadgeReady"],
+    ["ready", "success", "bwi-check-circle", "pamAccessBadgeReady"],
     ["expired", "subtle", "bwi-lock", "pamAccessBadgeEnded"],
   ])("maps the %s state to its badge recipe", (kind, variant, icon, label) => {
     create({ kind } as AccessBadgeState);
@@ -56,6 +56,22 @@ describe("AccessStateBadgeComponent", () => {
     expect(recipe.variant).toBe(variant);
     expect(recipe.icon).toBe(icon);
     expect(recipe.label).toBe(label);
+  });
+
+  it("lets an approver surface rename the ready state without touching the rest", () => {
+    // "Ready to use" is the requester's word; the Approvals tab shows the same grant as
+    // "Approved", since its viewer has nothing to use.
+    fixture = TestBed.createComponent(AccessStateBadgeComponent);
+    fixture.componentRef.setInput("state", { kind: "ready" } as AccessBadgeState);
+    fixture.componentRef.setInput("readyLabelKey", "pamStatusApproved");
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const recipe = component["recipe"]()!;
+    expect(recipe.label).toBe("pamStatusApproved");
+    // Only the word moves; the pill is still the ready one.
+    expect(recipe.variant).toBe("success");
+    expect(recipe.icon).toBe("bwi-check-circle");
   });
 
   it("shows the accent countdown above the 5-minute threshold", () => {
@@ -72,7 +88,7 @@ describe("AccessStateBadgeComponent", () => {
 
     const recipe = component["recipe"]()!;
     expect(recipe.variant).toBe("danger");
-    expect(recipe.icon).toBe("bwi-exclamation-triangle");
+    expect(recipe.icon).toBe("bwi-warning");
     expect(recipe.label).toContain("pamAccessBadgeEndingSoon");
   });
 
