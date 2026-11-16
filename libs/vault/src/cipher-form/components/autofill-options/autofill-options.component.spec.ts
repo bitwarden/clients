@@ -735,13 +735,44 @@ describe("AutofillOptionsComponent", () => {
       ]);
     });
 
+    it("keeps a desktop app locked and saved unchanged when a URI before it is removed", () => {
+      initWithSavedPairing();
+
+      component.removeUri(0);
+      fixture.detectChanges();
+
+      expect(getUriLocks()).toEqual([true]);
+      expect(getSavedUris()).toEqual([
+        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Never }),
+      ]);
+    });
+
+    it("removes a locked desktop app and keeps the URI after it unlocked", () => {
+      initWithSavedPairing();
+      component.addUri({ uri: "https://example.org", matchDetection: null });
+      fixture.detectChanges();
+
+      component.removeUri(1);
+      fixture.detectChanges();
+
+      expect(getUriLocks()).toEqual([false, false]);
+      expect(getSavedUris()).toEqual([
+        Object.assign(new LoginUriView(), {
+          uri: "https://example.com",
+          match: UriMatchStrategy.Host,
+        }),
+        Object.assign(new LoginUriView(), { uri: "https://example.org", match: null }),
+      ]);
+    });
+
     it("saves a selected desktop app with its pairing URI and the Never match strategy", async () => {
       fixture.detectChanges();
       await component.addDesktopAppUriFromUser();
 
+      // The form's match strategy isn't used: desktop apps are always saved with Never
       component.autofillOptionsForm.controls.uris.at(1).setValue({
         uri: pairingUri,
-        matchDetection: UriMatchStrategy.Never,
+        matchDetection: null,
       });
 
       expect(getSavedUris()[1]).toEqual(
@@ -773,6 +804,60 @@ describe("AutofillOptionsComponent", () => {
       await component.addDesktopAppUriFromUser();
 
       component.onUriItemDrop(dropEvent(1, 0));
+
+      expect(getSavedUris()).toEqual([
+        Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
+      ]);
+    });
+
+    it("does not save a desktop app URI with no desktop app that is saved on the cipher", () => {
+      getInitialCipherView.mockReturnValueOnce({
+        login: Object.assign(new LoginView(), {
+          uris: [
+            Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
+            Object.assign(new LoginUriView(), {
+              uri: DESKTOP_APP_URI_PREFIX,
+              match: UriMatchStrategy.Never,
+            }),
+          ],
+        }),
+      });
+      fixture.detectChanges();
+
+      component.autofillOptionsForm.controls.autofillOnPageLoad.setValue(true);
+
+      // It's shown as a locked invalid pairing, but left out on save
+      expect(getUriLocks()).toEqual([false, true]);
+      expect(getSavedUris()).toEqual([
+        Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
+      ]);
+    });
+
+    it("does not save a desktop app URI with no desktop app typed into a website row", () => {
+      fixture.detectChanges();
+      component.addUri({ uri: "https://example.com", matchDetection: null });
+
+      component.autofillOptionsForm.controls.uris.at(0).setValue({
+        uri: DESKTOP_APP_URI_PREFIX,
+        matchDetection: null,
+      });
+
+      expect(getSavedUris()).toEqual([
+        Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
+      ]);
+    });
+
+    it("does not save a desktop app URI with no desktop app when the feature flag is off", () => {
+      gaFeatureFlagSubject.next(false);
+      fixture = TestBed.createComponent(AutofillOptionsComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      component.addUri({ uri: "https://example.com", matchDetection: null });
+
+      component.autofillOptionsForm.controls.uris.at(0).setValue({
+        uri: DESKTOP_APP_URI_PREFIX,
+        matchDetection: null,
+      });
 
       expect(getSavedUris()).toEqual([
         Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
