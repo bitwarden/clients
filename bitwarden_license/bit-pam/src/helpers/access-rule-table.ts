@@ -14,7 +14,8 @@ export type AccessRuleFilter = {
  */
 export function accessRuleMatchesFilter(
   rule: { name: string; enabled: boolean; collections: readonly string[] },
-  collectionNames: string[],
+  /** Collection name by id. A collection missing from it is searched by its id. */
+  collectionNames: ReadonlyMap<string, string>,
   filter: AccessRuleFilter,
 ): boolean {
   if (filter.status === "enabled" && !rule.enabled) {
@@ -30,7 +31,8 @@ export function accessRuleMatchesFilter(
     return false;
   }
   if (filter.text.length > 0) {
-    const haystack = `${rule.name} ${collectionNames.join(" ")}`.toLowerCase();
+    const names = rule.collections.map((id) => collectionNames.get(id) ?? id);
+    const haystack = `${rule.name} ${names.join(" ")}`.toLowerCase();
     if (!haystack.includes(filter.text)) {
       return false;
     }

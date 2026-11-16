@@ -1,31 +1,55 @@
-<form [bitSubmit]="submit" [formGroup]="setShortcutForm" bit-dialog>
-  <div class="tw-font-medium" bitDialogTitle>
-    {{ "typeShortcut" | i18n }}
-  </div>
-  <div bitDialogContent>
-    <p>
-      {{ "editAutotypeKeyboardModifiersDescription" | i18n }}
-    </p>
+@if (inline()) {
+  <div [formGroup]="setShortcutForm">
     <bit-form-field>
-      <bit-label>{{ "typeShortcut" | i18n }}</bit-label>
+      <bit-label>{{ "keyboardShortcut" | i18n }}</bit-label>
       <input
+        id="autotype-shortcut_input_keyboard-shortcut"
         class="tw-font-mono"
         bitInput
         type="text"
         formControlName="shortcut"
         (keydown)="onShortcutKeydown($event)"
+        (paste)="onShortcutTextInsert($event)"
+        (drop)="onShortcutTextInsert($event)"
         autocomplete="off"
         autocorrect="off"
         autocapitalize="off"
       />
+      <bit-hint>{{ "defaultKeyboardShortcutPolicyHint" | i18n }}</bit-hint>
     </bit-form-field>
   </div>
-  <ng-container bitDialogFooter>
-    <button type="submit" bitButton bitFormButton buttonType="primary">
-      <span>{{ "save" | i18n }}</span>
-    </button>
-    <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
-      {{ "cancel" | i18n }}
-    </button>
-  </ng-container>
-</form>
+} @else {
+  <form [bitSubmit]="submit" [formGroup]="setShortcutForm" bit-dialog>
+    <div class="tw-font-medium" bitDialogTitle>
+      {{ "typeShortcut" | i18n }}
+    </div>
+    <div bitDialogContent>
+      <p>
+        {{ "editAutotypeKeyboardModifiersDescription" | i18n }}
+      </p>
+      <bit-form-field>
+        <bit-label>{{ "typeShortcut" | i18n }}</bit-label>
+        <input
+          class="tw-font-mono"
+          bitInput
+          type="text"
+          formControlName="shortcut"
+          (keydown)="onShortcutKeydown($event)"
+          (paste)="onShortcutTextInsert($event)"
+          (drop)="onShortcutTextInsert($event)"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+        />
+      </bit-form-field>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        <span>{{ "save" | i18n }}</span>
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </form>
+}
