@@ -541,7 +541,7 @@ export class CollectionDialogComponent implements OnInit {
         ? "editedSharedFolderId"
         : "editedCollectionId"
       : vfo1Enabled
-        ? "createdSharedFolderId"
+        ? "addedSharedFolderId"
         : "createdCollectionId";
     this.toastService.showToast({
       variant: "success",
