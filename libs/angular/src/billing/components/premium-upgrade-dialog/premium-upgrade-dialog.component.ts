@@ -116,7 +116,6 @@ export class PremiumUpgradeDialogComponent {
         if (userId != null) {
           try {
             await this.premiumCheckoutPendingService.markCheckoutLaunched(userId);
-            this.logService.info("Marked premium checkout as pending");
           } catch (error: unknown) {
             this.logService.error(
               "Failed to mark premium checkout as pending; sync recovery on refocus may not fire",
