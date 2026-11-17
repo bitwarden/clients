@@ -44,8 +44,12 @@ export interface SsoJitProvisionFinishPasswordData {
   newPasswordHint: string;
   salt: MasterPasswordSalt;
   /**
-   * Only the V2 path uses this value: the SDK enrolls the user. For V1, the caller enrolls the
-   * user after the vault unlocks.
+   * Only the V2 path uses this value: the SDK enrolls the user, and skips enrollment when
+   * `acceptOrganizationInvite` is `false`.
+   *
+   * For V1, the caller enrolls the user after the vault unlocks. The caller must skip enrollment
+   * when `acceptOrganizationInvite` is `false`: the enrollment endpoint moves an Invited membership
+   * to Accepted, so it would accept the open invite too early.
    */
   resetPasswordAutoEnroll: boolean;
   /**
