@@ -132,10 +132,10 @@ export class SendFormComponent implements AfterViewInit {
     ),
   ]).pipe(
     map(([sendView, cipherViews]) => {
-      if (sendView.type !== SendType.Item || !sendView.data.metadata?.itemId) {
+      if (sendView?.type !== SendType.Item || !sendView.data?.metadata?.itemId) {
         return false;
       }
-      return !cipherViews.some((cv) => cv.id === sendView.data.metadata?.itemId);
+      return !cipherViews.some((cv) => cv.id === sendView.data?.metadata?.itemId);
     }),
   );
 
