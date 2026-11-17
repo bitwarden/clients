@@ -1033,8 +1033,17 @@ describe("AutofillOptionsComponent", () => {
         control.setValue({ uri: pairingUri, matchDetection: UriMatchStrategy.Host });
 
         expect(control.value.matchDetection).toBe(UriMatchStrategy.Host);
+      });
+
+      it("shares the Never match strategy of a desktop app URI typed into a website row", () => {
+        const localFixture = createComponent(true);
+
+        localFixture.componentInstance.autofillOptionsForm.controls.uris
+          .at(0)
+          .setValue({ uri: pairingUri, matchDetection: null });
+
         expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
-          UriMatchStrategy.Host,
+          UriMatchStrategy.Never,
         ]);
       });
 
@@ -1060,6 +1069,24 @@ describe("AutofillOptionsComponent", () => {
           { uri: "https://example.com", match: UriMatchStrategy.Exact },
           { uri: pairingUri, match: null },
         ]);
+      });
+
+      it("shares the Never match strategy of the desktop app URIs on the cipher when the form opens", () => {
+        createComponent(
+          true,
+          createCipher(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]),
+        );
+
+        expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
+          UriMatchStrategy.Exact,
+          UriMatchStrategy.Never,
+        ]);
+      });
+
+      it("shares the match strategy of the desktop app URIs on the cipher when the feature flag is off", () => {
+        createComponent(false, createCipher([pairingUri, null]));
+
+        expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([null]);
       });
 
       describe("when the feature flag is read after the form opens", () => {
@@ -1104,6 +1131,21 @@ describe("AutofillOptionsComponent", () => {
           gaFeatureFlag$.next(false);
 
           expect(cipherFormContainer.patchCipher).not.toHaveBeenCalled();
+        });
+
+        it("shares the Never match strategy of the desktop app URIs on the cipher once the feature flag is read", () => {
+          openForm(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]);
+          expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
+            UriMatchStrategy.Exact,
+            null,
+          ]);
+
+          gaFeatureFlag$.next(true);
+
+          expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
+            UriMatchStrategy.Exact,
+            UriMatchStrategy.Never,
+          ]);
         });
       });
     });

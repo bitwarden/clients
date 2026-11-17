@@ -1,5 +1,5 @@
 <ng-container [formGroup]="uriForm">
-  <div class="tw-flex tw-flex-1" [class.!tw-mb-1]="showMatchDetection && !isAppUri">
+  <div class="tw-flex tw-flex-1" [class.!tw-mb-1]="showMatchDetection">
     <bit-form-field disableMargin class="tw-flex-1 !tw-pt-0">
       <bit-label>{{ uriLabel }}</bit-label>
       @if (isAppUri) {
@@ -49,7 +49,7 @@
       </div>
     }
   </div>
-  @if (showMatchDetection && !isAppUri) {
+  @if (showMatchDetection) {
     <bit-form-field class="!tw-mb-0">
       <bit-label>{{ "matchDetection" | i18n }}</bit-label>
       <bit-select formControlName="matchDetection" #matchDetectionSelect>

@@ -331,7 +331,7 @@ export class VaultNextComponent implements OnInit {
   /** `undefined` until the ciphers stream first emits, which is what drives {@link loading}. */
   private readonly loadedCiphers = toSignal(this.allCiphers$);
 
-  private readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
+  protected readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
 
   private readonly failedCiphers = toSignal(this.failedCiphers$, { initialValue: [] });
 
