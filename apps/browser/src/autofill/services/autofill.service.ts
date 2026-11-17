@@ -504,11 +504,15 @@ export default class AutofillService implements AutofillServiceInterface {
           return AutofillOutcome.Denied;
         }
 
-        // If we have a focused form, filter the page details to only include fields from that form
+        // If we have a focused form, filter the page details to only include fields from that form.
+        // Targeted fields (fill assist) have no form opid and must pass through. The targeting rule
+        // already scopes them to the right elements, so the form filter would strip every one.
         const details = options.focusedFieldForm
           ? {
               ...pd.details,
-              fields: pd.details.fields.filter((f) => f.form === options.focusedFieldForm),
+              fields: pd.details.fields.filter(
+                (f) => f.targeted || f.form === options.focusedFieldForm,
+              ),
             }
           : pd.details;
 
