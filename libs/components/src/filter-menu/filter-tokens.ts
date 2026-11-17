@@ -35,11 +35,11 @@ export interface FilterHost {
   registerFilter(control: FilterControl): void;
   unregisterFilter(control: FilterControl): void;
   /**
-   * How many rows match if the chip's `key` is pinned to `value`, with every other active
-   * filter applied. `undefined` when the host can't count, so the chip falls back to an
-   * option's explicit `count`.
+   * For each entry of `values`: how many rows match if the chip's `key` is pinned to that value,
+   * with every other active filter applied. Batched so a host can count every option in one pass.
+   * `undefined` when the host can't count, so the chip falls back to an option's explicit `count`.
    */
-  optionCount?(key: string, value: unknown): number | undefined;
+  optionCounts?(key: string, values: readonly unknown[]): readonly number[] | undefined;
 }
 
 /**
