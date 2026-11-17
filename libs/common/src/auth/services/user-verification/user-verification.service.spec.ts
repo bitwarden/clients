@@ -226,7 +226,7 @@ describe("UserVerificationService", () => {
 
     describe("Master password verification", () => {
       beforeEach(() => {
-        kdfConfigService.getKdfConfig.mockResolvedValue("kdfConfig" as unknown as KdfConfig);
+        kdfConfigService.getKdfConfig$.mockReturnValue(of("kdfConfig" as unknown as KdfConfig));
         masterPasswordService.saltForUser$.mockReturnValue(of("salt" as any));
         masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
           masterPasswordAuthenticationHash: "hash",
@@ -263,7 +263,7 @@ describe("UserVerificationService", () => {
 
         await sut.buildRequest(verification);
 
-        expect(kdfConfigService.getKdfConfig).toHaveBeenCalledWith(mockUserId);
+        expect(kdfConfigService.getKdfConfig$).toHaveBeenCalledWith(mockUserId);
       });
 
       it("should get salt for the active user", async () => {
@@ -316,7 +316,7 @@ describe("UserVerificationService", () => {
     beforeAll(() => {
       i18nService.t.calledWith("invalidMasterPassword").mockReturnValue("Invalid master password");
 
-      kdfConfigService.getKdfConfig.mockResolvedValue("kdfConfig" as unknown as KdfConfig);
+      kdfConfigService.getKdfConfig$.mockReturnValue(of("kdfConfig" as unknown as KdfConfig));
     });
 
     describe("client-side verification", () => {
@@ -449,7 +449,7 @@ describe("UserVerificationService", () => {
       });
 
       it("throws if kdf config is not available", async () => {
-        kdfConfigService.getKdfConfig.mockResolvedValueOnce(null);
+        kdfConfigService.getKdfConfig$.mockReturnValueOnce(of(null));
 
         await expect(
           sut.verifyUserByMasterPassword(

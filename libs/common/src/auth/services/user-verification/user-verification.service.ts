@@ -113,7 +113,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       request.otp = verification.secret;
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const kdf = await this.kdfConfigService.getKdfConfig(userId as UserId);
+      const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId as UserId));
       const salt = await firstValueFrom(this.masterPasswordService.saltForUser$(userId as UserId));
 
       const authenticationData =
@@ -186,7 +186,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       throw new Error("Email is required. Cannot verify user by master password.");
     }
 
-    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
+    const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
     if (!kdfConfig) {
       throw new Error("KDF config is required. Cannot verify user by master password.");
     }

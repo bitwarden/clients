@@ -40,7 +40,7 @@ import {
 } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
@@ -95,7 +95,6 @@ describe("LoginStrategyService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
@@ -132,7 +131,6 @@ describe("LoginStrategyService", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     stateProvider = new FakeGlobalStateProvider();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-    kdfConfigService = mock<KdfConfigService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
     passwordPreloginService = mock<PasswordPreloginService>();
@@ -190,7 +188,6 @@ describe("LoginStrategyService", () => {
       stateProvider,
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
-      kdfConfigService,
       configService,
       accountCryptographicStateService,
       passwordPreloginService,
@@ -358,7 +355,6 @@ describe("LoginStrategyService", () => {
       stateProvider,
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
-      kdfConfigService,
       configService,
       accountCryptographicStateService,
       passwordPreloginService,

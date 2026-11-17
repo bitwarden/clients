@@ -28,7 +28,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
@@ -48,7 +48,6 @@ describe("WebSetInitialPasswordService", () => {
   let apiService: MockProxy<ApiService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
   let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
@@ -77,7 +76,6 @@ describe("WebSetInitialPasswordService", () => {
     apiService = mock<ApiService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
-    kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
     legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
@@ -95,7 +93,6 @@ describe("WebSetInitialPasswordService", () => {
       apiService,
       encryptService,
       i18nService,
-      kdfConfigService,
       keyService,
       legacyCompatKeyService,
       masterPasswordApiService,

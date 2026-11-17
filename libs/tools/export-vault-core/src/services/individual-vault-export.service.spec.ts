@@ -219,7 +219,7 @@ describe("VaultExportService", () => {
 
     folderService.folderViews$.mockReturnValue(of(UserFolderViews));
     folderService.folders$.mockReturnValue(of(UserFolders));
-    kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
+    kdfConfigService.getKdfConfig$.mockReturnValue(of(DEFAULT_KDF_CONFIG));
     encryptService.encryptString.mockResolvedValue(new EncString("encrypted"));
     apiService.getAttachmentData.mockResolvedValue(attachmentResponse);
 
@@ -696,6 +696,19 @@ describe("VaultExportService", () => {
         const unEncryptedExportString = unEncryptedExportVault.data;
         expect(exportObject.data).not.toEqual(unEncryptedExportString);
       });
+    });
+
+    it("derives the export key with the default KDF when the user has no master password", async () => {
+      kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
+      cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
+
+      await exportService.getPasswordProtectedExport(userId, password);
+
+      expect(keyGenerationService.deriveVaultExportKey).toHaveBeenCalledWith(
+        password,
+        expect.any(String),
+        DEFAULT_KDF_CONFIG,
+      );
     });
   });
 

@@ -129,7 +129,6 @@ import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/com
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
-  KdfConfigService,
   KeyService,
   KeyService as KeyServiceAbstraction,
   DefaultKeyService,
@@ -584,7 +583,6 @@ const safeProviders: SafeProvider[] = [
       ApiService,
       EncryptService,
       I18nServiceAbstraction,
-      KdfConfigService,
       KeyService,
       LegacyCompatKeyService,
       MasterPasswordApiService,

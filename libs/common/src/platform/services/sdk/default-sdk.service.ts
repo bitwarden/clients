@@ -22,7 +22,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { DEFAULT_KDF_CONFIG, EncString } from "@bitwarden/legacy-crypto";
 import { PerfTrackGroup } from "@bitwarden/logging";
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import {
@@ -180,9 +180,15 @@ export class DefaultSdkService implements SdkService {
       map((accounts) => accounts[userId]),
       distinctUntilChanged(),
     );
+    // Users without a master password (e.g. TDE) have no KDF, but the SDK requires one. The SDK
+    // reads it only for master-password, legacy-PIN and encrypted-export operations, none of which
+    // clients run for these users.
     const kdfParams$ = this.kdfConfigServiceProvider()
       .getKdfConfig$(userId)
-      .pipe(distinctUntilChanged());
+      .pipe(
+        map((kdf) => kdf ?? DEFAULT_KDF_CONFIG),
+        distinctUntilChanged(compareValues), // Unlock data emits new objects with the same KDF
+      );
     const accountCryptographicState$ = this.accountCryptographyStateServiceProvider()
       .accountCryptographicState$(userId)
       .pipe(distinctUntilChanged());
@@ -240,7 +246,7 @@ export class DefaultSdkService implements SdkService {
               await this.initializeClient(userId, client);
 
               // Returns a locked SDK client, if any of these values are missing
-              if (kdfParams == null || accountCryptographicState == null || userKey == null) {
+              if (accountCryptographicState == null || userKey == null) {
                 return client;
               }
 

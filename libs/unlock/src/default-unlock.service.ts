@@ -22,7 +22,7 @@ import {
   SdkUnlockData,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { DEFAULT_KDF_CONFIG, KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
 import {
   EncString,
@@ -269,8 +269,11 @@ export class DefaultUnlockService implements UnlockService {
   private async getKdfParams(userId: UserId): Promise<Kdf> {
     const kdfParams = await firstValueFrom(
       this.kdfService.getKdfConfig$(userId).pipe(
+        // Users without a master password (e.g. TDE) have no KDF, but the SDK requires one. The SDK
+        // reads it only for master-password, legacy-PIN and encrypted-export operations, none of which
+        // clients run for these users.
         map((config: KdfConfig | null) => {
-          return config?.toSdkConfig();
+          return (config ?? DEFAULT_KDF_CONFIG).toSdkConfig();
         }),
       ),
     );

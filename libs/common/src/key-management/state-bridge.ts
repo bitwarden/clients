@@ -2,7 +2,7 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
 // There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
-import { fromSdkKdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   DateTime,
   EncString,
@@ -26,7 +26,6 @@ import { UserKey } from "../types/key";
 import { MasterPasswordUnlockData } from "./master-password/types/master-password.types";
 import {
   ACCOUNT_CRYPTOGRAPHIC_STATE,
-  KDF_CONFIG,
   MASTER_PASSWORD_UNLOCK_DATA,
   PIN_LENGTH,
   PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
@@ -229,18 +228,16 @@ export class JsWasmStateBridge implements WasmStateBridge {
     await deleteAtomic(this.stateProvider, this.userId, PIN_LENGTH);
   }
 
-  async set_kdf_config(kdfConfig: Kdf): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, KDF_CONFIG, fromSdkKdfConfig(kdfConfig));
-  }
+  // The KDF lives in the master-password unlock data. Writes are no-ops; the SDK sets the unlock
+  // data alongside the KDF.
+  async set_kdf_config(_kdfConfig: Kdf): Promise<void> {}
 
   async get_kdf_config(): Promise<Kdf | null> {
-    const result = await readAtomic(this.stateProvider, this.userId, KDF_CONFIG);
-    return result ? result.toSdkConfig() : null;
+    const data = await readAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_DATA);
+    return data == null ? null : data.kdf.toSdkConfig();
   }
 
-  async clear_kdf_config(): Promise<void> {
-    await deleteAtomic(this.stateProvider, this.userId, KDF_CONFIG);
-  }
+  async clear_kdf_config(): Promise<void> {}
 
   async set_user_key_id(value: KeyId): Promise<void> {
     await writeAtomic(this.stateProvider, this.userId, USER_KEY_ID, value);

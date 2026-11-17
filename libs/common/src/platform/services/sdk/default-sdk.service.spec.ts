@@ -5,7 +5,12 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import {
+  DEFAULT_KDF_CONFIG,
+  EncryptedString,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { Measurement } from "@bitwarden/logging";
 import { PasswordManagerClient, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
@@ -230,6 +235,16 @@ describe("DefaultSdkService", () => {
           expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
           subscription_2.unsubscribe();
           jest.useRealTimers();
+        });
+
+        it("initializes user crypto with the default KDF when the user has no master password", async () => {
+          kdfConfigService.getKdfConfig$.calledWith(userId).mockReturnValue(of(null));
+
+          await firstValueFrom(service.userClient$(userId));
+
+          expect(mockClient.crypto().initialize_user_crypto).toHaveBeenCalledWith(
+            expect.objectContaining({ kdfParams: DEFAULT_KDF_CONFIG.toSdkConfig() }),
+          );
         });
 
         it("emits a new locked client and frees the previous unlocked client when the userKey is unset", async () => {

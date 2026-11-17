@@ -876,7 +876,7 @@ export default class MainBackground {
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
 
-    this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
+    this.kdfConfigService = new DefaultKdfConfigService(this.masterPasswordService);
 
     // Constructed before the key service, which depends on it to delete platform-specific copies of
     // the user key. Its own key service and vault timeout dependencies are lazy to break the cycle.

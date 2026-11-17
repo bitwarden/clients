@@ -17,7 +17,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
@@ -30,7 +30,6 @@ export class DesktopSetInitialPasswordService
     protected apiService: ApiService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
-    protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
     protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
@@ -47,7 +46,6 @@ export class DesktopSetInitialPasswordService
       apiService,
       encryptService,
       i18nService,
-      kdfConfigService,
       keyService,
       legacyCompatKeyService,
       masterPasswordApiService,

@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { firstValueFrom } from "rxjs";
+
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -7,7 +9,13 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, KdfConfig, KdfType, KeyGenerationService } from "@bitwarden/legacy-crypto";
+import {
+  DEFAULT_KDF_CONFIG,
+  EncryptService,
+  KdfConfig,
+  KdfType,
+  KeyGenerationService,
+} from "@bitwarden/legacy-crypto";
 import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { BitwardenCsvExportType, BitwardenPasswordProtectedFileFormat } from "../types";
@@ -23,7 +31,10 @@ export class BaseVaultExportService {
     clearText: string,
     password: string,
   ): Promise<string> {
-    const kdfConfig: KdfConfig = await this.kdfConfigService.getKdfConfig(userId);
+    // Users without a master password (e.g. TDE) have no KDF. The export stores its KDF, so any
+    // config works.
+    const kdfConfig: KdfConfig =
+      (await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId))) ?? DEFAULT_KDF_CONFIG;
 
     await SdkLoadService.Ready;
     const salt = Utils.fromBufferToB64(new SdkRandomNumberClient().gen_bytes(16));

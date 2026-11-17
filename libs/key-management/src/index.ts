@@ -13,6 +13,5 @@ export { UserKeyRotationDataProvider } from "./abstractions/user-key-rotation-da
 export { UserKeyRotationKeyRecoveryProvider } from "./abstractions/user-key-rotation-key-recovery-provider.abstraction";
 export { KdfConfigService } from "./abstractions/kdf-config.service";
 export { DefaultKdfConfigService } from "./kdf-config.service";
-export { KDF_CONFIG } from "@bitwarden/common/key-management/state-definitions";
 
 export * from "./user-asymmetric-key-regeneration";

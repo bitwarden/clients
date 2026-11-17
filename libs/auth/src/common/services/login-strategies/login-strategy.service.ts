@@ -32,7 +32,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
@@ -94,7 +94,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private stateProvider: GlobalStateProvider,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private kdfConfigService: KdfConfigService,
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private passwordPreloginService: PasswordPreloginService,
@@ -309,7 +308,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.userDecryptionOptionsService,
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
-      this.kdfConfigService,
       this.environmentService,
       this.configService,
       this.accountCryptographicStateService,
