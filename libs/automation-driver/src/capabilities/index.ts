@@ -2,6 +2,7 @@ export * from "./biometrics";
 export * from "./desktop-navigation";
 export * from "./feature-flags";
 export * from "./lock";
+export * from "./login";
 export * from "./logging";
 export * from "./process-reload";
 export * from "./sdk";
