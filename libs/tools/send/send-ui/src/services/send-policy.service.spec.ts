@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -8,6 +8,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -34,14 +35,20 @@ describe("SendPolicyService", () => {
   const policyServiceMock = mock<PolicyService>();
   const configServiceMock = mock<ConfigService>();
   const organizationServiceMock = mock<OrganizationService>();
+  const hasPremium$ = new BehaviorSubject(false);
 
   beforeEach(() => {
+    hasPremium$.next(false);
     const testBed = TestBed.configureTestingModule({
       providers: [
         { provide: PolicyService, useValue: policyServiceMock },
         { provide: ConfigService, useValue: configServiceMock },
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
         { provide: OrganizationService, useValue: organizationServiceMock },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: { hasPremiumFromAnySource$: () => hasPremium$ },
+        },
         SendPolicyService,
       ],
     });
@@ -177,6 +184,57 @@ describe("SendPolicyService", () => {
         SendType.Text,
         SendType.File,
       ]);
+    });
+  });
+
+  describe("creatableSendTypes$", () => {
+    function mockPolicies(sendControls: Record<string, unknown>[], legacyDisableSend = false) {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of(sendControls.map(makePolicy)));
+      policyServiceMock.policyAppliesToUser$
+        .calledWith(PolicyType.DisableSend, userId)
+        .mockReturnValue(of(legacyDisableSend));
+    }
+
+    it("emits text and file for a premium user", async () => {
+      mockPolicies([]);
+      hasPremium$.next(true);
+
+      expect(await firstValueFrom(service.creatableSendTypes$)).toEqual([
+        SendType.Text,
+        SendType.File,
+      ]);
+    });
+
+    it("emits only text without premium", async () => {
+      mockPolicies([]);
+
+      expect(await firstValueFrom(service.creatableSendTypes$)).toEqual([SendType.Text]);
+    });
+
+    it("emits text first, whatever order the policy gives", async () => {
+      mockPolicies([{ allowedSendTypes: [SendType.File, SendType.Text] }]);
+      hasPremium$.next(true);
+
+      expect(await firstValueFrom(service.creatableSendTypes$)).toEqual([
+        SendType.Text,
+        SendType.File,
+      ]);
+    });
+
+    it("emits only file when the policy allows only files", async () => {
+      mockPolicies([{ allowedSendTypes: [SendType.File] }]);
+      hasPremium$.next(true);
+
+      expect(await firstValueFrom(service.creatableSendTypes$)).toEqual([SendType.File]);
+    });
+
+    it("emits nothing when Send is disabled", async () => {
+      mockPolicies([], true);
+      hasPremium$.next(true);
+
+      expect(await firstValueFrom(service.creatableSendTypes$)).toEqual([]);
     });
   });
 });

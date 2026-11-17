@@ -5,7 +5,7 @@ import { Component, OnDestroy, HostListener, viewChildren, computed, Signal } fr
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, switchMap, combineLatest, map, firstValueFrom, of } from "rxjs";
+import { lastValueFrom, switchMap, combineLatest, map, firstValueFrom, of, filter } from "rxjs";
 
 import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -239,20 +239,42 @@ export class SendComponent implements OnDestroy {
         this.selectedToggleValue = toggleValue;
         this.sendItemsFiltersService.filterForm.patchValue({ sendType });
       });
+
+    // `?new=text` or `?new=file` opens the add form, e.g. from the vault's Add menu.
+    this.route.queryParamMap
+      .pipe(
+        map((params) => params.get("new")),
+        filter((value) => value === SendFilterType.Text || value === SendFilterType.File),
+        takeUntilDestroyed(),
+      )
+      .subscribe((value) => void this.addSendFromRoute(value));
   }
 
   ngOnDestroy() {
     this.dialogService.closeAll();
   }
 
-  async addSend() {
+  async addSend(type: SendType = SendType.Text) {
     if (this.disableSend()) {
       return;
     }
 
-    const config = await this.sendFormConfigService.buildConfig("add", null, SendType.Text);
+    const config = await this.sendFormConfigService.buildConfig("add", null, type);
 
     await this.openSendItemDialog(config);
+  }
+
+  private async addSendFromRoute(value: string) {
+    await this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { new: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+    const type = value === SendFilterType.File ? SendType.File : SendType.Text;
+    if ((await firstValueFrom(this.sendPolicyService.creatableSendTypes$)).includes(type)) {
+      await this.addSend(type);
+    }
   }
 
   async editSend(send: SendView) {

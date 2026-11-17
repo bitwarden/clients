@@ -27,6 +27,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -46,6 +48,7 @@ import {
 import { isGuid } from "@bitwarden/guid";
 import { importQueryParamsForVault } from "@bitwarden/importer-ui";
 import { PolicyType } from "@bitwarden/sdk-internal";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   AddEditFolderDialogComponent,
@@ -220,6 +223,10 @@ export class VaultNextComponent implements OnInit {
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly coachmarkService = inject(CoachmarkService);
+
+  protected readonly sendTypes = toSignal(inject(SendPolicyService).creatableSendTypes$, {
+    initialValue: [],
+  });
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
@@ -710,6 +717,13 @@ export class VaultNextComponent implements OnInit {
     } else if (result.result === AddItemDialogResult.Collection) {
       await this.addCollection();
     }
+  }
+
+  /** Handles `vault-new-cipher-menu`'s `sendAdded`: the Send page opens its add form. */
+  protected async addSend(type: SendType): Promise<void> {
+    await this.router.navigate(["/sends"], {
+      queryParams: { new: type === SendType.File ? SendFilterType.File : SendFilterType.Text },
+    });
   }
 
   /** Handles `vault-new-cipher-menu`'s `folderAdded`, emitted by its legacy dropdown. */

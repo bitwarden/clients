@@ -5,6 +5,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
@@ -22,6 +23,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 export class SendPolicyService {
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
+  private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -124,6 +126,29 @@ export class SendPolicyService {
           return restrictedTypes.length === 0 ? [SendType.Text, SendType.File] : restrictedTypes;
         }),
       ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * Emits the SendTypes the active user can create, text first: none when Send is disabled,
+   * and File only with premium.
+   */
+  readonly creatableSendTypes$: Observable<SendType[]> = combineLatest([
+    this.disableSend$,
+    this.allowedSendTypes$,
+    this.activeUserId$.pipe(
+      switchMap((userId) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+      ),
+    ),
+  ]).pipe(
+    map(([disabled, allowedTypes, hasPremium]) =>
+      disabled
+        ? []
+        : [SendType.Text, SendType.File]
+            .filter((type) => allowedTypes.includes(type))
+            .filter((type) => type !== SendType.File || hasPremium),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );

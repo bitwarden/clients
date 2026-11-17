@@ -9,10 +9,12 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { BitwardenIcon, DialogService, IconModule, MenuModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import {
   AddEditFolderDialogComponent,
   MY_VAULT,
@@ -57,6 +59,12 @@ export class AppVaultFabComponent {
     ),
     { initialValue: [] },
   );
+
+  protected readonly SendType = SendType;
+
+  protected readonly sendTypes = toSignal(inject(SendPolicyService).creatableSendTypes$, {
+    initialValue: [],
+  });
 
   protected readonly useNewItemTypes = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),

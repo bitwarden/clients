@@ -31,6 +31,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, PopoverModule, ToastService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AddEditFolderDialogComponent,
@@ -356,6 +357,10 @@ describe("VaultNextComponent", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: Router, useValue: router },
+        {
+          provide: SendPolicyService,
+          useValue: mock<SendPolicyService>({ creatableSendTypes$: of([]) }),
+        },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
         // `viewModel$` takes a userId and returns the stream, so the double is a function.
         { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },

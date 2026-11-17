@@ -58,9 +58,11 @@
           [canCreateCipher]="canCreateCipher()"
           [canCreateFolder]="true"
           [canCreateSshKey]="true"
+          [sendTypes]="sendTypes()"
           [disabled]="!canCreateCipher()"
           (cipherAdded)="onAddCipher.emit($event)"
           (folderAdded)="onAddFolder.emit()"
+          (sendAdded)="onAddSend.emit($event)"
           (onAddItemDialog)="onAddItemDialog.emit()"
         />
       </div>
