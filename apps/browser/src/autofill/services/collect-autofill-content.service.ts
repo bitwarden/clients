@@ -81,10 +81,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private ruleFailureFallback: boolean | undefined = undefined;
   private ruleQualificationResult: QualificationResult | undefined = undefined;
   private ruleQualificationService?: RuleQualificationService;
-  // Flipped true whenever a collection path (targeted, heuristic, or bypass)
-  // produces page details for this frame. Reset on cache-clear and on
-  // navigation. Read by the child-frame fallback handler to skip a redundant
-  // bypass when the parent dispatched to a frame that already filled.
+  // Flipped true when this frame's own `getPageDetails` call resolves page
+  // details (targeted, heuristic, or bypass). Not flipped by
+  // `applyExternalTargetedFields`, which resolves using a parent frame's
+  // rule. Reset on cache-clear and on navigation. Read by the child-frame
+  // fallback handler to skip a redundant bypass when the parent dispatched
+  // to a frame that already filled from its own rule.
   private resolvedFields = false;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();

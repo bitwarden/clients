@@ -851,7 +851,7 @@ describe("DefaultRuleQualificationService", () => {
       expect(autofillUtils.sendExtensionMessage).not.toHaveBeenCalled();
     });
 
-    it("does not touch field caches when deriving iframe targets (SD-M3.5-2)", async () => {
+    it("does not touch field caches when deriving iframe targets", async () => {
       // The collect service's cache-mutating methods must not fire during
       // dispatch derivation. The derivation is a pure DOM read.
       const iframe = document.createElement("iframe");

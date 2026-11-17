@@ -47,10 +47,14 @@ interface CollectAutofillContentService extends AutofillMonitor {
    */
   isElementFormFieldElement(element: Element): boolean;
   /**
-   * Returns whether this frame has already resolved fields through any
-   * collection path (targeted, heuristic, or bypass). Used by child frames
-   * to skip a redundant bypass when a parent frame dispatches
-   * `runFillAssistHeuristicFallback` to an iframe that already filled.
+   * Returns whether this frame has already resolved fields via its own
+   * `getPageDetails` call (targeted, heuristic, or bypass). Used by child
+   * frames to skip a redundant bypass when a parent frame dispatches
+   * `runFillAssistHeuristicFallback` to an iframe that already filled from
+   * its own matching rule.
+   *
+   * Does not count `applyExternalTargetedFields`, which resolves fields
+   * from a parent frame's rule rather than the child's own.
    */
   hasResolvedTargetedFields(): boolean;
   /**
