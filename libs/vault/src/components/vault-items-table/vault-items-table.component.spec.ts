@@ -335,7 +335,7 @@ describe("VaultItemsTableComponent", () => {
 
   /** The component's single filter predicate, which the table derives every other state from. */
   function applyFilter(cipher: CipherViewLike, values: Record<string, unknown>): boolean {
-    return component["filter"](cipher, values as never);
+    return component["filter"]()(cipher, values as never);
   }
 
   /** The projected `bit-table-v2` instance, for driving its registered `FilterControl`s directly. */
@@ -692,6 +692,39 @@ describe("VaultItemsTableComponent", () => {
       filterControl("folder").setValue(["folder-1"]);
 
       expect(bitTable().optionCount("folder", ["folder-2"])).toBe(2);
+    });
+
+    it("counts the shared folder and folder chips as the predicate filters them", () => {
+      const ciphers = [
+        cipherView({
+          organizationId: "org-1" as never,
+          collectionIds: ["eng"] as never,
+          folderId: "folder-1" as never,
+        }),
+        cipherView({ organizationId: "org-1" as never, collectionIds: ["eng", "fin"] as never }),
+        cipherView({
+          organizationId: "org-1" as never,
+          type: CipherType.Card,
+          collectionIds: ["fin"] as never,
+        }),
+        cipherView({ collectionIds: [] as never, folderId: "folder-2" as never }),
+      ];
+      fixture.componentRef.setInput("ciphers", ciphers);
+      fixture.detectChanges();
+      filterControl("type").setValue(CipherType.Login);
+      const byPredicate = (key: string, value: unknown) =>
+        ciphers.filter((cipher) => applyFilter(cipher, { type: CipherType.Login, [key]: value }))
+          .length;
+
+      const sharedFolders = [null, ["eng"], ["fin"], ["eng", "fin"], ["legal"]];
+      const folders = [null, ["folder-1"], ["folder-2"], [NO_FOLDER], ["folder-1", NO_FOLDER]];
+
+      expect(bitTable().optionCounts("sharedFolder", sharedFolders)).toEqual(
+        sharedFolders.map((value) => byPredicate("sharedFolder", value)),
+      );
+      expect(bitTable().optionCounts("folder", folders)).toEqual(
+        folders.map((value) => byPredicate("folder", value)),
+      );
     });
   });
 

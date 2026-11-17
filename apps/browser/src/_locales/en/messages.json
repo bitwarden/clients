@@ -3819,6 +3819,33 @@
   "sendTypeFile": {
     "message": "File"
   },
+  "item": {
+    "message": "Item"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
+  },
+  "pendingDeletion": {
+    "message": "Pending deletion"
+  },
   "allSends": {
     "message": "All Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7148,7 +7175,7 @@
   },
   "desktopApp": {
     "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop app $COUNT$",
@@ -7160,6 +7187,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Website added"
   },
@@ -7168,9 +7199,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Add website or app"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Delete website"
@@ -8258,8 +8286,8 @@
   "howToManageMyVault": {
     "message": "How do I manage my vault?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8267,17 +8295,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
   },
    "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"

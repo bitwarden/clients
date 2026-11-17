@@ -798,6 +798,7 @@ describe("VaultItemDialogComponent", () => {
     it("shows the revealed view and re-reads permissions when a reveal begins", async () => {
       await open();
       canEditCipherReturnValue$.next(true);
+      canDeleteCipherReturnValue$.next(true);
 
       display$.next(revealedView);
       await settle();
@@ -809,8 +810,12 @@ describe("VaultItemDialogComponent", () => {
         revealedView,
         false,
       );
-      // Delete stays blocked for a revealed cipher.
-      expect(component["showDeleteButton"]).toBe(false);
+      expect(component["canDelete"]).toBe(true);
+      expect(component["showDeleteButton"]).toBe(true);
+      expect(cipherAuthorizationServiceMock.canDeleteCipher$).toHaveBeenCalledWith(
+        revealedView,
+        false,
+      );
       // The form reads the revealed view through the form service, never from `originalCipher`.
       expect(component["formConfig"].originalCipher).toBe(storedCipher);
     });

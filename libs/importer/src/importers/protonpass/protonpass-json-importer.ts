@@ -3,6 +3,7 @@
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -71,8 +72,9 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
   constructor(
     private i18nService: I18nService,
     private configService: ConfigService,
+    logService: LogService,
   ) {
-    super();
+    super(logService);
   }
 
   private processExtraFields(cipher: CipherView, extraFields: ProtonPassItemExtraField[] = []) {
